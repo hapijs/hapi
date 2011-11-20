@@ -1,0 +1,266 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'publish' ]
+info using npm@1.0.105
+info using node@v0.6.1-pre
+verbose config file /home/eran/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose publish [ '.' ]
+silly testEngine { name: 'hapi',
+silly testEngine   description: 'HTTP API Server based on Express with native OAuth 2.0 support',
+silly testEngine   version: '0.0.1',
+silly testEngine   author: { name: 'Eran Hammer-Lahav', email: 'eran@hueniverse.com' },
+silly testEngine   repository: { type: 'git', url: 'git://github.com/hueniverse/hapi.git' },
+silly testEngine   main: 'index',
+silly testEngine   keywords: [ 'http', 'mac', 'authentication', 'oauth', 'api' ],
+silly testEngine   engines: { node: '>=0.6.0' },
+silly testEngine   dependencies: 
+silly testEngine    { express: '2.x.x',
+silly testEngine      mac: '0.x.x',
+silly testEngine      validator: '0.x.x',
+silly testEngine      emailjs: '0.x.x' },
+silly testEngine   _npmUser: { name: 'hueniverse', email: 'eran@hueniverse.com' },
+silly testEngine   _id: 'hapi@0.0.1',
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.105',
+silly testEngine   _nodeVersion: 'v0.6.1-pre',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   scripts: {} }
+verbose caching /home/eran/code/hapi/package.json
+verbose loadDefaults hapi@0.0.1
+info prepublish hapi@0.0.1
+verbose cache add [ '.', null ]
+silly cache add: name, spec, args [ undefined, '.', [ '.', null ] ]
+verbose parsed url { pathname: '.', path: '.', href: '.' }
+silly testEngine { name: 'hapi',
+silly testEngine   description: 'HTTP API Server based on Express with native OAuth 2.0 support',
+silly testEngine   version: '0.0.1',
+silly testEngine   author: { name: 'Eran Hammer-Lahav', email: 'eran@hueniverse.com' },
+silly testEngine   repository: { type: 'git', url: 'git://github.com/hueniverse/hapi.git' },
+silly testEngine   main: 'index',
+silly testEngine   keywords: [ 'http', 'mac', 'authentication', 'oauth', 'api' ],
+silly testEngine   engines: { node: '>=0.6.0' },
+silly testEngine   dependencies: 
+silly testEngine    { express: '2.x.x',
+silly testEngine      mac: '0.x.x',
+silly testEngine      validator: '0.x.x',
+silly testEngine      emailjs: '0.x.x' },
+silly testEngine   _npmUser: { name: 'hueniverse', email: 'eran@hueniverse.com' },
+silly testEngine   _id: 'hapi@0.0.1',
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.105',
+silly testEngine   _nodeVersion: 'v0.6.1-pre',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   path: '/home/eran/code/hapi',
+silly testEngine   bundleDependencies: [] }
+verbose caching package.json
+verbose loadDefaults hapi@0.0.1
+verbose pack /home/eran/code/hapi /tmp/npm-1321821944956/1321821944956-0.1136798276565969/tmp.tgz
+silly makeList /home/eran/code/hapi
+verbose mkdir (expected) error ENOENT, no such file or directory '/tmp/npm-1321821944956'
+verbose mkdir (expected) error ENOENT, no such file or directory '/tmp/npm-1321821944956/1321821944956-0.1136798276565969'
+verbose mkdir done: /tmp/npm-1321821944956/1321821944956-0.1136798276565969 755
+verbose mkdir'ed /tmp/npm-1321821944956/1321821944956-0.1136798276565969
+verbose tar about to write tar and gzip it.
+silly tar args [ '-czvf', '-', '-T', '-' ]
+silly spawning [ 'tar', [ '-czvf', '-', '-T', '-' ], '/home/eran/code' ]
+verbose mkdir (expected) error ENOENT, no such file or directory '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents'
+verbose mkdir (expected) error ENOENT, no such file or directory '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm'
+verbose mkdir done: /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm 755
+verbose unpack_ uid, gid [ undefined, undefined ]
+verbose unpackTarget /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package
+silly gunzTarPerm modes [ '755', '644' ]
+silly spawning [ 'tar',
+silly spawning   [ '-zmvxpf',
+silly spawning     '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/tmp.tgz' ],
+silly spawning   '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm' ]
+silly tar out hapi/Readme.md
+silly tar out hapi/package.json
+silly tar out hapi/.gitignore
+silly tar out hapi/index.js
+silly tar out hapi/LICENSE
+silly tar out hapi/lib/server.js
+silly tar out hapi/lib/log.js
+silly tar out hapi/lib/base64.js
+silly tar out hapi/lib/error.js
+silly tar out hapi/lib/utils.js
+silly tar out hapi/lib/config.js
+silly tar out hapi/lib/hapi.js
+silly tar exit 0
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/Readme.md
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/package.json
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/.gitignore
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/index.js
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/LICENSE
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib/server.js
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib/log.js
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib/base64.js
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib/error.js
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib/utils.js
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib/hapi.js
+silly asyncMap in gTP /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi/lib/config.js
+silly chmod hapi 755
+silly chmod Readme.md 755
+silly chmod package.json 755
+silly chmod .gitignore 644
+silly chmod index.js 755
+silly chmod lib 755
+silly chmod hapi.js 755
+verbose gunzed /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi
+verbose rm'ed /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package
+verbose renamed [ '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/___package.npm/hapi',
+verbose renamed   '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package' ]
+silly testEngine { name: 'hapi',
+silly testEngine   description: 'HTTP API Server based on Express with native OAuth 2.0 support',
+silly testEngine   version: '0.0.1',
+silly testEngine   author: { name: 'Eran Hammer-Lahav', email: 'eran@hueniverse.com' },
+silly testEngine   repository: { type: 'git', url: 'git://github.com/hueniverse/hapi.git' },
+silly testEngine   main: 'index',
+silly testEngine   keywords: [ 'http', 'mac', 'authentication', 'oauth', 'api' ],
+silly testEngine   engines: { node: '>=0.6.0' },
+silly testEngine   dependencies: 
+silly testEngine    { express: '2.x.x',
+silly testEngine      mac: '0.x.x',
+silly testEngine      validator: '0.x.x',
+silly testEngine      emailjs: '0.x.x' },
+silly testEngine   _npmUser: { name: 'hueniverse', email: 'eran@hueniverse.com' },
+silly testEngine   _id: 'hapi@0.0.1',
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.105',
+silly testEngine   _nodeVersion: 'v0.6.1-pre',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   path: '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package' }
+verbose caching /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package/package.json
+verbose loadDefaults hapi@0.0.1
+verbose tarball contents [ 'package' ]
+verbose from cache /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package/package.json
+verbose pack /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package /home/eran/.npm/hapi/0.0.1/package.tgz
+silly makeList /tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents/package
+verbose mkdir'ed /home/eran/.npm/hapi/0.0.1
+verbose tar about to write tar and gzip it.
+silly tar args [ '-czvf', '-', '-T', '-' ]
+silly spawning [ 'tar',
+silly spawning   [ '-czvf', '-', '-T', '-' ],
+silly spawning   '/tmp/npm-1321821944956/1321821944956-0.1136798276565969/contents' ]
+verbose mkdir (expected) error ENOENT, no such file or directory '/home/eran/.npm/hapi/0.0.1/___package.npm'
+verbose mkdir done: /home/eran/.npm/hapi/0.0.1/___package.npm 755
+verbose unpack_ uid, gid [ undefined, undefined ]
+verbose unpackTarget /home/eran/.npm/hapi/0.0.1/package
+silly gunzTarPerm modes [ '755', '644' ]
+silly spawning [ 'tar',
+silly spawning   [ '-zmvxpf', '/home/eran/.npm/hapi/0.0.1/package.tgz' ],
+silly spawning   '/home/eran/.npm/hapi/0.0.1/___package.npm' ]
+silly tar out package/Readme.md
+silly tar out package/.gitignore
+silly tar out package/package.json
+silly tar out package/index.js
+silly tar out package/LICENSE
+silly tar out package/lib/server.js
+silly tar out package/lib/log.js
+silly tar out package/lib/base64.js
+silly tar out package/lib/error.js
+silly tar out package/lib/utils.js
+silly tar out package/lib/hapi.js
+silly tar out package/lib/config.js
+silly tar exit 0
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/Readme.md
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/package.json
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/.gitignore
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/index.js
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/LICENSE
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib/server.js
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib/log.js
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib/base64.js
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib/error.js
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib/utils.js
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib/hapi.js
+silly asyncMap in gTP /home/eran/.npm/hapi/0.0.1/___package.npm/package/lib/config.js
+silly chmod package 755
+silly chmod lib 755
+verbose gunzed /home/eran/.npm/hapi/0.0.1/___package.npm/package
+verbose rm'ed /home/eran/.npm/hapi/0.0.1/package
+verbose renamed [ '/home/eran/.npm/hapi/0.0.1/___package.npm/package',
+verbose renamed   '/home/eran/.npm/hapi/0.0.1/package' ]
+silly testEngine { name: 'hapi',
+silly testEngine   description: 'HTTP API Server based on Express with native OAuth 2.0 support',
+silly testEngine   version: '0.0.1',
+silly testEngine   author: { name: 'Eran Hammer-Lahav', email: 'eran@hueniverse.com' },
+silly testEngine   repository: { type: 'git', url: 'git://github.com/hueniverse/hapi.git' },
+silly testEngine   main: 'index',
+silly testEngine   keywords: [ 'http', 'mac', 'authentication', 'oauth', 'api' ],
+silly testEngine   engines: { node: '>=0.6.0' },
+silly testEngine   dependencies: 
+silly testEngine    { express: '2.x.x',
+silly testEngine      mac: '0.x.x',
+silly testEngine      validator: '0.x.x',
+silly testEngine      emailjs: '0.x.x' },
+silly testEngine   _npmUser: { name: 'hueniverse', email: 'eran@hueniverse.com' },
+silly testEngine   _id: 'hapi@0.0.1',
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.105',
+silly testEngine   _nodeVersion: 'v0.6.1-pre',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   dist: 
+silly testEngine    { shasum: 'f9e9036b894ac2b73bb48ebb9cfadddfda042f7f',
+silly testEngine      tarball: 'http://registry.npmjs.org/hapi/-/hapi-0.0.1.tgz' } }
+verbose caching /home/eran/.npm/hapi/0.0.1/package/package.json
+verbose loadDefaults hapi@0.0.1
+silly updated sha bytes 8959
+info shasum f9e9036b894ac2b73bb48ebb9cfadddfda042f7f
+info shasum /home/eran/.npm/hapi/0.0.1/package.tgz
+verbose from cache /home/eran/.npm/hapi/0.0.1/package/package.json
+verbose chmod /home/eran/.npm/hapi/0.0.1/package.tgz 644
+verbose chown [ '/home/eran/.npm/hapi/0.0.1/package.tgz', 1000, 1000 ]
+silly publish { name: 'hapi',
+silly publish   description: 'HTTP API Server based on Express with native OAuth 2.0 support',
+silly publish   version: '0.0.1',
+silly publish   author: { name: 'Eran Hammer-Lahav', email: 'eran@hueniverse.com' },
+silly publish   repository: { type: 'git', url: 'git://github.com/hueniverse/hapi.git' },
+silly publish   main: 'index',
+silly publish   keywords: [ 'http', 'mac', 'authentication', 'oauth', 'api' ],
+silly publish   engines: { node: '>=0.6.0' },
+silly publish   dependencies: 
+silly publish    { express: '2.x.x',
+silly publish      mac: '0.x.x',
+silly publish      validator: '0.x.x',
+silly publish      emailjs: '0.x.x' },
+silly publish   _npmUser: { name: 'hueniverse', email: 'eran@hueniverse.com' },
+silly publish   _id: 'hapi@0.0.1',
+silly publish   devDependencies: {},
+silly publish   _engineSupported: true,
+silly publish   _npmVersion: '1.0.105',
+silly publish   _nodeVersion: 'v0.6.1-pre',
+silly publish   _defaultsLoaded: true,
+silly publish   dist: 
+silly publish    { shasum: 'f9e9036b894ac2b73bb48ebb9cfadddfda042f7f',
+silly publish      tarball: 'http://registry.npmjs.org/hapi/-/hapi-0.0.1.tgz' } }
+verbose PUT hapi
+verbose raw, before any munging hapi
+verbose url resolving [ 'https://registry.npmjs.org/', './hapi' ]
+verbose url resolved https://registry.npmjs.org/hapi
+verbose GET hapi
+verbose raw, before any munging hapi
+verbose url resolving [ 'https://registry.npmjs.org/', './hapi' ]
+verbose url resolved https://registry.npmjs.org/hapi
+info Already published hapi@0.0.1
+verbose uploading bin dists []
+ERR! publish fail Cannot publish over existing version.
+ERR! publish fail Bump the 'version' field, set the --force flag, or
+ERR! publish fail     npm unpublish 'hapi@0.0.1'
+ERR! publish fail and try again
+ERR! 
+ERR! System Linux 3.0.0-12-server
+ERR! command "node" "/usr/local/bin/npm" "publish"
+ERR! cwd /home/eran/code/hapi
+ERR! node -v v0.6.1-pre
+ERR! npm -v 1.0.105
+ERR! code EPUBLISHCONFLICT
+verbose exit [ 1, true ]
