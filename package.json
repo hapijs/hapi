@@ -1,7 +1,7 @@
 {
   "name" : "hapi",
   "description" : "HTTP API Server based on Express with native OAuth 2.0 support",
-  "version" : "0.0.2",
+  "version" : "0.0.3",
   "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository" : "git://github.com/hueniverse/hapi",
   "main" : "index",
@@ -11,6 +11,7 @@
     "express": "2.x.x",
     "mac": "0.x.x",
     "validator": "0.x.x",
-    "emailjs": "0.x.x"
+    "emailjs": "0.x.x",
+    "sugar": "1.1.x"
   }
 }
