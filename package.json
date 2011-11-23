@@ -1,7 +1,7 @@
 {
   "name" : "hapi",
   "description" : "HTTP API Server based on Express with native OAuth 2.0 support",
-  "version" : "0.0.4",
+  "version" : "0.0.5",
   "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository" : "git://github.com/hueniverse/hapi",
   "main" : "index",
