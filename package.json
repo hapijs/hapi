@@ -1,11 +1,11 @@
 {
   "name" : "hapi",
-  "description" : "HTTP API Server based on Express with native OAuth 2.0 support",
-  "version" : "0.0.6",
+  "description" : "HTTP API Server framework based on Express",
+  "version" : "0.1.0",
   "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
-  "repository" : "git://github.com/hueniverse/hapi",
+  "repository" : "git://github.com/walmartlabs/hapi",
   "main" : "index",
-  "keywords": ["http", "mac", "authentication", "oauth", "api"],
+  "keywords": ["http", "mac", "authentication", "oauth", "api", "express"],
   "engines" : {"node" : ">=0.6.0"},
   "dependencies": {
     "express": "2.x.x",
