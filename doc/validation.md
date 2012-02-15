@@ -4,8 +4,12 @@ Author: Van Nguyen <vnguyen@walmart.com>
 Date: Wed Feb 15 2012 17:30:00 GMT-0800 (PST)
 RE: brisbane.onjira.com/browse/BLAMMO-4
 
-## Introduction & Design Goals
-My current interpretation of Hapi: Hapi is an (eventually) open-source API server designed to reverse proxy & cache requests to Walmart's Java API (mobile.walmart.com).  As such, Hapi should be fast, secure, and stable.  
+## Introduction
+### Primary Use Case
+https://mobile.walmart.com/m/j?service=ExtendedItem&method=get&p1=12016269&version=2&e=1 => returns JSON object
+
+### Design Goals
+My interpretation of Hapi: Hapi is an (eventually) open-source API server designed to reverse proxy & cache requests to Walmart's Java API (mobile.walmart.com).  As such, Hapi should be fast, secure, and stable.  But be aware, my interpretation could be wrong; this document is intended to be an initial starting point for further discussion or debate.
 
 As an intermediate, Hapi inherently adds some unavoidable latency - particularly for initial, uncached requests. This latency should be minimized as much as possible.
 
