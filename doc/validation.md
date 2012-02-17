@@ -2,7 +2,7 @@
 
 * Author: Van Nguyen <vnguyen@walmart.com>
 * Date: Wed Feb 15 2012 17:30:00 GMT-0800 (PST)
-* RE: brisbane.onjira.com/browse/BLAMMO-4
+* RE: [brisbane.onjira.com/browse/BLAMMO-4](brisbane.onjira.com/browse/BLAMMO-4)
 
 ## Introduction or "Everything I Know So Far"
 Walmart is embarking on the epic undertaking of modernizing our Mobile API using Node.js.  Node.js will allow us to better serve our customers through significant improvements in developer ergonomics, mobile performance, security, & testing [1]. 
@@ -11,11 +11,14 @@ Blammo is a collection of Node.js API frameworks & servers: Hapi, Joi, Ren, & St
 
 Hapi, the Node.js HTTP API Server, will allow us to rapidly build API services while also reliably & performantly proxying existing services in the meantime. For the purposes of reverse proxying existing services, the task is relatively simple and appears to already be functional (but not yet deployed as of Feb '12, AFAIK). 
 
-For the purposes of replacing the existing services, the task is mildly more complex - we are essentially creating a large-scale web/network application. Hapi is based on Express, a Node.js-ified, Sinatra-inspired web framework.  
+For the purposes of replacing the existing services, the task is mildly more complex - we are essentially creating a large-scale web/network application. Hapi is based on Express, a Node.js-ified, Sinatra-inspired web framework.  The design of Hapi will be specific to our needs (creating an API service) rather than a generalized web framework for all use cases.  Hapi will be built in parallel with the other Blammo tools; features added in one will influence the others and so on.  The initial version of Hapi will likely be an experimental, un-abstracted shim - it basically needs to start working as soon as possible.  
 
-TODO: conclusion
+### Query Validation
+
+The initial version of Hapi will simply reverse proxy requests, thus, validation can be done on the Java services side.  But, in the future, Blammo will respond to requests via its own business logic.  To do so, it must handle issues like security, authentication, validation, etc.  This document details a proposal for Query Validation and is intended to be an initial starting point for further discussion and refinement.
 
 [1] The listed benefits come from Eran's 2/16 Blammo presentation.
+
 
 ## Overview of Potential Solutions
 The following list of evaluated solutions is a small sampling of the infinitely many possible solutions.  They are presented in random order.
@@ -25,7 +28,7 @@ The fastest way to getting a working "shim" would probably be to hardcode type v
 
     exports.validateQuery = function(req, parameters, callback){
       // ...
-
+      
       var isInvalid = false;
       for (var i in req.query) {
         if (req.query.hasOwnProperty(i)) {
@@ -48,9 +51,8 @@ The above snippet assumes that the same types will be used for Payload vs Query 
 
 #### Disadvantages
 
-* Hardcoded, Not Portable
+* Hardcoded, Static, Not Portable
 * Duplicated Code
-* Requires modification to accommodate changes to spec
 
 Hardcoded means that in the event a new type were necessary, a developer would have to be called in to modify the code (as opposed to being parametric and maybe opening up an api (on-demand or on deploy) that can update the type checking... e.g. custom Enums).
 
@@ -68,7 +70,7 @@ The new `validateQuery` function could be generated from another function which 
          }
       }
     }
-
+    
     exports.QueryValidatorFactory = function(routes, options){
       options = options || {}; // Just in case we need custom options not in routes
       
@@ -79,16 +81,18 @@ The new `validateQuery` function could be generated from another function which 
       return validateQuery;
     }
 
-This adds the unique ability to have stateful & distinct validators - . However, the value gained is dubious & questionable.
+This adds the unique ability to have stateful & distinct validators - use the factory to create a separate validateQuery for each use case. However, the actual value gained is questionable.
 
 
 #### Advantages
 
-* Dubious added features
+* Fast to implement
+* Centralized Code Locality
 
 #### Disadvantages
 
-* Possibly unnecessary/extraneous function calls
+* Dubious value in features gained
+* Possibly unnecessary/extraneous function calls (and thus increased stack usage)
 * Not Portable
 
 
@@ -122,6 +126,8 @@ This adds the unique ability to have stateful & distinct validators - . However,
           return null;
         }
       }
+      
+      // TODO: Recursive directory walk: load any and all pre-specified Types
     }
     
     var Types = new BaseTypes();
@@ -129,6 +135,7 @@ This adds the unique ability to have stateful & distinct validators - . However,
     // All validate functions should have the same structure
     //   can have optional 3rd argument for callback
     //   (for async validations, if necessary)
+    //   (does not have to match this, just must be consistent)
     String.prototype.validate = function(s, options){
       // Valid string => returns null; else error string
       options = options || {};
@@ -168,62 +175,28 @@ This adds the unique ability to have stateful & distinct validators - . However,
       async.parallel(collection, callback);
     }
 
-The Type Registry offers a number of excellent advantages: general utility, extensibility, clarity.  The most powerful advantage is that it is useful outside of Validation - you can use registered types in other parts of the code to ensure strong cross-compatibility & decoupling.  It is extensible - all types are implemented in the same process so developers can add their own types at any time.  It is also logical and intuitive - 
+
+The Type Registry offers a number of excellent advantages: general utility, extensibility, clarity.  The most powerful advantage is that it is useful outside of Validation - you can use registered types in other parts of the code to ensure strong cross-compatibility & decoupling.  It is extensible - all types are implemented in the same process so developers can add their own types at any time.  It is also logical and intuitive - the abstraction works for every type we could support programmatically in JavaScript.
 
 #### Advantages
 
 * Fast to implement
-* Useful beyond Validation (decoupled)
+* Decoupled: Useful beyond Validation
 * Extensible: handles any possible use-case we need
-* Add new types on the fly or just for one resource
+* Abstracted/Generalized: Add new types on the fly or just for one resource
 
 #### Disadvantages
 
 * Extra Layer of Abstraction
 
+In some cases, abstractions can leak in unexpected ways.  
+
 
 ## Proposed Solution
 
+Of the solutions presented here, Hardcoded & Type Registry offer reasonable compromises.  The best solution depends on our specific constraints (mostly just time).  Either solution can easily be extended or modified to accommodate additional constraints.  
 
 
 
-
-
-
-
-
-
-
-
-
-# DEPRECATED || Notes
-
-## Solution Adv/Disadv Table
-
-### Advantages
-<table>
-  <thead>
-    <tr>
-      <td>Advantages</td>
-      <td>Shim</td>
-      <td>Factory</td>
-      <td>Type Registry</td>
-    </tr>
-  </thead>
-</table>
-
-### Primary Use Case
-https://mobile.walmart.com/m/j?service=ExtendedItem&method=get&p1=12016269&version=2&e=1 => returns JSON object
-
-### Design Goals
-My interpretation of Hapi: Hapi is an (eventually) open-source API server designed to reverse proxy & cache requests to Walmart's Java API (mobile.walmart.com).  As such, Hapi should be fast, secure, and stable.  But be aware, my interpretation could be wrong; this document is intended to be an initial starting point for further discussion or debate.
-
-As an intermediate, Hapi inherently adds some unavoidable latency - particularly for initial, uncached requests. This latency should be minimized as much as possible.
-
-As a publically accessible endpoint, Hapi will be exposed to the elements.  Hapi should not be vulnerable to security exploits (e.g. improper UTF-16 handling & buffer overflows).  
-
-The protected API may not change that often but Hapi should have some element of configurability.  It should also be highly stable - TODO: finish this intro
-
-## Query Validation: The Problem
 
 
