@@ -13,5 +13,8 @@
     "validator": "0.x.x",
     "emailjs": "0.x.x",
     "sugar": "1.1.x"
+  },
+  "devDependencies": {
+    "mocha": "0.x.x"
   }
 }
