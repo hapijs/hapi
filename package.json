@@ -1,7 +1,7 @@
 {
   "name" : "hapi",
   "description" : "HTTP API Server framework based on Express",
-  "version" : "0.1.2",
+  "version" : "0.1.3",
   "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository" : "git://github.com/walmartlabs/hapi",
   "main" : "index",
