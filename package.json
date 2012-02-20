@@ -11,8 +11,7 @@
     "express": "2.x.x",
     "mac": "0.x.x",
     "validator": "0.x.x",
-    "emailjs": "0.x.x",
-    "sugar": "1.1.x"
+    "emailjs": "0.x.x"
   },
   "devDependencies": {
     "mocha": "0.x.x",
