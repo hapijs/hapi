@@ -31,9 +31,7 @@ describe('Hapi', function(){
       done();
     })
     
-    it("should return proper response for basic handler", function(done){
-      server.start();
-      
+    it("should return proper response for basic handler", function(done){      
       request(config.uri + "/", function(err, res, body){
         should.not.exist(err);
         res.statusCode.should.equal(200);
