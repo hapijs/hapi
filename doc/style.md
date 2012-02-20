@@ -2,6 +2,9 @@
 
 **This document is a Work in Progress (WIP)**
 
+[Felix's Style Guide](http://nodeguide.com/style.html)
+
+
 
 ## Comments
 TODO:
