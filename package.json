@@ -15,6 +15,8 @@
     "sugar": "1.1.x"
   },
   "devDependencies": {
-    "mocha": "0.x.x"
+    "mocha": "0.x.x",
+    "request": "2.9.100",
+    "should": "0.x.x"
   }
 }
