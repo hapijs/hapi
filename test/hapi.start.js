@@ -37,7 +37,7 @@ describe('Hapi', function(){
       request(config.uri + "/", function(err, res, body){
         should.not.exist(err);
         res.statusCode.should.equal(200);
-        console.log();
+        JSON.parse(body).status.should.equal(msgBody.status);
         
         done();
       })
