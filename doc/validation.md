@@ -5,7 +5,7 @@
 
 ## Query Validation
 
-The initial version of Hapi will simply reverse proxy requests, thus, validation can be done on the Java services side.  But, in the future, Blammo will respond to requests via its own business logic.  To do so, it must handle issues like security, authentication, validation, etc.  This document details a proposal for Query Validation and is intended to be an initial starting point for further discussion and refinement.
+This document details a proposal for Query Validation and is intended to be an initial starting point for further discussion and refinement.
 
 ## Overview of Potential Solutions
 The following list of evaluated solutions is a small sampling of the infinitely many possible solutions.  They are presented in random order.
