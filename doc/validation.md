@@ -2,23 +2,10 @@
 
 * Author: Van Nguyen <vnguyen@walmart.com>
 * Date: Wed Feb 15 2012 17:30:00 GMT-0800 (PST)
-* RE: [brisbane.onjira.com/browse/BLAMMO-4](brisbane.onjira.com/browse/BLAMMO-4)
 
-## Introduction or "Everything I Know So Far"
-Walmart is embarking on the epic undertaking of modernizing our Mobile API using Node.js.  Node.js will allow us to better serve our customers through significant improvements in developer ergonomics, mobile performance, security, & testing [1]. 
-
-Blammo is a collection of Node.js API frameworks & servers: Hapi, Joi, Ren, & Stimpy. Together, they form the building blocks we will use to replace our aging Java-based API by Sept '12. By March, Blammo will be rolled-out to transparently & seamlessly reverse proxy to the Java API. Then, by April, Blammo will be ready for new services, features, & functionality.  
-
-Hapi, the Node.js HTTP API Server, will allow us to rapidly build API services while also reliably & performantly proxying existing services in the meantime. For the purposes of reverse proxying existing services, the task is relatively simple and appears to already be functional (but not yet deployed as of Feb '12, AFAIK). 
-
-For the purposes of replacing the existing services, the task is mildly more complex - we are essentially creating a large-scale web/network application. Hapi is based on Express, a Node.js-ified, Sinatra-inspired web framework.  The design of Hapi will be specific to our needs (creating an API service) rather than a generalized web framework for all use cases.  Hapi will be built in parallel with the other Blammo tools; features added in one will influence the others and so on.  The initial version of Hapi will likely be an experimental, un-abstracted shim - it basically needs to start working as soon as possible.  
-
-### Query Validation
+## Query Validation
 
 The initial version of Hapi will simply reverse proxy requests, thus, validation can be done on the Java services side.  But, in the future, Blammo will respond to requests via its own business logic.  To do so, it must handle issues like security, authentication, validation, etc.  This document details a proposal for Query Validation and is intended to be an initial starting point for further discussion and refinement.
-
-[1] The listed benefits come from Eran's 2/16 Blammo presentation.
-
 
 ## Overview of Potential Solutions
 The following list of evaluated solutions is a small sampling of the infinitely many possible solutions.  They are presented in random order.
