@@ -43,5 +43,16 @@ describe('Hapi', function(){
         done();
       })
     })
+    
+    it("should return expected response for basic get handler after afterEach & beforeEach call", function(done){      
+      request(config.uri + "/", function(err, res, body){
+        should.not.exist(err);
+        res.should.have.property('statusCode');
+        res.statusCode.should.equal(200);
+        JSON.parse(body).status.should.equal(msgBody.status);
+        
+        done();
+      })
+    })
   })
 })
