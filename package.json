@@ -1,7 +1,7 @@
 {
   "name" : "hapi",
   "description" : "HTTP API Server framework based on Express",
-  "version" : "0.2.0",
+  "version" : "0.2.1",
   "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository" : "git://github.com/walmartlabs/hapi",
   "main" : "index",
@@ -9,6 +9,7 @@
   "engines" : {"node" : ">=0.6.0"},
   "dependencies": {
     "express": "2.x.x",
+    "qs": "0.4.x",
     "mac": "0.x.x",
     "validator": "0.x.x",
     "emailjs": "0.x.x"
