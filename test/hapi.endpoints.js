@@ -22,7 +22,7 @@ describe('Hapi', function(){
       Hapi.Process.initialize({
         name: 'Test API Server'
       });
-      server = Hapi.Server.create(config, endpoints);
+      server = Hapi.Server.create('localhost', 3000, config, endpoints);
       server.start();
       
       done();
