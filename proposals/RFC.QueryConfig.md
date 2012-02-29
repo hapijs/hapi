@@ -22,6 +22,7 @@ TODO
     query: {"email": {type: "String"}} // use defaults
     query: {"username": {type: "String", required: false}} // optional parameter
     query: {"password": {type: "String", min: 6}} // override settings
+    query: {"email": {type: "String"}, "password": {type: "String"}} // multiple params
     
     // relationships
     query: {"CreditCardNumber": {type: "String", "AND": ["Name", "Expiration", "Code"]}, "Name": {type: "String", "AND": ["CreditCardNumber", "Expiration", "Code"]}, "Expiration": {type: "String", "AND": ["Name", "CreditCardNumber", "Code"]}, "Code": {type: "String", "AND": ["Name", "Expiration", "CreditCardNumber"]}} // all or nothing
@@ -38,6 +39,7 @@ TODO
     query: {"email": T("String")}
     query: {"username": T("String", {required: false})} 
     query: {"password": T("String", {min: 6})}
+    query: {"email": T("String"), "password": T("String")} // multiple params
     
     // relationship
     var CC_GRP = ["CreditCardNumber", "Name", "Expiration", "Code"];
@@ -50,14 +52,15 @@ TODO
 
 ### DSL
 
-    query: "String#email" // uses defaults
-    query: "String#username?" // optional param
-    query: "String#password.min(6)" // modify params
+    query: ["String#email"] // uses defaults
+    query: ["String#username?"] // optional param
+    query: ["String#password.min(6)"] // modify params
+    query: ["String#email", "String#password"] // multiple params
     
     // relationships
-    query: "String#CreditCardNumber < String#Name + Datetime#Expiration + String#Code" // all or nothing
-    query: "String#access_token | String#password" // XOR
-    query: "String#a.group(items) + String#b.group(items) + String#c.group(items)" // Generalized grouping
+    query: ["String#CreditCardNumber < String#Name + Datetime#Expiration + String#Code"] // all or nothing
+    query: ["String#access_token | String#password"] // XOR
+    query: ["String#a.group(items) + String#b.group(items) + String#c.group(items)"] // Generalized grouping
 
 * Lowest average verbosity
 * Human-readable
