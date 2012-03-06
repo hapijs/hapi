@@ -20,6 +20,6 @@
     "should": "0.x.x"
   },
   "scripts": {
-    "test": "make test"
+    "test": "make test && make tap"
   }
 }
