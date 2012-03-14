@@ -4,7 +4,8 @@ test:
 	@NODE_ENV=test ./node_modules/.bin/mocha --reporter $(REPORTER)
 
 lib-cov: rm-lib-cov
-	@jscoverage lib lib-cov
+	@#jscoverage lib lib-cov
+	@node ./node_modules/jscoverage/jscoverage.node lib lib-cov
 
 rm-lib-cov:
 	@rm -rf ./lib-cov/
