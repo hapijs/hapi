@@ -21,6 +21,6 @@
     "should": "0.x.x"
   },
   "scripts": {
-    "test": "make test && make tap"
+    "test": "make test && make unit"
   }
 }
