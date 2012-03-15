@@ -18,4 +18,7 @@ test-cov-html:
 tap:
 	@NODE_ENV=test ./node_modules/.bin/mocha -R tap > results.tap
 
+unit:
+	@NODE_ENV=test ./node_modules/.bin/mocha -R xunit > results.xml
+
 .PHONY: test tap
