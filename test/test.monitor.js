@@ -4,12 +4,31 @@ var should = require("should");
 describe("monitor", function(){
   describe('#cpu', function(){
     it("should return a fixed-decimal percentage string", function(done){
-      var output = monitor.cpu(function(err, percentage){
+      monitor.cpu(function(err, percentage){
         should.not.exist(err);
         should.exist(percentage);
         // percentage.should.have.length(4);
         done();
       });
+    })
+    
+    it("should be able to target a core by /proc/stat name", function(done){
+      var output = monitor.cpu("cpu0", function(err, percentage) {
+        should.not.exist(err);
+        should.exist(percentage);
+        done();
+      })
+    })
+  })
+  
+  describe("#pcpu", function(){
+    it("should return a string", function(done){
+      monitor.pcpu(function(err, percentage) {
+        should.not.exist(err);
+        should.exist(percentage);
+        
+        done();
+      })
     })
   })
   
