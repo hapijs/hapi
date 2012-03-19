@@ -27,7 +27,7 @@ describe("monitor", function(){
         should.not.exist(err);
         should.exist(percentage);
         
-        done();
+        done()
       })
     })
   })
@@ -51,6 +51,4 @@ describe("monitor", function(){
       done();
     })
   })
-  
-  // describe("")
 })
