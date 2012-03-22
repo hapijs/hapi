@@ -51,4 +51,15 @@ describe("monitor", function(){
       done();
     })
   })
+  
+  describe("#disk", function(){
+    it("should return valid percentage for default filesystem", function(done){
+      monitor.disk('/', function(err, percentage){
+        should.not.exist(err)
+        should.exist(percentage)
+        percentage.should.be.a("string")
+        done();
+      });
+    })
+  })
 })
