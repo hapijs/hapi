@@ -29,6 +29,14 @@ For #2, we expose a Hapi.server.use function which basically just wraps express'
     
     api.listen(port, AniviaClient.logListen);
 
+## Serialization
+
+Support MessagePack for faster serialization of JavaScript objects.  `node-msgpack` is faster than JSON.parse() and JSON.stringify().
+
+Example use case is for disk backup of anivia logs.  
+
+TODO: flesh out further
+
 ## Content Negotiation
 
 We do prefer JSON, but just like how we're asking the Java Services to transition from XML to JSON... we may need to eventually transition to something newer, hotter in a few years.  
