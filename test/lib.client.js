@@ -15,8 +15,6 @@ describe("Hapi.client", function(){
         should.not.exist(c.options[nullprops[i]]);
       }
       
-      
-      
       done();
     })
   })
