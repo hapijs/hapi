@@ -8,6 +8,7 @@
   "keywords": ["http", "mac", "authentication", "oauth", "api", "express"],
   "engines" : {"node" : ">=0.6.0"},
   "dependencies": {
+    "async": "0.1.18",
     "express": "2.x.x",
     "qs": "0.4.x",
     "mac": "0.x.x",
