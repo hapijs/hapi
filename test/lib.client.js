@@ -22,4 +22,8 @@ describe("Hapi.client", function(){
   describe("#request", function(){
     // it("should")
   })
+  
+  describe("#get", function(){
+    // TODO:
+  })
 })
