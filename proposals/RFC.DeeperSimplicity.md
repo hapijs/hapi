@@ -12,13 +12,13 @@ Here are my proposed abstractions:
 * Short-circuit-able Middleware (like express/connect style)
 * After each and EVERY request ('after' event)
 
-#1 & #3 use events - you can bind multiple functions on a given event and they will be iterated.  
+### 1 & #3 use events - you can bind multiple functions on a given event and they will be iterated.  
 
 For #2, we expose a Hapi.server.use function which basically just wraps express' use function and let the user control order of operations.
 
     var api = hapi.createServer();
     
-    api.use(hapi.Monitor.logger());
+    api.use(hapi.Monitor.logger(api));
     api.use(express.bodyParser());
     api.use(express.cookieParser());
     api.use(hapi.auth({scheme: 'oauth'}));
@@ -34,15 +34,17 @@ The above event names 'requestBegin' & 'requestEnd' suck.
 
 ## Serialization
 
-Support MessagePack for faster serialization of JavaScript objects.  `node-msgpack` is faster than JSON.parse() and JSON.stringify().
+Support MessagePack for faster serialization of JavaScript objects.  `node-msgpack` is faster than JSON.parse() and JSON.stringify() (90% faster in some cases...).
 
 Example use case is for disk backup of anivia logs.  
 
-TODO: flesh out further
+Once things are up and running, it is advisable to perform speed tests between our JSON.parse and writing msgpack.pack()'d strings to Mongo. We would likely see tremendous performance and disk space cost benefits.
 
 ## Content Negotiation
 
 On server listen, if no eventHandlers are bound to a given event, default ones can be bound (this way, default ones don't run if user specifies any handlers).
+
+TODO: add & revise
 
 ## Request-level helpers
 
@@ -53,6 +55,8 @@ TODO
 Instead of (req, reply){}, use standard express-style arguments (req, res, next){}.  Then, make reply functions as part of req or res object for content-type-specific responses.
 
     res.reply(data)
+
+This enables cross-hapi-express middleware to be used together without modification.  
 
 ### Content Negotiation
 
