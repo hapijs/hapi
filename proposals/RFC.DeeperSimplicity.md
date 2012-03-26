@@ -28,8 +28,18 @@ For #2, we expose a Hapi.server.use function which basically just wraps express'
     api.on('requestEnd', AniviaClient.logRequest);
     
     api.listen(port, AniviaClient.logListen);
+    
+The above event names 'requestBegin' & 'requestEnd' suck.
 
-The above event names 'requestBegin' & 'requestEnd' suck.  
+## Serialization
+
+Support MessagePack for faster serialization of JavaScript objects.  `node-msgpack` is faster than JSON.parse() and JSON.stringify().
+
+Example use case is for disk backup of anivia logs.  
+
+TODO: flesh out further
+
+## Content Negotiation
 
 On server listen, if no eventHandlers are bound to a given event, default ones can be bound (this way, default ones don't run if user specifies any handlers).
 
