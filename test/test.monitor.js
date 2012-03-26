@@ -33,13 +33,31 @@ describe("monitor", function(){
   })
   
   describe("#memory", function() {
-    it("should return used & total values", function(done){
+    it("should return non null value", function(done){
       var output = monitor.memory();
       
       should.exist(output);
-      should.exist(output.total);
-      should.exist(output.used);
+      done();
+    })
+    
+    it('should contain total RAM', function(done){
+      var output = monitor.memory();
       
+      should.exist(output.total);
+      done();
+    })
+    
+    it('should contain total rss RAM', function(done){
+      var output = monitor.memory();
+      
+      should.exist(output.rss);
+      done();
+    })
+    
+    it('should contain total heap RAM', function(done){
+      var output = monitor.memory();
+      
+      should.exist(output.heap);
       done();
     })
   });
