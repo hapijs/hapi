@@ -28,6 +28,8 @@ For #2, we expose a Hapi.server.use function which basically just wraps express'
     api.on('requestEnd', AniviaClient.logRequest);
     
     api.listen(port, AniviaClient.logListen);
+    
+The above event names 'requestBegin' & 'requestEnd' suck.
 
 ## Serialization
 
@@ -38,6 +40,20 @@ Example use case is for disk backup of anivia logs.
 TODO: flesh out further
 
 ## Content Negotiation
+
+On server listen, if no eventHandlers are bound to a given event, default ones can be bound (this way, default ones don't run if user specifies any handlers).
+
+## Request-level helpers
+
+TODO
+
+## Retain express callback arguments
+
+Instead of (req, reply){}, use standard express-style arguments (req, res, next){}.  Then, make reply functions as part of req or res object for content-type-specific responses.
+
+    res.reply(data)
+
+### Content Negotiation
 
 We do prefer JSON, but just like how we're asking the Java Services to transition from XML to JSON... we may need to eventually transition to something newer, hotter in a few years.  
 
