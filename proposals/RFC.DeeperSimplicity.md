@@ -18,14 +18,15 @@ For #2, we expose a Hapi.server.use function which basically just wraps express'
 
     var api = hapi.createServer();
     
+    api.use(hapi.Monitor.logger());
     api.use(express.bodyParser());
     api.use(express.cookieParser());
     api.use(hapi.auth({scheme: 'oauth'}));
     api.use(hapi.throttle(debounceOptions));
     api.use(hapi.router(endpoints));
     
-    api.on('requestBegin', instrument);
-    api.on('requestEnd', AniviaClient.logRequest);
+    api.on('requestBegin', Hapi.Monitor.instrument);
+    api.on('requestEnd', Hapi.Monitor.request);
     
     api.listen(port, AniviaClient.logListen);
     
