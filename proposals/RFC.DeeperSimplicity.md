@@ -1,6 +1,6 @@
 # Deeper Simplicity
 
-Hapi currently doesn't smell right.  Here are some proposed beneficial tweaks based on our actual use cases and internal demands.
+Assumption: Hapi currently doesn't smell right.  Here are some proposed beneficial tweaks based on our actual use cases and internal demands.
 
 ## Boil Down Middleware
 
