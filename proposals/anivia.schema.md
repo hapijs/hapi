@@ -8,14 +8,21 @@ payload = {
     appVer: require("package.json").version,  // required
     events: [
       {
-        event: 'request', // required: eventType
-        properties: {
-          headers: req._headers,
-          responseTime: new Date - req._startTime,
-          responseSize: res._headers['content-length'],
-          timestamp: '' // required
-        },
-      }
+          "event": "request",
+          "properties": {
+            "headers": {
+              "accept": "*/*",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.142 Safari/535.19",
+              "accept-encoding": "gzip,deflate,sdch",
+              "accept-language": "en-US,en;q=0.8",
+              "accept-charset": "ISO-8859-1,utf-8;q=0.7,*;q=0.3",
+              "remote-address": "127.0.0.1"
+            },
+            "responseTime": 1,
+            "responseSize": 67,
+            "timestamp": 1333395487658
+          }
+        }
     ],
     mtimestamp: '' // required
   }
@@ -29,33 +36,36 @@ payload = {
     appVer: require("package.json").version, // required
     events: [
       {
-        event: 'op', // required: eventType
-        properties: {
-          os: {
-            load: [0.8876953125, 0.62939453125, 0.52880859375], // NEW (what is contained in the array?)
-            mem: {
+        "event": "op",
+        "properties": {
+          "os": {
+            "load": [
+              1.1591796875,
+              0.8876953125,
+              0.759765625
+            ],
+            "mem": {
               "total": 4294967296,
-              "free": 2422153216
-            }, // NEW (what is contained in the object?)
-            cpu: 0.11,
-            disk: {
-              total: 1000000000, // GB? or kB default
-              free: 800000000
+              "free": 379211776
             },
-            uptime: 180739
+            "disk": {
+              "total": 488555536,
+              "used": 95442776
+            },
+            "uptime": 2609
           },
-          proc: {
-            uptime: 1807390323,
-            mem: {
-              rss: 21372928,
-              heapTotal: 15487744,
-              heapUsed: 8140392,
-              total: 4294967296
-            }, // NEW (what is contained in the object?)
-            cpu: 0.00
+          "proc": {
+            "uptime": 1,
+            "mem": {
+              "rss": 20934656,
+              "heapTotal": 14975680,
+              "heapUsed": 6494440,
+              "total": 4294967296
+            },
+            "cpu": "0.00"
           },
-          timestamp: 13331321766079 // required
-        },
+          "timestamp": 1333395900932
+        }
       }
     ],
     mtimestamp: 13331321766079 // required
