@@ -1,15 +1,14 @@
 {
   "name" : "hapi",
-  "description" : "HTTP API Server framework based on Express",
+  "description" : "HTTP API Server framework",
   "version" : "0.3.0",
   "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository" : "git://github.com/walmartlabs/hapi",
   "main" : "index",
-  "keywords": ["http", "mac", "authentication", "oauth", "api", "express"],
+  "keywords": ["http", "mac", "authentication", "oauth", "api", "director"],
   "engines" : {"node" : ">=0.6.0"},
   "dependencies": {
-    "express": "2.x.x",
-    "qs": "0.4.x",
+    "director": "1.0.x",
     "mac": "0.x.x",
     "validator": "0.x.x",
     "emailjs": "0.x.x"
