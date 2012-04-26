@@ -11,52 +11,58 @@ if (! _$jscoverage['monitor/os.js']) {
   _$jscoverage['monitor/os.js'][11] = 0;
   _$jscoverage['monitor/os.js'][14] = 0;
   _$jscoverage['monitor/os.js'][16] = 0;
+  _$jscoverage['monitor/os.js'][24] = 0;
   _$jscoverage['monitor/os.js'][25] = 0;
-  _$jscoverage['monitor/os.js'][26] = 0;
-  _$jscoverage['monitor/os.js'][27] = 0;
-  _$jscoverage['monitor/os.js'][28] = 0;
-  _$jscoverage['monitor/os.js'][29] = 0;
-  _$jscoverage['monitor/os.js'][32] = 0;
-  _$jscoverage['monitor/os.js'][33] = 0;
-  _$jscoverage['monitor/os.js'][35] = 0;
-  _$jscoverage['monitor/os.js'][36] = 0;
   _$jscoverage['monitor/os.js'][37] = 0;
   _$jscoverage['monitor/os.js'][38] = 0;
   _$jscoverage['monitor/os.js'][39] = 0;
   _$jscoverage['monitor/os.js'][40] = 0;
   _$jscoverage['monitor/os.js'][41] = 0;
-  _$jscoverage['monitor/os.js'][42] = 0;
   _$jscoverage['monitor/os.js'][44] = 0;
   _$jscoverage['monitor/os.js'][45] = 0;
+  _$jscoverage['monitor/os.js'][47] = 0;
+  _$jscoverage['monitor/os.js'][48] = 0;
   _$jscoverage['monitor/os.js'][49] = 0;
   _$jscoverage['monitor/os.js'][50] = 0;
+  _$jscoverage['monitor/os.js'][51] = 0;
+  _$jscoverage['monitor/os.js'][52] = 0;
   _$jscoverage['monitor/os.js'][53] = 0;
   _$jscoverage['monitor/os.js'][54] = 0;
   _$jscoverage['monitor/os.js'][56] = 0;
-  _$jscoverage['monitor/os.js'][59] = 0;
+  _$jscoverage['monitor/os.js'][57] = 0;
+  _$jscoverage['monitor/os.js'][61] = 0;
   _$jscoverage['monitor/os.js'][62] = 0;
-  _$jscoverage['monitor/os.js'][72] = 0;
+  _$jscoverage['monitor/os.js'][65] = 0;
+  _$jscoverage['monitor/os.js'][66] = 0;
+  _$jscoverage['monitor/os.js'][68] = 0;
+  _$jscoverage['monitor/os.js'][71] = 0;
   _$jscoverage['monitor/os.js'][74] = 0;
-  _$jscoverage['monitor/os.js'][75] = 0;
-  _$jscoverage['monitor/os.js'][76] = 0;
-  _$jscoverage['monitor/os.js'][79] = 0;
-  _$jscoverage['monitor/os.js'][80] = 0;
-  _$jscoverage['monitor/os.js'][81] = 0;
-  _$jscoverage['monitor/os.js'][82] = 0;
-  _$jscoverage['monitor/os.js'][83] = 0;
   _$jscoverage['monitor/os.js'][84] = 0;
-  _$jscoverage['monitor/os.js'][85] = 0;
+  _$jscoverage['monitor/os.js'][86] = 0;
   _$jscoverage['monitor/os.js'][87] = 0;
+  _$jscoverage['monitor/os.js'][88] = 0;
+  _$jscoverage['monitor/os.js'][91] = 0;
+  _$jscoverage['monitor/os.js'][92] = 0;
+  _$jscoverage['monitor/os.js'][95] = 0;
+  _$jscoverage['monitor/os.js'][96] = 0;
+  _$jscoverage['monitor/os.js'][97] = 0;
+  _$jscoverage['monitor/os.js'][98] = 0;
+  _$jscoverage['monitor/os.js'][99] = 0;
   _$jscoverage['monitor/os.js'][100] = 0;
   _$jscoverage['monitor/os.js'][101] = 0;
-  _$jscoverage['monitor/os.js'][102] = 0;
   _$jscoverage['monitor/os.js'][103] = 0;
-  _$jscoverage['monitor/os.js'][105] = 0;
-  _$jscoverage['monitor/os.js'][107] = 0;
-  _$jscoverage['monitor/os.js'][108] = 0;
-  _$jscoverage['monitor/os.js'][109] = 0;
-  _$jscoverage['monitor/os.js'][112] = 0;
   _$jscoverage['monitor/os.js'][116] = 0;
+  _$jscoverage['monitor/os.js'][117] = 0;
+  _$jscoverage['monitor/os.js'][118] = 0;
+  _$jscoverage['monitor/os.js'][119] = 0;
+  _$jscoverage['monitor/os.js'][121] = 0;
+  _$jscoverage['monitor/os.js'][123] = 0;
+  _$jscoverage['monitor/os.js'][124] = 0;
+  _$jscoverage['monitor/os.js'][125] = 0;
+  _$jscoverage['monitor/os.js'][129] = 0;
+  _$jscoverage['monitor/os.js'][130] = 0;
+  _$jscoverage['monitor/os.js'][134] = 0;
+  _$jscoverage['monitor/os.js'][140] = 0;
 }
 _$jscoverage['monitor/os.js'][4]++;
 var child_process = require("child_process");
@@ -77,120 +83,134 @@ var OSMonitor = (function () {
   _$jscoverage['monitor/os.js'][16]++;
   return this;
 });
-_$jscoverage['monitor/os.js'][25]++;
+_$jscoverage['monitor/os.js'][24]++;
+OSMonitor.prototype.mem = (function (callback) {
+  _$jscoverage['monitor/os.js'][25]++;
+  callback(null, {total: os.totalmem(), free: os.freemem()});
+});
+_$jscoverage['monitor/os.js'][37]++;
 OSMonitor.prototype.poll_cpu = (function (target, callback) {
-  _$jscoverage['monitor/os.js'][26]++;
+  _$jscoverage['monitor/os.js'][38]++;
   var statfile = "/proc/stat";
-  _$jscoverage['monitor/os.js'][27]++;
+  _$jscoverage['monitor/os.js'][39]++;
   try {
-    _$jscoverage['monitor/os.js'][28]++;
+    _$jscoverage['monitor/os.js'][40]++;
     fs.readFile(statfile, (function (err, contents) {
-  _$jscoverage['monitor/os.js'][29]++;
+  _$jscoverage['monitor/os.js'][41]++;
   if (err) {
-    _$jscoverage['monitor/os.js'][29]++;
+    _$jscoverage['monitor/os.js'][41]++;
     throw err;
   }
-  _$jscoverage['monitor/os.js'][32]++;
+  _$jscoverage['monitor/os.js'][44]++;
   var pattern = /cpu[\d]?[\s]+(.*)/g;
-  _$jscoverage['monitor/os.js'][33]++;
+  _$jscoverage['monitor/os.js'][45]++;
   var file_contents = contents.toString();
-  _$jscoverage['monitor/os.js'][35]++;
+  _$jscoverage['monitor/os.js'][47]++;
   var result;
-  _$jscoverage['monitor/os.js'][36]++;
+  _$jscoverage['monitor/os.js'][48]++;
   var cpulines = {};
-  _$jscoverage['monitor/os.js'][37]++;
-  while ((result = pattern.exec(file_contents)) != null) {
-    _$jscoverage['monitor/os.js'][38]++;
+  _$jscoverage['monitor/os.js'][49]++;
+  while ((result = pattern.exec(file_contents)) !== null) {
+    _$jscoverage['monitor/os.js'][50]++;
     var source = result[0].split(/\s+/);
-    _$jscoverage['monitor/os.js'][39]++;
+    _$jscoverage['monitor/os.js'][51]++;
     var cpu = source.shift();
-    _$jscoverage['monitor/os.js'][40]++;
+    _$jscoverage['monitor/os.js'][52]++;
     var line = source.map((function (d) {
-  _$jscoverage['monitor/os.js'][40]++;
+  _$jscoverage['monitor/os.js'][52]++;
   return + d;
 }));
-    _$jscoverage['monitor/os.js'][41]++;
+    _$jscoverage['monitor/os.js'][53]++;
     line = line.slice(0, 4);
-    _$jscoverage['monitor/os.js'][42]++;
+    _$jscoverage['monitor/os.js'][54]++;
     cpulines[cpu] = line;
-    _$jscoverage['monitor/os.js'][44]++;
+    _$jscoverage['monitor/os.js'][56]++;
     if (target === cpu) {
-      _$jscoverage['monitor/os.js'][45]++;
+      _$jscoverage['monitor/os.js'][57]++;
       break;
     }
 }
-  _$jscoverage['monitor/os.js'][49]++;
+  _$jscoverage['monitor/os.js'][61]++;
   if (! cpulines.hasOwnProperty(target)) {
-    _$jscoverage['monitor/os.js'][50]++;
+    _$jscoverage['monitor/os.js'][62]++;
     return callback("No such target found for Monitor.poll_cpu (" + target + " does not exist)");
   }
-  _$jscoverage['monitor/os.js'][53]++;
+  _$jscoverage['monitor/os.js'][65]++;
   var cpuline = cpulines[target];
-  _$jscoverage['monitor/os.js'][54]++;
+  _$jscoverage['monitor/os.js'][66]++;
   var cpustats = {idle: cpuline[3], total: cpuline.reduce((function (a, b) {
-  _$jscoverage['monitor/os.js'][56]++;
+  _$jscoverage['monitor/os.js'][68]++;
   return a + b;
 }))};
-  _$jscoverage['monitor/os.js'][59]++;
+  _$jscoverage['monitor/os.js'][71]++;
   return callback(null, cpustats);
 }));
   }
   catch (err) {
-    _$jscoverage['monitor/os.js'][62]++;
+    _$jscoverage['monitor/os.js'][74]++;
     return callback(err);
   }
 });
-_$jscoverage['monitor/os.js'][72]++;
+_$jscoverage['monitor/os.js'][84]++;
 OSMonitor.prototype.cpu = (function (target, callback) {
-  _$jscoverage['monitor/os.js'][74]++;
+  _$jscoverage['monitor/os.js'][86]++;
   if (typeof target === "function") {
-    _$jscoverage['monitor/os.js'][75]++;
+    _$jscoverage['monitor/os.js'][87]++;
     callback = target;
-    _$jscoverage['monitor/os.js'][76]++;
+    _$jscoverage['monitor/os.js'][88]++;
     target = "cpu";
   }
-  _$jscoverage['monitor/os.js'][79]++;
+  _$jscoverage['monitor/os.js'][91]++;
+  if (process.platform !== "linux") {
+    _$jscoverage['monitor/os.js'][92]++;
+    return callback(null, "-");
+  }
+  _$jscoverage['monitor/os.js'][95]++;
   var self = this;
-  _$jscoverage['monitor/os.js'][80]++;
+  _$jscoverage['monitor/os.js'][96]++;
   self.poll_cpu(target, (function (err, stats_start) {
-  _$jscoverage['monitor/os.js'][81]++;
+  _$jscoverage['monitor/os.js'][97]++;
   setTimeout((function () {
-  _$jscoverage['monitor/os.js'][82]++;
+  _$jscoverage['monitor/os.js'][98]++;
   self.poll_cpu(target, (function (err, stats_end) {
-  _$jscoverage['monitor/os.js'][83]++;
+  _$jscoverage['monitor/os.js'][99]++;
   var idle_delta = parseFloat(stats_end.idle - stats_start.idle);
-  _$jscoverage['monitor/os.js'][84]++;
+  _$jscoverage['monitor/os.js'][100]++;
   var total_delta = parseFloat(stats_end.total - stats_start.total);
-  _$jscoverage['monitor/os.js'][85]++;
+  _$jscoverage['monitor/os.js'][101]++;
   var cpuUsage = ((total_delta - idle_delta) / total_delta) * 100;
-  _$jscoverage['monitor/os.js'][87]++;
+  _$jscoverage['monitor/os.js'][103]++;
   callback(null, cpuUsage.toFixed(2));
 }));
 }), 1000);
 }));
 });
-_$jscoverage['monitor/os.js'][100]++;
+_$jscoverage['monitor/os.js'][116]++;
 OSMonitor.prototype.disk = (function (filesystem, callback) {
-  _$jscoverage['monitor/os.js'][101]++;
+  _$jscoverage['monitor/os.js'][117]++;
   if (typeof filesystem == "function") {
-    _$jscoverage['monitor/os.js'][102]++;
+    _$jscoverage['monitor/os.js'][118]++;
     callback = filesystem;
-    _$jscoverage['monitor/os.js'][103]++;
+    _$jscoverage['monitor/os.js'][119]++;
     filesystem = null;
   }
-  _$jscoverage['monitor/os.js'][105]++;
+  _$jscoverage['monitor/os.js'][121]++;
   filesystem = filesystem || "/";
-  _$jscoverage['monitor/os.js'][107]++;
-  exec("df -h " + filesystem + " | tail -1 | awk '{print $5}'", (function (err, stdout, stderr) {
-  _$jscoverage['monitor/os.js'][108]++;
+  _$jscoverage['monitor/os.js'][123]++;
+  exec("df " + filesystem + " | tail -1 | awk '{print $2 \",\" $3}'", (function (err, stdout, stderr) {
+  _$jscoverage['monitor/os.js'][124]++;
   if (err || stderr !== "") {
-    _$jscoverage['monitor/os.js'][109]++;
+    _$jscoverage['monitor/os.js'][125]++;
     return callback(err || stderr);
   }
-  _$jscoverage['monitor/os.js'][112]++;
-  return callback(null, stdout);
+  _$jscoverage['monitor/os.js'][129]++;
+  var values = stdout.replace(/\s/g, "").split(",");
+  _$jscoverage['monitor/os.js'][130]++;
+  var output = {total: parseInt(values[0]), used: parseInt(values[1])};
+  _$jscoverage['monitor/os.js'][134]++;
+  return callback(null, output);
 }));
 });
-_$jscoverage['monitor/os.js'][116]++;
+_$jscoverage['monitor/os.js'][140]++;
 module.exports = exports = new OSMonitor();
-_$jscoverage['monitor/os.js'].source = ["/**"," * Module dependencies."," */","var child_process = require(\"child_process\");","var exec = child_process.exec;","var fs = require(\"fs\");","var os = require(\"os\");","var Base = require(\"./base\");","","var OSMonitor = function(){","  this.builtins = ['loadavg', 'uptime', 'freemem', 'totalmem', 'cpus'];","  ","  // Expose Node os functions as async fns","  Base.expose(OSMonitor, os, this.public_methods);","  ","  return this;","};","","/**"," * Grab slice of CPU usage information for all cores from /proc/stat"," *"," * @param {Function} callback function to process the asynchronous result"," * @api private "," */","OSMonitor.prototype.poll_cpu = function(target, callback) {","  var statfile = '/proc/stat';","  try {","    fs.readFile(statfile, function(err, contents) {","      if (err) throw err;","      ","      // TODO: FUTURE: optimization for later, if target known, customize regexp for that","      var pattern = /cpu[\\d]?[\\s]+(.*)/g;","      var file_contents = contents.toString();","      ","      var result;","      var cpulines = {};","      while ((result = pattern.exec(file_contents)) != null) {","        var source = result[0].split(/\\s+/);","        var cpu = source.shift(); // remove 'cpu(\\d?)' from string","        var line = source.map(function(d){ return +d; }); // convert all to Number","        line = line.slice(0,4); // strip non-relevant numbers","        cpulines[cpu] = line;","        ","        if (target === cpu){","          break; // short circuit if found","        }","      }","      ","      if (!cpulines.hasOwnProperty(target)){","        return callback(\"No such target found for Monitor.poll_cpu (\" + target + \" does not exist)\");","      }","      ","      var cpuline = cpulines[target];","      var cpustats = {","        idle: cpuline[3],","        total: cpuline.reduce(function(a, b){ return a + b; })","      }","      ","      return callback(null, cpustats);","    })","  } catch (err) {","    return callback(err);","  }","}","","/**"," * Return 1-second slice of total cpu usage percentage from across all cores"," * "," * @param {Function} callback function to handle response"," * @api public"," */","OSMonitor.prototype.cpu = function(target, callback) {","  // TODO: OS-support: only tested on RHEL, doesn't work on OSX","  if (typeof target === \"function\"){","    callback = target;","    target = 'cpu';","  }","  ","  var self = this;","  self.poll_cpu(target, function(err, stats_start) {","    setTimeout((function(){","      self.poll_cpu(target, function(err, stats_end) {","        var idle_delta = parseFloat(stats_end.idle - stats_start.idle);","        var total_delta = parseFloat(stats_end.total - stats_start.total);","        var cpuUsage = ((total_delta - idle_delta) / (total_delta)) * 100;","        ","        callback(null, cpuUsage.toFixed(2));","      })","    }), 1000)","  })","}","","/**"," * Returns disk usage percentage for a specified filesystem"," *"," * @param {String} filesystem filesystem to check disk usage for (default '/')"," * @param {Function} callback function to process results"," * @api public"," */","OSMonitor.prototype.disk = function(filesystem, callback) {","  if (typeof filesystem == \"function\"){","    callback = filesystem;","    filesystem = null;","  }","  filesystem = filesystem || '/';","  ","  exec('df -h ' + filesystem + \" | tail -1 | awk '{print $5}'\", function(err, stdout, stderr){","    if (err || stderr !== ''){","      return callback(err || stderr);","    }","    ","    return callback(null, stdout)","  })","}","","module.exports = exports = new OSMonitor();"];
+_$jscoverage['monitor/os.js'].source = ["/**"," * Module dependencies."," */","var child_process = require(\"child_process\");","var exec = child_process.exec;","var fs = require(\"fs\");","var os = require(\"os\");","var Base = require(\"./base\");","","var OSMonitor = function(){","  this.builtins = ['loadavg', 'uptime', 'freemem', 'totalmem', 'cpus'];","  ","  // Expose Node os functions as async fns","  Base.expose(OSMonitor, os, this.public_methods);","  ","  return this;","};","","/**"," *"," *"," *"," */","OSMonitor.prototype.mem = function(callback){","  callback(null, {","    total: os.totalmem(),","    free: os.freemem()","  });","}","","/**"," * Grab slice of CPU usage information for all cores from /proc/stat"," *"," * @param {Function} callback function to process the asynchronous result"," * @api private "," */","OSMonitor.prototype.poll_cpu = function(target, callback) {","  var statfile = '/proc/stat';","  try {","    fs.readFile(statfile, function(err, contents) {","      if (err) throw err;","      ","      // TODO: FUTURE: optimization for later, if target known, customize regexp for that","      var pattern = /cpu[\\d]?[\\s]+(.*)/g;","      var file_contents = contents.toString();","      ","      var result;","      var cpulines = {};","      while ((result = pattern.exec(file_contents)) !== null) {","        var source = result[0].split(/\\s+/);","        var cpu = source.shift(); // remove 'cpu(\\d?)' from string","        var line = source.map(function(d){ return +d; }); // convert all to Number","        line = line.slice(0,4); // strip non-relevant numbers","        cpulines[cpu] = line;","        ","        if (target === cpu){","          break; // short circuit if found","        }","      }","      ","      if (!cpulines.hasOwnProperty(target)){","        return callback(\"No such target found for Monitor.poll_cpu (\" + target + \" does not exist)\");","      }","      ","      var cpuline = cpulines[target];","      var cpustats = {","        idle: cpuline[3],","        total: cpuline.reduce(function(a, b){ return a + b; })","      };","      ","      return callback(null, cpustats);","    });","  } catch (err) {","    return callback(err);","  }","};","","/**"," * Return 1-second slice of total cpu usage percentage from across all cores"," * "," * @param {Function} callback function to handle response"," * @api public"," */","OSMonitor.prototype.cpu = function(target, callback) {","  // TODO: OS-support: only tested on RHEL, doesn't work on OSX","  if (typeof target === \"function\"){","    callback = target;","    target = 'cpu';","  }","  ","  if (process.platform !== \"linux\"){","    return callback(null, '-');","  }","  ","  var self = this;","  self.poll_cpu(target, function(err, stats_start) {","    setTimeout((function(){","      self.poll_cpu(target, function(err, stats_end) {","        var idle_delta = parseFloat(stats_end.idle - stats_start.idle);","        var total_delta = parseFloat(stats_end.total - stats_start.total);","        var cpuUsage = ((total_delta - idle_delta) / (total_delta)) * 100;","        ","        callback(null, cpuUsage.toFixed(2));","      });","    }), 1000);","  });","};","","/**"," * Returns disk usage percentage for a specified filesystem"," *"," * @param {String} filesystem filesystem to check disk usage for (default '/')"," * @param {Function} callback function to process results"," * @api public"," */","OSMonitor.prototype.disk = function(filesystem, callback) {","  if (typeof filesystem == \"function\"){","    callback = filesystem;","    filesystem = null;","  }","  filesystem = filesystem || '/';","  ","  exec('df ' + filesystem + \" | tail -1 | awk '{print $2 \\\",\\\" $3}'\", function(err, stdout, stderr){","    if (err || stderr !== ''){","      return callback(err || stderr);","    }","    ","    // require(\"util\").debug(stdout);","    var values = stdout.replace(/\\s/g, '').split(\",\")","    var output = {","      total: parseInt(values[0]),","      used: parseInt(values[1])","    };","    return callback(null, output);","    ","    // return callback(null, stdout.replace(/\\s/g, '').replace('%', ''));","  });","};","","module.exports = exports = new OSMonitor();"];

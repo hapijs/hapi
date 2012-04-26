@@ -5,5 +5,5 @@ if (! _$jscoverage['hapi.js']) {
   _$jscoverage['hapi.js'][3] = 0;
 }
 _$jscoverage['hapi.js'][3]++;
-module.exports = {Base64: require("./base64"), Process: require("./process"), Error: require("./error"), Log: require("./log"), Server: require("./server"), Utils: require("./utils"), Client: require("./client")};
-_$jscoverage['hapi.js'].source = ["// Export public modules","","module.exports = {","","    Base64: require('./base64'),","    Process: require('./process'),","    Error: require('./error'),","    Log: require('./log'),","    Server: require('./server'),","    Utils: require('./utils'),","    Client: require(\"./client\")","};",""];
+module.exports = {Base64: require("./base64"), Process: require("./process"), Error: require("./error"), Log: require("./log"), Server: require("./server"), Utils: require("./utils"), Session: require("./session"), Client: require("./client"), Monitor: require("./monitor")};
+_$jscoverage['hapi.js'].source = ["// Export public modules","","module.exports = {","","    Base64: require('./base64'),","    Process: require('./process'),","    Error: require('./error'),","    Log: require('./log'),","    Server: require('./server'),","    Utils: require('./utils'),","    Session: require('./session'),","    Client: require(\"./client\"),","    Monitor: require(\"./monitor\")","};",""];

@@ -4,152 +4,151 @@ if (! _$jscoverage['monitor/index.js']) {
   _$jscoverage['monitor/index.js'] = [];
   _$jscoverage['monitor/index.js'][4] = 0;
   _$jscoverage['monitor/index.js'][5] = 0;
-  _$jscoverage['monitor/index.js'][6] = 0;
-  _$jscoverage['monitor/index.js'][7] = 0;
-  _$jscoverage['monitor/index.js'][8] = 0;
-  _$jscoverage['monitor/index.js'][9] = 0;
-  _$jscoverage['monitor/index.js'][16] = 0;
-  _$jscoverage['monitor/index.js'][18] = 0;
-  _$jscoverage['monitor/index.js'][21] = 0;
+  _$jscoverage['monitor/index.js'][12] = 0;
+  _$jscoverage['monitor/index.js'][13] = 0;
+  _$jscoverage['monitor/index.js'][14] = 0;
+  _$jscoverage['monitor/index.js'][17] = 0;
+  _$jscoverage['monitor/index.js'][20] = 0;
+  _$jscoverage['monitor/index.js'][23] = 0;
   _$jscoverage['monitor/index.js'][24] = 0;
-  _$jscoverage['monitor/index.js'][28] = 0;
-  _$jscoverage['monitor/index.js'][34] = 0;
+  _$jscoverage['monitor/index.js'][26] = 0;
+  _$jscoverage['monitor/index.js'][32] = 0;
+  _$jscoverage['monitor/index.js'][37] = 0;
+  _$jscoverage['monitor/index.js'][38] = 0;
+  _$jscoverage['monitor/index.js'][39] = 0;
+  _$jscoverage['monitor/index.js'][41] = 0;
+  _$jscoverage['monitor/index.js'][42] = 0;
   _$jscoverage['monitor/index.js'][49] = 0;
   _$jscoverage['monitor/index.js'][50] = 0;
   _$jscoverage['monitor/index.js'][52] = 0;
   _$jscoverage['monitor/index.js'][53] = 0;
-  _$jscoverage['monitor/index.js'][56] = 0;
+  _$jscoverage['monitor/index.js'][54] = 0;
   _$jscoverage['monitor/index.js'][57] = 0;
   _$jscoverage['monitor/index.js'][58] = 0;
+  _$jscoverage['monitor/index.js'][59] = 0;
   _$jscoverage['monitor/index.js'][60] = 0;
+  _$jscoverage['monitor/index.js'][61] = 0;
+  _$jscoverage['monitor/index.js'][66] = 0;
+  _$jscoverage['monitor/index.js'][69] = 0;
+  _$jscoverage['monitor/index.js'][70] = 0;
   _$jscoverage['monitor/index.js'][72] = 0;
   _$jscoverage['monitor/index.js'][73] = 0;
-  _$jscoverage['monitor/index.js'][76] = 0;
+  _$jscoverage['monitor/index.js'][74] = 0;
+  _$jscoverage['monitor/index.js'][75] = 0;
+  _$jscoverage['monitor/index.js'][77] = 0;
+  _$jscoverage['monitor/index.js'][81] = 0;
   _$jscoverage['monitor/index.js'][82] = 0;
   _$jscoverage['monitor/index.js'][83] = 0;
   _$jscoverage['monitor/index.js'][84] = 0;
+  _$jscoverage['monitor/index.js'][85] = 0;
+  _$jscoverage['monitor/index.js'][86] = 0;
   _$jscoverage['monitor/index.js'][87] = 0;
   _$jscoverage['monitor/index.js'][88] = 0;
-  _$jscoverage['monitor/index.js'][91] = 0;
-  _$jscoverage['monitor/index.js'][94] = 0;
-  _$jscoverage['monitor/index.js'][100] = 0;
-  _$jscoverage['monitor/index.js'][101] = 0;
-  _$jscoverage['monitor/index.js'][102] = 0;
-  _$jscoverage['monitor/index.js'][104] = 0;
-  _$jscoverage['monitor/index.js'][105] = 0;
+  _$jscoverage['monitor/index.js'][89] = 0;
   _$jscoverage['monitor/index.js'][107] = 0;
-  _$jscoverage['monitor/index.js'][123] = 0;
-  _$jscoverage['monitor/index.js'][128] = 0;
-  _$jscoverage['monitor/index.js'][138] = 0;
-  _$jscoverage['monitor/index.js'][140] = 0;
-  _$jscoverage['monitor/index.js'][142] = 0;
-  _$jscoverage['monitor/index.js'][146] = 0;
 }
 _$jscoverage['monitor/index.js'][4]++;
-var child_process = require("child_process");
+var Client = require("../client");
 _$jscoverage['monitor/index.js'][5]++;
-var exec = child_process.exec;
-_$jscoverage['monitor/index.js'][6]++;
-var fs = require("fs");
-_$jscoverage['monitor/index.js'][7]++;
-var os = require("os");
-_$jscoverage['monitor/index.js'][8]++;
-var request = require("request");
-_$jscoverage['monitor/index.js'][9]++;
 var Utils = require("../utils");
-_$jscoverage['monitor/index.js'][16]++;
-function Monitor(options) {
-  _$jscoverage['monitor/index.js'][18]++;
-  this.options = Utils.merge({}, this._options, options || {});
-  _$jscoverage['monitor/index.js'][21]++;
+_$jscoverage['monitor/index.js'][12]++;
+function Monitor(server) {
+  _$jscoverage['monitor/index.js'][13]++;
+  this.server = server.express;
+  _$jscoverage['monitor/index.js'][14]++;
+  this.options = Utils.merge({}, server.settings || {});
+  _$jscoverage['monitor/index.js'][17]++;
   this.process = require("./process");
-  _$jscoverage['monitor/index.js'][24]++;
+  _$jscoverage['monitor/index.js'][20]++;
   this.os = require("./os");
-  _$jscoverage['monitor/index.js'][28]++;
+  _$jscoverage['monitor/index.js'][23]++;
+  this.clients = {};
+  _$jscoverage['monitor/index.js'][24]++;
+  this.timer = null;
+  _$jscoverage['monitor/index.js'][26]++;
   return this;
 }
-_$jscoverage['monitor/index.js'][34]++;
-Monitor.prototype._options = {outbound: {transport: "http", host: null, interval: 30000}, inbound: {route: "/_monitor/"}, geodat: null};
+_$jscoverage['monitor/index.js'][32]++;
+Monitor.prototype._options = {};
+_$jscoverage['monitor/index.js'][37]++;
+Monitor.prototype.getClient = (function (host) {
+  _$jscoverage['monitor/index.js'][38]++;
+  if (this.clients.hasOwnProperty(host)) {
+    _$jscoverage['monitor/index.js'][39]++;
+    return this.clients[host];
+  }
+  else {
+    _$jscoverage['monitor/index.js'][41]++;
+    this.clients[host] = new Client({host: host});
+    _$jscoverage['monitor/index.js'][42]++;
+    return this.clients[host];
+  }
+});
 _$jscoverage['monitor/index.js'][49]++;
-Monitor.prototype.logging = (function () {
+Monitor.prototype.logger = (function () {
   _$jscoverage['monitor/index.js'][50]++;
-  var client = {};
+  var self = this;
   _$jscoverage['monitor/index.js'][52]++;
-  return (function (req, res, next) {
-  _$jscoverage['monitor/index.js'][53]++;
-  req._startTime = new Date();
-  _$jscoverage['monitor/index.js'][56]++;
-  var end = res.end;
+  if (this.server) {
+    _$jscoverage['monitor/index.js'][53]++;
+    this.server.removeListener("request", this.handle("request"));
+    _$jscoverage['monitor/index.js'][54]++;
+    this.server.on("request", this.handle("request"));
+  }
   _$jscoverage['monitor/index.js'][57]++;
-  res.end = (function (chunk, encoding) {
-  _$jscoverage['monitor/index.js'][58]++;
-  end(chunk, encoding);
+  if (this.options.monitor.interval && Object.keys(this.options.monitor.ops).length > 0) {
+    _$jscoverage['monitor/index.js'][58]++;
+    clearInterval(this.timer);
+    _$jscoverage['monitor/index.js'][59]++;
+    this.timer = setInterval((function (s) {
   _$jscoverage['monitor/index.js'][60]++;
-  client.write();
+  return (function () {
+  _$jscoverage['monitor/index.js'][61]++;
+  return s.meter();
 });
+})(self), this.options.monitor.interval);
+  }
+  _$jscoverage['monitor/index.js'][66]++;
+  return this.process.instrument;
 });
-});
-_$jscoverage['monitor/index.js'][72]++;
-Monitor.prototype.onPreRoute = (function (req, res, next) {
+_$jscoverage['monitor/index.js'][69]++;
+Monitor.prototype.meter = (function () {
+  _$jscoverage['monitor/index.js'][70]++;
+  var event = "ops";
+  _$jscoverage['monitor/index.js'][72]++;
+  var hosts = Object.keys(this.options.monitor[event]);
   _$jscoverage['monitor/index.js'][73]++;
-  req._startTime = new Date();
-  _$jscoverage['monitor/index.js'][76]++;
-  next();
-});
-_$jscoverage['monitor/index.js'][82]++;
-Monitor.prototype.onPreHandler = (function () {
-  _$jscoverage['monitor/index.js'][83]++;
-  var wrapped = (function (req, res, next) {
-  _$jscoverage['monitor/index.js'][84]++;
-  if (! req._startTime) {
-    _$jscoverage['monitor/index.js'][84]++;
-    throw "Monitor.onPreHandler middleware requires Monitor.onPreRoute";
-  }
-  _$jscoverage['monitor/index.js'][87]++;
-  for (var i in this.public_methods) {
-    _$jscoverage['monitor/index.js'][88]++;
-    req[this.public_methods[i]] = this[this.public_methods[i]];
+  for (var i in hosts) {
+    _$jscoverage['monitor/index.js'][74]++;
+    var host = hosts[i];
+    _$jscoverage['monitor/index.js'][75]++;
+    var client = this.getClient(host);
+    _$jscoverage['monitor/index.js'][77]++;
+    this.options.monitor[event][host](client, this)();
 }
-  _$jscoverage['monitor/index.js'][91]++;
-  next();
 });
-  _$jscoverage['monitor/index.js'][94]++;
-  return wrapped;
-});
-_$jscoverage['monitor/index.js'][100]++;
-Monitor.prototype.onPostHandler = (function () {
-  _$jscoverage['monitor/index.js'][101]++;
-  var wrapped = (function (req, res, next) {
-  _$jscoverage['monitor/index.js'][102]++;
-  if (! req._startTime) {
-    _$jscoverage['monitor/index.js'][102]++;
-    throw "Monitor.onPostHandler middleware requires Monitor.onPreRoute";
+_$jscoverage['monitor/index.js'][81]++;
+Monitor.prototype.handle = (function (event) {
+  _$jscoverage['monitor/index.js'][82]++;
+  var self = this;
+  _$jscoverage['monitor/index.js'][83]++;
+  return (function (req, res) {
+  _$jscoverage['monitor/index.js'][84]++;
+  if (typeof self.options.monitor[event] !== "undefined" && self.options.monitor[event] !== null) {
+    _$jscoverage['monitor/index.js'][85]++;
+    var hosts = Object.keys(self.options.monitor[event]);
+    _$jscoverage['monitor/index.js'][86]++;
+    for (var i in hosts) {
+      _$jscoverage['monitor/index.js'][87]++;
+      var host = hosts[i];
+      _$jscoverage['monitor/index.js'][88]++;
+      var client = self.getClient(host);
+      _$jscoverage['monitor/index.js'][89]++;
+      self.options.monitor[event][host](client, self)(req, res);
+}
   }
-  _$jscoverage['monitor/index.js'][104]++;
-  try {
-    _$jscoverage['monitor/index.js'][105]++;
-    var url = decodeURIComponent(req.url);
-  }
-  catch (e) {
-    _$jscoverage['monitor/index.js'][107]++;
-    throw e;
-  }
-  _$jscoverage['monitor/index.js'][123]++;
-  next();
 });
-  _$jscoverage['monitor/index.js'][128]++;
-  return wrapped;
 });
-_$jscoverage['monitor/index.js'][138]++;
-Monitor.prototype.responseTime = Monitor.prototype.response_time = (function (req) {
-  _$jscoverage['monitor/index.js'][140]++;
-  if (! req._startTime) {
-    _$jscoverage['monitor/index.js'][140]++;
-    return null;
-  }
-  _$jscoverage['monitor/index.js'][142]++;
-  return new Date() - req._startTime;
-});
-_$jscoverage['monitor/index.js'][146]++;
-module.exports = new Monitor();
-_$jscoverage['monitor/index.js'].source = ["/**"," * Module dependencies."," */","var child_process = require(\"child_process\");","var exec = child_process.exec","var fs = require(\"fs\");","var os = require(\"os\");","var request = require(\"request\");","var Utils = require(\"../utils\");","","/**"," * Monitor constructor"," *"," * @api public"," */","function Monitor(options) {","  // TODO: enable cross platform support via separate os-specific files","  this.options = Utils.merge({}, this._options, options || {});","  ","  // Load process level fns","  this.process = require('./process');","  ","  // Load OS level fns","  this.os = require(\"./os\");","  ","  // // TODO: Initialize AniviaClient if config has host","  ","  return this;","}","","/**"," * Default options for Monitor"," */","Monitor.prototype._options = {","  outbound: {","    transport: \"http\",","    host: null,","    interval: 30000","  },","  inbound: {","    route: \"/_monitor/\",","  },","  geodat: null","}","","/**"," * Middleware for instrumenting Hapi"," */","Monitor.prototype.logging = function(){","  var client = {}; // TODO: expand","  ","  return function(req, res, next){","    req._startTime = new Date();","    ","    // This override approach taken from senchalabs/connect","    var end = res.end;","    res.end = function(chunk, encoding){","      end(chunk, encoding);","      ","      client.write()","    }","  }","}","","","","","","/**"," * Middleware (early in stack) required for other Monitor middleware to work"," */","Monitor.prototype.onPreRoute = function(req, res, next) {","  req._startTime = new Date; // Used to determine request response time ","  // TODO: warm up cpu poll function?","  ","  next();","}","","/**"," * Middleware to make req[:fn] available to request handlers"," */","Monitor.prototype.onPreHandler = function() {  ","  var wrapped = function(req, res, next) {","    if (!req._startTime) throw \"Monitor.onPreHandler middleware requires Monitor.onPreRoute\"","    ","    // TODO: evaluate this approach vs just exposing Monitor directly","    for(var i in this.public_methods) {","      req[this.public_methods[i]] = this[this.public_methods[i]];","    }","    ","    next();","  }","  ","  return wrapped;","}","","/**"," * Middleware to include /_monitor/:fn routes"," */","Monitor.prototype.onPostHandler = function() {  ","  var wrapped = function(req, res, next) {","    if (!req._startTime) throw \"Monitor.onPostHandler middleware requires Monitor.onPreRoute\"","    ","    try {","      var url = decodeURIComponent(req.url);","    } catch (e) {","      throw e; // TODO: properly respond to error","    }","    ","    // TODO: if route matches this.options.inbound.route + \":fn\", return response","    // var pattern = new RegExp(this.options.inbound.route + \"(\\S+)\");","    // var match = pattern.exec(url);","    // if (match !== null) {","    //   if (match[1] in this.public_methods) {","    //     this[this.public_methods[match[1]]](function(err, response){","    //       // TODO: handle err","          ","    //       // TODO: handle response","    //     })","    //   }","    // }","    ","    next();","  }","  ","  // this.register();","  ","  return wrapped;","}","","","/**"," * Return request response time"," *"," * @api public"," * @param {Object} req Express request object"," */","Monitor.prototype.responseTime =","Monitor.prototype.response_time = function(req) {","  if (!req._startTime) return null;","  ","  return new Date - req._startTime;","}","","// Module exports","module.exports = new Monitor();"];
+_$jscoverage['monitor/index.js'][107]++;
+module.exports = exports = Monitor;
+_$jscoverage['monitor/index.js'].source = ["/**"," * Module dependencies."," */","var Client = require(\"../client\");","var Utils = require(\"../utils\");","","/**"," * Monitor constructor"," *"," * @api public"," */","function Monitor(server) {","  this.server = server.express;","  this.options = Utils.merge({}, server.settings || {});","  ","  // Load process level fns","  this.process = require('./process');","  ","  // Load OS level fns","  this.os = require(\"./os\");","  ","  // Public properties","  this.clients = {};","  this.timer = null;","  ","  return this;","}","","/**"," * Default options for Monitor"," */","Monitor.prototype._options = {","  // client: new Client(),","  // handlers: {}","};","","Monitor.prototype.getClient = function(host){","  if (this.clients.hasOwnProperty(host)){","    return this.clients[host];","  } else {","    this.clients[host] = new Client({host: host});","    return this.clients[host];","  }","}","","/**"," * Hapi Middleware"," */","Monitor.prototype.logger = function(){","  var self = this;","  ","  if (this.server){","    this.server.removeListener('request', this.handle('request'));","    this.server.on('request', this.handle('request'));","  }","  ","  if (this.options.monitor.interval &amp;&amp; Object.keys(this.options.monitor.ops).length &gt; 0){","    clearInterval(this.timer);","    this.timer = setInterval((function(s){","      return function(){","        return s.meter();","      }","    })(self), this.options.monitor.interval);","  }","  ","  return this.process.instrument;","};","","Monitor.prototype.meter = function(){","  var event = \"ops\";","  // TODO: factor out into shared fn","  var hosts = Object.keys(this.options.monitor[event]);","  for(var i in hosts){","    var host = hosts[i];","    var client = this.getClient(host);","    // console.log(this.os.poll_cpu.toString())","    this.options.monitor[event][host](client, this)();","  }","}","","Monitor.prototype.handle = function(event){","  var self = this;","  return function(req, res){","    if (typeof self.options.monitor[event] !== 'undefined' &amp;&amp; self.options.monitor[event] !== null){","      var hosts = Object.keys(self.options.monitor[event]);","      for(var i in hosts){","        var host = hosts[i];","        var client = self.getClient(host);","        self.options.monitor[event][host](client, self)(req, res);","      }","    }","  }","}","","// Monitor.prototype.handle = function(signal){","//   var fns = [];","//   if (!this.monitor.hasOwnProperty(signal)){","//     throw \"No such handler found (\" + signal + \")\";","//   } else {","//     for(var host in this.monitor[signal]){","//       fns.append([host, this.monitor[signal][host]])","//     }","//   }","// }","","// Module exports","module.exports = exports = Monitor;"];

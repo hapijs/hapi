@@ -5,27 +5,30 @@ if (! _$jscoverage['defaults.js']) {
   _$jscoverage['defaults.js'][9] = 0;
   _$jscoverage['defaults.js'][14] = 0;
   _$jscoverage['defaults.js'][58] = 0;
-  _$jscoverage['defaults.js'][112] = 0;
-  _$jscoverage['defaults.js'][113] = 0;
-  _$jscoverage['defaults.js'][114] = 0;
-  _$jscoverage['defaults.js'][115] = 0;
+  _$jscoverage['defaults.js'][91] = 0;
+  _$jscoverage['defaults.js'][92] = 0;
+  _$jscoverage['defaults.js'][93] = 0;
+  _$jscoverage['defaults.js'][94] = 0;
+  _$jscoverage['defaults.js'][107] = 0;
 }
 _$jscoverage['defaults.js'][9]++;
 var internals = {};
 _$jscoverage['defaults.js'][14]++;
 exports.process = {name: "Hapi Server", process: {}, log: {levels: {info: true, err: true}}, email: {fromName: "Hapi Server", replyTo: "no-reply@localhost", admin: "admin@localhost", server: {}}};
 _$jscoverage['defaults.js'][58]++;
-exports.server = {tos: {min: "19700101"}, authentication: {loadSessionFunc: null, loadClientFunc: null, loadUserFunc: null, extensionFunc: null, loadGrantFunc: null, removeGrantFunc: null, defaultAlgorithm: "hmac-sha-1", tokenLifetimeSec: 1209600, aes256Keys: {oauthRefresh: "", oauthToken: ""}}, payload: {maxBytes: 1048576}, cors: {maxAge: 86400}, ext: {onPreRoute: (function (req, res, next) {
-  _$jscoverage['defaults.js'][112]++;
+exports.server = {tos: {min: "19700101"}, payload: {maxBytes: 1048576}, cors: {maxAge: 86400}, ext: {onPreRoute: (function (req, res, next) {
+  _$jscoverage['defaults.js'][91]++;
   next();
 }), onPreHandler: (function (req, res, next) {
-  _$jscoverage['defaults.js'][113]++;
+  _$jscoverage['defaults.js'][92]++;
   next();
 }), onPostHandler: (function (req, res, next) {
-  _$jscoverage['defaults.js'][114]++;
+  _$jscoverage['defaults.js'][93]++;
   next();
 }), onPostRoute: (function (req, res, next) {
-  _$jscoverage['defaults.js'][115]++;
+  _$jscoverage['defaults.js'][94]++;
   next();
-})}};
-_$jscoverage['defaults.js'].source = ["/*","* Copyright (c) 2012 Walmart. All rights reserved. Copyrights licensed under the New BSD License.","* See LICENSE file included with this code project for license terms.","*/","","","// Declare internals","","var internals = {};","","","// Process configuration","","exports.process = {","","    name: 'Hapi Server',","","    // Process Configuration","","    process: {","","        // runAs: 'www-data',","    },","","    // Logging","","    log: {","","        levels: {","","            info: true,","            err: true","        }","    },","","    // Email Configuration","","    email: {","","        fromName: 'Hapi Server',","        replyTo: 'no-reply@localhost',","        admin: 'admin@localhost',","","        server: {","","            // port: 25,","            // user: '',","            // password: '',","            // host: 'localhost',","            // ssl: false","        }","    }","};","","","// Server configuration","","exports.server = {","","    // tls: {","    //","    //     key: '',","    //     cert: ''","    // },","","    // Terms of Service","","    tos: {","","        min: '19700101'","    },","","    // Authentication","","    authentication: {","","        loadSessionFunc: null,","        loadClientFunc: null,","        loadUserFunc: null,","        extensionFunc: null,","        loadGrantFunc: null,","        removeGrantFunc: null,","","        defaultAlgorithm: 'hmac-sha-1',","        tokenLifetimeSec: 1209600,                  // Two weeks","","        aes256Keys: {","","            oauthRefresh: '',","            oauthToken: ''","        }","    },","","    // Payload","","    payload: {","","        maxBytes: 1024 * 1024","    },","","    // CORS","","    cors: {","","        maxAge: 86400                               // One day","    },","","    // Extensions","","    ext: {","","        onPreRoute: function (req, res, next) { next(); },        // New request, before any middleware","        onPreHandler: function (req, res, next) { next(); },      // Before route handler is called, after validation","        onPostHandler: function (req, res, next) { next(); },     // After route handler returns, before setting response","        onPostRoute: function (req, res, next) { next(); }        // After response sent","    }","};","",""];
+}), onUnknownRoute: null}, authentication: null};
+_$jscoverage['defaults.js'][107]++;
+exports.authentication = {loadClientFunc: null, loadUserFunc: null, extensionFunc: null, checkAuthorizationFunc: null, tokenEndpoint: "/oauth/token", defaultAlgorithm: "hmac-sha-1", tokenLifetimeSec: 1209600, aes256Keys: {oauthRefresh: null, oauthToken: null}};
+_$jscoverage['defaults.js'].source = ["/*","* Copyright (c) 2012 Walmart. All rights reserved. Copyrights licensed under the New BSD License.","* See LICENSE file included with this code project for license terms.","*/","","","// Declare internals","","var internals = {};","","","// Process configuration","","exports.process = {","","    name: 'Hapi Server',","","    // Process Configuration","","    process: {","","        // runAs: 'www-data',","    },","","    // Logging","","    log: {","","        levels: {","","            info: true,","            err: true","        }","    },","","    // Email Configuration","","    email: {","","        fromName: 'Hapi Server',","        replyTo: 'no-reply@localhost',","        admin: 'admin@localhost',","","        server: {","","            // port: 25,","            // user: '',","            // password: '',","            // host: 'localhost',","            // ssl: false","        }","    }","};","","","// Server configuration","","exports.server = {","","    // tls: {","    //","    //     key: '',","    //     cert: ''","    // },","","    // Terms of Service","","    tos: {","","        min: '19700101'","    },","","    // Payload","","    payload: {","","        maxBytes: 1024 * 1024","    },","","    // CORS","","    cors: {","","        maxAge: 86400                               // One day","    },","","    // Extensions","","    ext: {","","        onPreRoute: function (req, res, next) { next(); },              // New request, before any middleware","        onPreHandler: function (req, res, next) { next(); },            // Before route handler is called, after validation","        onPostHandler: function (req, res, next) { next(); },           // After route handler returns, before setting response","        onPostRoute: function (req, res, next) { next(); },             // After response sent","","        onUnknownRoute: null                                            // Overrides hapi's default handler. Signature: function (req, res) {}","    },","","    // Authentication (see exports.authentication for expected content)","","    authentication: null","};","","","// Authentication configuration","","exports.authentication = {","","    loadClientFunc: null,","    loadUserFunc: null,","    extensionFunc: null,","    checkAuthorizationFunc: null,","","    tokenEndpoint: '/oauth/token',","    defaultAlgorithm: 'hmac-sha-1',","    tokenLifetimeSec: 1209600,                  // Two weeks","","    aes256Keys: {","","        oauthRefresh: null,","        oauthToken: null","    }","};",""];
