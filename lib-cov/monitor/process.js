@@ -13,13 +13,22 @@ if (! _$jscoverage['monitor/process.js']) {
   _$jscoverage['monitor/process.js'][22] = 0;
   _$jscoverage['monitor/process.js'][23] = 0;
   _$jscoverage['monitor/process.js'][24] = 0;
-  _$jscoverage['monitor/process.js'][25] = 0;
   _$jscoverage['monitor/process.js'][26] = 0;
-  _$jscoverage['monitor/process.js'][36] = 0;
+  _$jscoverage['monitor/process.js'][27] = 0;
   _$jscoverage['monitor/process.js'][37] = 0;
   _$jscoverage['monitor/process.js'][38] = 0;
-  _$jscoverage['monitor/process.js'][40] = 0;
-  _$jscoverage['monitor/process.js'][43] = 0;
+  _$jscoverage['monitor/process.js'][39] = 0;
+  _$jscoverage['monitor/process.js'][41] = 0;
+  _$jscoverage['monitor/process.js'][50] = 0;
+  _$jscoverage['monitor/process.js'][51] = 0;
+  _$jscoverage['monitor/process.js'][53] = 0;
+  _$jscoverage['monitor/process.js'][59] = 0;
+  _$jscoverage['monitor/process.js'][60] = 0;
+  _$jscoverage['monitor/process.js'][61] = 0;
+  _$jscoverage['monitor/process.js'][64] = 0;
+  _$jscoverage['monitor/process.js'][65] = 0;
+  _$jscoverage['monitor/process.js'][67] = 0;
+  _$jscoverage['monitor/process.js'][70] = 0;
 }
 _$jscoverage['monitor/process.js'][4]++;
 var child_process = require("child_process");
@@ -41,27 +50,51 @@ var ProcessMonitor = (function () {
 _$jscoverage['monitor/process.js'][22]++;
 ProcessMonitor.prototype.cpu = (function (callback) {
   _$jscoverage['monitor/process.js'][23]++;
-  exec("ps -eo pcpu,pid | grep " + process.pid, (function (error, stdout, stderr) {
+  exec("ps -eo pcpu,pid | grep " + process.pid + " | awk '{print $1}'", (function (error, stdout, stderr) {
   _$jscoverage['monitor/process.js'][24]++;
   if (error) {
     _$jscoverage['monitor/process.js'][24]++;
     return callback(error);
   }
-  _$jscoverage['monitor/process.js'][25]++;
-  var cpuUsage = Number(stdout.split(" ").shift()).toFixed(2);
   _$jscoverage['monitor/process.js'][26]++;
+  var cpuUsage = Number(stdout);
+  _$jscoverage['monitor/process.js'][27]++;
   callback(null, cpuUsage);
 }));
 });
-_$jscoverage['monitor/process.js'][36]++;
+_$jscoverage['monitor/process.js'][37]++;
 ProcessMonitor.prototype.memory = (function (callback) {
-  _$jscoverage['monitor/process.js'][37]++;
-  var result = process.memoryUsage();
   _$jscoverage['monitor/process.js'][38]++;
+  var result = process.memoryUsage();
+  _$jscoverage['monitor/process.js'][39]++;
   result.total = os.totalmem();
-  _$jscoverage['monitor/process.js'][40]++;
+  _$jscoverage['monitor/process.js'][41]++;
   callback(null, result);
 });
-_$jscoverage['monitor/process.js'][43]++;
+_$jscoverage['monitor/process.js'][50]++;
+ProcessMonitor.prototype.responseTime = (function (req) {
+  _$jscoverage['monitor/process.js'][51]++;
+  if (! req._startTime) {
+    _$jscoverage['monitor/process.js'][51]++;
+    return null;
+  }
+  _$jscoverage['monitor/process.js'][53]++;
+  return new Date() - req._startTime;
+});
+_$jscoverage['monitor/process.js'][59]++;
+ProcessMonitor.prototype.instrument = (function (req, res, next) {
+  _$jscoverage['monitor/process.js'][60]++;
+  if (req._instrumented) {
+    _$jscoverage['monitor/process.js'][61]++;
+    return next();
+  }
+  _$jscoverage['monitor/process.js'][64]++;
+  req._startTime = new Date();
+  _$jscoverage['monitor/process.js'][65]++;
+  req._instrumented = true;
+  _$jscoverage['monitor/process.js'][67]++;
+  next();
+});
+_$jscoverage['monitor/process.js'][70]++;
 module.exports = exports = new ProcessMonitor();
-_$jscoverage['monitor/process.js'].source = ["/**"," * Module dependencies."," */","var child_process = require(\"child_process\");","var exec = child_process.exec;","var os = require(\"os\");","var Base = require(\"./base\");","","var ProcessMonitor = function(){","  this.builtins = ['uptime', 'memoryUsage'];","  Base.expose(ProcessMonitor, process, this.builtins);","  ","  return this;","}","","/**"," * Return percentage of CPU core used by THIS process"," *"," * @param {Function} callback function to process result"," * @api public"," */","ProcessMonitor.prototype.cpu = function(callback) {","  exec('ps -eo pcpu,pid | grep ' + process.pid, function (error, stdout, stderr) {","    if (error) return callback(error);","    var cpuUsage = Number(stdout.split(\" \").shift()).toFixed(2);","    callback(null, cpuUsage)","  })","}","","/**"," * Return process memoryUsage with total system memory"," *"," * @param {Function} callback function to process result"," * @api public"," */","ProcessMonitor.prototype.memory = function(callback){","  var result = process.memoryUsage();","  result.total = os.totalmem();","  ","  callback(null, result);","}","","module.exports = exports = new ProcessMonitor();"];
+_$jscoverage['monitor/process.js'].source = ["/**"," * Module dependencies."," */","var child_process = require(\"child_process\");","var exec = child_process.exec;","var os = require(\"os\");","var Base = require(\"./base\");","","var ProcessMonitor = function(){","  this.builtins = ['uptime', 'memoryUsage'];","  Base.expose(ProcessMonitor, process, this.builtins);","  ","  return this;","};","","/**"," * Return percentage of CPU core used by THIS process"," *"," * @param {Function} callback function to process result"," * @api public"," */","ProcessMonitor.prototype.cpu = function(callback) {","  exec('ps -eo pcpu,pid | grep ' + process.pid + \" | awk '{print $1}'\", function (error, stdout, stderr) {","    if (error) return callback(error);","    // var cpuUsage = Number(stdout.split(\" \").shift()).toFixed(2);","    var cpuUsage = Number(stdout);","    callback(null, cpuUsage);","  });","};","","/**"," * Return process memoryUsage with total system memory"," *"," * @param {Function} callback function to process result"," * @api public"," */","ProcessMonitor.prototype.memory = function(callback){","  var result = process.memoryUsage();","  result.total = os.totalmem();","  ","  callback(null, result);","};","","/**"," * Return request response time TODO: move into sep request.js file?"," *"," * @api public"," * @param {Object} req Express request object"," */","ProcessMonitor.prototype.responseTime = function(req) {","  if (!req._startTime) return null;","  ","  return new Date() - req._startTime;","};","","/**"," * Instrumentation for Hapi goes here"," */","ProcessMonitor.prototype.instrument = function(req, res, next){","  if (req._instrumented){","    return next();","  }","  ","  req._startTime = new Date();","  req._instrumented = true;","  ","  next();","};","","module.exports = exports = new ProcessMonitor();"];

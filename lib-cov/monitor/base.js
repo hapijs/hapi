@@ -12,10 +12,11 @@ if (! _$jscoverage['monitor/base.js']) {
   _$jscoverage['monitor/base.js'][12] = 0;
   _$jscoverage['monitor/base.js'][13] = 0;
   _$jscoverage['monitor/base.js'][14] = 0;
-  _$jscoverage['monitor/base.js'][15] = 0;
   _$jscoverage['monitor/base.js'][18] = 0;
-  _$jscoverage['monitor/base.js'][21] = 0;
-  _$jscoverage['monitor/base.js'][28] = 0;
+  _$jscoverage['monitor/base.js'][19] = 0;
+  _$jscoverage['monitor/base.js'][22] = 0;
+  _$jscoverage['monitor/base.js'][26] = 0;
+  _$jscoverage['monitor/base.js'][33] = 0;
 }
 _$jscoverage['monitor/base.js'][1]++;
 var Base = {};
@@ -37,21 +38,23 @@ Base.expose = (function (self, obj, keys) {
   _$jscoverage['monitor/base.js'][13]++;
   return (function (callback) {
   _$jscoverage['monitor/base.js'][14]++;
+  var err = null, result = null;
+  _$jscoverage['monitor/base.js'][18]++;
   try {
-    _$jscoverage['monitor/base.js'][15]++;
-    var result = fn();
+    _$jscoverage['monitor/base.js'][19]++;
+    result = fn();
   }
   catch (err) {
-    _$jscoverage['monitor/base.js'][18]++;
-    var result = null;
+    _$jscoverage['monitor/base.js'][22]++;
+    result = null;
   }
-  _$jscoverage['monitor/base.js'][21]++;
-  callback(null, result);
+  _$jscoverage['monitor/base.js'][26]++;
+  callback(err, result);
 });
 })(obj[i]);
     }
 }
 });
-_$jscoverage['monitor/base.js'][28]++;
+_$jscoverage['monitor/base.js'][33]++;
 module.exports = exports = Base;
-_$jscoverage['monitor/base.js'].source = ["var Base = {}","","Base.expose = function(self, obj, keys){","  keys = keys || null;","  ","  for(var i in obj){","    if (obj.hasOwnProperty(i)){","      if (keys instanceof Array &amp;&amp; keys.indexOf(i) &lt; 0){","        continue;","      }","      ","      self.prototype[i] = (function(fn){","        return function(callback){","          try {","            var result = fn();","          } catch (err) {","            // do nothing","            var result = null;","          }","          ","          callback(null, result);","        };","      })(obj[i]);","    }","  }","}","","module.exports = exports = Base;"];
+_$jscoverage['monitor/base.js'].source = ["var Base = {};","","Base.expose = function(self, obj, keys){","  keys = keys || null;","  ","  for(var i in obj){","    if (obj.hasOwnProperty(i)){","      if (keys instanceof Array &amp;&amp; keys.indexOf(i) &lt; 0){","        continue;","      }","      ","      self.prototype[i] = (function(fn){","        return function(callback){","          var err = null,","              result = null;","          ","          ","          try {","            result = fn();","          } catch (err) {","            // do nothing","            result = null;","            // err = err; // remove or keep? TODO","          }","          ","          callback(err, result);","        };","      })(obj[i]);","    }","  }","};","","module.exports = exports = Base;"];
