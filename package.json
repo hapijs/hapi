@@ -1,7 +1,7 @@
 {
   "name" : "hapi",
   "description" : "HTTP API Server framework",
-  "version" : "0.3.0",
+  "version" : "0.4.0",
   "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository" : "git://github.com/walmartlabs/hapi",
   "main" : "index",
@@ -12,7 +12,8 @@
     "director": "1.0.x",
     "mac": "0.x.x",
     "validator": "0.x.x",
-    "emailjs": "0.x.x"
+    "emailjs": "0.x.x",
+    "request": "2.9.x"
   },
   "devDependencies": {
     "jscoverage": "0.1.0",
