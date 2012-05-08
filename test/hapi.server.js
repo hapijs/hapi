@@ -17,7 +17,12 @@ describe("Hapi", function() {
                 var host = "localhost",
                     port = 3000,
                     options = {
-                      
+                      monitor: {
+                        log: {
+                          "http://localhost:9000/analytics/log": 1
+                        },
+                        interval: 15000
+                      }
                     },
                     routes = [
                         { method: 'GET',  path: '/', handler: testHandler, tos: 'none', authentication: 'none' }
@@ -29,6 +34,13 @@ describe("Hapi", function() {
                 });
                 
                 var s = new Hapi.Server.Server(host, port, options, routes);
+                // s.on("replied", function(event){
+                //   var req = event.request,
+                //       res = event.response
+                  
+                //   console.log(event)
+                // })
+                // s.on('ops', require('./monitors/ops.schema'))
                 s.start();
 
                 request('http://' + host + ":" + port + "/", function(err, r, body){
