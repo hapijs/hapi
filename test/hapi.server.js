@@ -15,7 +15,7 @@ describe("Hapi", function(){
               
             },
             routes = [
-              { method: 'GET',    path: '/',  handler: testHandler, tos: 'none', authentication: 'none' }
+              { method: 'GET',  path: '/', handler: testHandler, tos: 'none', authentication: 'none' }
             ]
         
         var s = new Hapi.Server.Server(host, port, options, routes);
