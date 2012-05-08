@@ -4,7 +4,7 @@ var Hapi = require("../index");
 
 var testHandler = function(hapi, reply) {
 
-    reply("ohai")
+    reply("ohai");
 }
 
 describe("Hapi", function() {
@@ -32,10 +32,10 @@ describe("Hapi", function() {
                 s.start();
 
                 request('http://' + host + ":" + port + "/", function(err, r, body){
-                  r.statusCode.should.equal(200)
-                  body.should.equal("ohai")
-                  s.stop()
-                  done()
+                  r.statusCode.should.equal(200);
+                  body.should.equal("ohai");
+                  s.stop();
+                  done();
                 })
             })
         })
