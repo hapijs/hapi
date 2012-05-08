@@ -8,18 +8,27 @@ var testHandler = function(hapi, reply){
 describe("Hapi", function(){
   describe(".Server", function(){
     describe("#Server", function(){
-      it("should", function(done){
+      it("should initialize, start, and stop", function(done){
         var host = "localhost",
-            port = 3000,
-            options = {
-              
-            },
-            routes = [
-              { method: 'GET',  path: '/', handler: testHandler, tos: 'none', authentication: 'none' }
-            ]
+          port = 3000,
+          options = {
+            
+          },
+          routes = [
+            { method: 'GET',  path: '/', handler: testHandler, tos: 'none', authentication: 'none' }
+          ];
+        
+        Hapi.Process.initialize({
+          name: 'Test API Server'
+        })
         
         var s = new Hapi.Server.Server(host, port, options, routes);
-        done()
+        s.start()
+        
+        setTimeout((function(){
+          s.stop();
+          done();
+        }), 150)
       })
     })
   })
