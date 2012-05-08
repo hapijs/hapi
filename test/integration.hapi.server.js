@@ -37,22 +37,31 @@ describe("Hapi", function() {
                 })
             })
 
-            // it("should run fine with log monitoring", function(done){
+            // it("should run fine with monitoring", function(done){
             //     var port = 3001,
             //         options = {
             //             name: 'Test API Server',
             //             monitor: {
+            //                 request: {
+            //                   "http://localhost:9000/analytics/blammo": null
+            //                 },
+            //                 ops: {
+            //                   "http://localhost:9000/analytics/blammo": null
+            //                 },
             //                 log: {
-            //                     "http://localhost:9000/analytics/log": 1
+            //                   "http://localhost:9000": {
+            //                     uri: "/analytics/log"
+            //                   }
             //                 },
             //                 interval: 15000
             //             }
             //         };
                 
-            //     Hapi.Process.initialize(options)
+            //     // Hapi.Process.initialize(options);
             //     var s = new Hapi.Server.Server(host, port, options, routes);
-            //     s.start()
-                
+            //     // s.start()
+            //     // s.stop()
+            //     done();
             // })
         })
     })
