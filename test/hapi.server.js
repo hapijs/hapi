@@ -1,3 +1,4 @@
+var request = require('request');
 var should = require("should");
 var Hapi = require("../index");
 
@@ -30,11 +31,12 @@ describe("Hapi", function() {
                 var s = new Hapi.Server.Server(host, port, options, routes);
                 s.start();
 
-                setTimeout((function() {
-
-                    s.stop();
-                    done();
-                }), 150);
+                request('http://' + host + ":" + port + "/", function(err, r, body){
+                  r.statusCode.should.equal(200)
+                  body.should.equal("ohai")
+                  s.stop()
+                  done()
+                })
             })
         })
     })
