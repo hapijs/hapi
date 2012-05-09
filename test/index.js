@@ -1,15 +1,15 @@
-var should = require("should");
+// var should = require("should");
 
-describe("Hapi", function(){
-  it("should require() without errors", function(done){
-    var Hapi;
+// describe("Hapi", function(){
+//   it("should require() without errors", function(done){
+//     var Hapi;
     
-    (function(){
-      Hapi = require("./index.js");
-    }).should.not.throw();
+//     (function(){
+//       Hapi = require("./index.js");
+//     }).should.not.throw();
     
-    Hapi.should.not.equal(null);
+//     Hapi.should.not.equal(null);
     
-    done();
-  })
-})
+//     done();
+//   })
+// })
