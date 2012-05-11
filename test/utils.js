@@ -1,6 +1,8 @@
 var assert = require('assert');
-var utils = require("../lib/utils");
+var hapi = require('../lib/hapi');
 var should = require("should");
+var sinon = require("sinon");
+var utils = require("../lib/utils");
 
 describe("utils", function(){
   var emptyObj = {};
@@ -150,5 +152,22 @@ describe("utils", function(){
   
   describe("#email", function(){
     // Function generates side effect, not sure if good to email on EVERY test run
-  })
+  //   it("should", function(done){
+  //     hapi.Process.initialize({
+  //       name: "ohai",
+  //       email: {
+  //         admin: "thegoleffect@gmail.com",
+  //         fromName: "Van",
+  //         replyTo: "thegoleffect@gmail.com",
+  //         server: "localhost"
+  //       }
+  //     })
+
+  //     utils.email('thegoleffect@gmail.com', 'test', 'ohai', null, function(){
+  //       console.log('sent')
+  //       done();
+  //     })
+  //   })
+    
+  // })
 })
