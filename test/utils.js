@@ -150,6 +150,16 @@ describe("utils", function(){
     // Non-deterministic function, test TBD
   })
   
+  describe("#exists", function(){
+    it("should return true for non null, non undefined values", function(done){
+      var values = [true, 1, "one", [1], {x:1}, function(){ return 1; }];
+      for(var i in values){
+        utils.exists(values[i]).should.equal(true);
+      }
+      done();
+    })
+  })
+  
   describe("#email", function(){
     // Function generates side effect, not sure if good to email on EVERY test run
   //   it("should", function(done){
@@ -169,5 +179,5 @@ describe("utils", function(){
   //     })
   //   })
     
-  // })
+  })
 })
