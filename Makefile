@@ -4,6 +4,8 @@ test: lib-cov
 	@NODE_ENV=test ./node_modules/.bin/mocha --reporter $(REPORTER)
 	@$(MAKE) rm-lib-cov
 
+tests: test
+
 lib-cov: rm-lib-cov
 	@jscoverage lib lib-cov
 
