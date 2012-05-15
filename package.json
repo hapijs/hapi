@@ -1,19 +1,29 @@
 {
-  "name" : "hapi",
-  "description" : "HTTP API Server framework",
-  "version" : "0.4.2",
-  "author" : "Eran Hammer-Lahav <eran@hueniverse.com>",
-  "repository" : "git://github.com/walmartlabs/hapi",
-  "main" : "index",
-  "keywords": ["http", "mac", "authentication", "oauth", "api", "director"],
-  "engines" : {"node" : ">=0.6.0"},
+  "name": "hapi",
+  "description": "HTTP API Server framework",
+  "version": "0.4.3",
+  "author": "Eran Hammer-Lahav <eran@hueniverse.com>",
+  "repository": "git://github.com/walmartlabs/hapi",
+  "main": "index",
+  "keywords": [
+    "http",
+    "mac",
+    "authentication",
+    "oauth",
+    "api",
+    "director"
+  ],
+  "engines": {
+    "node": ">=0.6.0"
+  },
   "dependencies": {
     "async": "0.1.18",
     "director": "1.0.x",
     "mac": "0.x.x",
     "validator": "0.x.x",
     "emailjs": "0.x.x",
-    "request": "2.9.x"
+    "request": "2.9.x",
+    "sinon": "1.3.4"
   },
   "devDependencies": {
     "jscoverage": "0.1.0",
