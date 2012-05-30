@@ -100,7 +100,7 @@ hapi provides a myriad of util functions for your use
 * `getRandomString(size)` - returns a random string of `size`
 * `hide(object, definition)` - removes hidden keys
 * `map(array, key)` - turns an array into an object
-* `merge(target, source) - Merge all the properties of source into target; source wins in conflict
+* `merge(target, source)` - Merge all the properties of source into target; source wins in conflict
 * `unique(array, key)` - removes duplicates from an array
 
 
