@@ -50,7 +50,6 @@ Now navigate to http://localhost:8080/sample and you should receive 'hello world
 Wildcard declaration in routes are handled the same way as they are in Director or Express. Their retrieval on the handler is handled a little differently.
 
 ```js
-
 //when you add a route like this:
 server.addRoute({
 	path : '/luna/:album',
@@ -60,12 +59,10 @@ server.addRoute({
 });
 
 function albumRetrieve(hapi, reply) {
-	//hapi.params will have your parameter
-	console.log(hapi.params.cor);//album
-	reply(albumGet(hapi.params.cor));
+	//hapi.params will have the parameter
+	console.log(hapi.params.album);
+	reply(albumGet(hapi.params.album));
 }
-
-
 ```
 
 ### Handlers
@@ -87,9 +84,7 @@ hapi provides a few places where middleware can be added into the functions bein
 Add them via the 'ext' portion  of the options. 
 
 ```js
-
 var server = new hapi.Server.Server('localhost', 8088, {name:'sample', uri:'0.0.0.0', ext: {onPreRoute:myPreRouteFunction}});
-
 ```
 
 ### Utils
