@@ -1,7 +1,7 @@
 {
   "name": "hapi",
   "description": "HTTP API Server framework",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "author": "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository": "git://github.com/walmartlabs/hapi",
   "main": "index",
@@ -11,7 +11,8 @@
     "authentication",
     "oauth",
     "api",
-    "director"
+    "director",
+    "joi"
   ],
   "engines": {
     "node": ">=0.6.0"
