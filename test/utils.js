@@ -75,21 +75,22 @@ describe("utils", function(){
       done();
     })
   })
-  
-  describe("#checkEmail", function(){
-    var validEmail = "ehammer@walmart.com",
-        invalidEmail = "ohai";
+
+  // #checkEmail was removed in 78435467c133416ea03465845b32026365d79bf8
+  // describe("#checkEmail", function(){
+  //   var validEmail = "ehammer@walmart.com",
+  //       invalidEmail = "ohai";
     
-    it("should return false on invalid email", function(done){
-      utils.checkEmail(invalidEmail).should.equal(false);
-      done();
-    })
+  //   it("should return false on invalid email", function(done){
+  //     utils.checkEmail(invalidEmail).should.equal(false);
+  //     done();
+  //   })
     
-    it("should return true on valid email", function(done){
-      utils.checkEmail(validEmail).should.equal(true);
-      done();
-    })
-  })
+  //   it("should return true on valid email", function(done){
+  //     utils.checkEmail(validEmail).should.equal(true);
+  //     done();
+  //   })
+  // })
   
   describe("#hide", function(){
     var objWithHiddenKeys = {
@@ -150,15 +151,16 @@ describe("utils", function(){
     // Non-deterministic function, test TBD
   })
   
-  describe("#exists", function(){
-    it("should return true for non null, non undefined values", function(done){
-      var values = [true, 1, "one", [1], {x:1}, function(){ return 1; }];
-      for(var i in values){
-        utils.exists(values[i]).should.equal(true);
-      }
-      done();
-    })
-  })
+  // #exists was removed in 78435467c133416ea03465845b32026365d79bf8
+  // describe("#exists", function(){
+  //   it("should return true for non null, non undefined values", function(done){
+  //     var values = [true, 1, "one", [1], {x:1}, function(){ return 1; }];
+  //     for(var i in values){
+  //       utils.exists(values[i]).should.equal(true);
+  //     }
+  //     done();
+  //   })
+  // })
   
   describe("#email", function(){
     // Function generates side effect, not sure if good to email on EVERY test run
