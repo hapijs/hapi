@@ -9,7 +9,7 @@
 //   describe("#encode", function(){
 //     it("should encode known sample to known encoding", function(done){
 //       var test = b64.encode(source);
-//       console.log(test, encoded, test == encoded);
+//       console.log(test, encoded, test === encoded);
 //       test.should.equal(encoded);
 //       done();
 //     })
