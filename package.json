@@ -24,7 +24,7 @@
     "emailjs": "0.x.x",
     "request": "2.9.x",
     "sinon": "1.3.4",
-    "joi":"0.3.x"
+    "joi":"0.x.x"
   },
   "devDependencies": {
     "jscoverage": "0.1.0",
