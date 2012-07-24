@@ -10,18 +10,18 @@ describe("base64", function(){
       var test = b64.encode(source);
       test.should.equal(encoded);
       done();
-    })
-  })
+    });
+  });
   
   describe("#decode", function(){
     it("should decode known encoding to known sample", function(done){
       b64.decode(encoded).should.equal(source);
       done();
-    })
-  })
+    });
+  });
 
   it("should decode what it encoded", function(done){
     b64.decode(b64.encode(source)).should.equal(source);
     done();
-  })
-})
+  });
+});
