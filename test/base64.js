@@ -19,4 +19,9 @@ describe("base64", function(){
       done();
     })
   })
+
+  it("should decode what it encoded", function(done){
+    b64.decode(b64.encode(source)).should.equal(source);
+    done();
+  })
 })
