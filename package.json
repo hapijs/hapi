@@ -22,7 +22,8 @@
     "mac": "0.x.x",
     "validator": "0.x.x",
     "emailjs": "0.x.x",
-    "request": "2.9.x"
+    "request": "2.9.x",
+    "redis":"0.x.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
