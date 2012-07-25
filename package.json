@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "jscoverage": "0.1.0",
-    "mocha": "0.x.x",
+    "mocha": "1.x.x",
     "request": "2.9.100",
     "should": "0.x.x"
   },
