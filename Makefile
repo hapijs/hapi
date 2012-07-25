@@ -1,7 +1,7 @@
 REPORTER = dot
 
 test: lib-cov
-	@NODE_ENV=test ./node_modules/.bin/mocha --reporter $(REPORTER)
+	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter $(REPORTER)
 	@$(MAKE) rm-lib-cov
 
 tests: test
