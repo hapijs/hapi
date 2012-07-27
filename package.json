@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "async": "0.1.18",
-    "director": "1.0.x",
+    "director": "1.1.x",
     "mac": "0.x.x",
     "validator": "0.x.x",
     "emailjs": "0.x.x",
