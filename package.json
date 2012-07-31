@@ -1,7 +1,7 @@
 {
   "name": "hapi",
   "description": "HTTP API Server framework",
-  "version": "0.5.1a",
+  "version": "0.5.1b",
   "author": "Eran Hammer-Lahav <eran@hueniverse.com>",
   "repository": "git://github.com/walmartlabs/hapi",
   "main": "index",
