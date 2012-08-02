@@ -5,7 +5,24 @@
 
 ## Table of Contents
 
-* 1. [Introduction](#Introduction "Introduction")
+* [Introduction](#introduction "Introduction")
+ [Example](#example "Example")
+* [Type Registry](#type-registry "Type Registry")
+* [Constraints](#constraints "Constraints")
+ [BaseType](#basetype "BaseType")
+ [String](#string "String")
+ [Number](#number "Number")
+ [Boolean](#boolean "Boolean")
+ [Array](#array "Array")
+ [Object](#object "Object")
+* [Usage](#usage "Usage")
+ [Config Syntax](#config-syntax "Config Syntax")
+ [Evaluation Order](#evaluation-order "Evaluation Order")
+* [Security Considerations](#security-considerations "Security Considerations")
+* [References](#references "References")
+ [Reference A: Other Types](#reference-a-other-types "Reference A: Other Types")
+ [Reference B: Deprecated Proposal](#reference-b-deprecated-proposal "Reference B: Deprecated Proposal")
+ 
 
 ## Abstract
 
@@ -287,7 +304,7 @@ Encodings could potentially play a role in security - some strings in one encodi
 
 
 ## References
-### Reference A: Other "types"
+### Reference A: Other Types
 
 #### "null"
 
@@ -298,7 +315,7 @@ The "null" variable is considered to be of type "object". An alias could easily 
 Unlike null, undefined is its own type with its own special properties. For the purposes of querystring validation, any blank or indefinite inputs will appear as blank strings (""). As far as I know, there is no way to force the undefined object into the querystring. Thus, unless otherwise proven, "undefined" will not be included in the Type Registry.
 
 
-### Reference B: Deprecated proposal
+### Reference B: Deprecated Proposal
     ## Some Approaches
 
     * Objects
