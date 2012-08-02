@@ -3,6 +3,10 @@
 * Author: Van Nguyen <vnguyen@walmart.com>
 * Date: Thu Aug 2 2012 12:30:00 GMT-0800 (PST)
 
+## Table of Contents
+
+* 1. [Introduction](#Introduction "Introduction")
+
 ## Abstract
 
 Query validation is the process of ensuring that querystring parameters given to route URI match pre-specified expectations. Thus, developers can code handlers with the explicit knowledge that any and all invalid inputs will not be passed to the handler (and thus not have to repetitively write type juggling code for each handler). 
