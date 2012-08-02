@@ -122,9 +122,11 @@ Thus, subsequent calls to the new "type" will behave as fully registered types i
 
 ## Constraints
 
+Constraints are functions that restrict the input value in some way.
+
 ### Implementation
 
-TODO: Show example function definition (to show logical uniformity between constraints)
+TODO: Show example function definition (to show logical uniformity between constraints and chainability)
 
 
 ### By Type
