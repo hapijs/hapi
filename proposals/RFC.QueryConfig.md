@@ -41,7 +41,7 @@ TODO: write this last
 ### Example
 #### Config
     [
-      { method: 'GET', path: '/users', handler: Users.get, query: query}
+      { method: 'GET', path: '/users', handler: Users.get, query: query},
       ...
     ]
 
