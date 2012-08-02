@@ -6,22 +6,22 @@
 ## Table of Contents
 
 * [Introduction](#introduction "Introduction")
- [Example](#example "Example")
+    * [Example](#example "Example")
 * [Type Registry](#type-registry "Type Registry")
 * [Constraints](#constraints "Constraints")
- [BaseType](#basetype "BaseType")
- [String](#string "String")
- [Number](#number "Number")
- [Boolean](#boolean "Boolean")
- [Array](#array "Array")
- [Object](#object "Object")
+    * [BaseType](#basetype "BaseType")
+    * [String](#string "String")
+    * [Number](#number "Number")
+    * [Boolean](#boolean "Boolean")
+    * [Array](#array "Array")
+    * [Object](#object "Object")
 * [Usage](#usage "Usage")
- [Config Syntax](#config-syntax "Config Syntax")
- [Evaluation Order](#evaluation-order "Evaluation Order")
+    * [Config Syntax](#config-syntax "Config Syntax")
+    * [Evaluation Order](#evaluation-order "Evaluation Order")
 * [Security Considerations](#security-considerations "Security Considerations")
 * [References](#references "References")
- [Reference A: Other Types](#reference-a-other-types "Reference A: Other Types")
- [Reference B: Deprecated Proposal](#reference-b-deprecated-proposal "Reference B: Deprecated Proposal")
+    * [Reference A: Other Types](#reference-a-other-types "Reference A: Other Types")
+    * [Reference B: Deprecated Proposal](#reference-b-deprecated-proposal "Reference B: Deprecated Proposal")
  
 
 ## Abstract
@@ -208,6 +208,10 @@ Specifies that this input matches the given RegExp pattern.
 If pattern is not specified, it returns an Error.
 
 If pattern is not a valid RegExp object, it returns an error.
+
+##### String.email()
+
+Specifies that this input is a valid email string.
 
 ##### String.encoding(enc)
 
