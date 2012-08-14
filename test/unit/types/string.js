@@ -38,10 +38,10 @@ describe("Types.String", function(){
       done();
     })
     
-    it('should have correct length on #valueOf', function(done){
+    it('should have value on #valueOf', function(done){
       var result = S().min(5).valueOf();
       should.exist(result);
-      (result.length).should.equal(1)
+      (result.length).should.equal(2)
       done();
     })
   })
@@ -84,7 +84,7 @@ describe("Types.String", function(){
     it('should have correct length on #valueOf', function(done){
       var result = S().max(5).valueOf();
       should.exist(result);
-      (result.length).should.equal(1)
+      (result.length).should.equal(2)
       done();
     })
   })
@@ -127,7 +127,7 @@ describe("Types.String", function(){
     it('should have correct length on #valueOf', function(done){
       var result = S().regex(/^[a-z]+$/).valueOf();
       should.exist(result);
-      (result.length).should.equal(1)
+      (result.length).should.equal(2)
       done();
     })
   })
