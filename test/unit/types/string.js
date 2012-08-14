@@ -71,4 +71,30 @@ describe("Types.String", function(){
       done();
     })
   })
+  
+  describe("#regex", function(){
+    it("should exist", function(done){
+      should.exist(S.regex);
+      done();
+    })
+    
+    describe("validator function", function(){
+      var result = S.regex(/^[a-z]+$/);
+      var validator = result.valueOf().regex;
+      
+      it("should validate known valid string", function(done){
+        var str = "aaaaa";
+        should.exist(validator(str));
+        validator(str).should.equal(true);
+        done();
+      })
+      
+      it("should invalidate known invalid string", function(done){
+        var str = "aaaaa00000ccccc";
+        should.exist(validator(str))
+        validator(str).should.equal(false);
+        done();
+      })
+    })
+  })
 })
