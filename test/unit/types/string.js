@@ -22,11 +22,53 @@ describe("Types.String", function(){
   
   describe("#min", function(){
     it("should exist", function(done){
+      should.exist(S.min);
+      done();
+    })
+    
+    it("should generate working validator fn", function(done){
+      var result = S.min(5);
+      var validator = result.valueOf().min;
       
+      var str = "aaaaa";
+      should.exist(validator(str));
+      validator(str).should.equal(true);
       
-      should.exist(Types.String.min);
+      var str = "aaaaabbbbbccccc";
+      should.exist(validator(str))
+      validator(str).should.equal(true);
+      
+      var str = "a";
+      should.exist(validator(str));
+      validator(str).should.equal(false);
+      
       done();
     })
   })
   
+  describe("#max", function(){
+    it("should exist", function(done){
+      should.exist(S.max);
+      done();
+    })
+    
+    it("should generate working validator fn", function(done){
+      var result = S.max(5);
+      var validator = result.valueOf().max;
+      
+      var str = "aaaaa";
+      should.exist(validator(str));
+      validator(str).should.equal(true);
+      
+      var str = "aaaaabbbbbccccc";
+      should.exist(validator(str))
+      validator(str).should.equal(false);
+      
+      var str = "a";
+      should.exist(validator(str));
+      validator(str).should.equal(true);
+      
+      done();
+    })
+  })
 })
