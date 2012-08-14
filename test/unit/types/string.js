@@ -14,9 +14,9 @@ describe("Types.String", function(){
     done();
   })
   
-  it("should ", function(done){
+  it("should show resulting object with #valueOf", function(done){
     var result = S.min(5);
-    console.log(result.toString());
+    should.exist(result.valueOf());
     done();
   })
   
