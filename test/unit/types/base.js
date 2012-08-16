@@ -12,4 +12,11 @@ describe("BaseType", function(){
       done();
     })
   })
+  
+  it('should NOT raise error if input is undefined and not required', function(done){
+    var result = base._required(false)();
+    should.exist(result);
+    result.should.equal(true);
+    done();
+  })
 })
