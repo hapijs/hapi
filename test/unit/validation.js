@@ -46,12 +46,22 @@ describe("Validation", function(){
           var request = createRequestObject(query);
           
           Validation.validateQuery(request, route.query, function(err){
-            should.exist(err);
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it('should not raise error on undefined OPTIONAL parameter', function(done){
+          var modifiedRoute = {method: 'GET', path: '/', handler: OhaiHandler, query: {username: S().required(), name: S()}};
+          var query = {username: "walmart"}
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, modifiedRoute.query, function(err){
+            should.not.exist(err);
             done();
           })
         })
       })
-      
     })
     
     // TODO: deprecate these
