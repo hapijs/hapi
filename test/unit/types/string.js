@@ -13,7 +13,7 @@ describe("Types.String", function(){
   })
   
   it("should inherit functions from BaseType", function(done){
-    var fns = ["required", "optional", "add"];
+    var fns = ["required", "add"];
     
     for(var i in fns){
       should.exist(S()[fns[i]]);
