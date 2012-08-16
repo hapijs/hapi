@@ -1,9 +1,7 @@
-var Types = require("../lib/types");
+var Types = require("../../lib/types");
 var should = require("should");
 
 describe("Types", function(){
-  
-  
   // it("should have preset JS types as keys", function(done){
   //   var presets = ["String", "Number", "Boolean", "Array", "Object", "Function"];
     
