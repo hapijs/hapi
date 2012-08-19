@@ -2,9 +2,9 @@
 // var should = require("should");
 // var Hapi = require("../index");
 
-// var testHandler = function(hapi, reply) {
+// var testHandler = function(request) {
 
-//     reply("ohai");
+//     request.reply("ohai");
 // }
 
 // describe("Hapi", function() {
