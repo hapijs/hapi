@@ -1,3 +1,19 @@
+/**
+    To Test:
+    
+        Run the server.
+        Try various URLs like:
+            http://localhost:8080/ // success
+            http://localhost:8080/?username=test // success
+            http://localhost:8080/admin?username=walmart&password=worldofwalmartlabs // success
+            http://localhost:8080/admin?username=walmart // fail
+            http://localhost:8080/users?email=vnguyen@walmart.com // success
+            http://localhost:8080/users?email=@walmart.com // fail
+            http://localhost:8080/config?choices=1&choices=2 // success
+            http://localhost:8080/config?choices=1 // success
+            http://localhost:8080/config // fail
+*/
+
 // Load modules
 
 var Hapi = require('../../lib/hapi');
@@ -50,4 +66,3 @@ internals.get = function (request) {
 };
 
 internals.main();
-
