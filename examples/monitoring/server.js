@@ -1,9 +1,9 @@
 var Hapi = require("./index");
 var request = require("request");
 
-var testHandler = function(hapi, reply) {
+var testHandler = function(request) {
 
-    reply("ohai");
+    request.reply("ohai");
 };
 
 var host = "localhost",
