@@ -605,7 +605,7 @@ describe("Validation", function(){
       })
     })
 
-    // describe("using Types.Boolean", function(){
+    describe("using Types.Boolean", function(){
     //   describe("#integer", function(){
     //     var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {num: N().integer()}};
         
@@ -619,7 +619,7 @@ describe("Validation", function(){
     //       })
     //     })
     //   })
-    // })
+    })
 
     describe("using Types.Object", function(){
       
