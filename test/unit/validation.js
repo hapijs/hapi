@@ -27,7 +27,7 @@ var createRequestObject = function(query){
 }
 
 describe("Validation", function(){
-  describe("#validateQuery", function(){
+  describe("#query", function(){
     describe("using Types.String", function(){
       describe("#required", function(){
         var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {username: S().required()}};
@@ -36,7 +36,7 @@ describe("Validation", function(){
           var query = {}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -46,7 +46,7 @@ describe("Validation", function(){
           var query = {username: "walmart"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -57,7 +57,7 @@ describe("Validation", function(){
           var query = {username: "walmart"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, modifiedRoute.query, function(err){
+          Validation.query(request, modifiedRoute.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -71,7 +71,7 @@ describe("Validation", function(){
           var query = {username: "van"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -81,7 +81,7 @@ describe("Validation", function(){
           var query = {username: "thegoleffect"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -91,7 +91,7 @@ describe("Validation", function(){
           var query = {username: "walmart"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -105,7 +105,7 @@ describe("Validation", function(){
           var query = {username: "thegoleffect"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -115,7 +115,7 @@ describe("Validation", function(){
           var query = {username: "van"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -125,7 +125,7 @@ describe("Validation", function(){
           var query = {username: "walmart"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -140,7 +140,7 @@ describe("Validation", function(){
           var query = {username: "van"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -150,7 +150,7 @@ describe("Validation", function(){
           var query = {username: "1-aaaa"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -164,7 +164,7 @@ describe("Validation", function(){
           var query = {name: "van"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -174,7 +174,7 @@ describe("Validation", function(){
           var query = {username: "van"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -184,7 +184,7 @@ describe("Validation", function(){
           var query = {username: "walmart"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -199,7 +199,7 @@ describe("Validation", function(){
             var query = {phrase: "w0rld of w4lm4rtl4bs"}
             var request = createRequestObject(query);
             
-            Validation.validateQuery(request, route.query, function(err){
+            Validation.query(request, route.query, function(err){
               should.not.exist(err);
               done();
             })
@@ -218,7 +218,7 @@ describe("Validation", function(){
             var query = {phrase: "abcd#f?h1j orly?"}
             var request = createRequestObject(query);
             
-            Validation.validateQuery(request, route.query, function(err){
+            Validation.query(request, route.query, function(err){
               should.exist(err);
               done();
             })
@@ -240,7 +240,7 @@ describe("Validation", function(){
             var query = {phrase: "walmartlabs"}
             var request = createRequestObject(query);
             
-            Validation.validateQuery(request, route.query, function(err){
+            Validation.query(request, route.query, function(err){
               should.not.exist(err);
               done();
             })
@@ -258,7 +258,7 @@ describe("Validation", function(){
             var query = {phrase: "abcd#f?h1j"}
             var request = createRequestObject(query);
             
-            Validation.validateQuery(request, route.query, function(err){
+            Validation.query(request, route.query, function(err){
               should.exist(err);
               done();
             })
@@ -281,7 +281,7 @@ describe("Validation", function(){
           var query = {email: "van@walmartlabs.com"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -291,7 +291,7 @@ describe("Validation", function(){
           var query = {email: "@iaminvalid.com"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -305,7 +305,7 @@ describe("Validation", function(){
           var query = {username: "thegoleffect"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -319,7 +319,7 @@ describe("Validation", function(){
           var query = {date: "Mon Aug 20 2012 12:14:33 GMT-0700 (PDT)"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -329,7 +329,7 @@ describe("Validation", function(){
           var query = {date: "2012-08-20T19:14:33.000Z"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -339,7 +339,7 @@ describe("Validation", function(){
           var query = {date: "1345490073000"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -349,7 +349,7 @@ describe("Validation", function(){
           var query = {date: "worldofwalmartlabs"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -363,7 +363,7 @@ describe("Validation", function(){
           var query = {username: "walmart", password: "worldofwalmartlabs"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -373,7 +373,7 @@ describe("Validation", function(){
           var query = {username: "walmart"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -387,7 +387,7 @@ describe("Validation", function(){
           var query = {username: "walmart"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -397,7 +397,7 @@ describe("Validation", function(){
           var query = {username: "walmart", password: "worldofwalmartlabs"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -411,7 +411,7 @@ describe("Validation", function(){
           var query = {color: "white"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -421,7 +421,7 @@ describe("Validation", function(){
           var query = {color: "beige"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -435,7 +435,7 @@ describe("Validation", function(){
           var query = {color: "white"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -445,7 +445,7 @@ describe("Validation", function(){
           var query = {color: "beige"};
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -461,7 +461,7 @@ describe("Validation", function(){
           var query = {num: "1.02"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -471,7 +471,7 @@ describe("Validation", function(){
           var query = {num: "100"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -485,7 +485,7 @@ describe("Validation", function(){
           var query = {num: "100"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -495,7 +495,7 @@ describe("Validation", function(){
           var query = {num: "1.02"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -509,7 +509,7 @@ describe("Validation", function(){
           var query = {num: "50"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -519,7 +519,7 @@ describe("Validation", function(){
           var query = {num: "102000"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -529,7 +529,7 @@ describe("Validation", function(){
           var query = {num: "100"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -543,7 +543,7 @@ describe("Validation", function(){
           var query = {num: "120000"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -553,7 +553,7 @@ describe("Validation", function(){
           var query = {num: "50"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -563,7 +563,7 @@ describe("Validation", function(){
           var query = {num: "100"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -577,7 +577,7 @@ describe("Validation", function(){
           var query = {num: "120000"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -587,7 +587,7 @@ describe("Validation", function(){
           var query = {num: "25"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.exist(err);
             done();
           })
@@ -597,7 +597,7 @@ describe("Validation", function(){
           var query = {num: "75"}
           var request = createRequestObject(query);
           
-          Validation.validateQuery(request, route.query, function(err){
+          Validation.query(request, route.query, function(err){
             should.not.exist(err);
             done();
           })
@@ -613,7 +613,7 @@ describe("Validation", function(){
     //       var query = {num: "1.02"}
     //       var request = createRequestObject(query);
           
-    //       Validation.validateQuery(request, route.query, function(err){
+    //       Validation.query(request, route.query, function(err){
     //         should.exist(err);
     //         done();
     //       })
