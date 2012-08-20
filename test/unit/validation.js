@@ -190,6 +190,89 @@ describe("Validation", function(){
         })
       })
 
+      describe("#alphanum", function(done){
+          describe("with spacesEnabled", function(){
+            var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {phrase: S().alphanum(true)}};
+            
+            it('should validate on known valid input', function(done){
+              var query = {phrase: "w0rld of w4lm4rtl4bs"}
+              var request = createRequestObject(query);
+              
+              Validation.validateQuery(request, route.query, function(err){
+                should.not.exist(err);
+                done();
+              })
+              
+              // var inputs = ["w0rld of w4lm4rtl4bs", "ev3ry day l0w prices", "wa1m4rt1abs"];
+              // var validator = S().alphanum(true);
+              // for(var i in inputs){
+              //   var currentResult = validator(inputs[i]);
+              //   should.exist(currentResult);
+              //   currentResult.should.equal(true);
+              // }
+              // done();
+            })
+            
+            it('should invalidate on known invalid inputs', function(done){
+              var query = {phrase: "abcd#f?h1j orly?"}
+              var request = createRequestObject(query);
+              
+              Validation.validateQuery(request, route.query, function(err){
+                should.exist(err);
+                done();
+              })
+            //   var inputs = ["abcd#f?h1j orly?", "t3r4_y7es", "m3g4^y7es"];
+            //   var validator = S().alphanum(true);
+            //   for(var i in inputs){
+            //     var currentResult = validator(inputs[i]);
+            //     should.exist(currentResult);
+            //     currentResult.should.equal(false);
+            //   }
+            //   done();
+            })
+          })
+          
+          describe("without spacesEnabled", function(){
+            var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {phrase: S().alphanum(false)}};
+            
+            it('should validate on known valid input', function(done){
+              var query = {phrase: "walmartlabs"}
+              var request = createRequestObject(query);
+              
+              Validation.validateQuery(request, route.query, function(err){
+                should.not.exist(err);
+                done();
+              })
+              // var inputs = ["walmartlabs", "w0rldofw41m4rtlabs", "everydayl0wprices"];
+              // var validator = S().alphanum(false);
+              // for(var i in inputs){
+              //   var currentResult = validator(inputs[i]);
+              //   should.exist(currentResult);
+              //   currentResult.should.equal(true);
+              // }
+              // done();
+            })
+            
+            it('should invalidate on known invalid inputs', function(done){
+              var query = {phrase: "abcd#f?h1j"}
+              var request = createRequestObject(query);
+              
+              Validation.validateQuery(request, route.query, function(err){
+                should.exist(err);
+                done();
+              })
+              // var inputs = ["abcd#f?h1j", "m3ch4", "m3g4"];
+              // var validator = S().alphanum(false);
+              // for(var i in inputs){
+              //   var currentResult = validator(inputs[i]);
+              //   should.exist(currentResult);
+              //   currentResult.should.equal(false);
+              // }
+              // done();
+            })
+          })
+        })
+
       describe("#rename", function(){
         var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {username: S().rename("name", {deleteOrig:true}).min(7)}};
         
