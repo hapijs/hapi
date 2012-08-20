@@ -4,7 +4,8 @@ var qs = require("querystring");
 var Validation = require("../../lib/validation");
 var Types = require("../../lib/types");
 var S = Types.String,
-    N = Types.Number;
+    N = Types.Number,
+    O = Types.Object;
 
 var OhaiHandler = function (hapi, reply) {
   reply('ohai');
@@ -310,6 +311,50 @@ describe("Validation", function(){
           })
         })
       })
+      
+      describe("#date", function(){
+        var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {date: S().date()}};
+        
+        it("should not raise error on Date string input given as toLocaleString", function(done){
+          var query = {date: "Mon Aug 20 2012 12:14:33 GMT-0700 (PDT)"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it("should not raise error on Date string input given as ISOString", function(done){
+          var query = {date: "2012-08-20T19:14:33.000Z"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it("should not raise error on Date string input given as unix timestamp", function(done){
+          var query = {date: "1345490073000"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it("should raise on Date string input as invalid string", function(done){
+          var query = {date: "worldofwalmartlabs"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.exist(err);
+            done();
+          })
+        })
+      })
     })
 
     describe("using Types.Number", function(){
@@ -479,5 +524,9 @@ describe("Validation", function(){
     //     })
     //   })
     // })
+
+    describe("using Types.Object", function(){
+      
+    })
   })
 })
