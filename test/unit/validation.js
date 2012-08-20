@@ -198,7 +198,6 @@ describe("Validation", function(){
           var request = createRequestObject(query);
           
           Validation.validateQuery(request, route.query, function(err){
-            console.log(request)
             should.not.exist(err);
             done();
           })
