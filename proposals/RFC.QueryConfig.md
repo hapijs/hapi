@@ -50,11 +50,11 @@ TODO: write this last
         I = Types.Int;
     
     var query = {
-      username: S.required().alphanum().min(3).max(30).join("email"),
-      password: S.regex(/[a-zA-Z0-9]{3,30}/).disjoin("access_token"),
-      access_token: S,
-      birthyear: I.min(1850).max(2012),
-      email: S.email()
+      username: S().required().alphanum().min(3).max(30).with("email"),
+      password: S().regex(/[a-zA-Z0-9]{3,30}/).without("access_token"),
+      access_token: S(),
+      birthyear: I().min(1850).max(2012),
+      email: S().email()
     }
 
 The above query specifies a lot of constraints:
@@ -93,7 +93,7 @@ The Types object is pre-populated with a mutable list of JavaScript's valid data
 * Function
 * Int # Number.integer()
 * Float # Number.float()
-* Date # Object.date()
+* Date # String.date()
 * Email # String.email()
 
 Note that the Int is just Number with the integer constraint already applied. Any custom, user-defined data type is derived from one of the base types (although it may also combine additional types for sub-elements). Thus, there are two valid ways of creating your own types.
@@ -109,7 +109,7 @@ The first method is to add the type directly to the Type Registry. This makes th
 
 The second, simpler, and more acceptable method is to alias the new Type within the config file.
 
-    var PositiveInt = Number.integer().min(0)
+    var PositiveInt = Number().integer().min(0)
     PositiveInt.max(999999);
 
 Thus, subsequent calls to the new "type" will behave as fully registered types in much less code.
@@ -164,17 +164,35 @@ If no inputs are supplied, it returns an Error.
 
 *Note: The two functions .valid and .invalid should not be used simultaneously.*
 
-##### BaseType.join(a1[, a2, ...])
+##### BaseType.with(a1[, a2, ...])
 
 Specifies an arbitrary number of inputs that must also be supplied (a1..an) with this input.
 
 *Note: This may or may not have aliases in the final version (.join, .with, .and... etc)*
 
-##### BaseType.disjoin(a1[, a2, ...])
+##### BaseType.without(a1[, a2, ...])
 
 Specifies an arbitrary number of inputs that cannot exist alongside this input (logical XOR).
 
 *Note: This may or may not have aliases in the final version (.disjoin, .without, .xor... etc)*
+
+##### BaseType.rename(to[, options])
+
+Specifies a key to rename the current parameter to.
+
+Options takes the form of an object with the follow default values:
+
+    {
+      deleteOrig: false,
+      allowMult: false,
+      allowOverwrite: false
+    }
+
+The option "deleteOrig" specifies whether or not to delete the original key of the param (effectively a permanent "move").
+
+The option "allowMult" specifies whether or not multiple parameters can be renamed to a single key.
+
+The option "allowOverwrite" specifies whether or not the rename function can overwrite existing keys.
 
 
 #### String
@@ -215,6 +233,10 @@ If pattern is not a valid RegExp object, it returns an error.
 
 Specifies that this input is a valid email string.
 
+##### String.date()
+
+Specifies that this input is a valid Date string.
+
 ##### String.encoding(enc)
 
 Specifies an explicit encoding for this input string.
@@ -233,27 +255,56 @@ Specifies that this input be a valid integer.
 Specifies that this input be a valid float or double.
 
 ##### Number.min(n)
+
+Specifies a minimum value for this input, inclusive.
+
+If n is not specified, it returns an Error.
+
+If n is not a positive integer, it returns an Error.
+
 ##### Number.max(n)
+
+Specifies a maximum value for this input, inclusive.
+
+If n is not specified, it returns an Error.
+
+If n is not a positive integer, it returns an Error.
 
 
 #### Boolean
 
-TODO
+Boolean values accept a case-insensitive string parameter. If the value is "true", true is returned. Otherwise, false is returned.
+
+*Note: Boolean has no special methods other than those inherited from BaseType*
 
 
 #### Array
 
-TODO
+Array values take the querystring form of
+
+    ?cars=1&cars=2
+
+and get converted to
+
+    { cars: [ '1', '2' ] }
+
+by the server.
+
+*Note: Array has no special methods other than those inherited from BaseType*
 
 
 #### Object
 
-TODO
+*Note: Object has no special methods other than those inherited from BaseType*
 
 
 #### Function
 
 This data type is unlikely to be used in practice. However, it exists for completeness and can be used in the definition of other Types.
+
+*WARNING: This type uses eval. If you do not know what you are doing, using this Type is dangerous and poses numerous security risks. Use at your own peril.*
+
+*Note: Function has no special methods other than those inherited from BaseType*
 
 
 
@@ -271,12 +322,14 @@ In the above code example, "input_name" must conform to typical JavaScript objec
 
 In place of "constraints", there should be a combination of constraints. The combination of constraints must be formed starting from a valid base type. The base type may be followed by zero or more pre-defined constraint functions chained consecutively. These combinations can be pre-combined into "alias" variables that may also be followed by zero or more pre-defined constraint functions chained consecutively. An example is shown below:
 
-    Base.constraint_one().constraint_two()...
+    Base().constraint_one().constraint_two()...
     
-    BaseAlias = Base.constraint()
+    BaseAlias = Base().constraint()
     BaseAlias.constraint_one().constraint_two()...
 
 Constraint functions may accept optional and arbitrary parameters. 
+
+Every call must have its own `Base()` prefix. This creates a new validation object. Otherwise, it will retain settings from any prior constraints.
 
 ### Evaluation Order
 
@@ -290,14 +343,19 @@ Each constraint is evaluated independantly and in order of chaining. In some cas
 Constraints that can override modify the query validation state upon the function's evocation. The actual evaluation is performed at the end of the chain (or once the entire querystring validation is finished). These constraint functions are special cases:
 
 * required/optional
-* join/disjoin
+* with/without
+* rename
+
+Rename is always performed at the end of the chain.
+
+TODO: with/without rules
 
 #### Overrules
 
 Yet, in another case, a prior constraint may overrule a subsequent constraint:
 
-    String.max(5).max(10) # This input cannot be larger than 5 characters
-    String.max(3).regex(/.{0,5}/) # This input cannot be larger than 3 characters
+    Types.String().max(5).max(10) # This input cannot be larger than 5 characters
+    Types.String().max(3).regex(/.{0,5}/) # This input cannot be larger than 3 characters
 
 This should apply to all other constraints that do not override.
 
