@@ -355,6 +355,102 @@ describe("Validation", function(){
           })
         })
       })
+
+      describe("#with", function(){
+        var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {username: S().with("password"), password: S()}};
+        
+        it('should not return error if `with` parameter included', function(done){
+          var query = {username: "walmart", password: "worldofwalmartlabs"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it('should return error if `with` parameter not included', function(done){
+          var query = {username: "walmart"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.exist(err);
+            done();
+          })
+        })
+      })
+      
+      describe("#without", function(){
+        var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {username: S().without("password")}};
+        
+        it('should not return error if `without` parameter not included', function(done){
+          var query = {username: "walmart"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it('should return error if `without` parameter included', function(done){
+          var query = {username: "walmart", password: "worldofwalmartlabs"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.exist(err);
+            done();
+          })
+        })
+      })
+      
+      describe("#valid", function(){
+        var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {color: S().valid("blue", "orange", "white")}};
+        
+        it('should not return error if value in `valid` parameter input', function(done){
+          var query = {color: "white"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it('should return error if value not in `valid` parameter input', function(done){
+          var query = {color: "beige"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.exist(err);
+            done();
+          })
+        })
+      })
+      
+      describe("#invalid", function(){
+        var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {color: S().invalid("beige")}};
+        
+        it('should not return error if value not in `invalid` parameter input', function(done){
+          var query = {color: "white"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.not.exist(err);
+            done();
+          })
+        })
+        
+        it('should return error if value in `invalid` parameter input', function(done){
+          var query = {color: "beige"};
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            should.exist(err);
+            done();
+          })
+        })
+      })
     })
 
     describe("using Types.Number", function(){
