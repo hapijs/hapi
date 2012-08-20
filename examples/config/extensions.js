@@ -23,7 +23,7 @@ internals.main = function () {
 
             // In route extensions can be a single function or an array of functions
 
-            onRequest: internals.onRequest,                 // New request, before handing over to the router (allows changes to req.method and req.url)
+            onRequest: internals.onRequest,                 // New request, before handing over to the router (allows changes to method and url)
             onPreHandler: [internals.onPreHandler1,
                            internals.onPreHandler2],        // After validation and body parsing, before route handler
             onPostHandler: internals.onPostHandler,         // After route handler returns, before setting response
@@ -56,52 +56,52 @@ internals.main = function () {
 };
 
 
-internals.get = function (req, reply) {
+internals.get = function (request) {
 
-    reply('Success!\n');
+    request.reply('Success!\n');
 };
 
 
-internals.onRequest = function (req, res, next) {
+internals.onRequest = function (request, next) {
 
     Hapi.Log.info('onRequest');
     next();
 };
 
 
-internals.onPreHandler1 = function (req, res, next) {
+internals.onPreHandler1 = function (request, next) {
 
-    Hapi.Log.info('onPreHandler1: ' + req.method);
+    Hapi.Log.info('onPreHandler1: ' + request.method);
     next();
 };
 
 
-internals.onPreHandler2 = function (req, res, next) {
+internals.onPreHandler2 = function (request, next) {
 
-    Hapi.Log.info('onPreHandler2: ' + req.url);
+    Hapi.Log.info('onPreHandler2: ' + request.path);
     next();
 };
 
 
-internals.onPostHandler = function (req, res, next) {
+internals.onPostHandler = function (request, next) {
 
     Hapi.Log.info('onPostHandler');
     next();
 };
 
 
-internals.onPostRoute = function (req, res, next) {
+internals.onPostRoute = function (request, next) {
 
     Hapi.Log.info('onPostRoute');
     next();
 };
 
 
-internals.onUnknownRoute = function (req, res, next) {
+internals.onUnknownRoute = function (request, next) {
 
     Hapi.Log.info('onUnknownRoute');
-    res.writeHead(404);
-    res.end();
+    request._raw.res.writeHead(404);
+    request._raw.res.end();
     next();
 };
 
