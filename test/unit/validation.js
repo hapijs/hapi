@@ -11,18 +11,30 @@ var OhaiHandler = function (hapi, reply) {
   reply('ohai');
 };
 
-var createRequestObject = function(query){
+var createRequestObject = function(query, route){
   var qstr = qs.stringify(query);
+  // return {
+  //   httpVersion: '1.1',
+  //   url: '/?' + qstr,
+  //   method: 'GET',
+  //   hapi: {
+  //     server: {},
+  //     url: '/?' + qstr,
+  //     query: query,
+  //     params: {}
+  //   }
+  // }
   return {
-    httpVersion: '1.1',
-    url: '/?' + qstr,
-    method: 'GET',
-    hapi: {
-      server: {},
-      url: '/?' + qstr,
+    url: { 
+      search: '?' + qstr, 
       query: query,
-      params: {}
-    }
+      pathname: route.path,
+      path: route.path + '?' + qstr,//'/config?choices=1&choices=2',
+      href: route.path + '?' + qstr //'/config?choices=1&choices=2'
+    },
+    query: query,
+    path: route.path,
+    method: route.method
   }
 }
 
@@ -34,9 +46,9 @@ describe("Validation", function(){
         
         it("should raise error on undefined REQUIRED parameter", function(done){
           var query = {}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -44,9 +56,9 @@ describe("Validation", function(){
         
         it('should not raise error on defined REQUIRED parameter', function(done){
           var query = {username: "walmart"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -55,9 +67,9 @@ describe("Validation", function(){
         it('should not raise error on undefined OPTIONAL parameter', function(done){
           var modifiedRoute = {method: 'GET', path: '/', handler: OhaiHandler, query: {username: S().required(), name: S()}};
           var query = {username: "walmart"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, modifiedRoute);
           
-          Validation.query(request, modifiedRoute.query, function(err){
+          Validation.query(request, modifiedRoute, function(err){
             should.not.exist(err);
             done();
           })
@@ -69,9 +81,9 @@ describe("Validation", function(){
         
         it("should raise error on input length < min parameter", function(done){
           var query = {username: "van"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -79,9 +91,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input > min parameter", function(done){
           var query = {username: "thegoleffect"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -89,9 +101,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input == min parameter", function(done){
           var query = {username: "walmart"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -103,9 +115,9 @@ describe("Validation", function(){
         
         it("should raise error on input length > max parameter", function(done){
           var query = {username: "thegoleffect"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -113,9 +125,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input < max parameter", function(done){
           var query = {username: "van"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -123,9 +135,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input == max parameter", function(done){
           var query = {username: "walmart"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -138,9 +150,9 @@ describe("Validation", function(){
         
         it("should raise error on input not matching regex parameter", function(done){
           var query = {username: "van"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -148,9 +160,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input matching regex parameter", function(done){
           var query = {username: "1-aaaa"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -162,9 +174,9 @@ describe("Validation", function(){
         
         it("should raise error when not supplied required input", function(done){
           var query = {name: "van"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -172,9 +184,9 @@ describe("Validation", function(){
         
         it("should raise error when input length not within min/max bounds", function(done){
           var query = {username: "van"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -182,9 +194,9 @@ describe("Validation", function(){
         
         it("should NOT raise error when input length is within min/max bounds", function(done){
           var query = {username: "walmart"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -197,9 +209,9 @@ describe("Validation", function(){
           
           it('should validate on known valid input', function(done){
             var query = {phrase: "w0rld of w4lm4rtl4bs"}
-            var request = createRequestObject(query);
+            var request = createRequestObject(query, route);
             
-            Validation.query(request, route.query, function(err){
+            Validation.query(request, route, function(err){
               should.not.exist(err);
               done();
             })
@@ -216,9 +228,9 @@ describe("Validation", function(){
           
           it('should invalidate on known invalid inputs', function(done){
             var query = {phrase: "abcd#f?h1j orly?"}
-            var request = createRequestObject(query);
+            var request = createRequestObject(query, route);
             
-            Validation.query(request, route.query, function(err){
+            Validation.query(request, route, function(err){
               should.exist(err);
               done();
             })
@@ -238,9 +250,9 @@ describe("Validation", function(){
           
           it('should validate on known valid input', function(done){
             var query = {phrase: "walmartlabs"}
-            var request = createRequestObject(query);
+            var request = createRequestObject(query, route);
             
-            Validation.query(request, route.query, function(err){
+            Validation.query(request, route, function(err){
               should.not.exist(err);
               done();
             })
@@ -256,9 +268,9 @@ describe("Validation", function(){
           
           it('should invalidate on known invalid inputs', function(done){
             var query = {phrase: "abcd#f?h1j"}
-            var request = createRequestObject(query);
+            var request = createRequestObject(query, route);
             
-            Validation.query(request, route.query, function(err){
+            Validation.query(request, route, function(err){
               should.exist(err);
               done();
             })
@@ -279,9 +291,9 @@ describe("Validation", function(){
         
         it("should validate on known valid inputs", function(done){
           var query = {email: "van@walmartlabs.com"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -289,9 +301,9 @@ describe("Validation", function(){
         
         it("should invalidate on known invalid inputs", function(done){
           var query = {email: "@iaminvalid.com"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -303,9 +315,9 @@ describe("Validation", function(){
         
         it("should apply subsequent validators on the new name AFTER a rename", function(done){
           var query = {username: "thegoleffect"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -317,9 +329,9 @@ describe("Validation", function(){
         
         it("should not raise error on Date string input given as toLocaleString", function(done){
           var query = {date: "Mon Aug 20 2012 12:14:33 GMT-0700 (PDT)"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -327,9 +339,9 @@ describe("Validation", function(){
         
         it("should not raise error on Date string input given as ISOString", function(done){
           var query = {date: "2012-08-20T19:14:33.000Z"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -337,9 +349,9 @@ describe("Validation", function(){
         
         it("should not raise error on Date string input given as unix timestamp", function(done){
           var query = {date: "1345490073000"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -347,9 +359,9 @@ describe("Validation", function(){
         
         it("should raise on Date string input as invalid string", function(done){
           var query = {date: "worldofwalmartlabs"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -361,9 +373,9 @@ describe("Validation", function(){
         
         it('should not return error if `with` parameter included', function(done){
           var query = {username: "walmart", password: "worldofwalmartlabs"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -371,9 +383,9 @@ describe("Validation", function(){
         
         it('should return error if `with` parameter not included', function(done){
           var query = {username: "walmart"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -385,9 +397,9 @@ describe("Validation", function(){
         
         it('should not return error if `without` parameter not included', function(done){
           var query = {username: "walmart"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -395,9 +407,9 @@ describe("Validation", function(){
         
         it('should return error if `without` parameter included', function(done){
           var query = {username: "walmart", password: "worldofwalmartlabs"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -409,9 +421,9 @@ describe("Validation", function(){
         
         it('should not return error if value in `valid` parameter input', function(done){
           var query = {color: "white"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -419,9 +431,9 @@ describe("Validation", function(){
         
         it('should return error if value not in `valid` parameter input', function(done){
           var query = {color: "beige"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -433,9 +445,9 @@ describe("Validation", function(){
         
         it('should not return error if value not in `invalid` parameter input', function(done){
           var query = {color: "white"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -443,9 +455,9 @@ describe("Validation", function(){
         
         it('should return error if value in `invalid` parameter input', function(done){
           var query = {color: "beige"};
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -459,9 +471,9 @@ describe("Validation", function(){
         
         it("should raise error on non-integer input", function(done){
           var query = {num: "1.02"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -469,9 +481,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on integer input", function(done){
           var query = {num: "100"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -483,9 +495,9 @@ describe("Validation", function(){
         
         it("should raise error on non-float input", function(done){
           var query = {num: "100"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -493,9 +505,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on float input", function(done){
           var query = {num: "1.02"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -507,9 +519,9 @@ describe("Validation", function(){
         
         it("should raise error on input < min", function(done){
           var query = {num: "50"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -517,9 +529,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input > min", function(done){
           var query = {num: "102000"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -527,9 +539,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input == min", function(done){
           var query = {num: "100"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -541,9 +553,9 @@ describe("Validation", function(){
         
         it("should raise error on input > max", function(done){
           var query = {num: "120000"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -551,9 +563,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input < max", function(done){
           var query = {num: "50"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -561,9 +573,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on input == max", function(done){
           var query = {num: "100"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -575,9 +587,9 @@ describe("Validation", function(){
         
         it("should raise error on input > max", function(done){
           var query = {num: "120000"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -585,9 +597,9 @@ describe("Validation", function(){
         
         it("should raise error on input < min", function(done){
           var query = {num: "25"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.exist(err);
             done();
           })
@@ -595,9 +607,9 @@ describe("Validation", function(){
         
         it("should NOT raise error on min < input < max", function(done){
           var query = {num: "75"}
-          var request = createRequestObject(query);
+          var request = createRequestObject(query, route);
           
-          Validation.query(request, route.query, function(err){
+          Validation.query(request, route, function(err){
             should.not.exist(err);
             done();
           })
@@ -611,9 +623,9 @@ describe("Validation", function(){
         
     //     it("should raise error on non-integer input", function(done){
     //       var query = {num: "1.02"}
-    //       var request = createRequestObject(query);
+    //       var request = createRequestObject(query, route);
           
-    //       Validation.query(request, route.query, function(err){
+    //       Validation.query(request, route, function(err){
     //         should.exist(err);
     //         done();
     //       })
