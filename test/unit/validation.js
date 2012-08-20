@@ -189,6 +189,21 @@ describe("Validation", function(){
           })
         })
       })
+
+      describe("#rename", function(){
+        var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {username: S().rename("name", {deleteOrig:true}).min(7)}};
+        
+        it("should apply subsequent validators on the new name AFTER a rename", function(done){
+          var query = {username: "thegoleffect"}
+          var request = createRequestObject(query);
+          
+          Validation.validateQuery(request, route.query, function(err){
+            console.log(request)
+            should.not.exist(err);
+            done();
+          })
+        })
+      })
     })
 
     describe("using Types.Number", function(){
@@ -342,5 +357,21 @@ describe("Validation", function(){
         })
       })
     })
+
+    // describe("using Types.Boolean", function(){
+    //   describe("#integer", function(){
+    //     var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {num: N().integer()}};
+        
+    //     it("should raise error on non-integer input", function(done){
+    //       var query = {num: "1.02"}
+    //       var request = createRequestObject(query);
+          
+    //       Validation.validateQuery(request, route.query, function(err){
+    //         should.exist(err);
+    //         done();
+    //       })
+    //     })
+    //   })
+    // })
   })
 })
