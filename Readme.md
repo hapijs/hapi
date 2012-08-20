@@ -43,7 +43,6 @@ Now navigate to http://localhost:8080/sample and you should receive 'hello world
 * `query` - 
 * `schema` - 
 * `scope` -
-* `raw` - if true then the request is passed raw to the handler (the request is the same as a Director request)
 
 #### Wildcards
 
