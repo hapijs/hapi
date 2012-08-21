@@ -25,7 +25,7 @@ tap: lib-cov
 	@$(MAKE) rm-lib-cov
 
 unit: lib-cov
-	@NODE_ENV=test ./node_modules/.bin/mocha -R xunit > results.xml
+	@NODE_ENV=test ./node_modules/.bin/mocha --recursive -R xunit --ignore-leaks > results.xml
 	@$(MAKE) rm-lib-cov
 
 .PHONY: test tap test-cv test-cov-html unit lib-cov rm-lib-cov
