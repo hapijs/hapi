@@ -47,6 +47,7 @@ internals.main = function () {
     http.addRoutes([{ method: 'GET', path: '/admin', handler: internals.get, query: {username: S().required().with('password'), password: S()} }]);
     http.addRoutes([{ method: 'GET', path: '/users', handler: internals.get, query: {email: S().email().required().min(18)} }]);
     http.addRoutes([{ method: 'GET', path: '/config', handler: internals.get, query: {choices: A().required()} }]);
+    http.addRoutes([{ method: 'GET', path: '/test', handler: internals.get, query: {num: N().min(0)} }]);
 
     // Start Hapi servers
 
