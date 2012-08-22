@@ -5,37 +5,37 @@ var Utils = require("../../../lib/utils");
 
 describe("BaseType", function(){
   describe("#_required", function(){
-    it('should return true for if input is given and required', function(done){
-      var base = new BaseType();
-      var result = base._required(true)("walmart");
-      should.exist(result);
-      result.should.equal(true)
-      done();
-    })
+    // it('should return true for if input is given and required', function(done){
+    //   var base = new BaseType();
+    //   var result = base._required(true)("walmart");
+    //   should.exist(result);
+    //   result.should.equal(true)
+    //   done();
+    // })
     
-    it('should return true if input is given but not required', function(done){
-      var base = new BaseType();
-      var result = base._required(false)("walmart");
-      should.exist(result);
-      result.should.equal(true);
-      done();
-    })
+    // it('should return true if input is given but not required', function(done){
+    //   var base = new BaseType();
+    //   var result = base._required(false)("walmart");
+    //   should.exist(result);
+    //   result.should.equal(true);
+    //   done();
+    // })
     
-    it('should return false if input is not given but required', function(done){
-      var base = new BaseType();
-      var result = base._required(true)();
-      should.exist(result);
-      result.should.equal(false);
-      done();
-    })
+    // it('should return false if input is not given but required', function(done){
+    //   var base = new BaseType();
+    //   var result = base._required(true)();
+    //   should.exist(result);
+    //   result.should.equal(false);
+    //   done();
+    // })
     
-    it('should return true if input is not given and not required', function(done){
-      var base = new BaseType();
-      var result = base._required(false)();
-      should.exist(result);
-      result.should.equal(true);
-      done();
-    })
+    // it('should return true if input is not given and not required', function(done){
+    //   var base = new BaseType();
+    //   var result = base._required(false)();
+    //   should.exist(result);
+    //   result.should.equal(true);
+    //   done();
+    // })
   })
   
   describe("#_rename", function(){
