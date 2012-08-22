@@ -48,6 +48,7 @@ internals.main = function () {
     http.addRoutes([{ method: 'GET', path: '/users', config: { handler: internals.get, query: {email: S().email().required().min(18)} } }]);
     http.addRoutes([{ method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } }]);
     http.addRoutes([{ method: 'GET', path: '/test', config: { handler: internals.get, query: {num: N().min(0)} } }]);
+    http.addRoutes([{ method: 'GET', path: '/test2', config: { handler: internals.get, query: {p1: S().required().rename('itemId')}}}]);
 
     // Start Hapi servers
 
