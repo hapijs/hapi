@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 # hapi
 
 A restful api server that separates your business logic from the server gears so you can focus on coding stuff.
