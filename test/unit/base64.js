@@ -1,4 +1,4 @@
-var b64 = require("../lib/base64");
+var b64 = require("../../lib/base64");
 var should = require("should");
 
 describe("base64", function(){

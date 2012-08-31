@@ -1,8 +1,8 @@
 var assert = require('assert');
-var hapi = require('../lib/hapi');
+var hapi = require('../../lib/hapi');
 var should = require("should");
 var sinon = require("sinon");
-var utils = require("../lib/utils");
+var utils = require("../../lib/utils");
 
 describe("utils", function(){
   var emptyObj = {};
