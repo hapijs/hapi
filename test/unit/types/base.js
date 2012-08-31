@@ -114,4 +114,90 @@ describe("BaseType", function(){
       done();
     })
   })
+
+  describe("#description", function(){
+    it('should set description', function(done){
+      var value = "walmart";
+      var base = new BaseType();
+      var result;
+      (function(){
+        result = base.description(value);
+      }).should.not.throw();
+      should.exist(result);
+      result.description.should.equal(value);
+      done();
+    })
+    
+    it('should return error if description is not a string', function(done){
+      var value = 1;
+      var base = new BaseType();
+      var result;
+      (function(){
+        result = base.description(value);
+      }).should.throw();
+      // should.exist(result);
+      // result.description.should.equal(value);
+      done();
+    })
+  })
+  
+  describe("#notes", function(){
+    it('should set notes if given as string', function(done){
+      var value = "walmart";
+      var base = new BaseType();
+      var result;
+      (function(){
+        result = base.notes(value);
+      }).should.not.throw();
+      should.exist(result);
+      result.notes.should.equal(value);
+      done();
+    })
+    
+    it('should set notes if given as array', function(done){
+      var value = ["walmart", "@walmartlabs"];
+      var base = new BaseType();
+      var result;
+      (function(){
+        result = base.notes(value);
+      }).should.not.throw();
+      should.exist(result);
+      result.notes.should.equal(value);
+      done();
+    })
+    
+    it('should return error if not given as string or array', function(done){
+      var value = 1;
+      var base = new BaseType();
+      var result;
+      (function(){
+        result = base.notes(value);
+      }).should.throw();
+      done();
+    })
+  })
+  
+  describe("#tags", function(){
+    it('should set tags if given as array', function(done){
+      var value = ["walmart", "@walmartlabs"];
+      var base = new BaseType();
+      var result;
+      (function(){
+        result = base.tags(value);
+      }).should.not.throw();
+      should.exist(result);
+      result.tags.should.equal(value);
+      done();
+    })
+    
+    it('should return error if not given as array', function(done){
+      var value = 1;
+      var base = new BaseType();
+      var result;
+      (function(){
+        result = base.notes(value);
+      }).should.throw();
+      done();
+    })
+  })
 })
