@@ -100,8 +100,8 @@ internals.onPostRoute = function (request, next) {
 internals.onUnknownRoute = function (request, next) {
 
     Hapi.Log.info('onUnknownRoute');
-    request._raw.res.writeHead(404);
-    request._raw.res.end();
+    request.raw.res.writeHead(404);
+    request.raw.res.end();
     next();
 };
 
