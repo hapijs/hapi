@@ -227,7 +227,8 @@
   }
   ```
 
-  - Empty line after `{` when scope content is more than one line
+  - Empty line after `{`
+    - When scope content is more than one line or condition is more than one line
     - Excludes inlined objects
 
   ```javascript
@@ -237,6 +238,12 @@
   
       if (otherCondition) {
           console.log('sometimes');
+      }
+  
+      if (result &&
+          result.code === 200) {
+          
+          console.log('special case');
       }
       
       console.log('always');
@@ -249,7 +256,12 @@
       
           console.log('sometimes');
       }
-      
+   
+      if (result &&
+          result.code === 200) {
+          console.log('special case');
+      }
+     
       console.log('always');
   }
   ```
@@ -547,6 +559,30 @@
           console.log(value);
       }
   }
+  ```
+
+#### Multi-line statements
+
+  - Statements should only be broken into multiple lines to improve readablility
+  - Break statements if they are longer than 150 characters long
+  - No empty lines in the middle of a single statement
+  - Ident multi-line statements
+  
+  - Conditions should be ident to the first character of the condition in the first line
+
+  ```javascript
+  if (result &&
+      result.status &&
+      result.status.code === 200) {
+
+      console.log('success');
+  }
+  ```
+  
+  - Variable should be ident to the first character of the value in the first line
+  ```javascript
+  var message = "hello" +
+                " and welcome";
   ```
 
 ## Node
