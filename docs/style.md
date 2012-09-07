@@ -206,6 +206,7 @@
   - Newline after `}`
     - Only exception is when followed by `,`, `;`, `);` which must be followed by a newline
     - Includes before `else`, `catch`, etc.
+    - Empty line after `}` if not last statement in scope
 
   ```javascript
   // Right
@@ -238,7 +239,6 @@
               console.log('example');
           }, message: 'hello'
       };
-      
       execute(value, function (err) {
           console.log(err); }
       ); 
