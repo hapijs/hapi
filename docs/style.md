@@ -276,7 +276,7 @@
   };
                                                                                   // 1  
                                                                                   // 2
-  exports.another = functio () {
+  exports.another = function () {
   
         console.log('hello');
   };
@@ -304,7 +304,7 @@
   };
                                                                                   // 1  
                                                                                   // 2
-  exports.another = functio () {
+  exports.another = function () {
       console.log('hello');
   };
   ```
