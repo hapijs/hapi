@@ -50,7 +50,7 @@
 
   - Iterator variable should be declared inside the `for` parentheses, unless already defined
   - Use `for` with arrays, `for...in` for objects (and always check `hasOwnProperty()`)
-  - When iterating over a fixed or calculated size, assign size to a variable inside the `for` declaration and use iterator varialb ename with `l` suffix
+  - When iterating over a fixed or calculated size, assign size to a variable inside the `for` declaration and use iterator variable name with `l` suffix
   - Always `++i`, never `i++`
   
   ```javascript
@@ -101,7 +101,7 @@
   ``` javascript
   // Right
 
-  var method = functio () {
+  var method = function () {
   };
   
   // Wrong
@@ -115,7 +115,7 @@
 #### Whitespace
 
   - Always spaces, never tabs
-  - 4 spaces idents
+  - 4 spaces indents
   - No trailing whitespace at end-of-line
 
   ```javascript
@@ -230,7 +230,7 @@
       value = {
 
           func: {
-              cosole.log('example');
+              console.log('example');
           }, message: 'hello'
       };
       
@@ -532,7 +532,7 @@
   - No TODOs
   
   - Line
-    - Provides narrative for the following single code line (or single statement broken for readablity)
+    - Provides narrative for the following single code line (or single statement broken for readability)
     - One line of comment only
     - One newline before and none after the comment line
   ```javascript
@@ -564,7 +564,7 @@
   - Note
     - Explains the behaviour of a single code statement (can be broken into multiple lines)
     - Used to document unexpected behaviour or non-standard practice
-    - Appears immediately at the end of the line (or statemet) it describes, following whitespace to separate it from code block
+    - Appears immediately at the end of the line (or statement) it describes, following whitespace to separate it from code block
   ```javascript
   function execute(value) {
 
@@ -578,12 +578,12 @@
 
 #### Multi-line statements
 
-  - Statements should only be broken into multiple lines to improve readablility
+  - Statements should only be broken into multiple lines to improve readability
   - Break statements if they are longer than 150 characters long
   - No empty lines in the middle of a single statement
-  - Ident multi-line statements
+  - Indent multi-line statements
   
-  - Conditions should be ident to the first character of the condition in the first line
+  - Conditions should be indented to the first character of the condition in the first line
 
   ```javascript
   if (result &&
@@ -594,7 +594,7 @@
   }
   ```
   
-  - Variable should be ident to the first character of the value in the first line
+  - Variable should be indented to the first character of the value in the first line
   ```javascript
   var message = "hello" +
                 " and welcome";
