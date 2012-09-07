@@ -168,9 +168,9 @@
   };
   ```
   
-  - Newline after `{` except for inlined objects
+  - Newline after `{` except for inlined or empty objects
     - Inline an object when it improves readability and unlikely to change often
-    - No inline object in assignment
+    - No inline object in assignment unless empty
 
   ```javascript
   // Right
@@ -186,6 +186,8 @@
       };
       execute(value, options);
   }
+  
+  var empty = {};
 
   // Wrong
 
@@ -196,6 +198,9 @@
       var options = { strict: true };
       execute(value, options);
   }
+  
+  var empty = {
+  };
   ```
   
   - Newline after `}`
@@ -244,7 +249,7 @@
 
   - Empty line after `{`
     - When scope content is more than one line or condition is more than one line
-    - Excludes inlined objects
+    - Excludes inlined or empty objects
 
   ```javascript
   // Right
@@ -264,6 +269,8 @@
       console.log('always');
   }
   
+  var empty = {};
+  
   // Wrong
 
   if (condition) {
@@ -279,6 +286,9 @@
      
       console.log('always');
   }
+  
+  var empty = {
+  };
   ```
   
   - No empty line before end of scope
