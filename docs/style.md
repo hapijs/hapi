@@ -109,6 +109,17 @@
   function method() {
   }
   ```
+  
+#### Enforcing new on Constructor
+
+  - Use this.constructor === to check if a constructor function was called with new
+  ```javascript
+  // Right
+  Utils.assert(this.constructor === Server, 'Server must be instantiated using new');
+  
+  // Wrong
+  Utils.assert(this instanceof Server, 'Server must be instantiated using new');
+  ```
 
 ### Style
 
@@ -168,9 +179,9 @@
   };
   ```
   
-  - Newline after `{` except for inlined objects
+  - Newline after `{` except for inlined or empty objects
     - Inline an object when it improves readability and unlikely to change often
-    - No inline object in assignment
+    - No inline object in assignment unless empty
 
   ```javascript
   // Right
@@ -186,6 +197,8 @@
       };
       execute(value, options);
   }
+  
+  var empty = {};
 
   // Wrong
 
@@ -196,11 +209,15 @@
       var options = { strict: true };
       execute(value, options);
   }
+  
+  var empty = {
+  };
   ```
   
   - Newline after `}`
     - Only exception is when followed by `,`, `;`, `);` which must be followed by a newline
     - Includes before `else`, `catch`, etc.
+    - Empty line after `}` if not last statement in scope
 
   ```javascript
   // Right
@@ -233,7 +250,6 @@
               console.log('example');
           }, message: 'hello'
       };
-      
       execute(value, function (err) {
           console.log(err); }
       ); 
@@ -244,41 +260,64 @@
 
   - Empty line after `{`
     - When scope content is more than one line or condition is more than one line
-    - Excludes inlined objects
+    - Excludes inlined or empty objects
+    - Always include empty line in global function declarations
 
   ```javascript
   // Right
 
-  if (condition) {
+  exports.method = function () {
   
-      if (otherCondition) {
-          console.log('sometimes');
-      }
+      if (condition) {
   
-      if (result &&
-          result.code === 200) {
+          if (otherCondition) {
+              console.log('sometimes');
+          }
+  
+          if (result &&
+              result.code === 200) {
           
-          console.log('special case');
+              console.log('special case');
+          }
+      
+          console.log('always');
       }
       
-      console.log('always');
-  }
+      var empty = {};
+  };
+                                                                                  // 1  
+                                                                                  // 2
+  exports.another = function () {
+  
+        console.log('hello');
+  };
+  
   
   // Wrong
 
-  if (condition) {
-      if (otherCondition) {
+  exports.method = function () {
+        if (condition) {
+          if (otherCondition) {
       
-          console.log('sometimes');
-      }
+              console.log('sometimes');
+          }
    
-      if (result &&
-          result.code === 200) {
-          console.log('special case');
-      }
+          if (result &&
+              result.code === 200) {
+              console.log('special case');
+          }
      
-      console.log('always');
-  }
+          console.log('always');
+      }
+  
+      var empty = {
+      };
+  };
+                                                                                  // 1  
+                                                                                  // 2
+  exports.another = function () {
+      console.log('hello');
+  };
   ```
   
   - No empty line before end of scope
@@ -599,7 +638,7 @@
   var message = "hello" +
                 " and welcome";
   ```
-
+  
 ## Node
   
 ### Require
