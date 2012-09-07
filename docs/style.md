@@ -72,6 +72,29 @@
   }
   ```
 
+#### Prototype members
+
+  - Prefix private members with `_`
+  ```javascript
+  Example.prototype.method = function () {
+
+      this.public = 'external';
+      this._private = 'internal';
+  };
+  ```
+  
+  - Define `self` for passing `this` into nested functions
+  ```javascript
+  Example.prototype.method = function () {
+
+      var self = this;
+      
+      call(123, function (err) {
+          self.display(err);
+      });
+  };
+  ```
+
 ### Style
 
 #### Whitespace
