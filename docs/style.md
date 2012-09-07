@@ -165,6 +165,7 @@
   }
 
   if (condition) {
+  
       var options = {
           strict: true
       };
@@ -176,6 +177,7 @@
   if (condition) { execute(value, { strict: true }); }
 
   if (condition) {
+  
       var options = { strict: true };
       execute(value, options);
   }
@@ -226,6 +228,8 @@
   ```
 
   - Empty line after `{` when scope content is more than one line
+    - Excludes inlined objects
+
   ```javascript
   // Right
 
