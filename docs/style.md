@@ -94,6 +94,21 @@
       });
   };
   ```
+  
+#### Function declaration
+
+  - Declare functions via assignment
+  ``` javascript
+  // Right
+
+  var method = functio () {
+  };
+  
+  // Wrong
+  
+  function method() {
+  }
+  ```
 
 ### Style
 
