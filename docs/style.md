@@ -465,7 +465,7 @@
         'doe';
   ```
   
-#### Comas
+#### Commas
 
   - Never begin a line with `,` (always at the end of the previous line)
   ```javascript
