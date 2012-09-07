@@ -250,44 +250,62 @@
   - Empty line after `{`
     - When scope content is more than one line or condition is more than one line
     - Excludes inlined or empty objects
+    - Always include empty line in global function declarations
 
   ```javascript
   // Right
 
-  if (condition) {
+  exports.method = function () {
   
-      if (otherCondition) {
-          console.log('sometimes');
-      }
+      if (condition) {
   
-      if (result &&
-          result.code === 200) {
+          if (otherCondition) {
+              console.log('sometimes');
+          }
+  
+          if (result &&
+              result.code === 200) {
           
-          console.log('special case');
+              console.log('special case');
+          }
+      
+          console.log('always');
       }
       
-      console.log('always');
-  }
+      var empty = {};
+  };
+                                                                                  // 1  
+                                                                                  // 2
+  exports.another = functio () {
   
-  var empty = {};
+        console.log('hello');
+  };
+  
   
   // Wrong
 
-  if (condition) {
-      if (otherCondition) {
+  exports.method = function () {
+        if (condition) {
+          if (otherCondition) {
       
-          console.log('sometimes');
-      }
+              console.log('sometimes');
+          }
    
-      if (result &&
-          result.code === 200) {
-          console.log('special case');
-      }
+          if (result &&
+              result.code === 200) {
+              console.log('special case');
+          }
      
-      console.log('always');
-  }
+          console.log('always');
+      }
   
-  var empty = {
+      var empty = {
+      };
+  };
+                                                                                  // 1  
+                                                                                  // 2
+  exports.another = functio () {
+      console.log('hello');
   };
   ```
   
