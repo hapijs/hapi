@@ -509,7 +509,7 @@
 
 #### Comments
 
-  - Always use `//` unless it's a jsDoc declaration
+  - Always use `//` unless it's a jsDoc declaration or license header
   - Always begin sentences with an upper case
   - No trailing `.` unless comment contains multiple sentences
   - Formal style, consistent voice, no humor, present tense
