@@ -573,7 +573,7 @@
   - Line
     - Provides narrative for the following single code line (or single statement broken for readability)
     - One line of comment only
-    - One newline before and none after the comment line
+    - One empty line before and none after the comment line
   ```javascript
   function execute() {
 
@@ -583,9 +583,9 @@
   ```
 
   - Segment
-    - Provides narrative for the following code section (more than one line of code, with or without line breaks)
+    - Provides narrative for the following code section (one or more lines of code, with or without line breaks)
     - One or more lines of comments
-    - One newline before and one after comments block
+    - One empty line before and one after comments block
   ```javascript
   function execute() {
 
