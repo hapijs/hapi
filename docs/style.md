@@ -454,12 +454,21 @@
   ```
   
   - Always space after `{` and before `}` in inlined object
+    - No space for empty objects `{}`
+    - One space for empty functions `{ }`
+
   ```javascript
   // Right
+  
   var user = { name: 'john', email: 'john@example.com' };
+  var empty = {};
+  var callback = functio () { };
 
   // Wrong
+
   var user = {name: 'john', email: 'john@example.com'};
+  var empty = {  };
+  var callback = functio () {};
   ```
   
   - No space after `[` and before `]` in inlined arrays
