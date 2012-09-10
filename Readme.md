@@ -90,13 +90,8 @@ var server = new hapi.Server.Server('localhost', 8088, {name:'sample', uri:'0.0.
 
 hapi provides a myriad of util functions for your use
 * `abort(message)` - logs message to console and exits the process.
-* `checkEmail(email)` - checks for a valid email address 
 * `clone(obj)` - clones an object or array
-* `decrypt(key, value)` - decrypts value with AES Symmetric encription
-* `email(to, subject, text, html, callback)` - sends an email to `to` with `subject` and content of `text` or `html` calling `callback(err)` when finished
-* `encrypt(key, value)` - encrypts value with AES Symmetric encryption
 * `getTimeStamp()` - gives a 'now' timestamp
-* `getRandomString(size)` - returns a random string of `size`
 * `hide(object, definition)` - removes hidden keys
 * `map(array, key)` - turns an array into an object
 * `merge(target, source)` - Merge all the properties of source into target; source wins in conflict
