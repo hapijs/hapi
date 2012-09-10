@@ -576,12 +576,18 @@
     - Provides narrative for the following single code line (or single statement broken for readability)
     - One line of comment only
     - One empty line before and none after the comment line
+    - No empty line before when following `{` unless other rules require it
     
   ```javascript
   function execute() {
 
       // Initialize state
       var position = 0;
+      
+      if (condition) {
+          // Return message
+          return 'hello';
+      }
   }
   ```
 
@@ -589,6 +595,7 @@
     - Provides narrative for the following code section (one or more lines of code, with or without line breaks)
     - One or more lines of comments
     - One empty line before and one after comments block
+    - No empty line before when following `{` unless other rules require it
     
   ```javascript
   function execute() {
@@ -596,6 +603,8 @@
       // Print each book's name
       
       for (var book in books) {
+          // Check for valid properties
+          
           if (books.hasOwnProperty(book)) {
               console.log(book.name);
           }
