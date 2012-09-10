@@ -2,6 +2,8 @@
 
 A restful api server that separates your business logic from the server gears so you can focus on coding stuff.
 
+[![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
+
 ### Basic Usage
 
 ```js
@@ -13,15 +15,15 @@ var server = new hapi.Server.Server('localhost', 8088, {name:'sample', uri:'0.0.
 
 //define the function that returns our value (could be external to this file)
 function sampleGet(hapi, reply) {
-	reply('hello world');
+reply('hello world');
 }
 
 //add the route
 server.addRoute({
-	path : '/sample',
-	method : 'GET',
-	handler : sampleGet,
-	authentication: 'none'
+path : '/sample',
+method : 'GET',
+handler : sampleGet,
+authentication: 'none'
 });
 
 //start the server
@@ -40,8 +42,8 @@ Now navigate to http://localhost:8080/sample and you should receive 'hello world
 * `handler` - Function to handle request
 * `authentication` - Type of authentication
 * `tos` - Terms of Service required for that request
-* `query` - 
-* `schema` - 
+* `query` -
+* `schema` -
 * `scope` -
 
 #### Wildcards
@@ -51,16 +53,16 @@ Wildcard declaration in routes are handled the same way as they are in Director 
 ```js
 //when you add a route like this:
 server.addRoute({
-	path : '/luna/:album',
-	method : 'GET',
-	handler : albumRetrieve,
-	authentication: 'none'
+path : '/luna/:album',
+method : 'GET',
+handler : albumRetrieve,
+authentication: 'none'
 });
 
 function albumRetrieve(hapi, reply) {
-	//hapi.params will have the parameter
-	console.log(hapi.params.album);
-	reply(albumGet(hapi.params.album));
+//hapi.params will have the parameter
+console.log(hapi.params.album);
+reply(albumGet(hapi.params.album));
 }
 ```
 
@@ -80,7 +82,7 @@ hapi provides a few places where middleware can be added into the functions bein
 * `onPostHandler` - gets called after the request headers
 * `onPostRoute` - called after all the routes have been matched
 
-Add them via the 'ext' portion  of the options. 
+Add them via the 'ext' portion  of the options.
 
 ```js
 var server = new hapi.Server.Server('localhost', 8088, {name:'sample', uri:'0.0.0.0', ext: {onPreRoute:myPreRouteFunction}});
