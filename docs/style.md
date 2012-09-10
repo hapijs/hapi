@@ -576,6 +576,7 @@
     - Provides narrative for the following single code line (or single statement broken for readability)
     - One line of comment only
     - One empty line before and none after the comment line
+    
   ```javascript
   function execute() {
 
@@ -588,6 +589,7 @@
     - Provides narrative for the following code section (one or more lines of code, with or without line breaks)
     - One or more lines of comments
     - One empty line before and one after comments block
+    
   ```javascript
   function execute() {
 
@@ -605,6 +607,7 @@
     - Explains the behaviour of a single code statement (can be broken into multiple lines)
     - Used to document unexpected behaviour or non-standard practice
     - Appears immediately at the end of the line (or statement) it describes, following whitespace to separate it from code block
+    
   ```javascript
   function execute(value) {
 
