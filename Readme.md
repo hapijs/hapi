@@ -1,4 +1,4 @@
-# hapi
+<img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" />
 
 A restful api server that separates your business logic from the server gears so you can focus on coding stuff.
 
