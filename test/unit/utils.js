@@ -76,22 +76,6 @@ describe("utils", function(){
     })
   })
 
-  // #checkEmail was removed in 78435467c133416ea03465845b32026365d79bf8
-  // describe("#checkEmail", function(){
-  //   var validEmail = "ehammer@walmart.com",
-  //       invalidEmail = "ohai";
-    
-  //   it("should return false on invalid email", function(done){
-  //     utils.checkEmail(invalidEmail).should.equal(false);
-  //     done();
-  //   })
-    
-  //   it("should return true on valid email", function(done){
-  //     utils.checkEmail(validEmail).should.equal(true);
-  //     done();
-  //   })
-  // })
-  
   describe("#hide", function(){
     var objWithHiddenKeys = {
       location: {
@@ -108,78 +92,5 @@ describe("utils", function(){
       should.exist(objWithHiddenKeys.company);
       done();
     })
-  })
-  
-  describe("#getRandomString", function(){
-    it('should return a random string of length 10 by default', function(done){
-      var a = utils.getRandomString()
-      a.length.should.equal(10);
-      done();
-    })
-    
-    it('should return random string of length n for any given n', function(done){
-      var nArray = [1,2,3,4,6,8,12,20,30];
-      for(var index in nArray){
-        var n = nArray[index];
-        var o = utils.getRandomString(n);
-        o.length.should.equal(n);
-      }
-      done();
-    })
-    
-    it('should return null if negative size given', function(done){
-      var a = utils.getRandomString(-10);
-      should.not.exist(a);
-      done();
-    })
-    
-    it('should return null if non-numeric size given', function(done){
-      var sizes = ['a', [1,2,3], {x:1}, 1.45];
-      for(var i in sizes){
-        var size = sizes[i];
-        should.not.exist(utils.getRandomString(size));
-      }
-      done();
-    })
-  })
-  
-  describe("#encrypt", function(){
-    // Non-deterministic function, test TBD
-  })
-  
-  describe("#decrypt", function(){
-    // Non-deterministic function, test TBD
-  })
-  
-  // #exists was removed in 78435467c133416ea03465845b32026365d79bf8
-  // describe("#exists", function(){
-  //   it("should return true for non null, non undefined values", function(done){
-  //     var values = [true, 1, "one", [1], {x:1}, function(){ return 1; }];
-  //     for(var i in values){
-  //       utils.exists(values[i]).should.equal(true);
-  //     }
-  //     done();
-  //   })
-  // })
-  
-  describe("#email", function(){
-    // Function generates side effect, not sure if good to email on EVERY test run
-  //   it("should", function(done){
-  //     hapi.Process.initialize({
-  //       name: "ohai",
-  //       email: {
-  //         admin: "thegoleffect@gmail.com",
-  //         fromName: "Van",
-  //         replyTo: "thegoleffect@gmail.com",
-  //         server: "localhost"
-  //       }
-  //     })
-
-  //     utils.email('thegoleffect@gmail.com', 'test', 'ohai', null, function(){
-  //       console.log('sent')
-  //       done();
-  //     })
-  //   })
-    
   })
 })
