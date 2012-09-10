@@ -76,22 +76,6 @@ describe("utils", function(){
     })
   })
 
-  // #checkEmail was removed in 78435467c133416ea03465845b32026365d79bf8
-  // describe("#checkEmail", function(){
-  //   var validEmail = "ehammer@walmart.com",
-  //       invalidEmail = "ohai";
-    
-  //   it("should return false on invalid email", function(done){
-  //     utils.checkEmail(invalidEmail).should.equal(false);
-  //     done();
-  //   })
-    
-  //   it("should return true on valid email", function(done){
-  //     utils.checkEmail(validEmail).should.equal(true);
-  //     done();
-  //   })
-  // })
-  
   describe("#hide", function(){
     var objWithHiddenKeys = {
       location: {
