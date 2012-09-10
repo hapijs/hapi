@@ -8,9 +8,13 @@ with everything else.
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
-### Basic Usage
+# Usage
 
-```js
+## Basic Usage
+
+The following is a simple "hello world" service with a single API endpoint:
+
+```javascript
 var Hapi = require('hapi');
 
 // Create a server with a host, port, and options
@@ -20,7 +24,7 @@ var server = new Hapi.Server('localhost', 8000);
 var hello = {
     handler: function (request) {
 
-        reply('hello world');
+        reply({ greeting: 'hello world' });
     }
 };
     
@@ -36,6 +40,22 @@ server.start();
 ```
 
 Now navigate to http://localhost:8080/hello and you should receive 'hello world'.
+
+## Server Configration
+
+**hapi** provides a rich set of configuration options for each server instance:
+
+  - [`tls`](https://github.com/walmartlabs/hapi/edit/user/eran/Readme.md#tls)
+  - `router`
+  - `payload`
+  - `cors`
+  - `ext`
+  - `monitor`
+  - `authentication`
+  - `cache`
+  - `debug`
+
+### TLS
 
 ### Routes
 
