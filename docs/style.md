@@ -90,6 +90,7 @@
       var self = this;
       
       call(123, function (err) {
+      
           self.display(err);
       });
   };
@@ -102,11 +103,13 @@
   // Right
 
   var method = function () {
+  
   };
   
   // Wrong
   
   function method() {
+  
   }
   ```
   
@@ -133,8 +136,7 @@
   // Right
   
   if (test) {
-  
-      if (value === 12) {
+        if (value === 12) {
           console.log('result');
       }
   }
@@ -142,7 +144,6 @@
   // Wrong
   
   if (test) {
-  
     if (value === 12) {
       console.log('result');
     }
@@ -191,7 +192,6 @@
   }
 
   if (condition) {
-  
       var options = {
           strict: true
       };
@@ -205,7 +205,6 @@
   if (condition) { execute(value, { strict: true }); }
 
   if (condition) {
-  
       var options = { strict: true };
       execute(value, options);
   }
@@ -222,17 +221,17 @@
   ```javascript
   // Right
 
-  if (condition) {
-  
+  if (condition) {  
       value = {
-
-          func: {
+          func: function () {
+          
               cosole.log('example');
           },
           message: 'hello'
       };
       
       execute(value, function (err) {
+      
           console.log(err);
       });
   }
@@ -242,15 +241,15 @@
   
   // Wrong
 
-  if (condition) {
-  
+  if (condition) {  
       value = {
-
-          func: {
+          func: function () {
+          
               console.log('example');
           }, message: 'hello'
       };
       execute(value, function (err) {
+      
           console.log(err); }
       ); 
   } else {
@@ -259,17 +258,15 @@
   ```
 
   - Empty line after `{`
-    - When scope content is more than one line or condition is more than one line
-    - Excludes inlined or empty objects
-    - Always include empty line in global function declarations
+    - Following a multi-line condition
+    - In function scope declarations
 
   ```javascript
   // Right
 
   exports.method = function () {
   
-      if (condition) {
-  
+      if (condition) {  
           if (otherCondition) {
               console.log('sometimes');
           }
@@ -283,20 +280,19 @@
           console.log('always');
       }
       
+      execute(123, function (err) {
+      
+          console.log(err);
+      });
+      
       var empty = {};
   };
-                                                                                  // 1  
-                                                                                  // 2
-  exports.another = function () {
-  
-        console.log('hello');
-  };
-  
   
   // Wrong
 
   exports.method = function () {
         if (condition) {
+        
           if (otherCondition) {
       
               console.log('sometimes');
@@ -309,14 +305,13 @@
      
           console.log('always');
       }
-  
+        
+      execute(123, function (err) {
+          console.log(err);
+      });
+
       var empty = {
       };
-  };
-                                                                                  // 1  
-                                                                                  // 2
-  exports.another = function () {
-      console.log('hello');
   };
   ```
   
@@ -325,7 +320,6 @@
   // Right
 
   if (condition) {
-  
       if (otherCondition) {
           console.log('done');
       }
@@ -333,8 +327,7 @@
   
   // Wrong
 
-  if (condition) {
-  
+  if (condition) {  
       if (otherCondition) {
           console.log('done');
           
@@ -359,6 +352,7 @@
   // Right
 
   function example() {
+  
       return value;
   }
 
@@ -367,6 +361,7 @@
   // Wrong
   
   function example () {
+  
       return value;
   }
 
@@ -397,7 +392,6 @@
   // Right
 
   var obj = {
-
       a: 1,
       b: 2,
       c: 3
@@ -405,8 +399,7 @@
 
   // Wrong
   
-  var obj = {
-  
+  var obj = {  
       a : 1,
       b :2,
       c:3
@@ -436,8 +429,7 @@
   ```javascript
   // Right
 
-  for (var book in books) {
-  
+  for (var book in books) {  
       if (books.hasOwnProperty(book)) {
           console.log(book.name);
       }
@@ -445,8 +437,7 @@
   
   // Wrong
   
-  for(var book in books) {
-  
+  for(var book in books) {  
       if(books.hasOwnProperty(book)) {
           console.log(book.name);
       }
@@ -454,12 +445,21 @@
   ```
   
   - Always space after `{` and before `}` in inlined object
+    - No space for empty objects `{}`
+    - One space for empty functions `{ }`
+
   ```javascript
   // Right
+  
   var user = { name: 'john', email: 'john@example.com' };
+  var empty = {};
+  var callback = functio () { };
 
   // Wrong
+
   var user = {name: 'john', email: 'john@example.com'};
+  var empty = {  };
+  var callback = functio () {};
   ```
   
   - No space after `[` and before `]` in inlined arrays
@@ -546,6 +546,7 @@
 
   if (value === 'hello' &&
       result === 'ok') {
+      
       console.log('yes');
   }
 
@@ -557,6 +558,7 @@
 
   if (value === 'hello'
       && result === 'ok') {
+      
       console.log('yes');
   }
   ```
@@ -573,26 +575,36 @@
   - Line
     - Provides narrative for the following single code line (or single statement broken for readability)
     - One line of comment only
-    - One newline before and none after the comment line
+    - One empty line before and none after the comment line
+    - No empty line before when following `{` unless other rules require it
+    
   ```javascript
   function execute() {
 
       // Initialize state
       var position = 0;
+      
+      if (condition) {
+          // Return message
+          return 'hello';
+      }
   }
   ```
 
   - Segment
-    - Provides narrative for the following code section (more than one line of code, with or without line breaks)
+    - Provides narrative for the following code section (one or more lines of code, with or without line breaks)
     - One or more lines of comments
-    - One newline before and one after comments block
+    - One empty line before and one after comments block
+    
   ```javascript
   function execute() {
 
       // Print each book's name
       
       for (var book in books) {
-
+      
+          // Check for valid properties
+          
           if (books.hasOwnProperty(book)) {
               console.log(book.name);
           }
@@ -604,6 +616,7 @@
     - Explains the behaviour of a single code statement (can be broken into multiple lines)
     - Used to document unexpected behaviour or non-standard practice
     - Appears immediately at the end of the line (or statement) it describes, following whitespace to separate it from code block
+    
   ```javascript
   function execute(value) {
 
