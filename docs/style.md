@@ -90,6 +90,7 @@
       var self = this;
       
       call(123, function (err) {
+      
           self.display(err);
       });
   };
@@ -102,11 +103,13 @@
   // Right
 
   var method = function () {
+  
   };
   
   // Wrong
   
   function method() {
+  
   }
   ```
   
@@ -133,8 +136,7 @@
   // Right
   
   if (test) {
-  
-      if (value === 12) {
+        if (value === 12) {
           console.log('result');
       }
   }
@@ -142,7 +144,6 @@
   // Wrong
   
   if (test) {
-  
     if (value === 12) {
       console.log('result');
     }
@@ -191,7 +192,6 @@
   }
 
   if (condition) {
-  
       var options = {
           strict: true
       };
@@ -205,7 +205,6 @@
   if (condition) { execute(value, { strict: true }); }
 
   if (condition) {
-  
       var options = { strict: true };
       execute(value, options);
   }
@@ -222,17 +221,17 @@
   ```javascript
   // Right
 
-  if (condition) {
-  
+  if (condition) {  
       value = {
-
-          func: {
+          func: function () {
+          
               cosole.log('example');
           },
           message: 'hello'
       };
       
       execute(value, function (err) {
+      
           console.log(err);
       });
   }
@@ -242,15 +241,15 @@
   
   // Wrong
 
-  if (condition) {
-  
+  if (condition) {  
       value = {
-
-          func: {
+          func: function () {
+          
               console.log('example');
           }, message: 'hello'
       };
       execute(value, function (err) {
+      
           console.log(err); }
       ); 
   } else {
@@ -259,17 +258,15 @@
   ```
 
   - Empty line after `{`
-    - When scope content is more than one line or condition is more than one line
-    - Excludes inlined or empty objects
-    - Always include empty line in global function declarations
+    - Following a multi-line condition
+    - In function scope declarations
 
   ```javascript
   // Right
 
   exports.method = function () {
   
-      if (condition) {
-  
+      if (condition) {  
           if (otherCondition) {
               console.log('sometimes');
           }
@@ -283,20 +280,19 @@
           console.log('always');
       }
       
+      execute(123, function (err) {
+      
+          console.log(err);
+      });
+      
       var empty = {};
   };
-                                                                                  // 1  
-                                                                                  // 2
-  exports.another = function () {
-  
-        console.log('hello');
-  };
-  
   
   // Wrong
 
   exports.method = function () {
         if (condition) {
+        
           if (otherCondition) {
       
               console.log('sometimes');
@@ -309,14 +305,13 @@
      
           console.log('always');
       }
-  
+        
+      execute(123, function (err) {
+          console.log(err);
+      });
+
       var empty = {
       };
-  };
-                                                                                  // 1  
-                                                                                  // 2
-  exports.another = function () {
-      console.log('hello');
   };
   ```
   
@@ -325,7 +320,6 @@
   // Right
 
   if (condition) {
-  
       if (otherCondition) {
           console.log('done');
       }
@@ -333,8 +327,7 @@
   
   // Wrong
 
-  if (condition) {
-  
+  if (condition) {  
       if (otherCondition) {
           console.log('done');
           
@@ -359,6 +352,7 @@
   // Right
 
   function example() {
+  
       return value;
   }
 
@@ -367,6 +361,7 @@
   // Wrong
   
   function example () {
+  
       return value;
   }
 
@@ -397,7 +392,6 @@
   // Right
 
   var obj = {
-
       a: 1,
       b: 2,
       c: 3
@@ -405,8 +399,7 @@
 
   // Wrong
   
-  var obj = {
-  
+  var obj = {  
       a : 1,
       b :2,
       c:3
@@ -436,8 +429,7 @@
   ```javascript
   // Right
 
-  for (var book in books) {
-  
+  for (var book in books) {  
       if (books.hasOwnProperty(book)) {
           console.log(book.name);
       }
@@ -445,8 +437,7 @@
   
   // Wrong
   
-  for(var book in books) {
-  
+  for(var book in books) {  
       if(books.hasOwnProperty(book)) {
           console.log(book.name);
       }
@@ -555,6 +546,7 @@
 
   if (value === 'hello' &&
       result === 'ok') {
+      
       console.log('yes');
   }
 
@@ -566,6 +558,7 @@
 
   if (value === 'hello'
       && result === 'ok') {
+      
       console.log('yes');
   }
   ```
@@ -601,7 +594,6 @@
       // Print each book's name
       
       for (var book in books) {
-
           if (books.hasOwnProperty(book)) {
               console.log(book.name);
           }
