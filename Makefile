@@ -1,7 +1,7 @@
 REPORTER = dot
 
 test: lib-cov
-	@NODE_ENV=test ./node_modules/.bin/mocha --reporter $(REPORTER)
+	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter $(REPORTER) --ignore-leaks
 	@$(MAKE) rm-lib-cov
 
 tests: test
@@ -25,7 +25,7 @@ tap: lib-cov
 	@$(MAKE) rm-lib-cov
 
 unit: lib-cov
-	@NODE_ENV=test ./node_modules/.bin/mocha -R xunit > results.xml
+	@NODE_ENV=test ./node_modules/.bin/mocha --recursive -R xunit --ignore-leaks > results.xml
 	@$(MAKE) rm-lib-cov
 
 .PHONY: test tap test-cv test-cov-html unit lib-cov rm-lib-cov
