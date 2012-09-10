@@ -1,37 +1,41 @@
 <img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" />
 
-A restful api server that separates your business logic from the server gears so you can focus on coding stuff.
+A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
+authentication requirements, input validation, data caching and pre-fetching, developer documenentation,
+and other essential facilities are provided out-of-the-box and enabled using simple JSON configuration
+objects. **hapi** enables developers to focus on writing reusable business logic instead of speding time
+with everything else.
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
 ### Basic Usage
 
 ```js
+var Hapi = require('hapi');
 
-var hapi = require('hapi');
+// Create a server with a host, port, and options
+var server = new Hapi.Server('localhost', 8000);
 
-//create a server with a host, port, and options
-var server = new hapi.Server.Server('localhost', 8088, {name:'sample', uri:'0.0.0.0'});
+// Define the route
+var hello = {
+    handler: function (request) {
 
-//define the function that returns our value (could be external to this file)
-function sampleGet(hapi, reply) {
-reply('hello world');
-}
-
-//add the route
+        reply('hello world');
+    }
+};
+    
+// Add the route
 server.addRoute({
-path : '/sample',
-method : 'GET',
-handler : sampleGet,
-authentication: 'none'
+    method : 'GET',
+    path : '/hello',
+    config : hello
 });
 
-//start the server
+// Start the server
 server.start();
-
 ```
 
-Now navigate to http://localhost:8080/sample and you should receive 'hello world'
+Now navigate to http://localhost:8080/hello and you should receive 'hello world'.
 
 ### Routes
 
