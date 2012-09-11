@@ -79,28 +79,28 @@ var server = new Hapi.Server('localhost', 8000, options);
 ### Router
 
 The `router` option controls how incoming request URIs are matched against the routing table. Router options:
-- `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to `false`.
-- `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to 'true'.
+- `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
+- `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
 
 ### Payload
 
 The `payload` option controls how incoming payloads (request body) are processed. Payload options:
-- `maxBytes` - limits the size of incoming payloads to the specified bytes count. Allowing very large payloads may cause the server to run out of memory. Defaults to 1MB.
+- `maxBytes` - limits the size of incoming payloads to the specified bytes count. Allowing very large payloads may cause the server to run out of memory. Defaults to _1MB_.
 
 ### Extensions
 
 **hapi** does not support middleware extensiblity as is commonly found in other web frameworks. Instead, **hapi** provides 5 extension hooks for
  any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified time
-during request processing. The required extension function signature is `function (request, next)` where:
+during request processing. The required extension function signature is _function (request, next)_ where:
 - `request` is the **hapi** request object, and
 - `next` is the callback function the method must call upon completion to return control over to the router.
 
 The extension points are:
-- `onRequest` - called upon new requests before any router processing. Calls to `request.setUrl()` will impact how the request is router and can be used for rewrite rules.
+- `onRequest` - called upon new requests before any router processing. Calls to _request.setUrl()_ will impact how the request is router and can be used for rewrite rules.
 - `onPreHandler` - called after request passes validation and body parsing, before the request handler.
 - `onPostHandler` - called after the request handler, before sending the response.
 - `onPostRoute` - called after the response was sent.
-- `onUnknownRoute` - if defined, overrides the default unknown resource (404) error response. The method must send the response manually via `request.raw.res`. Cannot be an array.
+- `onUnknownRoute` - if defined, overrides the default unknown resource (404) error response. The method must send the response manually via _request.raw.res_. Cannot be an array.
 
 For example:
 ```javascript
@@ -149,15 +149,27 @@ function onUnknownRoute(request, next) {
 
 **hapi** comes with a built-in process monitor for three types of events:
 - System and process performance (ops) - CPU, memory, disk, and other metrics.
-- Requests logging (requests) - framework and application generated logs generated during the lifecycle of each incoming request.
+- Requests logging (request) - framework and application generated logs generated during the lifecycle of each incoming request.
 - General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc.
 
-The monitor is off by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to `true`.
+The monitor is off by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to _true_.
 To override some or all of the defaults, set `monitor` to an object with the following optional settings:
-- `broadcastInterval` - the interval in miliseconds to send collected events to subscribers. `0` means send immediately. Defaults to `0`.
-- `opsInterval` - the interval in miliseconds to sample system and process performance metrics. Minimum is 100ms. Defaults to 15 seconds.
-- `extendedRequests` - boolean, determines if the full request log is sent or only the event summary. Defaults to `false`.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are `ops`, `requests`, and `log`. The destination can be a URI or `console`. Defaults to a console subscription to all three.
+- `broadcastInterval` - the interval in miliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
+- `opsInterval` - the interval in miliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
+- `extendedRequests` - boolean, determines if the full request log is sent or only the event summary. Defaults to _false_.
+- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _requests_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
+
+For example:
+```javascript
+var options = {
+    monitor: {
+        subscribers: {
+            console: ['ops', 'request', 'log'],
+            'http://localhost/logs': ['log']
+        }
+    }
+};
+```
 
 ### Authentication
 
@@ -172,14 +184,14 @@ The authentication interface is disabled by default and is still experimental.
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
 by web application running inside a browser which are loaded from a different domain than the API server. **hapi** provides a general purpose
 CORS implementation that sets very liberal restrictions on cross-origin access by default (on by default). CORS options:
-- `origin` - override the array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin ('*').
-- `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to one day.
-- `headers` - overrid the array of allowed headers ('Access-Control-Allow-Headers'). Defaults to 'Authorization, Content-Type, If-None-Match'.
+- `origin` - override the array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin _'*'_.
+- `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to _one day_.
+- `headers` - overrid the array of allowed headers ('Access-Control-Allow-Headers'). Defaults to _'Authorization, Content-Type, If-None-Match'_.
 - `additionalHeaders` - an array of additional headers to `headers`. Use this to keep the default headers in place.
-- `methods` - override the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to 'GET, HEAD, POST, PUT, DELETE, OPTIONS'.
+- `methods` - override the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to _'GET, HEAD, POST, PUT, DELETE, OPTIONS'_.
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 
-**hapi** will automatically add an `OPTIONS` handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to `false`. To disable CORS support for a single route, set the route `config.cors` option to `false`.
+**hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
 
 ## Route Configuration
 
