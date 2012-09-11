@@ -22,17 +22,17 @@ var server = new Hapi.Server('localhost', 8000);
 
 // Define the route
 var hello = {
-    handler: function (request) {
+handler: function (request) {
 
-        reply({ greeting: 'hello world' });
-    }
+reply({ greeting: 'hello world' });
+}
 };
-    
+
 // Add the route
 server.addRoute({
-    method : 'GET',
-    path : '/hello',
-    config : hello
+method : 'GET',
+path : '/hello',
+config : hello
 });
 
 // Start the server
@@ -45,17 +45,46 @@ Now navigate to http://localhost:8080/hello and you should receive 'hello world'
 
 **hapi** provides a rich set of configuration options for each server instance:
 
-  - [`tls`](https://github.com/walmartlabs/hapi/edit/user/eran/Readme.md#tls)
-  - `router`
-  - `payload`
-  - `cors`
-  - `ext`
-  - `monitor`
-  - `authentication`
-  - `cache`
-  - `debug`
+- [`tls`](#tls)
+- [`router`](#router)
+- [`payload`](#payload)
+- `cors`
+- `ext`
+- `monitor`
+- `authentication`
+- `cache`
+- `debug`
 
 ### TLS
+
+**hapi** creates an HTTP server by default. To create an HTTPS server, include the `tls` object in the server configuration.
+The `tls` object is described in the [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+
+```javascript
+var Hapi = require('hapi');
+
+// Server options
+var options = {
+tls: {
+key: 'your_key',
+cert: 'your_cert'
+}
+};
+
+// Create a server with a host, port, and options
+var server = new Hapi.Server('localhost', 8000, options);
+```
+
+### Router
+
+The `router` option controls how incoming request URIs are matched against the routing table.
+- `isTrailingSlashSensitive` - if set to `true`, the paths '/example' and '/example/' are considered different resources. Defaults to `false`.
+- `isCaseSensitive` - if set to true, the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to 'true'.
+
+### Payload
+
+The `payload` option controls how incoming payloads (request body) are processed.
+- `maxBytes` - limits the size of incoming payloads to the specified bytes count. Allowing very large payloads may cause the server to run out of memory. Defaults to 1MB.
 
 ### Routes
 
