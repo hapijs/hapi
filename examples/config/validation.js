@@ -32,13 +32,13 @@ internals.main = function () {
 
     // Initialize process
 
-    Hapi.Process.initialize();
+    // Hapi.Process.initialize();
 
     var config = {};
 
     // Create Hapi servers
 
-    var http = new Hapi.Server.Server('0.0.0.0', 8080, config);
+    var http = new Hapi.Server('0.0.0.0', 8080, config);
 
     // Set routes
 
@@ -49,6 +49,16 @@ internals.main = function () {
     http.addRoutes([{ method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } }]);
     http.addRoutes([{ method: 'GET', path: '/test', config: { handler: internals.get, query: {num: N().min(0)} } }]);
     http.addRoutes([{ method: 'GET', path: '/test2', config: { handler: internals.get, query: {p1: S().required().rename('itemId')}}}]);
+    
+    // Payload validation example
+    http.addRoutes([{ method: 'POST', path: '/users/:id', config: {
+        handler: internals.payload,
+        query: {},
+        schema: {
+            username: S().required().min(3),
+            emails: A().includes(S().email())
+        }
+    }}]);
 
     // Start Hapi servers
 
@@ -56,9 +66,9 @@ internals.main = function () {
 
     // Finalize Hapi environment
 
-    Hapi.Process.finalize();
+    // Hapi.Process.finalize();
 
-    Hapi.Log.info('Hapi server started');
+    // Hapi.Log.info('Hapi server started');
 };
 
 
@@ -66,5 +76,13 @@ internals.get = function (request) {
 
     request.reply('Success!\n');
 };
+
+internals.payload = function(request) {
+
+    console.log("payload", request.payload)
+    request.reply('Success!\n');
+}
+
+
 
 internals.main();
