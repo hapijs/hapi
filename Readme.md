@@ -1,9 +1,9 @@
 <img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" />
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
-authentication requirements, input validation, data caching and pre-fetching, developer documenentation,
+authentication requirements, input validation, data caching and pre-fetching, developer documentation,
 and other essential facilities are provided out-of-the-box and enabled using simple JSON configuration
-objects. **hapi** enables developers to focus on writing reusable business logic instead of speding time
+objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
@@ -41,7 +41,7 @@ server.start();
 
 Now navigate to http://localhost:8080/hello and you should receive 'hello world'.
 
-## Server Configration
+## Server Configuration
 
 **hapi** provides a rich set of configuration options for each server instance:
 
@@ -89,7 +89,7 @@ The `payload` option controls how incoming payloads (request body) are processed
 
 ### Extensions
 
-**hapi** does not support middleware extensiblity as is commonly found in other web frameworks. Instead, **hapi** provides 5 extension hooks for
+**hapi** does not support middleware extensibility as is commonly found in other web frameworks. Instead, **hapi** provides 5 extension hooks for
  any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified time
 during request processing. The required extension function signature is _function (request, next)_ where:
 - `request` is the **hapi** request object, and
@@ -152,11 +152,11 @@ function onUnknownRoute(request, next) {
 - Requests logging (request) - framework and application generated logs generated during the lifecycle of each incoming request.
 - General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc.
 
-The monitor is off by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to _true_.
+The monitor is _off_ by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to _true_.
 To override some or all of the defaults, set `monitor` to an object with the following optional settings:
-- `broadcastInterval` - the interval in miliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
+- `broadcastInterval` - the interval in milliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
 - `opsInterval` - the interval in miliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
-- `extendedRequests` - boolean, determines if the full request log is sent or only the event summary. Defaults to _false_.
+- `extendedRequests` - determines if the full request log is sent or only the event summary. Defaults to _false_.
 - `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _requests_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
 
 For example:
@@ -177,7 +177,25 @@ The authentication interface is disabled by default and is still experimental.
 
 ### Cache
 
+**hapi** provides a built-in caching facility for storing and reusing request responses. The initial implementation uses Redis for its storage needs
+(must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to _true_ or
+to an object with custom configuration:
+- `engine` - currently must be set to _redis_.
+- `host` - the Redis server hostname, defaults to _127.0.0.1_.
+- `port` - the Redis server port, defaults to _6379_.
+
+Enabling the server cache only creates the cache interface but does not enable caching for any route, which must be enabled and configured in the
+route configuration.
+
 ### Debug
+
+To assist in debugging server events related to specific incoming requests, **hapi** includes an optional debug console which is turned _off_ by default.
+The debug console is a simple web page in which developers can subscribe to a debug id, and then include that debug id as an extra query parameter in each
+request. The server will use WebSocket to stream the subscribed request logs to the web page in real-time. In application using multiple server instances,
+only one can enable the debug interface. To enable the debug console, set the `debug` option to _true_ or to an object with custom configuration:
+- `websocketPort` - the port used by the WebSocket connection. Defaults to _3000_.
+- `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
+- `queryKey` - the name or the request query parameter used to mark requests being debugged. Defaults to _debug_.
 
 ### CORS
 
@@ -235,6 +253,7 @@ hapi provides a myriad of util functions for your use
 * `map(array, key)` - turns an array into an object
 * `merge(target, source)` - Merge all the properties of source into target; source wins in conflict
 * `unique(array, key)` - removes duplicates from an array
+
 
 
 
