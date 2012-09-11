@@ -24,7 +24,7 @@ var server = new Hapi.Server('localhost', 8000);
 var hello = {
 handler: function (request) {
 
-        reply({ greeting: 'hello world' });
+        request.reply({ greeting: 'hello world' });
     }
 };
 
@@ -48,12 +48,12 @@ Now navigate to http://localhost:8080/hello and you should receive 'hello world'
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
-- [`cors`](#cors)
-- `ext`
+- [`ext`](#extensions)
 - `monitor`
 - `authentication`
 - `cache`
 - `debug`
+- [`cors`](#cors)
 
 ### TLS
 
@@ -87,15 +87,70 @@ The `router` option controls how incoming request URIs are matched against the r
 The `payload` option controls how incoming payloads (request body) are processed. Payload options:
 - `maxBytes` - limits the size of incoming payloads to the specified bytes count. Allowing very large payloads may cause the server to run out of memory. Defaults to 1MB.
 
+### Extensions
+
+**hapi** does not support middleware extensiblity as is commonly found in other web frameworks. Instead, **hapi** provides 5 extension hooks for
+ any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified time
+during request processing. The required extension function signature is `function (request, next)` where:
+- `request` is the **hapi** request object, and
+- `next` is the callback function the method must call upon completion to return control over to the router.
+
+The extension points are:
+- `onRequest` - called upon new requests before any router processing. Calls to `request.setUrl()` will impact how the request is router and can be used for rewrite rules.
+- `onPreHandler` - called after request passes validation and body parsing, before the request handler.
+- `onPostHandler` - called after the request handler, before sending the response.
+- `onPostRoute` - called after the response was sent.
+- `onUnknownRoute` - if defined, overrides the default unknown resource (404) error response. The method must send the response manually via `request.raw.res`. Cannot be an array.
+
+For example:
+```javascript
+var Hapi = require('hapi');
+
+var options = {
+    ext: {
+        onRequest: onRequest,
+        onUnknownRoute: onUnknownRoute
+    }
+};
+
+// Create server
+var http = new Hapi.Server('localhost', 8000, options);
+
+// Set routes
+http.addRoute({ method: 'GET', path: '/test', handler: get });
+
+// Start server
+http.start();
+
+// Resource handler
+function get(request) {
+
+    request.reply({ status: 'ok' });
+};
+
+// Path rewrite
+function onRequest(request, next) {
+
+    // Change all requests to '/test'
+    request.setUrl('/test');
+    next();
+};
+
+// 404 handler
+function onUnknownRoute(request, next) {
+
+    request.raw.res.writeHead(404);
+    request.raw.res.end();
+    next();
+};
+```
+
 ### CORS
 
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
 by web application running inside the browser which are loaded from a different domain than the API server. **hapi** provides a general purpose
 CORS implementation that sets very liberal restrictions on cross-origin access by default. CORS options:
 - `maxAge` - number of seconds the browser should cache the CORS response. The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to one day.
-
-### Extensions (Middleware)
-
 
 ### Routes
 
