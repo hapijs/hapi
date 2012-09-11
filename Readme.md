@@ -92,8 +92,8 @@ The `payload` option controls how incoming payloads (request body) are processed
 **hapi** does not support middleware extensibility as is commonly found in other web frameworks. Instead, **hapi** provides 5 extension hooks for
  any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified time
 during request processing. The required extension function signature is _function (request, next)_ where:
-- `request` is the **hapi** request object, and
-- `next` is the callback function the method must call upon completion to return control over to the router.
+- _'request'_ is the **hapi** request object, and
+- _'next'_ is the callback function the method must call upon completion to return control over to the router.
 
 The extension points are:
 - `onRequest` - called upon new requests before any router processing. Calls to _request.setUrl()_ will impact how the request is router and can be used for rewrite rules.
@@ -213,16 +213,43 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 
 ## Route Configuration
 
+**hapi** was designed to move as much logic as possible from the route handler to the route configuration. The goal is to provide a simple
+mechanism for defining routes without having to write code. This approach also enables producing dynamic route documentation without having
+to write additional text as the configuration itself serves as a living documentation.
+
 ### Configuration options
 
-* `path` - endpoint (see [Director](https://github.com/flatiron/director "Director") for endpoint matching patterns )
-* `method` - http method for routing endpoint
-* `handler` - Function to handle request
-* `authentication` - Type of authentication
-* `tos` - Terms of Service required for that request
-* `query` -
-* `schema` -
-* `scope` -
+* `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path_parameters).
+* `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
+* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route_hander) for more information.
+* `config` - route configuration grouped into a sub-object to allow spliting the routing table from the implementation details of each route. Options include:
+  * `description` - route description.
+  * `notes` - route notes (string or array of strings).
+  * `tags` - route tags (array of strings).
+  * `query` - 
+  * `schema` - 
+  * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
+    * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_.
+    * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
+    * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
+  * `auth` - authentication configuration
+    * `mode` - 
+    * `tos` - 
+    * `scope` -
+    * `user` - 
+
+### Override Route Defaults
+
+Each configuration option comes with a built-in default. To change these defaults, use the `setRoutesDefaults()` server method.
+```javascript
+server.setRoutesDefaults({
+    cors: false
+});
+```
+
+### Path Parameters
+
+### Route Handler
 
 ### Wildcards
 
