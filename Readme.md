@@ -49,10 +49,10 @@ Now navigate to http://localhost:8080/hello and you should receive 'hello world'
 - [`router`](#router)
 - [`payload`](#payload)
 - [`ext`](#extensions)
-- `monitor`
-- `authentication`
-- `cache`
-- `debug`
+- [`monitor`](#monitor)
+- [`authentication`](#authentication)
+- [`cache`](#cache)
+- [`debug`](#debug)
 - [`cors`](#cors)
 
 ### TLS
@@ -145,11 +145,33 @@ function onUnknownRoute(request, next) {
 };
 ```
 
+### Monitor
+
+**hapi** comes with a built-in process monitor for three types of events:
+- System and process performance (ops) - CPU, memory, disk, and other metrics.
+- Requests logging (requests) - framework and application generated logs generated during the lifecycle of each incoming request.
+- General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc.
+
+The monitor is off by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to `true`.
+To override some or all of the defaults, set `monitor` to an object with the following optional settings:
+- `broadcastInterval` - the interval in miliseconds to send collected events to subscribers. `0` means send immediately. Defaults to `0`.
+- `opsInterval` - the interval in miliseconds to sample system and process performance metrics. Minimum is 100ms. Defaults to 15 seconds.
+- `extendedRequests` - boolean, determines if the full request log is sent or only the event summary. Defaults to `false`.
+- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are `ops`, `requests`, and `log`. The destination can be a URI or `console`. Defaults to a console subscription to all three.
+
+### Authentication
+
+The authentication interface is disabled by default and is still experimental.
+
+### Cache
+
+### Debug
+
 ### CORS
 
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
 by web application running inside a browser which are loaded from a different domain than the API server. **hapi** provides a general purpose
-CORS implementation that sets very liberal restrictions on cross-origin access by default. CORS options:
+CORS implementation that sets very liberal restrictions on cross-origin access by default (on by default). CORS options:
 - `origin` - override the array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin ('*').
 - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to one day.
 - `headers` - overrid the array of allowed headers ('Access-Control-Allow-Headers'). Defaults to 'Authorization, Content-Type, If-None-Match'.
@@ -159,9 +181,9 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 
 **hapi** will automatically add an `OPTIONS` handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to `false`. To disable CORS support for a single route, set the route `config.cors` option to `false`.
 
-### Routes
+## Route Configuration
 
-#### Configuration options
+### Configuration options
 
 * `path` - endpoint (see [Director](https://github.com/flatiron/director "Director") for endpoint matching patterns )
 * `method` - http method for routing endpoint
@@ -172,49 +194,26 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 * `schema` -
 * `scope` -
 
-#### Wildcards
+### Wildcards
 
 Wildcard declaration in routes are handled the same way as they are in Director or Express. Their retrieval on the handler is handled a little differently.
 
 ```js
 //when you add a route like this:
 server.addRoute({
-path : '/luna/:album',
-method : 'GET',
-handler : albumRetrieve,
-authentication: 'none'
+    path : '/luna/:album',
+    method : 'GET',
+    handler : albumRetrieve,
+    authentication: 'none'
 });
 
-function albumRetrieve(hapi, reply) {
-//hapi.params will have the parameter
-console.log(hapi.params.album);
-reply(albumGet(hapi.params.album));
+function albumRetrieve(request) {
+    //hapi.params will have the parameter
+    request.reply(albumGet(hapi.params.album));
 }
 ```
 
-### Handlers
-
-Each handler needs two parameters, usually named 'hapi' and 'reply'.
-
-* `hapi` - the first parameter. provides request information
-* `reply` - function to call that takes a json body as a response
-
-### Middleware
-
-hapi provides a few places where middleware can be added into the functions being called for each request. They are:
-
-* `onPreRoute` - gets called before the request is routed.
-* `onPreHandler` - gets called after the request has been routed before the assigned handler is called
-* `onPostHandler` - gets called after the request headers
-* `onPostRoute` - called after all the routes have been matched
-
-Add them via the 'ext' portion  of the options.
-
-```js
-var server = new hapi.Server.Server('localhost', 8088, {name:'sample', uri:'0.0.0.0', ext: {onPreRoute:myPreRouteFunction}});
-```
-
-### Utils
+## Utilities
 
 hapi provides a myriad of util functions for your use
 * `abort(message)` - logs message to console and exits the process.
