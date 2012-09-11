@@ -56,7 +56,7 @@ internals.main = function () {
         query: {},
         schema: {
             username: S().required().min(3),
-            emails: A().excludes(S().email())
+            emails: A().includes(S().email())
         }
     }}]);
 
