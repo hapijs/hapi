@@ -24,15 +24,15 @@ var server = new Hapi.Server('localhost', 8000);
 var hello = {
 handler: function (request) {
 
-reply({ greeting: 'hello world' });
-}
+        reply({ greeting: 'hello world' });
+    }
 };
 
 // Add the route
 server.addRoute({
-method : 'GET',
-path : '/hello',
-config : hello
+    method : 'GET',
+    path : '/hello',
+    config : hello
 });
 
 // Start the server
@@ -48,7 +48,7 @@ Now navigate to http://localhost:8080/hello and you should receive 'hello world'
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
-- `cors`
+- [`cors`](#cors)
 - `ext`
 - `monitor`
 - `authentication`
@@ -58,17 +58,18 @@ Now navigate to http://localhost:8080/hello and you should receive 'hello world'
 ### TLS
 
 **hapi** creates an HTTP server by default. To create an HTTPS server, include the `tls` object in the server configuration.
-The `tls` object is described in the [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+The `tls` object is passed unchanged to the node.js HTTPS server and described in the
+[node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 
 ```javascript
 var Hapi = require('hapi');
 
 // Server options
 var options = {
-tls: {
-key: 'your_key',
-cert: 'your_cert'
-}
+    tls: {
+        key: 'your_key',
+        cert: 'your_cert'
+    }
 };
 
 // Create a server with a host, port, and options
@@ -77,14 +78,24 @@ var server = new Hapi.Server('localhost', 8000, options);
 
 ### Router
 
-The `router` option controls how incoming request URIs are matched against the routing table.
-- `isTrailingSlashSensitive` - if set to `true`, the paths '/example' and '/example/' are considered different resources. Defaults to `false`.
-- `isCaseSensitive` - if set to true, the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to 'true'.
+The `router` option controls how incoming request URIs are matched against the routing table. Router options:
+- `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to `false`.
+- `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to 'true'.
 
 ### Payload
 
-The `payload` option controls how incoming payloads (request body) are processed.
+The `payload` option controls how incoming payloads (request body) are processed. Payload options:
 - `maxBytes` - limits the size of incoming payloads to the specified bytes count. Allowing very large payloads may cause the server to run out of memory. Defaults to 1MB.
+
+### CORS
+
+The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
+by web application running inside the browser which are loaded from a different domain than the API server. **hapi** provides a general purpose
+CORS implementation that sets very liberal restrictions on cross-origin access by default. CORS options:
+- `maxAge` - number of seconds the browser should cache the CORS response. The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to one day.
+
+### Extensions (Middleware)
+
 
 ### Routes
 
