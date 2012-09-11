@@ -1,7 +1,8 @@
-# Hapi Validation Configuration Syntax Proposal
+# Hapi Validation Configuration Syntax Documentation
 
 * Author: Van Nguyen <vnguyen@walmart.com>
 * Date: Thu Aug 2 2012 12:30:00 GMT-0800 (PST)
+* Updated: Tue Sep 11 2012 5:30:00 GMT-0800 (PST)
 
 ## Table of Contents
 
@@ -22,14 +23,13 @@
 * [Security Considerations](#security-considerations "Security Considerations")
 * [References](#references "References")
     * [Reference A: Other Types](#reference-a-other-types "Reference A: Other Types")
-    * [Reference B: Deprecated Proposal](#reference-b-deprecated-proposal "Reference B: Deprecated Proposal")
  
 
 ## Abstract
 
 Query validation is the process of ensuring that querystring parameters given to route URI match pre-specified expectations. Thus, developers can code handlers with the explicit knowledge that any and all invalid inputs will not be passed to the handler (and thus not have to repetitively write type juggling code for each handler). 
 
-This proposal defines the generic configuration syntax for:
+This document defines the generic configuration syntax for:
 * required & optional inputs
 * specifying that inputs be a specific (and perhaps custom) data type
 * specifying further limitations upon above specific data type
@@ -37,7 +37,7 @@ This proposal defines the generic configuration syntax for:
 
 ## Introduction
 
-TODO: write this last
+The fairly comprehensive Hapi Validation system can be used to validate querystring parameters and payloads (POST data sent from the client(s)). 
 
 ### Query Example
 #### Config
@@ -143,6 +143,8 @@ Thus, subsequent calls to the new "type" will behave as fully registered types i
 
 Constraints are functions that restrict the input value in some way.
 
+By default, all without explicit constraints, Types are optional.
+
 ### Implementation
 
 TODO: Show example function definition (to show logical uniformity between constraints and chainability)
@@ -154,11 +156,11 @@ TODO: Show example function definition (to show logical uniformity between const
 
 All types inherit the following builtin constraints:
 
-##### BaseType.required([predicate = true])
+##### BaseType.required([allowNull = false])
 
-Specifies whether or not this input is required, as determined by predicate.
+Specifies whether or not this input is required.  If allowNull is true, then the validated value is allowed to be null.
 
-If predicate is not specified, it defaults to true.
+If allowNull is not specified, it defaults to true.
 
 ##### Basetype.valid(a1[, a2, ...])
 
@@ -187,6 +189,10 @@ Specifies an arbitrary number of inputs that must also be supplied (a1..an) with
 Specifies an arbitrary number of inputs that cannot exist alongside this input (logical XOR).
 
 *Note: This may or may not have aliases in the final version (.disjoin, .without, .xor... etc)*
+
+##### BaseType.empty()
+
+Specifies that the empty should be null.
 
 ##### BaseType.rename(to[, options])
 
@@ -247,7 +253,7 @@ Specifies that this input is a valid email string.
 
 ##### String.date()
 
-Specifies that this input is a valid Date string.
+Specifies that this input is a valid Date string (locale string but also accepts unix timestamp).
 
 ##### String.encoding(enc)
 
@@ -292,7 +298,6 @@ Boolean values accept a case-insensitive string parameter. If the value is "true
 
 #### Array
 
-
 **Note**
 Array values take the querystring form of
 
@@ -320,14 +325,6 @@ Specifies allowed types for the array value to exclude. The values of n1, n2, ..
 
 *Note: Object has no special methods other than those inherited from BaseType*
 
-
-#### Function
-
-This data type is unlikely to be used in practice. However, it exists for completeness and can be used in the definition of other Types.
-
-*WARNING: This type uses eval. If you do not know what you are doing, using this Type is dangerous and poses numerous security risks. Use at your own peril.*
-
-*Note: Function has no special methods other than those inherited from BaseType*
 
 
 
@@ -400,71 +397,3 @@ The "null" variable is considered to be of type "object". An alias could easily 
 #### "undefined"
 
 Unlike null, undefined is its own type with its own special properties. For the purposes of querystring validation, any blank or indefinite inputs will appear as blank strings (""). As far as I know, there is no way to force the undefined object into the querystring. Thus, unless otherwise proven, "undefined" will not be included in the Type Registry.
-
-
-### Reference B: Deprecated Proposal
-    ## Some Approaches
-
-    * Objects
-    * Objects w/ helpers
-    * DSL
-
-    Example Route/Endpoint Config:
-
-        { method: 'GET',    path: '/contacts',                      handler: User.contacts,         query: ['exclude'], tos: 'none' }
-
-    ### Design Considerations
-
-    TODO
-
-    ### Objects
-
-        query: {"email": {type: "String"}} // use defaults
-        query: {"username": {type: "String", required: false}} // optional parameter
-        query: {"password": {type: "String", min: 6}} // override settings
-        query: {"email": {type: "String"}, "password": {type: "String"}} // multiple params
-        
-        // relationships
-        query: {"CreditCardNumber": {type: "String", "AND": ["Name", "Expiration", "Code"]}, "Name": {type: "String", "AND": ["CreditCardNumber", "Expiration", "Code"]}, "Expiration": {type: "String", "AND": ["Name", "CreditCardNumber", "Code"]}, "Code": {type: "String", "AND": ["Name", "Expiration", "CreditCardNumber"]}} // all or nothing
-        query: {"access_token": {type: "String", "XOR": ["password"]}, "password": {type: "String", "XOR": ["access_token"]}} // XOR
-
-    * Straightforward, no-nonsense approach: just the data
-    * Fairly performant
-    * Easily understood by devs
-    * Can become quite verbose
-
-    ### Objects w/ helpers functions
-
-        // T = Types.ensure
-        query: {"email": T("String")}
-        query: {"username": T("String", {required: false})} 
-        query: {"password": T("String", {min: 6})}
-        query: {"email": T("String"), "password": T("String")} // multiple params
-        
-        // relationship
-        var CC_GRP = ["CreditCardNumber", "Name", "Expiration", "Code"];
-        query: {CreditCardNumber: T("String").with(CC_GRP), Name: T("String").with(CC_GRP), Expiration: T("String").with(CC_GRP), Code: T("String").with(CC_GRP)} // all or nothing
-        query: {access_token: T("String").xor("password"), password: T("String").xor("access_token")} // XOR
-
-    * T() returns Object from "Object" section
-    * Dubious added value unless pre-executed to form new endpoint/routes before server start
-    * Similar style used by rackspace's swiz
-
-    ### DSL
-
-        query: ["String#email"] // uses defaults
-        query: ["String#username?"] // optional param
-        query: ["String#password.min(6)"] // modify params
-        query: ["String#email", "String#password"] // multiple params
-        
-        // relationships
-        query: ["String#CreditCardNumber < String#Name + Datetime#Expiration + String#Code"] // all or nothing
-        query: ["String#access_token | String#password"] // XOR
-        query: ["String#a.group(items) + String#b.group(items) + String#c.group(items)"] // Generalized grouping
-
-    * Lowest average verbosity
-    * Human-readable
-    * Requires additional processing/cpu cycles to parse, could be pre-processed like Obj w/ helpers fn for performance
-
-
-
