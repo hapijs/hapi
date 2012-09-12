@@ -15,12 +15,15 @@
 */
 
 // Load modules
-
 var Hapi = require('../../lib/hapi');
 var Types = Hapi.Types;
 var S = Types.String,
     N = Types.Number,
     A = Types.Array;
+
+// Debug modules
+var sys = require("sys");
+
 
 
 // Declare internals
@@ -51,13 +54,25 @@ internals.main = function () {
     http.addRoutes([{ method: 'GET', path: '/test2', config: { handler: internals.get, query: {p1: S().required().rename('itemId')}}}]);
     
     // Payload validation example
+    var s = {
+        input: 
+            A().includes(
+                A().includes(
+                    N().min(0)
+                )
+            )
+    }
+    console.log("schema", sys.inspect(s));
+    // console.log(sys.inspect(s.input._validators.map(function(d){ return d.toString();})));
+    
     http.addRoutes([{ method: 'POST', path: '/users/:id', config: {
         handler: internals.payload,
         query: {},
-        schema: {
-            username: S().required().min(3),
-            emails: A().includes(S().email())
-        }
+        // schema: {
+        //     username: S().required().min(3),
+        //     emails: A().includes(S().email())
+        // }
+        // schema: s
     }}]);
 
     // Start Hapi servers
