@@ -249,10 +249,6 @@ server.setRoutesDefaults({
 
 ### Path Parameters
 
-### Route Handler
-
-### Wildcards
-
 Wildcard declaration in routes are handled the same way as they are in Director or Express. Their retrieval on the handler is handled a little differently.
 
 ```js
@@ -270,20 +266,7 @@ function albumRetrieve(request) {
 }
 ```
 
-## Utilities
-
-hapi provides a myriad of util functions for your use
-* `abort(message)` - logs message to console and exits the process.
-* `clone(obj)` - clones an object or array
-* `getTimeStamp()` - gives a 'now' timestamp
-* `hide(object, definition)` - removes hidden keys
-* `map(array, key)` - turns an array into an object
-* `merge(target, source)` - Merge all the properties of source into target; source wins in conflict
-* `unique(array, key)` - removes duplicates from an array
-
-
-
-
+### Route Handler
 
 
 
