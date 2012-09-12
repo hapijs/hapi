@@ -153,11 +153,13 @@ function onUnknownRoute(request, next) {
 - General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc.
 
 The monitor is _off_ by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to _true_.
-To override some or all of the defaults, set `monitor` to an object with the following optional settings:
+Applications with multiple server instances, each with its own monitor should only include one _log_ subscription per destination as general events (log)
+are a process-wide facility and will result in duplicated log events. To override some or all of the defaults, set `monitor` to an object with the following
+optional settings:
 - `broadcastInterval` - the interval in milliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
 - `opsInterval` - the interval in miliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
 - `extendedRequests` - determines if the full request log is sent or only the event summary. Defaults to _false_.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _requests_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
+- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
 
 For example:
 ```javascript
@@ -223,21 +225,27 @@ to write additional text as the configuration itself serves as a living document
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-parameters).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
 * `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-hander) for more information.
-* `config` - route configuration grouped into a sub-object to allow spliting the routing table from the implementation details of each route. Options include:
+* `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
-  * `query` - 
-  * `schema` - 
+  * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
+  * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
   * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
     * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_.
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
     * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
   * `auth` - authentication configuration
-    * `mode` - 
-    * `tos` - 
-    * `scope` -
-    * `user` - 
+    * `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
+      * _'none'_ - authentication not allowed.
+      * _'required'_ - authentication is required.
+      * _'optional'_ - authentication is optional (validated if present).
+    * `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
+    * `scope` - required client scope. Defaults to _none_.
+    * `entity` - the required authenticated entity type. Available options include:
+      * _'any'_ - the authentication can be on behalf of a user or client.
+      * _'user'_ - the authentication must be on behalf of a user.
+      * _'client'_ - the authentication must be on behalf of a client.
 
 ### Override Route Defaults
 
@@ -268,6 +276,12 @@ function albumRetrieve(request) {
 ```
 
 ### Route Handler
+
+
+### Query Validation
+
+
+### Payload Validation
 
 
 
