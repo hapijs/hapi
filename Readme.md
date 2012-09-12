@@ -78,7 +78,7 @@ var server = new Hapi.Server('localhost', 8000, options);
 
 ### Router
 
-The `router` option controls how incoming request URIs are matched against the routing table. Router options:
+The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
 - `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
 
@@ -153,11 +153,13 @@ function onUnknownRoute(request, next) {
 - General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc.
 
 The monitor is _off_ by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to _true_.
-To override some or all of the defaults, set `monitor` to an object with the following optional settings:
+Applications with multiple server instances, each with its own monitor should only include one _log_ subscription per destination as general events (log)
+are a process-wide facility and will result in duplicated log events. To override some or all of the defaults, set `monitor` to an object with the following
+optional settings:
 - `broadcastInterval` - the interval in milliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
 - `opsInterval` - the interval in miliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
 - `extendedRequests` - determines if the full request log is sent or only the event summary. Defaults to _false_.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _requests_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
+- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
 
 For example:
 ```javascript
@@ -192,7 +194,8 @@ route configuration.
 To assist in debugging server events related to specific incoming requests, **hapi** includes an optional debug console which is turned _off_ by default.
 The debug console is a simple web page in which developers can subscribe to a debug id, and then include that debug id as an extra query parameter in each
 request. The server will use WebSocket to stream the subscribed request logs to the web page in real-time. In application using multiple server instances,
-only one can enable the debug interface. To enable the debug console, set the `debug` option to _true_ or to an object with custom configuration:
+only one can enable the debug interface using the default port. To enable the debug console, set the `debug` option to _true_ or to an object with custom
+configuration:
 - `websocketPort` - the port used by the WebSocket connection. Defaults to _3000_.
 - `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
 - `queryKey` - the name or the request query parameter used to mark requests being debugged. Defaults to _debug_.
@@ -219,24 +222,30 @@ to write additional text as the configuration itself serves as a living document
 
 ### Configuration options
 
-* `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-parameters).
+* `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
 * `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-hander) for more information.
-* `config` - route configuration grouped into a sub-object to allow spliting the routing table from the implementation details of each route. Options include:
+* `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
-  * `query` - 
-  * `schema` - 
+  * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
+  * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
   * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
     * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_.
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
     * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
   * `auth` - authentication configuration
-    * `mode` - 
-    * `tos` - 
-    * `scope` -
-    * `user` - 
+    * `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
+      * _'none'_ - authentication not allowed.
+      * _'required'_ - authentication is required.
+      * _'optional'_ - authentication is optional (validated if present).
+    * `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
+    * `scope` - required client scope. Defaults to _none_.
+    * `entity` - the required authenticated entity type. Available options include:
+      * _'any'_ - the authentication can be on behalf of a user or client.
+      * _'user'_ - the authentication must be on behalf of a user.
+      * _'client'_ - the authentication must be on behalf of a client.
 
 ### Override Route Defaults
 
@@ -247,43 +256,41 @@ server.setRoutesDefaults({
 });
 ```
 
-### Path Parameters
+### Path Processing
 
-### Route Handler
+The **hapi** router iterates through the routing table on each incoming request and executes the first (and only the first) matching route handler.
+Route matching is done on the request path only (excluding the query and other components). The route `path` option support three types of paths:
+* Static - the route path is a static string which begin with _'/'_ and will only match incoming requests containing the exact string match (as defined by the server `router` option).
+* Parameterized - same as _static_ with the additional support of named parameters (prefixed with _':'_).
+* Regular expression - the route path will be matched against the provided regular expression. No parameter extraction performed.
 
-### Wildcards
+#### Parameters
 
-Wildcard declaration in routes are handled the same way as they are in Director or Express. Their retrieval on the handler is handled a little differently.
+Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
+'/book/:id/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
+ the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix can at the end of the parameter name indicates
+an optional parameter. For example: the route: '/book/:id?' will match: '/book/' (and may match '/book' based on the server `router` option).
 
-```js
-//when you add a route like this:
+```javascript
 server.addRoute({
-    path : '/luna/:album',
+    path : '/:album/:song?',
     method : 'GET',
-    handler : albumRetrieve,
-    authentication: 'none'
+    handler : getAlbum
 });
 
-function albumRetrieve(request) {
-    //hapi.params will have the parameter
-    request.reply(albumGet(hapi.params.album));
+function getAlbum(request) {
+
+    request.reply('You asked for ' + (request.params.song ? request.params.song + ' from ' : '') + request.params.album);
 }
 ```
 
-## Utilities
-
-hapi provides a myriad of util functions for your use
-* `abort(message)` - logs message to console and exits the process.
-* `clone(obj)` - clones an object or array
-* `getTimeStamp()` - gives a 'now' timestamp
-* `hide(object, definition)` - removes hidden keys
-* `map(array, key)` - turns an array into an object
-* `merge(target, source)` - Merge all the properties of source into target; source wins in conflict
-* `unique(array, key)` - removes duplicates from an array
+### Route Handler
 
 
+### Query Validation
 
 
+### Payload Validation
 
 
 

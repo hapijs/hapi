@@ -76,7 +76,7 @@ describe("utils", function(){
     })
   })
 
-  describe("#hide", function(){
+  describe("#removeKeys", function(){
     var objWithHiddenKeys = {
       location: {
         name: 'San Bruno'
@@ -87,7 +87,7 @@ describe("utils", function(){
     }
     
     it("should delete params with definition's hide set to true", function(done){
-      var a = utils.hide(objWithHiddenKeys, {location: {hide: true}});
+      var a = utils.removeKeys(objWithHiddenKeys, ['location']);
       should.not.exist(objWithHiddenKeys.location);
       should.exist(objWithHiddenKeys.company);
       done();
