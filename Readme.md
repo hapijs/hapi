@@ -78,7 +78,7 @@ var server = new Hapi.Server('localhost', 8000, options);
 
 ### Router
 
-The `router` option controls how incoming request URIs are matched against the routing table. Router options:
+The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
 - `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
 
@@ -222,7 +222,7 @@ to write additional text as the configuration itself serves as a living document
 
 ### Configuration options
 
-* `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-parameters).
+* `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
 * `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-hander) for more information.
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
@@ -256,22 +256,31 @@ server.setRoutesDefaults({
 });
 ```
 
-### Path Parameters
+### Path Processing
 
-Wildcard declaration in routes are handled the same way as they are in Director or Express. Their retrieval on the handler is handled a little differently.
+The **hapi** router iterates through the routing table on each incoming request and executes the first (and only the first) matching route handler.
+Route matching is done on the request path only (excluding the query and other components). The route `path` option support three types of paths:
+* Static - the route path is a static string which begin with _'/'_ and will only match incoming requests containing the exact string match (as defined by the server `router` option).
+* Parameterized - same as _static_ with the additional support of named parameters (prefixed with _':'_).
+* Regular expression - the route path will be matched against the provided regular expression. No parameter extraction performed.
 
-```js
-//when you add a route like this:
+#### Parameters
+
+Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
+'/book/:id/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
+ the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix can at the end of the parameter name indicates
+an optional parameter. For example: the route: '/book/:id?' will match: '/book/' (and may match '/book' based on the server `router` option).
+
+```javascript
 server.addRoute({
-    path : '/luna/:album',
+    path : '/:album/:song?',
     method : 'GET',
-    handler : albumRetrieve,
-    authentication: 'none'
+    handler : getAlbum
 });
 
-function albumRetrieve(request) {
-    //hapi.params will have the parameter
-    request.reply(albumGet(hapi.params.album));
+function getAlbum(request) {
+
+    request.reply('You asked for ' + (request.params.song ? request.params.song + ' from ' : '') + request.params.album);
 }
 ```
 
