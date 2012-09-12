@@ -5,35 +5,35 @@ var Utils = require("../../../lib/utils");
 
 describe("BaseType", function(){
   describe("#_required", function(){
-    it('should return true for if input is given and required', function(done){
+    it('should return true if non-null input is given and required', function(done){
       var base = new BaseType();
-      var result = base._required(true)("walmart");
-      should.exist(result);
-      result.should.equal(true)
-      done();
-    })
-    
-    it('should return true if input is given but not required', function(done){
-      var base = new BaseType();
-      var result = base._required(false)("walmart");
+      var result = base._required()("walmart");
       should.exist(result);
       result.should.equal(true);
       done();
     })
     
-    it('should return false if input is not given but required', function(done){
+    it('should return true if null input is given and allowNull is true', function(done){
       var base = new BaseType();
-      var result = base._required(true)();
+      var result = base._required(true)(null);
+      should.exist(result);
+      result.should.equal(true);
+      done();
+    })
+    
+    it('should return false if null input is given and allowNull is false', function(done){
+      var base = new BaseType();
+      var result = base._required(false)(null);
       should.exist(result);
       result.should.equal(false);
       done();
     })
     
-    it('should return true if input is not given and not required', function(done){
+    it('should return false if no input is given and allowNull is false', function(done){
       var base = new BaseType();
       var result = base._required(false)();
       should.exist(result);
-      result.should.equal(true);
+      result.should.equal(false);
       done();
     })
   })
