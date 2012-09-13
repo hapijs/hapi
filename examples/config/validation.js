@@ -52,6 +52,7 @@ internals.main = function () {
     http.addRoutes([{ method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } }]);
     http.addRoutes([{ method: 'GET', path: '/test', config: { handler: internals.get, query: {num: N().min(0)} } }]);
     http.addRoutes([{ method: 'GET', path: '/test2', config: { handler: internals.get, query: {p1: S().required().rename('itemId')}}}]);
+    http.addRoutes([{ method: 'GET', path: '/simple', config: { handler: internals.get, query: {input: S().min(3)} } }]);
     
     // Payload validation example
     var s = {
@@ -62,7 +63,7 @@ internals.main = function () {
                 )
             )
     }
-    console.log("schema", sys.inspect(s));
+    // console.log("schema", sys.inspect(s));
     // console.log(sys.inspect(s.input._validators.map(function(d){ return d.toString();})));
     
     http.addRoutes([{ method: 'POST', path: '/users/:id', config: {
@@ -72,7 +73,7 @@ internals.main = function () {
         //     username: S().required().min(3),
         //     emails: A().includes(S().email())
         // }
-        // schema: s
+        schema: s
     }}]);
 
     // Start Hapi servers
@@ -89,6 +90,7 @@ internals.main = function () {
 
 internals.get = function (request) {
 
+    console.log(request.query)
     request.reply('Success!\n');
 };
 
