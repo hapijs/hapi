@@ -55,15 +55,21 @@ internals.main = function () {
     http.addRoutes([{ method: 'GET', path: '/simple', config: { handler: internals.get, query: {input: S().min(3)} } }]);
     
     // Payload validation example
+    // var s = {
+    //     input: 
+    //         A().includes(
+    //             A().includes(
+    //                 N().min(0)
+    //             )
+    //         )
+    // }
     var s = {
-        input: 
-            A().includes(
-                A().includes(
-                    N().min(0)
-                )
-            )
+        title: S(),
+        status: S().valid('open', 'pending', 'close'),
+        participants: A().includes(S())
     }
     // console.log("schema", sys.inspect(s));
+    // console.log(s.input._validators[1].toString())
     // console.log(sys.inspect(s.input._validators.map(function(d){ return d.toString();})));
     
     http.addRoutes([{ method: 'POST', path: '/users/:id', config: {
