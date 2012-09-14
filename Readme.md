@@ -286,6 +286,8 @@ function getAlbum(request) {
 
 ### Route Handler
 
+#### Errors
+
 
 ### Query Validation
 
