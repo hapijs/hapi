@@ -22,7 +22,7 @@ var server = new Hapi.Server('localhost', 8000);
 
 // Define the route
 var hello = {
-handler: function (request) {
+    handler: function (request) {
 
         request.reply({ greeting: 'hello world' });
     }
@@ -30,9 +30,9 @@ handler: function (request) {
 
 // Add the route
 server.addRoute({
-    method : 'GET',
-    path : '/hello',
-    config : hello
+    method: 'GET',
+    path: '/hello',
+    config: hello
 });
 
 // Start the server
