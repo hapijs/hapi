@@ -66,7 +66,7 @@ internals.main = function () {
     var s = {
         title: S(),
         status: S().valid('open', 'pending', 'close'),
-        participants: A().includes(S())
+        participants: A().includes(S(), N())
     }
     // console.log("schema", sys.inspect(s));
     // console.log(s.input._validators[1].toString())
