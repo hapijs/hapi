@@ -23,7 +23,6 @@ var server = new Hapi.Server('localhost', 8000);
 // Define the route
 var hello = {
     handler: function (request) {
-
         request.reply({ greeting: 'hello world' });
     }
 };
@@ -124,9 +123,8 @@ http.start();
 
 // Resource handler
 function get(request) {
-
     request.reply({ status: 'ok' });
-};
+}
 
 // Path rewrite
 function onRequest(request, next) {
@@ -134,15 +132,14 @@ function onRequest(request, next) {
     // Change all requests to '/test'
     request.setUrl('/test');
     next();
-};
+}
 
 // 404 handler
 function onUnknownRoute(request, next) {
-
     request.raw.res.writeHead(404);
     request.raw.res.end();
     next();
-};
+}
 ```
 
 ### Monitor
@@ -279,7 +276,6 @@ server.addRoute({
 });
 
 function getAlbum(request) {
-
     request.reply('You asked for ' + (request.params.song ? request.params.song + ' from ' : '') + request.params.album);
 }
 ```
