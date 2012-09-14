@@ -64,32 +64,32 @@ describe("Types.Array", function(){
     })
   })
   
-  describe("#_excludes", function(done){
-    it('should validate on known good input', function(done){
-      var input = [3, 1];
-      var validators = A()._excludes(N().min(5));
+  // describe("#_excludes", function(done){
+  //   it('should validate on known good input', function(done){
+  //     var input = [3, 1];
+  //     var validators = A()._excludes(N().min(5));
       
-      for(var j in validators) {
-        var result = validators[j](input);
-        should.exist(result);
-        result.should.be(true);
-      }
-      done();
-    })
+  //     for(var j in validators) {
+  //       var result = validators[j](input);
+  //       should.exist(result);
+  //       result.should.be(true);
+  //     }
+  //     done();
+  //   })
     
-    it('should invalidate on known bad input', function(done){
-      var input = [10, 20];
-      var len = input.length;
-      var validators = A()._excludes(N().min(5));
-      var isValid = true;
+  //   it('should invalidate on known bad input', function(done){
+  //     var input = [10, 20];
+  //     var len = input.length;
+  //     var validators = A()._excludes(N().min(5));
+  //     var isValid = true;
       
-      for(var j in validators) {
-        var result = validators[j](input);
-        should.exist(result);
-        result.should.be(false);
-      }
-      done();
-    })
-  })
+  //     for(var j in validators) {
+  //       var result = validators[j](input);
+  //       should.exist(result);
+  //       result.should.be(false);
+  //     }
+  //     done();
+  //   })
+  // })
   
 });
