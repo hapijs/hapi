@@ -6,7 +6,7 @@
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors":[
     "Van Nguyen <the.gol.effect@gmail.com>"
-  ]
+  ],
   "repository": "git://github.com/walmartlabs/hapi",
   "main": "index",
   "keywords": [
