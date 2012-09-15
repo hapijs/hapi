@@ -6,6 +6,8 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
+Current version: **0.7.0**
+
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
 # Table of Content
@@ -245,7 +247,7 @@ Applications with multiple server instances, each with its own monitor should on
 are a process-wide facility and will result in duplicated log events. To override some or all of the defaults, set `monitor` to an object with the following
 optional settings:
 - `broadcastInterval` - the interval in milliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
-- `opsInterval` - the interval in miliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
+- `opsInterval` - the interval in milliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
 - `extendedRequests` - determines if the full request log is sent or only the event summary. Defaults to _false_.
 - `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
 
@@ -293,11 +295,11 @@ configuration:
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
 by web application running inside a browser which are loaded from a different domain than the API server. **hapi** provides a general purpose
 CORS implementation that sets very liberal restrictions on cross-origin access by default (on by default). CORS options:
-- `origin` - override the array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin _'*'_.
+- `origin` - overrides the array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin _'*'_.
 - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to _one day_.
-- `headers` - overrid the array of allowed headers ('Access-Control-Allow-Headers'). Defaults to _'Authorization, Content-Type, If-None-Match'_.
+- `headers` - overrides the array of allowed headers ('Access-Control-Allow-Headers'). Defaults to _'Authorization, Content-Type, If-None-Match'_.
 - `additionalHeaders` - an array of additional headers to `headers`. Use this to keep the default headers in place.
-- `methods` - override the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to _'GET, HEAD, POST, PUT, DELETE, OPTIONS'_.
+- `methods` - overrides the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to _'GET, HEAD, POST, PUT, DELETE, OPTIONS'_.
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 
 **hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
@@ -404,7 +406,7 @@ The helper methods are only available within the route handler and are disabled 
 
 In addition to the [General Events Logging](#general-events-logging) mechanism provided to log non-request-specific events, **hapi** provides
 a logging interface for individual requests. By associating log events with the request responsible for them, it is easier to debug and understand
-the server's behaviour. It also enables batching all the request log events and deliver them to the monitor as a single package.
+the server's behavior. It also enables batching all the request log events and deliver them to the monitor as a single package.
 
 The request object is also decorated with the _'log(tags, data, timestamp)'_ which adds a record to the request log where:
 - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
@@ -417,13 +419,48 @@ The 'request.log' method is always available.
 
 When a request URI includes a query component (the key-value part of the URI between _?_ and _#_), the query is parsed into its individual
 key-value pairs (see [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
-'request.query'. 
+'request.query'.
+
+The route `config.query` defines the query validation rules performed before the route handler is invoked. Supported values:
+- _'false'_ or _'null'_ - no query parameters allowed. This is the default.
+- _'true'_ - any query parameters allowed (no validation performed).
+- a validation rules object as described in [Data Validation](#data-validation).
 
 ### Payload Validation
 
+The route `config.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
+- _'null'_ - any payload allowed (no validation performed). This is the default.
+- _'false'_ - no query parameters allowed.
+- a validation rules object as described in [Data Validation](#data-validation).
 
 ## Data Validation
 
+**hapi** supports a rich set of data types and validation rules which are described in detail in [Validation Configuration](./docs/ValidationConfig.md).
+For example:
+
+```javascript
+var Hapi = require('hapi');
+
+var S = Hapi.Types.String;
+var I = Hapi.Types.Int;
+
+var rules = {
+  username: S().required().alphanum().min(3).max(30).with('email'),
+  password: S().regex(/[a-zA-Z0-9]{3,30}/).without('token'),
+  token: S(),
+  birthyear: I().min(1850).max(2012),
+  email: S().email(),
+  type: S().valid('admin', 'limited', 'normal')
+};
+```
+
+In which:
+- 'username' is a required alphanumeric string, 3 to 30 characters long, and must appear together with 'email'.
+- 'password' is an optional string matching a regular expression, and must not appear together with 'token'.
+- 'token' is an optional string.
+- 'birthyear' is an optional integer between 1980 and 2012.
+- 'email' is an optional string with valid email address.
+- 'type' is an optional string which must be set to one of three available values.
 
 ## Errors
 
