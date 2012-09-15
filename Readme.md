@@ -11,7 +11,9 @@ with everything else.
 # Table of Content
 
 - [**Usage**](#usage)
+
 	- [**Basic Usage**](#basic-usage)
+  
 	- [**Server Configuration**](#server-configuration)
 		- [TLS](#tls)
 		- [Router](#router)
@@ -25,15 +27,17 @@ with everything else.
 		- [Cache](#cache)
 		- [Debug](#debug)
 		- [CORS](#cors)
+    
 	- [**Route Configuration**](#route-configuration)
 		- [Configuration options](#configuration-options)
 		- [Override Route Defaults](#override-route-defaults)
 		- [Path Processing](#path-processing)
 			- [Parameters](#parameters)
 		- [Route Handler](#route-handler)
-			- [Logging](#logging)
+			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+    
   - [**Data Validation**](#data-validation)
     
 # Usage
