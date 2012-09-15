@@ -11,9 +11,7 @@ with everything else.
 # Table of Content
 
 - [**Usage**](#usage)
-
 	- [**Basic Usage**](#basic-usage)
-  
 	- [**Server Configuration**](#server-configuration)
 		- [TLS](#tls)
 		- [Router](#router)
@@ -21,13 +19,11 @@ with everything else.
 		- [Extensions](#extensions)
 			- [Unknown Route](#unknown-route)
 		- [Errors](#errors)
-			- [Error Response Override](#error-response-override)
 		- [Monitor](#monitor)
 		- [Authentication](#authentication)
 		- [Cache](#cache)
 		- [Debug](#debug)
 		- [CORS](#cors)
-    
 	- [**Route Configuration**](#route-configuration)
 		- [Configuration options](#configuration-options)
 		- [Override Route Defaults](#override-route-defaults)
@@ -37,9 +33,10 @@ with everything else.
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
-    
-  - [**Data Validation**](#data-validation)
-    
+	- [**Data Validation**](#data-validation)
+	- [**Response Errors**](#response-errors)
+  - [**General Events Logging**](#general-events-logging)
+  
 # Usage
 
 ## Basic Usage
@@ -55,6 +52,7 @@ var server = new Hapi.Server('localhost', 8000);
 // Define the route
 var hello = {
     handler: function (request) {
+    
         request.reply({ greeting: 'hello world' });
     }
 };
@@ -213,32 +211,6 @@ function onUnknownRoute(request) {
 
 ### Errors
 
-The 'Hapi.Error' module provides helper methods to generate error responses:
-- _'badRequest(message)'_ - HTTP 400 (Bad request).
-- _'unauthorized(message)'_ - HTTP 401 (Unauthorized).
-- _'forbidden(message)'_ - HTTP 403 (Not allowed).
-- _'notFound(message)'_ - HTTP 404 (Not found).
-- _'internal(message, data)'_ - HTTP 500 (Internal error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
-- _'create(message, code, text, options) - creates a custom error with the provided _message_, _code_ (the HTTP status code), _text_ (the HTTP status message), and any keys present in _options_.
-
-The _message_ value is optional and will be returned to the client in the response unless noted otherwise. For example:
-
-```javascript
-function onUnknownRoute(request) {
-
-    request.reply(Hapi.Error.unknown('Sorry, nobody home'));
-}
-```
-
-Error responses are send as JSON payload with the following keys:
-- _code_ - the HTTP status code (e.g. 400).
-- _error_ - the HTTP status message (e.g. 'Bad request').
-- _message_ - the returned message if provided.
-
-The complete error repsonse including any additional data is added to the request log.
-
-#### Error Response Override
-
 If a different error format than the default JSON response is required, the server `errors.format` option can be assigned a function to generate a
 different error response. The function signature is _'function (result, callback)'_ where:
 - _'result'_ - is the **hapi** error object returned by the route handler, and
@@ -261,7 +233,7 @@ var options = {
 **hapi** comes with a built-in process monitor for three types of events:
 - System and process performance (ops) - CPU, memory, disk, and other metrics.
 - Requests logging (request) - framework and application generated logs generated during the lifecycle of each incoming request.
-- General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc.
+- General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc. Described in [General Events Logging](#general-events-logging).
 
 The monitor is _off_ by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to _true_.
 Applications with multiple server instances, each with its own monitor should only include one _log_ subscription per destination as general events (log)
@@ -282,35 +254,6 @@ var options = {
         }
     }
 };
-```
-
-#### General Events Logging
-
-Most of the server's events usually relate to a specific incoming request. However, there are sometimes event that do not have a specific request
-context. **hapi** provides a logging mechanism for general events using a singleton logger 'Hapi.Log' module. The logger provides the following methods:
-- _'event(tags, data, timestamp)'_ - generates an event where:
-  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
-  - _'data'_ - an optional message string or object with the application data being logged.
-  - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
-- _'print(event)'_ - outputs the given _'event'_ to the console.
-
-The logger is an event emitter. When an event is generated, the logger's _'log'_ event is emitted with the event object as value.
-If no listeners are registered, the event is printed to the console.
-
-For example:
-```javascript
-var Hapi = require('hapi');
-
-// Listen to log events
-Hapi.Log.on('log', function (event) {
-
-    // Send to console
-    Hapi.Log.print(event);
-});
-
-// Generate event
-Hapi.Log.event(['test','info'], 'Test event');
-
 ```
 
 ### Authentication
@@ -477,5 +420,59 @@ key-value pairs (see [Query String](http://nodejs.org/api/querystring.html#query
 ## Data Validation
 
 
+## Errors
+
+The 'Hapi.Error' module provides helper methods to generate error responses:
+- _'badRequest(message)'_ - HTTP 400 (Bad request).
+- _'unauthorized(message)'_ - HTTP 401 (Unauthorized).
+- _'forbidden(message)'_ - HTTP 403 (Not allowed).
+- _'notFound(message)'_ - HTTP 404 (Not found).
+- _'internal(message, data)'_ - HTTP 500 (Internal error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
+- _'create(message, code, text, options) - creates a custom error with the provided _message_, _code_ (the HTTP status code), _text_ (the HTTP status message), and any keys present in _options_.
+
+The _message_ value is optional and will be returned to the client in the response unless noted otherwise. For example:
+
+```javascript
+function onUnknownRoute(request) {
+
+    request.reply(Hapi.Error.unknown('Sorry, nobody home'));
+}
+```
+
+Error responses are send as JSON payload with the following keys (unless an [error response override](#errors) is configured):
+- _code_ - the HTTP status code (e.g. 400).
+- _error_ - the HTTP status message (e.g. 'Bad request').
+- _message_ - the returned message if provided.
+
+The complete error repsonse including any additional data is added to the request log.
+
+## General Events Logging
+
+Most of the server's events usually relate to a specific incoming request. However, there are sometimes event that do not have a specific request
+context. **hapi** provides a logging mechanism for general events using a singleton logger 'Hapi.Log' module. The logger provides the following methods:
+- _'event(tags, data, timestamp)'_ - generates an event where:
+  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+  - _'data'_ - an optional message string or object with the application data being logged.
+  - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+- _'print(event)'_ - outputs the given _'event'_ to the console.
+
+The logger is an event emitter. When an event is generated, the logger's _'log'_ event is emitted with the event object as value.
+If no listeners are registered, the event is printed to the console.
+
+For example:
+```javascript
+var Hapi = require('hapi');
+
+// Listen to log events
+Hapi.Log.on('log', function (event) {
+
+    // Send to console
+    Hapi.Log.print(event);
+});
+
+// Generate event
+Hapi.Log.event(['test','info'], 'Test event');
+
+```
 
 
