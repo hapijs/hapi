@@ -8,9 +8,11 @@ with everything else.
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
-- [Usage](#usage)
-	- [Basic Usage](#basic-usage)
-	- [Server Configuration](#server-configuration)
+# Table of Content
+
+- [**Usage**](#usage)
+	- [**Basic Usage**](#basic-usage)
+	- [**Server Configuration**](#server-configuration)
 		- [TLS](#tls)
 		- [Router](#router)
 		- [Payload](#payload)
@@ -23,7 +25,7 @@ with everything else.
 		- [Cache](#cache)
 		- [Debug](#debug)
 		- [CORS](#cors)
-	- [Route Configuration](#route-configuration)
+	- [**Route Configuration**](#route-configuration)
 		- [Configuration options](#configuration-options)
 		- [Override Route Defaults](#override-route-defaults)
 		- [Path Processing](#path-processing)
@@ -32,6 +34,7 @@ with everything else.
 			- [Logging](#logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+  - [**Data Validation**](#data-validation)
     
 # Usage
 
@@ -466,6 +469,8 @@ key-value pairs (see [Query String](http://nodejs.org/api/querystring.html#query
 
 ### Payload Validation
 
+
+## Data Validation
 
 
 
