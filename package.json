@@ -1,8 +1,12 @@
 {
   "name": "hapi",
   "description": "HTTP API Server framework",
-  "version": "0.6.1",
-  "author": "Eran Hammer-Lahav <eran@hueniverse.com>",
+  "homepage": "http://hapijs.com",
+  "version": "0.7.0",
+  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
+  "contributors":[
+    "Van Nguyen <the.gol.effect@gmail.com>"
+  ]
   "repository": "git://github.com/walmartlabs/hapi",
   "main": "index",
   "keywords": [
@@ -13,7 +17,7 @@
     "router"
   ],
   "engines": {
-    "node": ">=0.6.0"
+    "node": ">=0.8.0"
   },
   "dependencies": {
     "async": "0.1.18",
@@ -29,5 +33,11 @@
   },
   "scripts": {
     "test": "make test && make unit"
-  }
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://github.com/walmartlabs/hapi/raw/master/LICENSE"
+    }
+  ]
 }
