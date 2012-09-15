@@ -8,6 +8,31 @@ with everything else.
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
+- [Usage](#usage)
+	- [Basic Usage](#basic-usage)
+	- [Server Configuration](#server-configuration)
+		- [TLS](#tls)
+		- [Router](#router)
+		- [Payload](#payload)
+		- [Extensions](#extensions)
+			- [Unknown Route](#unknown-route)
+		- [Errors](#errors)
+			- [Error Response Override](#error-response-override)
+		- [Monitor](#monitor)
+		- [Authentication](#authentication)
+		- [Cache](#cache)
+		- [Debug](#debug)
+		- [CORS](#cors)
+	- [Route Configuration](#route-configuration)
+		- [Configuration options](#configuration-options)
+		- [Override Route Defaults](#override-route-defaults)
+		- [Path Processing](#path-processing)
+			- [Parameters](#parameters)
+		- [Route Handler](#route-handler)
+			- [Logging](#logging)
+		- [Query Validation](#query-validation)
+		- [Payload Validation](#payload-validation)
+    
 # Usage
 
 ## Basic Usage
@@ -96,7 +121,7 @@ during request processing. The required extension function signature is _functio
 - _'next'_ is the callback function the method **must** call upon completion to return control over to the router.
 
 The extension points are:
-- `onRequest` - called upon new requests before any router processing. Calls to _request.setUrl()_ will impact how the request is router and can be used for rewrite rules.
+- `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)' methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
 - `onPreHandler` - called after request passes validation and body parsing, before the request handler.
 - `onPostHandler` - called after the request handler, before sending the response.
 - `onPostRoute` - called after the response was sent.
@@ -252,6 +277,35 @@ var options = {
 };
 ```
 
+#### General Events Logging
+
+Most of the server's events usually relate to a specific incoming request. However, there are sometimes event that do not have a specific request
+context. **hapi** provides a logging mechanism for general events using a singleton logger 'Hapi.Log' module. The logger provides the following methods:
+- _'event(tags, data, timestamp)'_ - generates an event where:
+  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+  - _'data'_ - an optional message string or object with the application data being logged.
+  - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+- _'print(event)'_ - outputs the given _'event'_ to the console.
+
+The logger is an event emitter. When an event is generated, the logger's _'log'_ event is emitted with the event object as value.
+If no listeners are registered, the event is printed to the console.
+
+For example:
+```javascript
+var Hapi = require('hapi');
+
+// Listen to log events
+Hapi.Log.on('log', function (event) {
+
+    // Send to console
+    Hapi.Log.print(event);
+});
+
+// Generate event
+Hapi.Log.event(['test','info'], 'Test event');
+
+```
+
 ### Authentication
 
 The authentication interface is disabled by default and is still experimental.
@@ -365,7 +419,23 @@ function getAlbum(request) {
 
 ### Route Handler
 
-When the provided route handler method is called, it receives a _request_ object decorated with a few helper functions:
+When the provided route handler method is called, it receives a _request_ object with the following properties:
+- _'url'_ - the parsed request URI.
+- _'path'_ - the request URI's path component.
+- _'query'_ - an object containing the query parameters.
+- _'params'_ - an object containing the path named parameters as described in [Path Parameters](#parameters).
+- _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
+- _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
+- _'session'_ - available for authenticated requests and includes:
+    - _'used'_ - user id.
+    - _'client'_ - client id.
+    - _'tos'_ - terms-of-service version.
+    - _'scope'_ - approved client scopes.
+- _'server'_ - a reference to the server object.
+- _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. Direct interaction with the raw objects is not recommended.
+- _'response'_ - contains the route handler's response after the handler is called. Direct interaction with the raw objects is not recommended.
+
+The request object is also decorated with a few helper functions:
 - _'reply(result)'_ - once the response is ready, the handler must call the _'reply(result)'_ method with the desired response.
 - _'created(uri)'_ - sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI). Must be called before the required _'reply(result)'_.
 
@@ -373,13 +443,26 @@ When calling _'reply(result)'_, the _result_ value can be set to a string which 
 returned as a JSON payload. The default HTTP status code returned is 200 (OK). If the return is an object and is an instance of Error, an HTTP
 error response (4xx, 5xx) will be returned. Errors must be generated using the 'Hapi.Error' module described in [Errors](#errors).
 
-The helper methds are only available within the route handler and are disabled as soon as _'reply(result)'_ is called. 
+The helper methods are only available within the route handler and are disabled as soon as _'reply(result)'_ is called. 
 
-#### Logging
+#### Request Logging
 
+In addition to the [General Events Logging](#general-events-logging) mechanism provided to log non-request-specific events, **hapi** provides
+a logging interface for individual requests. By associating log events with the request responsible for them, it is easier to debug and understand
+the server's behaviour. It also enables batching all the request log events and deliver them to the monitor as a single package.
+
+The request object is also decorated with the _'log(tags, data, timestamp)'_ which adds a record to the request log where:
+- _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+- _'data'_ - an optional message string or object with the application data being logged.
+- _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+
+The 'request.log' method is always available.
 
 ### Query Validation
 
+When a request URI includes a query component (the key-value part of the URI between _?_ and _#_), the query is parsed into its individual
+key-value pairs (see [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
+'request.query'. 
 
 ### Payload Validation
 
