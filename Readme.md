@@ -88,11 +88,11 @@ The `payload` option controls how incoming payloads (request body) are processed
 
 ### Extensions
 
-**hapi** does not support middleware extensibility as is commonly found in other web frameworks. Instead, **hapi** provides 5 extension hooks for
- any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified time
+**hapi** does not support middleware extensibility as is commonly found in other web frameworks. Instead, **hapi** provides extension hooks for
+any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified stage
 during request processing. The required extension function signature is _function (request, next)_ where:
 - _'request'_ is the **hapi** request object, and
-- _'next'_ is the callback function the method must call upon completion to return control over to the router.
+- _'next'_ is the callback function the method **must** call upon completion to return control over to the router.
 
 The extension points are:
 - `onRequest` - called upon new requests before any router processing. Calls to _request.setUrl()_ will impact how the request is router and can be used for rewrite rules.
@@ -107,8 +107,7 @@ var Hapi = require('hapi');
 
 var options = {
     ext: {
-        onRequest: onRequest,
-        onUnknownRoute: onUnknownRoute
+        onRequest: onRequest
     }
 };
 
@@ -133,12 +132,46 @@ function onRequest(request, next) {
     request.setUrl('/test');
     next();
 }
+```
+
+#### Unknown Route
+
+**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
+`ext.onUnknownRoute` server option. The extension function signature is _function (request)_ where:
+- _'request'_ is the **hapi** request object.
+When the extension handler is called, the _'request'_ object is decorated with two methods:
+- _'reply(result)'_ - returns control over to the server with a custom response value which can be a string or object.
+- _'close()'_ - returns control over to the server after the application has taken care of responding to the request via the _request.raw.res_ object directly.
+The method **must** call _'reply(result)'_ or _'close()'_ but not both.
+
+For example, using the _'close()'_ method:
+```javascript
+var Hapi = require('hapi');
+
+var options = {
+    ext: {
+        onUnknownRoute: onUnknownRoute
+    }
+};
+
+// Create server
+var http = new Hapi.Server('localhost', 8000, options);
+
+// Start server
+http.start();
 
 // 404 handler
-function onUnknownRoute(request, next) {
+function onUnknownRoute(request) {
     request.raw.res.writeHead(404);
     request.raw.res.end();
-    next();
+    request.close();
+}
+```
+
+Or using the _'reply(result)'_ method:
+```javascript
+function onUnknownRoute(request) {
+    request.reply(Hapi.Error.unknown('Sorry, nobody home'));
 }
 ```
 
@@ -270,9 +303,9 @@ an optional parameter. For example: the route: '/book/:id?' will match: '/book/'
 
 ```javascript
 server.addRoute({
-    path : '/:album/:song?',
-    method : 'GET',
-    handler : getAlbum
+    path: '/:album/:song?',
+    method: 'GET',
+    handler: getAlbum
 });
 
 function getAlbum(request) {
