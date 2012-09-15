@@ -48,6 +48,7 @@ Now navigate to http://localhost:8080/hello and you should receive 'hello world'
 - [`router`](#router)
 - [`payload`](#payload)
 - [`ext`](#extensions)
+- [`errors`](#Errors)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
@@ -174,8 +175,53 @@ Or using the _'reply(result)'_ method:
 ```javascript
 function onUnknownRoute(request) {
 
+    request.reply({ roads: 'ocean' });
+}
+```
+
+### Errors
+
+The 'Hapi.Error' module provides helper methods to generate error responses:
+- _'badRequest(message)'_ - HTTP 400 (Bad request).
+- _'unauthorized(message)'_ - HTTP 401 (Unauthorized).
+- _'forbidden(message)'_ - HTTP 403 (Not allowed).
+- _'notFound(message)'_ - HTTP 404 (Not found).
+- _'internal(message, data)'_ - HTTP 500 (Internal error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
+- _'create(message, code, text, options) - creates a custom error with the provided _message_, _code_ (the HTTP status code), _text_ (the HTTP status message), and any keys present in _options_.
+
+The _message_ value is optional and will be returned to the client in the response unless noted otherwise. For example:
+
+```javascript
+function onUnknownRoute(request) {
+
     request.reply(Hapi.Error.unknown('Sorry, nobody home'));
 }
+```
+
+Error responses are send as JSON payload with the following keys:
+- _code_ - the HTTP status code (e.g. 400).
+- _error_ - the HTTP status message (e.g. 'Bad request').
+- _message_ - the returned message if provided.
+
+The complete error repsonse including any additional data is added to the request log.
+
+#### Error Response Override
+
+If a different error format than the default JSON response is required, the server `errors.format` option can be assigned a function to generate a
+different error response. The function signature is _'function (result, callback)'_ where:
+- _'result'_ - is the **hapi** error object returned by the route handler, and
+- _'callback'_ - is the callback function called with the new result object or string.
+
+For example:
+```javascript
+var options = {
+    errors: {
+        format: function (result, callback) {
+        
+            callback('Oops: ' + result.message);
+        }
+    }
+};
 ```
 
 ### Monitor
@@ -319,7 +365,17 @@ function getAlbum(request) {
 
 ### Route Handler
 
-#### Errors
+When the provided route handler method is called, it receives a _request_ object decorated with a few helper functions:
+- _'reply(result)'_ - once the response is ready, the handler must call the _'reply(result)'_ method with the desired response.
+- _'created(uri)'_ - sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI). Must be called before the required _'reply(result)'_.
+
+When calling _'reply(result)'_, the _result_ value can be set to a string which will be treated as an HTML payload, or an object which will be
+returned as a JSON payload. The default HTTP status code returned is 200 (OK). If the return is an object and is an instance of Error, an HTTP
+error response (4xx, 5xx) will be returned. Errors must be generated using the 'Hapi.Error' module described in [Errors](#errors).
+
+The helper methds are only available within the route handler and are disabled as soon as _'reply(result)'_ is called. 
+
+#### Logging
 
 
 ### Query Validation
