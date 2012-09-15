@@ -1,4 +1,4 @@
-<img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" />
+![hapi Logo](https://raw.github.com/walmartlabs/hapi/master/images/hapi.png)
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
 authentication requirements, input validation, data caching and pre-fetching, developer documentation,
@@ -12,6 +12,7 @@ with everything else.
 
 - [**Usage**](#usage)
 	- [**Basic Usage**](#basic-usage)
+<p></p>
 	- [**Server Configuration**](#server-configuration)
 		- [TLS](#tls)
 		- [Router](#router)
@@ -24,6 +25,7 @@ with everything else.
 		- [Cache](#cache)
 		- [Debug](#debug)
 		- [CORS](#cors)
+<p></p>
 	- [**Route Configuration**](#route-configuration)
 		- [Configuration options](#configuration-options)
 		- [Override Route Defaults](#override-route-defaults)
@@ -33,8 +35,11 @@ with everything else.
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+<p></p>
 	- [**Data Validation**](#data-validation)
+<p></p>
 	- [**Response Errors**](#response-errors)
+<p></p>
   - [**General Events Logging**](#general-events-logging)
   
 # Usage
