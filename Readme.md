@@ -122,6 +122,7 @@ http.start();
 
 // Resource handler
 function get(request) {
+
     request.reply({ status: 'ok' });
 }
 
@@ -162,6 +163,7 @@ http.start();
 
 // 404 handler
 function onUnknownRoute(request) {
+
     request.raw.res.writeHead(404);
     request.raw.res.end();
     request.close();
@@ -171,6 +173,7 @@ function onUnknownRoute(request) {
 Or using the _'reply(result)'_ method:
 ```javascript
 function onUnknownRoute(request) {
+
     request.reply(Hapi.Error.unknown('Sorry, nobody home'));
 }
 ```
@@ -309,6 +312,7 @@ server.addRoute({
 });
 
 function getAlbum(request) {
+
     request.reply('You asked for ' + (request.params.song ? request.params.song + ' from ' : '') + request.params.album);
 }
 ```
