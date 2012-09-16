@@ -313,7 +313,7 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 
 The server object emits the following events:
 - _'response'_ - emitted after a response is sent back. Includes the request object as value.
-- _'end'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
+- _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
 
 ## Route Configuration
 
@@ -543,4 +543,47 @@ Hapi.Log.event(['test','info'], 'Test event');
 
 ## Request Tails
 
+It is often desirable to return a response as quickly as possible and perform additional (slower) actions afterwards (or in parallel). These
+actions are called request tails. For example, a request may trigger a database update tail that should not delay letting the client know the
+request has been received and will be processed shortly. However, it is still desirable to associate the tails with the request and to know
+when every single request related action has completed (in other words, when the request stopped wagging).
 
+**hapi** provides a simple facility for keeping track of pending tails by providing the following request methods:
+- _'addTail([name])'_ - registers a named tail and returns a tail id. The tail id must be retailed and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
+- _'removeTail(tailId)'_ - removes a tail to notify the server that the associated action has been completed.
+
+For example:
+var Hapi = require('hapi');
+
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Route handler
+var get = function (request) {
+
+    var tailId1 = request.addTail('tail1');
+    setTimeout(function () {
+
+        request.removeTail(tailId1);
+    }, 5000);
+
+    var tailId2 = request.addTail('tail2');
+    setTimeout(function () {
+
+        request.removeTail(tailId2);
+    }, 2000);
+
+    request.reply('Success!');
+};
+
+// Set routes
+http.addRoute({ method: 'GET', path: '/', handler: get });
+
+// Listen to tail events
+http.on('tail', function (request) {
+    console.log('Wag the dog');
+});
+
+// Start Hapi servers
+http.start();
+```
