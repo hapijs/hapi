@@ -582,6 +582,7 @@ http.addRoute({ method: 'GET', path: '/', handler: get });
 
 // Listen to tail events
 http.on('tail', function (request) {
+
     console.log('Wag the dog');
 });
 
