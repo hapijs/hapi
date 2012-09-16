@@ -382,7 +382,9 @@ server.addRoute({
 
 function getAlbum(request) {
 
-    request.reply('You asked for ' + (request.params.song ? request.params.song + ' from ' : '') + request.params.album);
+    request.reply('You asked for ' +
+                  (request.params.song ? request.params.song + ' from ' : '') +
+                  request.params.album);
 }
 ```
 
