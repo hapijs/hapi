@@ -28,6 +28,8 @@ Current version: **0.7.0**
 		- [Debug](#debug)
 		- [CORS](#cors)
 <p></p>
+    - [**Server Events**](#server-events)
+<p></p>
 	- [**Route Configuration**](#route-configuration)
 		- [Configuration options](#configuration-options)
 		- [Override Route Defaults](#override-route-defaults)
@@ -37,12 +39,15 @@ Current version: **0.7.0**
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+        - [Caching](#caching)
 <p></p>
 	- [**Data Validation**](#data-validation)
 <p></p>
 	- [**Response Errors**](#response-errors)
 <p></p>
-  - [**General Events Logging**](#general-events-logging)
+    - [**General Events Logging**](#general-events-logging)
+<p></p>
+	- [**Request Tails**](#request-tails)
   
 # Usage
 
@@ -179,7 +184,7 @@ function onRequest(request, next) {
 `ext.onUnknownRoute` server option. The extension function signature is _function (request)_ where:
 - _'request'_ is the **hapi** request object.
 When the extension handler is called, the _'request'_ object is decorated with two methods:
-- _'reply(result)'_ - returns control over to the server with a custom response value which can be a string or object.
+- _'reply([result])'_ - returns control over to the server with a custom response value which can be a string or object.
 - _'close()'_ - returns control over to the server after the application has taken care of responding to the request via the _request.raw.res_ object directly.
 The method **must** call _'reply(result)'_ or _'close()'_ but not both.
 
@@ -304,6 +309,12 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 
 **hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
 
+## Server Events
+
+The server object emits the following events:
+- _'response'_ - emitted after a response is sent back. Includes the request object as value.
+- _'end'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
+
 ## Route Configuration
 
 **hapi** was designed to move as much logic as possible from the route handler to the route configuration. The goal is to provide a simple
@@ -325,6 +336,7 @@ to write additional text as the configuration itself serves as a living document
     * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_.
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
     * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
+  * `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
   * `auth` - authentication configuration
     * `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
       * _'none'_ - authentication not allowed.
@@ -393,8 +405,9 @@ When the provided route handler method is called, it receives a _request_ object
 - _'response'_ - contains the route handler's response after the handler is called. Direct interaction with the raw objects is not recommended.
 
 The request object is also decorated with a few helper functions:
-- _'reply(result)'_ - once the response is ready, the handler must call the _'reply(result)'_ method with the desired response.
+- _'reply([result])'_ - once the response is ready, the handler must call the _'reply(result)'_ method with the desired response.
 - _'created(uri)'_ - sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI). Must be called before the required _'reply(result)'_.
+- _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 
 When calling _'reply(result)'_, the _result_ value can be set to a string which will be treated as an HTML payload, or an object which will be
 returned as a JSON payload. The default HTTP status code returned is 200 (OK). If the return is an object and is an instance of Error, an HTTP
@@ -408,7 +421,7 @@ In addition to the [General Events Logging](#general-events-logging) mechanism p
 a logging interface for individual requests. By associating log events with the request responsible for them, it is easier to debug and understand
 the server's behavior. It also enables batching all the request log events and deliver them to the monitor as a single package.
 
-The request object is also decorated with the _'log(tags, data, timestamp)'_ which adds a record to the request log where:
+The request object is also decorated with the _'log(tags, [data, timestamp])'_ which adds a record to the request log where:
 - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
 - _'data'_ - an optional message string or object with the application data being logged.
 - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
@@ -432,6 +445,17 @@ The route `config.schema` defines the payload validation rules performed before 
 - _'null'_ - any payload allowed (no validation performed). This is the default.
 - _'false'_ - no query parameters allowed.
 - a validation rules object as described in [Data Validation](#data-validation).
+
+### Caching
+
+'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route caching rules can consist of
+a single rule or an array of rules. Rules consist of:
+- `match` - a regular expression matched against the request path and query (e.g. '/p/a/t/h?query=string') to determine if the rule applies to the requested resource. `match` is required for an array of rules and forbidden for single rule (which will match all resources for the configured route).
+- `isCached` - determines if the matching resource is cached. Defaults to true. Can be used to exclude a subset of resources from caching.
+- `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
+- `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
+
+If more than one rule is configured, the rules are matched against the request in order until the first match. If none match the cache is not used.
 
 ## Data Validation
 
@@ -465,12 +489,12 @@ In which:
 ## Errors
 
 The 'Hapi.Error' module provides helper methods to generate error responses:
-- _'badRequest(message)'_ - HTTP 400 (Bad request).
-- _'unauthorized(message)'_ - HTTP 401 (Unauthorized).
-- _'forbidden(message)'_ - HTTP 403 (Not allowed).
-- _'notFound(message)'_ - HTTP 404 (Not found).
-- _'internal(message, data)'_ - HTTP 500 (Internal error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
-- _'create(message, code, text, options) - creates a custom error with the provided _message_, _code_ (the HTTP status code), _text_ (the HTTP status message), and any keys present in _options_.
+- _'badRequest([message])'_ - HTTP 400 (Bad request).
+- _'unauthorized([message])'_ - HTTP 401 (Unauthorized).
+- _'forbidden([message])'_ - HTTP 403 (Not allowed).
+- _'notFound([message])'_ - HTTP 404 (Not found).
+- _'internal([message, data])'_ - HTTP 500 (Internal error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
+- _'create(message, code, text, [options]) - creates a custom error with the provided _message_, _code_ (the HTTP status code), _text_ (the HTTP status message), and any keys present in _options_.
 
 The _message_ value is optional and will be returned to the client in the response unless noted otherwise. For example:
 
@@ -492,7 +516,7 @@ The complete error repsonse including any additional data is added to the reques
 
 Most of the server's events usually relate to a specific incoming request. However, there are sometimes event that do not have a specific request
 context. **hapi** provides a logging mechanism for general events using a singleton logger 'Hapi.Log' module. The logger provides the following methods:
-- _'event(tags, data, timestamp)'_ - generates an event where:
+- _'event(tags, [data, timestamp])'_ - generates an event where:
   - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
   - _'data'_ - an optional message string or object with the application data being logged.
   - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
@@ -516,5 +540,7 @@ Hapi.Log.on('log', function (event) {
 Hapi.Log.event(['test','info'], 'Test event');
 
 ```
+
+## Request Tails
 
 
