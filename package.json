@@ -20,10 +20,10 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "async": "0.1.18",
+    "async": "0.1.x",
     "mac": "0.x.x",
-    "request": "2.9.x",
-    "redis":"0.x.x",
+    "request": "2.11.x",
+    "redis":"0.8.x",
     "ws":"0.4.x"
   },
   "devDependencies": {
