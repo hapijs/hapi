@@ -20,6 +20,7 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
+    "hoek": "0.0.x",
     "async": "0.1.x",
     "mac": "0.x.x",
     "request": "2.11.x",
