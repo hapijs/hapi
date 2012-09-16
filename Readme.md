@@ -553,6 +553,7 @@ when every single request related action has completed (in other words, when the
 - _'removeTail(tailId)'_ - removes a tail to notify the server that the associated action has been completed.
 
 For example:
+```javascript
 var Hapi = require('hapi');
 
 // Create Hapi servers
