@@ -2,7 +2,7 @@ var should = require("should");
 var qs = require("querystring");
 
 var Validation = require("../../lib/validation");
-var Types = require("../../lib/types");
+var Types = require('joi').Types;
 var S = Types.String,
     N = Types.Number,
     O = Types.Object,
