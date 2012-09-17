@@ -48,6 +48,8 @@ Current version: **0.7.0**
     - [**General Events Logging**](#general-events-logging)
 <p></p>
 	- [**Request Tails**](#request-tails)
+<p></p>
+	- [**Request Injection**](#request-injection)
   
 # Usage
 
@@ -591,3 +593,8 @@ http.on('tail', function (request) {
 // Start Hapi servers
 http.start();
 ```
+
+## Request Injection
+
+**This is an experimental feature!**
+
