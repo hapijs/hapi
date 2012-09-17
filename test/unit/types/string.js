@@ -27,6 +27,15 @@ describe("Types.String", function(){
     done();
   })
   
+  // describe("#_base", function(){
+  //   it("should work", function(done){
+  //     var fn = S()._base();
+  //     fn._valids = []
+  //     var result = fn()
+  //     done();
+  //   })
+  // })
+  
   describe("#min", function(done){
     it('should exist', function(done){
       should.exist(S().min);
