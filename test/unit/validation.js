@@ -204,7 +204,6 @@ describe("Validation", function () {
                 })
             })
 
-
             describe("#regex", function () {
                 var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().regex(/^[0-9][-][a-z]+$/) } } };
 
@@ -476,53 +475,54 @@ describe("Validation", function () {
                 })
             })
 
-            describe("#valid", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { color: S().valid("blue", "orange", "white") } } };
 
-                it('should not return error if value in `valid` parameter input', function (done) {
-                    var query = { color: "white" };
-                    var request = createRequestObject(query, route);
+            // describe("#valid", function(){
+            //   var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {color: S().valid("blue", "orange", "white")}};
 
-                    Validation.query(request, function (err) {
-                        should.not.exist(err);
-                        done();
-                    })
-                })
+            //   it('should not return error if value in `valid` parameter input', function(done){
+            //     var query = {color: "white"};
+            //     var request = createRequestObject(query, route);
 
-                it('should return error if value not in `valid` parameter input', function (done) {
-                    var query = { color: "beige" };
-                    var request = createRequestObject(query, route);
+            //     Validation.query(request, route, function(err){
+            //       should.not.exist(err);
+            //       done();
+            //     })
+            //   })
 
-                    Validation.query(request, function (err) {
-                        should.exist(err);
-                        done();
-                    })
-                })
-            })
+            //   it('should return error if value not in `valid` parameter input', function(done){
+            //     var query = {color: "beige"};
+            //     var request = createRequestObject(query, route);
 
-            describe("#invalid", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { color: S().invalid("beige") } } };
+            //     Validation.query(request, route, function(err){
+            //       should.exist(err);
+            //       done();
+            //     })
+            //   })
+            // })
 
-                it('should not return error if value not in `invalid` parameter input', function (done) {
-                    var query = { color: "white" };
-                    var request = createRequestObject(query, route);
+            //   describe("#invalid", function(){
+            //     var route = {method: 'GET', path: '/', handler: OhaiHandler, query: {color: S().invalid("beige")}};
 
-                    Validation.query(request, function (err) {
-                        should.not.exist(err);
-                        done();
-                    })
-                })
+            //     it('should not return error if value not in `invalid` parameter input', function(done){
+            //       var query = {color: "white"};
+            //       var request = createRequestObject(query, route);
 
-                it('should return error if value in `invalid` parameter input', function (done) {
-                    var query = { color: "beige" };
-                    var request = createRequestObject(query, route);
+            //       Validation.query(request, route, function(err){
+            //         should.not.exist(err);
+            //         done();
+            //       })
+            //     })
 
-                    Validation.query(request, function (err) {
-                        should.exist(err);
-                        done();
-                    })
-                })
-            })
+            //     it('should return error if value in `invalid` parameter input', function(done){
+            //       var query = {color: "beige"};
+            //       var request = createRequestObject(query, route);
+
+            //       Validation.query(request, route, function(err){
+            //         should.exist(err);
+            //         done();
+            //       })
+            //     })
+            //   })
         })
 
         describe("using Types.Number", function () {

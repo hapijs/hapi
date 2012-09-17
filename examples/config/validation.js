@@ -52,6 +52,9 @@ internals.main = function () {
         status: S().valid('open', 'pending', 'close'),
         participants: A().includes(S(), N())
     }
+    // console.log("schema", sys.inspect(s));
+    // console.log(s.input.__validators[1].toString())
+    // console.log(sys.inspect(s.input.__validators.map(function(d){ return d.toString();})));
 
     http.addRoute({
         method: 'POST',
