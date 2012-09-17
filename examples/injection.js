@@ -24,14 +24,14 @@ internals.main = function () {
 
     Hapi.Injection.inject(http, req, function (res) {
 
-        console.log(res);
+        console.log(res.readPayload());
     });
 };
 
 
 internals.get = function (request) {
 
-    request.reply('Success!\n');
+    request.reply('Success!');
 };
 
 
