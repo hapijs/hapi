@@ -10,7 +10,7 @@ var internals = {};
 
 internals.main = function () {
 
-    // Create Hapi servers
+    // Create Hapi server
     var http = new Hapi.Server('0.0.0.0', 8080);
 
     // Set routes
@@ -22,9 +22,9 @@ internals.main = function () {
         url: '/'
     };
 
-    Hapi.Injection.inject(http, req, function (res) {
+    http.inject(req, function (res) {
 
-        console.log(res.readPayload());
+        console.log(res.result || res.readPayload());
     });
 };
 

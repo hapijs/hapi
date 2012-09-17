@@ -596,5 +596,51 @@ http.start();
 
 ## Request Injection
 
-**This is an experimental feature!**
+Request injection is the process of simulating an HTTP request without making an actual socket request. Injection is useful for testing
+or debugging purposes, but also for invoking routing logic internally without the overhead or limitations of the network stack. For example,
+implementing a batch mechanism which calls multiple internal routes.
+
+**hapi** uses the [**shot**](https://github.com/hueniverse/shot) module for performing injections. To inject a request, use the server's
+_'inject(options, callback)'_ method in which:
+- _'options'_ - is an object containing the request information. Available options:
+  - `method` - the request HTTP method. Required.
+  - `url` - the request URL (as it would appear in an incoming node request object). Required.
+  - `headers` - any request headers. Optional.
+  - `payload` - a string or Buffer containing the request payload. Optional.
+  - `session` - a session object containing authentication information as described in [Route Handler](#route-handler). The `session` option is used to bypass the default authentication validation and use a pre-authenticated session. Optional.
+- _'callback'_ - a callback function with the signature _'function (res)'_ where 'res' is the injection response object. The response object properties include:
+  - _'headers'_ - an array containing the headers set.
+  - _'statusCode'_ - the HTTP status code.
+  - _'readPayload()'_ - the payload converted to a string.
+  - _'result'_ - if present, the original route handler reply object.
+  - _'raw'_ - the injection request and response objects.
+
+**This is an experimental feature and is likely to change!**
+
+For example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Handler
+var get = function (request) {
+
+    request.reply('Success!');
+};
+
+// Set routes
+http.addRoute({ method: 'GET', path: '/', handler: get });
+
+// Injection options
+var req = {
+    method: 'get',
+    url: '/'
+};
+
+http.inject(req, function (res) {
+
+    console.log(res.result || res.readPayload());
+});
+```
 
