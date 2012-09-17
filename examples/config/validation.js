@@ -69,8 +69,8 @@ internals.main = function () {
         participants: A().includes(S(), N())
     }
     // console.log("schema", sys.inspect(s));
-    // console.log(s.input._validators[1].toString())
-    // console.log(sys.inspect(s.input._validators.map(function(d){ return d.toString();})));
+    // console.log(s.input.__validators[1].toString())
+    // console.log(sys.inspect(s.input.__validators.map(function(d){ return d.toString();})));
     
     http.addRoutes([{ method: 'POST', path: '/users/:id', config: {
         handler: internals.payload,
