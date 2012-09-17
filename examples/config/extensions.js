@@ -10,14 +10,8 @@ var internals = {};
 
 internals.main = function () {
 
-    // Initialize process
-
-    Hapi.Process.initialize();
-
     var config = {
-
         ext: {
-
             // All extension functions use the following signature:
             // function (req, res, next) { next(); }
 
@@ -36,23 +30,13 @@ internals.main = function () {
     };
 
     // Create Hapi servers
-
-    var http = new Hapi.Server.Server('0.0.0.0', 8080, config);
+    var http = new Hapi.Server('0.0.0.0', 8080, config);
 
     // Set routes
-
-    http.setRoutesDefaults({ authentication: 'none' });
-    http.addRoutes([{ method: 'GET', path: '/', handler: internals.get }]);
+    http.addRoute({ method: 'GET', path: '/', handler: internals.get });
 
     // Start Hapi servers
-
     http.start();
-
-    // Finalize Hapi environment
-
-    Hapi.Process.finalize();
-
-    Hapi.Log.info('Hapi server started');
 };
 
 
@@ -64,45 +48,43 @@ internals.get = function (request) {
 
 internals.onRequest = function (request, next) {
 
-    Hapi.Log.info('onRequest');
+    Hapi.Log.event('onRequest');
     next();
 };
 
 
 internals.onPreHandler1 = function (request, next) {
 
-    Hapi.Log.info('onPreHandler1: ' + request.method);
+    Hapi.Log.event('onPreHandler1: ' + request.method);
     next();
 };
 
 
 internals.onPreHandler2 = function (request, next) {
 
-    Hapi.Log.info('onPreHandler2: ' + request.path);
+    Hapi.Log.event('onPreHandler2: ' + request.path);
     next();
 };
 
 
 internals.onPostHandler = function (request, next) {
 
-    Hapi.Log.info('onPostHandler');
+    Hapi.Log.event('onPostHandler');
     next();
 };
 
 
 internals.onPostRoute = function (request, next) {
 
-    Hapi.Log.info('onPostRoute');
+    Hapi.Log.event('onPostRoute');
     next();
 };
 
 
-internals.onUnknownRoute = function (request, next) {
+internals.onUnknownRoute = function (request) {
 
-    Hapi.Log.info('onUnknownRoute');
-    request.raw.res.writeHead(404);
-    request.raw.res.end();
-    next();
+    Hapi.Log.event('onUnknownRoute');
+    request.reply(Hapi.Error.notFound());
 };
 
 

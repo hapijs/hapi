@@ -15,15 +15,8 @@
 */
 
 // Load modules
+
 var Hapi = require('../../lib/hapi');
-var Types = Hapi.Types;
-var S = Types.String,
-    N = Types.Number,
-    A = Types.Array;
-
-// Debug modules
-var sys = require("sys");
-
 
 
 // Declare internals
@@ -33,37 +26,28 @@ var internals = {};
 
 internals.main = function () {
 
-    // Initialize process
-
-    // Hapi.Process.initialize();
-
     var config = {};
 
     // Create Hapi servers
-
     var http = new Hapi.Server('0.0.0.0', 8080, config);
 
     // Set routes
 
-    http.setRoutesDefaults({ authentication: 'none' });
-    http.addRoutes([{ method: 'GET', path: '/', config: { handler: internals.get, query: {username: S()} } }]);
-    http.addRoutes([{ method: 'GET', path: '/admin', config: { handler: internals.get, query: {username: S().required().with('password'), password: S()} } }]);
-    http.addRoutes([{ method: 'GET', path: '/users', config: { handler: internals.get, query: {email: S().email().required().min(18)} } }]);
-    http.addRoutes([{ method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } }]);
-    http.addRoutes([{ method: 'GET', path: '/test', config: { handler: internals.get, query: {num: N().min(0)} } }]);
-    http.addRoutes([{ method: 'GET', path: '/test2', config: { handler: internals.get, query: {p1: S().required().rename('itemId')}}}]);
-    http.addRoutes([{ method: 'GET', path: '/simple', config: { handler: internals.get, query: {input: S().min(3)} } }]);
-    
-    // Payload validation example
-    // var s = {
-    //     input: 
-    //         A().includes(
-    //             A().includes(
-    //                 N().min(0)
-    //             )
-    //         )
-    // }
-    var s = {
+    http.addRoutes([
+        { method: 'GET', path: '/', config: { handler: internals.get, query: { username: S() } } },
+        { method: 'GET', path: '/admin', config: { handler: internals.get, query: { username: S().required().with('password'), password: S() } } },
+        { method: 'GET', path: '/users', config: { handler: internals.get, query: { email: S().email().required().min(18) } } },
+        { method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } },
+        { method: 'GET', path: '/test', config: { handler: internals.get, query: { num: N().min(0) } } },
+        { method: 'GET', path: '/test2', config: { handler: internals.get, query: { p1: S().required().rename('itemId') } } },
+        { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } }
+    ]);
+
+    var S = Hapi.Types.String,
+        N = Hapi.Types.Number,
+        A = Hapi.Types.Array;
+
+    var schema = {
         title: S(),
         status: S().valid('open', 'pending', 'close'),
         participants: A().includes(S(), N())
@@ -71,26 +55,19 @@ internals.main = function () {
     // console.log("schema", sys.inspect(s));
     // console.log(s.input.__validators[1].toString())
     // console.log(sys.inspect(s.input.__validators.map(function(d){ return d.toString();})));
-    
-    http.addRoutes([{ method: 'POST', path: '/users/:id', config: {
-        handler: internals.payload,
-        query: {},
-        // schema: {
-        //     username: S().required().min(3),
-        //     emails: A().includes(S().email())
-        // }
-        schema: s
-    }}]);
+
+    http.addRoute({
+        method: 'POST',
+        path: '/users/:id',
+        config: {
+            handler: internals.payload,
+            query: {},
+            schema: schema
+        }
+    });
 
     // Start Hapi servers
-
     http.start();
-
-    // Finalize Hapi environment
-
-    // Hapi.Process.finalize();
-
-    // Hapi.Log.info('Hapi server started');
 };
 
 
@@ -100,12 +77,11 @@ internals.get = function (request) {
     request.reply('Success!\n');
 };
 
-internals.payload = function(request) {
+internals.payload = function (request) {
 
     console.log("payload", request.payload)
     request.reply('Success!\n');
 }
-
 
 
 internals.main();
