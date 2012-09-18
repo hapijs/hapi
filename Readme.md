@@ -256,6 +256,9 @@ optional settings:
 - `broadcastInterval` - the interval in milliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
 - `opsInterval` - the interval in milliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
 - `extendedRequests` - determines if the full request log is sent or only the event summary. Defaults to _false_.
+- `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
+  - 'response' - the response was sent but request tails may still be pending.
+  - 'tail' - the response was sent and all request tails completed.
 - `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
 
 For example:
@@ -553,7 +556,7 @@ request has been received and will be processed shortly. However, it is still de
 when every single request related action has completed (in other words, when the request stopped wagging).
 
 **hapi** provides a simple facility for keeping track of pending tails by providing the following request methods:
-- _'addTail([name])'_ - registers a named tail and returns a tail id. The tail id must be retailed and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
+- _'addTail([name])'_ - registers a named tail and returns a tail id. The tail id must be retained and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
 - _'removeTail(tailId)'_ - removes a tail to notify the server that the associated action has been completed.
 
 For example:
