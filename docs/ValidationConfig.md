@@ -156,11 +156,25 @@ TODO: Show example function definition (to show logical uniformity between const
 
 All types inherit the following builtin constraints:
 
-##### BaseType.required([allowNull = false])
+##### BaseType.required()
 
-Specifies whether or not this input is required.  If allowNull is true, then the validated value is allowed to be null.
+Specifies that the input may not be undefined (unspecified).
 
-If allowNull is not specified, it defaults to true.
+##### BaseType.allow(value)
+
+Specifies that the input may equal this value.
+
+This function is idempotent.
+
+*Note: This function does not verify that value is the correct type.*
+
+##### BaseType.deny(value)
+
+Specifies that the input may NOT equal this value.
+
+This function is idempotent.
+
+*Note: This function does not verify that value is the correct type.*
 
 ##### Basetype.valid(a1[, a2, ...])
 
@@ -168,7 +182,7 @@ Specifies an arbitrary number of valid values for this input.
 
 If no inputs are supplied, it returns an Error.
 
-*Note: The two functions .valid and .invalid should not be used simultaneously.*
+If one or more of inputs given do not match the basic type, an Error is raised.
 
 ##### Basetype.invalid(a1[, a2, ...])
 
@@ -176,7 +190,7 @@ Specifies an arbitrary number of invalid values for this input.
 
 If no inputs are supplied, it returns an Error.
 
-*Note: The two functions .valid and .invalid should not be used simultaneously.*
+If one or more of inputs given do not match the basic type, an Error is raised.
 
 ##### BaseType.with(a1[, a2, ...])
 
@@ -190,9 +204,9 @@ Specifies an arbitrary number of inputs that cannot exist alongside this input (
 
 *Note: This may or may not have aliases in the final version (.disjoin, .without, .xor... etc)*
 
-##### BaseType.empty()
+##### BaseType.nullOk()
 
-Specifies that the empty should be null.
+Specifies that the value is allowed to be null.
 
 ##### BaseType.rename(to[, options])
 
@@ -218,6 +232,10 @@ The option "allowOverwrite" specifies whether or not the rename function can ove
 Strings, by default, match JavaScript Strings. They are typically unbounded in length unless limited by interpreter. They are encoded in UTF-8 (this is true in Node.js at least). They may contain any allowable characters in the specified encoding.
 
 The Type Registry's implementation of String also includes some builtin constraints:
+
+##### String.emptyOk()
+
+Specifies that the input may be equal to '' (the empty string).
 
 ##### String.min(n)
 
