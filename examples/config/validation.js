@@ -17,7 +17,9 @@
 // Load modules
 
 var Hapi = require('../../lib/hapi');
-
+var S = Hapi.Types.String,
+    N = Hapi.Types.Number,
+    A = Hapi.Types.Array;
 
 // Declare internals
 
@@ -42,10 +44,6 @@ internals.main = function () {
         { method: 'GET', path: '/test2', config: { handler: internals.get, query: { p1: S().required().rename('itemId') } } },
         { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } }
     ]);
-
-    var S = Hapi.Types.String,
-        N = Hapi.Types.Number,
-        A = Hapi.Types.Array;
 
     var schema = {
         title: S(),
