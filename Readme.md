@@ -303,6 +303,8 @@ configuration:
 
 ### Documentation
 
+**This is an experimental feature and is likely to change!**
+
 In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided.  By default the documentation generator is turned _off_.
 To enable the docs endpoint you can pass the following options to the **hapi** `server` under the `docs` setting name:
 
