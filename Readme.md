@@ -311,7 +311,7 @@ To enable the docs endpoint you can pass the following options to the **hapi** `
 - `docsEndpoint` - the path where the documentation will be served from. Default is '/docs'.
 - `templatePath` - the file path where the template file is located.  Default is 'lib/templates/route.html'.
 - `template` - the raw source of a template to use.  If `template` is provided then it will be used over the file located at `templatePath`.
-- 'templateParams' - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
+- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
 
 ### CORS
 
