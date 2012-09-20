@@ -19,23 +19,25 @@ In order to keep things simple, when viewing the documentation for a route you w
 As mentioned previously, a simple object will be constructed from the route config that will be passed into the templating engine.  Here is an example of what this object may look like:
 
 ````
-{ "/user/:id": [{
+{ routes: [{
+        path: "/user:id",
         method: "GET",
         description: "Retrieve a specific user.",
         notes: "",
         tags: ["user"],
         query: {
-            id: { description: "The user ID", notes: "", tags: [], "required": true }
+            id: { description("The user ID").required() }
         }
     },
     {
+        path: "/user:id",
         method: "PUT",
         description: "Update a user.",
         notes: "",
         tags: ["user"],
         query: {
-            id: { description: "The user ID", notes: "", tags: [], "required": true, type: "number" },
-            name: { description: "The name for the user", tags: [], type: "string" }
+            id: { description("The user ID").required() },
+            name: { description("The name for the user") }
         }
     }]
 }
@@ -61,8 +63,8 @@ The generator will need to be enabled when instantiating a Hapi server.  This wi
 
 ````
 var config = {
-    documentation: {
-        templatePath: __dirname + '/doc.tmpl',
+    docs: {
+        templatePath: __dirname + '/doc.html',
         templateParams: {
             stylePath: '/css/style.css',
             contactEmail: 'dev@site.com'
