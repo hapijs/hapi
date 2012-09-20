@@ -26,6 +26,7 @@ Current version: **0.7.0**
 		- [Authentication](#authentication)
 		- [Cache](#cache)
 		- [Debug](#debug)
+		- [Documentation] (#documentation)
 		- [CORS](#cors)
 <p></p>
     - [**Server Events**](#server-events)
@@ -299,6 +300,16 @@ configuration:
 - `websocketPort` - the port used by the WebSocket connection. Defaults to _3000_.
 - `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
 - `queryKey` - the name or the request query parameter used to mark requests being debugged. Defaults to _debug_.
+
+### Documentation
+
+In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided.  By default the documentation generator is turned _off_.
+To enable the docs endpoint you can pass the following options to the **hapi** `server` under the `docs` setting name:
+
+- `docsEndpoint` - the path where the documentation will be served from. Default is '/docs'.
+- `templatePath` - the file path where the template file is located.  Default is 'lib/templates/route.html'.
+- `template` - the raw source of a template to use.  If `template` is provided then it will be used over the file located at `templatePath`.
+- 'templateParams' - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
 
 ### CORS
 
