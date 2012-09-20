@@ -72,13 +72,13 @@ internals.main = function () {
 
 internals.get = function (request) {
 
-    console.log(request.query)
+    console.log(request.query);
     request.reply('Success!\n');
 };
 
 internals.payload = function (request) {
 
-    console.log("payload", request.payload)
+    console.log("payload", request.payload);
     request.reply('Success!\n');
 }
 
