@@ -27,6 +27,7 @@
     "request": "2.11.x",
     "redis": "0.8.x",
     "ws": "0.4.x",
+    "shot": "0.0.x",
     "handlebars": "1.0.x"
   },
   "devDependencies": {
