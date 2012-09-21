@@ -1,57 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Documentation for {{path}}</title>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 60px; }
+    </style>
 </head>
 <body>
-{{#each routes}}
-    <div class="route">
-    {{#if this.name}}
-        <h2>{{this.name}}</h2>
-    {{else}}
-        <h2>{{this.method}}: {{this.path}}</h2>
-    {{/if}}
-    {{#if this.description}}
-        <p class="description">{{this.description}}</p>
-    {{/if}}
-    {{#if this.notes}}
-        <p class="notes">{{this.notes}}</p>
-    {{/if}}
-    <dl>
-        {{#if this.queryParams}}
-        <dt>Query Parameters</dt>
-        <dd>
-            <ul>
-                {{#each this.queryParams}}
-                <li>
-                    <h3>{{this.name}}</h3>
-                    {{#if this.description}}
-                    <p>{{this.description}}</p>
-                    {{/if}}
-                    <p>Type: {{this.type}}</p>
-                </li>
-                {{/each}}
-            </ul>
-        </dd>
-        {{/if}}
-        {{#if this.payloadParams}}
-        <dt>Payload Parameters</dt>
-        <dd>
-            <ul>
-                {{#each this.payloadParams}}
-                <li>
-                    <h3>{{this.name}}</h3>
-                    {{#if this.description}}
-                    <p>{{this.description}}</p>
-                    {{/if}}
-                    <p>Type: {{this.type}}</p>
-                </li>
-                {{/each}}
-            </ul>
-        </dd>
-        {{/if}}
-    </dl>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <a class="brand" href="{{docsEndpoint}}">{{path}}</a>
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        {{#each routes}}
+                        <li><a href="#{{this.method}}">{{this.method}}</a></li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-{{/each}}
+    <div class="container">
+    {{#each routes}}
+        <div class="route">
+            <a name="{{this.method}}"></a>
+        {{#if this.name}}
+            <h2>{{this.name}}</h2>
+        {{else}}
+            <h2>{{this.method}}: {{this.path}}</h2>
+        {{/if}}
+        {{#if this.description}}
+            <p class="description">{{this.description}}</p>
+        {{/if}}
+        {{#if this.notes}}
+            <p class="notes">{{this.notes}}</p>
+        {{/if}}
+        <dl>
+            {{#if this.queryParams}}
+            <dt><h3>Query Parameters</h3></dt>
+            <dd>
+                <ul class="unstyled">
+                    {{#each this.queryParams}}
+                    <li>
+                        <h4>{{this.name}}</h4>
+                        {{#if this.description}}
+                        <p>{{this.description}}</p>
+                        {{/if}}
+                        <dl>
+                            <dt>Type</dt>
+                            <dd>{{this.type}}</dd>
+                            {{#if this.required}}
+                            <dt>Required</dt>
+                            {{/if}}
+                        </dl>
+                    </li>
+                    {{/each}}
+                </ul>
+            </dd>
+            {{/if}}
+            {{#if this.payloadParams}}
+            <dt><h3>Payload Parameters</h3></dt>
+            <dd>
+                <ul class="unstyled">
+                    {{#each this.payloadParams}}
+                    <li>
+                        <h4>{{this.name}}</h4>
+                        {{#if this.description}}
+                        <p>{{this.description}}</p>
+                        {{/if}}
+                        <dl>
+                            <dt>Type</dt>
+                            <dd>{{this.type}}</dd>
+                            {{#if this.required}}
+                            <dt>Required</dt>
+                            {{/if}}
+                        </dl>
+                    </li>
+                    {{/each}}
+                </ul>
+            </dd>
+            {{/if}}
+        </dl>
+        </div>
+    {{/each}}
+    </div>
 </body>
 </html>

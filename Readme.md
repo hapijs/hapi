@@ -309,9 +309,13 @@ In order to make it easy to generate documentation for the routes you add to **h
 To enable the docs endpoint you can pass the following options to the **hapi** `server` under the `docs` setting name:
 
 - `docsEndpoint` - the path where the documentation will be served from. Default is '/docs'.
-- `templatePath` - the file path where the template file is located.  Default is 'lib/templates/route.html'.
-- `template` - the raw source of a template to use.  If `template` is provided then it will be used over the file located at `templatePath`.
+- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html'.
+- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
+- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html'.
+- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
 - `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
+
+By default there is an index page that lists all of the available routes configured in **hapi** that is located at the `docsEndpoint`.  From this page users are able to navigate to individual routes to read the related documentation.
 
 ### CORS
 
