@@ -1,18 +1,18 @@
 /**
-    To Test:
-    
-        Run the server.
-        Try various URLs like:
-            http://localhost:8080/ // success
-            http://localhost:8080/?username=test // success
-            http://localhost:8080/admin?username=walmart&password=worldofwalmartlabs // success
-            http://localhost:8080/admin?username=walmart // fail
-            http://localhost:8080/users?email=vnguyen@walmart.com // success
-            http://localhost:8080/users?email=@walmart.com // fail
-            http://localhost:8080/config?choices=1&choices=2 // success
-            http://localhost:8080/config?choices=1 // success
-            http://localhost:8080/config // fail
-*/
+ To Test:
+
+ Run the server.
+ Try various URLs like:
+ http://localhost:8080/ // success
+ http://localhost:8080/?username=test // success
+ http://localhost:8080/admin?username=walmart&password=worldofwalmartlabs // success
+ http://localhost:8080/admin?username=walmart // fail
+ http://localhost:8080/users?email=vnguyen@walmart.com // success
+ http://localhost:8080/users?email=@walmart.com // fail
+ http://localhost:8080/config?choices=1&choices=2 // success
+ http://localhost:8080/config?choices=1 // success
+ http://localhost:8080/config // fail
+ */
 
 // Load modules
 
@@ -28,7 +28,7 @@ var internals = {};
 
 internals.main = function () {
 
-    var config = {};
+    var config = { docs: true };
 
     // Create Hapi servers
     var http = new Hapi.Server('0.0.0.0', 8080, config);
@@ -42,7 +42,8 @@ internals.main = function () {
         { method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } },
         { method: 'GET', path: '/test', config: { handler: internals.get, query: { num: N().min(0) } } },
         { method: 'GET', path: '/test2', config: { handler: internals.get, query: { p1: S().required().rename('itemId') } } },
-        { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } }
+        { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } },
+        { method: 'GET', path: '/users/:id', config: { handler: internals.get, query: { name: S().description('the user name')} } }
     ]);
 
     var schema = {
@@ -71,13 +72,13 @@ internals.main = function () {
 
 internals.get = function (request) {
 
-    console.log(request.query)
+    console.log(request.query);
     request.reply('Success!\n');
 };
 
 internals.payload = function (request) {
 
-    console.log("payload", request.payload)
+    console.log("payload", request.payload);
     request.reply('Success!\n');
 }
 

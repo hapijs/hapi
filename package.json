@@ -1,36 +1,48 @@
 {
   "name": "hapi",
   "description": "HTTP API Server framework",
-  "version": "0.6.0",
-  "author": "Eran Hammer-Lahav <eran@hueniverse.com>",
+  "homepage": "http://hapijs.com",
+  "version": "0.7.0",
+  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
+  "contributors":[
+    "Van Nguyen <the.gol.effect@gmail.com>"
+  ],
   "repository": "git://github.com/walmartlabs/hapi",
   "main": "index",
   "keywords": [
+    "framework",
     "http",
-    "mac",
     "authentication",
-    "oauth",
     "api",
     "router"
   ],
   "engines": {
-    "node": ">=0.6.0"
+    "node": ">=0.8.0"
   },
   "dependencies": {
-    "async": "0.1.18",
+    "hoek": "0.0.x",
+    "joi": "0.0.x",
+    "async": "0.1.x",
     "mac": "0.x.x",
-    "validator": "0.x.x",
-    "emailjs": "0.x.x",
-    "request": "2.9.x",
-    "redis":"0.x.x",
-    "ws":"0.4.x"
+    "request": "2.11.x",
+    "redis": "0.8.x",
+    "ws": "0.4.x",
+    "shot": "0.0.x",
+    "handlebars": "1.0.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
     "should": "1.x.x",
-    "sinon": "1.3.4"
+    "sinon": "1.3.4",
+    "chai": "1.2.x"
   },
   "scripts": {
     "test": "make test && make unit"
-  }
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://github.com/walmartlabs/hapi/raw/master/LICENSE"
+    }
+  ]
 }
