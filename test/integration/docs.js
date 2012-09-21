@@ -5,8 +5,9 @@ var Hapi = require('../../lib/hapi');
 var S = Hapi.Types.String;
 
 
-var _template = '{{#each routes}}{{this.method}}|{{/each}}';
-var _http = new Hapi.Server('0.0.0.0', 8083, { name: 'test', docs: { template: _template }});
+var _routeTemplate = '{{#each routes}}{{this.method}}|{{/each}}';
+var _indexTemplate = '{{#each routes}}{{this.path}}|{{/each}}';
+var _http = new Hapi.Server('0.0.0.0', 8083, { name: 'test', docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
 var _serverUrl = 'http://127.0.0.1:8083';
 
 function setupServer(done) {
@@ -15,7 +16,7 @@ function setupServer(done) {
     };
 
     _http.addRoutes([
-        { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S() } } },
+        { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
         { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S() } } }
     ]);
 
@@ -44,16 +45,23 @@ describe('Documentation generator', function() {
         });
     });
 
-    it('has a null response when wrong path is provided', function(done) {
+    it('has a Not Found response when wrong path is provided', function(done) {
         makeRequest('/docs?path=blah', function(res) {
-            expect(res).to.be.null;
+            expect(res.error).to.equal('Not Found');
             done();
         });
     });
 
-    it('has an error response if no path is provided', function(done) {
+    it('displays the index if no path is provided', function(done) {
         makeRequest('/docs', function(res) {
-            expect(res.error).to.exist;
+            expect(res).to.equal('/test|/test|');
+            done();
+        });
+    });
+
+    it('the index does\'t have the docs endpoint listed', function(done) {
+        makeRequest('/docs', function(res) {
+            expect(res).to.not.contain('/docs');
             done();
         });
     });
