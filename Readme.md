@@ -295,7 +295,7 @@ route configuration.
 To assist in debugging server events related to specific incoming requests, **hapi** includes an optional debug console which is turned _off_ by default.
 The debug console is a simple web page in which developers can subscribe to a debug id, and then include that debug id as an extra query parameter in each
 request. The server will use WebSocket to stream the subscribed request logs to the web page in real-time. In application using multiple server instances,
-only one can enable the debug interface using the default port. To enable the debug console, set the `debug` option to _true_ or to an object with custom
+only one can enable the debug interface using the default port. To enable the debug console set the `debug` option to _true_ or to an object with custom
 configuration:
 - `websocketPort` - the port used by the WebSocket connection. Defaults to _3000_.
 - `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
@@ -305,12 +305,11 @@ configuration:
 
 **This is an experimental feature and is likely to change!**
 
-In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided.  By default the documentation generator is turned _off_.
-To enable the docs endpoint you can pass the following options to the **hapi** `server` under the `docs` setting name:
-
+In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided. By default the documentation
+generator is turned _off_. To enable the docs endpoint set the `docs` option to _true_ or to an object with custom configuration:
 - `docsEndpoint` - the path where the documentation will be served from. Default is '/docs'.
-- `templatePath` - the file path where the template file is located.  Default is 'lib/templates/route.html'.
-- `template` - the raw source of a template to use.  If `template` is provided then it will be used over the file located at `templatePath`.
+- `templatePath` - the file path where the template file is located. Default is 'lib/templates/route.html'.
+- `template` - the raw source of a template to use. If `template` is provided then it will be used over the file located at `templatePath`.
 - `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
 
 ### CORS
