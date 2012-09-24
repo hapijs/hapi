@@ -7,7 +7,7 @@ var S = Hapi.Types.String;
 
 var _routeTemplate = '{{#each routes}}{{this.method}}|{{/each}}';
 var _indexTemplate = '{{#each routes}}{{this.path}}|{{/each}}';
-var _server = new Hapi.Server('0.0.0.0', 8083, { name: 'test', docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
+var _server = new Hapi.Server('0.0.0.0', 8083, { name: 'test', authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
 var _serverUrl = 'http://127.0.0.1:8083';
 
 function setupServer(done) {
