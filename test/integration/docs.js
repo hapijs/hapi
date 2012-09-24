@@ -10,16 +10,16 @@ var _indexTemplate = '{{#each routes}}{{this.path}}|{{/each}}';
 var _server = new Hapi.Server('0.0.0.0', 8083, { name: 'test', authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
 var _serverUrl = 'http://127.0.0.1:8083';
 
+var handler = function(request) {
+    request.reply('ok');
+};
+
+_server.addRoutes([
+    { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
+    { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
+]);
+
 function setupServer(done) {
-    var handler = function(request) {
-        request.reply('ok');
-    };
-
-    _server.addRoutes([
-        { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
-        { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S() } } }
-    ]);
-
     _server.start();
     done();
 }
@@ -40,7 +40,7 @@ function makeRequest(path, callback) {
     }, next);
 }
 
-describe('Documentation generator', function() {
+describe('Documentation', function() {
     before(setupServer);
     after(teardownServer);
 
