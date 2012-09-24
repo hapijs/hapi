@@ -16,7 +16,7 @@ var handler = function(request) {
 
 _server.addRoutes([
     { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
-    { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S() } } }
+    { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
 ]);
 
 function setupServer(done) {
@@ -40,7 +40,7 @@ function makeRequest(path, callback) {
     }, next);
 }
 
-describe('Documentation generator', function() {
+describe('Documentation', function() {
     before(setupServer);
     after(teardownServer);
 

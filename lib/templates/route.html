@@ -16,7 +16,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </a>
-                <a class="brand" href="{{docsEndpoint}}">{{path}}</a>
+                <a class="brand" href="{{docsEndpoint}}"><i class="icon-home icon-white"></i></a>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
                         {{#each routes}}
@@ -49,15 +49,28 @@
                 <ul class="unstyled">
                     {{#each this.queryParams}}
                     <li>
-                        <h4>{{this.name}}</h4>
+                        <h4><em>{{this.name}}</em>
+                            {{#if this.required}}
+                            <i class="icon-star"></i>
+                            {{/if}}
+                        </h4>
                         {{#if this.description}}
                         <p>{{this.description}}</p>
                         {{/if}}
                         <dl>
                             <dt>Type</dt>
                             <dd>{{this.type}}</dd>
-                            {{#if this.required}}
-                            <dt>Required</dt>
+                            {{#if this.allowedValues}}
+                                <dt>Allowed Values</dt>
+                                {{#each this.allowedValues}}
+                                    <dd>{{this}}</dd>
+                                {{/each}}
+                            {{/if}}
+                            {{#if this.disallowedValues}}
+                                <dt>Forbidden Values</dt>
+                                {{#each this.disallowedValues}}
+                                    <dd>{{this}}</dd>
+                                {{/each}}
                             {{/if}}
                         </dl>
                     </li>
@@ -71,15 +84,28 @@
                 <ul class="unstyled">
                     {{#each this.payloadParams}}
                     <li>
-                        <h4>{{this.name}}</h4>
+                        <h4><em>{{this.name}}</em>
+                            {{#if this.required}}
+                            <i class="icon-star"></i>
+                            {{/if}}
+                        </h4>
                         {{#if this.description}}
                         <p>{{this.description}}</p>
                         {{/if}}
                         <dl>
                             <dt>Type</dt>
                             <dd>{{this.type}}</dd>
-                            {{#if this.required}}
-                            <dt>Required</dt>
+                            {{#if this.allowedValues}}
+                                <dt>Allowed Values</dt>
+                                {{#each this.allowedValues}}
+                                    <dd>{{this}}</dd>
+                                {{/each}}
+                            {{/if}}
+                            {{#if this.disallowedValues}}
+                                <dt>Forbidden Values</dt>
+                                {{#each this.disallowedValues}}
+                                    <dd>{{this}}</dd>
+                            {{/each}}
                             {{/if}}
                         </dl>
                     </li>
