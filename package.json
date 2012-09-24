@@ -5,7 +5,8 @@
   "version": "0.7.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors":[
-    "Van Nguyen <the.gol.effect@gmail.com>"
+    "Van Nguyen <the.gol.effect@gmail.com>",
+    "Wyatt Preul <wpreul@gmail.com>"
   ],
   "repository": "git://github.com/walmartlabs/hapi",
   "main": "index",
