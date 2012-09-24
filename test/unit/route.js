@@ -2,14 +2,56 @@
 
 var expect = require('chai').expect;
 var Route = require('../../lib/route');
-var Defaults = require('../../lib/defaults');
+
 
 describe('Route', function() {
+    var _serverDefaults = {
+        router: {
+            isTrailingSlashSensitive: false,            // Tread trailing '/' in path as different resources
+            isCaseSensitive: true                       // Case-seinsitive paths
+        },
+        payload: {
+            maxBytes: 1024 * 1024
+        },
+        cors: {
+            origin: ['*'],
+            maxAge: 86400,                              // One day
+            headers: [
+                'Authorization',
+                'Content-Type',
+                'If-None-Match'
+            ],
+            additionalHeaders: [],
+            methods: [
+                'GET',
+                'HEAD',
+                'POST',
+                'PUT',
+                'DELETE',
+                'OPTIONS'
+            ],
+            additionalMethods: []
+        },
+        ext: {
+            onRequest: null,
+            onPreHandler: null,
+            onPostHandler: null,
+            onPostRoute: null,
+            onUnknownRoute: null
+        },
+        errors: {
+            format: null
+        },
+        monitor: false,
+        authentication: false,
+        cache: false,
+        debug: false,
+        docs: false
+    };
 
     var _server = {
-        settings: Defaults.server
+        settings: _serverDefaults
     };
-    _server.settings.authentication = Defaults.authentication;
 
     var _handler = function(request) {
         request.reply('ok');
