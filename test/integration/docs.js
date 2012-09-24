@@ -7,7 +7,7 @@ var S = Hapi.Types.String;
 
 var _routeTemplate = '{{#each routes}}{{this.method}}|{{/each}}';
 var _indexTemplate = '{{#each routes}}{{this.path}}|{{/each}}';
-var _http = new Hapi.Server('0.0.0.0', 8083, { name: 'test', docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
+var _server = new Hapi.Server('0.0.0.0', 8083, { name: 'test', docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
 var _serverUrl = 'http://127.0.0.1:8083';
 
 function setupServer(done) {
@@ -15,12 +15,17 @@ function setupServer(done) {
         request.reply('ok');
     };
 
-    _http.addRoutes([
+    _server.addRoutes([
         { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
         { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S() } } }
     ]);
 
-    _http.start();
+    _server.start();
+    done();
+}
+
+function teardownServer(done) {
+    _server.stop();
     done();
 }
 
@@ -29,7 +34,7 @@ function makeRequest(path, callback) {
       return callback(res.result);
     };
 
-    _http.inject({
+    _server.inject({
         method: 'get',
         url: _serverUrl + path
     }, next);
@@ -37,6 +42,7 @@ function makeRequest(path, callback) {
 
 describe('Documentation generator', function() {
     before(setupServer);
+    after(teardownServer);
 
     it('shows template when correct path is provided', function(done) {
         makeRequest('/docs?path=/test', function(res) {
