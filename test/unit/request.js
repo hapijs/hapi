@@ -1,7 +1,7 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Request = require('../../lib/request');
+var Request = process.env.TEST_COV ? require('../../lib-cov/request') : require('../../lib/request');
 var ServerMock = require('./mocks/server');
 
 describe('Request', function() {

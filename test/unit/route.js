@@ -1,7 +1,7 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Route = require('../../lib/route');
+var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
 var ServerMock = require('./mocks/server');
 
 

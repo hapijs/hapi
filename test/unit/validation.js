@@ -1,7 +1,7 @@
 var should = require("should");
 var qs = require("querystring");
 
-var Validation = require("../../lib/validation");
+var Validation = process.env.TEST_COV ? require('../../lib-cov/validation') : require('../../lib/validation');
 var Types = require('joi').Types;
 var S = Types.String,
     N = Types.Number,
