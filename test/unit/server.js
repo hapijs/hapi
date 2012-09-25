@@ -2,7 +2,6 @@
 
 var expect = require('chai').expect;
 var Server = require('../../lib/server');
-var Defaults = require('../../lib/defaults');
 
 describe('Server', function() {
 
@@ -32,9 +31,9 @@ describe('Server', function() {
 
     it('doesn\'t throw an error when host and port are provided', function(done) {
         var fn = function() {
-            var server = new Server('0.0.0.0', 8087, { authentication: false });
+            var server = new Server('0.0.0.0', 8087);
         };
-        expect(fn).not.throw(Error);
+        expect(fn).to.not.throw(Error);
         done();
     });
 });
