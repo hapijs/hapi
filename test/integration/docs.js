@@ -7,7 +7,7 @@ var S = Hapi.Types.String;
 describe('Documentation', function() {
     var _routeTemplate = '{{#each routes}}{{this.method}}|{{/each}}';
     var _indexTemplate = '{{#each routes}}{{this.path}}|{{/each}}';
-    var _server = new Hapi.Server('0.0.0.0', 8083, { name: 'test', authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
+    var _server = new Hapi.Server('0.0.0.0', 8083, { authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
     var _serverUrl = 'http://127.0.0.1:8083';
 
     var handler = function(request) {
@@ -20,8 +20,10 @@ describe('Documentation', function() {
     ]);
 
     function setupServer(done) {
+        _server.listener.on('listening', function() {
+            done();
+        });
         _server.start();
-        done();
     }
 
     function teardownServer(done) {
