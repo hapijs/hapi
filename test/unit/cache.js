@@ -3,7 +3,43 @@
 var expect = require('chai').expect;
 var Cache = process.env.TEST_COV ? require('../../lib-cov/cache/index') : require('../../lib/cache/index');
 var Rules = process.env.TEST_COV ? require('../../lib-cov/cache/rules') : require('../../lib/cache/rules');
+var Sinon = require('sinon');
 
+describe('Client', function() {
+
+    it('throws an error if not using the redis engine', function(done) {
+        var fn = function() {
+            var options = {
+                engine: 'bob'
+            };
+
+            var client = new Cache.Client(options);
+        };
+
+        expect(fn).to.throw(Error);
+        done();
+    });
+
+    it('creates a new connection when using redis', function(done) {
+        var redisMock = Sinon.mock(require('redis'));
+        require.cache[require.resolve('redis')] = redisMock;
+
+        var options = {
+            engine: 'redis'
+        };
+
+        var client = new Cache.Client(options);
+        expect(client).to.exist;
+
+        var fn = function() {
+            redisMock.verify();
+        };
+
+        expect(fn).to.not.throw(Error);
+        require.cache[require.resolve('redis')] = null;
+        done();
+    });
+});
 
 describe('Cache Rules', function() {
 

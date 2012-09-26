@@ -57,7 +57,7 @@ describe('Payload', function() {
              });
         });
 
-        it('passes a parsed object to the callback whenever reading a json request', function(done) {
+        it('sets the request payload property whenever reading a json request', function(done) {
             function clientRequest() {
                 Events.EventEmitter.call(this);
             }
@@ -91,5 +91,112 @@ describe('Payload', function() {
             req.emit('data', '{ "item": "test" }');
             req.emit('end');
         });
+
+        it('passes an Error to the callback whenever reading an invalid json request', function(done) {
+            function clientRequest() {
+                Events.EventEmitter.call(this);
+            }
+
+            NodeUtil.inherits(clientRequest, Events.EventEmitter);
+
+            var req = new clientRequest();
+            req.headers = {
+                'content-type': 'application/json'
+            };
+
+            req.setEncoding = function() { };
+
+            var request = {
+                method: 'post',
+                _route: {
+                    config: {}
+                },
+                raw: {
+                    req: req
+                },
+                server: ServerMock
+            };
+
+            Payload.read(request, function(err) {
+                expect(err).to.exist;
+                expect(request.payload).to.be.empty;
+                expect(err).to.be.an.instanceOf(Error);
+                done();
+            });
+
+            req.emit('data', '{ this is just wrong }');
+            req.emit('end');
+        });
+
+        it('sets the request payload property whenever reading a form request', function(done) {
+            function clientRequest() {
+                Events.EventEmitter.call(this);
+            }
+
+            NodeUtil.inherits(clientRequest, Events.EventEmitter);
+
+            var req = new clientRequest();
+            req.headers = {
+                'content-type': 'application/x-www-form-urlencoded'
+            };
+
+            req.setEncoding = function() { };
+
+            var request = {
+                method: 'post',
+                _route: {
+                    config: {}
+                },
+                raw: {
+                    req: req
+                },
+                server: ServerMock
+            };
+
+            Payload.read(request, function(err) {
+                expect(err).to.not.exist;
+                expect(request.payload.item).to.equal('test');
+                done();
+            });
+
+            req.emit('data', 'item=test');
+            req.emit('end');
+        });
+
+    /*    it('passes an Error to the callback whenever reading an invalid form request', function(done) {
+            function clientRequest() {
+                Events.EventEmitter.call(this);
+            }
+
+            NodeUtil.inherits(clientRequest, Events.EventEmitter);
+
+            var req = new clientRequest();
+            req.headers = {
+                'content-type': 'application/x-www-form-urlencoded'
+            };
+
+            req.setEncoding = function() { };
+
+            var request = {
+                method: 'post',
+                _route: {
+                    config: {}
+                },
+                raw: {
+                    req: req
+                },
+                server: ServerMock
+            };
+
+            Payload.read(request, function(err) {
+                expect(err).to.exist;
+                expect(request.payload).to.be.empty;
+                expect(err).to.be.an.instanceOf(Error);
+                done();
+            });
+
+            req.emit('data', '\u777F');
+            req.emit('end');
+        });*/
     });
 });
