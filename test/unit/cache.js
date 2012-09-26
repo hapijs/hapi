@@ -1,0 +1,235 @@
+// Load modules
+
+var expect = require('chai').expect;
+var Cache = process.env.TEST_COV ? require('../../lib-cov/cache/index') : require('../../lib/cache/index');
+var Rules = process.env.TEST_COV ? require('../../lib-cov/cache/rules') : require('../../lib/cache/rules');
+
+
+describe('Cache Rules', function() {
+
+    describe('#compile', function() {
+
+        it('compiles a single rule', function(done) {
+            var config = {
+                isCached: false,
+                expiresInSec: 50
+            } ;
+            var rule = Rules.compile(config);
+
+            expect(rule.isCached).to.equal(config.isCached);
+            expect(rule.expiresInSec).to.not.exist;
+
+            done();
+        });
+
+        it('assigns the expiresInSec when the rule is cached', function(done) {
+            var config = {
+                isCached: true,
+                expiresInSec: 50
+            } ;
+            var rule = Rules.compile(config);
+
+            expect(rule.isCached).to.equal(config.isCached);
+            expect(rule.expiresInSec).to.equal(config.expiresInSec);
+
+            done();
+        });
+
+        it('doesn\'t allow a single rule to contain a match', function(done) {
+            var config = {
+                isCached: true,
+                expiresInSec: 50,
+                match: /test/
+            } ;
+            var rule = Rules.compile(config);
+
+            expect(rule).to.be.an.instanceOf(Error);
+
+            done();
+        });
+
+        it('each rule in an array of rules must contain a match property', function(done) {
+            var config = [{
+                isCached: false,
+                expiresInSec: 50
+            }, {
+                isCached: true,
+                expiresInSec: 40
+            }];
+            var rules = Rules.compile(config);
+
+            expect(rules).to.be.an.instanceOf(Error);
+
+            done();
+        });
+
+        it('compiles an array of rules', function(done) {
+            var config = [{
+                isCached: false,
+                expiresInSec: 50,
+                match: /test/
+            }, {
+                isCached: true,
+                expiresInSec: 40,
+                match: /test2/
+            }];
+            var rules = Rules.compile(config);
+
+            expect(rules[0].isCached).to.equal(false);
+            expect(rules[1].isCached).to.equal(true);
+            expect(rules[0].expiresInSec).to.not.exist;
+            expect(rules[1].expiresInSec).to.equal(40);
+
+            done();
+        });
+
+        it('each rule must have a regex match property', function(done) {
+            var config = [{
+                isCached: true,
+                expiresInSec: 50,
+                match: function() {}
+            }, {
+                isCached: true,
+                expiresInSec: 40,
+                match: function() {}
+            }];
+            var rules = Rules.compile(config);
+
+            expect(rules).to.be.an.instanceOf(Error);
+
+            done();
+        });
+
+        it('returns an error when parsing a bad expiresAt value', function(done) {
+            var config = [{
+                isCached: true,
+                expiresAt: 50,
+                match: function() {}
+            }, {
+                isCached: true,
+                expiresAt: 40,
+                match: function() {}
+            }];
+            var rules = Rules.compile(config);
+
+            expect(rules).to.be.an.instanceOf(Error);
+
+            done();
+        });
+    });
+
+    describe('#match', function() {
+
+        it('returns a rule that has a matching key', function(done) {
+            var config = [{
+                isCached: true,
+                expiresInSec: 50,
+                match: /test/
+            }, {
+                isCached: true,
+                expiresInSec: 40,
+                match: /test2/
+            }];
+            var rules = Rules.compile(config);
+            var rule = Rules.match('test', rules);
+
+            expect(rule.expiresInSec).to.equal(50);
+            done();
+        });
+
+        it('returns a null when no matching rule is found', function(done) {
+            var config = [{
+                isCached: true,
+                expiresInSec: 50,
+                match: /^test$/
+            }, {
+                isCached: true,
+                expiresInSec: 40,
+                match: /^test2$/
+            }];
+            var rules = Rules.compile(config);
+            var rule = Rules.match('test3', rules);
+
+            expect(rule).to.not.exist;
+            done();
+        });
+    });
+
+    describe('#isCached', function() {
+
+        it('returns true when a matching rule is cached', function(done) {
+            var config = [{
+                isCached: true,
+                expiresInSec: 50,
+                match: /test$/
+            }, {
+                isCached: true,
+                expiresInSec: 40,
+                match: /test2$/
+            }];
+            var rules = Rules.compile(config);
+            var isCached = Rules.isCached('test', rules);
+
+            expect(isCached).to.be.true;
+            done();
+        });
+
+        it('returns false when a matching rule is not cached', function(done) {
+            var config = [{
+                isCached: false,
+                expiresInSec: 50,
+                match: /^test$/
+            }, {
+                isCached: false,
+                expiresInSec: 40,
+                match: /^test2$/
+            }];
+            var rules = Rules.compile(config);
+            var isCached = Rules.isCached('test', rules);
+
+            expect(isCached).to.be.false;
+            done();
+        });
+    });
+
+    describe('#isExpired', function() {
+
+        it('returns true when a matching rule is expired', function(done) {
+            var config = [{
+                isCached: true,
+                expiresInSec: 50,
+                match: /test$/
+            }, {
+                isCached: true,
+                expiresInSec: 40,
+                match: /test2$/
+            }];
+            var rules = Rules.compile(config);
+            var created = new Date(Date.now());
+            created = created.setMinutes(created.getMinutes() - 5);
+
+            var isExpired = Rules.isExpired('test', rules, created);
+            expect(isExpired).to.be.true;
+            done();
+        });
+
+        it('returns false when a matching rule is not expired', function(done) {
+            var config = [{
+                isCached: true,
+                expiresInSec: 50,
+                match: /test$/
+            }, {
+                isCached: true,
+                expiresInSec: 40,
+                match: /test2$/
+            }];
+            var rules = Rules.compile(config);
+            var created = new Date(Date.now());
+            created = created.setSeconds(created.getSeconds() - 5);
+
+            var isExpired = Rules.isExpired('test', rules, created);
+            expect(isExpired).to.be.false;
+            done();
+        });
+    });
+});
