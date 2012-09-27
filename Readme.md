@@ -334,11 +334,11 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 ### Batch
 
 The batch endpoint makes it easy to combine requests into a single one.  It also supports pipelining so you are able to take the result of one of the endpoints in the batch request and use it in a subsequent endpoint.  The batch endpoint only responds to POST requests.
-By default the batch endpoint is turned _off_.  To enable the batch endpoint set hte `batch` option to _true or to an object with the following custom configuration:
+By default the batch endpoint is turned _off_.  To enable the batch endpoint set the `batch` option to _true_ or to an object with the following custom configuration:
 - `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
 As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/:id/profile/'.  You can make a POST request to the batch endpoint with the following body:
-`{ "GET": [ "/currentuser", "/users/$0.id/profile ]}` and it will return an array with the current user and their profile.
+`{ "GET": [ "/currentuser", "/users/$0.id/profile ] }` and it will return an array with the current user and their profile.
 
 ## Server Events
 
