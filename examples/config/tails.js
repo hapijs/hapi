@@ -28,18 +28,18 @@ internals.main = function () {
 
 internals.get = function (request) {
 
-    var tailId1 = request.addTail('tail1');
+    var tail1 = request.addTail('tail1');
     setTimeout(function () {
 
         console.log(1);
-        request.removeTail(tailId1);
+        request.removeTail(tail1);              // Using removeTail() interface
     }, 5000);
 
-    var tailId2 = request.addTail('tail2');
+    var tail2 = request.addTail('tail2');
     setTimeout(function () {
 
         console.log(2);
-        request.removeTail(tailId2);
+        tail2();                                // Using tail() function interface
     }, 2000);
 
     request.reply('Success!\n');
