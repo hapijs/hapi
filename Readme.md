@@ -28,6 +28,7 @@ Current version: **0.7.0**
 		- [Debug](#debug)
 		- [Documentation] (#documentation)
 		- [CORS](#cors)
+		- [Batch](#batch)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -329,6 +330,15 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 
 **hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
+
+### Batch
+
+The batch endpoint makes it easy to combine requests into a single one.  It also supports pipelining so you are able to take the result of one of the endpoints in the batch request and use it in a subsequent endpoint.  The batch endpoint only responds to POST requests.
+By default the batch endpoint is turned _off_.  To enable the batch endpoint set the `batch` option to _true_ or to an object with the following custom configuration:
+- `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
+
+As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/:id/profile/'.  You can make a POST request to the batch endpoint with the following body:
+`{ "GET": [ "/currentuser", "/users/$0.id/profile ] }` and it will return an array with the current user and their profile.
 
 ## Server Events
 
