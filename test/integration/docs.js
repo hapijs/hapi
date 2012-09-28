@@ -1,7 +1,7 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Hapi = require('../../lib/hapi');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 var S = Hapi.Types.String;
 
 describe('Documentation', function() {
