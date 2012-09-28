@@ -64,7 +64,7 @@ describe('Server', function() {
 
     it('doesn\'t throw an error when enabling the debug console', function(done) {
         var fn = function() {
-            var server = new Server('0.0.0.0', 8087, { debug: true });
+            var server = new Server('0.0.0.0', 8087, { debug: { websocketPort: 3002 } });
         };
         expect(fn).to.not.throw(Error);
         done();
