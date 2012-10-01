@@ -28,6 +28,7 @@ Current version: **0.7.0**
 		- [Debug](#debug)
 		- [Documentation] (#documentation)
 		- [CORS](#cors)
+		- [Batch](#batch)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -295,7 +296,7 @@ route configuration.
 To assist in debugging server events related to specific incoming requests, **hapi** includes an optional debug console which is turned _off_ by default.
 The debug console is a simple web page in which developers can subscribe to a debug id, and then include that debug id as an extra query parameter in each
 request. The server will use WebSocket to stream the subscribed request logs to the web page in real-time. In application using multiple server instances,
-only one can enable the debug interface using the default port. To enable the debug console, set the `debug` option to _true_ or to an object with custom
+only one can enable the debug interface using the default port. To enable the debug console set the `debug` option to _true_ or to an object with custom
 configuration:
 - `websocketPort` - the port used by the WebSocket connection. Defaults to _3000_.
 - `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
@@ -305,13 +306,16 @@ configuration:
 
 **This is an experimental feature and is likely to change!**
 
-In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided.  By default the documentation generator is turned _off_.
-To enable the docs endpoint you can pass the following options to the **hapi** `server` under the `docs` setting name:
-
+In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided. By default the documentation
+generator is turned _off_. To enable the docs endpoint set the `docs` option to _true_ or to an object with custom configuration:
 - `docsEndpoint` - the path where the documentation will be served from. Default is '/docs'.
-- `templatePath` - the file path where the template file is located.  Default is 'lib/templates/route.html'.
-- `template` - the raw source of a template to use.  If `template` is provided then it will be used over the file located at `templatePath`.
+- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html'.
+- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
+- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html'.
+- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
 - `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
+
+By default there is an index page that lists all of the available routes configured in **hapi** that is located at the `docsEndpoint`.  From this page users are able to navigate to individual routes to read the related documentation.
 
 ### CORS
 
@@ -326,6 +330,15 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 
 **hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
+
+### Batch
+
+The batch endpoint makes it easy to combine requests into a single one.  It also supports pipelining so you are able to take the result of one of the endpoints in the batch request and use it in a subsequent endpoint.  The batch endpoint only responds to POST requests.
+By default the batch endpoint is turned _off_.  To enable the batch endpoint set the `batch` option to _true_ or to an object with the following custom configuration:
+- `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
+
+As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/:id/profile/'.  You can make a POST request to the batch endpoint with the following body:
+`{ "GET": [ "/currentuser", "/users/$0.id/profile ] }` and it will return an array with the current user and their profile.
 
 ## Server Events
 
@@ -441,10 +454,39 @@ In addition to the [General Events Logging](#general-events-logging) mechanism p
 a logging interface for individual requests. By associating log events with the request responsible for them, it is easier to debug and understand
 the server's behavior. It also enables batching all the request log events and deliver them to the monitor as a single package.
 
-The request object is also decorated with the _'log(tags, [data, timestamp])'_ which adds a record to the request log where:
-- _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
-- _'data'_ - an optional message string or object with the application data being logged.
-- _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+The request object is also decorated with the following methods.
+- _'log(tags, [data, timestamp])'_ which adds a record to the request log where:
+  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+  - _'data'_ - an optional message string or object with the application data being logged.
+  - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+- _'getLog(tags)'_ - Returns an array of events which match the tag(s) specifed.
+  
+For example:
+```javascript
+var Hapi = require('hapi');
+
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Route handler
+var testLogs = function (request) {
+
+    request.log('error', new Error('Something failed'));
+    
+    if (request.getLog('error').length === 0) {
+        request.reply('Success!');
+    }
+    else {
+        request.reply('Failure!');
+    }
+};
+
+// Set routes
+http.addRoute({ method: 'GET', path: '/', handler: testLogs });
+
+// Start Hapi servers
+http.start();
+```
 
 The 'request.log' method is always available.
 
@@ -569,8 +611,10 @@ request has been received and will be processed shortly. However, it is still de
 when every single request related action has completed (in other words, when the request stopped wagging).
 
 **hapi** provides a simple facility for keeping track of pending tails by providing the following request methods:
-- _'addTail([name])'_ - registers a named tail and returns a tail id. The tail id must be retained and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
-- _'removeTail(tailId)'_ - removes a tail to notify the server that the associated action has been completed.
+- _'addTail([name])'_ - registers a named tail and returns a tail function. The tail function must be retained and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
+- _'removeTail(tail)'_ - removes a tail to notify the server that the associated action has been completed.
+
+Alternatively, the returned tail function can be called directly without using the _removeTail()_ method.
 
 For example:
 ```javascript
@@ -582,16 +626,16 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 // Route handler
 var get = function (request) {
 
-    var tailId1 = request.addTail('tail1');
+    var tail1 = request.addTail('tail1');
     setTimeout(function () {
 
-        request.removeTail(tailId1);
+        request.removeTail(tail1);              // Using removeTail() interface
     }, 5000);
 
-    var tailId2 = request.addTail('tail2');
+    var tail2 = request.addTail('tail2');
     setTimeout(function () {
 
-        request.removeTail(tailId2);
+        tail2();                                // Using tail function interface
     }, 2000);
 
     request.reply('Success!');
