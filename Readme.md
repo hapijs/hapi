@@ -474,7 +474,7 @@ var testLogs = function (request) {
 
     request.log('error', new Error('Something failed'));
     
-    if (request.getLogs('error').length === 0) {
+    if (request.getLog('error').length === 0) {
         request.reply('Success!');
     }
     else {
