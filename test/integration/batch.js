@@ -1,6 +1,8 @@
 // Load modules
 
 var expect = require('chai').expect;
+var Sinon = require('sinon');
+var Async = require('async');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 
 describe('Batch', function() {
@@ -77,6 +79,101 @@ describe('Batch', function() {
             expect(res.length).to.equal(2);
             expect(res[1].id).to.equal("55cf687663");
             expect(res[1].name).to.equal("Active Item");
+            done();
+        });
+    });
+
+    it('handles a large number of batch requests in parallel', function(done) {
+        var requestBody = '{ "requests": [{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/profile"},' +
+            '{"method": "get", "path": "/item"}' +
+            '] }';
+
+        var asyncSpy = Sinon.spy(Async, 'parallel');
+        makeRequest(requestBody, function(res) {
+            expect(res[0].id).to.equal("fa0dbda9b1b");
+            expect(res[0].name).to.equal("John Doe");
+            expect(res.length).to.equal(80);
+            expect(res[1].id).to.equal("55cf687663");
+            expect(res[1].name).to.equal("Active Item");
+            expect(asyncSpy.args[0][0].length).to.equal(80);
             done();
         });
     });
