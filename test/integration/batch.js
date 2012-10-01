@@ -188,4 +188,14 @@ describe('Batch', function() {
             done();
         });
     });
+
+    it('includes errors when they occur in the request', function(done) {
+        makeRequest('{ "requests": [ {"method": "get", "path": "/item"}, {"method": "get", "path": "/nothere"}] }', function(res) {
+            expect(res.length).to.equal(2);
+            expect(res[0].id).to.equal("55cf687663");
+            expect(res[0].name).to.equal("Active Item");
+            expect(res[1].error).to.exist;
+            done();
+        });
+    });
 });
