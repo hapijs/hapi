@@ -73,9 +73,9 @@ describe('Request', function() {
         });
     });
 
-    describe('#_setUrl', function() {
-        it('throws an error when a null url is passed in', function(done) {
-            var fn = function() {
+    describe('#_setUrl', function () {
+        it('throws an error when a null url is passed in', function (done) {
+            var fn = function () {
                 var request = new Request(ServerMock, _req, _res);
                 request._setUrl(null);
             };
@@ -84,7 +84,7 @@ describe('Request', function() {
             done();
         });
 
-        it('sets url, path, and query', function(done) {
+        it('sets url, path, and query', function (done) {
             var request = new Request(ServerMock, _req, _res);
             var url = 'http://localhost/page?param1=something';
             request._setUrl(url);
@@ -93,6 +93,25 @@ describe('Request', function() {
             expect(request.url.href).to.equal(url);
             expect(request.path).to.equal('/page');
             expect(request.query.param1).to.equal('something');
+            done();
+        });
+    });
+
+    describe('#log', function () {
+        it('adds a log event to the request', function (done) {
+            var request = new Request(ServerMock, _req, _res);
+            request.log('1', 'log event 1');
+            request.log(['2'], 'log event 2');
+            request.log(['3', '4']);
+            request.log(['1', '4']);
+            request.log(['2', '3']);
+            request.log(['4']);
+            request.log('4');
+
+            expect(request.getLog('1').length).to.equal(2);
+            expect(request.getLog('4').length).to.equal(4);
+            expect(request.getLog('0').length).to.equal(0);
+            expect(request.getLog().length).to.be.above(7);
             done();
         });
     });
