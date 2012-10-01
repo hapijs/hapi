@@ -8,7 +8,7 @@ describe('Utils', function() {
     describe('#version', function() {
 
         it('returns the correct package version number', function(done) {
-            expect(Utils.version()).to.equal('0.7.0');
+            expect(Utils.version()).to.equal('0.7.1');
             done();
         });
     });
