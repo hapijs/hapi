@@ -460,8 +460,7 @@ The request object is also decorated with the following methods.
   - _'data'_ - an optional message string or object with the application data being logged.
   - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
 - _'getLog(tags)'_ - Returns an array of events which match the tag(s) specifed.
-  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
-
+  
 For example:
 ```javascript
 var Hapi = require('hapi');
