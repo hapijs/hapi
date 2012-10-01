@@ -338,7 +338,7 @@ By default the batch endpoint is turned _off_.  To enable the batch endpoint set
 - `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
 As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/:id/profile/'.  You can make a POST request to the batch endpoint with the following body:
-`{ "GET": [ "/currentuser", "/users/$0.id/profile ] }` and it will return an array with the current user and their profile.
+`{ "requests": [ {"method": "get", "path": "/currentuser"}, {"method": "get", "path": "/users/$0.id/profile} ] }` and it will return an array with the current user and their profile.
 
 ## Server Events
 
