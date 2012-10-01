@@ -454,10 +454,39 @@ In addition to the [General Events Logging](#general-events-logging) mechanism p
 a logging interface for individual requests. By associating log events with the request responsible for them, it is easier to debug and understand
 the server's behavior. It also enables batching all the request log events and deliver them to the monitor as a single package.
 
-The request object is also decorated with the _'log(tags, [data, timestamp])'_ which adds a record to the request log where:
-- _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
-- _'data'_ - an optional message string or object with the application data being logged.
-- _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+The request object is also decorated with the following methods.
+- _'log(tags, [data, timestamp])'_ which adds a record to the request log where:
+  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+  - _'data'_ - an optional message string or object with the application data being logged.
+  - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+- _'getLog(tags)'_ - Returns an array of events which match the tag(s) specifed.
+  
+For example:
+```javascript
+var Hapi = require('hapi');
+
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Route handler
+var testLogs = function (request) {
+
+    request.log('error', new Error('Something failed'));
+    
+    if (request.getLog('error').length === 0) {
+        request.reply('Success!');
+    }
+    else {
+        request.reply('Failure!');
+    }
+};
+
+// Set routes
+http.addRoute({ method: 'GET', path: '/', handler: testLogs });
+
+// Start Hapi servers
+http.start();
+```
 
 The 'request.log' method is always available.
 
