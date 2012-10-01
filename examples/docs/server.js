@@ -28,7 +28,7 @@ var internals = {};
 
 internals.main = function () {
 
-    var config = { docs: true };
+    var config = { name: 'Example', docs: true };
 
     // Create Hapi servers
     var http = new Hapi.Server('0.0.0.0', 8080, config);
@@ -43,17 +43,14 @@ internals.main = function () {
         { method: 'GET', path: '/test', config: { handler: internals.get, query: { num: N().min(0) } } },
         { method: 'GET', path: '/test2', config: { handler: internals.get, query: { p1: S().required().rename('itemId') } } },
         { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } },
-        { method: 'GET', path: '/users/:id', config: { handler: internals.get, query: { name: S().description('the user name')} } }
+        { method: 'GET', path: '/users/:id', config: { description: 'Get a user', handler: internals.get, query: { name: S().description('the user name').required() } } }
     ]);
 
     var schema = {
-        title: S(),
+        title: S().invalid('director'),
         status: S().valid('open', 'pending', 'close'),
         participants: A().includes(S(), N())
-    }
-    // console.log("schema", sys.inspect(s));
-    // console.log(s.input.__validators[1].toString())
-    // console.log(sys.inspect(s.input.__validators.map(function(d){ return d.toString();})));
+    };
 
     http.addRoute({
         method: 'POST',
