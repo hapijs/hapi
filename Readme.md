@@ -555,7 +555,7 @@ In which:
 - 'email' is an optional string with valid email address.
 - 'type' is an optional string which must be set to one of three available values.
 
-## Errors
+## Response Errors
 
 The 'Hapi.Error' module provides helper methods to generate error responses:
 - _'badRequest([message])'_ - HTTP 400 (Bad request).
