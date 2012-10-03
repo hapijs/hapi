@@ -23,9 +23,12 @@ internals.main = function () {
 
 internals.echo = function (request) {
 
-    request.contentType = request.raw.req.headers['Content-Type'];
-    request.contentLength = request.raw.req.headers['Content-Length'];
-    request.reply(request.raw.req);
+    var options = {
+        contentLength: request.raw.req.headers['Content-Length'],
+        contentType: request.raw.req.headers['Content-Type']
+    };
+
+    request.reply.pipe(request.raw.req, options);
 };
 
 
