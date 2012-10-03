@@ -187,8 +187,7 @@ function onRequest(request, next) {
 **hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
 `ext.onUnknownRoute` server option. The extension function signature is _function (request)_ where:
 - _'request'_ is the **hapi** request object.
-When the extension handler is called, the _'request'_ object is decorated with two methods:
-- _'reply([result])'_ - returns control over to the server with a custom response value which can be a string or object.
+When the extension handler is called, the _'request'_ object is decorated as described in [Route Handler](#route-handler) with the following additional method:
 - _'close()'_ - returns control over to the server after the application has taken care of responding to the request via the _request.raw.res_ object directly.
 The method **must** call _'reply(result)'_ or _'close()'_ but not both.
 
@@ -445,15 +444,17 @@ When the provided route handler method is called, it receives a _request_ object
 - _'response'_ - contains the route handler's response after the handler is called. Direct interaction with the raw objects is not recommended.
 
 The request object is also decorated with a few helper functions:
-- _'reply([result])'_ - once the response is ready, the handler must call the _'reply(result)'_ method with the desired response.
-- _'created(uri)'_ - sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI). Must be called before the required _'reply(result)'_.
+- _'reply([result, options])'_ - reply to the request with the desired response where:
+  - _'result'_ - an object (sent as JSON), a string (sent as HTML), or an error generated using the 'Hapi.error' module described in [Errors](#errors). If no result is provided, an empty response body is sent.
+  - _'options'_ - optional settings:
+    - `created` - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
+    - `contentLength` - a pre-calculated Content-Length header value. Should only be used when the result size cannot be determined automatically (e.g. stream).
+    - `contentType` - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
+- _'reply.pipe(stream, [options])'_ - pipes the content of the stream into the response. _options_ is the same as _'reply()'_.
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 
-When calling _'reply(result)'_, the _result_ value can be set to a string which will be treated as an HTML payload, or an object which will be
-returned as a JSON payload. The default HTTP status code returned is 200 (OK). If the return is an object and is an instance of Error, an HTTP
-error response (4xx, 5xx) will be returned. Errors must be generated using the 'Hapi.Error' module described in [Errors](#errors).
-
-The helper methods are only available within the route handler and are disabled as soon as _'reply(result)'_ is called. 
+The handler must call _'reply()'_ or _'reply.pipe()'_ (only one) when done to return control over to the router. The helper methods are only available
+within the route handler and are disabled as soon as _'reply(result)'_ is called.
 
 #### Request Logging
 
@@ -555,7 +556,7 @@ In which:
 - 'email' is an optional string with valid email address.
 - 'type' is an optional string which must be set to one of three available values.
 
-## Errors
+## Response Errors
 
 The 'Hapi.Error' module provides helper methods to generate error responses:
 - _'badRequest([message])'_ - HTTP 400 (Bad request).
