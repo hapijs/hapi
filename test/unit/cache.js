@@ -47,12 +47,12 @@ describe('Cache Rules', function() {
 
         it('compiles a single rule', function(done) {
             var config = {
-                isCached: false,
+                mode: 'none',
                 expiresInSec: 50
             } ;
             var rule = Rules.compile(config);
 
-            expect(rule.isCached).to.equal(config.isCached);
+            expect(rule.mode).to.equal(config.mode);
             expect(rule.expiresInSec).to.not.exist;
 
             done();
@@ -60,12 +60,12 @@ describe('Cache Rules', function() {
 
         it('assigns the expiresInSec when the rule is cached', function(done) {
             var config = {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 50
             } ;
             var rule = Rules.compile(config);
 
-            expect(rule.isCached).to.equal(config.isCached);
+            expect(rule.mode).to.equal(config.mode);
             expect(rule.expiresInSec).to.equal(config.expiresInSec);
 
             done();
@@ -73,7 +73,7 @@ describe('Cache Rules', function() {
 
         it('doesn\'t allow a single rule to contain a match', function(done) {
             var config = {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 50,
                 match: /test/
             } ;
@@ -86,10 +86,10 @@ describe('Cache Rules', function() {
 
         it('each rule in an array of rules must contain a match property', function(done) {
             var config = [{
-                isCached: false,
+                mode: 'server',
                 expiresInSec: 50
             }, {
-                isCached: true,
+                mode: 'server+headers',
                 expiresInSec: 40
             }];
             var rules = Rules.compile(config);
@@ -101,18 +101,18 @@ describe('Cache Rules', function() {
 
         it('compiles an array of rules', function(done) {
             var config = [{
-                isCached: false,
+                mode: 'none',
                 expiresInSec: 50,
                 match: /test/
             }, {
-                isCached: true,
+                mode: 'server+headers',
                 expiresInSec: 40,
                 match: /test2/
             }];
             var rules = Rules.compile(config);
 
-            expect(rules[0].isCached).to.equal(false);
-            expect(rules[1].isCached).to.equal(true);
+            expect(rules[0].mode).to.equal('none');
+            expect(rules[1].mode).to.equal('server+headers');
             expect(rules[0].expiresInSec).to.not.exist;
             expect(rules[1].expiresInSec).to.equal(40);
 
@@ -121,11 +121,11 @@ describe('Cache Rules', function() {
 
         it('each rule must have a regex match property', function(done) {
             var config = [{
-                isCached: true,
+                mode: 'headers',
                 expiresInSec: 50,
                 match: function() {}
             }, {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 40,
                 match: function() {}
             }];
@@ -138,11 +138,11 @@ describe('Cache Rules', function() {
 
         it('returns an error when parsing a bad expiresAt value', function(done) {
             var config = [{
-                isCached: true,
+                mode: 'server',
                 expiresAt: 50,
                 match: function() {}
             }, {
-                isCached: true,
+                mode: 'server',
                 expiresAt: 40,
                 match: function() {}
             }];
@@ -158,11 +158,11 @@ describe('Cache Rules', function() {
 
         it('returns a rule that has a matching key', function(done) {
             var config = [{
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 50,
                 match: /test/
             }, {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 40,
                 match: /test2/
             }];
@@ -175,11 +175,11 @@ describe('Cache Rules', function() {
 
         it('returns a null when no matching rule is found', function(done) {
             var config = [{
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 50,
                 match: /^test$/
             }, {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 40,
                 match: /^test2$/
             }];
@@ -195,16 +195,16 @@ describe('Cache Rules', function() {
 
         it('returns true when a matching rule is cached', function(done) {
             var config = [{
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 50,
                 match: /test$/
             }, {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 40,
                 match: /test2$/
             }];
             var rules = Rules.compile(config);
-            var isCached = Rules.isCached('test', rules);
+            var isCached = Rules.isCached('test', rules, 'server');
 
             expect(isCached).to.be.true;
             done();
@@ -212,11 +212,11 @@ describe('Cache Rules', function() {
 
         it('returns false when a matching rule is not cached', function(done) {
             var config = [{
-                isCached: false,
+                mode: 'server',
                 expiresInSec: 50,
                 match: /^test$/
             }, {
-                isCached: false,
+                mode: 'server',
                 expiresInSec: 40,
                 match: /^test2$/
             }];
@@ -232,11 +232,11 @@ describe('Cache Rules', function() {
 
         it('returns true when a matching rule is expired', function(done) {
             var config = [{
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 50,
                 match: /test$/
             }, {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 40,
                 match: /test2$/
             }];
@@ -251,11 +251,11 @@ describe('Cache Rules', function() {
 
         it('returns false when a matching rule is not expired', function(done) {
             var config = [{
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 50,
                 match: /test$/
             }, {
-                isCached: true,
+                mode: 'server',
                 expiresInSec: 40,
                 match: /test2$/
             }];

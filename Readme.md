@@ -521,11 +521,13 @@ The route `config.schema` defines the payload validation rules performed before 
 'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route caching rules can consist of
 a single rule or an array of rules. Rules consist of:
 - `match` - a regular expression matched against the request path and query (e.g. '/p/a/t/h?query=string') to determine if the rule applies to the requested resource. `match` is required for an array of rules and forbidden for single rule (which will match all resources for the configured route).
-- `isCached` - determines if the matching resource is cached. Defaults to true. Can be used to exclude a subset of resources from caching.
+- `mode` - determines if the matching resource is cached on the server, client, or both. Defaults to server+headers. Can be used to exclude a subset of resources from caching.
 - `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
 - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
 
 If more than one rule is configured, the rules are matched against the request in order until the first match. If none match the cache is not used.
+
+If a route needs to only be cached on the client set the `mode` to `_headers_`.  If a route should be cached on both the client and server set the `mode` property to `_server+headers_`.  To enable caching a route only on the server set the `mode` to `_server_`.  To disable cache altogether for a route set `mode` to `_none_`.
 
 ## Data Validation
 
