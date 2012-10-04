@@ -529,7 +529,7 @@ The route `config.schema` defines the payload validation rules performed before 
 * `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
 
 For example, to configure a route to be cached on the client and to expire in 2 minutes the configuration would look like the following:
-`{ mode: 'client', rule: { expiresInSec: 120 } }`
+`{ mode: 'client', expiresInSec: 120 }`
 
 ## Data Validation
 

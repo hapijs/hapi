@@ -79,9 +79,9 @@ describe('Cache Rules', function() {
         });
     });
 
-    describe('#isExpired', function() {
+    describe('#getTtl', function() {
 
-        it('returns true when a matching rule is expired', function(done) {
+        it('returns a negative number when a rule is expired', function(done) {
             var config = {
                 expiresInSec: 50
             };
@@ -89,8 +89,31 @@ describe('Cache Rules', function() {
             var created = new Date(Date.now());
             created = created.setMinutes(created.getMinutes() - 5);
 
-            var isExpired = Rules.isExpired(rule, created);
-            expect(isExpired).to.be.true;
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.be.lessThan(0);
+            done();
+        });
+
+        it('returns a positive number when a rule is not expired', function(done) {
+            var config = {
+                expiresInSec: 50
+            };
+            var rule = Rules.compile(config);
+            var created = new Date(Date.now());
+
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.be.greaterThan(0);
+            done();
+        });
+
+        it('returns the correct expires time when no created time is provided', function(done) {
+            var config = {
+                expiresInSec: 50
+            };
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule);
+            expect(ttl).to.equal(50);
             done();
         });
     });
