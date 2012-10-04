@@ -25,7 +25,7 @@ internals.main = function () {
     // Set routes
 
     http.setRoutesDefaults({ authentication: 'none' });
-    http.addRoutes([{ method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { rule: { expiresInSec: 120 } } } },
+    http.addRoutes([{ method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresInSec: 120 } } },
         { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
         { method: 'GET', path: '/item/:id', config: { handler: internals.item } }]);
 

@@ -520,16 +520,13 @@ The route `config.schema` defines the payload validation rules performed before 
 
 'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route cache config has the following options:
 
-* `mode` - determines if the matching resource is cached on the server, client, or both. Defaults to _'server+client'_. Can be used to exclude a subset of resources from caching.
+* `mode` - determines if the route is cached on the server, client, or both. Defaults to _'server+client'_.
     * `server+client` - Caches the route response on the server and client (default)
     * `client` - Sends the Cache-Control HTTP header on the response to support client caching
     * `server` - Caches the route on the server only
     * `none` - Disable cache for the route on both the client and server
-* `rule`
-    * `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-    * `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
-
-If a route needs to only be cached on the client set the `mode` to _'client'_.  If a route should be cached on both the client and server set the `mode` property to _'server+client'_.  To enable caching a route only on the server set the `mode` to _'server'_.  To disable cache altogether for a route set `mode` to _'none'_.
+* `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
+* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
 
 For example, to configure a route to be cached on the client and to expire in 2 minutes the configuration would look like the following:
 `{ mode: 'client', rule: { expiresInSec: 120 } }`
