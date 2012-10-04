@@ -34,9 +34,10 @@ describe('Cache', function() {
     function setupServer(done) {
         _server = new Hapi.Server('0.0.0.0', 18085);
         _server.addRoutes([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresInSec: 120 } } },
-            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'server', expiresInSec: 120 } } },
-            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'none', expiresInSec: 120 } } }
+            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', rule: { expiresInSec: 120 } } } },
+            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', rule: { expiresInSec: 120 } } } },
+            { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none', rule: { expiresInSec: 120 } } } },
+            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', rule: { expiresInSec: 120 } } } }
         ]);
         _server.listener.on('listening', function() {
             done();
@@ -76,7 +77,7 @@ describe('Cache', function() {
     before(setupServer);
     after(teardownServer);
 
-    it('returns max-age value when route is cached', function(done) {
+    it('returns max-age value when route uses default cache rules', function(done) {
         makeRequest('/profile', function(rawRes) {
             var headers = parseHeaders(rawRes.raw.res);
             expect(headers['Cache-Control']).to.equal('max-age=120');
@@ -84,10 +85,10 @@ describe('Cache', function() {
         });
     });
 
-    it('doesn\'t return max-age value when route cached only on the server', function(done) {
-        makeRequest('/item', function(rawRes) {
+    it('returns max-age value when route uses client cache mode', function(done) {
+        makeRequest('/profile', function(rawRes) {
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.not.equal('max-age=120');
+            expect(headers['Cache-Control']).to.equal('max-age=120');
             done();
         });
     });
