@@ -518,14 +518,18 @@ The route `config.schema` defines the payload validation rules performed before 
 
 ### Caching
 
-'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route caching rules can consist of
-a single rule or an array of rules. Rules consist of:
-- `match` - a regular expression matched against the request path and query (e.g. '/p/a/t/h?query=string') to determine if the rule applies to the requested resource. `match` is required for an array of rules and forbidden for single rule (which will match all resources for the configured route).
-- `isCached` - determines if the matching resource is cached. Defaults to true. Can be used to exclude a subset of resources from caching.
-- `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-- `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
+'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route cache config has the following options:
 
-If more than one rule is configured, the rules are matched against the request in order until the first match. If none match the cache is not used.
+* `mode` - determines if the route is cached on the server, client, or both. Defaults to _'server+client'_.
+    * `server+client` - Caches the route response on the server and client (default)
+    * `client` - Sends the Cache-Control HTTP header on the response to support client caching
+    * `server` - Caches the route on the server only
+    * `none` - Disable cache for the route on both the client and server
+* `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
+* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
+
+For example, to configure a route to be cached on the client and to expire in 2 minutes the configuration would look like the following:
+`{ mode: 'client', expiresInSec: 120 }`
 
 ## Data Validation
 
