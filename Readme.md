@@ -527,7 +527,7 @@ a single rule or an array of rules. Rules consist of:
 
 If more than one rule is configured, the rules are matched against the request in order until the first match. If none match the cache is not used.
 
-If a route needs to only be cached on the client set the `mode` to `_headers_`.  If a route should be cached on both the client and server set the `mode` property to `_server+headers_`.  To enable caching a route only on the server set the `mode` to `_server_`.  To disable cache altogether for a route set `mode` to `_none_`.
+If a route needs to only be cached on the client set the `mode` to `headers`.  If a route should be cached on both the client and server set the `mode` property to `server+headers`.  To enable caching a route only on the server set the `mode` to `server`.  To disable cache altogether for a route set `mode` to `none`.
 
 ## Data Validation
 
