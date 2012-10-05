@@ -159,7 +159,22 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('returns a 0 when using a future expiresAt', function(done) {
+        it('returns the correct number when using a future expiresAt', function(done) {
+            var hour = new Date(Date.now()).getHours() - 2;
+
+            var config = {
+                expiresAt: hour + ':00'
+            };
+            var created = new Date(Date.now());
+            created.setHours(hour + 1);
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.be.closeTo(22 * 60 * 60, 60 * 60);
+            done();
+        });
+
+        it('returns correct number when using an expiresAt time tomorrow', function(done) {
             var hour = new Date(Date.now()).getHours() - 1;
 
             var config = {
@@ -169,7 +184,7 @@ describe('Cache Rules', function() {
             var rule = Rules.compile(config);
 
             var ttl = Rules.getTtl(rule);
-            expect(ttl).to.equal(0);
+            expect(ttl).to.be.closeTo(23 * 60 * 60, 60 * 60);
             done();
         });
     });
