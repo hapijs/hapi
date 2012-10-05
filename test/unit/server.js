@@ -14,19 +14,15 @@ describe('Server', function() {
         done();
     });
 
-    it('throws an error when no host is provided', function(done) {
-        var fn = function() {
-            var server = new Server();
-        };
-        expect(fn).throws(Error, 'Host must be provided');
+    it('defaults to port 80 when no port is provided', function (done) {
+        var server = new Server();
+        expect(server.settings.port).to.be.equal(80);
         done();
     });
 
-    it('throws an error when no port is provided', function(done) {
-        var fn = function() {
-            var server = new Server('0.0.0.0');
-        };
-        expect(fn).throws(Error, 'Port must be provided');
+    it('defaults to localhost when no host is provided', function (done) {
+        var server = new Server();
+        expect(server.settings.host).to.be.equal('localhost');
         done();
     });
 
@@ -38,9 +34,33 @@ describe('Server', function() {
         done();
     });
 
-    it('throws an error when an incomplete authentication config is provided', function(done) {
-        var fn = function() {
-            var server = new Server('0.0.0.0', 8084, { authentication: {}});
+    it('throws an error when double port config is provided', function (done) {
+        var fn = function () {
+            var server = new Server(8080, 8084);
+        };
+        expect(fn).throws(Error);
+        done();
+    });
+
+    it('throws an error when double host config is provided', function (done) {
+        var fn = function () {
+            var server = new Server('0.0.0.0', 'localhost');
+        };
+        expect(fn).throws(Error);
+        done();
+    });
+
+    it('throws an error when unknown arg type is provided', function (done) {
+        var fn = function () {
+            var server = new Server(true);
+        };
+        expect(fn).throws(Error);
+        done();
+    });
+
+    it('throws an error when an incomplete authentication config is provided', function (done) {
+        var fn = function () {
+            var server = new Server('0.0.0.0', 8084, { authentication: {} });
         };
         expect(fn).throws(Error);
         done();

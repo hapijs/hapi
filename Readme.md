@@ -15,6 +15,8 @@ Current version: **0.8.0**
 - [**Usage**](#usage)
 	- [**Basic Usage**](#basic-usage)
 <p></p>
+    - [**Server Construction**](#server-construction)
+<p></p>
 	- [**Server Configuration**](#server-configuration)
 		- [TLS](#tls)
 		- [Router](#router)
@@ -62,7 +64,7 @@ The following is a simple "hello world" service with a single API endpoint:
 ```javascript
 var Hapi = require('hapi');
 
-// Create a server with a host, port, and options
+// Create a server with a host and port
 var server = new Hapi.Server('localhost', 8000);
 
 // Define the route
@@ -85,6 +87,20 @@ server.start();
 ```
 
 Now navigate to http://localhost:8080/hello and you should receive 'hello world'.
+
+## Server Construction
+
+The **hapi** Server object is the core of the framework and is constructed by instantiating a new Server object with the following optional parameters:
+- _'host'_ - optional host name. Defaults to 'localhost'.
+- _'port'_ - optional port. Defaults to '80' (or '443' for TLS).
+- _'options'_ - optional configuration as described in [Server Configuration](#server-configuration).
+
+```javascrip
+var Hapi = require('hapi');
+
+// Create a server on localhost port 80
+var server = new Hapi.Server();
+```
 
 ## Server Configuration
 
@@ -110,7 +126,6 @@ The `tls` object is passed unchanged to the node.js HTTPS server and described i
 ```javascript
 var Hapi = require('hapi');
 
-// Server options
 var options = {
     tls: {
         key: 'your_key',
@@ -118,8 +133,7 @@ var options = {
     }
 };
 
-// Create a server with a host, port, and options
-var server = new Hapi.Server('localhost', 8000, options);
+var server = new Hapi.Server(options);
 ```
 
 ### Router
