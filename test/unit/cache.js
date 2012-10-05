@@ -116,5 +116,92 @@ describe('Cache Rules', function() {
             expect(ttl).to.equal(50);
             done();
         });
+
+        it('returns 0 when created several days ago and expiresAt is used', function(done) {
+            var config = {
+                expiresAt: '13:00'
+            };
+            var created = new Date(Date.now());
+            created.setHours(15);
+            created = new Date(created.setDate(created.getDay() - 4)).getTime();
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.equal(0);
+            done();
+        });
+
+        it('returns the 0 when created several days ago and expiresAt is used with an hour before the created hour', function(done) {
+            var config = {
+                expiresAt: '12:00'
+            };
+            var created = new Date(Date.now());
+            created.setHours(10);
+            created = new Date(created.setDate(created.getDay() - 4)).getTime();
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.equal(0);
+            done();
+        });
+
+        it('returns a positive number when using a future expiresAt', function(done) {
+            var hour = new Date(Date.now()).getHours() + 1;
+
+            var config = {
+                expiresAt: hour + ':00'
+            };
+
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule);
+            expect(ttl).to.be.greaterThan(0);
+            done();
+        });
+
+        it('returns the correct number when using a future expiresAt', function(done) {
+            var hour = new Date(Date.now()).getHours() - 2;
+
+            var config = {
+                expiresAt: hour + ':00'
+            };
+            var created = new Date(Date.now());
+            created.setHours(hour + 1);
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.be.closeTo(22 * 60 * 60, 60 * 60);
+            done();
+        });
+
+        it('returns correct number when using an expiresAt time tomorrow', function(done) {
+            var hour = new Date(Date.now()).getHours() - 1;
+
+            var config = {
+                expiresAt: hour + ':00'
+            };
+
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule);
+            expect(ttl).to.be.closeTo(23 * 60 * 60, 60 * 60);
+            done();
+        });
+
+        it('returns correct number when using a created time from yesterday and expires in 2 hours', function(done) {
+            var hour = new Date(Date.now()).getHours() + 2;
+
+            var config = {
+                expiresAt: hour + ':00'
+            };
+            var created = new Date(Date.now());
+            created.setHours(new Date(Date.now()).getHours() - 22);
+
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.be.closeTo(60 * 60, 60 * 60);
+            done();
+        });
     });
 });
