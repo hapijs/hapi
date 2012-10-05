@@ -76,6 +76,57 @@ describe('Cache Rules', function() {
 
             done();
         });
+
+        it('returns an error when staleInSec is greater than a day and using expiresAt', function(done) {
+            var config = {
+                expiresAt: '03:00',
+                staleInSec: 100000
+            };
+            var rule = Cache.compile(config);
+
+            expect(rule).to.be.an.instanceOf(Error);
+
+            done();
+        });
+
+        it('returns an error when staleInSec is greater than expiresInSec', function(done) {
+            var config = {
+                expiresInSec: 500,
+                staleInSec: 1000
+            };
+            var rule = Cache.compile(config);
+
+            expect(rule).to.be.an.instanceOf(Error);
+
+            done();
+        });
+
+        it('returns rule when staleInSec is less than expiresInSec', function(done) {
+            var config = {
+                expiresInSec: 1000,
+                staleInSec: 500
+            };
+            var rule = Cache.compile(config);
+
+            expect(rule).to.not.be.an.instanceOf(Error);
+            expect(rule.staleInSec).to.equal(500);
+            expect(rule.expiresInSec).to.equal(1000);
+
+            done();
+        });
+
+        it('returns rule when staleInSec is less than 24 hours and using expiresAt', function(done) {
+            var config = {
+                expiresAt: '03:00',
+                staleInSec: 5000
+            };
+            var rule = Cache.compile(config);
+
+            expect(rule).to.not.be.an.instanceOf(Error);
+            expect(rule.staleInSec).to.equal(5000);
+
+            done();
+        });
     });
 
     describe('#ttl', function() {
