@@ -533,17 +533,25 @@ The route `config.schema` defines the payload validation rules performed before 
 ### Caching
 
 'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route cache config has the following options:
-
 * `mode` - determines if the route is cached on the server, client, or both. Defaults to _'server+client'_.
     * `server+client` - Caches the route response on the server and client (default)
     * `client` - Sends the Cache-Control HTTP header on the response to support client caching
     * `server` - Caches the route on the server only
     * `none` - Disable cache for the route on both the client and server
 * `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
+* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresInSec`.
 
-For example, to configure a route to be cached on the client and to expire in 2 minutes the configuration would look like the following:
-`{ mode: 'client', expiresInSec: 120 }`
+For example, to configure a route to be cached on the client and to expire after 2 minutes the configuration would look like the following:
+```
+{
+    mode: 'client',
+    expiresInSec: 120
+}
+```
+
+The server-side cache also supports these advanced options:
+* `staleInSec` - number of seconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400 seconds (one day) if using `expiresAt` or less than the value of `expiresInSec`. Used together with `staleTimeoutMSec`.
+* `staleTimeoutMSec` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresInSec` if used (after adjustment for units).
 
 ## Data Validation
 

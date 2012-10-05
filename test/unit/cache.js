@@ -105,10 +105,39 @@ describe('Cache Rules', function() {
             done();
         });
 
+        it('throws an error when staleInSec is used without staleTimeoutMSec', function (done) {
+            var config = {
+                expiresAt: '03:00',
+                staleInSec: 1000
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
+        it('throws an error when staleTimeoutMSec is used without staleInSec', function (done) {
+            var config = {
+                expiresAt: '03:00',
+                staleTimeoutMSec: 100
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
         it('throws an error when staleInSec is greater than a day and using expiresAt', function (done) {
             var config = {
                 expiresAt: '03:00',
-                staleInSec: 100000
+                staleInSec: 100000,
+                staleTimeoutMSec: 500
             };
             var fn = function () {
                 Cache.compile(config);
@@ -122,7 +151,54 @@ describe('Cache Rules', function() {
         it('throws an error when staleInSec is greater than expiresInSec', function (done) {
             var config = {
                 expiresInSec: 500,
-                staleInSec: 1000
+                staleInSec: 1000,
+                staleTimeoutMSec: 500
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
+        it('throws an error when staleTimeoutMSec is greater than expiresInSec', function (done) {
+            var config = {
+                expiresInSec: 500,
+                staleInSec: 100,
+                staleTimeoutMSec: 500000
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
+        it('throws an error when staleTimeoutMSec is greater than expiresInSec - staleInSec', function (done) {
+            var config = {
+                expiresInSec: 30,
+                staleInSec: 20,
+                staleTimeoutMSec: 10000
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
+        it('throws an error when staleTimeoutMSec is used without server mode', function (done) {
+            var config = {
+                mode: 'client',
+                expiresInSec: 1000,
+                staleInSec: 500,
+                staleTimeoutMSec: 500
             };
             var fn = function () {
                 Cache.compile(config);
@@ -136,11 +212,11 @@ describe('Cache Rules', function() {
         it('returns rule when staleInSec is less than expiresInSec', function(done) {
             var config = {
                 expiresInSec: 1000,
-                staleInSec: 500
+                staleInSec: 500,
+                staleTimeoutMSec: 500
             };
             var rule = Cache.compile(config);
 
-            expect(rule).to.not.be.an.instanceOf(Error);
             expect(rule.staleInSec).to.equal(500);
             expect(rule.expiresInSec).to.equal(1000);
 
@@ -150,11 +226,11 @@ describe('Cache Rules', function() {
         it('returns rule when staleInSec is less than 24 hours and using expiresAt', function(done) {
             var config = {
                 expiresAt: '03:00',
-                staleInSec: 5000
+                staleInSec: 5000,
+                staleTimeoutMSec: 500
             };
             var rule = Cache.compile(config);
 
-            expect(rule).to.not.be.an.instanceOf(Error);
             expect(rule.staleInSec).to.equal(5000);
 
             done();
