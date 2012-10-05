@@ -187,5 +187,21 @@ describe('Cache Rules', function() {
             expect(ttl).to.be.closeTo(23 * 60 * 60, 60 * 60);
             done();
         });
+
+        it('returns correct number when using a created time from yesterday and expires in 2 hours', function(done) {
+            var hour = new Date(Date.now()).getHours() + 2;
+
+            var config = {
+                expiresAt: hour + ':00'
+            };
+            var created = new Date(Date.now());
+            created.setHours(new Date(Date.now()).getHours() - 22);
+
+            var rule = Rules.compile(config);
+
+            var ttl = Rules.getTtl(rule, created);
+            expect(ttl).to.be.closeTo(60 * 60, 60 * 60);
+            done();
+        });
     });
 });
