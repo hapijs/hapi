@@ -2,7 +2,6 @@
 
 var expect = require('chai').expect;
 var Cache = process.env.TEST_COV ? require('../../lib-cov/cache/index') : require('../../lib/cache/index');
-var Rules = process.env.TEST_COV ? require('../../lib-cov/cache/rules') : require('../../lib/cache/rules');
 var Sinon = require('sinon');
 
 describe('Client', function() {
@@ -49,7 +48,7 @@ describe('Cache Rules', function() {
             var config = {
                 expiresInSec: 50
             } ;
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
             expect(rule.expiresInSec).to.equal(config.expiresInSec);
 
@@ -60,7 +59,7 @@ describe('Cache Rules', function() {
             var config = {
                 expiresInSec: 50
             } ;
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
             expect(rule.expiresInSec).to.equal(config.expiresInSec);
 
@@ -71,7 +70,7 @@ describe('Cache Rules', function() {
             var config = {
                 expiresAt: function() { }
             };
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
             expect(rule).to.be.an.instanceOf(Error);
 
@@ -79,18 +78,18 @@ describe('Cache Rules', function() {
         });
     });
 
-    describe('#getTtl', function() {
+    describe('#ttl', function() {
 
-        it('returns a negative number when a rule is expired', function(done) {
+        it('returns zero when a rule is expired', function(done) {
             var config = {
                 expiresInSec: 50
             };
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
             var created = new Date(Date.now());
             created = created.setMinutes(created.getMinutes() - 5);
 
-            var ttl = Rules.getTtl(rule, created);
-            expect(ttl).to.be.lessThan(0);
+            var ttl = Cache.ttl(rule, created);
+            expect(ttl).to.be.equal(0);
             done();
         });
 
@@ -98,10 +97,10 @@ describe('Cache Rules', function() {
             var config = {
                 expiresInSec: 50
             };
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
             var created = new Date(Date.now());
 
-            var ttl = Rules.getTtl(rule, created);
+            var ttl = Cache.ttl(rule, created);
             expect(ttl).to.be.greaterThan(0);
             done();
         });
@@ -110,9 +109,9 @@ describe('Cache Rules', function() {
             var config = {
                 expiresInSec: 50
             };
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
-            var ttl = Rules.getTtl(rule);
+            var ttl = Cache.ttl(rule);
             expect(ttl).to.equal(50);
             done();
         });
@@ -124,9 +123,9 @@ describe('Cache Rules', function() {
             var created = new Date(Date.now());
             created.setHours(15);
             created = new Date(created.setDate(created.getDay() - 4)).getTime();
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
-            var ttl = Rules.getTtl(rule, created);
+            var ttl = Cache.ttl(rule, created);
             expect(ttl).to.equal(0);
             done();
         });
@@ -138,9 +137,9 @@ describe('Cache Rules', function() {
             var created = new Date(Date.now());
             created.setHours(10);
             created = new Date(created.setDate(created.getDay() - 4)).getTime();
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
-            var ttl = Rules.getTtl(rule, created);
+            var ttl = Cache.ttl(rule, created);
             expect(ttl).to.equal(0);
             done();
         });
@@ -152,9 +151,9 @@ describe('Cache Rules', function() {
                 expiresAt: hour + ':00'
             };
 
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
-            var ttl = Rules.getTtl(rule);
+            var ttl = Cache.ttl(rule);
             expect(ttl).to.be.greaterThan(0);
             done();
         });
@@ -167,9 +166,9 @@ describe('Cache Rules', function() {
             };
             var created = new Date(Date.now());
             created.setHours(hour + 1);
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
-            var ttl = Rules.getTtl(rule, created);
+            var ttl = Cache.ttl(rule, created);
             expect(ttl).to.be.closeTo(22 * 60 * 60, 60 * 60);
             done();
         });
@@ -181,9 +180,9 @@ describe('Cache Rules', function() {
                 expiresAt: hour + ':00'
             };
 
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
-            var ttl = Rules.getTtl(rule);
+            var ttl = Cache.ttl(rule);
             expect(ttl).to.be.closeTo(23 * 60 * 60, 60 * 60);
             done();
         });
@@ -197,9 +196,9 @@ describe('Cache Rules', function() {
             var created = new Date(Date.now());
             created.setHours(new Date(Date.now()).getHours() - 22);
 
-            var rule = Rules.compile(config);
+            var rule = Cache.compile(config);
 
-            var ttl = Rules.getTtl(rule, created);
+            var ttl = Cache.ttl(rule, created);
             expect(ttl).to.be.closeTo(60 * 60, 60 * 60);
             done();
         });
