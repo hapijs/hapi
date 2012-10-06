@@ -66,37 +66,69 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('returns an error when parsing a bad expiresAt value', function(done) {
+        it('throws an error when parsing a rule with both expiresAt and expiresInSec', function (done) {
             var config = {
-                expiresAt: function() { }
+                expiresAt: 50,
+                expiresInSec: '02:00'
             };
-            var rule = Cache.compile(config);
+            var fn = function () {
+                Cache.compile(config);
+            };
 
-            expect(rule).to.be.an.instanceOf(Error);
+            expect(fn).to.throw(Error);
 
             done();
         });
 
-        it('returns an error when staleInSec is greater than a day and using expiresAt', function(done) {
+        it('throws an error when parsing a rule with niether expiresAt or expiresInSec', function (done) {
+            var config = {
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
+        it('throws an error when parsing a bad expiresAt value', function (done) {
+            var config = {
+                expiresAt: function () { }
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
+        it('throws an error when staleInSec is greater than a day and using expiresAt', function (done) {
             var config = {
                 expiresAt: '03:00',
                 staleInSec: 100000
             };
-            var rule = Cache.compile(config);
+            var fn = function () {
+                Cache.compile(config);
+            };
 
-            expect(rule).to.be.an.instanceOf(Error);
+            expect(fn).to.throw(Error);
 
             done();
         });
 
-        it('returns an error when staleInSec is greater than expiresInSec', function(done) {
+        it('throws an error when staleInSec is greater than expiresInSec', function (done) {
             var config = {
                 expiresInSec: 500,
                 staleInSec: 1000
             };
-            var rule = Cache.compile(config);
+            var fn = function () {
+                Cache.compile(config);
+            };
 
-            expect(rule).to.be.an.instanceOf(Error);
+            expect(fn).to.throw(Error);
 
             done();
         });

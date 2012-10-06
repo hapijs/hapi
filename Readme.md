@@ -15,6 +15,8 @@ Current version: **0.8.0**
 - [**Usage**](#usage)
 	- [**Basic Usage**](#basic-usage)
 <p></p>
+    - [**Server Construction**](#server-construction)
+<p></p>
 	- [**Server Configuration**](#server-configuration)
 		- [TLS](#tls)
 		- [Router](#router)
@@ -62,7 +64,7 @@ The following is a simple "hello world" service with a single API endpoint:
 ```javascript
 var Hapi = require('hapi');
 
-// Create a server with a host, port, and options
+// Create a server with a host and port
 var server = new Hapi.Server('localhost', 8000);
 
 // Define the route
@@ -85,6 +87,20 @@ server.start();
 ```
 
 Now navigate to http://localhost:8080/hello and you should receive 'hello world'.
+
+## Server Construction
+
+The **hapi** Server object is the core of the framework and is constructed by instantiating a new Server object with the following optional parameters:
+- _'host'_ - optional host name. Defaults to 'localhost'.
+- _'port'_ - optional port. Defaults to '80' (or '443' for TLS).
+- _'options'_ - optional configuration as described in [Server Configuration](#server-configuration).
+
+```javascrip
+var Hapi = require('hapi');
+
+// Create a server on localhost port 80
+var server = new Hapi.Server();
+```
 
 ## Server Configuration
 
@@ -110,7 +126,6 @@ The `tls` object is passed unchanged to the node.js HTTPS server and described i
 ```javascript
 var Hapi = require('hapi');
 
-// Server options
 var options = {
     tls: {
         key: 'your_key',
@@ -118,8 +133,7 @@ var options = {
     }
 };
 
-// Create a server with a host, port, and options
-var server = new Hapi.Server('localhost', 8000, options);
+var server = new Hapi.Server(options);
 ```
 
 ### Router
@@ -188,10 +202,10 @@ function onRequest(request, next) {
 `ext.onUnknownRoute` server option. The extension function signature is _function (request)_ where:
 - _'request'_ is the **hapi** request object.
 When the extension handler is called, the _'request'_ object is decorated as described in [Route Handler](#route-handler) with the following additional method:
-- _'close()'_ - returns control over to the server after the application has taken care of responding to the request via the _request.raw.res_ object directly.
-The method **must** call _'reply(result)'_ or _'close()'_ but not both.
+- _'reply.close()'_ - returns control over to the server after the application has taken care of responding to the request via the _request.raw.res_ object directly.
+The method **must** return control over to the route using the _reply_ interface described in [Route Handler](#route-handler) or the _'reply.close()'_ method but not both.
 
-For example, using the _'close()'_ method:
+For example, using the _'reply.close()'_ method:
 ```javascript
 var Hapi = require('hapi');
 
@@ -212,7 +226,7 @@ function onUnknownRoute(request) {
 
     request.raw.res.writeHead(404);
     request.raw.res.end();
-    request.close();
+    request.reply.close();
 }
 ```
 
@@ -440,21 +454,21 @@ When the provided route handler method is called, it receives a _request_ object
     - _'tos'_ - terms-of-service version.
     - _'scope'_ - approved client scopes.
 - _'server'_ - a reference to the server object.
-- _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. Direct interaction with the raw objects is not recommended.
-- _'response'_ - contains the route handler's response after the handler is called. Direct interaction with the raw objects is not recommended.
-
-The request object is also decorated with a few helper functions:
-- _'reply([result, options])'_ - reply to the request with the desired response where:
-  - _'result'_ - an object (sent as JSON), a string (sent as HTML), or an error generated using the 'Hapi.error' module described in [Errors](#errors). If no result is provided, an empty response body is sent.
-  - _'options'_ - optional settings:
-    - `created` - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
-    - `contentLength` - a pre-calculated Content-Length header value. Should only be used when the result size cannot be determined automatically (e.g. stream).
-    - `contentType` - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
-- _'reply.pipe(stream, [options])'_ - pipes the content of the stream into the response. _options_ is the same as _'reply()'_.
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
+- _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
+- _'response'_ - contains the route handler's response after the handler is called. **Direct interaction with this raw objects is not recommended.**
 
-The handler must call _'reply()'_ or _'reply.pipe()'_ (only one) when done to return control over to the router. The helper methods are only available
-within the route handler and are disabled as soon as _'reply(result)'_ is called.
+The request object is also decorated with a _'reply'_ property which includes the following methods:
+- _'send([result])'_ - replies to the resource request with result - an object (sent as JSON), a string (sent as HTML), or an error generated using the 'Hapi.error' module described in [Errors](#errors). If no result is provided, an empty response body is sent. Calling _'send([result])'_ returns control over to the router.
+- _'pipe(stream)'_ - pipes the content of the stream into the response. Calling _'pipe([stream])'_ returns control over to the router.
+- _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
+- _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
+- _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
+
+In addition, the _'reply([result])'_ shortcut is provided which is identical to calling _'reply.send([result])'_.
+
+The handler must call _'reply()'_, _'reply.send()'_, or _'reply.pipe()'_ (and only one, once) to return control over to the router. The helper methods are only available
+within the route handler and are disabled as soon as control is returned.
 
 #### Request Logging
 
