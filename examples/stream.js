@@ -11,7 +11,7 @@ var internals = {};
 internals.main = function () {
 
     // Create Hapi servers
-    var http = new Hapi.Server('0.0.0.0', 8080);
+    var http = new Hapi.Server(8080);
 
     // Set routes
     http.addRoute({ method: 'POST', path: '/', config : { handler: internals.echo, payload: 'stream' } });
@@ -23,12 +23,9 @@ internals.main = function () {
 
 internals.echo = function (request) {
 
-    var options = {
-        contentLength: request.raw.req.headers['Content-Length'],
-        contentType: request.raw.req.headers['Content-Type']
-    };
-
-    request.reply.pipe(request.raw.req, options);
+    request.reply.type(request.raw.req.headers['Content-Type'])
+                 .bytes(request.raw.req.headers['Content-Length'])
+                 .pipe(request.raw.req);
 };
 
 
