@@ -50,7 +50,7 @@ describe('Cache Rules', function() {
             } ;
             var rule = Cache.compile(config);
 
-            expect(rule.expiresInSec).to.equal(config.expiresInSec);
+            expect(rule.expiresIn).to.equal(config.expiresInSec * 1000);
 
             done();
         });
@@ -61,7 +61,7 @@ describe('Cache Rules', function() {
             } ;
             var rule = Cache.compile(config);
 
-            expect(rule.expiresInSec).to.equal(config.expiresInSec);
+            expect(rule.expiresIn).to.equal(config.expiresInSec * 1000);
 
             done();
         });
@@ -217,8 +217,8 @@ describe('Cache Rules', function() {
             };
             var rule = Cache.compile(config);
 
-            expect(rule.staleInSec).to.equal(500);
-            expect(rule.expiresInSec).to.equal(1000);
+            expect(rule.staleIn).to.equal(500 * 1000);
+            expect(rule.expiresIn).to.equal(1000 * 1000);
 
             done();
         });
@@ -231,7 +231,7 @@ describe('Cache Rules', function() {
             };
             var rule = Cache.compile(config);
 
-            expect(rule.staleInSec).to.equal(5000);
+            expect(rule.staleIn).to.equal(5000 * 1000);
 
             done();
         });
@@ -271,7 +271,7 @@ describe('Cache Rules', function() {
             var rule = Cache.compile(config);
 
             var ttl = Cache.ttl(rule);
-            expect(ttl).to.equal(50);
+            expect(ttl).to.equal(50000);
             done();
         });
 
@@ -328,7 +328,7 @@ describe('Cache Rules', function() {
             var rule = Cache.compile(config);
 
             var ttl = Cache.ttl(rule, created);
-            expect(ttl).to.be.closeTo(22 * 60 * 60, 60 * 60);
+            expect(ttl).to.be.closeTo(22 * 60 * 60 * 1000, 60 * 60 * 1000);
             done();
         });
 
@@ -342,7 +342,7 @@ describe('Cache Rules', function() {
             var rule = Cache.compile(config);
 
             var ttl = Cache.ttl(rule);
-            expect(ttl).to.be.closeTo(23 * 60 * 60, 60 * 60);
+            expect(ttl).to.be.closeTo(23 * 60 * 60 * 1000, 60 * 60 * 1000);
             done();
         });
 
@@ -358,8 +358,9 @@ describe('Cache Rules', function() {
             var rule = Cache.compile(config);
 
             var ttl = Cache.ttl(rule, created);
-            expect(ttl).to.be.closeTo(60 * 60, 60 * 60);
+            expect(ttl).to.be.closeTo(60 * 60 * 1000, 60 * 60 * 1000);
             done();
         });
     });
 });
+
