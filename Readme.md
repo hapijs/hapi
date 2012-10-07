@@ -46,6 +46,7 @@ Current version: **0.8.0**
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
         - [Caching](#caching)
+        - [Requisites](#requisites)
 <p></p>
 	- [**Data Validation**](#data-validation)
 <p></p>
@@ -390,6 +391,7 @@ to write additional text as the configuration itself serves as a living document
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
     * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
   * `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
+  * `requisites` - an array with pre-handler methods as described in [Requisites](#requisites). 
   * `auth` - authentication configuration
     * `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
       * _'none'_ - authentication not allowed.
@@ -555,6 +557,16 @@ For example, to configure a route to be cached on the client and to expire after
 The server-side cache also supports these advanced options:
 * `staleInSec` - number of seconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400 seconds (one day) if using `expiresAt` or less than the value of `expiresInSec`. Used together with `staleTimeoutMSec`.
 * `staleTimeoutMSec` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresInSec` if used (after adjustment for units).
+
+### Requisites
+
+Before the handler is called, it is often necessary to perform other actions such as loading required reference data from a database. The `requisites` option
+allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value 'parallel' in which case, all the parallel methods
+are executed first, then the rest in order. The `requisites` is a mixed array of functions and objects. If a function is included, it is the same as including an
+object with a single `method` key. The object options are:
+* `method` - the function to call. The function signature is _'function (request, next)'_. _'next([result])'_ must be called when the operation concludes. If the result is an Error, execution of other requisites stops and the error is handled in the same way as when an error is returned from the route handler.
+* `assign` - key name to assign the result of the function to within 'request.requisites'.
+* `mode` - set the calling order of the function to 'serial' or 'parallel'. Defaults to 'serial'.
 
 ## Data Validation
 
