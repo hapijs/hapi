@@ -464,6 +464,7 @@ The request object is also decorated with a _'reply'_ property which includes th
 - _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
+- _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
 
 In addition, the _'reply([result])'_ shortcut is provided which is identical to calling _'reply.send([result])'_.
 

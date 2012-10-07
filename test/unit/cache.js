@@ -55,6 +55,44 @@ describe('Cache Rules', function() {
             done();
         });
 
+        it('is enabled for both client and server by defaults', function (done) {
+            var config = {
+                expiresInSec: 50
+            };
+            var rule = Cache.compile(config);
+
+            expect(rule.mode.server).to.equal(true);
+            expect(rule.mode.client).to.equal(true);
+            expect(Object.keys(rule.mode).length).to.equal(2);
+
+            done();
+        });
+
+        it('is disabled when mode is none', function (done) {
+            var config = {
+                mode: 'none'
+            };
+            var rule = Cache.compile(config);
+
+            expect(Object.keys(rule.mode).length).to.equal(0);
+
+            done();
+        });
+
+        it('is disabled when mode is none', function (done) {
+            var config = {
+                mode: 'none',
+                expiresInSec: 50
+            };
+            var fn = function () {
+                Cache.compile(config);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
         it('assigns the expiresInSec when the rule is cached', function(done) {
             var config = {
                 expiresInSec: 50
