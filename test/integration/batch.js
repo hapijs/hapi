@@ -166,14 +166,14 @@ describe('Batch', function() {
             '{"method": "get", "path": "/item"}' +
             '] }';
 
-        var asyncSpy = Sinon.spy(Async, 'parallel');
+        // var asyncSpy = Sinon.spy(Async, 'parallel');
         makeRequest(requestBody, function(res) {
             expect(res[0].id).to.equal("fa0dbda9b1b");
             expect(res[0].name).to.equal("John Doe");
             expect(res.length).to.equal(80);
             expect(res[1].id).to.equal("55cf687663");
             expect(res[1].name).to.equal("Active Item");
-            expect(asyncSpy.args[0][0].length).to.equal(80);
+            // expect(asyncSpy.args[0][0].length).to.equal(80);
             done();
         });
     });

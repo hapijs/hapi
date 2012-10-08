@@ -36,7 +36,7 @@ describe('Cache', function() {
         _server.addRoutes([
             { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresInSec: 120 } } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresInSec: 120 } } },
-            { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none', expiresInSec: 120 } } },
+            { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
             { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresInSec: 120 } } }
         ]);
         _server.listener.on('listening', function() {

@@ -6,6 +6,8 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
+Mailing list: https://groups.google.com/group/hapijs
+
 Current version: **0.8.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
@@ -44,6 +46,7 @@ Current version: **0.8.0**
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
         - [Caching](#caching)
+        - [Route Prerequisites](#route-prerequisites)
 <p></p>
 	- [**Data Validation**](#data-validation)
 <p></p>
@@ -388,6 +391,7 @@ to write additional text as the configuration itself serves as a living document
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
     * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
   * `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
+  * `pre` - an array with pre-handler methods as described in [Route Prerequisites](#route-prerequisites). 
   * `auth` - authentication configuration
     * `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
       * _'none'_ - authentication not allowed.
@@ -464,6 +468,7 @@ The request object is also decorated with a _'reply'_ property which includes th
 - _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
+- _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
 
 In addition, the _'reply([result])'_ shortcut is provided which is identical to calling _'reply.send([result])'_.
 
@@ -533,17 +538,35 @@ The route `config.schema` defines the payload validation rules performed before 
 ### Caching
 
 'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route cache config has the following options:
-
 * `mode` - determines if the route is cached on the server, client, or both. Defaults to _'server+client'_.
     * `server+client` - Caches the route response on the server and client (default)
     * `client` - Sends the Cache-Control HTTP header on the response to support client caching
     * `server` - Caches the route on the server only
     * `none` - Disable cache for the route on both the client and server
 * `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which cache records expire. Cannot be used together with `expiresInSec`.
+* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresInSec`.
 
-For example, to configure a route to be cached on the client and to expire in 2 minutes the configuration would look like the following:
-`{ mode: 'client', expiresInSec: 120 }`
+For example, to configure a route to be cached on the client and to expire after 2 minutes the configuration would look like the following:
+```
+{
+    mode: 'client',
+    expiresInSec: 120
+}
+```
+
+The server-side cache also supports these advanced options:
+* `staleInSec` - number of seconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400 seconds (one day) if using `expiresAt` or less than the value of `expiresInSec`. Used together with `staleTimeoutMSec`.
+* `staleTimeoutMSec` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresInSec` if used (after adjustment for units).
+
+### Requisites
+
+Before the handler is called, it is often necessary to perform other actions such as loading required reference data from a database. The `pre` option
+allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value 'parallel' in which case, all the parallel methods
+are executed first, then the rest in order. The `pre` is a mixed array of functions and objects. If a function is included, it is the same as including an
+object with a single `method` key. The object options are:
+* `method` - the function to call. The function signature is _'function (request, next)'_. _'next([result])'_ must be called when the operation concludes. If the result is an Error, execution of other prerequisites stops and the error is handled in the same way as when an error is returned from the route handler.
+* `assign` - key name to assign the result of the function to within 'request.pre'.
+* `mode` - set the calling order of the function to 'serial' or 'parallel'. Defaults to 'serial'.
 
 ## Data Validation
 
