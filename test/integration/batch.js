@@ -30,12 +30,56 @@ describe('Batch', function() {
         });
     };
 
+    var fetch1 = function (request, next) {
+        next('Hello');
+    };
+
+
+    var fetch2 = function (request, next) {
+        next(request.pre.m1 + request.pre.m3 + request.pre.m4);
+    };
+
+
+    var fetch3 = function (request, next) {
+        process.nextTick(function () {
+            next(' ');
+        });
+    };
+
+
+    var fetch4 = function (request, next) {
+        next('World');
+    };
+
+
+    var fetch5 = function (request, next) {
+        next(request.pre.m2 + '!');
+    };
+
+    var getFetch = function (request) {
+        request.reply(request.pre.m5 + '\n');
+    };
+
     function setupServer(done) {
         _server = new Hapi.Server('0.0.0.0', 18084, { batch: true });
         _server.addRoutes([
             { method: 'GET', path: '/profile', config: { handler: profileHandler } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler } },
-            { method: 'GET', path: '/item/:id', config: { handler: itemHandler } }
+            { method: 'GET', path: '/item/:id', config: { handler: itemHandler } },
+            {
+                method: 'GET',
+                path: '/fetch',
+                config: {
+                    pre: [
+                        { method: fetch1, assign: 'm1', mode: 'parallel' },
+                        { method: fetch2, assign: 'm2' },
+                        { method: fetch3, assign: 'm3', mode: 'parallel' },
+                        { method: fetch4, assign: 'm4', mode: 'parallel' },
+                        { method: fetch5, assign: 'm5' }
+                    ],
+                    handler: getFetch
+                }
+            }
         ]);
         _server.listener.on('listening', function() {
             done();
@@ -163,17 +207,17 @@ describe('Batch', function() {
             '{"method": "get", "path": "/profile"},' +
             '{"method": "get", "path": "/profile"},' +
             '{"method": "get", "path": "/profile"},' +
-            '{"method": "get", "path": "/item"}' +
+            '{"method": "get", "path": "/fetch"}' +
             '] }';
 
-        // var asyncSpy = Sinon.spy(Async, 'parallel');
+        var asyncSpy = Sinon.spy(Async, 'parallel');
         makeRequest(requestBody, function(res) {
             expect(res[0].id).to.equal("fa0dbda9b1b");
             expect(res[0].name).to.equal("John Doe");
             expect(res.length).to.equal(80);
             expect(res[1].id).to.equal("55cf687663");
             expect(res[1].name).to.equal("Active Item");
-            // expect(asyncSpy.args[0][0].length).to.equal(80);
+            expect(asyncSpy.args[0][0].length).to.equal(80);
             done();
         });
     });
