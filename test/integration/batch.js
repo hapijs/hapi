@@ -31,39 +31,32 @@ describe('Batch', function() {
     };
 
     var fetch1 = function (request, next) {
-
         next('Hello');
     };
 
 
     var fetch2 = function (request, next) {
-
         next(request.pre.m1 + request.pre.m3 + request.pre.m4);
     };
 
 
     var fetch3 = function (request, next) {
-
-        setTimeout(function () {
-
+        process.nextTick(function () {
             next(' ');
-        }, 1000);
+        });
     };
 
 
     var fetch4 = function (request, next) {
-
         next('World');
     };
 
 
     var fetch5 = function (request, next) {
-
         next(request.pre.m2 + '!');
     };
 
     var getFetch = function (request) {
-
         request.reply(request.pre.m5 + '\n');
     };
 

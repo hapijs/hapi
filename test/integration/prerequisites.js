@@ -20,9 +20,9 @@ describe('Prerequesites', function() {
 
 
     var fetch3 = function (request, next) {
-        setTimeout(function () {
+        process.nextTick(function () {
             next(' ');
-        }, 1000);
+        });
     };
 
 
