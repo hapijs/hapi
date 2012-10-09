@@ -27,7 +27,7 @@ describe('Client', function() {
             engine: 'redis'
         };
 
-        var client = new Cache.Client(options);
+        var client = new Cache.Client('test', options);
         expect(client).to.exist;
 
         var fn = function() {
@@ -59,11 +59,11 @@ describe('Cache Rules', function() {
             var config = {
                 expiresInSec: 50
             };
-            var rule = Cache.compile(config);
+            var cache = new Cache.Policy('test', config, {});
 
-            expect(rule.mode.server).to.equal(true);
-            expect(rule.mode.client).to.equal(true);
-            expect(Object.keys(rule.mode).length).to.equal(2);
+            expect(cache.isMode('server')).to.equal(true);
+            expect(cache.isMode('client')).to.equal(true);
+            expect(Object.keys(cache.rule.mode).length).to.equal(2);
 
             done();
         });
@@ -72,20 +72,21 @@ describe('Cache Rules', function() {
             var config = {
                 mode: 'none'
             };
-            var rule = Cache.compile(config);
+            var cache = new Cache.Policy('test', config, {});
 
-            expect(Object.keys(rule.mode).length).to.equal(0);
+            expect(cache.isEnabled()).to.equal(false);
+            expect(Object.keys(cache.rule.mode).length).to.equal(0);
 
             done();
         });
 
-        it('is disabled when mode is none', function (done) {
+        it('throws an error when mode is none and config has other options set', function (done) {
             var config = {
                 mode: 'none',
                 expiresInSec: 50
             };
             var fn = function () {
-                Cache.compile(config);
+                var cache = new Cache.Policy('test', config, {});
             };
 
             expect(fn).to.throw(Error);
@@ -239,7 +240,7 @@ describe('Cache Rules', function() {
                 staleTimeoutMSec: 500
             };
             var fn = function () {
-                Cache.compile(config);
+                var cache = new Cache.Policy('test', config, {});
             };
 
             expect(fn).to.throw(Error);
