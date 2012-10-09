@@ -355,21 +355,24 @@ describe('Cache Rules', function() {
             done();
         });
 
-/*        it('returns the correct number when using a future expiresAt', function(done) {
-            var hour = new Date(Date.now() - 2 * 60 * 60 * 1000).getHours();
+        it('returns the correct number when using a future expiresAt', function(done) {
+            var twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+            var hours = twoHoursAgo.getHours();
+            var minutes = '' + twoHoursAgo.getMinutes();
+            var created = twoHoursAgo.getTime() + (60 * 60 * 1000);
+            minutes = minutes.length === 1 ? '0' + minutes : minutes;
 
             var config = {
-                expiresAt: hour + ':00'
+                expiresAt: hours + ':' + minutes
             };
-            var created = new Date(Date.now());
-            created.setHours(hour + 1);
-            var rule = Cache.compile(config);
 
+            var rule = Cache.compile(config);
             var ttl = Cache.ttl(rule, created);
-            expect(ttl).to.be.closeTo(22 * 60 * 60 * 1000, 60 * 60 * 1000);
+
+            expect(ttl).to.be.closeTo(22 * 60 * 60 * 1000, 60 * 1000);
             done();
         });
-        */
+
         it('returns correct number when using an expiresAt time tomorrow', function(done) {
             var hour = new Date(Date.now() - 60 * 60 * 1000).getHours();
 
