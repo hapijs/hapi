@@ -45,6 +45,7 @@ Current version: **0.8.0**
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+		- [Response Validation](#response-validation)
         - [Caching](#caching)
         - [Route Prerequisites](#route-prerequisites)
 <p></p>
@@ -388,6 +389,7 @@ to write additional text as the configuration itself serves as a living document
   * `tags` - route tags (array of strings).
   * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
   * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+  * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
   * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
     * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_.
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
@@ -534,8 +536,17 @@ The route `config.query` defines the query validation rules performed before the
 
 The route `config.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
 - _'null'_ - any payload allowed (no validation performed). This is the default.
-- _'false'_ - no query parameters allowed.
+- _'false'_ or _'{}'_ - no payload allowed.
 - a validation rules object as described in [Data Validation](#data-validation).
+
+### Response Validation
+
+The route `config.response` defines the payload validation rules performed after the route handler is invoked. Supported values:
+- _'null'_ - any payload allowed (no validation performed). This is the default.
+- _'false'_ or _'{}'_ - no payload allowed.
+- a validation rules object as described in [Data Validation](#data-validation).
+
+Response validation can only be performed on object responses and will otherwise result in an error.
 
 ### Caching
 
