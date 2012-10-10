@@ -57,6 +57,8 @@ Current version: **0.8.0**
 	- [**Request Tails**](#request-tails)
 <p></p>
 	- [**Request Injection**](#request-injection)
+<p></p>
+	- [**Server Helpers**](#server-helpers)
   
 # Usage
 
@@ -568,6 +570,49 @@ object with a single `method` key. The object options are:
 * `assign` - key name to assign the result of the function to within 'request.pre'.
 * `mode` - set the calling order of the function to 'serial' or 'parallel'. Defaults to 'serial'.
 
+For example:
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+var fetch1 = function (request, next) {
+
+    next('Hello');
+};
+
+var fetch2 = function (request, next) {
+
+    next('World');
+};
+
+var fetch3 = function (request, next) {
+
+    next(request.pre.m1 + ' ' + request.pre.m2);
+};
+
+var get = function (request) {
+
+    request.reply(request.pre.m3 + '\n');
+};
+
+// Set routes
+http.addRoute({
+    method: 'GET',
+    path: '/',
+    config: {
+        pre: [
+            { method: fetch1, assign: 'm1', mode: 'parallel' },
+            { method: fetch2, assign: 'm2', mode: 'parallel' },
+            { method: fetch3, assign: 'm3' },
+        ],
+        handler: get
+    }
+});
+
+// Start Hapi servers
+http.start();
+```
+
 ## Data Validation
 
 **hapi** supports a rich set of data types and validation rules which are described in detail in [Validation Configuration](./docs/ValidationConfig.md).
@@ -750,6 +795,75 @@ var req = {
 http.inject(req, function (res) {
 
     console.log(res.result || res.readPayload());
+});
+```
+
+## Server Helpers
+
+Server helpers are functions registered with the server and can be used throughout the application. The advantage of using helpers is
+that they can be configured to use the built-in cache and shared across multiple request handlers. This provides a useful method for
+speeding up performance by declaring functions as common utilities with a shared cache.
+
+The signature of helper functions is _'function (arg1, arg2, ..., arg3, next)'_ where next is a function defined as _'function (result)'_.
+'result' can be any value or an Error (which must be generated using the **hapi** Error module is the helper is used as a prerequisite method).
+
+To add a helper, use the server's _'addHelper(name, method, options)'_ method where:
+* _'name'_ - is a unique helper name used to call the method (e.g. 'server.helpers.name').
+* _'method'_ - is the helper function.
+* _'options'_ - optional settings where:
+  * `cache` - cache configuration as described in [Caching](#caching). `mode` can use the default or be set to 'server'.
+  * `keyGenerator` - the server will automatically generate a unique key if the function's arguments (with the exception of the last 'next' argument) are all of type string, number, or boolean. However if the function uses other types of arguments, a key generation function must be provided which takes the same arguments as the function and returns a unique string (or null if no key can be generated). Note that when the keyGenerator method is invoked, the arguments list will include the next argument which must not be used in calculation of the key.
+
+For example:
+```javascript
+// Create Hapi server
+var server = new Hapi.Server('0.0.0.0', 8080);
+
+var user = function (id, next) {
+
+    next({ id: id });
+};
+
+var options = {
+    cache: {
+        expiresInSec: 2,
+        staleInSec: 1,
+        staleTimeoutMSec: 100
+    },
+    keyGenerator: function (id) {
+
+        return id;
+    };
+};
+
+server.addHelper('user', user, options);
+
+server.helpers.user(4, function (result) {
+
+    console.log(result);
+});
+```
+
+Or used as a prerequisites:
+```javascript
+http.addRoute({
+    method: 'GET',
+    path: '/user/:id',
+    config: {
+        pre: [
+            {
+                assign: 'user',
+                method: function (request, next) {
+
+                    request.server.helpers.user(request.params.id, next);
+                }
+            }
+        ],
+        handler: function (request) {
+
+            request.reply(request.pre.user);
+        }
+    }
 });
 ```
 
