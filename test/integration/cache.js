@@ -24,13 +24,6 @@ describe('Cache', function() {
         });
     };
 
-    var itemHandler = function (request) {
-        request.reply({
-            'id': request.params.id,
-            'name': 'Item'
-        });
-    };
-
     function setupServer(done) {
         _server = new Hapi.Server('0.0.0.0', 18085);
         _server.addRoutes([

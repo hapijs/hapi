@@ -403,5 +403,103 @@ describe('Cache Rules', function() {
             done();
         });
     });
+
+    describe('Stale', function() {
+
+        describe('#compile', function() {
+
+            it('throws an error if has only staleTimeoutMSec or staleInSec', function(done) {
+                var config = {
+                    mode: 'server',
+                    staleInSec: 30,
+                    expiresInSec: 60
+                };
+
+                var fn = function() {
+                    Cache.compile(config);
+                };
+
+                expect(fn).to.throw(Error);
+                done();
+            });
+
+            it('doesn\'t throw an error if has both staleTimeoutMSec and staleInSec', function(done) {
+                var config = {
+                    mode: 'server',
+                    staleInSec: 30,
+                    staleTimeoutMSec: 300,
+                    expiresInSec: 60
+                };
+
+                var fn = function() {
+                    Cache.compile(config);
+                };
+                expect(fn).to.not.throw(Error);
+                done();
+            });
+
+            it('throws an error if trying to use stale caching on the client', function(done) {
+                var config = {
+                    mode: 'client',
+                    staleInSec: 30,
+                    expiresInSec: 60,
+                    staleTimeoutMSec: 300
+                };
+
+                var fn = function() {
+                    Cache.compile(config);
+                };
+
+                expect(fn).to.throw(Error);
+                done();
+            });
+
+            it('converts the stale time to ms', function(done) {
+                var config = {
+                    mode: 'server+client',
+                    staleInSec: 30,
+                    expiresInSec: 60,
+                    staleTimeoutMSec: 300
+                };
+
+                var rule = Cache.compile(config);
+
+                expect(rule.staleIn).to.equal(config.staleInSec * 1000);
+                done();
+            });
+
+            it('throws an error if staleTimeoutMSec is greater than expiresInSec', function(done) {
+                var config = {
+                    mode: 'client',
+                    staleInSec: 2,
+                    expiresInSec: 1,
+                    staleTimeoutMSec: 3000
+                };
+
+                var fn = function() {
+                    Cache.compile(config);
+                };
+
+                expect(fn).to.throw(Error);
+                done();
+            });
+
+            it('throws an error if staleInSec is greater than expiresInSec', function(done) {
+                var config = {
+                    mode: 'client',
+                    staleInSec: 1,
+                    expiresInSec: 60,
+                    staleTimeoutMSec: 30
+                };
+
+                var fn = function() {
+                    Cache.compile(config);
+                };
+
+                expect(fn).to.throw(Error);
+                done();
+            });
+        });
+    });
 });
 
