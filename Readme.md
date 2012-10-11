@@ -112,6 +112,7 @@ var server = new Hapi.Server();
 
 **hapi** provides a rich set of configuration options for each server instance:
 
+- [`name`](#name)
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
@@ -122,6 +123,12 @@ var server = new Hapi.Server();
 - [`cache`](#cache)
 - [`debug`](#debug)
 - [`cors`](#cors)
+
+### Name
+
+Each **hapi** Server instance is named. The name is used to customize logs as well as to create the default cache partition as described in [Cache][#cache].
+To configure a name, use the `name` option with a string value. The value must not contain the '|' character which is reserved. If a name is not provided,
+the 'host:port' string is used.
 
 ### TLS
 
