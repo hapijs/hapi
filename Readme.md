@@ -313,6 +313,7 @@ to an object with custom configuration:
 - `engine` - currently must be set to _redis_.
 - `host` - the Redis server hostname, defaults to _127.0.0.1_.
 - `port` - the Redis server port, defaults to _6379_.
+- `partition` - an optional partition name used to isolate the cached helpers and routes across different servers. Set to the same name to share the cache namespace with other servers. Defaults to the server's name.
 
 Enabling the server cache only creates the cache interface but does not enable caching for any route, which must be enabled and configured in the
 route configuration.
