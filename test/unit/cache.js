@@ -14,7 +14,7 @@ describe('Client', function() {
                 engine: 'bob'
             };
 
-            var client = new Cache.Client(options);
+            var client = new Cache.Client({ settings: { name: 'test', cache: options } });
         };
 
         expect(fn).to.throw(Error);
@@ -29,7 +29,7 @@ describe('Client', function() {
             engine: 'redis'
         };
 
-        var client = new Cache.Client('test', options);
+        var client = new Cache.Client({ settings: { name: 'test', cache: options } });
         expect(client).to.exist;
 
         var fn = function() {
@@ -42,7 +42,7 @@ describe('Client', function() {
     });
 
     it('returns not found on get when using null key', function (done) {
-        var client = new Cache.Client('test', Defaults.cache);
+        var client = new Cache.Client({ settings: { name: 'test', cache: Defaults.cache } });
         client.get(null, function (err, result) {
 
             expect(err).to.equal(null);
@@ -52,7 +52,7 @@ describe('Client', function() {
     });
 
     it('returns error on set when using null key', function (done) {
-        var client = new Cache.Client('test', Defaults.cache);
+        var client = new Cache.Client({ settings: { name: 'test', cache: Defaults.cache } });
         client.set(null, {}, 1000, function (err) {
 
             expect(err instanceof Error).to.equal(true);
@@ -61,7 +61,7 @@ describe('Client', function() {
     });
 
     it('returns error on drop when using null key', function (done) {
-        var client = new Cache.Client('test', Defaults.cache);
+        var client = new Cache.Client({ settings: { name: 'test', cache: Defaults.cache } });
         client.drop(null, function (err) {
 
             expect(err instanceof Error).to.equal(true);
