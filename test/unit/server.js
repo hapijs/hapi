@@ -331,7 +331,7 @@ describe('Server', function () {
         it('throws an error when options.cache is not valid', function (done) {
             var fn = function () {
                 var server = new Server('0.0.0.0', 8097, { cache: true });
-                server.addHelper('user', function () { }, { cache: { mode: 'none', expiresInSec: 3 } });
+                server.addHelper('user', function () { }, { cache: { mode: 'none', expiresIn: 3000 } });
             };
             expect(fn).to.throw(Error);
             done();
@@ -340,7 +340,7 @@ describe('Server', function () {
         it('throws an error when options.cache is not enabled but server cache is not', function (done) {
             var fn = function () {
                 var server = new Server('0.0.0.0', 8097);
-                server.addHelper('user', function () { }, { cache: { expiresInSec: 3 } });
+                server.addHelper('user', function () { }, { cache: { expiresIn: 3000 } });
             };
             expect(fn).to.throw(Error);
             done();
@@ -379,7 +379,7 @@ describe('Server', function () {
 
             var server = new Server('0.0.0.0', 8097, { cache: true });
             var gen = 0;
-            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresInSec: 2 } });
+            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
             var id = Math.random();
             server.helpers.user(id, function (result1) {
 
@@ -398,7 +398,7 @@ describe('Server', function () {
 
             var server = new Server('0.0.0.0', 8097, { cache: true });
             var gen = 0;
-            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresInSec: 2 } });
+            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
             var id1 = Math.random();
             server.helpers.user(id1, function (result1) {
 

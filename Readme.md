@@ -564,20 +564,20 @@ Response validation can only be performed on object responses and will otherwise
     * `client` - Sends the Cache-Control HTTP header on the response to support client caching
     * `server` - Caches the route on the server only
     * `none` - Disable cache for the route on both the client and server
-* `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresInSec`.
+* `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
+* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
 
 For example, to configure a route to be cached on the client and to expire after 2 minutes the configuration would look like the following:
 ```
 {
     mode: 'client',
-    expiresInSec: 120
+    expiresIn: 120000
 }
 ```
 
 The server-side cache also supports these advanced options:
-* `staleInSec` - number of seconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400 seconds (one day) if using `expiresAt` or less than the value of `expiresInSec`. Used together with `staleTimeoutMSec`.
-* `staleTimeoutMSec` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresInSec` if used (after adjustment for units).
+* `staleIn` - number of milliseconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400000 milliseconds (one day) if using `expiresAt` or less than the value of `expiresIn`. Used together with `staleTimeout`.
+* `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
 
 ### Requisites
 
@@ -845,9 +845,9 @@ var user = function (id, next) {
 
 var options = {
     cache: {
-        expiresInSec: 2,
-        staleInSec: 1,
-        staleTimeoutMSec: 100
+        expiresIn: 2000,
+        staleIn: 1000,
+        staleTimeout: 100
     },
     keyGenerator: function (id) {
 
