@@ -1,7 +1,10 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Monitor = process.env.TEST_COV ? require('../../lib-cov/monitor/index') : require('../../lib/monitor/index');
+var Sinon = require('sinon');
+var monitorPath = require.resolve(process.env.TEST_COV ? '../../lib-cov/monitor/index' : '../../lib/monitor/index');
+var Monitor = require(monitorPath);
+var OSMonitor = process.env.TEST_COV ? require('../../lib-cov/monitor/system') : require('../../lib/monitor/system');
 
 
 describe('Monitor', function() {
@@ -91,5 +94,54 @@ describe('Monitor', function() {
         };
         expect(fn).throws(Error, 'Invalid monitor.requestsEvent configuration');
         done();
+    });
+
+    describe('#_broadcast', function() {
+
+        it('doesn\'t do anything if there are no subscribers', function(done) {
+            var config = {
+                settings: {
+                    monitor: {
+                        opsInterval: 200,
+                        subscribers: {},
+                        requestsEvent: 'response'
+                    }
+                }
+            };
+
+            var monitor = new Monitor(config);
+            var broadcast = monitor._broadcast();
+
+            expect(broadcast()).to.not.exist;
+            done();
+        });
+    });
+});
+
+describe('System Monitor', function() {
+
+    describe('#poll_cpu', function() {
+
+        it('returns an error if the target is invalid', function(done) {
+            var monitor = new OSMonitor.Monitor();
+            monitor.poll_cpu('invalid', function(err, result) {
+                expect(err).to.be.instanceOf(Error);
+                done();
+            });
+        });
+    });
+
+    describe('#disk', function() {
+
+        it('returns disk usage information', function(done) {
+            var monitor = new OSMonitor.Monitor();
+            monitor.disk(function(err, result) {
+                expect(err).to.not.exist;
+                expect(result).to.exist;
+                expect(result.free).to.be.greaterThan(1);
+                expect(result.total).to.be.greaterThan(1);
+                done();
+            });
+        });
     });
 });
