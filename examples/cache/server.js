@@ -26,9 +26,9 @@ internals.main = function () {
     // Set routes
 
     http.addRoutes([
-        { method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresInSec: 30 } } },
+        { method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } },
         { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
-        { method: 'GET', path: '/item/:id', config: { handler: internals.item, cache: { expiresInSec: 20, staleInSec: 10, staleTimeoutMSec: 500 } } }
+        { method: 'GET', path: '/item/:id', config: { handler: internals.item, cache: { expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } } }
     ]);
 
     // Start Hapi servers

@@ -15,7 +15,7 @@ internals.main = function () {
     // Create Hapi server
     var server = new Hapi.Server('0.0.0.0', 8080, { cache: true });
 
-    server.addHelper('user', internals.user, { cache: { expiresInSec: 2, staleInSec: 1, staleTimeoutMSec: 100 } });
+    server.addHelper('user', internals.user, { cache: { expiresIn: 2000, staleIn: 1000, staleTimeout: 100 } });
 
     server.helpers.user(4, function (result1) {
 
