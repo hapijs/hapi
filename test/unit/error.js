@@ -66,5 +66,41 @@ describe('Error', function() {
             expect(Error.internal('my message').message).to.equal('my message');
             done();
         });
+
+        it('passes data on the callback if its passed in', function(done) {
+            expect(Error.internal('my message', { my: 'data' }).data.my).to.equal('data');
+            done();
+        });
+    });
+
+    describe('#_oauth', function() {
+
+        it('returns a 400 error code', function(done) {
+            expect(Error._oauth('mycode', 'mymessage').code).to.equal(400);
+            done();
+        });
+
+        it('sets the passed in text', function(done) {
+            expect(Error._oauth('mycode', 'mymessage').text).to.equal('mymessage');
+            done();
+        });
+
+        it('sets the passed in code', function(done) {
+            expect(Error._oauth('mycode', 'mymessage').error).to.equal('mycode');
+            done();
+        });
+    });
+
+    describe('#format', function() {
+
+        it('formats oauth errors separately', function(done) {
+            expect(Error.format({ type: 'oauth', text: 'myerror' }).error_description).to.equal('myerror');
+            done();
+        });
+
+        it('formats internal errors with a standard message', function(done) {
+            expect(Error.format({ code: 500 }).message).to.equal('An internal server error occurred');
+            done();
+        });
     });
 });
