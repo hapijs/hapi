@@ -307,13 +307,14 @@ The authentication interface is disabled by default and is still experimental.
 
 ### Cache
 
-**hapi** provides a built-in caching facility for storing and reusing request responses. The initial implementation uses Redis for its storage needs
-(must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to _true_ or
+**hapi** provides a built-in caching facility for storing and reusing request responses. The provided implementations include Redis and MongoDB support
+(which must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to _true_ or
 to an object with custom configuration:
-- `engine` - currently must be set to _redis_.
-- `host` - the Redis server hostname, defaults to _127.0.0.1_.
-- `port` - the Redis server port, defaults to _6379_.
+- `engine` - the cache server implementation. Options are _redis_ and _mongo_. Defaults to _redis_.
+- `host` - the cache server hostname, defaults to _127.0.0.1_.
+- `port` - the cache server port, defaults to the store default port (e.g. _6379_ for Redis, _27017_ for MongoDB).
 - `partition` - an optional partition name used to isolate the cached helpers and routes across different servers. Set to the same name to share the cache namespace with other servers. Defaults to the server's name.
+- `username`, `password`, `poolSize` - MongoDB-specific options.
 
 Enabling the server cache only creates the cache interface but does not enable caching for any route, which must be enabled and configured in the
 route configuration.
@@ -364,7 +365,7 @@ The batch endpoint makes it easy to combine requests into a single one.  It also
 By default the batch endpoint is turned _off_.  To enable the batch endpoint set the `batch` option to _true_ or to an object with the following custom configuration:
 - `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
-As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/:id/profile/'.  You can make a POST request to the batch endpoint with the following body:
+As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/{id}/profile/'.  You can make a POST request to the batch endpoint with the following body:
 `{ "requests": [ {"method": "get", "path": "/currentuser"}, {"method": "get", "path": "/users/$0.id/profile"} ] }` and it will return an array with the current user and their profile.
 
 The response body to the batch endpoint is an ordered array of the response to each request.  Therefore, if you make a request to the batch endpoint that looks like `{ "requests": [ {"method": "get", "path": "/users/1"}, {"method": "get", "path": "/users/2"} ] }` the response might look like:
@@ -431,18 +432,18 @@ The **hapi** router iterates through the routing table on each incoming request 
 Route matching is done on the request path only (excluding the query and other components). The route `path` option support three types of paths:
 * Static - the route path is a static string which begin with _'/'_ and will only match incoming requests containing the exact string match (as defined by the server `router` option).
 * Parameterized - same as _static_ with the additional support of named parameters (prefixed with _':'_).
-* Regular expression - the route path will be matched against the provided regular expression. No parameter extraction performed.
 
 #### Parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
-'/book/:id/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
- the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix can at the end of the parameter name indicates
-an optional parameter. For example: the route: '/book/:id?' will match: '/book/' (and may match '/book' based on the server `router` option).
+'/book/{id}/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
+ the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
+an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/' (and may
+match '/book' based on the server `router` option).
 
 ```javascript
 server.addRoute({
-    path: '/:album/:song?',
+    path: '/{album}/{song?}',
     method: 'GET',
     handler: getAlbum
 });
@@ -867,7 +868,7 @@ Or used as a prerequisites:
 ```javascript
 http.addRoute({
     method: 'GET',
-    path: '/user/:id',
+    path: '/user/{id}',
     config: {
         pre: [
             {
