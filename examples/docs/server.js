@@ -43,7 +43,7 @@ internals.main = function () {
         { method: 'GET', path: '/test', config: { handler: internals.get, query: { num: N().min(0) } } },
         { method: 'GET', path: '/test2', config: { handler: internals.get, query: { p1: S().required().rename('itemId') } } },
         { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } },
-        { method: 'GET', path: '/users/:id', config: { description: 'Get a user', handler: internals.get, query: { name: S().description('the user name').required() } } }
+        { method: 'GET', path: '/users/{id}', config: { description: 'Get a user', handler: internals.get, query: { name: S().description('the user name').required() } } }
     ]);
 
     var schema = {
@@ -54,7 +54,7 @@ internals.main = function () {
 
     http.addRoute({
         method: 'POST',
-        path: '/users/:id',
+        path: '/users/{id}',
         config: {
             handler: internals.payload,
             query: {},

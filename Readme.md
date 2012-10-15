@@ -45,6 +45,7 @@ Current version: **0.8.0**
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+		- [Response Validation](#response-validation)
         - [Caching](#caching)
         - [Route Prerequisites](#route-prerequisites)
 <p></p>
@@ -57,6 +58,8 @@ Current version: **0.8.0**
 	- [**Request Tails**](#request-tails)
 <p></p>
 	- [**Request Injection**](#request-injection)
+<p></p>
+	- [**Server Helpers**](#server-helpers)
   
 # Usage
 
@@ -297,15 +300,28 @@ The authentication interface is disabled by default and is still experimental.
 
 ### Cache
 
-**hapi** provides a built-in caching facility for storing and reusing request responses. The initial implementation uses Redis for its storage needs
-(must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to _true_ or
-to an object with custom configuration:
-- `engine` - currently must be set to _redis_.
-- `host` - the Redis server hostname, defaults to _127.0.0.1_.
-- `port` - the Redis server port, defaults to _6379_.
+**hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
+(each must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to
+an object with the following options:
+- `engine` - the cache server implementation. Options are _redis_ and _mongodb_.
+- `host` - the cache server hostname.
+- `port` - the cache server port.
+- `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'.
+- `username`, `password`, `poolSize` - MongoDB-specific options.
 
-Enabling the server cache only creates the cache interface but does not enable caching for any route, which must be enabled and configured in the
-route configuration.
+For convenience, two pre-configured options are provided for Redis and MongoDB. To use them, simply set the server's `cache` option to:
+* _'redis'_ - Connects to _127.0.0.1:6379_ using partition name 'hapi-cache'.
+* _'mongodb'_ - Connects to _127.0.0.1:27017_ using partition name 'hapi-cache', no authentication, and pool size 5.
+
+For example:
+```javascript
+var options = {
+    cache: 'redis'
+};
+```
+
+Enabling the server cache only creates the cache interface but does not enable caching for any individual routes or helpers, which must be enabled
+and configured in the route or helper configuration.
 
 ### Debug
 
@@ -353,7 +369,7 @@ The batch endpoint makes it easy to combine requests into a single one.  It also
 By default the batch endpoint is turned _off_.  To enable the batch endpoint set the `batch` option to _true_ or to an object with the following custom configuration:
 - `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
-As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/:id/profile/'.  You can make a POST request to the batch endpoint with the following body:
+As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/{id}/profile/'.  You can make a POST request to the batch endpoint with the following body:
 `{ "requests": [ {"method": "get", "path": "/currentuser"}, {"method": "get", "path": "/users/$0.id/profile"} ] }` and it will return an array with the current user and their profile.
 
 The response body to the batch endpoint is an ordered array of the response to each request.  Therefore, if you make a request to the batch endpoint that looks like `{ "requests": [ {"method": "get", "path": "/users/1"}, {"method": "get", "path": "/users/2"} ] }` the response might look like:
@@ -386,6 +402,7 @@ to write additional text as the configuration itself serves as a living document
   * `tags` - route tags (array of strings).
   * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
   * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+  * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
   * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
     * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_.
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
@@ -419,18 +436,18 @@ The **hapi** router iterates through the routing table on each incoming request 
 Route matching is done on the request path only (excluding the query and other components). The route `path` option support three types of paths:
 * Static - the route path is a static string which begin with _'/'_ and will only match incoming requests containing the exact string match (as defined by the server `router` option).
 * Parameterized - same as _static_ with the additional support of named parameters (prefixed with _':'_).
-* Regular expression - the route path will be matched against the provided regular expression. No parameter extraction performed.
 
 #### Parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
-'/book/:id/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
- the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix can at the end of the parameter name indicates
-an optional parameter. For example: the route: '/book/:id?' will match: '/book/' (and may match '/book' based on the server `router` option).
+'/book/{id}/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
+ the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
+an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/' (and may
+match '/book' based on the server `router` option).
 
 ```javascript
 server.addRoute({
-    path: '/:album/:song?',
+    path: '/{album}/{song?}',
     method: 'GET',
     handler: getAlbum
 });
@@ -532,8 +549,17 @@ The route `config.query` defines the query validation rules performed before the
 
 The route `config.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
 - _'null'_ - any payload allowed (no validation performed). This is the default.
-- _'false'_ - no query parameters allowed.
+- _'false'_ or _'{}'_ - no payload allowed.
 - a validation rules object as described in [Data Validation](#data-validation).
+
+### Response Validation
+
+The route `config.response` defines the payload validation rules performed after the route handler is invoked. Supported values:
+- _'null'_ - any payload allowed (no validation performed). This is the default.
+- _'false'_ or _'{}'_ - no payload allowed.
+- a validation rules object as described in [Data Validation](#data-validation).
+
+Response validation can only be performed on object responses and will otherwise result in an error.
 
 ### Caching
 
@@ -543,20 +569,20 @@ The route `config.schema` defines the payload validation rules performed before 
     * `client` - Sends the Cache-Control HTTP header on the response to support client caching
     * `server` - Caches the route on the server only
     * `none` - Disable cache for the route on both the client and server
-* `expiresInSec` - relative expiration expressed in the number of seconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresInSec`.
+* `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
+* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
 
 For example, to configure a route to be cached on the client and to expire after 2 minutes the configuration would look like the following:
 ```
 {
     mode: 'client',
-    expiresInSec: 120
+    expiresIn: 120000
 }
 ```
 
 The server-side cache also supports these advanced options:
-* `staleInSec` - number of seconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400 seconds (one day) if using `expiresAt` or less than the value of `expiresInSec`. Used together with `staleTimeoutMSec`.
-* `staleTimeoutMSec` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresInSec` if used (after adjustment for units).
+* `staleIn` - number of milliseconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400000 milliseconds (one day) if using `expiresAt` or less than the value of `expiresIn`. Used together with `staleTimeout`.
+* `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
 
 ### Requisites
 
@@ -567,6 +593,49 @@ object with a single `method` key. The object options are:
 * `method` - the function to call. The function signature is _'function (request, next)'_. _'next([result])'_ must be called when the operation concludes. If the result is an Error, execution of other prerequisites stops and the error is handled in the same way as when an error is returned from the route handler.
 * `assign` - key name to assign the result of the function to within 'request.pre'.
 * `mode` - set the calling order of the function to 'serial' or 'parallel'. Defaults to 'serial'.
+
+For example:
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+var fetch1 = function (request, next) {
+
+    next('Hello');
+};
+
+var fetch2 = function (request, next) {
+
+    next('World');
+};
+
+var fetch3 = function (request, next) {
+
+    next(request.pre.m1 + ' ' + request.pre.m2);
+};
+
+var get = function (request) {
+
+    request.reply(request.pre.m3 + '\n');
+};
+
+// Set routes
+http.addRoute({
+    method: 'GET',
+    path: '/',
+    config: {
+        pre: [
+            { method: fetch1, assign: 'm1', mode: 'parallel' },
+            { method: fetch2, assign: 'm2', mode: 'parallel' },
+            { method: fetch3, assign: 'm3' },
+        ],
+        handler: get
+    }
+});
+
+// Start Hapi servers
+http.start();
+```
 
 ## Data Validation
 
@@ -750,6 +819,75 @@ var req = {
 http.inject(req, function (res) {
 
     console.log(res.result || res.readPayload());
+});
+```
+
+## Server Helpers
+
+Server helpers are functions registered with the server and can be used throughout the application. The advantage of using helpers is
+that they can be configured to use the built-in cache and shared across multiple request handlers. This provides a useful method for
+speeding up performance by declaring functions as common utilities with a shared cache.
+
+The signature of helper functions is _'function (arg1, arg2, ..., arg3, next)'_ where next is a function defined as _'function (result)'_.
+'result' can be any value or an Error (which must be generated using the **hapi** Error module is the helper is used as a prerequisite method).
+
+To add a helper, use the server's _'addHelper(name, method, options)'_ method where:
+* _'name'_ - is a unique helper name used to call the method (e.g. 'server.helpers.name').
+* _'method'_ - is the helper function.
+* _'options'_ - optional settings where:
+  * `cache` - cache configuration as described in [Caching](#caching). `mode` can use the default or be set to 'server'.
+  * `keyGenerator` - the server will automatically generate a unique key if the function's arguments (with the exception of the last 'next' argument) are all of type string, number, or boolean. However if the function uses other types of arguments, a key generation function must be provided which takes the same arguments as the function and returns a unique string (or null if no key can be generated). Note that when the keyGenerator method is invoked, the arguments list will include the next argument which must not be used in calculation of the key.
+
+For example:
+```javascript
+// Create Hapi server
+var server = new Hapi.Server('0.0.0.0', 8080);
+
+var user = function (id, next) {
+
+    next({ id: id });
+};
+
+var options = {
+    cache: {
+        expiresIn: 2000,
+        staleIn: 1000,
+        staleTimeout: 100
+    },
+    keyGenerator: function (id) {
+
+        return id;
+    };
+};
+
+server.addHelper('user', user, options);
+
+server.helpers.user(4, function (result) {
+
+    console.log(result);
+});
+```
+
+Or used as a prerequisites:
+```javascript
+http.addRoute({
+    method: 'GET',
+    path: '/user/{id}',
+    config: {
+        pre: [
+            {
+                assign: 'user',
+                method: function (request, next) {
+
+                    request.server.helpers.user(request.params.id, next);
+                }
+            }
+        ],
+        handler: function (request) {
+
+            request.reply(request.pre.user);
+        }
+    }
 });
 ```
 

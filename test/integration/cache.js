@@ -27,10 +27,10 @@ describe('Cache', function() {
     function setupServer(done) {
         _server = new Hapi.Server('0.0.0.0', 18085);
         _server.addRoutes([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresInSec: 120 } } },
-            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresInSec: 120 } } },
+            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000 } } },
+            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
-            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresInSec: 120 } } }
+            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } }
         ]);
         _server.listener.on('listening', function() {
             done();

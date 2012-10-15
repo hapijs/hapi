@@ -2,11 +2,13 @@
 
 var expect = require('chai').expect;
 var Cache = process.env.TEST_COV ? require('../../lib-cov/cache/index') : require('../../lib/cache/index');
+var Server = process.env.TEST_COV ? require('../../lib-cov/server') : require('../../lib/server');
+var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
 var Sinon = require('sinon');
 
 describe('Client', function() {
 
-    it('throws an error if not using the redis engine', function(done) {
+    it('throws an error if using an unknown engine type', function(done) {
         var fn = function() {
             var options = {
                 engine: 'bob'
@@ -23,11 +25,7 @@ describe('Client', function() {
         var redisMock = Sinon.mock(require('redis'));
         require.cache[require.resolve('redis')] = redisMock;
 
-        var options = {
-            engine: 'redis'
-        };
-
-        var client = new Cache.Client(options);
+        var client = new Cache.Client(Defaults.cache('redis'));
         expect(client).to.exist;
 
         var fn = function() {
@@ -38,6 +36,50 @@ describe('Client', function() {
         require.cache[require.resolve('redis')] = null;
         done();
     });
+
+    it('creates a new connection when using mongodb', function (done) {
+        var redisMock = Sinon.mock(require('mongodb'));
+        require.cache[require.resolve('mongodb')] = redisMock;
+
+        var client = new Cache.Client(Defaults.cache('mongodb'));
+        expect(client).to.exist;
+
+        var fn = function () {
+            redisMock.verify();
+        };
+
+        expect(fn).to.not.throw(Error);
+        require.cache[require.resolve('mongodb')] = null;
+        done();
+    });
+
+    it('returns not found on get when using null key', function (done) {
+        var client = new Cache.Client(Defaults.cache('redis'));
+        client.get(null, function (err, result) {
+
+            expect(err).to.equal(null);
+            expect(result).to.equal(null);
+            done();
+        });
+    });
+
+    it('returns error on set when using null key', function (done) {
+        var client = new Cache.Client(Defaults.cache('redis'));
+        client.set(null, {}, 1000, function (err) {
+
+            expect(err instanceof Error).to.equal(true);
+            done();
+        });
+    });
+
+    it('returns error on drop when using null key', function (done) {
+        var client = new Cache.Client(Defaults.cache('redis'));
+        client.drop(null, function (err) {
+
+            expect(err instanceof Error).to.equal(true);
+            done();
+        });
+    });
 });
 
 describe('Cache Rules', function() {
@@ -46,24 +88,24 @@ describe('Cache Rules', function() {
 
         it('compiles a single rule', function(done) {
             var config = {
-                expiresInSec: 50
+                expiresIn: 50000
             } ;
             var rule = Cache.compile(config);
 
-            expect(rule.expiresIn).to.equal(config.expiresInSec * 1000);
+            expect(rule.expiresIn).to.equal(config.expiresIn);
 
             done();
         });
 
         it('is enabled for both client and server by defaults', function (done) {
             var config = {
-                expiresInSec: 50
+                expiresIn: 50000
             };
-            var rule = Cache.compile(config);
+            var cache = new Cache.Policy('test', config, {});
 
-            expect(rule.mode.server).to.equal(true);
-            expect(rule.mode.client).to.equal(true);
-            expect(Object.keys(rule.mode).length).to.equal(2);
+            expect(cache.isMode('server')).to.equal(true);
+            expect(cache.isMode('client')).to.equal(true);
+            expect(Object.keys(cache.rule.mode).length).to.equal(2);
 
             done();
         });
@@ -72,20 +114,21 @@ describe('Cache Rules', function() {
             var config = {
                 mode: 'none'
             };
-            var rule = Cache.compile(config);
+            var cache = new Cache.Policy('test', config, {});
 
-            expect(Object.keys(rule.mode).length).to.equal(0);
+            expect(cache.isEnabled()).to.equal(false);
+            expect(Object.keys(cache.rule.mode).length).to.equal(0);
 
             done();
         });
 
-        it('is disabled when mode is none', function (done) {
+        it('throws an error when mode is none and config has other options set', function (done) {
             var config = {
                 mode: 'none',
-                expiresInSec: 50
+                expiresIn: 50000
             };
             var fn = function () {
-                Cache.compile(config);
+                var cache = new Cache.Policy('test', config, {});
             };
 
             expect(fn).to.throw(Error);
@@ -93,21 +136,21 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('assigns the expiresInSec when the rule is cached', function(done) {
+        it('assigns the expiresIn when the rule is cached', function(done) {
             var config = {
-                expiresInSec: 50
+                expiresIn: 50000
             } ;
             var rule = Cache.compile(config);
 
-            expect(rule.expiresIn).to.equal(config.expiresInSec * 1000);
+            expect(rule.expiresIn).to.equal(config.expiresIn);
 
             done();
         });
 
-        it('throws an error when parsing a rule with both expiresAt and expiresInSec', function (done) {
+        it('throws an error when parsing a rule with both expiresAt and expiresIn', function (done) {
             var config = {
                 expiresAt: 50,
-                expiresInSec: '02:00'
+                expiresIn: '02:00'
             };
             var fn = function () {
                 Cache.compile(config);
@@ -118,7 +161,7 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when parsing a rule with niether expiresAt or expiresInSec', function (done) {
+        it('throws an error when parsing a rule with niether expiresAt or expiresIn', function (done) {
             var config = {
             };
             var fn = function () {
@@ -143,10 +186,10 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when staleInSec is used without staleTimeoutMSec', function (done) {
+        it('throws an error when staleIn is used without staleTimeout', function (done) {
             var config = {
                 expiresAt: '03:00',
-                staleInSec: 1000
+                staleIn: 1000000
             };
             var fn = function () {
                 Cache.compile(config);
@@ -157,10 +200,10 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when staleTimeoutMSec is used without staleInSec', function (done) {
+        it('throws an error when staleTimeout is used without staleIn', function (done) {
             var config = {
                 expiresAt: '03:00',
-                staleTimeoutMSec: 100
+                staleTimeout: 100
             };
             var fn = function () {
                 Cache.compile(config);
@@ -171,11 +214,11 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when staleInSec is greater than a day and using expiresAt', function (done) {
+        it('throws an error when staleIn is greater than a day and using expiresAt', function (done) {
             var config = {
                 expiresAt: '03:00',
-                staleInSec: 100000,
-                staleTimeoutMSec: 500
+                staleIn: 100000000,
+                staleTimeout: 500
             };
             var fn = function () {
                 Cache.compile(config);
@@ -186,11 +229,11 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when staleInSec is greater than expiresInSec', function (done) {
+        it('throws an error when staleIn is greater than expiresIn', function (done) {
             var config = {
-                expiresInSec: 500,
-                staleInSec: 1000,
-                staleTimeoutMSec: 500
+                expiresIn: 500000,
+                staleIn: 1000000,
+                staleTimeout: 500
             };
             var fn = function () {
                 Cache.compile(config);
@@ -201,11 +244,11 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when staleTimeoutMSec is greater than expiresInSec', function (done) {
+        it('throws an error when staleTimeout is greater than expiresIn', function (done) {
             var config = {
-                expiresInSec: 500,
-                staleInSec: 100,
-                staleTimeoutMSec: 500000
+                expiresIn: 500000,
+                staleIn: 100000,
+                staleTimeout: 500000
             };
             var fn = function () {
                 Cache.compile(config);
@@ -216,11 +259,11 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when staleTimeoutMSec is greater than expiresInSec - staleInSec', function (done) {
+        it('throws an error when staleTimeout is greater than expiresIn - staleIn', function (done) {
             var config = {
-                expiresInSec: 30,
-                staleInSec: 20,
-                staleTimeoutMSec: 10000
+                expiresIn: 30000,
+                staleIn: 20000,
+                staleTimeout: 10000
             };
             var fn = function () {
                 Cache.compile(config);
@@ -231,15 +274,15 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('throws an error when staleTimeoutMSec is used without server mode', function (done) {
+        it('throws an error when staleTimeout is used without server mode', function (done) {
             var config = {
                 mode: 'client',
-                expiresInSec: 1000,
-                staleInSec: 500,
-                staleTimeoutMSec: 500
+                expiresIn: 1000000,
+                staleIn: 500000,
+                staleTimeout: 500
             };
             var fn = function () {
-                Cache.compile(config);
+                var cache = new Cache.Policy('test', config, {});
             };
 
             expect(fn).to.throw(Error);
@@ -247,11 +290,11 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('returns rule when staleInSec is less than expiresInSec', function(done) {
+        it('returns rule when staleIn is less than expiresIn', function(done) {
             var config = {
-                expiresInSec: 1000,
-                staleInSec: 500,
-                staleTimeoutMSec: 500
+                expiresIn: 1000000,
+                staleIn: 500000,
+                staleTimeout: 500
             };
             var rule = Cache.compile(config);
 
@@ -261,11 +304,11 @@ describe('Cache Rules', function() {
             done();
         });
 
-        it('returns rule when staleInSec is less than 24 hours and using expiresAt', function(done) {
+        it('returns rule when staleIn is less than 24 hours and using expiresAt', function(done) {
             var config = {
                 expiresAt: '03:00',
-                staleInSec: 5000,
-                staleTimeoutMSec: 500
+                staleIn: 5000000,
+                staleTimeout: 500
             };
             var rule = Cache.compile(config);
 
@@ -279,7 +322,7 @@ describe('Cache Rules', function() {
 
         it('returns zero when a rule is expired', function(done) {
             var config = {
-                expiresInSec: 50
+                expiresIn: 50000
             };
             var rule = Cache.compile(config);
             var created = new Date(Date.now());
@@ -292,7 +335,7 @@ describe('Cache Rules', function() {
 
         it('returns a positive number when a rule is not expired', function(done) {
             var config = {
-                expiresInSec: 50
+                expiresIn: 50000
             };
             var rule = Cache.compile(config);
             var created = new Date(Date.now());
@@ -304,7 +347,7 @@ describe('Cache Rules', function() {
 
         it('returns the correct expires time when no created time is provided', function(done) {
             var config = {
-                expiresInSec: 50
+                expiresIn: 50000
             };
             var rule = Cache.compile(config);
 
@@ -408,11 +451,11 @@ describe('Cache Rules', function() {
 
         describe('#compile', function() {
 
-            it('throws an error if has only staleTimeoutMSec or staleInSec', function(done) {
+            it('throws an error if has only staleTimeout or staleIn', function(done) {
                 var config = {
                     mode: 'server',
-                    staleInSec: 30,
-                    expiresInSec: 60
+                    staleIn: 30000,
+                    expiresIn: 60000
                 };
 
                 var fn = function() {
@@ -423,12 +466,12 @@ describe('Cache Rules', function() {
                 done();
             });
 
-            it('doesn\'t throw an error if has both staleTimeoutMSec and staleInSec', function(done) {
+            it('doesn\'t throw an error if has both staleTimeout and staleIn', function(done) {
                 var config = {
                     mode: 'server',
-                    staleInSec: 30,
-                    staleTimeoutMSec: 300,
-                    expiresInSec: 60
+                    staleIn: 30000,
+                    staleTimeout: 300,
+                    expiresIn: 60000
                 };
 
                 var fn = function() {
@@ -441,9 +484,9 @@ describe('Cache Rules', function() {
             it('throws an error if trying to use stale caching on the client', function(done) {
                 var config = {
                     mode: 'client',
-                    staleInSec: 30,
-                    expiresInSec: 60,
-                    staleTimeoutMSec: 300
+                    staleIn: 30000,
+                    expiresIn: 60000,
+                    staleTimeout: 300
                 };
 
                 var fn = function() {
@@ -457,23 +500,23 @@ describe('Cache Rules', function() {
             it('converts the stale time to ms', function(done) {
                 var config = {
                     mode: 'server+client',
-                    staleInSec: 30,
-                    expiresInSec: 60,
-                    staleTimeoutMSec: 300
+                    staleIn: 30000,
+                    expiresIn: 60000,
+                    staleTimeout: 300
                 };
 
                 var rule = Cache.compile(config);
 
-                expect(rule.staleIn).to.equal(config.staleInSec * 1000);
+                expect(rule.staleIn).to.equal(config.staleIn);
                 done();
             });
 
-            it('throws an error if staleTimeoutMSec is greater than expiresInSec', function(done) {
+            it('throws an error if staleTimeout is greater than expiresIn', function(done) {
                 var config = {
                     mode: 'client',
-                    staleInSec: 2,
-                    expiresInSec: 1,
-                    staleTimeoutMSec: 3000
+                    staleIn: 2000,
+                    expiresIn: 1000,
+                    staleTimeout: 3000
                 };
 
                 var fn = function() {
@@ -484,12 +527,12 @@ describe('Cache Rules', function() {
                 done();
             });
 
-            it('throws an error if staleInSec is greater than expiresInSec', function(done) {
+            it('throws an error if staleIn is greater than expiresIn', function(done) {
                 var config = {
                     mode: 'client',
-                    staleInSec: 1,
-                    expiresInSec: 60,
-                    staleTimeoutMSec: 30
+                    staleIn: 1000000,
+                    expiresIn: 60000,
+                    staleTimeout: 30
                 };
 
                 var fn = function() {
@@ -497,6 +540,169 @@ describe('Cache Rules', function() {
                 };
 
                 expect(fn).to.throw(Error);
+                done();
+            });
+        });
+    });
+});
+
+
+describe('Cache', function () {
+
+    it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
+
+        var options = {
+            cache: {
+                expiresIn: 200,
+                staleIn: 100,
+                staleTimeout: 50
+            }
+        };
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            setTimeout(function () {
+
+                return next({ id: id, gen: ++gen });
+            }, 55);
+        };
+
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+        server.addHelper('user', method, options);
+
+        var id = Math.random();
+        server.helpers.user(id, function (result1) {
+
+            result1.gen.should.be.equal(1);     // Fresh
+            setTimeout(function () {
+
+                server.helpers.user(id, function (result2) {
+
+                    result2.gen.should.be.equal(1);     // Stale
+                    setTimeout(function () {
+
+                        server.helpers.user(id, function (result3) {
+
+                            result3.gen.should.be.equal(2);     // Fresh
+                            done();
+                        });
+                    }, 30);
+                });
+            }, 110);
+        });
+    });
+
+    it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
+
+        var options = {
+            cache: {
+                expiresIn: 200,
+                staleIn: 100,
+                staleTimeout: 50
+            }
+        };
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            setTimeout(function () {
+
+                if (gen !== 1) {
+                    return next({ id: id, gen: ++gen });
+                }
+                else {
+                    ++gen;
+                    return next(new Error());
+                }
+            }, 55);
+        };
+
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+        server.addHelper('user', method, options);
+
+        var id = Math.random();
+        server.helpers.user(id, function (result1) {
+
+            result1.gen.should.be.equal(1);     // Fresh
+            setTimeout(function () {
+
+                server.helpers.user(id, function (result2) {
+
+                    // Generates a new one in background which will produce Error and clear the cache
+
+                    result2.gen.should.be.equal(1);     // Stale
+
+                    setTimeout(function () {
+
+                        server.helpers.user(id, function (result3) {
+
+                            result3.gen.should.be.equal(3);     // Fresh
+                            done();
+                        });
+                    }, 30);
+                });
+            }, 110);
+        });
+    });
+
+    it('returns fresh object calling a helper using the cache with stale config', function (done) {
+
+        var options = {
+            cache: {
+                expiresIn: 200,
+                staleIn: 100,
+                staleTimeout: 50
+            }
+        };
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next({ id: id, gen: ++gen });
+        };
+
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+        server.addHelper('user', method, options);
+
+        var id = Math.random();
+        server.helpers.user(id, function (result1) {
+
+            result1.gen.should.be.equal(1);     // Fresh
+            setTimeout(function () {
+
+                server.helpers.user(id, function (result2) {
+
+                    result2.gen.should.be.equal(2);     // Fresh
+
+                    setTimeout(function () {
+
+                        server.helpers.user(id, function (result3) {
+
+                            result3.gen.should.be.equal(2);     // Fresh
+                            done();
+                        });
+                    }, 50);
+                });
+            }, 150);
+        });
+    });
+
+    it('returns a valid result when calling a helper using the cache with bad cache connection', function (done) {
+
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+        server.cache.stop();
+        var gen = 0;
+        server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+        var id = Math.random();
+        server.helpers.user(id, function (result1) {
+
+            result1.id.should.be.equal(id);
+            result1.gen.should.be.equal(1);
+            server.helpers.user(id, function (result2) {
+
+                result2.id.should.be.equal(id);
+                result2.gen.should.be.equal(2);
                 done();
             });
         });

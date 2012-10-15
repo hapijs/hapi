@@ -11,7 +11,7 @@ var internals = {};
 internals.main = function () {
 
     // Create Hapi servers
-    var http = new Hapi.Server('0.0.0.0', 8080);
+    var http = new Hapi.Server('0.0.0.0', 8080, { debug: true });
 
     // Set routes
     http.addRoute({
