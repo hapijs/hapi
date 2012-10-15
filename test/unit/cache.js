@@ -557,217 +557,169 @@ describe('Cache Rules', function() {
 
 describe('Cache', function () {
 
-    it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
+    function testCache(engine) {
 
-        var options = {
-            cache: {
-                expiresIn: 200,
-                staleIn: 100,
-                staleTimeout: 50
-            }
-        };
+        it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config (' + engine + ')', function (done) {
 
-        var gen = 0;
-        var method = function (id, next) {
+            var options = {
+                cache: {
+                    expiresIn: 200,
+                    staleIn: 100,
+                    staleTimeout: 50
+                }
+            };
 
-            setTimeout(function () {
+            var gen = 0;
+            var method = function (id, next) {
 
-                return next({ id: id, gen: ++gen });
-            }, 55);
-        };
+                setTimeout(function () {
 
-        var server = new Server('0.0.0.0', 8097, { cache: true });
-        server.addHelper('user', method, options);
-
-        var id = Math.random();
-        server.helpers.user(id, function (result1) {
-
-            result1.gen.should.be.equal(1);     // Fresh
-            setTimeout(function () {
-
-                server.helpers.user(id, function (result2) {
-
-                    result2.gen.should.be.equal(1);     // Stale
-                    setTimeout(function () {
-
-                        server.helpers.user(id, function (result3) {
-
-                            result3.gen.should.be.equal(2);     // Fresh
-                            done();
-                        });
-                    }, 30);
-                });
-            }, 110);
-        });
-    });
-
-    it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
-
-        var options = {
-            cache: {
-                expiresIn: 200,
-                staleIn: 100,
-                staleTimeout: 50
-            }
-        };
-
-        var gen = 0;
-        var method = function (id, next) {
-
-            setTimeout(function () {
-
-                if (gen !== 1) {
                     return next({ id: id, gen: ++gen });
-                }
-                else {
-                    ++gen;
-                    return next(new Error());
-                }
-            }, 55);
-        };
+                }, 55);
+            };
 
-        var server = new Server('0.0.0.0', 8097, { cache: true });
-        server.addHelper('user', method, options);
+            var server = new Server('0.0.0.0', 8097, { cache: { engine: engine } });
+            server.addHelper('user', method, options);
 
-        var id = Math.random();
-        server.helpers.user(id, function (result1) {
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
 
-            result1.gen.should.be.equal(1);     // Fresh
-            setTimeout(function () {
+                result1.gen.should.be.equal(1);     // Fresh
+                setTimeout(function () {
 
-                server.helpers.user(id, function (result2) {
+                    server.helpers.user(id, function (result2) {
 
-                    // Generates a new one in background which will produce Error and clear the cache
+                        result2.gen.should.be.equal(1);     // Stale
+                        setTimeout(function () {
 
-                    result2.gen.should.be.equal(1);     // Stale
+                            server.helpers.user(id, function (result3) {
 
-                    setTimeout(function () {
-
-                        server.helpers.user(id, function (result3) {
-
-                            result3.gen.should.be.equal(3);     // Fresh
-                            done();
-                        });
-                    }, 30);
-                });
-            }, 110);
-        });
-    });
-
-    it('returns fresh object calling a helper using the cache with stale config', function (done) {
-
-        var options = {
-            cache: {
-                expiresIn: 200,
-                staleIn: 100,
-                staleTimeout: 50
-            }
-        };
-
-        var gen = 0;
-        var method = function (id, next) {
-
-            return next({ id: id, gen: ++gen });
-        };
-
-        var server = new Server('0.0.0.0', 8097, { cache: true });
-        server.addHelper('user', method, options);
-
-        var id = Math.random();
-        server.helpers.user(id, function (result1) {
-
-            result1.gen.should.be.equal(1);     // Fresh
-            setTimeout(function () {
-
-                server.helpers.user(id, function (result2) {
-
-                    result2.gen.should.be.equal(2);     // Fresh
-
-                    setTimeout(function () {
-
-                        server.helpers.user(id, function (result3) {
-
-                            result3.gen.should.be.equal(2);     // Fresh
-                            done();
-                        });
-                    }, 50);
-                });
-            }, 150);
-        });
-    });
-
-    it('returns a valid result when calling a helper using the cache with bad cache connection', function (done) {
-
-        var server = new Server('0.0.0.0', 8097, { cache: true });
-        server.cache.stop();
-        var gen = 0;
-        server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
-        var id = Math.random();
-        server.helpers.user(id, function (result1) {
-
-            result1.id.should.be.equal(id);
-            result1.gen.should.be.equal(1);
-            server.helpers.user(id, function (result2) {
-
-                result2.id.should.be.equal(id);
-                result2.gen.should.be.equal(2);
-                done();
+                                result3.gen.should.be.equal(2);     // Fresh
+                                done();
+                            });
+                        }, 30);
+                    });
+                }, 110);
             });
         });
-    });
-/*
-    it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config (mongo)', function (done) {
 
-        this.timeout(10000);
-        var options = {
-            cache: {
-                expiresIn: 200,
-                staleIn: 100,
-                staleTimeout: 50
-            }
-        };
+        it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config (' + engine + ')', function (done) {
 
-        var gen = 0;
-        var method = function (id, next) {
-
-            setTimeout(function () {
-
-                if (gen !== 1) {
-                    return next({ id: id, gen: ++gen });
+            var options = {
+                cache: {
+                    expiresIn: 200,
+                    staleIn: 100,
+                    staleTimeout: 50
                 }
-                else {
-                    ++gen;
-                    return next(new Error());
+            };
+
+            var gen = 0;
+            var method = function (id, next) {
+
+                setTimeout(function () {
+
+                    if (gen !== 1) {
+                        return next({ id: id, gen: ++gen });
+                    }
+                    else {
+                        ++gen;
+                        return next(new Error());
+                    }
+                }, 55);
+            };
+
+            var server = new Server('0.0.0.0', 8097, { cache: { engine: engine } });
+            server.addHelper('user', method, options);
+
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
+
+                result1.gen.should.be.equal(1);     // Fresh
+                setTimeout(function () {
+
+                    server.helpers.user(id, function (result2) {
+
+                        // Generates a new one in background which will produce Error and clear the cache
+
+                        result2.gen.should.be.equal(1);     // Stale
+
+                        setTimeout(function () {
+
+                            server.helpers.user(id, function (result3) {
+
+                                result3.gen.should.be.equal(3);     // Fresh
+                                done();
+                            });
+                        }, 30);
+                    });
+                }, 110);
+            });
+        });
+
+        it('returns fresh object calling a helper using the cache with stale config (' + engine + ')', function (done) {
+
+            var options = {
+                cache: {
+                    expiresIn: 200,
+                    staleIn: 100,
+                    staleTimeout: 50
                 }
-            }, 55);
-        };
+            };
 
-        var server = new Server('0.0.0.0', 8097, { cache: { engine: 'mongo' } });
-        server.addHelper('user', method, options);
+            var gen = 0;
+            var method = function (id, next) {
 
-        var id = Math.random();
-        server.helpers.user(id, function (result1) {
+                return next({ id: id, gen: ++gen });
+            };
 
-            result1.gen.should.be.equal(1);     // Fresh
-            setTimeout(function () {
+            var server = new Server('0.0.0.0', 8097, { cache: { engine: engine } });
+            server.addHelper('user', method, options);
 
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
+
+                result1.gen.should.be.equal(1);     // Fresh
+                setTimeout(function () {
+
+                    server.helpers.user(id, function (result2) {
+
+                        result2.gen.should.be.equal(2);     // Fresh
+
+                        setTimeout(function () {
+
+                            server.helpers.user(id, function (result3) {
+
+                                result3.gen.should.be.equal(2);     // Fresh
+                                done();
+                            });
+                        }, 50);
+                    });
+                }, 150);
+            });
+        });
+
+        it('returns a valid result when calling a helper using the cache with bad cache connection (' + engine + ')', function (done) {
+
+            var server = new Server('0.0.0.0', 8097, { cache: { engine: engine } });
+            server.cache.stop();
+            var gen = 0;
+            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
+
+                result1.id.should.be.equal(id);
+                result1.gen.should.be.equal(1);
                 server.helpers.user(id, function (result2) {
 
-                    // Generates a new one in background which will produce Error and clear the cache
-
-                    result2.gen.should.be.equal(1);     // Stale
-
-                    setTimeout(function () {
-
-                        server.helpers.user(id, function (result3) {
-
-                            result3.gen.should.be.equal(3);     // Fresh
-                            done();
-                        });
-                    }, 30);
+                    result2.id.should.be.equal(id);
+                    result2.gen.should.be.equal(2);
+                    done();
                 });
-            }, 110);
+            });
         });
-    });*/
+    }
+
+    testCache('redis');
+    testCache('mongo');
 });
 
