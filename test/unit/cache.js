@@ -1,10 +1,13 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Cache = process.env.TEST_COV ? require('../../lib-cov/cache/index') : require('../../lib/cache/index');
-var Server = process.env.TEST_COV ? require('../../lib-cov/server') : require('../../lib/server');
-var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
+var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var Cache = require(libPath + 'cache/index');
+var Server = require(libPath + 'server');
+var Defaults = require(libPath + 'defaults');
 var Sinon = require('sinon');
+var FakeRedis = require('fakeredis');
+var Proxyquire = require('proxyquire');
 
 describe('Client', function() {
 
@@ -548,6 +551,19 @@ describe('Cache Rules', function() {
 
 
 describe('Cache', function () {
+
+    before(function() {
+
+        var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
+        var fakeCache = Proxyquire.resolve(libPath + 'cache/index', __dirname, { './redis': fakeRedisClient });
+        Server = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
+    });
+
+    after(function() {
+
+        Server = require(libPath + 'server');
+    });
+
 
     it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 

@@ -1,7 +1,10 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Server = process.env.TEST_COV ? require('../../lib-cov/server') : require('../../lib/server');
+var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var Server = require(libPath + 'server');
+var FakeRedis = require('fakeredis');
+var Proxyquire = require('proxyquire');
 
 
 describe('Server', function () {
@@ -375,41 +378,56 @@ describe('Server', function () {
             });
         });
 
-        it('returns a valid result when calling a helper using the cache', function (done) {
+        describe('with cache', function() {
 
-            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
-            var gen = 0;
-            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
-            var id = Math.random();
-            server.helpers.user(id, function (result1) {
+            before(function() {
 
-                result1.id.should.be.equal(id);
-                result1.gen.should.be.equal(1);
-                server.helpers.user(id, function (result2) {
+                var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
+                var fakeCache = Proxyquire.resolve(libPath + 'cache/index', __dirname, { './redis': fakeRedisClient });
+                Server = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
+            });
 
-                    result2.id.should.be.equal(id);
-                    result2.gen.should.be.equal(1);
-                    done();
+            after(function() {
+
+                Server = require(libPath + 'server');
+            });
+
+            it('returns a valid result when calling a helper using the cache', function (done) {
+
+                var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+                var gen = 0;
+                server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+                var id = Math.random();
+                server.helpers.user(id, function (result1) {
+
+                    result1.id.should.be.equal(id);
+                    result1.gen.should.be.equal(1);
+                    server.helpers.user(id, function (result2) {
+
+                        result2.id.should.be.equal(id);
+                        result2.gen.should.be.equal(1);
+                        done();
+                    });
                 });
             });
-        });
 
-        it('returns valid results when calling a helper (with different keys) using the cache', function (done) {
+            it('returns valid results when calling a helper (with different keys) using the cache', function (done) {
 
-            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
-            var gen = 0;
-            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
-            var id1 = Math.random();
-            server.helpers.user(id1, function (result1) {
+                var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+                var gen = 0;
+                server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+                var id1 = Math.random();
+                server.helpers.user(id1, function (result1) {
 
-                result1.id.should.be.equal(id1);
-                result1.gen.should.be.equal(1);
-                var id2 = Math.random();
-                server.helpers.user(id2, function (result2) {
+                    result1.id.should.be.equal(id1);
+                    result1.gen.should.be.equal(1);
+                    var id2 = Math.random();
+                    server.helpers.user(id2, function (result2) {
 
-                    result2.id.should.be.equal(id2);
-                    result2.gen.should.be.equal(2);
-                    done();
+                        result2.id.should.be.equal(id2);
+                        result2.gen.should.be.equal(2);
+                        done();
+                    });
                 });
             });
         });
