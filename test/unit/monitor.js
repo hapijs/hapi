@@ -131,7 +131,7 @@ describe('System Monitor', function() {
         });
     });
 
-    /*describe('#disk', function() {
+    describe('#disk', function() {
 
         it('returns disk usage information', function(done) {
             var monitor = new OSMonitor.Monitor();
@@ -143,5 +143,5 @@ describe('System Monitor', function() {
                 done();
             });
         });
-    });*/
+    });
 });
