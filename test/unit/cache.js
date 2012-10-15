@@ -8,7 +8,7 @@ var Sinon = require('sinon');
 
 describe('Client', function() {
 
-    it('throws an error if not using the redis engine', function(done) {
+    it('throws an error if using an unknown engine type', function(done) {
         var fn = function() {
             var options = {
                 engine: 'bob'
@@ -38,6 +38,26 @@ describe('Client', function() {
 
         expect(fn).to.not.throw(Error);
         require.cache[require.resolve('redis')] = null;
+        done();
+    });
+
+    it('creates a new connection when using mongo', function (done) {
+        var redisMock = Sinon.mock(require('mongodb'));
+        require.cache[require.resolve('mongodb')] = redisMock;
+
+        var options = {
+            engine: 'mongo'
+        };
+
+        var client = new Cache.Client({ settings: { name: 'test', cache: options } });
+        expect(client).to.exist;
+
+        var fn = function () {
+            redisMock.verify();
+        };
+
+        expect(fn).to.not.throw(Error);
+        require.cache[require.resolve('mongodb')] = null;
         done();
     });
 
@@ -535,7 +555,7 @@ describe('Cache Rules', function() {
 });
 
 
-describe('Stale', function () {
+describe('Cache', function () {
 
     it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
@@ -695,5 +715,59 @@ describe('Stale', function () {
             });
         });
     });
+/*
+    it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config (mongo)', function (done) {
+
+        this.timeout(10000);
+        var options = {
+            cache: {
+                expiresIn: 200,
+                staleIn: 100,
+                staleTimeout: 50
+            }
+        };
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            setTimeout(function () {
+
+                if (gen !== 1) {
+                    return next({ id: id, gen: ++gen });
+                }
+                else {
+                    ++gen;
+                    return next(new Error());
+                }
+            }, 55);
+        };
+
+        var server = new Server('0.0.0.0', 8097, { cache: { engine: 'mongo' } });
+        server.addHelper('user', method, options);
+
+        var id = Math.random();
+        server.helpers.user(id, function (result1) {
+
+            result1.gen.should.be.equal(1);     // Fresh
+            setTimeout(function () {
+
+                server.helpers.user(id, function (result2) {
+
+                    // Generates a new one in background which will produce Error and clear the cache
+
+                    result2.gen.should.be.equal(1);     // Stale
+
+                    setTimeout(function () {
+
+                        server.helpers.user(id, function (result3) {
+
+                            result3.gen.should.be.equal(3);     // Fresh
+                            done();
+                        });
+                    }, 30);
+                });
+            }, 110);
+        });
+    });*/
 });
 

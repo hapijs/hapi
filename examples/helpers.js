@@ -13,7 +13,7 @@ var internals = {
 internals.main = function () {
 
     // Create Hapi server
-    var server = new Hapi.Server('0.0.0.0', 8080, { cache: true });
+    var server = new Hapi.Server('0.0.0.0', 8080, { cache: { engine: 'mongo' } });
 
     server.addHelper('user', internals.user, { cache: { expiresIn: 2000, staleIn: 1000, staleTimeout: 100 } });
 

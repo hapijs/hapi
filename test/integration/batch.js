@@ -70,7 +70,7 @@ describe('Batch', function() {
             { method: 'GET', path: '/errorValue', config: { handler: errorResponseHandler } },
             { method: 'GET', path: '/profile', config: { handler: profileHandler } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler } },
-            { method: 'GET', path: '/item/:id', config: { handler: itemHandler } },
+            { method: 'GET', path: '/item/{id}', config: { handler: itemHandler } },
             {
                 method: 'GET',
                 path: '/fetch',
