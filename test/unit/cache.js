@@ -8,7 +8,7 @@ var Sinon = require('sinon');
 
 describe('Client', function() {
 
-    it('throws an error if using an unknown engine type', function(done) {
+    it('throws an error if not using an allowed cache engine', function(done) {
         var fn = function() {
             var options = {
                 engine: 'bob'
