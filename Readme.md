@@ -112,7 +112,6 @@ var server = new Hapi.Server();
 
 **hapi** provides a rich set of configuration options for each server instance:
 
-- [`name`](#name)
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
@@ -123,12 +122,6 @@ var server = new Hapi.Server();
 - [`cache`](#cache)
 - [`debug`](#debug)
 - [`cors`](#cors)
-
-### Name
-
-Each **hapi** Server instance is named. The name is used to customize logs as well as to create the default cache partition as described in [Cache][#cache].
-To configure a name, use the `name` option with a string value. The value must not contain the '|' character which is reserved. If a name is not provided,
-the 'host:port' string is used.
 
 ### TLS
 
@@ -307,17 +300,28 @@ The authentication interface is disabled by default and is still experimental.
 
 ### Cache
 
-**hapi** provides a built-in caching facility for storing and reusing request responses. The provided implementations include Redis and MongoDB support
-(which must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to _true_ or
-to an object with custom configuration:
-- `engine` - the cache server implementation. Options are _redis_ and _mongo_. Defaults to _redis_.
-- `host` - the cache server hostname, defaults to _127.0.0.1_.
-- `port` - the cache server port, defaults to the store default port (e.g. _6379_ for Redis, _27017_ for MongoDB).
-- `partition` - an optional partition name used to isolate the cached helpers and routes across different servers. Set to the same name to share the cache namespace with other servers. Defaults to the server's name.
+**hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
+(each must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to
+an object with the following options:
+- `engine` - the cache server implementation. Options are _redis_ and _mongodb_.
+- `host` - the cache server hostname.
+- `port` - the cache server port.
+- `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'.
 - `username`, `password`, `poolSize` - MongoDB-specific options.
 
-Enabling the server cache only creates the cache interface but does not enable caching for any route, which must be enabled and configured in the
-route configuration.
+For convenience, two pre-configured options are provided for Redis and MongoDB. To use them, simply set the server's `cache` option to:
+* _'redis'_ - Connects to _127.0.0.1:6379_ using partition name 'hapi-cache'.
+* _'mongodb'_ - Connects to _127.0.0.1:27017_ using partition name 'hapi-cache', no authentication, and pool size 5.
+
+For example:
+```javascript
+var options = {
+    cache: 'redis'
+};
+```
+
+Enabling the server cache only creates the cache interface but does not enable caching for any individual routes or helpers, which must be enabled
+and configured in the route or helper configuration.
 
 ### Debug
 

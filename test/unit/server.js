@@ -330,7 +330,7 @@ describe('Server', function () {
 
         it('throws an error when options.cache is not valid', function (done) {
             var fn = function () {
-                var server = new Server('0.0.0.0', 8097, { cache: true });
+                var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
                 server.addHelper('user', function () { }, { cache: { mode: 'none', expiresIn: 3000 } });
             };
             expect(fn).to.throw(Error);
@@ -377,7 +377,7 @@ describe('Server', function () {
 
         it('returns a valid result when calling a helper using the cache', function (done) {
 
-            var server = new Server('0.0.0.0', 8097, { cache: true });
+            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
             var gen = 0;
             server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
             var id = Math.random();
@@ -396,7 +396,7 @@ describe('Server', function () {
 
         it('returns valid results when calling a helper (with different keys) using the cache', function (done) {
 
-            var server = new Server('0.0.0.0', 8097, { cache: true });
+            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
             var gen = 0;
             server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
             var id1 = Math.random();

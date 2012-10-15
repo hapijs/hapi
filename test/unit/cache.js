@@ -14,7 +14,7 @@ describe('Client', function() {
                 engine: 'bob'
             };
 
-            var client = new Cache.Client({ settings: { name: 'test', cache: options } });
+            var client = new Cache.Client(options);
         };
 
         expect(fn).to.throw(Error);
@@ -25,11 +25,7 @@ describe('Client', function() {
         var redisMock = Sinon.mock(require('redis'));
         require.cache[require.resolve('redis')] = redisMock;
 
-        var options = {
-            engine: 'redis'
-        };
-
-        var client = new Cache.Client({ settings: { name: 'test', cache: options } });
+        var client = new Cache.Client(Defaults.cache('redis'));
         expect(client).to.exist;
 
         var fn = function() {
@@ -41,15 +37,11 @@ describe('Client', function() {
         done();
     });
 
-    it('creates a new connection when using mongo', function (done) {
+    it('creates a new connection when using mongodb', function (done) {
         var redisMock = Sinon.mock(require('mongodb'));
         require.cache[require.resolve('mongodb')] = redisMock;
 
-        var options = {
-            engine: 'mongo'
-        };
-
-        var client = new Cache.Client({ settings: { name: 'test', cache: options } });
+        var client = new Cache.Client(Defaults.cache('mongodb'));
         expect(client).to.exist;
 
         var fn = function () {
@@ -62,7 +54,7 @@ describe('Client', function() {
     });
 
     it('returns not found on get when using null key', function (done) {
-        var client = new Cache.Client({ settings: { name: 'test', cache: Defaults.cache } });
+        var client = new Cache.Client(Defaults.cache('redis'));
         client.get(null, function (err, result) {
 
             expect(err).to.equal(null);
@@ -72,7 +64,7 @@ describe('Client', function() {
     });
 
     it('returns error on set when using null key', function (done) {
-        var client = new Cache.Client({ settings: { name: 'test', cache: Defaults.cache } });
+        var client = new Cache.Client(Defaults.cache('redis'));
         client.set(null, {}, 1000, function (err) {
 
             expect(err instanceof Error).to.equal(true);
@@ -81,7 +73,7 @@ describe('Client', function() {
     });
 
     it('returns error on drop when using null key', function (done) {
-        var client = new Cache.Client({ settings: { name: 'test', cache: Defaults.cache } });
+        var client = new Cache.Client(Defaults.cache('redis'));
         client.drop(null, function (err) {
 
             expect(err instanceof Error).to.equal(true);
@@ -576,7 +568,7 @@ describe('Cache', function () {
             }, 55);
         };
 
-        var server = new Server('0.0.0.0', 8097, { cache: true });
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
         server.addHelper('user', method, options);
 
         var id = Math.random();
@@ -626,7 +618,7 @@ describe('Cache', function () {
             }, 55);
         };
 
-        var server = new Server('0.0.0.0', 8097, { cache: true });
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
         server.addHelper('user', method, options);
 
         var id = Math.random();
@@ -670,7 +662,7 @@ describe('Cache', function () {
             return next({ id: id, gen: ++gen });
         };
 
-        var server = new Server('0.0.0.0', 8097, { cache: true });
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
         server.addHelper('user', method, options);
 
         var id = Math.random();
@@ -698,7 +690,7 @@ describe('Cache', function () {
 
     it('returns a valid result when calling a helper using the cache with bad cache connection', function (done) {
 
-        var server = new Server('0.0.0.0', 8097, { cache: true });
+        var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
         server.cache.stop();
         var gen = 0;
         server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
