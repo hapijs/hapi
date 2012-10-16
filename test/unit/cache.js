@@ -28,11 +28,21 @@ require('../suite')(function (useRedis, useMongo) {
         if (useRedis) {
             it('creates a new connection when using redis', function (done) {
                 var client = new Cache.Client(Defaults.cache('redis'));
+                expect(client).to.exist;
+                done();
+            });
+        }
+
+        if (useMongo) {
+            it('creates a new connection when using mongodb', function (done) {
+                var client = new Cache.Client(Defaults.cache('mongodb'));
 
                 expect(client).to.exist;
                 done();
             });
+        }
 
+        if (useRedis) {
             it('returns not found on get when using null key', function (done) {
                 var client = new Cache.Client(Defaults.cache('redis'));
                 client.get(null, function (err, result) {
@@ -70,6 +80,58 @@ require('../suite')(function (useRedis, useMongo) {
                 done();
             });
         }
+
+        describe('#stop', function() {
+
+            if (useMongo) {
+                it('closes the connection when using mongodb', function (done) {
+                    var client = new Cache.Client(Defaults.cache('mongodb'));
+
+                    expect(client.connection.client).to.exist;
+
+                    client.stop();
+                    expect(client.connection.client).to.not.exist;
+                    done();
+                });
+            }
+
+            if (useRedis) {
+                it('closes the connection when using redis', function (done) {
+                    var client = new Cache.Client(Defaults.cache('redis'));
+
+                    expect(client.connection.client).to.exist;
+
+                    client.stop();
+                    expect(client.connection.client).to.not.exist;
+                    done();
+                });
+            }
+        });
+
+        describe('#stop', function() {
+
+            if (useMongo) {
+                it('closes the connection when using mongodb', function (done) {
+                    var client = new Cache.Client(Defaults.cache('mongodb'));
+
+                    expect(client.connection.client).to.exist;
+
+                    client.stop();
+                    expect(client.connection.client).to.not.exist;
+                    done();
+                });
+            }
+
+            it('closes the connection when using redis', function (done) {
+                var client = new Cache.Client(Defaults.cache('redis'));
+
+                expect(client.connection.client).to.exist;
+
+                client.stop();
+                expect(client.connection.client).to.not.exist;
+                done();
+            });
+        });
     });
 
     describe('Cache Rules', function () {
@@ -87,49 +149,33 @@ require('../suite')(function (useRedis, useMongo) {
                 done();
             });
 
-            if (useRedis) {
-                it('is enabled for both client and server by defaults', function (done) {
-                    var config = {
-                        expiresIn: 50000,
-                        segment: 'test'
-                    };
-                    var client = new Cache.Client(Defaults.cache('redis'));
-                    var cache = new Cache.Policy(config, client);
+            it('is enabled for both client and server by defaults', function (done) {
+                var config = {
+                    expiresIn: 50000,
+                    segment: 'test'
+                };
+                var client = new Cache.Client(Defaults.cache('redis'));
+                var cache = new Cache.Policy(config, client);
 
-                    expect(cache.isMode('server')).to.equal(true);
-                    expect(cache.isMode('client')).to.equal(true);
-                    expect(Object.keys(cache.rule.mode).length).to.equal(2);
+                expect(cache.isMode('server')).to.equal(true);
+                expect(cache.isMode('client')).to.equal(true);
+                expect(Object.keys(cache.rule.mode).length).to.equal(2);
 
-                    done();
-                });
+                done();
+            });
 
-                it('is disabled when mode is none', function (done) {
-                    var config = {
-                        mode: 'none'
-                    };
-                    var client = new Cache.Client(Defaults.cache('redis'));
-                    var cache = new Cache.Policy(config, client);
+            it('is disabled when mode is none', function (done) {
+                var config = {
+                    mode: 'none'
+                };
+                var client = new Cache.Client(Defaults.cache('redis'));
+                var cache = new Cache.Policy(config, client);
 
-                    expect(cache.isEnabled()).to.equal(false);
-                    expect(Object.keys(cache.rule.mode).length).to.equal(0);
+                expect(cache.isEnabled()).to.equal(false);
+                expect(Object.keys(cache.rule.mode).length).to.equal(0);
 
-                    done();
-                });
-
-                it('throws an error when segment is missing', function (done) {
-                    var config = {
-                        expiresIn: 50000
-                    };
-                    var fn = function () {
-                        var client = new Cache.Client(Defaults.cache('redis'));
-                        var cache = new Cache.Policy(config, client);
-                    };
-
-                    expect(fn).to.throw(Error);
-
-                    done();
-                });
-            }
+                done();
+            });
 
             it('throws an error when mode is none and config has other options set', function (done) {
                 var config = {
@@ -145,7 +191,22 @@ require('../suite')(function (useRedis, useMongo) {
                 done();
             });
 
-            it('assigns the expiresIn when the rule is cached', function (done) {
+            it('throws an error when segment is missing', function (done) {
+                var config = {
+                    expiresIn: 50000
+                };
+                var fn = function () {
+                    var client = new Cache.Client(Defaults.cache('redis'));
+                    var cache = new Cache.Policy(config, client);
+                };
+
+                expect(fn).to.throw(Error);
+
+                done();
+            });
+
+            it('assigns the expiresIn when the rule is cached', function(done) {
+
                 var config = {
                     expiresIn: 50000
                 };
@@ -813,4 +874,3 @@ require('../suite')(function (useRedis, useMongo) {
         });
     });
 });
-
