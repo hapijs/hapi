@@ -9,6 +9,7 @@ var Sinon = require('sinon');
 var FakeRedis = require('fakeredis');
 var Proxyquire = require('proxyquire');
 
+
 describe('Client', function() {
 
     it('throws an error if using an unknown engine type', function(done) {
@@ -554,9 +555,11 @@ describe('Cache', function () {
 
     before(function() {
 
-        var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
-        var fakeCache = Proxyquire.resolve(libPath + 'cache/index', __dirname, { './redis': fakeRedisClient });
-        Server = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
+        if (!process.env.USE_REDIS) {
+            var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
+            var fakeCache = Proxyquire.resolve(libPath + 'cache/index', __dirname, { './redis': fakeRedisClient });
+            Server = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
+        }
     });
 
     after(function() {

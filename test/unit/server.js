@@ -382,9 +382,11 @@ describe('Server', function () {
 
             before(function() {
 
-                var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
-                var fakeCache = Proxyquire.resolve(libPath + 'cache/index', __dirname, { './redis': fakeRedisClient });
-                Server = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
+                if (!process.env.USE_REDIS) {
+                    var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
+                    var fakeCache = Proxyquire.resolve(libPath + 'cache/index', __dirname, { './redis': fakeRedisClient });
+                    Server = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
+                }
             });
 
             after(function() {
