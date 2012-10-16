@@ -38,11 +38,6 @@ describe('Cache', function() {
         _server.start();
     }
 
-    function teardownServer(done) {
-        _server.stop();
-        done();
-    }
-
     function makeRequest(path, callback) {
         var next = function(res) {
             return callback(res);
@@ -68,7 +63,6 @@ describe('Cache', function() {
     }
 
     before(setupServer);
-    after(teardownServer);
 
     it('returns max-age value when route uses default cache rules', function(done) {
         makeRequest('/profile', function(rawRes) {
