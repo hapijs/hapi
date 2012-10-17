@@ -67,15 +67,16 @@ describe('Session', function() {
         _server.start();
     }
 
-    function makeRequest(path, method, payload, callback) {
+    function makeRequest(options, callback) {
         var next = function(res) {
             return callback(res);
         };
 
         _server.inject({
-            method: method,
-            url: _serverUrl + path,
-            payload: payload
+            method: options.method,
+            url: _serverUrl + options.path,
+            payload: options.payload,
+            headers: options.headers
         }, next);
     }
 
@@ -95,7 +96,7 @@ describe('Session', function() {
     before(setupServer);
 
     it('returns error header on response when authentication is missing', function(done) {
-        makeRequest('/profile1', 'GET', null, function(rawRes) {
+        makeRequest({ path: '/profile1', method: 'GET' }, function(rawRes) {
             var headers = parseHeaders(rawRes.raw.res);
             expect(headers['WWW-Authenticate']).to.contain('error');
             done();
@@ -103,7 +104,7 @@ describe('Session', function() {
     });
 
     it('returns endpoint data when authentication is optional', function(done) {
-        makeRequest('/profile2', 'GET', null, function(rawRes) {
+        makeRequest({ path: '/profile2', method: 'GET' }, function(rawRes) {
             expect(rawRes.result.id).to.equal('ba0dbda8b1c');
             done();
         });
@@ -112,7 +113,7 @@ describe('Session', function() {
     describe('#tokenEndpoint', function() {
 
         it('returns bad request error when no grant type is specified', function(done) {
-            makeRequest('/oauth/token', 'POST', null, function(rawRes) {
+            makeRequest({ path: '/oauth/token', method: 'POST' }, function(rawRes) {
                 expect(rawRes.result.error).to.exist;
                 expect(rawRes.result.error).to.equal('Bad request');
                 done();
@@ -122,9 +123,20 @@ describe('Session', function() {
         it('returns error when no client authentication data is specified', function(done) {
             var payload = '{"grant_type": "client_credentials"}';
 
-            makeRequest('/oauth/token', 'POST', payload, function(rawRes) {
+            makeRequest({ path: '/oauth/token', method: 'POST', payload: payload }, function(rawRes) {
                 expect(rawRes.result.error).to.exist;
                 expect(rawRes.result.error_description).to.equal('Request missing client authentication');
+                done();
+            });
+        });
+
+        it('returns unauthorized error when authorization header is wrong', function(done) {
+            var payload = '{ "grant_type": "client_credentials", "client_id": "1", "client_secret": "test" }';
+            var headers = { authorization: 'test' };
+
+            makeRequest({ path: '/oauth/token', method: 'POST', payload: payload, headers: headers }, function(rawRes) {
+                expect(rawRes.result.error).to.exist;
+                expect(rawRes.result.error).to.equal('Unauthorized');
                 done();
             });
         });
