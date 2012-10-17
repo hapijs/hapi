@@ -31,7 +31,7 @@ internals.main = function () {
     http.setRoutesDefaults({ authentication: 'none' });
     http.addRoutes([{ method: 'GET', path: '/profile', config: { handler: internals.profile } },
                     { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
-                    { method: 'GET', path: '/item/:id', config: { handler: internals.item } }]);
+                    { method: 'GET', path: '/item/{id}', config: { handler: internals.item } }]);
 
     // Start Hapi servers
 

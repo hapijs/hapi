@@ -29,7 +29,8 @@
     "redis": "0.8.x",
     "ws": "0.4.x",
     "shot": "0.0.x",
-    "handlebars": "1.0.x"
+    "handlebars": "1.0.x",
+    "mongodb": "1.1.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
