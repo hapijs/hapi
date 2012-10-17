@@ -7,7 +7,11 @@ var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../..
 
 describe('Batch', function() {
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:18084';
+    var _serverUrl = 'http://127.0.0.1:18074';
+
+    var errorResponseHandler = function(request) {
+        request.reply({ myerror: new Error()});
+    };
 
     var profileHandler = function (request) {
         request.reply({
@@ -61,8 +65,9 @@ describe('Batch', function() {
     };
 
     function setupServer(done) {
-        _server = new Hapi.Server('0.0.0.0', 18084, { batch: true });
+        _server = new Hapi.Server('0.0.0.0', 18074, { batch: true });
         _server.addRoutes([
+            { method: 'GET', path: '/errorValue', config: { handler: errorResponseHandler } },
             { method: 'GET', path: '/profile', config: { handler: profileHandler } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler } },
             { method: 'GET', path: '/item/:id', config: { handler: itemHandler } },
@@ -87,10 +92,6 @@ describe('Batch', function() {
         _server.start();
     }
 
-    function teardownServer(done) {
-        _server.stop();
-        done();
-    }
 
     function makeRequest(payload, callback) {
         var next = function(res) {
@@ -105,7 +106,6 @@ describe('Batch', function() {
     }
 
     before(setupServer);
-    after(teardownServer);
 
     it('shows single response when making request for single endpoint', function(done) {
         makeRequest('{ "requests": [{ "method": "get", "path": "/profile" }] }', function(res) {
@@ -239,6 +239,29 @@ describe('Batch', function() {
             expect(res[0].id).to.equal("55cf687663");
             expect(res[0].name).to.equal("Active Item");
             expect(res[1].error).to.exist;
+            done();
+        });
+    });
+
+    it('includes an error when an invalid reference is made', function(done) {
+        makeRequest('{ "requests": [ {"method": "get", "path": "/item"}, {"method": "get", "path": "/nothere/$1.id"}] }', function(res) {
+            expect(res.error).to.exist;
+            expect(res.message).to.contain('Request reference is beyond array size');
+            done();
+        });
+    });
+
+    it('includes errors the reference format is wrong', function(done) {
+        makeRequest('{ "requests": [ {"method": "get", "path": "/item"}, {"method": "get", "path": "/nothere/$a.test"}] }', function(res) {
+            expect(res.error).to.exist;
+            expect(res.message).to.contain('Invalid request format');
+            done();
+        });
+    });
+
+    it('wraps an error in the response correctly', function(done) {
+        makeRequest('{ "requests": [ {"method": "get", "path": "/errorValue"}] }', function(res) {
+            expect(res[0].myerror).to.exist;
             done();
         });
     });
