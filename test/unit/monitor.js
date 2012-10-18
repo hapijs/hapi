@@ -2,9 +2,10 @@
 
 var expect = require('chai').expect;
 var Sinon = require('sinon');
-var monitorPath = require.resolve(process.env.TEST_COV ? '../../lib-cov/monitor/index' : '../../lib/monitor/index');
+var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var monitorPath = require.resolve(libPath + 'monitor/index');
 var Monitor = require(monitorPath);
-var OSMonitor = process.env.TEST_COV ? require('../../lib-cov/monitor/system') : require('../../lib/monitor/system');
+var OSMonitor = require(libPath + 'monitor/system');
 
 
 describe('Monitor', function() {
