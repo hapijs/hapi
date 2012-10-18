@@ -41,11 +41,6 @@ describe('Debug', function() {
         _server.start();
     }
 
-    function teardownServer(done) {
-        _server.stop();
-        done();
-    }
-
     function makeRequest(query, callback) {
         var next = function(res) {
             return callback(res.result);
@@ -60,7 +55,6 @@ describe('Debug', function() {
     }
 
     before(setupServer);
-    after(teardownServer);
 
     it('shows the debug console when requesting the debug endpoint', function(done) {
         makeRequest('', function(res) {

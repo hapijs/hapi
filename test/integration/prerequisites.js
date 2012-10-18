@@ -77,11 +77,6 @@ describe('Prerequesites', function() {
         _server.start();
     }
 
-    function teardownServer(done) {
-        _server.stop();
-        done();
-    }
-
     function makeRequest(path, callback) {
         var next = function(res) {
             return callback(res.result);
@@ -94,7 +89,6 @@ describe('Prerequesites', function() {
     }
 
     before(setupServer);
-    after(teardownServer);
 
     it('shows the complete prerequisite pipeline in the response', function(done) {
         makeRequest('/fetch1', function(res) {
