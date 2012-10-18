@@ -15,12 +15,14 @@ exports.Server = function(callback) {
         useMongo: mongoPortInUse
     }, function(err, results) {
 
+        var useMongo = process.env.USE_MONGO || results.useMongo;
+
         if (process.env.USE_REDIS || results.useRedis) {
             exports.Server = function(callback) {
-                callback(Server, results.useMongo);
+                callback(Server, useMongo);
             };
 
-            callback(Server, results.useMongo);
+            callback(Server, useMongo);
         }
         else {
             var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
@@ -28,10 +30,10 @@ exports.Server = function(callback) {
             var fakeServer = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
 
             exports.Server = function(callback) {
-                callback(fakeServer, results.useMongo);
+                callback(fakeServer, useMongo);
             };
 
-            callback(fakeServer, results.useMongo);
+            callback(fakeServer, useMongo);
         }
     });
 
