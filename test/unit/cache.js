@@ -7,7 +7,7 @@ var Defaults = require(libPath + 'defaults');
 var Sinon = require('sinon');
 
 
-require('../suite').Server(function(Server) {
+require('../suite').Server(function(Server, useMongo) {
     describe('Client', function() {
 
         it('throws an error if using an unknown engine type', function(done) {
@@ -39,21 +39,15 @@ require('../suite').Server(function(Server) {
             done();
         });
 
-        it('creates a new connection when using mongodb', function (done) {
-            var redisMock = Sinon.mock(require('mongodb'));
-            require.cache[require.resolve('mongodb')] = redisMock;
 
-            var client = new Cache.Client(Defaults.cache('mongodb'));
-            expect(client).to.exist;
+        if (useMongo) {
+            it('creates a new connection when using mongodb', function (done) {
+                var client = new Cache.Client(Defaults.cache('mongodb'));
 
-            var fn = function () {
-                redisMock.verify();
-            };
-
-            expect(fn).to.not.throw(Error);
-            require.cache[require.resolve('mongodb')] = null;
-            done();
-        });
+                expect(client).to.exist;
+                done();
+            });
+        }
 
         it('returns not found on get when using null key', function (done) {
             var client = new Cache.Client(Defaults.cache('redis'));
