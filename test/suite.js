@@ -11,15 +11,16 @@ var Async = require('async');
 exports.Server = function(callback) {
 
     Async.series({
-        useRedis: redisPortInUse
+        useRedis: redisPortInUse,
+        useMongo: mongoPortInUse
     }, function(err, results) {
 
         if (process.env.USE_REDIS || results.useRedis) {
             exports.Server = function(callback) {
-                callback(Server);
+                callback(Server, results.useMongo);
             };
 
-            callback(Server);
+            callback(Server, results.useMongo);
         }
         else {
             var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
@@ -27,15 +28,29 @@ exports.Server = function(callback) {
             var fakeServer = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
 
             exports.Server = function(callback) {
-                callback(fakeServer);
+                callback(fakeServer, results.useMongo);
             };
 
-            callback(fakeServer);
+            callback(fakeServer, results.useMongo);
         }
     });
 
     function redisPortInUse(callback) {
         var connection = Net.createConnection(6379);
+
+        connection.once('error', function() {
+
+            callback(null, false);
+        });
+
+        connection.once('connect', function() {
+
+            callback(null, true);
+        });
+    }
+
+    function mongoPortInUse(callback) {
+        var connection = Net.createConnection(27017);
 
         connection.once('error', function() {
 
