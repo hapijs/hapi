@@ -1,40 +1,26 @@
 // Load modules
 
-var FakeRedis = require('fakeredis');
 var libPath = process.env.TEST_COV ? '../lib-cov/' : '../lib/';
 var Server = require(libPath + 'server');
-var Proxyquire = require('proxyquire');
 var Net = require('net');
 var Async = require('async');
 
 
-exports.Server = function(callback) {
+module.exports = function(callback) {
 
-    Async.series({
+    Async.parallel({
         useRedis: redisPortInUse,
         useMongo: mongoPortInUse
     }, function(err, results) {
 
         var useMongo = process.env.USE_MONGO || results.useMongo;
+        var useRedis = process.env.USE_REDIS || results.useRedis;
 
-        if (process.env.USE_REDIS || results.useRedis) {
-            exports.Server = function(callback) {
-                callback(Server, useMongo);
-            };
+        module.exports = function(cb) {
+            cb(useRedis, useMongo);
+        };
 
-            callback(Server, useMongo);
-        }
-        else {
-            var fakeRedisClient = Proxyquire.resolve(libPath + 'cache/redis', __dirname, { redis: FakeRedis });
-            var fakeCache = Proxyquire.resolve(libPath + 'cache/index', __dirname, { './redis': fakeRedisClient });
-            var fakeServer = Proxyquire.resolve(libPath + 'server', __dirname, { './cache': fakeCache });
-
-            exports.Server = function(callback) {
-                callback(fakeServer, useMongo);
-            };
-
-            callback(fakeServer, useMongo);
-        }
+        callback(useRedis, useMongo);
     });
 
     function redisPortInUse(callback) {
