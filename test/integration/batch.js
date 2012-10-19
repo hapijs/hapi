@@ -87,11 +87,6 @@ describe('Batch', function() {
         _server.start();
     }
 
-    function teardownServer(done) {
-        _server.stop();
-        done();
-    }
-
     function makeRequest(payload, callback) {
         var next = function(res) {
             return callback(res.result);
@@ -105,7 +100,6 @@ describe('Batch', function() {
     }
 
     before(setupServer);
-    after(teardownServer);
 
     it('shows single response when making request for single endpoint', function(done) {
         makeRequest('{ "requests": [{ "method": "get", "path": "/profile" }] }', function(res) {
