@@ -569,6 +569,7 @@ Response validation can only be performed on object responses and will otherwise
     * `client` - Sends the Cache-Control HTTP header on the response to support client caching
     * `server` - Caches the route on the server only
     * `none` - Disable cache for the route on both the client and server
+* `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the path fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules.
 * `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
 * `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
 
