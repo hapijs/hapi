@@ -95,9 +95,11 @@ require('../suite').Server(function(Server, useMongo) {
 
             it('is enabled for both client and server by defaults', function (done) {
                 var config = {
-                    expiresIn: 50000
+                    expiresIn: 50000,
+                    segment: 'test'
                 };
-                var cache = new Cache.Policy('test', config, {});
+                var client = new Cache.Client(Defaults.cache('redis'));
+                var cache = new Cache.Policy(config, client);
 
                 expect(cache.isMode('server')).to.equal(true);
                 expect(cache.isMode('client')).to.equal(true);
@@ -110,7 +112,8 @@ require('../suite').Server(function(Server, useMongo) {
                 var config = {
                     mode: 'none'
                 };
-                var cache = new Cache.Policy('test', config, {});
+                var client = new Cache.Client(Defaults.cache('redis'));
+                var cache = new Cache.Policy(config, client);
 
                 expect(cache.isEnabled()).to.equal(false);
                 expect(Object.keys(cache.rule.mode).length).to.equal(0);
@@ -124,7 +127,21 @@ require('../suite').Server(function(Server, useMongo) {
                     expiresIn: 50000
                 };
                 var fn = function () {
-                    var cache = new Cache.Policy('test', config, {});
+                    var cache = new Cache.Policy(config, {});
+                };
+
+                expect(fn).to.throw(Error);
+
+                done();
+            });
+
+            it('throws an error when segment is missing', function (done) {
+                var config = {
+                    expiresIn: 50000
+                };
+                var fn = function () {
+                    var client = new Cache.Client(Defaults.cache('redis'));
+                    var cache = new Cache.Policy(config, client);
                 };
 
                 expect(fn).to.throw(Error);
@@ -278,7 +295,7 @@ require('../suite').Server(function(Server, useMongo) {
                     staleTimeout: 500
                 };
                 var fn = function () {
-                    var cache = new Cache.Policy('test', config, {});
+                    var cache = new Cache.Policy(config, {});
                 };
 
                 expect(fn).to.throw(Error);
