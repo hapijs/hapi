@@ -36,7 +36,9 @@
     "mocha": "1.x.x",
     "should": "1.x.x",
     "sinon": "1.3.4",
-    "chai": "1.2.x"
+    "chai": "1.2.x",
+    "fakeredis": "0.0.x",
+    "proxyquire": "0.3.x"
   },
   "scripts": {
     "test": "make test && make unit"
