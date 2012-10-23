@@ -618,6 +618,7 @@ require('../suite')(function(useRedis, useMongo) {
     describe('Cache', function () {
 
 
+    if (useRedis) {
         it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
             var options = {
@@ -776,5 +777,6 @@ require('../suite')(function(useRedis, useMongo) {
                 });
             });
         });
+    }
     });
 });
