@@ -25,7 +25,7 @@ internals.echo = function (request) {
 
     request.reply.type(request.raw.req.headers['Content-Type'])
                  .bytes(request.raw.req.headers['Content-Length'])
-                 .pipe(request.raw.req);
+                 .stream(request.raw.req);
 };
 
 

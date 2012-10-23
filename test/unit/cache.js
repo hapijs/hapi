@@ -27,11 +27,21 @@ require('../suite')(function(useRedis, useMongo) {
         if (useRedis) {
             it('creates a new connection when using redis', function(done) {
                 var client = new Cache.Client(Defaults.cache('redis'));
+                expect(client).to.exist;
+                done();
+            });
+        }
+
+        if (useMongo) {
+            it('creates a new connection when using mongodb', function (done) {
+                var client = new Cache.Client(Defaults.cache('mongodb'));
 
                 expect(client).to.exist;
                 done();
             });
+        }
 
+        if (useRedis) {
             it('returns not found on get when using null key', function (done) {
                 var client = new Cache.Client(Defaults.cache('redis'));
                 client.get(null, function (err, result) {
@@ -69,6 +79,58 @@ require('../suite')(function(useRedis, useMongo) {
                 done();
             });
         }
+
+        describe('#stop', function() {
+
+            if (useMongo) {
+                it('closes the connection when using mongodb', function (done) {
+                    var client = new Cache.Client(Defaults.cache('mongodb'));
+
+                    expect(client.connection.client).to.exist;
+
+                    client.stop();
+                    expect(client.connection.client).to.not.exist;
+                    done();
+                });
+            }
+
+            if (useRedis) {
+                it('closes the connection when using redis', function (done) {
+                    var client = new Cache.Client(Defaults.cache('redis'));
+
+                    expect(client.connection.client).to.exist;
+
+                    client.stop();
+                    expect(client.connection.client).to.not.exist;
+                    done();
+                });
+            }
+        });
+
+        describe('#stop', function() {
+
+            if (useMongo) {
+                it('closes the connection when using mongodb', function (done) {
+                    var client = new Cache.Client(Defaults.cache('mongodb'));
+
+                    expect(client.connection.client).to.exist;
+
+                    client.stop();
+                    expect(client.connection.client).to.not.exist;
+                    done();
+                });
+            }
+
+            it('closes the connection when using redis', function (done) {
+                var client = new Cache.Client(Defaults.cache('redis'));
+
+                expect(client.connection.client).to.exist;
+
+                client.stop();
+                expect(client.connection.client).to.not.exist;
+                done();
+            });
+        });
     });
 
     describe('Cache Rules', function() {
@@ -86,49 +148,33 @@ require('../suite')(function(useRedis, useMongo) {
                 done();
             });
 
-            if (useRedis) {
-                it('is enabled for both client and server by defaults', function (done) {
-                    var config = {
-                        expiresIn: 50000,
-                        segment: 'test'
-                    };
-                    var client = new Cache.Client(Defaults.cache('redis'));
-                    var cache = new Cache.Policy(config, client);
+            it('is enabled for both client and server by defaults', function (done) {
+                var config = {
+                    expiresIn: 50000,
+                    segment: 'test'
+                };
+                var client = new Cache.Client(Defaults.cache('redis'));
+                var cache = new Cache.Policy(config, client);
 
-                    expect(cache.isMode('server')).to.equal(true);
-                    expect(cache.isMode('client')).to.equal(true);
-                    expect(Object.keys(cache.rule.mode).length).to.equal(2);
+                expect(cache.isMode('server')).to.equal(true);
+                expect(cache.isMode('client')).to.equal(true);
+                expect(Object.keys(cache.rule.mode).length).to.equal(2);
 
-                    done();
-                });
+                done();
+            });
 
-                it('is disabled when mode is none', function (done) {
-                    var config = {
-                        mode: 'none'
-                    };
-                    var client = new Cache.Client(Defaults.cache('redis'));
-                    var cache = new Cache.Policy(config, client);
+            it('is disabled when mode is none', function (done) {
+                var config = {
+                    mode: 'none'
+                };
+                var client = new Cache.Client(Defaults.cache('redis'));
+                var cache = new Cache.Policy(config, client);
 
-                    expect(cache.isEnabled()).to.equal(false);
-                    expect(Object.keys(cache.rule.mode).length).to.equal(0);
+                expect(cache.isEnabled()).to.equal(false);
+                expect(Object.keys(cache.rule.mode).length).to.equal(0);
 
-                    done();
-                });
-
-                it('throws an error when segment is missing', function (done) {
-                    var config = {
-                        expiresIn: 50000
-                    };
-                    var fn = function () {
-                        var client = new Cache.Client(Defaults.cache('redis'));
-                        var cache = new Cache.Policy(config, client);
-                    };
-
-                    expect(fn).to.throw(Error);
-
-                    done();
-                });
-            }
+                done();
+            });
 
             it('throws an error when mode is none and config has other options set', function (done) {
                 var config = {
@@ -137,6 +183,20 @@ require('../suite')(function(useRedis, useMongo) {
                 };
                 var fn = function () {
                     var cache = new Cache.Policy(config, {});
+                };
+
+                expect(fn).to.throw(Error);
+
+                done();
+            });
+
+            it('throws an error when segment is missing', function (done) {
+                var config = {
+                    expiresIn: 50000
+                };
+                var fn = function () {
+                    var client = new Cache.Client(Defaults.cache('redis'));
+                    var cache = new Cache.Policy(config, client);
                 };
 
                 expect(fn).to.throw(Error);
@@ -557,166 +617,166 @@ require('../suite')(function(useRedis, useMongo) {
 
     describe('Cache', function () {
 
-        if (useRedis) {
-            it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
-                var options = {
-                    cache: {
-                        expiresIn: 200,
-                        staleIn: 100,
-                        staleTimeout: 50
-                    }
-                };
+    if (useRedis) {
+        it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
-                var gen = 0;
-                var method = function (id, next) {
+            var options = {
+                cache: {
+                    expiresIn: 200,
+                    staleIn: 100,
+                    staleTimeout: 50
+                }
+            };
 
-                    setTimeout(function () {
+            var gen = 0;
+            var method = function (id, next) {
 
-                        return next({ id: id, gen: ++gen });
-                    }, 55);
-                };
-
-                var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
-                server.addHelper('user', method, options);
-
-                var id = Math.random();
-                server.helpers.user(id, function (result1) {
-
-                    result1.gen.should.be.equal(1);     // Fresh
-                    setTimeout(function () {
-
-                        server.helpers.user(id, function (result2) {
-
-                            result2.gen.should.be.equal(1);     // Stale
-                            setTimeout(function () {
-
-                                server.helpers.user(id, function (result3) {
-
-                                    result3.gen.should.be.equal(2);     // Fresh
-                                    done();
-                                });
-                            }, 30);
-                        });
-                    }, 110);
-                });
-            });
-
-            it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
-
-                var options = {
-                    cache: {
-                        expiresIn: 200,
-                        staleIn: 100,
-                        staleTimeout: 50
-                    }
-                };
-
-                var gen = 0;
-                var method = function (id, next) {
-
-                    setTimeout(function () {
-
-                        if (gen !== 1) {
-                            return next({ id: id, gen: ++gen });
-                        }
-                        else {
-                            ++gen;
-                            return next(new Error());
-                        }
-                    }, 55);
-                };
-
-                var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
-                server.addHelper('user', method, options);
-
-                var id = Math.random();
-                server.helpers.user(id, function (result1) {
-
-                    result1.gen.should.be.equal(1);     // Fresh
-                    setTimeout(function () {
-
-                        server.helpers.user(id, function (result2) {
-
-                            // Generates a new one in background which will produce Error and clear the cache
-
-                            result2.gen.should.be.equal(1);     // Stale
-
-                            setTimeout(function () {
-
-                                server.helpers.user(id, function (result3) {
-
-                                    result3.gen.should.be.equal(3);     // Fresh
-                                    done();
-                                });
-                            }, 30);
-                        });
-                    }, 110);
-                });
-            });
-
-            it('returns fresh object calling a helper using the cache with stale config', function (done) {
-
-                var options = {
-                    cache: {
-                        expiresIn: 200,
-                        staleIn: 100,
-                        staleTimeout: 50
-                    }
-                };
-
-                var gen = 0;
-                var method = function (id, next) {
+                setTimeout(function () {
 
                     return next({ id: id, gen: ++gen });
-                };
+                }, 55);
+            };
 
-                var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
-                server.addHelper('user', method, options);
+            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+            server.addHelper('user', method, options);
 
-                var id = Math.random();
-                server.helpers.user(id, function (result1) {
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
 
-                    result1.gen.should.be.equal(1);     // Fresh
-                    setTimeout(function () {
+                result1.gen.should.be.equal(1);     // Fresh
+                setTimeout(function () {
 
-                        server.helpers.user(id, function (result2) {
-
-                            result2.gen.should.be.equal(2);     // Fresh
-
-                            setTimeout(function () {
-
-                                server.helpers.user(id, function (result3) {
-
-                                    result3.gen.should.be.equal(2);     // Fresh
-                                    done();
-                                });
-                            }, 50);
-                        });
-                    }, 150);
-                });
-            });
-
-            it('returns a valid result when calling a helper using the cache with bad cache connection', function (done) {
-
-                var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
-                server.cache.stop();
-                var gen = 0;
-                server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
-                var id = Math.random();
-                server.helpers.user(id, function (result1) {
-
-                    result1.id.should.be.equal(id);
-                    result1.gen.should.be.equal(1);
                     server.helpers.user(id, function (result2) {
 
-                        result2.id.should.be.equal(id);
-                        result2.gen.should.be.equal(2);
-                        done();
+                        result2.gen.should.be.equal(1);     // Stale
+                        setTimeout(function () {
+
+                            server.helpers.user(id, function (result3) {
+
+                                result3.gen.should.be.equal(2);     // Fresh
+                                done();
+                            });
+                        }, 30);
                     });
+                }, 110);
+            });
+        });
+
+        it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
+
+            var options = {
+                cache: {
+                    expiresIn: 200,
+                    staleIn: 100,
+                    staleTimeout: 50
+                }
+            };
+
+            var gen = 0;
+            var method = function (id, next) {
+
+                setTimeout(function () {
+
+                    if (gen !== 1) {
+                        return next({ id: id, gen: ++gen });
+                    }
+                    else {
+                        ++gen;
+                        return next(new Error());
+                    }
+                }, 55);
+            };
+
+            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+            server.addHelper('user', method, options);
+
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
+
+                result1.gen.should.be.equal(1);     // Fresh
+                setTimeout(function () {
+
+                    server.helpers.user(id, function (result2) {
+
+                        // Generates a new one in background which will produce Error and clear the cache
+
+                        result2.gen.should.be.equal(1);     // Stale
+
+                        setTimeout(function () {
+
+                            server.helpers.user(id, function (result3) {
+
+                                result3.gen.should.be.equal(3);     // Fresh
+                                done();
+                            });
+                        }, 30);
+                    });
+                }, 110);
+            });
+        });
+
+        it('returns fresh object calling a helper using the cache with stale config', function (done) {
+
+            var options = {
+                cache: {
+                    expiresIn: 200,
+                    staleIn: 100,
+                    staleTimeout: 50
+                }
+            };
+
+            var gen = 0;
+            var method = function (id, next) {
+
+                return next({ id: id, gen: ++gen });
+            };
+
+            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+            server.addHelper('user', method, options);
+
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
+
+                result1.gen.should.be.equal(1);     // Fresh
+                setTimeout(function () {
+
+                    server.helpers.user(id, function (result2) {
+
+                        result2.gen.should.be.equal(2);     // Fresh
+
+                        setTimeout(function () {
+
+                            server.helpers.user(id, function (result3) {
+
+                                result3.gen.should.be.equal(2);     // Fresh
+                                done();
+                            });
+                        }, 50);
+                    });
+                }, 150);
+            });
+        });
+
+        it('returns a valid result when calling a helper using the cache with bad cache connection', function (done) {
+
+            var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
+            server.cache.stop();
+            var gen = 0;
+            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
+
+                result1.id.should.be.equal(id);
+                result1.gen.should.be.equal(1);
+                server.helpers.user(id, function (result2) {
+
+                    result2.id.should.be.equal(id);
+                    result2.gen.should.be.equal(2);
+                    done();
                 });
             });
-        }
+        });
+    }
     });
 });
-
