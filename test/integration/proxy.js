@@ -5,10 +5,6 @@ var Sinon = require('sinon');
 var Async = require('async');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 
-before(function() {
-    this.timeout(3000);
-});
-
 describe('Proxy', function() {
 
     before(startServer);
@@ -43,6 +39,14 @@ describe('Proxy', function() {
             url: _serverUrl + options.path
         }, next);
     }
+
+    it('forwards on the response when making a GET request', function(done) {
+        this.timeout(4000);
+        makeRequest(null, function(rawRes) {
+            expect(rawRes.statusCode).to.equal(200);
+            done();
+        });
+    });
 
     it('forwards on the response when making a POST request', function(done) {
         makeRequest({ method: 'post' }, function(rawRes) {
