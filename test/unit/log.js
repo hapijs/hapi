@@ -69,6 +69,22 @@ describe('Log', function () {
             unhookStdout();
             done();
         });
+
+        it('outputs correct error text to stdout', function (done) {
+            var event = {
+                tags: ['tag1'],
+                data: { a: 1 }
+            };
+            event.data.b = event.data;
+
+            var unhookStdout = stdoutIntercept(function (output) {
+                expect(output).to.contain('JSON Error');
+            });
+
+            Log.print(event, false);
+            unhookStdout();
+            done();
+        });
     });
 });
 
