@@ -14,7 +14,7 @@ internals.main = function () {
     var http = new Hapi.Server('0.0.0.0', 8080);
 
     // Set routes
-    http.addRoute({ method: 'GET', path: '/', config: { proxy: { host: 'google.com', port: 80 } } });
+    http.addRoute({ method: 'GET', path: '/', config: { proxy: { host: 'google.com', port: 80, passThrough: true } } });
     http.addRoute({ method: 'GET', path: '/images/srpr/logo3w.png', config: { proxy: { host: 'google.com', port: 80 } } });
     http.addRoute({ method: 'POST', path: '/', config: { proxy: { host: 'google.com', port: 80 } } });
 
