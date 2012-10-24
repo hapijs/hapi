@@ -2,6 +2,8 @@
 
 var expect = require('chai').expect;
 var Payload = process.env.TEST_COV ? require('../../lib-cov/payload') : require('../../lib/payload');
+var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
+var Server = process.env.TEST_COV ? require('../../lib-cov/server') : require('../../lib/server');
 var ServerMock = require('./mocks/server');
 var NodeUtil = require('util');
 var Events = require('events');
@@ -9,6 +11,8 @@ var Events = require('events');
 
 describe('Payload', function() {
 
+    var server = new Server();
+    
     describe('#read', function() {
 
         it('passes null to the callback when the request is a GET', function(done) {
@@ -25,9 +29,7 @@ describe('Payload', function() {
         it('passes null to the callback when the method is not put or post', function(done) {
             var request = {
                 method: 'delete',
-                _route: {
-                    config: {}
-                }
+                _route: new Route({ method: 'delete', path: '/', handler: function (){} }, server)
             };
 
             Payload.read(request, function(result) {
@@ -39,9 +41,7 @@ describe('Payload', function() {
         it('passes an error to the callback whenever an unsupported mime type is read', function(done) {
              var request = {
                  method: 'post',
-                 _route: {
-                     config: {}
-                 },
+                 _route: new Route({ method: 'post', path: '/', handler: function (){} }, server),
                  raw: {
                      req: {
                          headers: {
@@ -73,9 +73,7 @@ describe('Payload', function() {
 
             var request = {
                 method: 'post',
-                _route: {
-                    config: {}
-                },
+                _route: new Route({ method: 'post', path: '/', handler: function (){} }, server),
                 raw: {
                     req: req
                 },
@@ -108,9 +106,7 @@ describe('Payload', function() {
 
             var request = {
                 method: 'post',
-                _route: {
-                    config: {}
-                },
+                _route: new Route({ method: 'post', path: '/', handler: function (){} }, server),
                 raw: {
                     req: req
                 },
@@ -144,9 +140,7 @@ describe('Payload', function() {
 
             var request = {
                 method: 'post',
-                _route: {
-                    config: {}
-                },
+                _route: new Route({ method: 'post', path: '/', handler: function (){} }, server),
                 raw: {
                     req: req
                 },
@@ -179,9 +173,7 @@ describe('Payload', function() {
 
             var request = {
                 method: 'post',
-                _route: {
-                    config: {}
-                },
+                _route: new Route({ method: 'post', path: '/', handler: function (){} }, {}),
                 raw: {
                     req: req
                 },
