@@ -37,7 +37,7 @@ require('../suite')(function (useRedis, useMongo) {
             it('creates a new connection when using mongodb', function (done) {
                 var client = new Cache.Client(Defaults.cache('mongodb'));
 
-                expect(client).to.exist;
+                expect(client.connection.client).to.exist;
                 done();
             });
         }
@@ -671,6 +671,11 @@ require('../suite')(function (useRedis, useMongo) {
     });
 
     describe('Stale', function () {
+
+        before(function() {
+
+            this.timeout(4000);
+        });
 
         it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
