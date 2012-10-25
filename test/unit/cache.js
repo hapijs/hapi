@@ -672,6 +672,11 @@ require('../suite')(function (useRedis, useMongo) {
 
     describe('Stale', function () {
 
+        before(function() {
+
+            this.timeout(4000);
+        });
+
         it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
             var options = {
