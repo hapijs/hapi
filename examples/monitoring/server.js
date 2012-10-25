@@ -1,4 +1,4 @@
-var Hapi = require("./index");
+var Hapi = require("../../index");
 var request = require("request");
 
 var testHandler = function(request) {
@@ -28,10 +28,6 @@ var host = "localhost",
         { method: 'GET',  path: '/', handler: testHandler, tos: 'none', authentication: 'none' }
     ];
 
-Hapi.Process.initialize({
-
-    name: 'Test API Server'
-});
-
-var s = new Hapi.Server.Server(host, port, options, routes);
+var s = new Hapi.Server(host, port, options);
+s.addRoutes(routes);
 s.start();

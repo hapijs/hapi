@@ -21,7 +21,7 @@ describe('Proxy', function() {
 
         _server = new Hapi.Server('0.0.0.0', 18092);
         _server.addRoutes([
-            { method: 'GET', path: '/profile', config: { proxy: { host: '127.0.0.1', port: 18093 } } },
+            { method: 'GET', path: '/profile', config: { proxy: { host: '127.0.0.1', port: 18093, xforward: true, passThrough: true } } },
             { method: 'POST', path: '/item', config: { proxy: { host: '127.0.0.1', port: 18093 } } }
         ]);
 
