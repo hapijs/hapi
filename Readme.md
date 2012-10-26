@@ -92,7 +92,7 @@ server.addRoute({
 server.start();
 ```
 
-Now navigate to http://localhost:8080/hello and you should receive 'hello world'.
+Now navigate to http://localhost:8000/hello and you should receive 'hello world'.
 
 ## Server Construction
 
