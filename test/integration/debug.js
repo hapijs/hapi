@@ -33,17 +33,12 @@ describe('Debug', function() {
         _server.addRoutes([
             { method: 'GET', path: '/profile', config: { handler: profileHandler } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler } },
-            { method: 'GET', path: '/item/:id', config: { handler: itemHandler } }
+            { method: 'GET', path: '/item/{id}', config: { handler: itemHandler } }
         ]);
         _server.listener.on('listening', function() {
             done();
         });
         _server.start();
-    }
-
-    function teardownServer(done) {
-        _server.stop();
-        done();
     }
 
     function makeRequest(query, callback) {
@@ -60,7 +55,6 @@ describe('Debug', function() {
     }
 
     before(setupServer);
-    after(teardownServer);
 
     it('shows the debug console when requesting the debug endpoint', function(done) {
         makeRequest('', function(res) {

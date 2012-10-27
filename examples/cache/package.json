@@ -1,0 +1,12 @@
+{
+    "name": "hapi-cache-example",
+    "description": "HTTP API Server framework cache example",
+    "version": "0.0.1",
+    "main": "server",
+    "private": "true",
+    "engines": {
+        "node": ">=0.6.0"
+    },
+    "dependencies": {
+    }
+}

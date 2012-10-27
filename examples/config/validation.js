@@ -56,7 +56,7 @@ internals.main = function () {
 
     http.addRoute({
         method: 'POST',
-        path: '/users/:id',
+        path: '/users/{id}',
         config: {
             handler: internals.payload,
             query: {},

@@ -21,6 +21,7 @@ internals.main = function () {
 
     // Listen to tail events
     http.on('tail', function (request) {
+
         console.log('Wag the dog');
     });
 };
