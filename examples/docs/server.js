@@ -43,7 +43,8 @@ internals.main = function () {
         { method: 'GET', path: '/test', config: { handler: internals.get, query: { num: N().min(0) } } },
         { method: 'GET', path: '/test2', config: { handler: internals.get, query: { p1: S().required().rename('itemId') } } },
         { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } },
-        { method: 'GET', path: '/users/:id', config: { description: 'Get a user', handler: internals.get, query: { name: S().description('the user name').required() } } }
+        { method: 'GET', path: '/output', config: { handler: internals.output, query: { input: S().min(3) }, response: { myOutput: S().min(3) } } },
+        { method: 'GET', path: '/users/{id}', config: { description: 'Get a user', handler: internals.get, query: { name: S().description('the user name').required() } } }
     ]);
 
     var schema = {
@@ -54,7 +55,7 @@ internals.main = function () {
 
     http.addRoute({
         method: 'POST',
-        path: '/users/:id',
+        path: '/users/{id}',
         config: {
             handler: internals.payload,
             query: {},
@@ -69,13 +70,16 @@ internals.main = function () {
 
 internals.get = function (request) {
 
-    console.log(request.query);
     request.reply('Success!\n');
+};
+
+internals.output = function (request) {
+
+    request.reply({ myOutput: request.query.input });
 };
 
 internals.payload = function (request) {
 
-    console.log("payload", request.payload);
     request.reply('Success!\n');
 }
 

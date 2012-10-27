@@ -1,7 +1,11 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Monitor = process.env.TEST_COV ? require('../../lib-cov/monitor/index') : require('../../lib/monitor/index');
+var Sinon = require('sinon');
+var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var monitorPath = require.resolve(libPath + 'monitor/index');
+var Monitor = require(monitorPath);
+var OSMonitor = require(libPath + 'monitor/system');
 
 
 describe('Monitor', function() {
@@ -92,4 +96,30 @@ describe('Monitor', function() {
         expect(fn).throws(Error, 'Invalid monitor.requestsEvent configuration');
         done();
     });
+
+    describe('#_broadcast', function() {
+
+        it('doesn\'t do anything if there are no subscribers', function(done) {
+            var config = {
+                settings: {
+                    monitor: {
+                        opsInterval: 200,
+                        subscribers: {},
+                        requestsEvent: 'response'
+                    }
+                }
+            };
+
+            var monitor = new Monitor(config);
+            var broadcast = monitor._broadcast();
+
+            expect(broadcast()).to.not.exist;
+            done();
+        });
+    });
+});
+
+describe('System Monitor', function() {
+
+
 });

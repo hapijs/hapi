@@ -44,45 +44,87 @@
         {{/if}}
         <dl>
             {{#if this.queryParams}}
-            <dt><h3>Query Parameters</h3></dt>
-            <dd>
-                <ul class="unstyled">
-                    {{#each this.queryParams}}
-                    <li>
-                        <h4><em>{{this.name}}</em>
-                            {{#if this.required}}
-                            <i class="icon-star"></i>
+                <dt><h3>Request Parameters</h3></dt>
+            {{else}}
+            {{#if this.payloadParams}}
+                <dt><h3>Request Parameters</h3></dt>
+            {{/if}}
+            {{/if}}
+            {{#if this.queryParams}}
+                <dt><h4>Query Parameters</h4></dt>
+                <dd>
+                    <ul class="unstyled">
+                        {{#each this.queryParams}}
+                        <li>
+                            <h5><em>{{this.name}}</em>
+                                {{#if this.required}}
+                                <i class="icon-star"></i>
+                                {{/if}}
+                            </h5>
+                            {{#if this.description}}
+                            <p>{{this.description}}</p>
                             {{/if}}
-                        </h4>
-                        {{#if this.description}}
-                        <p>{{this.description}}</p>
-                        {{/if}}
-                        <dl>
-                            <dt>Type</dt>
-                            <dd>{{this.type}}</dd>
-                            {{#if this.allowedValues}}
-                                <dt>Allowed Values</dt>
-                                {{#each this.allowedValues}}
-                                    <dd>{{this}}</dd>
-                                {{/each}}
-                            {{/if}}
-                            {{#if this.disallowedValues}}
-                                <dt>Forbidden Values</dt>
-                                {{#each this.disallowedValues}}
-                                    <dd>{{this}}</dd>
-                                {{/each}}
-                            {{/if}}
-                        </dl>
-                    </li>
-                    {{/each}}
-                </ul>
-            </dd>
+                            <dl>
+                                <dt><h6>Type</h6></dt>
+                                <dd>{{this.type}}</dd>
+                                {{#if this.allowedValues}}
+                                    <dt>Allowed Values</dt>
+                                    {{#each this.allowedValues}}
+                                        <dd>{{this}}</dd>
+                                    {{/each}}
+                                {{/if}}
+                                {{#if this.disallowedValues}}
+                                    <dt>Forbidden Values</dt>
+                                    {{#each this.disallowedValues}}
+                                        <dd>{{this}}</dd>
+                                    {{/each}}
+                                {{/if}}
+                            </dl>
+                        </li>
+                        {{/each}}
+                    </ul>
+                </dd>
             {{/if}}
             {{#if this.payloadParams}}
-            <dt><h3>Payload Parameters</h3></dt>
+                <dt><h4>Payload Parameters</h4></dt>
+                <dd>
+                    <ul class="unstyled">
+                        {{#each this.payloadParams}}
+                        <li>
+                            <h5><em>{{this.name}}</em>
+                                {{#if this.required}}
+                                <i class="icon-star"></i>
+                                {{/if}}
+                            </h5>
+                            {{#if this.description}}
+                            <p>{{this.description}}</p>
+                            {{/if}}
+                            <dl>
+                                <dt><h6>Type</h6></dt>
+                                <dd>{{this.type}}</dd>
+                                {{#if this.allowedValues}}
+                                    <dt>Allowed Values</dt>
+                                    {{#each this.allowedValues}}
+                                        <dd>{{this}}</dd>
+                                    {{/each}}
+                                {{/if}}
+                                {{#if this.disallowedValues}}
+                                    <dt>Forbidden Values</dt>
+                                    {{#each this.disallowedValues}}
+                                        <dd>{{this}}</dd>
+                                {{/each}}
+                                {{/if}}
+                            </dl>
+                        </li>
+                        {{/each}}
+                    </ul>
+                </dd>
+            {{/if}}
+            {{#if this.responseParams}}
+            <dt><h3>Response Parameters</h3></dt>
             <dd>
                 <ul class="unstyled">
-                    {{#each this.payloadParams}}
+                    {{#each this.responseParams}}
                     <li>
                         <h4><em>{{this.name}}</em>
                             {{#if this.required}}
@@ -96,15 +138,15 @@
                             <dt>Type</dt>
                             <dd>{{this.type}}</dd>
                             {{#if this.allowedValues}}
-                                <dt>Allowed Values</dt>
-                                {{#each this.allowedValues}}
-                                    <dd>{{this}}</dd>
-                                {{/each}}
+                            <dt>Allowed Values</dt>
+                            {{#each this.allowedValues}}
+                            <dd>{{this}}</dd>
+                            {{/each}}
                             {{/if}}
                             {{#if this.disallowedValues}}
-                                <dt>Forbidden Values</dt>
-                                {{#each this.disallowedValues}}
-                                    <dd>{{this}}</dd>
+                            <dt>Forbidden Values</dt>
+                            {{#each this.disallowedValues}}
+                            <dd>{{this}}</dd>
                             {{/each}}
                             {{/if}}
                         </dl>
