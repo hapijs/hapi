@@ -400,6 +400,7 @@ to write additional text as the configuration itself serves as a living document
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
+  * `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
   * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
   * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
   * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
