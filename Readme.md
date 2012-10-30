@@ -431,7 +431,7 @@ var Hapi = require('hapi');
 // Create a server with a host and port
 var server = new Hapi.Server('localhost', 8000);
 
-// Define route 1 using config
+// Define route 1 using handler
 handler: function (request) {
 
     request.reply({ correctUseOfHandler: 'Using handler works!' });
