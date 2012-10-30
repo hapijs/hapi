@@ -391,12 +391,13 @@ The server object emits the following events:
 mechanism for defining routes without having to write code. This approach also enables producing dynamic route documentation without having
 to write additional text as the configuration itself serves as a living documentation.
 
-### Configuration options
+### Configuration options 
 
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
 * `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-hander) for more information.
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
+  * 'handler' - same as the handler option above.
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
@@ -420,6 +421,48 @@ to write additional text as the configuration itself serves as a living document
       * _'any'_ - the authentication can be on behalf of a user or client.
       * _'user'_ - the authentication must be on behalf of a user.
       * _'client'_ - the authentication must be on behalf of a client.
+
+### Configuration options example
+Note: Handler must appear once and only once via the handler option or within the config object.
+
+```javascript
+var Hapi = require('hapi');
+
+// Create a server with a host and port
+var server = new Hapi.Server('localhost', 8000);
+
+// Define route 1 using config
+handler: function (request) {
+
+    request.reply({ correctUseOfHandler: 'Using handler works!' });
+},
+
+// Define route 2 using config
+var config = {
+    handler: function (request) {
+
+        request.reply({ correctUseOfConfig: 'Using config works!' });
+    },
+    payload: 'raw'
+    // more config options
+};
+
+// Add the routes
+server.addRoute({
+    method: 'GET',
+    path: '/correctUseOfConfig',
+    config: config
+});
+
+server.addRoute({
+    method: 'GET',
+    path: '/correctUseOfHandler',
+    handler: handler
+});
+
+// Start the server
+server.start();
+```
 
 ### Override Route Defaults
 
