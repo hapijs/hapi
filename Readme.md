@@ -437,6 +437,13 @@ handler: function (request) {
     request.reply({ correctUseOfHandler: 'Using handler works!' });
 },
 
+// Add the route 1
+server.addRoute({
+    method: 'GET',
+    path: '/correctUseOfHandler',
+    handler: handler
+});
+
 // Define route 2 using config
 var config = {
     handler: function (request) {
@@ -447,17 +454,11 @@ var config = {
     // more config options
 };
 
-// Add the routes
+// Add the route 2
 server.addRoute({
     method: 'GET',
     path: '/correctUseOfConfig',
     config: config
-});
-
-server.addRoute({
-    method: 'GET',
-    path: '/correctUseOfHandler',
-    handler: handler
 });
 
 // Start the server
