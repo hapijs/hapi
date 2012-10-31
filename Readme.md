@@ -509,6 +509,7 @@ function getAlbum(request) {
 When the provided route handler method is called, it receives a _request_ object with the following properties:
 - _'url'_ - the parsed request URI.
 - _'path'_ - the request URI's path component.
+- _'method'_ - The request method as a lowercase string. Example: 'get', 'post'.
 - _'query'_ - an object containing the query parameters.
 - _'params'_ - an object containing the path named parameters as described in [Path Parameters](#parameters).
 - _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
