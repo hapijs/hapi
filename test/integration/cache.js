@@ -1,5 +1,6 @@
 // Load modules
 
+var Stream = require('stream');
 var expect = require('chai').expect;
 var Sinon = require('sinon');
 var Async = require('async');
@@ -24,13 +25,19 @@ describe('Cache', function() {
         });
     };
 
+    var badHandler = function (request) {
+
+        request.reply.stream(new Stream);
+    };
+
     function setupServer(done) {
-        _server = new Hapi.Server('0.0.0.0', 18085);
+        _server = new Hapi.Server('0.0.0.0', 18085, { cache: 'memory' });
         _server.addRoutes([
             { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
-            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } }
+            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
+            { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { expiresIn: 120000 } } }
         ]);
         _server.listener.on('listening', function() {
             done();
@@ -86,5 +93,15 @@ describe('Cache', function() {
             expect(headers['Cache-Control']).to.not.equal('max-age=120');
             done();
         });
+    });
+
+    it('throws error when returning a stream in a cached endpoint handler', function (done) {
+        function test() {
+
+            makeRequest('/bad', function (rawRes) {});
+        }
+
+        expect(test).to.throw(Error);
+        done();
     });
 });
