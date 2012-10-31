@@ -391,7 +391,7 @@ The server object emits the following events:
 mechanism for defining routes without having to write code. This approach also enables producing dynamic route documentation without having
 to write additional text as the configuration itself serves as a living documentation.
 
-### Configuration options
+### Configuration options 
 
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
@@ -400,6 +400,7 @@ to write additional text as the configuration itself serves as a living document
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
+  * `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
   * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
   * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
   * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
@@ -420,6 +421,35 @@ to write additional text as the configuration itself serves as a living document
       * _'any'_ - the authentication can be on behalf of a user or client.
       * _'user'_ - the authentication must be on behalf of a user.
       * _'client'_ - the authentication must be on behalf of a client.
+
+The `config` option was defined for easily spliting the routing table definition from the individual route information. For example:
+```javascript
+var Hapi = require('hapi');
+
+var server = new Hapi.Server();
+
+// Option 1 - add handler directly in route definition
+
+var handler1 = function (request) {
+
+    request.reply('ok');
+}
+
+server.addRoute({ method: 'GET', path: '/option1', handler: handler1 });
+
+// Option 2 - add handler in seprate config object
+
+var config2 = {
+    payload: 'raw',
+    // ... additional config options ...
+    handler: function (request) {
+
+        request.reply('ok');
+    }
+};
+
+server.addRoute({ method: 'GET', path: '/option2', config: config2});
+```
 
 ### Override Route Defaults
 
@@ -465,6 +495,7 @@ function getAlbum(request) {
 When the provided route handler method is called, it receives a _request_ object with the following properties:
 - _'url'_ - the parsed request URI.
 - _'path'_ - the request URI's path component.
+- _'method'_ - the request method as a _lowercase_ string. (Examples: `'get'`, `'post'`).
 - _'query'_ - an object containing the query parameters.
 - _'params'_ - an object containing the path named parameters as described in [Path Parameters](#parameters).
 - _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
