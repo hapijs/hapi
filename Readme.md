@@ -429,20 +429,16 @@ Note: Handler must appear once and only once via the handler option or within th
 var Hapi = require('hapi');
 
 // Create a server with a host and port
-var server = new Hapi.Server('localhost', 8000);
+var server = new Hapi.Server('0.0.0.0', 8000);
 
 // Define route 1 using handler
-handler: function (request) {
+var handler = function (request) {
 
     request.reply({ correctUseOfHandler: 'Using handler works!' });
-},
+}
 
 // Add the route 1
-server.addRoute({
-    method: 'GET',
-    path: '/correctUseOfHandler',
-    handler: handler
-});
+server.addRoute({ method: 'GET', path: '/correctUseOfHandler', handler: handler});
 
 // Define route 2 using config
 var config = {
@@ -455,11 +451,7 @@ var config = {
 };
 
 // Add the route 2
-server.addRoute({
-    method: 'GET',
-    path: '/correctUseOfConfig',
-    config: config
-});
+server.addRoute({ method: 'GET', path: '/correctUseOfConfig', config: config});
 
 // Start the server
 server.start();
