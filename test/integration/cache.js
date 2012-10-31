@@ -30,6 +30,14 @@ describe('Cache', function() {
         request.reply.stream(new Stream);
     };
 
+    var errorHandler = function (request) {
+
+        var error = new Error('myerror');
+        error.code = 500;
+
+        request.reply(error);
+    };
+
     function setupServer(done) {
         _server = new Hapi.Server('0.0.0.0', 18085, { cache: 'memory' });
         _server.addRoutes([
@@ -37,7 +45,8 @@ describe('Cache', function() {
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
             { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
-            { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { expiresIn: 120000 } } }
+            { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { expiresIn: 120000 } } },
+            { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { expiresIn: 120000 } } }
         ]);
         _server.listener.on('listening', function() {
             done();
@@ -103,5 +112,17 @@ describe('Cache', function() {
 
         expect(test).to.throw(Error);
         done();
+    });
+
+    it('doesn\'t cache error responses', function(done) {
+
+        makeRequest('/error', function() {
+
+            _server.cache.get({ segment: '/error', id: '/error' }, function(err, cached) {
+
+                expect(cached).to.not.exist;
+                done();
+            });
+        });
     });
 });
