@@ -397,7 +397,6 @@ to write additional text as the configuration itself serves as a living document
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
 * `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-hander) for more information.
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
-  * 'handler' - same as the handler option above.
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
@@ -423,39 +422,33 @@ to write additional text as the configuration itself serves as a living document
       * _'user'_ - the authentication must be on behalf of a user.
       * _'client'_ - the authentication must be on behalf of a client.
 
-### Configuration options example
-Note: Handler must appear once and only once via the handler option or within the config object.
-
+The `config` option was defined for easily spliting the routing table definition from the individual route information. For example:
 ```javascript
 var Hapi = require('hapi');
 
-// Create a server with a host and port
-var server = new Hapi.Server('0.0.0.0', 8000);
+var server = new Hapi.Server();
 
-// Define route 1 using handler
-var handler = function (request) {
+// Option 1 - add handler directly in route definition
 
-    request.reply({ correctUseOfHandler: 'Using handler works!' });
+var handler1 = function (request) {
+
+    request.reply('ok');
 }
 
-// Add the route 1
-server.addRoute({ method: 'GET', path: '/correctUseOfHandler', handler: handler});
+server.addRoute({ method: 'GET', path: '/option1', handler: handler1 });
 
-// Define route 2 using config
-var config = {
+// Option 2 - add handler in seprate config object
+
+var config2 = {
+    payload: 'raw',
+    // ... additional config options ...
     handler: function (request) {
 
-        request.reply({ correctUseOfConfig: 'Using config works!' });
-    },
-    payload: 'raw'
-    // more config options
+        request.reply('ok');
+    }
 };
 
-// Add the route 2
-server.addRoute({ method: 'GET', path: '/correctUseOfConfig', config: config});
-
-// Start the server
-server.start();
+server.addRoute({ method: 'GET', path: '/option2', config: config2});
 ```
 
 ### Override Route Defaults
