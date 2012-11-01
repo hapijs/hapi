@@ -17,7 +17,7 @@ describe('Request', function () {
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
     ]);
 
-    var makeRequest = function (path, callback) {
+    var makeRequest = function (method, path, callback) {
 
         var next = function (res) {
 
@@ -25,7 +25,7 @@ describe('Request', function () {
         };
 
         server.inject({
-            method: 'GET',
+            method: method,
             url: path
         }, next);
     }
@@ -45,10 +45,20 @@ describe('Request', function () {
 
     it('returns custom error response', function (done) {
 
-        makeRequest('/custom', function (rawRes) {
+        makeRequest('GET', '/custom', function (rawRes) {
 
             var headers = parseHeaders(rawRes.raw.res);
             expect(headers['Content-Type']).to.equal('text/plain');
+            done();
+        });
+    });
+
+    it('returns valid OPTIONS response', function (done) {
+
+        makeRequest('OPTIONS', '/custom', function (rawRes) {
+
+            var headers = parseHeaders(rawRes.raw.res);
+            expect(headers['Access-Control-Allow-Origin']).to.equal('*');
             done();
         });
     });
