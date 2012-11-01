@@ -77,18 +77,14 @@ describe('Err', function() {
 
         it('formats a custom error', function (done) {
 
-            var err = new Error();
-            err.toResponse = function () {
+            var err = new Err(500, 'Unknown', null, {
+                toResponse: function () {
 
-                return { test: true };
-            };
+                    return { payload: { test: true } };
+                }
+            });
 
-            expect(Err.format(err).test).to.equal(true);
-            done();
-        });
-
-        it('formats internal errors with a standard message', function(done) {
-            expect(Err.format({ code: 500 }).message).to.equal('An internal server error occurred');
+            expect(err.format().test).to.equal(true);
             done();
         });
     });

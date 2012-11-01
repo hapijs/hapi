@@ -701,11 +701,11 @@ In which:
 ## Response Errors
 
 The 'Hapi.Error' module provides helper methods to generate error responses:
-- _'badRequest([message])'_ - HTTP 400 (Bad request).
+- _'badRequest([message])'_ - HTTP 400 (Bad Request).
 - _'unauthorized([message])'_ - HTTP 401 (Unauthorized).
-- _'forbidden([message])'_ - HTTP 403 (Not allowed).
-- _'notFound([message])'_ - HTTP 404 (Not found).
-- _'internal([message, data])'_ - HTTP 500 (Internal error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
+- _'forbidden([message])'_ - HTTP 403 (Not Allowed).
+- _'notFound([message])'_ - HTTP 404 (Not Found).
+- _'internal([message, data])'_ - HTTP 500 (Internal Error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
 - _'create(message, code, text, [options]) - creates a custom error with the provided _message_, _code_ (the HTTP status code), _text_ (the HTTP status message), and any keys present in _options_.
 
 The _message_ value is optional and will be returned to the client in the response unless noted otherwise. For example:
@@ -719,7 +719,7 @@ function onUnknownRoute(request) {
 
 Error responses are send as JSON payload with the following keys (unless an [error response override](#errors) is configured):
 - _code_ - the HTTP status code (e.g. 400).
-- _error_ - the HTTP status message (e.g. 'Bad request').
+- _error_ - the HTTP status message (e.g. 'Bad Request').
 - _message_ - the returned message if provided.
 
 The complete error repsonse including any additional data is added to the request log.
