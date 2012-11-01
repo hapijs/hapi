@@ -522,9 +522,7 @@ require('../suite')(function (useRedis, useMongo) {
                 var config = {
                     expiresAt: '13:00'
                 };
-                var created = new Date(Date.now());
-                created.setHours(15);
-                created = new Date(created.setDate(created.getDay() - 4)).getTime();
+                var created = Date.now() - 313200000;                                       // 87 hours (3 days + 15 hours)
                 var rule = Cache.compile(config);
 
                 var ttl = Cache.ttl(rule, created);
@@ -532,13 +530,11 @@ require('../suite')(function (useRedis, useMongo) {
                 done();
             });
 
-            it('returns the 0 when created several days ago and expiresAt is used with an hour before the created hour', function (done) {
+            it('returns 0 when created 60 hours ago and expiresAt is used with an hour before the created hour', function (done) {
                 var config = {
                     expiresAt: '12:00'
                 };
-                var created = new Date(Date.now());
-                created.setHours(10);
-                created = new Date(created.setDate(created.getDay() - 4)).getTime();
+                var created = Date.now() - 342000000;                                       // 95 hours ago (3 days + 23 hours)
                 var rule = Cache.compile(config);
 
                 var ttl = Cache.ttl(rule, created);
