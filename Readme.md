@@ -249,7 +249,7 @@ function onUnknownRoute(request) {
 If a different error format than the default JSON response is required, the server `errors.format` option can be assigned a function to generate a
 different error response. The function signature is _'function (result, callback)'_ where:
 - _'result'_ - is the **hapi** error object returned by the route handler, and
-- _'callback'_ - is the callback function called with the new result object or string.
+- _'callback'_ - is a callback function called with the formatted response. The callback function signature is _'function (code, payload, contentType)'_.
 
 For example:
 ```javascript
@@ -257,7 +257,7 @@ var options = {
     errors: {
         format: function (result, callback) {
         
-            callback('Oops: ' + result.message);
+            callback(500, 'Oops: ' + result.message, 'text/html');
         }
     }
 };
@@ -706,7 +706,6 @@ The 'Hapi.Error' module provides helper methods to generate error responses:
 - _'forbidden([message])'_ - HTTP 403 (Not Allowed).
 - _'notFound([message])'_ - HTTP 404 (Not Found).
 - _'internal([message, data])'_ - HTTP 500 (Internal Error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
-- _'create(message, code, text, [options]) - creates a custom error with the provided _message_, _code_ (the HTTP status code), _text_ (the HTTP status message), and any keys present in _options_.
 
 The _message_ value is optional and will be returned to the client in the response unless noted otherwise. For example:
 
