@@ -114,7 +114,7 @@ describe('Session', function() {
         it('returns bad request error when no grant type is specified', function(done) {
             makeRequest('/oauth/token', 'POST', null, function(rawRes) {
                 expect(rawRes.result.error).to.exist;
-                expect(rawRes.result.error).to.equal('Bad request');
+                expect(rawRes.result.error).to.equal('Bad Request');
                 done();
             });
         });
