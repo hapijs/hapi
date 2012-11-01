@@ -1,5 +1,6 @@
 // Load modules
 
+var Https = require('https');
 var expect = require('chai').expect;
 var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
 var Server = require(libPath + 'server');
@@ -101,6 +102,15 @@ describe('Server', function () {
     it('assigns _monitor when config enables monitor', function (done) {
         var server = new Server('0.0.0.0', 8082, { monitor: true });
         expect(server._monitor).to.exist;
+        done();
+    });
+
+    it('creates an https server when passed tls options', function (done) {
+        var tls = {
+        };
+
+        var server = new Server('0.0.0.0', 8082, { tls: tls });
+        expect(server.listener instanceof Https.Server).to.equal(true);
         done();
     });
 
