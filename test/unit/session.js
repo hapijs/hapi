@@ -29,43 +29,4 @@ describe('Session', function() {
             done();
         });
     });
-
-
-    describe('#loadToken', function() {
-
-        it('passes null to the callback when the token is missing', function(done) {
-            Session.loadToken('myKey', null, function(session) {
-                expect(session).to.not.exist;
-                done();
-            });
-        });
-
-        it('passes null to the callback when the session is expired', function(done) {
-            var expiredSession = {
-                expiration: Date.now()
-            };
-            var encryptedSession = Session.encrypt('myKey', expiredSession);
-
-            Session.loadToken('myKey', encryptedSession, function(session) {
-                expect(session).to.not.exist;
-                done();
-            });
-        });
-
-        it('passes the session to the callback when the session is valid', function(done) {
-            var expiration = new Date(Date.now());
-            expiration = expiration.setHours(expiration.getHours() + 1);
-
-            var validSession = {
-                expiration: expiration
-            };
-            var encryptedSession = Session.encrypt('myKey', validSession);
-
-            Session.loadToken('myKey', encryptedSession, function(session) {
-                expect(session).to.exist;
-                expect(session.expiration).to.equal(validSession.expiration);
-                done();
-            });
-        });
-    });
 });

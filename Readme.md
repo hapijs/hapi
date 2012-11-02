@@ -416,11 +416,11 @@ to write additional text as the configuration itself serves as a living document
       * _'required'_ - authentication is required.
       * _'optional'_ - authentication is optional (validated if present).
     * `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
-    * `scope` - required client scope. Defaults to _none_.
+    * `scope` - required application scope. Defaults to _none_.
     * `entity` - the required authenticated entity type. Available options include:
-      * _'any'_ - the authentication can be on behalf of a user or client.
+      * _'any'_ - the authentication can be on behalf of a user or application.
       * _'user'_ - the authentication must be on behalf of a user.
-      * _'client'_ - the authentication must be on behalf of a client.
+      * _'app'_ - the authentication must be on behalf of an application.
 
 The `config` option was defined for easily spliting the routing table definition from the individual route information. For example:
 ```javascript
@@ -502,9 +502,9 @@ When the provided route handler method is called, it receives a _request_ object
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
 - _'session'_ - available for authenticated requests and includes:
     - _'used'_ - user id.
-    - _'client'_ - client id.
+    - _'app'_ - application id.
     - _'tos'_ - terms-of-service version.
-    - _'scope'_ - approved client scopes.
+    - _'scope'_ - approved application scopes.
 - _'server'_ - a reference to the server object.
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
