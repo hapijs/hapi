@@ -16,7 +16,6 @@ describe('Proxy', function () {
         var listening = false;
 
         var routeCache = {
-            mode: 'server+client',
             expiresIn: 500
         };
 
