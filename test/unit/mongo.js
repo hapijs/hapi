@@ -63,7 +63,7 @@ require('../suite')(function (useRedis, useMongo) {
                 mongo.start(function(err, result) {
                     expect(err).to.not.exist;
                     expect(result).to.not.exist;
-                    expect(mongo.isReady).to.be.true;
+                    expect(mongo.isReady()).to.be.true;
                     done();
                 });
             });
