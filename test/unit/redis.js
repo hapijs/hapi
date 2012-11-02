@@ -36,23 +36,6 @@ require('../suite')(function (useRedis, useMongo) {
                         done();
                     });
                 });
-
-                it('returns an error when the connection is already started', function(done) {
-                    var options = {
-                        host: '127.0.0.1',
-                        port: 6379
-                    };
-
-                    var redis = new Redis.Connection(options);
-
-                    redis.start(function() {
-                        redis.start(function(err) {
-                            expect(err).to.exist;
-                            expect(err).to.be.instanceOf(Error);
-                            done();
-                        });
-                    });
-                });
             });
 
             describe('#validateSegmentName', function() {
