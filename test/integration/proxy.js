@@ -44,7 +44,7 @@ describe('Proxy', function () {
             { method: 'POST', path: '/item', config: { proxy: { host: '127.0.0.1', port: 18093 } } },
             { method: 'POST', path: '/notfound', config: { proxy: { host: '127.0.0.1', port: 18093 } } },
             { method: 'GET', path: '/postResponseError', config: { proxy: { host: '127.0.0.1', port: 18093, postResponse: postResponseWithError }, cache: routeCache } },
-            { method: 'POST', path: '/echo', config: { proxy: { host: '127.0.0.1', port: 18093 } } }
+            { method: 'POST', path: '/echo', config: { proxy: { mapUri: mapUri } } }
         ]);
 
         dummyServer.listener.on('listening', function () {
@@ -66,6 +66,11 @@ describe('Proxy', function () {
 
         dummyServer.start();
         _server.start();
+    }
+
+    function mapUri(request, callback) {
+
+        return callback(null, 'http://127.0.0.1:18093' + request.path, request.query);
     }
 
     function profile(request) {
