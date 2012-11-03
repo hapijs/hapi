@@ -3,15 +3,23 @@
 var expect = require('chai').expect;
 var Request = process.env.TEST_COV ? require('../../lib-cov/request') : require('../../lib/request');
 var ServerMock = require('./mocks/server');
+var Shot = require('shot');
 
-describe('Request', function() {
-    var _req = {
+
+describe('Request', function () {
+
+    var _req = null;
+    var _res = null;
+    var reqOptions = {
         url: '/test',
         method: 'GET',
         headers: []
     };
+    Shot.inject(function (req, res) {
 
-    var _res = {};
+        _req = req;
+        _res = res;
+    }, reqOptions, function () { });
 
     it('throws an error if constructed without new', function(done) {
         var fn = function() {
