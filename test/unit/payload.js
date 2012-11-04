@@ -28,8 +28,14 @@ describe('Payload', function () {
     describe('#read', function () {
 
         it('passes null to the callback when the request is a GET', function (done) {
+
             var request = {
-                method: 'get'
+                method: 'get',
+                raw: {
+                    req: {
+                        resume: function () { }
+                    }
+                }
             };
 
             Payload.read(request, function (result) {
@@ -41,7 +47,12 @@ describe('Payload', function () {
         it('passes null to the callback when the method is not put or post', function (done) {
             var request = {
                 method: 'delete',
-                _route: new Route({ method: 'delete', path: '/', handler: function () { } }, server)
+                _route: new Route({ method: 'delete', path: '/', handler: function () { } }, server),
+                raw: {
+                    req: {
+                        resume: function () { }
+                    }
+                }
             };
 
             Payload.read(request, function (result) {

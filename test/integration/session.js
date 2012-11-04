@@ -58,7 +58,7 @@ describe('Session', function() {
     function setupServer(done) {
         _server = new Hapi.Server('0.0.0.0', 18095, { authentication: authentication });
         _server.addRoutes([
-            { method: 'GET', path: '/profile1', config: { handler: profile1Handler, cache: false, auth: { mode: 'www' } } },
+            { method: 'GET', path: '/profile1', config: { handler: profile1Handler, cache: false, auth: { mode: 'required' } } },
             { method: 'GET', path: '/profile2', config: { handler: profile2Handler, cache: false, auth: { mode: 'optional' } } }
         ]);
         _server.listener.on('listening', function() {
@@ -124,7 +124,6 @@ describe('Session', function() {
 
             makeRequest('/oauth/token', 'POST', payload, function(rawRes) {
                 expect(rawRes.result.error).to.exist;
-                expect(rawRes.result.error_description).to.equal('Request missing client authentication');
                 done();
             });
         });
