@@ -304,15 +304,17 @@ The authentication interface is disabled by default and is still experimental.
 **hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
 (each must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to
 an object with the following options:
-- `engine` - the cache server implementation. Options are _redis_ and _mongodb_.
+- `engine` - the cache server implementation. Options are _redis_, _mongodb_, and _memory_.
 - `host` - the cache server hostname.
 - `port` - the cache server port.
 - `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'.
 - `username`, `password`, `poolSize` - MongoDB-specific options.
 
-For convenience, two pre-configured options are provided for Redis and MongoDB. To use them, simply set the server's `cache` option to:
+For convenience, pre-configured options are provided for Redis, MongoDB, and an experimental memory store. To use them, simply set the server's `cache` option to:
 * _'redis'_ - Connects to _127.0.0.1:6379_ using partition name 'hapi-cache'.
 * _'mongodb'_ - Connects to _127.0.0.1:27017_ using partition name 'hapi-cache', no authentication, and pool size 5.
+* _'memory'_ - This is an experimental engine and should be avoided in production environments.  The memory engine will run within the node process and supports the following option:
+    - `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine.  Once this limit is reached no more items will be added to the cache.
 
 For example:
 ```javascript
