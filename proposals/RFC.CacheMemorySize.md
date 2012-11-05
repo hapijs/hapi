@@ -17,7 +17,7 @@ This solution should be very fast.  The cache.length will be checked and if it i
 This is a rough solution as objects occupying a large amount of memory could still be cached as long as the total number of objects is below the threshold.  Therefore, this will only serve the purpose of providing a limit in general, one that may not be all that useful for those trying to limit memory consumption.
 
 
-### Proposed Solution 2
+## Proposed Solution 2
 
 A slightly more complex solution, this would iterate over each item stored in cache and calculate the size of the cache in bytes.  This could be optimized so that when an object is added or removed the size value is updated instead of recalculating the cache size for every set operation.
 
