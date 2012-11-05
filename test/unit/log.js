@@ -20,11 +20,9 @@ describe('Log', function () {
 
     describe('#event', function () {
 
-        it('fires an event with the passed in tags', function(done) {
-            var env = process.env.NODE_ENV;
-            var tags = ['hello'];
-            process.env.NODE_ENV = 'nottatest';
+        it('fires an event with the passed in tags', function (done) {
 
+            var tags = ['hello'];
             Log.once('log', function(event) {
                 expect(event).to.exist;
                 expect(event.tags).to.exist;
@@ -32,19 +30,17 @@ describe('Log', function () {
                 done();
             });
             Log.event(tags, null, Date.now());
-
-            process.env.NODE_ENV = env;
         });
 
         it('outputs to stdout if no listeners exist', function(done) {
             var env = process.env.NODE_ENV;
-            var tags = ['hello'];
             process.env.NODE_ENV = 'nottatest';
 
             var unhookStdout = stdoutIntercept(function(output) {
                 expect(output).to.contain('hello');
             });
 
+            var tags = ['hello'];
             Log.event(tags, null, Date.now());
 
             process.env.NODE_ENV = env;
@@ -65,7 +61,7 @@ describe('Log', function () {
                 expect(output).to.contain('tag1');
             });
 
-            Log.print(event, false);
+            Log.print(event, false, true);
             unhookStdout();
             done();
         });
@@ -81,7 +77,7 @@ describe('Log', function () {
                 expect(output).to.contain('JSON Error');
             });
 
-            Log.print(event, false);
+            Log.print(event, false, true);
             unhookStdout();
             done();
         });
