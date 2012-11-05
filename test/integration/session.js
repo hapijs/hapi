@@ -28,7 +28,7 @@ describe('Session', function() {
         return null;
     };
 
-    var loadUser = function() {
+    var checkRsvp = function () {
         return null;
     };
 
@@ -38,7 +38,7 @@ describe('Session', function() {
 
     var authentication = {
         loadClientFunc: loadClient,
-        loadUserFunc: loadUser,
+        checkRsvpFunc: checkRsvp,
         extensionFunc: null,
         checkAuthorizationFunc: checkAuthorization,
 
