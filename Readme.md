@@ -47,6 +47,7 @@ Current version: **0.9.0**
 		- [Payload Validation](#payload-validation)
 		- [Response Validation](#response-validation)
         - [Caching](#caching)
+        - [Proxy](#proxy)
         - [Route Prerequisites](#route-prerequisites)
 <p></p>
 	- [**Data Validation**](#data-validation)
@@ -616,7 +617,28 @@ The server-side cache also supports these advanced options:
 * `staleIn` - number of milliseconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400000 milliseconds (one day) if using `expiresAt` or less than the value of `expiresIn`. Used together with `staleTimeout`.
 * `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
 
-### Requisites
+### Proxy
+
+It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
+* `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
+* `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
+* `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
+* `port` - The port to use when making a request to the host.
+* `protocol` - The protocol to use when making a request to the proxied host (http or https)
+* `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
+* `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
+
+For example, to proxy a request to the homepage to google:
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Proxy request to / to google.com
+http.addRoute({ method: 'GET', path: '/', config: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
+
+http.start();
+
+### Prequisites
 
 Before the handler is called, it is often necessary to perform other actions such as loading required reference data from a database. The `pre` option
 allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value 'parallel' in which case, all the parallel methods
