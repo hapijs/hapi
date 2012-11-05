@@ -6,7 +6,7 @@ var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
 var Hapi = require(libPath + 'hapi');
 
 
-describe('Session', function() {
+describe('Session', function () {
     var _server = null;
     var _serverUrl = 'http://127.0.0.1:18085';
 
@@ -24,7 +24,7 @@ describe('Session', function() {
         });
     };
 
-    var loadClient = function() {
+    var getApp = function () {
         return null;
     };
 
@@ -32,24 +32,19 @@ describe('Session', function() {
         return null;
     };
 
-    var checkAuthorization = function() {
+    var checkAuthorization = function () {
         return true;
     };
 
     var authentication = {
-        loadClientFunc: loadClient,
+        tokenEndpoint: '/oauth/token',
+        encryptionPassword: 'something',
+
+        getAppFunc: getApp,
         checkRsvpFunc: checkRsvp,
         extensionFunc: null,
         checkAuthorizationFunc: checkAuthorization,
 
-        tokenEndpoint: '/oauth/token',
-        defaultAlgorithm: 'hmac-sha-1',
-        tokenLifetimeSec: 1209600,
-
-        aes256Keys: {
-            oauthRefresh: 'refreshtoken',
-            oauthToken: 'token'
-        },
         tos: {
             min: 'none'
         }
@@ -61,14 +56,14 @@ describe('Session', function() {
             { method: 'GET', path: '/profile1', config: { handler: profile1Handler, cache: false, auth: { mode: 'required' } } },
             { method: 'GET', path: '/profile2', config: { handler: profile2Handler, cache: false, auth: { mode: 'optional' } } }
         ]);
-        _server.listener.on('listening', function() {
+        _server.listener.on('listening', function () {
             done();
         });
         _server.start();
     }
 
     function makeRequest(path, method, payload, callback) {
-        var next = function(res) {
+        var next = function (res) {
             return callback(res);
         };
 
@@ -94,35 +89,35 @@ describe('Session', function() {
 
     before(setupServer);
 
-    it('returns error header on response when authentication is missing', function(done) {
-        makeRequest('/profile1', 'GET', null, function(rawRes) {
+    it('returns error header on response when authentication is missing', function (done) {
+        makeRequest('/profile1', 'GET', null, function (rawRes) {
             var headers = parseHeaders(rawRes.raw.res);
             expect(headers['WWW-Authenticate']).to.contain('error');
             done();
         });
     });
 
-    it('returns endpoint data when authentication is optional', function(done) {
-        makeRequest('/profile2', 'GET', null, function(rawRes) {
+    it('returns endpoint data when authentication is optional', function (done) {
+        makeRequest('/profile2', 'GET', null, function (rawRes) {
             expect(rawRes.result.id).to.equal('ba0dbda8b1c');
             done();
         });
     });
 
-    describe('#tokenEndpoint', function() {
+    describe('#tokenEndpoint', function () {
 
-        it('returns bad request error when no grant type is specified', function(done) {
-            makeRequest('/oauth/token', 'POST', null, function(rawRes) {
+        it('returns bad request error when no grant type is specified', function (done) {
+            makeRequest('/oauth/token', 'POST', null, function (rawRes) {
                 expect(rawRes.result.error).to.exist;
                 expect(rawRes.result.error).to.equal('Bad Request');
                 done();
             });
         });
 
-        it('returns error when no client authentication data is specified', function(done) {
+        it('returns error when no client authentication data is specified', function (done) {
             var payload = '{"grant_type": "client_credentials"}';
 
-            makeRequest('/oauth/token', 'POST', payload, function(rawRes) {
+            makeRequest('/oauth/token', 'POST', payload, function (rawRes) {
                 expect(rawRes.result.error).to.exist;
                 done();
             });
