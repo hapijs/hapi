@@ -43,7 +43,8 @@ describe('Proxy', function () {
             { method: 'POST', path: '/item', config: { proxy: { host: '127.0.0.1', port: 18093 } } },
             { method: 'POST', path: '/notfound', config: { proxy: { host: '127.0.0.1', port: 18093 } } },
             { method: 'GET', path: '/postResponseError', config: { proxy: { host: '127.0.0.1', port: 18093, postResponse: postResponseWithError }, cache: routeCache } },
-            { method: 'POST', path: '/echo', config: { proxy: { mapUri: mapUri } } }
+            { method: 'POST', path: '/echo', config: { proxy: { mapUri: mapUri } } },
+            { method: 'GET', path: '/maperror', config: { proxy: { mapUri: mapUriWithError } } }
         ]);
 
         dummyServer.listener.on('listening', function () {
@@ -70,6 +71,11 @@ describe('Proxy', function () {
     function mapUri(request, callback) {
 
         return callback(null, 'http://127.0.0.1:18093' + request.path, request.query);
+    }
+
+    function mapUriWithError(request, callback) {
+
+        return callback(new Error('myerror'));
     }
 
     function profile(request) {
@@ -206,6 +212,15 @@ describe('Proxy', function () {
 
             expect(rawRes.statusCode).to.equal(200);
             expect(rawRes.body).to.contain('echo');
+            done();
+        });
+    });
+
+    it('replies with an error when it occurs in mapUri', function(done) {
+
+        makeRequest({ path: '/maperror', method: 'get' }, function (rawRes) {
+
+            expect(rawRes.body).to.contain('myerror');
             done();
         });
     });
