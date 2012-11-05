@@ -109,5 +109,58 @@ describe('Memory Cache', function() {
                 });
             });
         });
+
+        it('returns an error when the maxByteSize has been reached', function(done) {
+
+            var key = {
+                segment: 'test',
+                id: 'test'
+            };
+
+            var memory = new Memory.Connection({ maxByteSize: 4 });
+            expect(memory.cache).to.not.exist;
+
+            memory.start(function() {
+
+                expect(memory.cache).to.exist;
+                memory.set(key, 'myvalue', 10, function(err) {
+
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(Error);
+                    done();
+                });
+            });
+        });
+
+        it('increments the byte size when an item is inserted and returns an error when the limit is reached', function(done) {
+
+            var key1 = {
+                segment: 'test',
+                id: 'test'
+            };
+
+            var key2 = {
+                segment: 'test',
+                id: 'test2'
+            };
+
+            var memory = new Memory.Connection({ maxByteSize: 6 });
+            expect(memory.cache).to.not.exist;
+
+            memory.start(function() {
+
+                expect(memory.cache).to.exist;
+                memory.set(key1, 'my', 10, function() {
+
+                    expect(memory.cache[key1.segment][key1.id].item).to.equal('my');
+
+                    memory.set(key2, 'myvalue', 10, function(err) {
+
+                        expect(err).to.exist;
+                        done();
+                    });
+                });
+            });
+        });
     });
 });
