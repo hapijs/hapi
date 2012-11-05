@@ -8,7 +8,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.8.2**
+Current version: **0.8.3**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -47,6 +47,7 @@ Current version: **0.8.2**
 		- [Payload Validation](#payload-validation)
 		- [Response Validation](#response-validation)
         - [Caching](#caching)
+        - [Proxy](#proxy)
         - [Route Prerequisites](#route-prerequisites)
 <p></p>
 	- [**Data Validation**](#data-validation)
@@ -303,15 +304,17 @@ The authentication interface is disabled by default and is still experimental.
 **hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
 (each must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to
 an object with the following options:
-- `engine` - the cache server implementation. Options are _redis_ and _mongodb_.
+- `engine` - the cache server implementation. Options are _redis_, _mongodb_, and _memory_.
 - `host` - the cache server hostname.
 - `port` - the cache server port.
 - `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'.
 - `username`, `password`, `poolSize` - MongoDB-specific options.
 
-For convenience, two pre-configured options are provided for Redis and MongoDB. To use them, simply set the server's `cache` option to:
+For convenience, pre-configured options are provided for Redis, MongoDB, and an experimental memory store. To use them, simply set the server's `cache` option to:
 * _'redis'_ - Connects to _127.0.0.1:6379_ using partition name 'hapi-cache'.
 * _'mongodb'_ - Connects to _127.0.0.1:27017_ using partition name 'hapi-cache', no authentication, and pool size 5.
+* _'memory'_ - This is an experimental engine and should be avoided in production environments.  The memory engine will run within the node process and supports the following option:
+    - `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine.  Once this limit is reached no more items will be added to the cache.
 
 For example:
 ```javascript
@@ -616,7 +619,28 @@ The server-side cache also supports these advanced options:
 * `staleIn` - number of milliseconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400000 milliseconds (one day) if using `expiresAt` or less than the value of `expiresIn`. Used together with `staleTimeout`.
 * `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
 
-### Requisites
+### Proxy
+
+It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
+* `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
+* `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
+* `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
+* `port` - The port to use when making a request to the host.
+* `protocol` - The protocol to use when making a request to the proxied host (http or https)
+* `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
+* `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
+
+For example, to proxy a request to the homepage to google:
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Proxy request to / to google.com
+http.addRoute({ method: 'GET', path: '/', config: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
+
+http.start();
+
+### Prequisites
 
 Before the handler is called, it is often necessary to perform other actions such as loading required reference data from a database. The `pre` option
 allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value 'parallel' in which case, all the parallel methods
