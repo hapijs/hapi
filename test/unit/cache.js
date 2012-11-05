@@ -785,6 +785,7 @@ require('../suite')(function (useRedis, useMongo) {
             it('returns a positive number when using a future expiresAt', function (done) {
 
                 var hour = new Date(Date.now() + 60 * 60 * 1000).getHours();
+                hour = hour === 0 ? 1 : hour;
 
                 var config = {
                     expiresAt: hour + ':00'
