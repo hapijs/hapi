@@ -14,7 +14,7 @@ describe('Request', function () {
 
     var server = new Hapi.Server('0.0.0.0', 18085);
     server.addRoutes([
-        { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
+        { method: 'GET', path: '/custom', config: { handler: customErrorHandler } }
     ]);
 
     var makeRequest = function (method, path, callback) {
@@ -28,7 +28,7 @@ describe('Request', function () {
             method: method,
             url: path
         }, next);
-    }
+    };
 
     function parseHeaders(res) {
 

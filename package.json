@@ -30,7 +30,8 @@
     "ws": "0.4.x",
     "shot": "0.0.x",
     "handlebars": "1.0.x",
-    "mongodb": "1.1.x"
+    "mongodb": "1.1.x",
+    "multipart-parser": "0.x.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
