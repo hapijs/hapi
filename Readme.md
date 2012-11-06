@@ -385,6 +385,7 @@ If an error occurs as a result of one the requests to an endpoint it will be inc
 ## Server Events
 
 The server object emits the following events:
+- _'bound'_ - emitted when the server is bound.  Includes hostname and port as arguments.
 - _'response'_ - emitted after a response is sent back. Includes the request object as value.
 - _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
 
