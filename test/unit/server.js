@@ -182,24 +182,24 @@ describe('Server', function () {
             done();
         });
 
-        it('calls the callback with the host and real port when using a ephemeral port', function(done) {
+        it('calls the callback when one is used', function(done) {
 
             var server = new Server('0.0.0.0', 0);
-            server.start(function(host, port) {
+            server.start(function() {
 
-                expect(host).to.equal('0.0.0.0');
-                expect(port).to.not.equal(0);
+                expect(server.settings.host).to.equal('0.0.0.0');
+                expect(server.settings.port).to.not.equal(0);
                 done();
             });
         });
 
-        it('calls the callback with the host and port when not using ephemeral port', function(done) {
+        it('calls the callback when not using ephemeral port', function(done) {
 
             var server = new Server('0.0.0.0', 8880);
             server.start(function(host, port) {
 
-                expect(host).to.equal('0.0.0.0');
-                expect(port).to.equal(8880);
+                expect(server.settings.host).to.equal('0.0.0.0');
+                expect(server.settings.port).to.equal(8880);
                 done();
             });
         });
@@ -211,12 +211,11 @@ describe('Server', function () {
         it('doesn\'t throw an error when the server is started', function (done) {
             var fn = function () {
                 var server = new Server('0.0.0.0', 8089);
-                server.listener.on('listening', function () {
+
+                server.start(function() {
                     server.stop();
                     done();
                 });
-
-                server.start();
             };
             expect(fn).to.not.throw(Error);
         });
