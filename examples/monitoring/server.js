@@ -25,7 +25,7 @@ var host = "localhost",
       }
     },
     routes = [
-        { method: 'GET',  path: '/', handler: testHandler, tos: 'none', authentication: 'none' }
+        { method: 'GET',  path: '/', handler: testHandler }
     ];
 
 var s = new Hapi.Server(host, port, options);
