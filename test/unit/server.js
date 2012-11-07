@@ -211,12 +211,11 @@ describe('Server', function () {
         it('doesn\'t throw an error when the server is started', function (done) {
             var fn = function () {
                 var server = new Server('0.0.0.0', 8089);
-                server.listener.on('listening', function () {
+
+                server.start(function() {
                     server.stop();
                     done();
                 });
-
-                server.start();
             };
             expect(fn).to.not.throw(Error);
         });
