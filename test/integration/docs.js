@@ -19,7 +19,7 @@ describe('Docs Generator', function() {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 8083, { authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
+        _server = new Hapi.Server('0.0.0.0', 8083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
         _server.addRoutes([
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
             { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
@@ -32,7 +32,7 @@ describe('Docs Generator', function() {
 
     function setupServerWithoutPost(done) {
 
-        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083, { authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
+        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
         _serverWithoutPost.addRoutes([
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);
