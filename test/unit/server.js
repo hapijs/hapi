@@ -21,6 +21,18 @@ describe('Server', function () {
         done();
     });
 
+    it('defaults to port 80 when a null port is provided', function (done) {
+        var server = new Server('0.0.0.0', null);
+        expect(server.settings.port).to.be.equal(80);
+        done();
+    });
+
+    it('allows a ephemeral port to be set', function (done) {
+        var server = new Server('0.0.0.0', 0);
+        expect(server.settings.port).to.be.equal(0);
+        done();
+    });
+
     it('defaults to localhost when no host is provided', function (done) {
         var server = new Server();
         expect(server.settings.host).to.be.equal('localhost');
@@ -153,6 +165,28 @@ describe('Server', function () {
             expect(fn).to.not.throw(Error);
             done();
         });
+
+        it('calls the callback when one is used', function(done) {
+
+            var server = new Server('0.0.0.0', 0);
+            server.start(function() {
+
+                expect(server.settings.host).to.equal('0.0.0.0');
+                expect(server.settings.port).to.not.equal(0);
+                done();
+            });
+        });
+
+        it('calls the callback when not using ephemeral port', function(done) {
+
+            var server = new Server('0.0.0.0', 8880);
+            server.start(function(host, port) {
+
+                expect(server.settings.host).to.equal('0.0.0.0');
+                expect(server.settings.port).to.equal(8880);
+                done();
+            });
+        });
     });
 
 
@@ -161,12 +195,11 @@ describe('Server', function () {
         it('doesn\'t throw an error when the server is started', function (done) {
             var fn = function () {
                 var server = new Server('0.0.0.0', 8089);
-                server.listener.on('listening', function () {
+
+                server.start(function() {
                     server.stop();
                     done();
                 });
-
-                server.start();
             };
             expect(fn).to.not.throw(Error);
         });
