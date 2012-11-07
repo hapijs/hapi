@@ -71,22 +71,6 @@ describe('Server', function () {
         done();
     });
 
-    it('throws an error when an incomplete authentication config is provided', function (done) {
-        var fn = function () {
-            var server = new Server('0.0.0.0', 8084, { authentication: {} });
-        };
-        expect(fn).throws(Error);
-        done();
-    });
-
-    it('doesn\'t throw an error when disabling authentication', function (done) {
-        var fn = function () {
-            var server = new Server('0.0.0.0', 8085, { authentication: false });
-        };
-        expect(fn).to.not.throw(Error);
-        done();
-    });
-
     it('doesn\'t throw an error when enabling docs', function (done) {
         var fn = function () {
             var server = new Server('0.0.0.0', 8086, { docs: true });
