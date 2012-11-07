@@ -21,6 +21,18 @@ describe('Server', function () {
         done();
     });
 
+    it('defaults to port 80 when a null port is provided', function (done) {
+        var server = new Server('0.0.0.0', null);
+        expect(server.settings.port).to.be.equal(80);
+        done();
+    });
+
+    it('allows a ephemeral port to be set', function (done) {
+        var server = new Server('0.0.0.0', 0);
+        expect(server.settings.port).to.be.equal(0);
+        done();
+    });
+
     it('defaults to localhost when no host is provided', function (done) {
         var server = new Server();
         expect(server.settings.host).to.be.equal('localhost');
@@ -168,6 +180,28 @@ describe('Server', function () {
             };
             expect(fn).to.not.throw(Error);
             done();
+        });
+
+        it('calls the callback with the host and real port when using a ephemeral port', function(done) {
+
+            var server = new Server('0.0.0.0', 0);
+            server.start(function(host, port) {
+
+                expect(host).to.equal('0.0.0.0');
+                expect(port).to.not.equal(0);
+                done();
+            });
+        });
+
+        it('calls the callback with the host and port when not using ephemeral port', function(done) {
+
+            var server = new Server('0.0.0.0', 8880);
+            server.start(function(host, port) {
+
+                expect(host).to.equal('0.0.0.0');
+                expect(port).to.equal(8880);
+                done();
+            });
         });
     });
 
