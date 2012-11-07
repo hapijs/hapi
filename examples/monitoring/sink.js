@@ -34,5 +34,5 @@ app.post("/analytics/blammo", function(req, res) {
 
 app.listen(9000, function() {
   
-  console.log("sink server started on port "+ app.address().port);
+  console.log("sink server started on port " + app.address().port);
 });
