@@ -37,6 +37,7 @@ internals.main = function () {
 
     http.addRoutes([
         { method: 'GET', path: '/', config: { handler: internals.get, query: { username: S() } } },
+        { method: 'POST', path: '/', config: { handler: internals.echo, payload: 'parse' } },
         { method: 'GET', path: '/admin', config: { handler: internals.get, query: { username: S().required().with('password'), password: S() } } },
         { method: 'GET', path: '/users', config: { handler: internals.get, query: { email: S().email().required().min(18) } } },
         { method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } },
@@ -73,15 +74,23 @@ internals.get = function (request) {
     request.reply('Success!\n');
 };
 
+
 internals.output = function (request) {
 
     request.reply({ myOutput: request.query.input });
 };
 
+
 internals.payload = function (request) {
 
     request.reply('Success!\n');
-}
+};
+
+
+internals.echo = function(request) {
+
+    request.reply(request.payload);
+};
 
 
 internals.main();

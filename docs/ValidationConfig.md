@@ -37,7 +37,7 @@ This document defines the generic configuration syntax for:
 
 ## Introduction
 
-The fairly comprehensive Hapi Validation system can be used to validate querystring parameters and payloads (POST data sent from the client(s)). 
+The fairly comprehensive Hapi Validation system can be used to validate querystring parameters and payloads (POST data sent from the client(s)).  Validation uses the [joi](https://github.com/walmartlabs/joi) module.
 
 ### Query Example
 #### Config
