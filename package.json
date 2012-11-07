@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP API Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.8.3",
+  "version": "0.9.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors":[
     "Van Nguyen <the.gol.effect@gmail.com>",
@@ -24,7 +24,7 @@
     "hoek": "0.0.x",
     "joi": "0.0.x",
     "async": "0.1.x",
-    "mac": "0.x.x",
+    "oz": "0.0.x",
     "request": "2.11.x",
     "redis": "0.8.x",
     "ws": "0.4.x",

@@ -8,7 +8,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.8.3**
+Current version: **0.9.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -408,7 +408,7 @@ to write additional text as the configuration itself serves as a living document
   * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
   * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
   * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
-    * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_.
+    * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
     * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
     * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
   * `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
@@ -419,11 +419,11 @@ to write additional text as the configuration itself serves as a living document
       * _'required'_ - authentication is required.
       * _'optional'_ - authentication is optional (validated if present).
     * `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
-    * `scope` - required client scope. Defaults to _none_.
+    * `scope` - required application scope. Defaults to _none_.
     * `entity` - the required authenticated entity type. Available options include:
-      * _'any'_ - the authentication can be on behalf of a user or client.
+      * _'any'_ - the authentication can be on behalf of a user or application.
       * _'user'_ - the authentication must be on behalf of a user.
-      * _'client'_ - the authentication must be on behalf of a client.
+      * _'app'_ - the authentication must be on behalf of an application.
 
 The `config` option was defined for easily spliting the routing table definition from the individual route information. For example:
 ```javascript
@@ -505,9 +505,9 @@ When the provided route handler method is called, it receives a _request_ object
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
 - _'session'_ - available for authenticated requests and includes:
     - _'used'_ - user id.
-    - _'client'_ - client id.
+    - _'app'_ - application id.
     - _'tos'_ - terms-of-service version.
-    - _'scope'_ - approved client scopes.
+    - _'scope'_ - approved application scopes.
 - _'server'_ - a reference to the server object.
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
