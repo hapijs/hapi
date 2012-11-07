@@ -4,17 +4,21 @@ var expect = require('chai').expect;
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 var S = Hapi.Types.String;
 
-describe('Documentation', function() {
+describe('Docs Generator', function() {
+
     var _routeTemplate = '{{#each routes}}{{this.method}}|{{/each}}';
     var _indexTemplate = '{{#each routes}}{{this.path}}|{{/each}}';
     var _server = null;
+    var _serverWithoutPost = null;
     var _serverUrl = 'http://127.0.0.1:8083';
+    var _serverWithoutPostUrl = 'http://127.0.0.1:18083';
 
     var handler = function(request) {
         request.reply('ok');
     };
 
     function setupServer(done) {
+
         _server = new Hapi.Server('0.0.0.0', 8083, { authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
         _server.addRoutes([
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
@@ -26,7 +30,20 @@ describe('Documentation', function() {
         _server.start();
     }
 
+    function setupServerWithoutPost(done) {
+
+        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083, { authentication: false, docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate }});
+        _serverWithoutPost.addRoutes([
+            { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
+        ]);
+        _serverWithoutPost.listener.on('listening', function() {
+            done();
+        });
+        _serverWithoutPost.start();
+    }
+
     function makeRequest(path, callback) {
+
         var next = function(res) {
             return callback(res.result);
         };
@@ -40,6 +57,7 @@ describe('Documentation', function() {
     before(setupServer);
 
     it('shows template when correct path is provided', function(done) {
+
         makeRequest('/docs?path=/test', function(res) {
             expect(res).to.equal('GET|POST|');
             done();
@@ -47,6 +65,7 @@ describe('Documentation', function() {
     });
 
     it('has a Not Found response when wrong path is provided', function(done) {
+
         makeRequest('/docs?path=blah', function(res) {
             expect(res.error).to.equal('Not Found');
             done();
@@ -54,6 +73,7 @@ describe('Documentation', function() {
     });
 
     it('displays the index if no path is provided', function(done) {
+
         makeRequest('/docs', function(res) {
             expect(res).to.equal('/test|/test|');
             done();
@@ -61,9 +81,30 @@ describe('Documentation', function() {
     });
 
     it('the index does\'t have the docs endpoint listed', function(done) {
+
         makeRequest('/docs', function(res) {
             expect(res).to.not.contain('/docs');
             done();
+        });
+    });
+
+    describe('Index', function() {
+
+        before(setupServerWithoutPost);
+
+        it('doesn\'t throw an error when requesting the index when there are no POST routes', function(done) {
+
+
+
+            _serverWithoutPost.inject({
+                method: 'get',
+                url: _serverWithoutPostUrl + '/docs'
+            }, function(res) {
+
+                expect(res).to.exist;
+                expect(res.result).to.contain('/test');
+                done();
+            });
         });
     });
 });
