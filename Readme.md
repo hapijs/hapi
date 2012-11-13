@@ -45,6 +45,7 @@ Current version: **0.9.0**
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+		- [Path Validation](#path-validation)
 		- [Response Validation](#response-validation)
         - [Caching](#caching)
         - [Proxy](#proxy)
@@ -404,8 +405,10 @@ to write additional text as the configuration itself serves as a living document
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
   * `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
-  * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
-  * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+  * `validate`
+    * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to any query parameters being allowed. See [Query Validation](#query-validation) for more information.
+    * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to _'false'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+    * `path` - validation rules for incoming requests' path parameters. Defaults to no validation (any path parameter allowed). Set to _'false'_ to forbid any path parameter. See [Path Validation](#path-validation) for more information.
   * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
   * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
     * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
@@ -574,16 +577,25 @@ When a request URI includes a query component (the key-value part of the URI bet
 key-value pairs (see [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
 'request.query'.
 
-The route `config.query` defines the query validation rules performed before the route handler is invoked. Supported values:
-- _'false'_ or _'null'_ - no query parameters allowed. This is the default.
-- _'true'_ - any query parameters allowed (no validation performed).
+The route `config.validate.query` defines the query validation rules performed before the route handler is invoked. Supported values:
+- _'true'_ or _'{}'_ - any query parameters allowed (no validation performed).  This is the default.
+- _'false'_ - no query parameters allowed.
 - a validation rules object as described in [Data Validation](#data-validation).
 
 ### Payload Validation
 
-The route `config.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
-- _'null'_ - any payload allowed (no validation performed). This is the default.
-- _'false'_ or _'{}'_ - no payload allowed.
+The route `config.validate.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
+- _'true'_ or _'{}'_ - any payload allowed (no validation performed). This is the default.
+- _'false'_ - no payload allowed.
+- a validation rules object as described in [Data Validation](#data-validation).
+
+### Path Validation
+
+When a request comes in for a route that allows for path parameters the request is path parameters are parsed into request.params.
+
+The route `config.validate.path` defines the path validation rules performed before the route handler is invoked. Supported values:
+- _'true'_ or _'{}'_ - any path parameters allowed (no validation performed).  This is the default.
+- _'false'_ - no path variables allowed.
 - a validation rules object as described in [Data Validation](#data-validation).
 
 ### Response Validation

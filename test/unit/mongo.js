@@ -11,7 +11,9 @@ require('../suite')(function (useRedis, useMongo) {
     describe('Mongo', function() {
 
         it('throws an error if not created with new', function(done) {
+
             var fn = function () {
+
                 var mongo = Mongo.Connection();
             };
 
@@ -20,10 +22,13 @@ require('../suite')(function (useRedis, useMongo) {
         });
 
         it('throws an error when using a reserved partition name', function(done) {
+
             var fn = function () {
+
                 var options = {
                     partition: 'admin'
                 };
+
                 var mongo = new Mongo.Connection(options);
             };
 
@@ -34,8 +39,9 @@ require('../suite')(function (useRedis, useMongo) {
         describe('#start', function() {
 
             it('returns an error when authentication fails', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5,
@@ -44,6 +50,7 @@ require('../suite')(function (useRedis, useMongo) {
                 var mongo = new Mongo.Connection(options);
 
                 mongo.start(function(err, result) {
+
                     expect(err).to.exist;
                     expect(result).to.not.exist;
                     expect(err).to.be.instanceOf(Error);
@@ -52,8 +59,9 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('sets isReady to true when the connection succeeds', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -61,6 +69,7 @@ require('../suite')(function (useRedis, useMongo) {
                 var mongo = new Mongo.Connection(options);
 
                 mongo.start(function(err, result) {
+
                     expect(err).to.not.exist;
                     expect(result).to.not.exist;
                     expect(mongo.isReady()).to.be.true;
@@ -72,8 +81,9 @@ require('../suite')(function (useRedis, useMongo) {
         describe('#validateSegmentName', function() {
 
             it('returns an error when the name is empty', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -88,8 +98,9 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('returns an error when the name has a null character', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -103,8 +114,9 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('returns an error when the name starts with system.', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -118,8 +130,9 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('returns an error when the name has a $ character', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -133,8 +146,9 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('returns an error when the name is too long', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -148,8 +162,9 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('returns null when the name is valid', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -166,8 +181,9 @@ require('../suite')(function (useRedis, useMongo) {
         describe('#getCollection', function() {
 
             it('passes an error to the callback when the connection is closed', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -175,6 +191,7 @@ require('../suite')(function (useRedis, useMongo) {
                 var mongo = new Mongo.Connection(options);
 
                 mongo.getCollection('test', function(err) {
+
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
                     expect(err.message).to.equal('Connection not ready');
@@ -183,17 +200,42 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('passes a collection to the callback', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
                 };
                 var mongo = new Mongo.Connection(options);
+
                 mongo.start(function() {
+
                     mongo.getCollection('test', function(err, result) {
+
                         expect(err).to.not.exist;
                         expect(result).to.exist;
+                        done();
+                    });
+                });
+            });
+
+            it('passes an error to the callback when there is an error getting the collection', function(done) {
+
+                var options = {
+                    partition: 'wwwtest',
+                    host: '127.0.0.1',
+                    port: 27017,
+                    poolSize: 5
+                };
+                var mongo = new Mongo.Connection(options);
+
+                mongo.start(function() {
+
+                    mongo.getCollection('', function(err, result) {
+
+                        expect(err).to.exist;
+                        expect(result).to.not.exist;
                         done();
                     });
                 });
@@ -203,8 +245,9 @@ require('../suite')(function (useRedis, useMongo) {
         describe('#get', function() {
 
             it('passes an error to the callback when the connection is closed', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -212,6 +255,7 @@ require('../suite')(function (useRedis, useMongo) {
                 var mongo = new Mongo.Connection(options);
 
                 mongo.get('test', function(err) {
+
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
                     expect(err.message).to.equal('Connection not started');
@@ -220,6 +264,7 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('passes a null item to the callback when it doesn\'t exist', function(done) {
+
                 var options = {
                     partition: 'hapi-cache',
                     host: '127.0.0.1',
@@ -227,10 +272,67 @@ require('../suite')(function (useRedis, useMongo) {
                     poolSize: 5
                 };
                 var mongo = new Mongo.Connection(options);
+
                 mongo.start(function() {
+
                     mongo.get({ segment: 'test0', id: 'test0' }, function(err, result) {
+
                         expect(err).to.not.exist;
                         expect(result).to.not.exist;
+                        done();
+                    });
+                });
+            });
+
+            it('is able to retrieve an object thats stored when connection is started', function(done) {
+
+                var options = {
+                    partition: 'wwwtest',
+                    host: '127.0.0.1',
+                    port: 27017,
+                    poolSize: 5
+                };
+                var key = {
+                    id: 'test',
+                    segment: 'test'
+                };
+
+                var mongo = new Mongo.Connection(options);
+
+                mongo.start(function() {
+
+                    mongo.set(key, 'myvalue', 200, function(err) {
+
+                        expect(err).to.not.exist;
+                        mongo.get(key, function(err, result) {
+
+                            expect(err).to.not.exist;
+                            expect(result.item).to.equal('myvalue');
+                            done();
+                        });
+                    });
+                });
+            });
+
+            it('passes an error to the callback when there is an error getting the item', function(done) {
+
+                var options = {
+                    partition: 'wwwtest',
+                    host: '127.0.0.1',
+                    port: 27018,
+                    poolSize: 5
+                };
+                var key = {
+                    id: 'test',
+                    segment: 'test'
+                };
+                var mongo = new Mongo.Connection(options);
+
+                mongo.start(function() {
+
+                    mongo.get(key, function(err, result) {
+
+                        expect(err).to.exist;
                         done();
                     });
                 });
@@ -240,8 +342,9 @@ require('../suite')(function (useRedis, useMongo) {
         describe('#set', function() {
 
             it('passes an error to the callback when the connection is closed', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -249,6 +352,7 @@ require('../suite')(function (useRedis, useMongo) {
                 var mongo = new Mongo.Connection(options);
 
                 mongo.set({ id: 'test1', segment: 'test1' }, 'test1', 3600, function(err) {
+
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
                     expect(err.message).to.equal('Connection not started');
@@ -257,15 +361,19 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('doesn\'t return an error when the set succeeds', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
                 };
                 var mongo = new Mongo.Connection(options);
+
                 mongo.start(function() {
+
                     mongo.set({ id: 'test1', segment: 'test1' }, 'test1', 3600, function(err, result) {
+
                         expect(err).to.not.exist;
                         expect(result).to.not.exist;
                         done();
@@ -277,8 +385,9 @@ require('../suite')(function (useRedis, useMongo) {
         describe('#drop', function() {
 
             it('passes an error to the callback when the connection is closed', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
@@ -286,6 +395,7 @@ require('../suite')(function (useRedis, useMongo) {
                 var mongo = new Mongo.Connection(options);
 
                 mongo.drop({ id: 'test2', segment: 'test2' }, function(err) {
+
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
                     expect(err.message).to.equal('Connection not started');
@@ -294,15 +404,19 @@ require('../suite')(function (useRedis, useMongo) {
             });
 
             it('doesn\'t return an error when the drop succeeds', function(done) {
+
                 var options = {
-                    partition: 'hapi-cache',
+                    partition: 'wwwtest',
                     host: '127.0.0.1',
                     port: 27017,
                     poolSize: 5
                 };
                 var mongo = new Mongo.Connection(options);
+
                 mongo.start(function() {
+
                     mongo.drop({ id: 'test2', segment: 'test2' }, function(err, result) {
+
                         expect(err).to.not.exist;
                         expect(result).to.not.exist;
                         done();
