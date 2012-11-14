@@ -27,11 +27,11 @@
     "oz": "0.0.x",
     "request": "2.11.x",
     "redis": "0.8.x",
-    "ws": "0.4.x",
     "shot": "0.0.x",
     "mongodb": "1.1.x",
     "multipart-parser": "0.x.x",
-    "lout": "0.x.x"
+    "lout": "0.x.x",
+    "hapi-helmet": "0.x.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
