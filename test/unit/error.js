@@ -77,49 +77,13 @@ describe('Err', function() {
 
         it('formats a custom error', function (done) {
 
-            var err = new Err(500, 'Unknown', {
-                toResponse: function () {
+            var err = new Err(500, 'Unknown');
+            err.toResponse = function () {
 
-                    return { payload: { test: true } };
-                }
-            });
+                return { payload: { test: true } };
+            };
 
             expect(err.toResponse().payload.test).to.equal(true);
-            done();
-        });
-
-        it('formats a generic error', function (done) {
-
-            var err = new Error('boom');
-            err.x = 10;
-
-            var response = Err.toResponse(err);
-            expect(response.payload.message).to.equal('boom');
-            expect(response.payload.x).to.equal(10);
-            expect(response.code).to.equal(500);
-            done();
-        });
-
-        it('formats an hapi error', function (done) {
-
-            var err = new Err(500, 'boom');
-            err.x = 10;
-
-            var response = Err.toResponse(err);
-            expect(response.payload.message).to.equal('boom');
-            expect(response.payload.x).to.equal(10);
-            expect(response.code).to.equal(500);
-            done();
-        });
-
-        it('formats an internal error', function (done) {
-
-            var err = Err.internal('boom', { x: 10 });
-
-            var response = Err.toResponse(err);
-            expect(response.payload.message).to.equal('An internal server error occurred');
-            expect(response.payload.x).to.not.exist;
-            expect(response.code).to.equal(500);
             done();
         });
     });

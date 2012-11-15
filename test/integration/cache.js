@@ -27,7 +27,7 @@ describe('Cache', function() {
 
     var badHandler = function (request) {
 
-        request.reply.stream(new Stream);
+        request.reply(new Stream);
     };
 
     var errorHandler = function (request) {
