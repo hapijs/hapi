@@ -96,10 +96,10 @@ describe('Proxy', function () {
 
     function item(request) {
 
-        request.reply.created('http://google.com')({
+        request.reply.payload({
             'id': '55cf687663',
             'name': 'Item'
-        });
+        }).created('http://google.com').send();
     }
 
     function echoPostBody(request) {
@@ -119,8 +119,7 @@ describe('Proxy', function () {
 
     function postResponse(request, settings, response, payload) {
 
-        request.reply.type(response.headers['content-type']);
-        request.reply(payload);
+        request.reply.payload(payload).type(response.headers['content-type']).send();
     }
 
     function makeRequest(options, callback) {
