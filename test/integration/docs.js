@@ -94,8 +94,6 @@ describe('Docs Generator', function() {
 
         it('doesn\'t throw an error when requesting the index when there are no POST routes', function(done) {
 
-
-
             _serverWithoutPost.inject({
                 method: 'get',
                 url: _serverWithoutPostUrl + '/docs'
