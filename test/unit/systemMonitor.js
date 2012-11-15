@@ -6,9 +6,12 @@ var SystemMonitor = process.env.TEST_COV ? require('../../lib-cov/monitor/system
 describe('System Monitor', function() {
 
     it('throws an error when constructed without new', function(done) {
+
         var fn = function() {
+
             SystemMonitor.Monitor();
         };
+
         expect(fn).throws(Error, 'OSMonitor must be instantiated using new');
         done();
     });
@@ -16,8 +19,11 @@ describe('System Monitor', function() {
     describe('#mem', function() {
 
         it('returns an object with the current memory usage', function(done) {
+
             var monitor = new SystemMonitor.Monitor();
+
             monitor.mem(function(err, mem) {
+
                 expect(err).not.to.exist;
                 expect(mem).to.exist;
                 expect(mem.total).to.exist;
@@ -30,17 +36,38 @@ describe('System Monitor', function() {
     describe('#poll_cpu', function() {
 
         it('returns an error if a target is omitted', function(done) {
+
             var monitor = new SystemMonitor.Monitor();
+
             monitor.poll_cpu(null, function(err) {
+
                 expect(err).to.exist;
                 done();
             });
         });
 
         it('returns an error if the target is invalid', function(done) {
+
             var monitor = new SystemMonitor.Monitor();
-            monitor.poll_cpu('invalid', function(err, result) {
+
+            monitor.poll_cpu('invalid', function(err) {
+
                 expect(err).to.be.instanceOf(Error);
+                done();
+            });
+        });
+    });
+
+    describe('#cpu', function() {
+
+        it('doesn\'t pass an error to the callback', function(done) {
+
+            var monitor = new SystemMonitor.Monitor();
+
+            monitor.cpu(function(err, result) {
+
+                expect(err).to.not.exist;
+                expect(result).to.exist;
                 done();
             });
         });
@@ -49,8 +76,11 @@ describe('System Monitor', function() {
     describe('#disk', function() {
 
         it('returns disk usage information', function(done) {
+
             var monitor = new SystemMonitor.Monitor();
+
             monitor.disk(function(err, result) {
+
                 expect(err).to.not.exist;
                 expect(result).to.exist;
                 expect(result.free).to.be.greaterThan(1);
