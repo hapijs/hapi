@@ -110,6 +110,14 @@ describe('Server', function () {
         done();
     });
 
+    it('doesn\'t throw an error when enabling auth', function (done) {
+        var fn = function () {
+            var server = new Server('0.0.0.0', 8086, { auth: { scheme: 'basic' } });
+        };
+        expect(fn).to.not.throw(Error);
+        done();
+    });
+
 
     describe('#_match', function () {
 
