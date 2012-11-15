@@ -3,14 +3,14 @@
 var expect = require('chai').expect;
 var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
 var Hapi = require(libPath + 'hapi');
-var Zlib = require('zlib');
 var NodeUtil = require('util');
 var Stream = require('stream');
+var Request = require('request');
 
 
 describe('Response', function () {
 
-    var server = new Hapi.Server('0.0.0.0', 8080);
+    var server = new Hapi.Server('0.0.0.0', 17082);
 
     var textHandler = function (request) {
 
@@ -30,6 +30,12 @@ describe('Response', function () {
     var baseHandler = function (request) {
 
         request.reply(new Hapi.Response.Text('hola'));
+    };
+
+    var fileHandler = function(request) {
+
+        var file = new Hapi.Response.File(__dirname + '/../../package.json');
+        request.reply(file);
     };
 
     var expHandler = function (request) {
@@ -102,7 +108,8 @@ describe('Response', function () {
         { method: 'POST', path: '/empty', handler: emptyHandler },
         { method: 'POST', path: '/base', handler: baseHandler },
         { method: 'POST', path: '/exp', handler: expHandler },
-        { method: 'POST', path: '/stream/{issue?}', handler: streamHandler }
+        { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
+        { method: 'POST', path: '/file', handler: fileHandler }
     ]);
 
     it('returns a text reply', function (done) {
@@ -199,5 +206,16 @@ describe('Response', function () {
             done();
         });
     });
-});
 
+    it('returns a file reply', function (done) {
+
+        server.start(function() {
+
+            Request.post('http://localhost:17082/file', function(err, res, body) {
+
+                expect(body).to.contain('hapi');
+                done();
+            });
+        });
+    });
+});
