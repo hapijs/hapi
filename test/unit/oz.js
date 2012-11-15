@@ -1,8 +1,9 @@
 var expect = require('chai').expect;
 var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
-var Oz = require(libPath + 'auth/oz').Scheme;
+var Scheme = require(libPath + 'auth/oz').Scheme;
+var Oz = require('oz');
 
-describe('Oz', function() {
+describe('Oz Scheme', function() {
 
     describe('#constructor', function() {
 
@@ -10,7 +11,7 @@ describe('Oz', function() {
 
             var fn = function() {
 
-                var oz = Oz();
+                var scheme = Scheme();
             };
 
             expect(fn).to.throw(Error);
@@ -21,7 +22,7 @@ describe('Oz', function() {
 
             var fn = function() {
 
-                var oz = new Oz(null);
+                var scheme = new Scheme(null);
             };
 
             expect(fn).to.throw(Error, 'Invalid options');
@@ -32,7 +33,7 @@ describe('Oz', function() {
 
             var fn = function() {
 
-                var oz = new Oz(null, {scheme: 'notOz'});
+                var scheme = new Scheme(null, {scheme: 'notOz'});
             };
 
             expect(fn).to.throw(Error, 'Wrong scheme');
@@ -43,7 +44,7 @@ describe('Oz', function() {
 
             var fn = function() {
 
-                var oz = new Oz(null, {scheme: 'oz'});
+                var scheme = new Scheme(null, {scheme: 'oz'});
             };
 
             expect(fn).to.throw(Error, 'Missing encryption password');
@@ -54,7 +55,7 @@ describe('Oz', function() {
 
             var fn = function() {
 
-                var oz = new Oz(null, {scheme: 'oz', encryptionPassword: 'test'});
+                var scheme = new Scheme(null, {scheme: 'oz', encryptionPassword: 'test'});
             };
 
             expect(fn).to.throw(Error, 'Missing required loadAppFunc method in configuration');
@@ -65,7 +66,7 @@ describe('Oz', function() {
 
             var fn = function() {
 
-                var oz = new Oz(null, {
+                var scheme = new Scheme(null, {
                     scheme: 'oz',
                     encryptionPassword: 'test',
                     loadAppFunc: function() { }
@@ -80,7 +81,7 @@ describe('Oz', function() {
 
             var fn = function() {
 
-                var oz = new Oz(null, {
+                var scheme = new Scheme(null, {
                     scheme: 'oz',
                     encryptionPassword: 'test',
                     loadAppFunc: function() { },
@@ -101,7 +102,7 @@ describe('Oz', function() {
                     addRoutes: function() { }
                 };
 
-                var oz = new Oz(server, {
+                var scheme = new Scheme(server, {
                     scheme: 'oz',
                     encryptionPassword: 'test',
                     loadAppFunc: function() { },
@@ -111,6 +112,74 @@ describe('Oz', function() {
 
             expect(fn).to.not.throw(Error);
             done();
+        });
+
+        it('applies oz settings when passed in', function(done) {
+
+            var server = {
+                settings: { },
+                addRoutes: function() { }
+            };
+
+            var settings = {
+                scheme: 'oz',
+                encryptionPassword: 'test',
+                loadAppFunc: function() { },
+                loadGrantFunc: function() { },
+                ozSettings: { ticket: { myKey: 'myValue' } }
+            };
+
+            var scheme = new Scheme(server, settings);
+
+            expect(Oz.settings.ticket.myKey).to.equal('myValue');
+            done();
+        });
+
+        describe('authenticate', function() {
+
+            it('doesn\'t return an error when missing session and bad request with optional auth', function(done) {
+
+                var server = {
+                    settings: { },
+                    addRoutes: function() { }
+                };
+
+                var request = {
+                    _route: {
+                        config: {
+                            auth: {
+                                mode: 'optional'
+                            }
+                        }
+                    },
+                    log: function() { },
+                    raw: {
+                        res: {
+                            setHeader: function() { }
+                        },
+                        req: {
+                            headers: {
+                                host: 'localhost'
+                            },
+                            url: 'http://localhost/test'
+                        }
+                    },
+                    server: server
+                };
+
+                var scheme = new Scheme(server, {
+                    scheme: 'oz',
+                    encryptionPassword: 'test',
+                    loadAppFunc: function() { },
+                    loadGrantFunc: function() { }
+                });
+
+                scheme.authenticate(request, function(err) {
+
+                    expect(err).to.not.exist;
+                    done();
+                });
+            });
         });
     });
 });
