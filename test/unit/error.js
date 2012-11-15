@@ -1,4 +1,5 @@
 var expect = require('chai').expect;
+var Oz = require('oz');
 var Err = process.env.TEST_COV ? require('../../lib-cov/error') : require('../../lib/error');
 
 
@@ -6,7 +7,7 @@ describe('Err', function () {
 
     describe('#Error', function () {
 
-        it ('returns an error with info when constructed using another error and message', function (done) {
+        it('returns an error with info when constructed using another error and message', function (done) {
 
             var err = new Err(new Error('inner'), 'outter');
             expect(err.message).to.equal('inner');
@@ -41,6 +42,14 @@ describe('Err', function () {
         it('sets the message with the passed in message', function (done) {
 
             expect(Err.unauthorized('my message').message).to.equal('my message');
+            done();
+        });
+
+        it('returns a WWW-Authenticate header when passed a scheme', function (done) {
+
+            var err = Err.unauthorized('boom', 'Test');
+            expect(err.code).to.equal(401);
+            expect(err.toResponse().headers['WWW-Authenticate']).to.equal('Test');
             done();
         });
     });
@@ -107,6 +116,20 @@ describe('Err', function () {
             };
 
             expect(err.toResponse().payload.test).to.equal(true);
+            done();
+        });
+
+        it('formats an external error', function (done) {
+
+            var external = new Oz.error.unauthorized('test');
+            external.test = { x: 1 };
+
+            var err = new Err(external);
+            var response = err.toResponse();
+
+            expect(response.payload.message).to.equal('test');
+            expect(response.payload.test).to.equal(external.test);
+            expect(response.headers['WWW-Authenticate']).to.contain('Oz');
             done();
         });
     });
