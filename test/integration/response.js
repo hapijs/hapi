@@ -116,7 +116,8 @@ describe('Response', function () {
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
         { method: 'POST', path: '/file', handler: fileHandler },
-        { method: 'POST', path: '/filenotfound', handler: fileNotFoundHandler }
+        { method: 'POST', path: '/filenotfound', handler: fileNotFoundHandler },
+        { method: 'POST', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } }
     ]);
 
     it('returns a text reply', function (done) {
@@ -241,6 +242,18 @@ describe('Response', function () {
                     expect(res.statusCode).to.equal(404);
                     done();
                 });
+            });
+        });
+
+        it('returns a file using the built-in handler config', function(done) {
+
+            Request.post('http://localhost:17082/staticfile', function(err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(body).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                done();
             });
         });
     });
