@@ -34,8 +34,18 @@ describe('Response', function () {
 
     var fileHandler = function(request) {
 
-        var file = new Hapi.Response.File(__dirname + '/../../package.json');
-        request.reply(file);
+        var file = new Hapi.Response.File(__dirname + '/../../package.json', function(fileResponse) {
+
+            request.reply(fileResponse);
+        });
+    };
+
+    var fileNotFoundHandler = function(request) {
+
+        var file = new Hapi.Response.File(__dirname + '/../../notHere', function(fileResponse) {
+
+            request.reply(fileResponse);
+        });
     };
 
     var expHandler = function (request) {
@@ -109,7 +119,8 @@ describe('Response', function () {
         { method: 'POST', path: '/base', handler: baseHandler },
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
-        { method: 'POST', path: '/file', handler: fileHandler }
+        { method: 'POST', path: '/file', handler: fileHandler },
+        { method: 'POST', path: '/filenotfound', handler: fileNotFoundHandler }
     ]);
 
     it('returns a text reply', function (done) {
@@ -207,15 +218,35 @@ describe('Response', function () {
         });
     });
 
-    it('returns a file reply', function (done) {
+    describe('#file', function() {
 
-        server.start(function() {
+        it('returns a file in the response with the correct headers', function (done) {
 
-            Request.post('http://localhost:17082/file', function(err, res, body) {
+            server.start(function() {
 
-                expect(body).to.contain('hapi');
-                done();
+                Request.post('http://localhost:17082/file', function(err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
+            });
+        });
+
+        it('returns a 404 when the file is not found', function (done) {
+
+            server.start(function() {
+
+                Request.post('http://localhost:17082/filenotfound', function(err, res) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(404);
+                    done();
+                });
             });
         });
     });
+
 });
