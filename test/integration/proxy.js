@@ -28,23 +28,23 @@ describe('Proxy', function () {
         };
 
         var dummyServer = new Hapi.Server('0.0.0.0', 18093);
-        dummyServer.addRoutes([{ method: 'GET', path: '/profile', config: { handler: profile } },
-            { method: 'GET', path: '/item', config: { handler: activeItem } },
-            { method: 'POST', path: '/item', config: { handler: item } },
-            { method: 'GET', path: '/unauthorized', config: { handler: unauthorized }},
-            { method: 'POST', path: '/echo', config: { handler: echoPostBody } }
+        dummyServer.addRoutes([{ method: 'GET', path: '/profile', handler: profile },
+            { method: 'GET', path: '/item', handler: activeItem },
+            { method: 'POST', path: '/item', handler: item },
+            { method: 'GET', path: '/unauthorized', handler: unauthorized },
+            { method: 'POST', path: '/echo', handler: echoPostBody }
         ]);
 
         _server = new Hapi.Server('0.0.0.0', 18092, config);
         _server.addRoutes([
-            { method: 'GET', path: '/profile', config: { proxy: { host: '127.0.0.1', port: 18093, xforward: true, passThrough: true } } },
-            { method: 'GET', path: '/item', config: { proxy: { host: '127.0.0.1', port: 18093 }, cache: routeCache } },
-            { method: 'GET', path: '/unauthorized', config: { proxy: { host: '127.0.0.1', port: 18093 }, cache: routeCache } },
-            { method: 'POST', path: '/item', config: { proxy: { host: '127.0.0.1', port: 18093 } } },
-            { method: 'POST', path: '/notfound', config: { proxy: { host: '127.0.0.1', port: 18093 } } },
-            { method: 'GET', path: '/postResponseError', config: { proxy: { host: '127.0.0.1', port: 18093, postResponse: postResponseWithError }, cache: routeCache } },
-            { method: 'POST', path: '/echo', config: { proxy: { mapUri: mapUri } } },
-            { method: 'GET', path: '/maperror', config: { proxy: { mapUri: mapUriWithError } } }
+            { method: 'GET', path: '/profile', handler: { proxy: { host: '127.0.0.1', port: 18093, xforward: true, passThrough: true } } },
+            { method: 'GET', path: '/item', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
+            { method: 'GET', path: '/unauthorized', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
+            { method: 'POST', path: '/item', handler: { proxy: { host: '127.0.0.1', port: 18093 } } },
+            { method: 'POST', path: '/notfound', handler: { proxy: { host: '127.0.0.1', port: 18093 } } },
+            { method: 'GET', path: '/postResponseError', handler: { proxy: { host: '127.0.0.1', port: 18093, postResponse: postResponseWithError } }, config: { cache: routeCache } },
+            { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
+            { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } }
         ]);
 
         dummyServer.listener.on('listening', function () {
