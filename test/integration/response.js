@@ -34,18 +34,14 @@ describe('Response', function () {
 
     var fileHandler = function(request) {
 
-        var file = new Hapi.Response.File(__dirname + '/../../package.json', function(fileResponse) {
-
-            request.reply(fileResponse);
-        });
+        var file = new Hapi.Response.File(__dirname + '/../../package.json');
+        request.reply(file);
     };
 
     var fileNotFoundHandler = function(request) {
 
-        var file = new Hapi.Response.File(__dirname + '/../../notHere', function(fileResponse) {
-
-            request.reply(fileResponse);
-        });
+        var file = new Hapi.Response.File(__dirname + '/../../notHere');
+        request.reply(file);
     };
 
     var expHandler = function (request) {
