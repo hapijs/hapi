@@ -43,12 +43,13 @@ Current version: **0.9.0**
 			- [Parameters](#parameters)
 		- [Route Handler](#route-handler)
 			- [Request Logging](#request-logging)
+			- [Proxy](#proxy)
+			- [Static file handler](#file)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
 		- [Path Validation](#path-validation)
 		- [Response Validation](#response-validation)
         - [Caching](#caching)
-        - [Proxy](#proxy)
         - [Route Prerequisites](#route-prerequisites)
 <p></p>
 	- [**Data Validation**](#data-validation)
@@ -399,7 +400,9 @@ to write additional text as the configuration itself serves as a living document
 
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
-* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-hander) for more information.
+* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_ or _'file'_ property.
+    * `proxy` - determines if a reverse proxy should be used to handle the request
+    * `file` - determines a file should be served for the route.  This is a string pointing to the full local path of the file.
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
@@ -443,7 +446,7 @@ var handler1 = function (request) {
 
 server.addRoute({ method: 'GET', path: '/option1', handler: handler1 });
 
-// Option 2 - add handler in seprate config object
+// Option 2 - add handler in separate config object
 
 var config2 = {
     payload: 'raw',
@@ -648,9 +651,24 @@ For example, to proxy a request to the homepage to google:
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Proxy request to / to google.com
-http.addRoute({ method: 'GET', path: '/', config: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
+http.addRoute({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
 
 http.start();
+```
+
+### File
+
+It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
+
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve index.html file up a directory in the public folder
+http.addRoute({ method: 'GET', path: '/', handler: { file: __dirname + '/../public/index.html' } });
+
+http.start();
+```
 
 ### Prequisites
 
