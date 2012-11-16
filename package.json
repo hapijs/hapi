@@ -31,7 +31,8 @@
     "mongodb": "1.1.x",
     "multipart-parser": "0.x.x",
     "lout": "0.x.x",
-    "hapi-helmet": "0.x.x"
+    "hapi-helmet": "0.x.x",
+    "mime": "~1.2.7"
   },
   "devDependencies": {
     "mocha": "1.x.x",
