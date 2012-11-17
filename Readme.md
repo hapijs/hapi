@@ -167,7 +167,7 @@ during request processing. The required extension function signature is _functio
 The extension points are:
 - `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)' methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
 - `onPreHandler` - called after request passes validation and body parsing, before the request handler.
-- `onPostHandler` - called after the request handler, before sending the response.
+- `onPostHandler` - called after the request handler, before sending the response. The actual state of the response depends on the response type used (e.g. direct, stream).
 - `onPostRoute` - called after the response was sent.
 - `onUnknownRoute` - if defined, overrides the default unknown resource (404) error response. The method must send the response manually via _request.raw.res_. Cannot be an array.
 
@@ -512,16 +512,15 @@ When the provided route handler method is called, it receives a _request_ object
 - _'session'_ - available for authenticated requests and includes:
     - _'used'_ - user id.
     - _'app'_ - application id.
-    - _'tos'_ - terms-of-service version.
     - _'scope'_ - approved application scopes.
+    - _'ext.tos'_ - terms-of-service version.
 - _'server'_ - a reference to the server object.
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
-- _'response'_ - contains the route handler's response after the handler is called. **Direct interaction with this raw objects is not recommended.**
 
 The request object is also decorated with a _'reply'_ property which includes the following methods:
 - _'send([result])'_ - replies to the resource request with result - an object (sent as JSON), a string (sent as HTML), or an error generated using the 'Hapi.error' module described in [Errors](#errors). If no result is provided, an empty response body is sent. Calling _'send([result])'_ returns control over to the router.
-- _'pipe(stream)'_ - pipes the content of the stream into the response. Calling _'pipe([stream])'_ returns control over to the router.
+- _'stream(stream)'_ - pipes the content of the stream into the response. Calling _'pipe([stream])'_ returns control over to the router.
 - _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.

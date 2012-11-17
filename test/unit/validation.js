@@ -2,17 +2,19 @@ var should = require("should");
 var qs = require("querystring");
 
 var Validation = process.env.TEST_COV ? require('../../lib-cov/validation') : require('../../lib/validation');
+var Response = process.env.TEST_COV ? require('../../lib-cov/response') : require('../../lib/response');
 var Types = require('joi').Types;
 var S = Types.String,
     N = Types.Number,
     O = Types.Object,
     B = Types.Boolean;
 
+
 var OhaiHandler = function (hapi, reply) {
     reply('ohai');
 };
 
-var createRequestObject = function (query, route) {
+var createRequestObject = function (query, route, payload) {
     var qstr = qs.stringify(query);
 
     return {
@@ -24,6 +26,7 @@ var createRequestObject = function (query, route) {
             href: route.path + '?' + qstr //'/config?choices=1&choices=2'
         },
         query: query,
+        payload: payload,
         path: route.path,
         method: route.method,
         _route: { config: route.config },
@@ -55,7 +58,7 @@ describe("Validation", function () {
             var query = { username: "walmart" };
             var request = createRequestObject(query, route);
 
-            request.response.result = { username: 'test' };
+            request._response = Response.generate({ username: 'test' });
 
             Validation.response(request, function (err) {
                 should.not.exist(err);
@@ -76,21 +79,10 @@ describe("Validation", function () {
         it('should raise an error when validating a non-object response', function(done) {
             var query = { username: "walmart" };
             var request = createRequestObject(query, route);
-            request.response.result = '';
+            request._response = Response.generate('test');
 
             Validation.response(request, function (err) {
                 should.exist(err);
-                done();
-            });
-        });
-
-        it('should not validate an error on the response', function(done) {
-            var query = { username: "walmart" };
-            var request = createRequestObject(query, route);
-            request.response.result = new Error('test');
-
-            Validation.response(request, function (err) {
-                should.not.exist(err);
                 done();
             });
         });
@@ -148,11 +140,11 @@ describe("Validation", function () {
                 });
 
                 it('should not raise error on undefined OPTIONAL parameter', function (done) {
-                    var modifiedRoute = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().required(), name: S() } } } };
-                    var query = { username: "walmart" };
-                    var request = createRequestObject(query, modifiedRoute);
+                    var modifiedRoute = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { schema: { username: S().required(), name: S() } } } };
+                    var payload = { username: "walmart" };
+                    var request = createRequestObject({}, modifiedRoute, payload);
 
-                    Validation.query(request, function (err) {
+                    Validation.payload(request, function (err) {
                         should.not.exist(err);
                         done();
                     });
