@@ -27,9 +27,16 @@ describe('Response', function () {
         request.reply();
     };
 
-    var baseHandler = function (request) {
+    var directHandler = function (request) {
 
-        request.reply(new Hapi.Response.Text('hola'));
+        var response = new Hapi.Response.Direct(request)
+            .code(200)
+            .type('text/plain')
+            .bytes(13)
+            .write('!hola ')
+            .write('amigos!');
+
+        request.reply(response);
     };
 
     var fileHandler = function(request) {
@@ -112,7 +119,7 @@ describe('Response', function () {
         { method: 'POST', path: '/text', handler: textHandler },
         { method: 'POST', path: '/error', handler: errorHandler },
         { method: 'POST', path: '/empty', handler: emptyHandler },
-        { method: 'POST', path: '/base', handler: baseHandler },
+        { method: 'POST', path: '/direct', handler: directHandler },
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
         { method: 'POST', path: '/file', handler: fileHandler },
@@ -157,14 +164,13 @@ describe('Response', function () {
         });
     });
 
-    it('returns a base reply', function (done) {
+    it('returns a direct reply', function (done) {
 
-        var request = { method: 'POST', url: '/base' };
+        var request = { method: 'POST', url: '/direct' };
 
         server.inject(request, function (res) {
 
-            expect(res.result).to.exist;
-            expect(res.result).to.equal('hola');
+            expect(res.readPayload()).to.equal('!hola amigos!');
             done();
         });
     });

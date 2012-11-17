@@ -83,7 +83,7 @@ describe('Cache', function() {
     it('returns max-age value when route uses default cache rules', function(done) {
         makeRequest('/profile', function(rawRes) {
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120');
+            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
             done();
         });
     });
@@ -91,7 +91,7 @@ describe('Cache', function() {
     it('returns max-age value when route uses client cache mode', function(done) {
         makeRequest('/profile', function(rawRes) {
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120');
+            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
             done();
         });
     });
@@ -99,7 +99,7 @@ describe('Cache', function() {
     it('doesn\'t return max-age value when route is not cached', function(done) {
         makeRequest('/item2', function(rawRes) {
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.not.equal('max-age=120');
+            expect(headers['Cache-Control']).to.not.equal('max-age=120, must-revalidate');
             done();
         });
     });
