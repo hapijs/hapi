@@ -14,7 +14,7 @@ describe('Response', function () {
 
     var textHandler = function (request) {
 
-        request.reply.payload('text').type('text/plain').bytes(4).send();
+        request.reply.payload('text').type('text/plain').bytes(4).ttl(1000).send();
     };
 
     var errorHandler = function (request) {
@@ -30,9 +30,10 @@ describe('Response', function () {
     var directHandler = function (request) {
 
         var response = new Hapi.Response.Direct(request)
-            .code(200)
+            .created('me')
             .type('text/plain')
             .bytes(13)
+            .ttl(1000)
             .write('!hola ')
             .write('amigos!');
 
@@ -121,10 +122,10 @@ describe('Response', function () {
     };
 
     server.addRoutes([
-        { method: 'POST', path: '/text', handler: textHandler },
+        { method: 'GET', path: '/text', config: { handler: textHandler, cache: { mode: 'client', expiresIn: 9999 } } },
         { method: 'POST', path: '/error', handler: errorHandler },
         { method: 'POST', path: '/empty', handler: emptyHandler },
-        { method: 'POST', path: '/direct', handler: directHandler },
+        { method: 'GET', path: '/direct', config: { handler: directHandler, cache: { mode: 'client', expiresIn: 9999 } } },
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
         { method: 'POST', path: '/file', handler: fileHandler },
@@ -135,12 +136,13 @@ describe('Response', function () {
 
     it('returns a text reply', function (done) {
 
-        var request = { method: 'POST', url: '/text' };
+        var request = { method: 'GET', url: '/text' };
 
         server.inject(request, function (res) {
 
             expect(res.result).to.exist;
             expect(res.result).to.equal('text');
+            expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
             done();
         });
     });
@@ -172,10 +174,12 @@ describe('Response', function () {
 
     it('returns a direct reply', function (done) {
 
-        var request = { method: 'POST', url: '/direct' };
+        var request = { method: 'GET', url: '/direct' };
 
         server.inject(request, function (res) {
 
+            expect(res.statusCode).to.equal(201);
+            expect(res.headers.location).to.equal(server.settings.uri + '/me');
             expect(res.readPayload()).to.equal('!hola amigos!');
             done();
         });
