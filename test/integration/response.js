@@ -27,6 +27,11 @@ describe('Response', function () {
         request.reply();
     };
 
+    var emptyLongHandler = function (request) {
+
+        request.reply.send();
+    };
+
     var directHandler = function (request) {
 
         var response = new Hapi.Response.Direct(request)
@@ -125,6 +130,7 @@ describe('Response', function () {
         { method: 'GET', path: '/text', config: { handler: textHandler, cache: { mode: 'client', expiresIn: 9999 } } },
         { method: 'POST', path: '/error', handler: errorHandler },
         { method: 'POST', path: '/empty', handler: emptyHandler },
+        { method: 'POST', path: '/emptyLong', handler: emptyLongHandler },
         { method: 'GET', path: '/direct', config: { handler: directHandler, cache: { mode: 'client', expiresIn: 9999 } } },
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
@@ -163,6 +169,18 @@ describe('Response', function () {
     it('returns an empty reply', function (done) {
 
         var request = { method: 'POST', url: '/empty' };
+
+        server.inject(request, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result).to.equal('');
+            done();
+        });
+    });
+
+    it('returns an empty reply (long)', function (done) {
+
+        var request = { method: 'POST', url: '/emptyLong' };
 
         server.inject(request, function (res) {
 

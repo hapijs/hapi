@@ -25,7 +25,9 @@ Current version: **0.9.0**
 		- [Payload](#payload)
 		- [Extensions](#extensions)
 			- [Unknown Route](#unknown-route)
-		- [Errors](#errors)
+        - [Format](#format)
+          - [Error Format](#error-format)
+          - [Payload Format](#payload-format)
 		- [Monitor](#monitor)
 		- [Authentication](#authentication)
 		- [Cache](#cache)
@@ -42,9 +44,10 @@ Current version: **0.9.0**
 		- [Path Processing](#path-processing)
 			- [Parameters](#parameters)
 		- [Route Handler](#route-handler)
-			- [Request Logging](#request-logging)
+            - [Response](#response)
 			- [Proxy](#proxy)
-			- [Static file handler](#file)
+			- [Files](#files)
+			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
 		- [Path Validation](#path-validation)
@@ -119,7 +122,7 @@ var server = new Hapi.Server();
 - [`router`](#router)
 - [`payload`](#payload)
 - [`ext`](#extensions)
-- [`errors`](#Errors)
+- [`errors`](#errors)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
@@ -247,24 +250,58 @@ function onUnknownRoute(request) {
 }
 ```
 
-### Errors
+### Format
 
-If a different error format than the default JSON response is required, the server `errors.format` option can be assigned a function to generate a
-different error response. The function signature is _'function (result, callback)'_ where:
+The `format` option provides an extension point for use of custom methods to format error responses or payloads before they are sent back to the client.
+
+
+#### Error Format
+
+If a different error format than the default JSON response is required, the server `format.error` option can be assigned a function to generate a
+different error response. The function signature is _'formatted = function (result)'_ where:
 - _'result'_ - is the **hapi** error object returned by the route handler, and
-- _'callback'_ - is a callback function called with the formatted response. The callback function signature is _'function (code, payload, contentType)'_.
+- _'formatted'_ - is the formatted response object which contains the following keys:
+  - _`code`_ - the HTTP status code.
+  - _`payload`_ - the response payload.
+  - _`type`_ - the response payload content-type.
+  - _`headers`_ - any additional response HTTP headers (object).
+
+Note that the format function must be synchronies.
 
 For example:
 ```javascript
 var options = {
-    errors: {
-        format: function (result, callback) {
+    format: {
+        error: function (result) {
         
-            callback(500, 'Oops: ' + result.message, 'text/html');
+            return { code: 500, payload: 'Oops: ' + result.message, type: 'text/html' };
         }
     }
 };
 ```
+
+#### Payload Format
+
+In cases where every non-error payload has to be processed before being sent out (e.g. when returning a database object and need to hide certain fields or
+rename '_id' to 'id'), the `format.payload' option can be set to a function that is called on every result, immediately after 'request.reply' is called. The
+function's signature is _'formatted = function (result)'_ where:
+- _'result'_ - is the raw result object returned by the route handler, and
+- _'formatted'_ - is the formatted response to replace 'result'.
+
+Note that the format function must be synchronies, and it is only invoked for response types other than Stream.
+
+For example:
+```javascript
+var options = {
+    format: {
+        payload: function (result) {
+        
+            return 'something else instead';
+        }
+    }
+};
+```
+
 
 ### Monitor
 
@@ -426,7 +463,7 @@ to write additional text as the configuration itself serves as a living document
       * _'optional'_ - authentication is optional (validated if present).
     * `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
     * `scope` - required application scope. Defaults to _none_.
-    * `entity` - the required authenticated entity type. Available options include:
+    * `entity` - the required authenticated entity type. Not supported with every authorization scheme. Available options include:
       * _'any'_ - the authentication can be on behalf of a user or application.
       * _'user'_ - the authentication must be on behalf of a user.
       * _'app'_ - the authentication must be on behalf of an application.
@@ -510,26 +547,79 @@ When the provided route handler method is called, it receives a _request_ object
 - _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
 - _'session'_ - available for authenticated requests and includes:
-    - _'used'_ - user id.
-    - _'app'_ - application id.
-    - _'scope'_ - approved application scopes.
-    - _'ext.tos'_ - terms-of-service version.
+    - _'id'_ - session identifier.
+    - _'used'_ - user id (optional).
+    - _'app'_ - application id (optional).
+    - _'scope'_ - approved application scopes (optional).
+    - _'ext.tos'_ - terms-of-service version (optional).
 - _'server'_ - a reference to the server object.
+- _'pre'_ - any requisites as described in [Prequisites](#prequisites).
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
 
-The request object is also decorated with a _'reply'_ property which includes the following methods:
-- _'send([result])'_ - replies to the resource request with result - an object (sent as JSON), a string (sent as HTML), or an error generated using the 'Hapi.error' module described in [Errors](#errors). If no result is provided, an empty response body is sent. Calling _'send([result])'_ returns control over to the router.
-- _'stream(stream)'_ - pipes the content of the stream into the response. Calling _'pipe([stream])'_ returns control over to the router.
+#### Response
+
+**hapi** provides native support for the following response types:
+- Empty - an empty response body (content-lenght of zero).
+- Text - plain text. Defaults to 'text/html' content-type.
+- Obj - Javascript object, converted to string. Defaults to 'application/json' content-type.
+- Stream - a stream object, directly piped into the HTTP response.
+- File - transmits a static file. Defaults to the matching mime type based on filename extension.
+- Direct - special response type for writing directly to the response object. Used for chunked responses.
+- Error - error objects generated using the 'Hapi.error' module or 'new Error()' described in [Response Errors](#response-errors).
+
+The request object includes a _'reply'_ property which includes the following methods:
+- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The mehtod will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
+- _'stream(stream)'_ - pipes the content of the stream into the response.
+- _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
+
+For convenience, the 'response' object is also decorated with a shortcut function _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_.
+
+The 'payload()' and 'stream()' methods return a **hapi** Response object created based on the result item provided.
+Depending on the response type, additional chainable methods are available:
 - _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
 - _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
 
-In addition, the _'reply([result])'_ shortcut is provided which is identical to calling _'reply.send([result])'_.
-
-The handler must call _'reply()'_, _'reply.send()'_, or _'reply.pipe()'_ (and only one, once) to return control over to the router. The helper methods are only available
+The handler must call _'reply()'_, _'reply.send()'_, or _'reply.payload/stream()...send()'_ (and only one, once) to return control over to the router. The reply methods are only available
 within the route handler and are disabled as soon as control is returned.
+
+#### Proxy
+
+It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
+* `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
+* `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
+* `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
+* `port` - The port to use when making a request to the host.
+* `protocol` - The protocol to use when making a request to the proxied host (http or https)
+* `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
+* `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
+
+For example, to proxy a request to the homepage to google:
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Proxy request to / to google.com
+http.addRoute({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
+
+http.start();
+```
+
+#### Files
+
+It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
+
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve index.html file up a directory in the public folder
+http.addRoute({ method: 'GET', path: '/', handler: { file: __dirname + '/../public/index.html' } });
+
+http.start();
+```
 
 #### Request Logging
 
@@ -632,42 +722,6 @@ For example, to configure a route to be cached on the client and to expire after
 The server-side cache also supports these advanced options:
 * `staleIn` - number of milliseconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400000 milliseconds (one day) if using `expiresAt` or less than the value of `expiresIn`. Used together with `staleTimeout`.
 * `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
-
-### Proxy
-
-It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
-* `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
-* `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
-* `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
-* `port` - The port to use when making a request to the host.
-* `protocol` - The protocol to use when making a request to the proxied host (http or https)
-* `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
-* `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
-
-For example, to proxy a request to the homepage to google:
-```javascript
-// Create Hapi servers
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-// Proxy request to / to google.com
-http.addRoute({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
-
-http.start();
-```
-
-### File
-
-It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
-
-```javascript
-// Create Hapi servers
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-// Serve index.html file up a directory in the public folder
-http.addRoute({ method: 'GET', path: '/', handler: { file: __dirname + '/../public/index.html' } });
-
-http.start();
-```
 
 ### Prequisites
 
