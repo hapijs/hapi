@@ -10,11 +10,11 @@ var Request = require('request');
 
 describe('Response', function () {
 
-    var server = new Hapi.Server('0.0.0.0', 17082);
+    var server = new Hapi.Server('0.0.0.0', 17082, { cache: { engine: 'memory' } });
 
     var textHandler = function (request) {
 
-        request.reply.payload('text').type('text/plain').bytes(4).send();
+        request.reply.payload('text').type('text/plain').bytes(4).ttl(1000).send();
     };
 
     var errorHandler = function (request) {
@@ -27,18 +27,31 @@ describe('Response', function () {
         request.reply();
     };
 
-    var baseHandler = function (request) {
+    var emptyLongHandler = function (request) {
 
-        request.reply(new Hapi.Response.Text('hola'));
+        request.reply.send();
     };
 
-    var fileHandler = function(request) {
+    var directHandler = function (request) {
+
+        var response = new Hapi.Response.Direct(request)
+            .created('me')
+            .type('text/plain')
+            .bytes(13)
+            .ttl(1000)
+            .write('!hola ')
+            .write('amigos!');
+
+        request.reply(response);
+    };
+
+    var fileHandler = function (request) {
 
         var file = new Hapi.Response.File(__dirname + '/../../package.json');
         request.reply(file);
     };
 
-    var fileNotFoundHandler = function(request) {
+    var fileNotFoundHandler = function (request) {
 
         var file = new Hapi.Response.File(__dirname + '/../../notHere');
         request.reply(file);
@@ -89,7 +102,7 @@ describe('Response', function () {
                         this.y = callback;
                     }
                 }
-            break;
+                break;
 
             default:
                 if (event === 'data') {
@@ -108,26 +121,34 @@ describe('Response', function () {
         request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
     };
 
+    var cacheHandler = function (request) {
+
+        request.reply({ status: 'cached' });
+    };
+
     server.addRoutes([
-        { method: 'POST', path: '/text', handler: textHandler },
+        { method: 'GET', path: '/text', config: { handler: textHandler, cache: { mode: 'client', expiresIn: 9999 } } },
         { method: 'POST', path: '/error', handler: errorHandler },
         { method: 'POST', path: '/empty', handler: emptyHandler },
-        { method: 'POST', path: '/base', handler: baseHandler },
+        { method: 'POST', path: '/emptyLong', handler: emptyLongHandler },
+        { method: 'GET', path: '/direct', config: { handler: directHandler, cache: { mode: 'client', expiresIn: 9999 } } },
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
         { method: 'POST', path: '/file', handler: fileHandler },
         { method: 'POST', path: '/filenotfound', handler: fileNotFoundHandler },
-        { method: 'POST', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } }
+        { method: 'POST', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } },
+        { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
     ]);
 
     it('returns a text reply', function (done) {
 
-        var request = { method: 'POST', url: '/text' };
+        var request = { method: 'GET', url: '/text' };
 
         server.inject(request, function (res) {
 
             expect(res.result).to.exist;
             expect(res.result).to.equal('text');
+            expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
             done();
         });
     });
@@ -157,14 +178,27 @@ describe('Response', function () {
         });
     });
 
-    it('returns a base reply', function (done) {
+    it('returns an empty reply (long)', function (done) {
 
-        var request = { method: 'POST', url: '/base' };
+        var request = { method: 'POST', url: '/emptyLong' };
 
         server.inject(request, function (res) {
 
             expect(res.result).to.exist;
-            expect(res.result).to.equal('hola');
+            expect(res.result).to.equal('');
+            done();
+        });
+    });
+
+    it('returns a direct reply', function (done) {
+
+        var request = { method: 'GET', url: '/direct' };
+
+        server.inject(request, function (res) {
+
+            expect(res.statusCode).to.equal(201);
+            expect(res.headers.location).to.equal(server.settings.uri + '/me');
+            expect(res.readPayload()).to.equal('!hola amigos!');
             done();
         });
     });
@@ -215,13 +249,30 @@ describe('Response', function () {
         });
     });
 
-    describe('#file', function() {
+    it('returns a cached reply', function (done) {
+
+        var request = { method: 'GET', url: '/cache' };
+
+        server.inject(request, function (res1) {
+
+            expect(res1.result).to.exist;
+            expect(res1.result.status).to.equal('cached');
+
+            server.inject(request, function (res2) {
+
+                expect(res2.readPayload()).to.equal('{"status":"cached"}');
+                done();
+            });
+        });
+    });
+
+    describe('#file', function () {
 
         it('returns a file in the response with the correct headers', function (done) {
 
-            server.start(function() {
+            server.start(function () {
 
-                Request.post('http://localhost:17082/file', function(err, res, body) {
+                Request.post('http://localhost:17082/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -234,9 +285,9 @@ describe('Response', function () {
 
         it('returns a 404 when the file is not found', function (done) {
 
-            server.start(function() {
+            server.start(function () {
 
-                Request.post('http://localhost:17082/filenotfound', function(err, res) {
+                Request.post('http://localhost:17082/filenotfound', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -245,9 +296,9 @@ describe('Response', function () {
             });
         });
 
-        it('returns a file using the built-in handler config', function(done) {
+        it('returns a file using the built-in handler config', function (done) {
 
-            Request.post('http://localhost:17082/staticfile', function(err, res, body) {
+            Request.post('http://localhost:17082/staticfile', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(body).to.contain('hapi');
@@ -257,5 +308,4 @@ describe('Response', function () {
             });
         });
     });
-
 });

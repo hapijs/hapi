@@ -28,7 +28,7 @@ var internals = {};
 
 internals.main = function () {
 
-    var config = { name: 'Example', docs: true, debug: true };
+    var config = { docs: true, debug: true };
 
     // Create Hapi servers
     var http = new Hapi.Server('0.0.0.0', 8080, config);
