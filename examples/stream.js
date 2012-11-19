@@ -23,9 +23,10 @@ internals.main = function () {
 
 internals.echo = function (request) {
 
-    request.reply.type(request.raw.req.headers['Content-Type'])
+    request.reply.stream(request.raw.req)
+                 .type(request.raw.req.headers['Content-Type'])
                  .bytes(request.raw.req.headers['Content-Length'])
-                 .stream(request.raw.req);
+                 .send();
 };
 
 

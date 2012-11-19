@@ -2,17 +2,19 @@ var should = require("should");
 var qs = require("querystring");
 
 var Validation = process.env.TEST_COV ? require('../../lib-cov/validation') : require('../../lib/validation');
+var Response = process.env.TEST_COV ? require('../../lib-cov/response') : require('../../lib/response');
 var Types = require('joi').Types;
 var S = Types.String,
     N = Types.Number,
     O = Types.Object,
     B = Types.Boolean;
 
+
 var OhaiHandler = function (hapi, reply) {
     reply('ohai');
 };
 
-var createRequestObject = function (query, route) {
+var createRequestObject = function (query, route, payload) {
     var qstr = qs.stringify(query);
 
     return {
@@ -24,7 +26,23 @@ var createRequestObject = function (query, route) {
             href: route.path + '?' + qstr //'/config?choices=1&choices=2'
         },
         query: query,
+        payload: payload,
         path: route.path,
+        method: route.method,
+        _route: { config: route.config },
+        response: { result: {} }
+    };
+};
+
+var createRequestObjectFromPath = function (path, params, route) {
+
+    return {
+        url: {
+            pathname: path,
+            path: path,
+            href: path
+        },
+        params: params,
         method: route.method,
         _route: { config: route.config },
         response: { result: {} }
@@ -40,7 +58,7 @@ describe("Validation", function () {
             var query = { username: "walmart" };
             var request = createRequestObject(query, route);
 
-            request.response.result = { username: 'test' };
+            request._response = Response.generate({ username: 'test' });
 
             Validation.response(request, function (err) {
                 should.not.exist(err);
@@ -61,21 +79,32 @@ describe("Validation", function () {
         it('should raise an error when validating a non-object response', function(done) {
             var query = { username: "walmart" };
             var request = createRequestObject(query, route);
-            request.response.result = '';
+            request._response = Response.generate('test');
 
             Validation.response(request, function (err) {
                 should.exist(err);
                 done();
             });
         });
+    });
 
-        it('should not validate an error on the response', function(done) {
-            var query = { username: "walmart" };
-            var request = createRequestObject(query, route);
-            request.response.result = new Error('test');
+    describe('#path', function () {
+        var route = { method: 'GET', path: '/{id}', config: { handler: OhaiHandler, validate: { path: { id: N().required() } } } };
 
-            Validation.response(request, function (err) {
+        it('should not raise an error when responding with required number in path', function(done) {
+            var request = createRequestObjectFromPath('/21', { id: 21 }, route);
+
+            Validation.path(request, function (err) {
                 should.not.exist(err);
+                done();
+            });
+        });
+
+        it('should raise an error when responding with non-number in path', function(done) {
+            var request = createRequestObjectFromPath('/test', { id: 'test' }, route);
+
+            Validation.path(request, function (err) {
+                should.exist(err);
                 done();
             });
         });
@@ -84,7 +113,7 @@ describe("Validation", function () {
     describe("#query", function () {
 
         it('doesn\'t perform validation when query is true', function (done) {
-            var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: true } };
+            var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: true}  } };
 
             var query = null;
             var request = createRequestObject(query, route);
@@ -98,7 +127,7 @@ describe("Validation", function () {
         describe("using Types.String", function () {
 
             describe("#required", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().required() } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().required() } } } };
 
                 it('should not raise error on defined REQUIRED parameter', function (done) {
                     var query = { username: "walmart" };
@@ -111,11 +140,11 @@ describe("Validation", function () {
                 });
 
                 it('should not raise error on undefined OPTIONAL parameter', function (done) {
-                    var modifiedRoute = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().required(), name: S() } } };
-                    var query = { username: "walmart" };
-                    var request = createRequestObject(query, modifiedRoute);
+                    var modifiedRoute = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { schema: { username: S().required(), name: S() } } } };
+                    var payload = { username: "walmart" };
+                    var request = createRequestObject({}, modifiedRoute, payload);
 
-                    Validation.query(request, function (err) {
+                    Validation.payload(request, function (err) {
                         should.not.exist(err);
                         done();
                     });
@@ -123,7 +152,7 @@ describe("Validation", function () {
             });
 
             describe("#min", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().min(7) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().min(7) } } } };
 
                 it("should raise error on input length < min parameter", function (done) {
                     var query = { username: "van" };
@@ -157,7 +186,7 @@ describe("Validation", function () {
             });
 
             describe("#max", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().max(7) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().max(7) } } } };
 
                 it("should raise error on input length > max parameter", function (done) {
                     var query = { username: "thegoleffect" };
@@ -191,7 +220,7 @@ describe("Validation", function () {
             });
 
             describe("#regex", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().regex(/^[0-9][-][a-z]+$/) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().regex(/^[0-9][-][a-z]+$/) } } } };
 
                 it("should raise error on input not matching regex parameter", function (done) {
                     var query = { username: "van" };
@@ -215,7 +244,7 @@ describe("Validation", function () {
             });
 
             describe("combinations of #required, #min, #max", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().required().min(5).max(7) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().required().min(5).max(7) } } } };
 
                 it("should raise error when not supplied required input", function (done) {
                     var query = { name: "van" };
@@ -248,9 +277,10 @@ describe("Validation", function () {
                 });
             });
 
-            describe("#alphanum", function (done) {
+            describe("#alphanum", function () {
+
                 describe("with spacesEnabled", function () {
-                    var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { phrase: S().alphanum(true) } } };
+                    var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { phrase: S().alphanum(true) } } } };
 
                     it('should validate on known valid input', function (done) {
                         var query = { phrase: "w0rld of w4lm4rtl4bs" };
@@ -274,7 +304,7 @@ describe("Validation", function () {
                 });
 
                 describe("without spacesEnabled", function () {
-                    var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { phrase: S().alphanum(false) } } };
+                    var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { phrase: S().alphanum(false) }  }} };
 
                     it('should validate on known valid input', function (done) {
                         var query = { phrase: "walmartlabs" };
@@ -299,7 +329,7 @@ describe("Validation", function () {
             });
 
             describe("#email", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { email: S().email() } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { email: S().email() } } } };
 
                 it("should validate on known valid inputs", function (done) {
                     var query = { email: "van@walmartlabs.com" };
@@ -323,7 +353,7 @@ describe("Validation", function () {
             });
 
             describe("#rename", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().rename("name", { deleteOrig: true }).min(7) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().rename("name", { deleteOrig: true }).min(7) } } } };
 
                 it("should apply subsequent validators on the new name AFTER a rename", function (done) {
                     var query = { username: "thegoleffect" };
@@ -337,7 +367,7 @@ describe("Validation", function () {
             });
 
             describe("#date", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { date: S().date() } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { date: S().date() } } } };
 
                 it("should not raise error on Date string input given as toLocaleString", function (done) {
                     var query = { date: "Mon Aug 20 2012 12:14:33 GMT-0700 (PDT)" };
@@ -371,7 +401,7 @@ describe("Validation", function () {
             });
 
             describe("#with", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().with("password"), password: S() } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().with("password"), password: S() } } } };
 
                 it('should not return error if `with` parameter included', function (done) {
                     var query = { username: "walmart", password: "worldofwalmartlabs" };
@@ -395,7 +425,7 @@ describe("Validation", function () {
             });
 
             describe("#without", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { username: S().without("password") } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { username: S().without("password") } } } };
 
                 it('should not return error if `without` parameter not included', function (done) {
                     var query = { username: "walmart" };
@@ -420,8 +450,10 @@ describe("Validation", function () {
         });
 
         describe("using Types.Number", function () {
+
             describe("#integer", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { num: N().integer() } } };
+
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { num: N().integer() } } } };
 
                 it("should raise error on non-integer input", function (done) {
                     var query = { num: "1.02" };
@@ -445,7 +477,7 @@ describe("Validation", function () {
             });
 
             describe("#float", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { num: N().float() } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { num: N().float() } } } };
 
                 it("should raise error on non-float input", function (done) {
                     var query = { num: "100" };
@@ -469,7 +501,7 @@ describe("Validation", function () {
             });
 
             describe("#min", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { num: N().min(100) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { num: N().min(100) } } } };
 
                 it("should raise error on input < min", function (done) {
                     var query = { num: "50" };
@@ -503,7 +535,7 @@ describe("Validation", function () {
             });
 
             describe("#max", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { num: N().max(100) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { num: N().max(100) } } } };
 
                 it("should raise error on input > max", function (done) {
                     var query = { num: "120000" };
@@ -537,7 +569,7 @@ describe("Validation", function () {
             });
 
             describe("#min & #max", function () {
-                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, query: { num: N().min(50).max(100) } } };
+                var route = { method: 'GET', path: '/', config: { handler: OhaiHandler, validate: { query: { num: N().min(50).max(100) } } } };
 
                 it("should raise error on input > max", function (done) {
                     var query = { num: "120000" };

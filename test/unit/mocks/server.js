@@ -36,7 +36,6 @@ exports.settings = {
         format: null
     },
     monitor: false,
-    authentication: false,
     cache: false,
     debug: false,
     docs: false

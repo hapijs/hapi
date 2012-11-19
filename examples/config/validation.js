@@ -36,31 +36,30 @@ internals.main = function () {
     // Set routes
 
     http.addRoutes([
-        { method: 'GET', path: '/', config: { handler: internals.get, query: { username: S() } } },
-        { method: 'GET', path: '/admin', config: { handler: internals.get, query: { username: S().required().with('password'), password: S() } } },
-        { method: 'GET', path: '/users', config: { handler: internals.get, query: { email: S().email().required().min(18) } } },
-        { method: 'GET', path: '/config', config: { handler: internals.get, query: { choices: A().required() } } },
-        { method: 'GET', path: '/test', config: { handler: internals.get, query: { num: N().min(0) } } },
-        { method: 'GET', path: '/test2', config: { handler: internals.get, query: { p1: S().required().rename('itemId') } } },
-        { method: 'GET', path: '/simple', config: { handler: internals.get, query: { input: S().min(3) } } }
+        { method: 'GET', path: '/', config: { handler: internals.get, validate: { query: { username: S() } } } },
+        { method: 'GET', path: '/admin', config: { handler: internals.get, validate: { query: { username: S().required().with('password'), password: S() } } } },
+        { method: 'GET', path: '/users', config: { handler: internals.get, validate: { query: { email: S().email().required().min(18) } } } },
+        { method: 'GET', path: '/config', config: { handler: internals.get, validate: { query: { choices: A().required() } } } },
+        { method: 'GET', path: '/test', config: { handler: internals.get, validate: { query: { num: N().min(0) } } } },
+        { method: 'GET', path: '/test2', config: { handler: internals.get, validate: { query: { p1: S().required().rename('itemId') } } } },
+        { method: 'GET', path: '/simple', config: { handler: internals.get, validate: { query: { input: S().min(3) } } } }
     ]);
 
     var schema = {
         title: S(),
         status: S().valid('open', 'pending', 'close'),
         participants: A().includes(S(), N())
-    }
-    // console.log("schema", sys.inspect(s));
-    // console.log(s.input.__validators[1].toString())
-    // console.log(sys.inspect(s.input.__validators.map(function(d){ return d.toString();})));
+    };
 
     http.addRoute({
         method: 'POST',
         path: '/users/{id}',
         config: {
             handler: internals.payload,
-            query: {},
-            schema: schema
+            validate: {
+                query: {},
+                schema: schema
+            }
         }
     });
 
@@ -71,15 +70,14 @@ internals.main = function () {
 
 internals.get = function (request) {
 
-    console.log(request.query)
     request.reply('Success!\n');
 };
 
+
 internals.payload = function (request) {
 
-    console.log("payload", request.payload)
     request.reply('Success!\n');
-}
+};
 
 
 internals.main();
