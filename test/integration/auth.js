@@ -44,12 +44,23 @@ describe('Auth', function () {
         request.reply('Success');
     };
 
+    var doubleHandler = function (request) {
+
+        var options = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('john', '12345') }, session: request.session };
+
+        server.inject(options, function (res) {
+
+            request.reply(res.result);
+        });
+    };
+
     server.addRoutes([
         { method: 'POST', path: '/basic', handler: basicHandler },
         { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
         { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
-        { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: 200 } } }
-]);
+        { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: 200 } } },
+        { method: 'POST', path: '/double', handler: doubleHandler },
+    ]);
 
     var basicHeader = function (username, password) {
 
@@ -61,6 +72,18 @@ describe('Auth', function () {
         it('returns a reply on successful auth', function (done) {
 
             var request = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('john', '12345') } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful double auth', function (done) {
+
+            var request = { method: 'POST', url: '/double', headers: { authorization: basicHeader('john', '12345') } };
 
             server.inject(request, function (res) {
 
