@@ -162,5 +162,32 @@ describe('Memory Cache', function() {
                 });
             });
         });
+
+        it('increments the byte size when an object is inserted', function(done) {
+
+            var key1 = {
+                segment: 'test',
+                id: 'test'
+            };
+            var itemToStore = { my: {
+                array: [1,2,3],
+                date: new Date(Date.now()),
+                bool: true,
+                string: 'test'
+            } };
+
+            var memory = new Memory.Connection({ maxByteSize: 2000 });
+            expect(memory.cache).to.not.exist;
+
+            memory.start(function() {
+
+                expect(memory.cache).to.exist;
+                memory.set(key1, itemToStore, 10, function() {
+                    expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(66);
+                    expect(memory.cache[key1.segment][key1.id].item.my).to.exist;
+                    done();
+                });
+            });
+        });
     });
 });

@@ -3,59 +3,110 @@
 var expect = require('chai').expect;
 var Request = process.env.TEST_COV ? require('../../lib-cov/request') : require('../../lib/request');
 var ServerMock = require('./mocks/server');
+var Shot = require('shot');
+var Hoek = require('hoek');
 
-describe('Request', function() {
-    var _req = {
-        url: '/test',
+
+describe('Request', function () {
+
+    var _req = null;
+    var _res = null;
+    var reqOptions = {
+        url: 'http://localhost',
         method: 'GET',
         headers: []
     };
 
-    var _res = {};
+    before(function(done) {
+
+        Shot.inject(function (req, res) {
+
+            _req = req;
+            _res = res;
+            done();
+        }, reqOptions,
+            function () {}
+        );
+    });
+
 
     it('throws an error if constructed without new', function(done) {
+
         var fn = function() {
+
             var request = Request(ServerMock, null, null);
         };
+
         expect(fn).throws(Error, 'Request must be instantiated using new');
         done();
     });
 
     it('throws an error when no server is provided', function(done) {
+
         var fn = function() {
+
             var request = new Request(null, _req, _res);
         };
+
         expect(fn).throws(Error, 'server must be provided');
         done();
     });
 
     it('throws an error when no req is provided', function(done) {
+
         var fn = function() {
+
             var request = new Request(ServerMock, null, _res);
         };
+
         expect(fn).throws(Error, 'req must be provided');
         done();
     });
 
     it('throws an error when no res is provided', function(done) {
+
         var fn = function() {
+
             var request = new Request(ServerMock, _req, null);
         };
+
         expect(fn).throws(Error, 'res must be provided');
         done();
     });
 
     it('is created without error when correct parameters are provided', function(done) {
+
         var fn = function() {
+
             var request = new Request(ServerMock, _req, _res);
         };
         expect(fn).not.to.throw(Error);
         done();
     });
 
+    it('assigns _debug when created request has debug querystring key', function(done) {
+
+        var req = Hoek.clone(_req);
+        req.pause = function() { };
+        var server = Hoek.clone(ServerMock);
+
+        req.url = 'http://localhost/?debug=test';
+        server.settings.debug = {
+            queryKey: 'debug'
+        };
+
+        var request = new Request(server, req, _res);
+
+        expect(request._debug).to.exist;
+        done();
+    });
+
     describe('#_setMethod', function() {
+
         it('throws an error when a null method is passed in', function(done) {
+
             var fn = function() {
+
                 var request = new Request(ServerMock, _req, _res);
                 request._setMethod(null);
             };
@@ -65,6 +116,7 @@ describe('Request', function() {
         });
 
         it('changes method with a lowercase version of the value passed in', function(done) {
+
             var request = new Request(ServerMock, _req, _res);
             request._setMethod('GET');
 
@@ -74,8 +126,11 @@ describe('Request', function() {
     });
 
     describe('#_setUrl', function () {
+
         it('throws an error when a null url is passed in', function (done) {
+
             var fn = function () {
+
                 var request = new Request(ServerMock, _req, _res);
                 request._setUrl(null);
             };
@@ -85,6 +140,7 @@ describe('Request', function() {
         });
 
         it('sets url, path, and query', function (done) {
+
             var request = new Request(ServerMock, _req, _res);
             var url = 'http://localhost/page?param1=something';
             request._setUrl(url);
@@ -98,7 +154,9 @@ describe('Request', function() {
     });
 
     describe('#log', function () {
+
         it('adds a log event to the request', function (done) {
+
             var request = new Request(ServerMock, _req, _res);
             request.log('1', 'log event 1');
             request.log(['2'], 'log event 2');
