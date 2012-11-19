@@ -151,7 +151,7 @@ describe('Cache', function() {
 
         makeRequest('/error', function() {
 
-            _server.cache.get({ segment: '/test', id: '/error' }, function(err, cached) {
+            _server.cache.get({ segment: '/error', id: '/error' }, function(err, cached) {
 
                 expect(cached).to.not.exist;
                 done();
