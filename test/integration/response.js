@@ -140,11 +140,11 @@ describe('Response', function () {
         { method: 'GET', path: '/direct', config: { handler: directHandler, cache: { mode: 'client', expiresIn: 9999 } } },
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
-        { method: 'POST', path: '/file', handler: fileHandler },
-        { method: 'POST', path: '/relativefile', handler: relativeFileHandler },
-        { method: 'POST', path: '/filenotfound', handler: fileNotFoundHandler },
-        { method: 'POST', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } },
-        { method: 'POST', path: '/relativestaticfile', handler: { file: './package.json' } },
+        { method: 'GET', path: '/file', handler: fileHandler },
+        { method: 'GET', path: '/relativefile', handler: relativeFileHandler },
+        { method: 'GET', path: '/filenotfound', handler: fileNotFoundHandler },
+        { method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } },
+        { method: 'GET', path: '/relativestaticfile', handler: { file: './package.json' } },
         { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
     ]);
 
@@ -280,7 +280,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.post('http://localhost:17082/file', function (err, res, body) {
+                Request.get('http://localhost:17082/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -306,7 +306,7 @@ describe('Response', function () {
 
         it('returns a file using the built-in handler config', function (done) {
 
-            Request.post('http://localhost:17082/staticfile', function (err, res, body) {
+            Request.get('http://localhost:17082/staticfile', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(body).to.contain('hapi');
@@ -322,7 +322,7 @@ describe('Response', function () {
 
                 server.start(function () {
 
-                    Request.post('http://localhost:17082/relativefile', function (err, res, body) {
+                    Request.get('http://localhost:17082/relativefile', function (err, res, body) {
 
                         expect(err).to.not.exist;
                         expect(body).to.contain('hapi');
@@ -335,7 +335,7 @@ describe('Response', function () {
 
             it('returns a file using the built-in handler config', function (done) {
 
-                Request.post('http://localhost:17082/relativestaticfile', function (err, res, body) {
+                Request.get('http://localhost:17082/relativestaticfile', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -350,13 +350,13 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.post('http://localhost:17082/file', function (err, res1) {
+                Request.get('http://localhost:17082/file', function (err, res1) {
 
                     var headers = {
                         'if-none-match': res1.headers.etag
                     };
 
-                    Request.post({ url: 'http://localhost:17082/file', headers: headers }, function (err, res2) {
+                    Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res2) {
 
                         expect(res2.statusCode).to.equal(304);
                         done();
@@ -374,7 +374,7 @@ describe('Response', function () {
                     'if-modified-since': new Date(date.setFullYear(date.getFullYear() + 1)).toUTCString()
                 };
 
-                Request.post({ url: 'http://localhost:17082/file', headers: headers }, function (err, res) {
+                Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res) {
 
                     expect(res.statusCode).to.equal(304);
                     done();
