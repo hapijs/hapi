@@ -252,10 +252,10 @@ describe('Route', function () {
 
                                 done();
                             });
-                        };
+                        }
                         match(route, mkeys[m], matches[mkeys[m]]);
                     }
-                };
+                }
 
                 var pathParts = keys[i].split('|');
                 var isTrailingSlashSensitive = (pathParts[1] ? pathParts[1] === 'true' : false);
