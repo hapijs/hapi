@@ -100,12 +100,6 @@ describe('Route', function () {
             };
 
             var keys = Object.keys(paths);
-            it('ensures no duplicated tests', function (done) {
-
-                expect(keys.length).to.equal(30);
-                done();
-            });
-
             for (var i = 0, il = keys.length; i < il; ++i) {
 
                 function test(path, isValid) {
@@ -146,12 +140,6 @@ describe('Route', function () {
             };
 
             var keys = Object.keys(paths);
-            it('ensures no duplicated tests', function (done) {
-
-                expect(keys.length).to.equal(17);
-                done();
-            });
-
             for (var i = 0, il = keys.length; i < il; ++i) {
 
                 function test(path, fingerprint) {
@@ -159,13 +147,121 @@ describe('Route', function () {
                     it('process the path \'' + path + '\' as ' + fingerprint, function (done) {
 
                         var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isTrailingSlashSensitive: false, isCaseSensitive: true } } });
-                        route._generateRegex();
-
                         expect(route.fingerprint).to.equal(fingerprint);
                         done();
                     });
                 };
                 test(keys[i], paths[keys[i]]);
+            }
+        }();
+
+        var testMatch = function () {
+
+            var paths = {
+                '/path/to/|false|true': {
+                    '/path/to': true,
+                    '/Path/to': false,
+                    '/path/to/': true,
+                    '/Path/to/': false
+                },
+                '/path/to/|false|false': {
+                    '/path/to': true,
+                    '/Path/to': true,
+                    '/path/to/': true,
+                    '/Path/to/': true
+                },
+                '/path/to/|true|false': {
+                    '/path/to': false,
+                    '/Path/to': false,
+                    '/path/to/': true,
+                    '/Path/to/': true
+                },
+                '/path/to/|true|true': {
+                    '/path/to': false,
+                    '/Path/to': false,
+                    '/path/to/': true,
+                    '/Path/to/': false
+                },
+                '/path/{param*2}/to': {
+                    '/a/b/c/d': false,
+                    '/path/a/b/to': {
+                        param: '/a/b'
+                    }
+                },
+                '/path/{p1}/{p2?}': {
+                    '/path/a/c/d': false,
+                    '/Path/a/c/d': false,
+                    '/path/a/b': {
+                        p1: 'a',
+                        p2: 'b'
+                    },
+                    '/path/a': {
+                        p1: 'a',
+                        p2: undefined
+                    },
+                    '/path/a/': {
+                        p1: 'a',
+                        p2: undefined
+                    }
+                },
+                '/path/{p1}/{p2?}|true|false': {
+                    '/path/a/c/d': false,
+                    '/Path/a/c': {
+                        p1: 'a',
+                        p2: 'c'
+                    },
+                    '/path/a/b': {
+                        p1: 'a',
+                        p2: 'b'
+                    },
+                    '/path/a': false,
+                    '/path/a/': {
+                        p1: 'a',
+                        p2: undefined
+                    }
+                }
+            };
+
+            var keys = Object.keys(paths);
+            for (var i = 0, il = keys.length; i < il; ++i) {
+
+                function test(path, matches, isTrailingSlashSensitive, isCaseSensitive) {
+
+                    var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isTrailingSlashSensitive: isTrailingSlashSensitive, isCaseSensitive: isCaseSensitive } } });
+                    var mkeys = Object.keys(matches);
+                    for (var m = 0, ml = mkeys.length; m < ml; ++m) {
+                        function match(route, match, result) {
+
+                            it((result ? 'matches' : 'unmatches') + ' the path \'' + path + '\' with ' + match + ' (' + (isTrailingSlashSensitive ? 'slash-sensitive' : 'slash-insensitive') + ', ' + (isCaseSensitive ? 'case-sensitive' : 'case-insensitive') + ')', function (done) {
+
+                                var request = { path: match };
+                                var isMatch = route.match(request);
+
+                                expect(isMatch).to.equal(!!result);
+                                if (typeof result === 'object') {
+                                    var ps = Object.keys(result);
+                                    for (var p = 0, pl = ps.length; p < pl; ++p) {
+                                        if (result[ps[p]]) {
+                                            expect(request.params[ps[p]]).to.equal(result[ps[p]]);
+                                        }
+                                        else {
+                                            expect(request.params[ps[p]]).to.be.undefined;
+                                        }
+                                    }
+                                }
+
+                                done();
+                            });
+                        };
+                        match(route, mkeys[m], matches[mkeys[m]]);
+                    }
+                };
+
+                var pathParts = keys[i].split('|');
+                var isTrailingSlashSensitive = (pathParts[1] ? pathParts[1] === 'true' : false);
+                var isCaseSensitive = (pathParts[2] ? pathParts[2] === 'true' : true);
+
+                test(pathParts[0], paths[keys[i]], isTrailingSlashSensitive, isCaseSensitive);
             }
         }();
     });
