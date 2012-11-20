@@ -171,6 +171,15 @@ describe('Cache', function() {
         });
     });
 
+    it('doesn\'t send cache headers for responses with status codes other than 200', function(done) {
+
+        makeRequest('/nocache', function(res) {
+
+            expect(res.headers['Cache-Control']).to.equal('no-cache');
+            done();
+        });
+    });
+
     it('caches responses with status codes of 200', function(done) {
 
         makeRequest('/cache', function() {
