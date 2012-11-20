@@ -266,7 +266,7 @@ different error response. The function signature is _'formatted = function (resu
   - _`type`_ - the response payload content-type.
   - _`headers`_ - any additional response HTTP headers (object).
 
-Note that the format function must be synchronies.
+Note that the format function must be synchronous.
 
 For example:
 ```javascript
@@ -288,7 +288,7 @@ function's signature is _'formatted = function (result)'_ where:
 - _'result'_ - is the raw result object returned by the route handler, and
 - _'formatted'_ - is the formatted response to replace 'result'.
 
-Note that the format function must be synchronies, and it is only invoked for response types other than Stream.
+Note that the format function must be synchronous, and it is only invoked for response types other than Stream.
 
 For example:
 ```javascript
