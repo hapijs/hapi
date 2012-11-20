@@ -51,6 +51,12 @@ describe('Response', function () {
         request.reply(file);
     };
 
+    var relativeFileHandler = function (request) {
+
+        var file = new Hapi.Response.File('./package.json');
+        request.reply(file);
+    };
+
     var fileNotFoundHandler = function (request) {
 
         var file = new Hapi.Response.File(__dirname + '/../../notHere');
@@ -135,8 +141,10 @@ describe('Response', function () {
         { method: 'POST', path: '/exp', handler: expHandler },
         { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
         { method: 'POST', path: '/file', handler: fileHandler },
+        { method: 'POST', path: '/relativefile', handler: relativeFileHandler },
         { method: 'POST', path: '/filenotfound', handler: fileNotFoundHandler },
         { method: 'POST', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } },
+        { method: 'POST', path: '/relativestaticfile', handler: { file: './package.json' } },
         { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
     ]);
 
@@ -305,6 +313,36 @@ describe('Response', function () {
                 expect(res.headers['content-type']).to.equal('application/json');
                 expect(res.headers['content-length']).to.exist;
                 done();
+            });
+        });
+
+        describe('when using a relative path', function() {
+
+            it('returns a file in the response with the correct headers', function (done) {
+
+                server.start(function () {
+
+                    Request.post('http://localhost:17082/relativefile', function (err, res, body) {
+
+                        expect(err).to.not.exist;
+                        expect(body).to.contain('hapi');
+                        expect(res.headers['content-type']).to.equal('application/json');
+                        expect(res.headers['content-length']).to.exist;
+                        done();
+                    });
+                });
+            });
+
+            it('returns a file using the built-in handler config', function (done) {
+
+                Request.post('http://localhost:17082/relativestaticfile', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
             });
         });
     });
