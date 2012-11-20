@@ -99,17 +99,17 @@ describe('Route', function () {
                 '/{param*}/': false
             };
 
+            var test = function (path, isValid) {
+
+                it('validates the path \'' + path + '\' as ' + (isValid ? 'well-formed' : 'malformed'), function (done) {
+
+                    expect(!!(path.match(Route.validatePathRegex))).to.equal(isValid);
+                    done();
+                });
+            };
+
             var keys = Object.keys(paths);
             for (var i = 0, il = keys.length; i < il; ++i) {
-
-                function test(path, isValid) {
-
-                    it('validates the path \'' + path + '\' as ' + (isValid ? 'well-formed' : 'malformed'), function (done) {
-
-                        expect(!!(path.match(Route.validatePathRegex))).to.equal(isValid);
-                        done();
-                    });
-                };
                 test(keys[i], paths[keys[i]]);
             }
         }();
@@ -139,18 +139,18 @@ describe('Route', function () {
                 '/%20path/': '/%20path/'
             };
 
+            var test = function (path, fingerprint) {
+
+                it('process the path \'' + path + '\' as ' + fingerprint, function (done) {
+
+                    var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isTrailingSlashSensitive: false, isCaseSensitive: true } } });
+                    expect(route.fingerprint).to.equal(fingerprint);
+                    done();
+                });
+            };
+
             var keys = Object.keys(paths);
             for (var i = 0, il = keys.length; i < il; ++i) {
-
-                function test(path, fingerprint) {
-
-                    it('process the path \'' + path + '\' as ' + fingerprint, function (done) {
-
-                        var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isTrailingSlashSensitive: false, isCaseSensitive: true } } });
-                        expect(route.fingerprint).to.equal(fingerprint);
-                        done();
-                    });
-                };
                 test(keys[i], paths[keys[i]]);
             }
         }();
