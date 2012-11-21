@@ -12,9 +12,33 @@ describe('Request', function () {
         request.reply(Hapi.error.passThrough(599, 'heya', 'text/plain'));
     };
 
-    var server = new Hapi.Server('0.0.0.0', 18085);
+    var tailHandler = function (request) {
+
+        var t1 = request.addTail('t1');
+        var t2 = request.addTail('t2');
+
+        request.reply('Done');
+
+        request.removeTail(t1);
+        t1();                           // Ignored
+        setTimeout(t2, 10);
+    };
+
+    var plainHandler = function (request) {
+
+        request.reply('OK');
+    };
+
+    var postHandler = function (request, next) {
+
+        next(request.path === '/ext' ? Hapi.error.badRequest() : null);
+    };
+
+    var server = new Hapi.Server('0.0.0.0', 18085, { ext: { onPostHandler: postHandler } });
     server.addRoutes([
-        { method: 'GET', path: '/custom', config: { handler: customErrorHandler } }
+        { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
+        { method: 'GET', path: '/tail', config: { handler: tailHandler } },
+        { method: 'GET', path: '/ext', config: { handler: plainHandler } }
     ]);
 
     var makeRequest = function (method, path, callback) {
@@ -30,25 +54,11 @@ describe('Request', function () {
         }, next);
     };
 
-    function parseHeaders(res) {
-
-        var headersObj = {};
-        var headers = res._header.split('\r\n');
-        for (var i = 0, il = headers.length; i < il; i++) {
-            var header = headers[i].split(':');
-            var headerValue = header[1] ? header[1].trim() : '';
-            headersObj[header[0]] = headerValue;
-        }
-
-        return headersObj;
-    }
-
     it('returns custom error response', function (done) {
 
         makeRequest('GET', '/custom', function (rawRes) {
 
-            var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Content-Type']).to.equal('text/plain');
+            expect(rawRes.headers['Content-Type']).to.equal('text/plain');
             done();
         });
     });
@@ -57,8 +67,32 @@ describe('Request', function () {
 
         makeRequest('OPTIONS', '/custom', function (rawRes) {
 
-            var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Access-Control-Allow-Origin']).to.equal('*');
+            expect(rawRes.headers['Access-Control-Allow-Origin']).to.equal('*');
+            done();
+        });
+    });
+
+    it('generates tail event', function (done) {
+
+        var result = null;
+
+        server.once('tail', function () {
+
+            expect(result).to.equal('Done');
+            done();
+        });
+
+        makeRequest('GET', '/tail', function (rawRes) {
+            
+            result = rawRes.result;
+        });
+    });
+
+    it('returns error response on ext error', function (done) {
+
+        makeRequest('GET', '/ext', function (rawRes) {
+
+            expect(rawRes.result.code).to.equal(400);
             done();
         });
     });
