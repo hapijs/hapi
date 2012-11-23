@@ -883,17 +883,17 @@ require('../suite')(function (useRedis, useMongo) {
             var id = Math.random();
             server.helpers.user(id, function (result1) {
 
-                result1.gen.should.be.equal(1);     // Fresh
+                expect(result1.gen).to.equal(1);     // Fresh
                 setTimeout(function () {
 
                     server.helpers.user(id, function (result2) {
 
-                        result2.gen.should.be.equal(1);     // Stale
+                        expect(result2.gen).to.equal(1);     // Stale
                         setTimeout(function () {
 
                             server.helpers.user(id, function (result3) {
 
-                                result3.gen.should.be.equal(2);     // Fresh
+                                expect(result3.gen).to.equal(2);     // Fresh
                                 done();
                             });
                         }, 3);
@@ -933,20 +933,22 @@ require('../suite')(function (useRedis, useMongo) {
             var id = Math.random();
             server.helpers.user(id, function (result1) {
 
-                result1.gen.should.be.equal(1);     // Fresh
+                expect(result1.gen).to.equal(1);     // Fresh
                 setTimeout(function () {
 
                     server.helpers.user(id, function (result2) {
 
                         // Generates a new one in background which will produce Error and clear the cache
 
-                        result2.gen.should.be.equal(1);     // Stale
+                        if (result2.gen !== undefined) {
+                            expect(result2.gen).to.equal(1);     // Stale
+                        }
 
                         setTimeout(function () {
 
                             server.helpers.user(id, function (result3) {
 
-                                result3.gen.should.be.equal(3);     // Fresh
+                                expect(result3.gen).to.equal(3);     // Fresh
                                 done();
                             });
                         }, 3);
@@ -977,18 +979,18 @@ require('../suite')(function (useRedis, useMongo) {
             var id = Math.random();
             server.helpers.user(id, function (result1) {
 
-                result1.gen.should.be.equal(1);     // Fresh
+                expect(result1.gen).to.equal(1);     // Fresh
                 setTimeout(function () {
 
                     server.helpers.user(id, function (result2) {
 
-                        result2.gen.should.be.equal(2);     // Fresh
+                        expect(result2.gen).to.equal(2);     // Fresh
 
                         setTimeout(function () {
 
                             server.helpers.user(id, function (result3) {
 
-                                result3.gen.should.be.equal(2);     // Fresh
+                                expect(result3.gen).to.equal(2);     // Fresh
                                 done();
                             });
                         }, 5);
@@ -1006,12 +1008,12 @@ require('../suite')(function (useRedis, useMongo) {
             var id = Math.random();
             server.helpers.user(id, function (result1) {
 
-                result1.id.should.be.equal(id);
-                result1.gen.should.be.equal(1);
+                expect(result1.id).to.equal(id);
+                expect(result1.gen).to.equal(1);
                 server.helpers.user(id, function (result2) {
 
-                    result2.id.should.be.equal(id);
-                    result2.gen.should.be.equal(2);
+                    expect(result2.id).to.equal(id);
+                    expect(result2.gen).to.equal(2);
                     done();
                 });
             });
@@ -1045,14 +1047,14 @@ require('../suite')(function (useRedis, useMongo) {
             var id = Math.random();
             server.helpers.user(id, function (result1) {
 
-                result1.gen.should.be.equal(1);     // Fresh
+                expect(result1.gen).to.equal(1);     // Fresh
                 setTimeout(function () {
 
                     server.helpers.user(id, function (result2) {
 
                         // Generates a new one which will produce Error
 
-                        result2.should.be.instanceof(Error);     // Stale
+                        expect(result2).to.instanceof(Error);     // Stale
                         done();
                     });
                 }, 11);

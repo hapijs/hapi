@@ -1,4 +1,4 @@
-var should = require("should");
+var should = require("chai").should();
 var qs = require("querystring");
 
 var Validation = process.env.TEST_COV ? require('../../lib-cov/validation') : require('../../lib/validation');
