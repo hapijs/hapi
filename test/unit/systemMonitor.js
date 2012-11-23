@@ -1,6 +1,8 @@
 // Load modules
 
 var expect = require('chai').expect;
+var Fs = require('fs');
+var Sinon = require('sinon');
 var SystemMonitor = process.env.TEST_COV ? require('../../lib-cov/monitor/system') : require('../../lib/monitor/system');
 
 describe('System Monitor', function() {
@@ -53,6 +55,46 @@ describe('System Monitor', function() {
             monitor.poll_cpu('invalid', function(err) {
 
                 expect(err).to.be.instanceOf(Error);
+                done();
+            });
+        });
+
+        it('returns cpu usage from stat file', function(done) {
+
+            var contents = 'cpu0  171386021 1565 28586977 1765610273 1928350 7722 4662154 2232299 0            ';
+
+            var readFileStub = Sinon.stub(Fs, 'readFile', function(fileName, callback) {
+
+                readFileStub.restore();
+                callback(null, contents);
+            });
+
+            var monitor = new SystemMonitor.Monitor();
+
+            monitor.poll_cpu('cpu0', function(err, stats) {
+
+                expect(stats.idle).to.equal(1765610273);
+                expect(stats.total).to.equal(1974415361);
+                done();
+            });
+        });
+
+        it('returns error when cpu target not found', function(done) {
+
+            var contents = 'cpu0  171386021 1565 28586977 1765610273 1928350 7722 4662154 2232299 0            ';
+
+            var readFileStub = Sinon.stub(Fs, 'readFile', function(fileName, callback) {
+
+                readFileStub.restore();
+                callback(null, contents);
+            });
+
+            var monitor = new SystemMonitor.Monitor();
+
+            monitor.poll_cpu('cpu1', function(err, stats) {
+
+                expect(err).to.be.instanceOf(Error);
+                expect(stats).not.to.exist;
                 done();
             });
         });
