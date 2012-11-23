@@ -258,4 +258,22 @@ describe('Batch', function () {
             done();
         });
     });
+
+    it('bad requests return the correct error', function (done) {
+
+        makeRequest('{ "blah": "test" }', function (res) {
+
+            expect(res.code).to.equal(400);
+            done();
+        });
+    });
+
+    it('handles bad paths in requests array', function (done) {
+
+        makeRequest('{ "requests": [ {"method": "get", "path": "/$1"}] }', function (res) {
+
+            expect(res.code).to.equal(400);
+            done();
+        });
+    });
 });
