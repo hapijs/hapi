@@ -387,7 +387,7 @@ describe('Server', function () {
             server.addHelper('user', function (id, next) { return next({ id: id }); });
             server.helpers.user(4, function (result) {
 
-                result.id.should.be.equal(4);
+                expect(result.id).to.equal(4);
                 done();
             });
         });
@@ -399,12 +399,12 @@ describe('Server', function () {
             server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); });
             server.helpers.user(4, function (result1) {
 
-                result1.id.should.be.equal(4);
-                result1.gen.should.be.equal(1);
+                expect(result1.id).to.equal(4);
+                expect(result1.gen).to.equal(1);
                 server.helpers.user(4, function (result2) {
 
-                    result2.id.should.be.equal(4);
-                    result2.gen.should.be.equal(2);
+                    expect(result2.id).to.equal(4);
+                    expect(result2.gen).to.equal(2);
                     done();
                 });
             });
@@ -420,12 +420,12 @@ describe('Server', function () {
                 var id = Math.random();
                 server.helpers.user(id, function (result1) {
 
-                    result1.id.should.be.equal(id);
-                    result1.gen.should.be.equal(1);
+                    expect(result1.id).to.equal(id);
+                    expect(result1.gen).to.equal(1);
                     server.helpers.user(id, function (result2) {
 
-                        result2.id.should.be.equal(id);
-                        result2.gen.should.be.equal(1);
+                        expect(result2.id).to.equal(id);
+                        expect(result2.gen).to.equal(1);
                         done();
                     });
                 });
@@ -439,13 +439,13 @@ describe('Server', function () {
                 var id1 = Math.random();
                 server.helpers.user(id1, function (result1) {
 
-                    result1.id.should.be.equal(id1);
-                    result1.gen.should.be.equal(1);
+                    expect(result1.id).to.equal(id1);
+                    expect(result1.gen).to.equal(1);
                     var id2 = Math.random();
                     server.helpers.user(id2, function (result2) {
 
-                        result2.id.should.be.equal(id2);
-                        result2.gen.should.be.equal(2);
+                        expect(result2.id).to.equal(id2);
+                        expect(result2.gen).to.equal(2);
                         done();
                     });
                 });
@@ -469,13 +469,13 @@ describe('Server', function () {
 
                 server.helpers.user(id1, function (result1) {
 
-                    result1.id.should.be.equal(id1);
-                    result1.gen.should.be.equal(1);
+                    expect(result1.id).to.equal(id1);
+                    expect(result1.gen).to.equal(1);
 
                     server.helpers.user(function () { }, function (result2) {
 
-                        result2.id.should.be.equal(id1);
-                        result2.gen.should.be.equal(2);
+                        expect(result2.id).to.equal(id1);
+                        expect(result2.gen).to.equal(2);
                         done();
                     });
                 });

@@ -68,16 +68,23 @@ describe('Batch', function () {
         request.reply(request.pre.m5 + '\n');
     };
 
+    var errorHandler = function(request) {
+
+        request.reply(new Error('myerror'));
+    };
+
     function setupServer(done) {
 
         _server = new Hapi.Server('0.0.0.0', 18084, { batch: true });
         _server.addRoutes([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler } },
-            { method: 'GET', path: '/item', config: { handler: activeItemHandler } },
-            { method: 'GET', path: '/item/{id}', config: { handler: itemHandler } },
+            { method: 'GET', path: '/profile', handler: profileHandler },
+            { method: 'GET', path: '/item', handler: activeItemHandler },
+            { method: 'GET', path: '/item/{id}', handler: itemHandler },
+            { method: 'GET', path: '/error', handler: errorHandler },
             {
                 method: 'GET',
                 path: '/fetch',
+                handler: getFetch,
                 config: {
                     pre: [
                         { method: fetch1, assign: 'm1', mode: 'parallel' },
@@ -85,8 +92,7 @@ describe('Batch', function () {
                         { method: fetch3, assign: 'm3', mode: 'parallel' },
                         { method: fetch4, assign: 'm4', mode: 'parallel' },
                         { method: fetch5, assign: 'm5' }
-                    ],
-                    handler: getFetch
+                    ]
                 }
             }
         ]);
@@ -273,6 +279,16 @@ describe('Batch', function () {
         makeRequest('{ "requests": [ {"method": "get", "path": "/$1"}] }', function (res) {
 
             expect(res.code).to.equal(400);
+            done();
+        });
+    });
+
+    it('handles errors in the requested handlers', function (done) {
+
+        makeRequest('{ "requests": [ {"method": "get", "path": "/error"}] }', function (res) {
+
+            expect(res[0].code).to.equal(500);
+            expect(res[0].message).to.equal('myerror');
             done();
         });
     });
