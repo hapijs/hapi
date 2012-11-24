@@ -916,17 +916,12 @@ require('../suite')(function (useRedis, useMongo) {
 
     describe('Stale', function () {
 
-        before(function () {
-
-            this.timeout(4000);
-        });
-
         it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
             var options = {
                 cache: {
-                    expiresIn: 20,
-                    staleIn: 10,
+                    expiresIn: 30,
+                    staleIn: 20,
                     staleTimeout: 5
                 }
             };
@@ -961,7 +956,7 @@ require('../suite')(function (useRedis, useMongo) {
                             });
                         }, 3);
                     });
-                }, 11);
+                }, 21);
             });
         });
 
@@ -969,8 +964,8 @@ require('../suite')(function (useRedis, useMongo) {
 
             var options = {
                 cache: {
-                    expiresIn: 20,
-                    staleIn: 10,
+                    expiresIn: 30,
+                    staleIn: 20,
                     staleTimeout: 5
                 }
             };
@@ -1016,7 +1011,7 @@ require('../suite')(function (useRedis, useMongo) {
                             });
                         }, 3);
                     });
-                }, 11);
+                }, 21);
             });
         });
 
@@ -1024,8 +1019,8 @@ require('../suite')(function (useRedis, useMongo) {
 
             var options = {
                 cache: {
-                    expiresIn: 20,
-                    staleIn: 10,
+                    expiresIn: 30,
+                    staleIn: 20,
                     staleTimeout: 5
                 }
             };
@@ -1058,7 +1053,7 @@ require('../suite')(function (useRedis, useMongo) {
                             });
                         }, 5);
                     });
-                }, 15);
+                }, 21);
             });
         });
 
@@ -1086,8 +1081,8 @@ require('../suite')(function (useRedis, useMongo) {
 
             var options = {
                 cache: {
-                    expiresIn: 20,
-                    staleIn: 10,
+                    expiresIn: 30,
+                    staleIn: 20,
                     staleTimeout: 5
                 }
             };
@@ -1120,7 +1115,7 @@ require('../suite')(function (useRedis, useMongo) {
                         expect(result2).to.instanceof(Error);     // Stale
                         done();
                     });
-                }, 11);
+                }, 21);
             });
         });
     });
