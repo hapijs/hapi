@@ -10,7 +10,15 @@ var Request = require('request');
 
 describe('Response', function () {
 
-    var server = new Hapi.Server('0.0.0.0', 17082, { cache: { engine: 'memory' } });
+    var formatPayload = function (result) {
+
+        if (typeof result === 'string') {
+            result += '!!';
+        }
+        return result;
+    };
+
+    var server = new Hapi.Server('0.0.0.0', 17082, { cache: { engine: 'memory' }, format: { payload: formatPayload } });
 
     var textHandler = function (request) {
 
@@ -155,7 +163,7 @@ describe('Response', function () {
         server.inject(request, function (res) {
 
             expect(res.result).to.exist;
-            expect(res.result).to.equal('text');
+            expect(res.result).to.equal('text!!');
             expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
             done();
         });

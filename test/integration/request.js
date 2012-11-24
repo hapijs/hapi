@@ -34,7 +34,22 @@ describe('Request', function () {
         next(request.path === '/ext' ? Hapi.error.badRequest() : null);
     };
 
-    var server = new Hapi.Server('0.0.0.0', 18085, { ext: { onPostHandler: postHandler } });
+    var unknownRouteHandler = function (request) {
+
+        if (request.path === '/unknown/reply') {
+            request.reply('unknown-reply');
+        }
+        else if (request.path === '/unknown/close') {
+            request.raw.res.writeHead(400, { 'Content-Length': 13 });
+            request.raw.res.end('unknown-close');
+            request.reply.close();
+        }
+        else {
+            request.reply('unknown-error');
+        }
+    };
+
+    var server = new Hapi.Server('0.0.0.0', 18085, { ext: { onUnknownRoute: unknownRouteHandler, onPostHandler: postHandler } });
     server.addRoutes([
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },
@@ -56,18 +71,18 @@ describe('Request', function () {
 
     it('returns custom error response', function (done) {
 
-        makeRequest('GET', '/custom', function (rawRes) {
+        makeRequest('GET', '/custom', function (res) {
 
-            expect(rawRes.headers['Content-Type']).to.equal('text/plain');
+            expect(res.headers['Content-Type']).to.equal('text/plain');
             done();
         });
     });
 
     it('returns valid OPTIONS response', function (done) {
 
-        makeRequest('OPTIONS', '/custom', function (rawRes) {
+        makeRequest('OPTIONS', '/custom', function (res) {
 
-            expect(rawRes.headers['Access-Control-Allow-Origin']).to.equal('*');
+            expect(res.headers['Access-Control-Allow-Origin']).to.equal('*');
             done();
         });
     });
@@ -82,17 +97,37 @@ describe('Request', function () {
             done();
         });
 
-        makeRequest('GET', '/tail', function (rawRes) {
+        makeRequest('GET', '/tail', function (res) {
             
-            result = rawRes.result;
+            result = res.result;
         });
     });
 
     it('returns error response on ext error', function (done) {
 
-        makeRequest('GET', '/ext', function (rawRes) {
+        makeRequest('GET', '/ext', function (res) {
 
-            expect(rawRes.result.code).to.equal(400);
+            expect(res.result.code).to.equal(400);
+            done();
+        });
+    });
+
+    it('returns unknown response using reply()', function (done) {
+
+        makeRequest('GET', '/unknown/reply', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('unknown-reply');
+            done();
+        });
+    });
+
+    it('returns unknown response using close()', function (done) {
+
+        makeRequest('GET', '/unknown/close', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.readPayload()).to.equal('unknown-close');
             done();
         });
     });
