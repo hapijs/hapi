@@ -36,7 +36,6 @@
   },
   "devDependencies": {
     "mocha": "1.x.x",
-    "should": "1.x.x",
     "sinon": "1.3.4",
     "chai": "1.2.x"
   },
