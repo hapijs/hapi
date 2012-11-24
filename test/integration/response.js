@@ -381,5 +381,21 @@ describe('Response', function () {
                 });
             });
         });
+
+        it('returns a gzipped file in the response when the request accepts gzip', function (done) {
+
+            server.start(function () {
+
+                Request.get({ url: 'http://localhost:17082/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-encoding']).to.equal('gzip');
+                    expect(res.headers['content-length']).to.not.exist;
+                    expect(body).to.exist;
+                    done();
+                });
+            });
+        });
     });
 });
