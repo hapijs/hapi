@@ -11,6 +11,8 @@ var Sinon = require('sinon');
 
 require('../suite')(function (useRedis, useMongo) {
 
+    var key = { id: 'x', segment: 'test' };
+
     describe('Client', function () {
 
         it('throws an error if using an unknown engine type', function (done) {
@@ -29,10 +31,18 @@ require('../suite')(function (useRedis, useMongo) {
 
         var testEngine = function (engine) {
 
-            it('creates a new connection using ' + engine, function (done) {
+            var clientStart = function (next) {
 
                 var client = new Cache.Client(Defaults.cache(engine));
                 client.start(function (err) {
+
+                    next(err, client);
+                });
+            };
+
+            it('creates a new connection using ' + engine, function (done) {
+
+                clientStart(function (err, client) {
 
                     expect(client.isReady()).to.equal(true);
                     done();
@@ -41,8 +51,7 @@ require('../suite')(function (useRedis, useMongo) {
 
             it('closes the connection using ' + engine, function (done) {
 
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.start(function (err) {
+                clientStart(function (err, client) {
 
                     expect(client.isReady()).to.equal(true);
                     client.stop();
@@ -51,7 +60,7 @@ require('../suite')(function (useRedis, useMongo) {
                 });
             });
 
-            it('ignored starting a connection twice using ' + engine, function (done) {
+            it('ignored starting a connection twice on same event using ' + engine, function (done) {
 
                 var client = new Cache.Client(Defaults.cache(engine));
                 var x = 2;
@@ -71,10 +80,25 @@ require('../suite')(function (useRedis, useMongo) {
                 start();
             });
 
+            it('ignored starting a connection twice chained using ' + engine, function (done) {
+
+                clientStart(function (err, client) {
+
+                    expect(err).to.not.exist;
+                    expect(client.isReady()).to.equal(true);
+
+                    client.start(function (err) {
+
+                        expect(err).to.not.exist;
+                        expect(client.isReady()).to.equal(true);
+                        done();
+                    });
+                });
+            });
+
             it('returns not found on get when using null key using ' + engine, function (done) {
 
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.start(function (err) {
+                clientStart(function (err, client) {
 
                     client.get(null, function (err, result) {
 
@@ -87,20 +111,57 @@ require('../suite')(function (useRedis, useMongo) {
 
             it('returns error on set when using null key using ' + engine, function (done) {
 
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.set(null, {}, 1000, function (err) {
+                clientStart(function (err, client) {
 
-                    expect(err instanceof Error).to.equal(true);
-                    done();
+                    client.set(null, {}, 1000, function (err) {
+
+                        expect(err instanceof Error).to.equal(true);
+                        done();
+                    });
+                });
+            });
+
+            it('returns error on get when using invalid key using ' + engine, function (done) {
+
+                clientStart(function (err, client) {
+
+                    client.get({}, function (err) {
+
+                        expect(err instanceof Error).to.equal(true);
+                        done();
+                    });
+                });
+            });
+
+            it('returns error on drop when using invalid key using ' + engine, function (done) {
+
+                clientStart(function (err, client) {
+
+                    client.drop({}, function (err) {
+
+                        expect(err instanceof Error).to.equal(true);
+                        done();
+                    });
+                });
+            });
+
+            it('returns error on set when using invalid key using ' + engine, function (done) {
+
+                clientStart(function (err, client) {
+
+                    client.set({}, {}, 1000, function (err) {
+
+                        expect(err instanceof Error).to.equal(true);
+                        done();
+                    });
                 });
             });
 
             it('ignores set when using non-positive ttl value using ' + engine, function (done) {
 
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.start(function (err) {
+                clientStart(function (err, client) {
 
-                    client.set('x', 'y', 0, function (err) {
+                    client.set(key, 'y', 0, function (err) {
 
                         expect(err).to.not.exist;
                         done();
@@ -110,11 +171,13 @@ require('../suite')(function (useRedis, useMongo) {
 
             it('returns error on drop when using null key using ' + engine, function (done) {
 
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.drop(null, function (err) {
+                clientStart(function (err, client) {
 
-                    expect(err instanceof Error).to.equal(true);
-                    done();
+                    client.drop(null, function (err) {
+
+                        expect(err instanceof Error).to.equal(true);
+                        done();
+                    });
                 });
             });
 
@@ -122,7 +185,7 @@ require('../suite')(function (useRedis, useMongo) {
 
                 var client = new Cache.Client(Defaults.cache(engine));
                 client.stop();
-                client.connection.get('x', function (err, result) {
+                client.connection.get(key, function (err, result) {
 
                     expect(err).to.exist;
                     expect(result).to.not.exist;
@@ -134,7 +197,7 @@ require('../suite')(function (useRedis, useMongo) {
 
                 var client = new Cache.Client(Defaults.cache(engine));
                 client.stop();
-                client.connection.set('x', 'y', 1, function (err) {
+                client.connection.set(key, 'y', 1, function (err) {
 
                     expect(err).to.exist;
                     done();
@@ -145,7 +208,7 @@ require('../suite')(function (useRedis, useMongo) {
 
                 var client = new Cache.Client(Defaults.cache(engine));
                 client.stop();
-                client.connection.drop('x', function (err) {
+                client.connection.drop(key, function (err) {
 
                     expect(err).to.exist;
                     done();
@@ -229,7 +292,7 @@ require('../suite')(function (useRedis, useMongo) {
         it('returns error when calling get on a bad connection', function (done) {
 
             var client = failOn('get');
-            client.get('x', function (err, result) {
+            client.get(key, function (err, result) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('FAIL');
@@ -264,7 +327,7 @@ require('../suite')(function (useRedis, useMongo) {
 
         it('returns null on get when cache mode is not server', function (done) {
 
-            getCache().get('x', function (err, result) {
+            getCache().get(key, function (err, result) {
 
                 expect(err).to.not.exist;
                 expect(result).to.not.exist;
@@ -274,7 +337,7 @@ require('../suite')(function (useRedis, useMongo) {
 
         it('returns null on set when cache mode is not server', function (done) {
 
-            getCache().set('x', 'y', 100, function (err) {
+            getCache().set(key, 'y', 100, function (err) {
 
                 expect(err).to.not.exist;
                 done();
@@ -283,7 +346,7 @@ require('../suite')(function (useRedis, useMongo) {
 
         it('returns null on drop when cache mode is not server', function (done) {
 
-            getCache().drop('x', function (err) {
+            getCache().drop(key, function (err) {
 
                 expect(err).to.not.exist;
                 done();
@@ -293,11 +356,11 @@ require('../suite')(function (useRedis, useMongo) {
         it('returns null on get when item expired', function (done) {
 
             var client = new Cache.Client(Defaults.cache('memory'));
-            client.set('x', 'y', 1, function (err) {
+            client.set(key, 'y', 1, function (err) {
 
                 setTimeout(function () {
 
-                    client.get('x', function (err, result) {
+                    client.get(key, function (err, result) {
 
                         expect(err).to.not.exist;
                         expect(result).to.not.exist;
@@ -386,7 +449,7 @@ require('../suite')(function (useRedis, useMongo) {
                 done();
             });
 
-            it('assigns the expiresIn when the rule is cached', function(done) {
+            it('assigns the expiresIn when the rule is cached', function (done) {
 
                 var config = {
                     expiresIn: 50000
@@ -853,7 +916,7 @@ require('../suite')(function (useRedis, useMongo) {
 
     describe('Stale', function () {
 
-        before(function() {
+        before(function () {
 
             this.timeout(4000);
         });

@@ -71,6 +71,12 @@ describe('Response', function () {
         request.reply(file);
     };
 
+    var directoryHandler = function (request) {
+
+        var file = new Hapi.Response.File(__dirname);
+        request.reply(file);
+    };
+
     var expHandler = function (request) {
 
         Hapi.Response._respond(null, request, function () { });
@@ -142,15 +148,16 @@ describe('Response', function () {
 
     server.addRoutes([
         { method: 'GET', path: '/text', config: { handler: textHandler, cache: { mode: 'client', expiresIn: 9999 } } },
-        { method: 'POST', path: '/error', handler: errorHandler },
-        { method: 'POST', path: '/empty', handler: emptyHandler },
-        { method: 'POST', path: '/emptyLong', handler: emptyLongHandler },
+        { method: 'GET', path: '/error', handler: errorHandler },
+        { method: 'GET', path: '/empty', handler: emptyHandler },
+        { method: 'GET', path: '/emptyLong', handler: emptyLongHandler },
         { method: 'GET', path: '/direct', config: { handler: directHandler, cache: { mode: 'client', expiresIn: 9999 } } },
-        { method: 'POST', path: '/exp', handler: expHandler },
-        { method: 'POST', path: '/stream/{issue?}', handler: streamHandler },
+        { method: 'GET', path: '/exp', handler: expHandler },
+        { method: 'GET', path: '/stream/{issue?}', handler: streamHandler },
         { method: 'GET', path: '/file', handler: fileHandler },
         { method: 'GET', path: '/relativefile', handler: relativeFileHandler },
         { method: 'GET', path: '/filenotfound', handler: fileNotFoundHandler },
+        { method: 'GET', path: '/directory', handler: directoryHandler },
         { method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } },
         { method: 'GET', path: '/relativestaticfile', handler: { file: './package.json' } },
         { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
@@ -171,7 +178,7 @@ describe('Response', function () {
 
     it('returns an error reply', function (done) {
 
-        var request = { method: 'POST', url: '/error' };
+        var request = { method: 'GET', url: '/error' };
 
         server.inject(request, function (res) {
 
@@ -184,7 +191,7 @@ describe('Response', function () {
 
     it('returns an empty reply', function (done) {
 
-        var request = { method: 'POST', url: '/empty' };
+        var request = { method: 'GET', url: '/empty' };
 
         server.inject(request, function (res) {
 
@@ -196,7 +203,7 @@ describe('Response', function () {
 
     it('returns an empty reply (long)', function (done) {
 
-        var request = { method: 'POST', url: '/emptyLong' };
+        var request = { method: 'GET', url: '/emptyLong' };
 
         server.inject(request, function (res) {
 
@@ -221,7 +228,7 @@ describe('Response', function () {
 
     it('returns an error reply on invalid Response._respond', function (done) {
 
-        var request = { method: 'POST', url: '/exp' };
+        var request = { method: 'GET', url: '/exp' };
 
         server.inject(request, function (res) {
 
@@ -234,7 +241,7 @@ describe('Response', function () {
 
     it('returns a stream reply', function (done) {
 
-        var request = { method: 'POST', url: '/stream' };
+        var request = { method: 'GET', url: '/stream' };
 
         server.inject(request, function (res) {
 
@@ -245,7 +252,7 @@ describe('Response', function () {
 
     it('returns a broken stream reply on error issue', function (done) {
 
-        var request = { method: 'POST', url: '/stream/error' };
+        var request = { method: 'GET', url: '/stream/error' };
 
         server.inject(request, function (res) {
 
@@ -256,7 +263,7 @@ describe('Response', function () {
 
     it('returns a broken stream reply on double issue', function (done) {
 
-        var request = { method: 'POST', url: '/stream/double' };
+        var request = { method: 'GET', url: '/stream/double' };
 
         server.inject(request, function (res) {
 
@@ -303,10 +310,23 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.post('http://localhost:17082/filenotfound', function (err, res) {
+                Request.get('http://localhost:17082/filenotfound', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
+                    done();
+                });
+            });
+        });
+
+        it('returns a 403 when the file is a directory', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17082/directory', function (err, res) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(403);
                     done();
                 });
             });
