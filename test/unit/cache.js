@@ -920,7 +920,7 @@ require('../suite')(function (useRedis, useMongo) {
 
             var options = {
                 cache: {
-                    expiresIn: 30,
+                    expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5
                 }
@@ -964,7 +964,7 @@ require('../suite')(function (useRedis, useMongo) {
 
             var options = {
                 cache: {
-                    expiresIn: 30,
+                    expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5
                 }
@@ -1019,7 +1019,7 @@ require('../suite')(function (useRedis, useMongo) {
 
             var options = {
                 cache: {
-                    expiresIn: 30,
+                    expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5
                 }
