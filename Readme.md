@@ -570,7 +570,7 @@ function getPeople(request) {
 }
 ```
 
-In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.
+In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.  As a result of this behavior, {names*} must appear as the last parameter in the route path.  In other words, a param with 0 or more path parts must appear at the end of the end of the route path.
 
 ### Route Handler
 
