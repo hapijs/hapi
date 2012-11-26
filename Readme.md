@@ -536,7 +536,7 @@ function getAlbum(request) {
 }
 ```
 
-In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  If the number of expected parts can be anything, then use the _'*'_ without a number.  Below is an example demonstrating this:
+In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  If the number of expected parts can be anything, then use the _'*'_ without a number.
 
 ```javascript
 server.addRoute({
@@ -554,7 +554,7 @@ function getPerson(request) {
 
 In the example code above if a request for `/person/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
 
-Below is a similar example without a requirement on the number of names parts that can be passed.
+Below is a similar example without a requirement on the number of name parts that can be passed.
 
 ```javascript
 server.addRoute({
@@ -570,7 +570,7 @@ function getPeople(request) {
 }
 ```
 
-In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.
+In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.
 
 ### Route Handler
 
