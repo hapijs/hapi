@@ -6,7 +6,6 @@ var Cache = require(libPath + 'cache/index');
 var Server = require(libPath + 'server');
 var Defaults = require(libPath + 'defaults');
 var Log = require(libPath + 'log');
-var Sinon = require('sinon');
 
 
 require('./suite')(function (useRedis, useMongo) {
