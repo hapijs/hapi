@@ -7,7 +7,9 @@ var Hapi = require(libPath + 'hapi');
 
 describe('Auth', function () {
 
-    var loadUser = function (id, callback) {
+    describe('Basic', function () {
+
+        var loadUser = function (id, callback) {
         
         if (id === 'john') {
             return callback(null, {
@@ -66,8 +68,6 @@ describe('Auth', function () {
 
         return 'Basic ' + (new Buffer(username + ':' + password, 'utf8')).toString('base64');
     };
-
-    describe('Basic', function () {
 
         it('returns a reply on successful auth', function (done) {
 
@@ -197,6 +197,42 @@ describe('Auth', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(403);
+                done();
+            });
+        });
+    });
+
+    describe('Ext', function () {
+
+
+        it('returns a reply on successful ext any', function (done) {
+
+            var config = {
+                auth: {
+                    scheme: 'ext:any',
+                    implementation: {
+
+                        authenticate: function (request, next) {
+
+                            next();
+                        }
+                    }
+                }
+            };
+
+            var handler = function (request) {
+
+                request.reply('Success');
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            server.addRoute({ method: 'POST', path: '/ext', handler: handler });
+
+            var request = { method: 'POST', url: '/ext' };
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
                 done();
             });
         });
