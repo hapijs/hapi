@@ -536,6 +536,24 @@ function getAlbum(request) {
 }
 ```
 
+In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  Below is an example demonstrating this:
+
+```javascript
+server.addRoute({
+    path: '/{name}/{names*2}',
+    method: 'GET',
+    handler: getPerson
+});
+
+function getPerson(request) {
+
+    var nameParts = request.params.names.split('/');
+    request.reply(new Person(namesParts[0], nameParts[1]));
+}
+```
+
+In the example code above if a request for `/name/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
+
 ### Route Handler
 
 When the provided route handler method is called, it receives a _request_ object with the following properties:
