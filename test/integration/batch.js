@@ -292,4 +292,22 @@ describe('Batch', function () {
             done();
         });
     });
+
+    it('an out of bounds reference returns an error', function (done) {
+
+        makeRequest('{ "requests": [{"method": "get", "path": "/item"}, {"method": "get", "path": "/item/$1.id"}] }', function (res) {
+
+            expect(res.error).to.equal('Bad Request');
+            done();
+        });
+    });
+
+    it('a non-existant reference returns an internal error', function (done) {
+
+        makeRequest('{ "requests": [{"method": "get", "path": "/item"}, {"method": "get", "path": "/item/$0.nothere"}] }', function (res) {
+
+            expect(res.message).to.equal('Reference not found');
+            done();
+        });
+    });
 });
