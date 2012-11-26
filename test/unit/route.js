@@ -198,7 +198,25 @@ describe('Route', function () {
                 '/path/{param*2}/to': {
                     '/a/b/c/d': false,
                     '/path/a/b/to': {
-                        param: '/a/b'
+                        param: 'a/b'
+                    }
+                },
+                '/path/{param*}': {
+                    '/a/b/c/d': false,
+                    '/path/a/b/to': {
+                        param: 'a/b/to'
+                    },
+                    '/path/': {
+                        param: undefined
+                    }
+                },
+                '/path/{param*}|true': {
+                    '/path': false,
+                    '/path/a/b/to': {
+                        param: 'a/b/to'
+                    },
+                    '/path/': {
+                        param: undefined
                     }
                 },
                 '/path/{p1}/{p2?}': {
