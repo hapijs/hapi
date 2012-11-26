@@ -19,7 +19,7 @@ describe('Route', function() {
         '/test1/param/{param}': { reqPath: '/test1/param/test5', resBody: 'test5' },
         '/test2/param/{param?}': { reqPath: '/test2/param/test6', resBody: 'test6' },
         '/test3/param/{param?}': { reqPath: '/test3/param', resBody: 'test7' },
-        '/test4/param/{param*2}': { reqPath: '/test4/param/test8/test9', resBody: '/test8/test9' },
+        '/test4/param/{param*2}': { reqPath: '/test4/param/test8/test9', resBody: 'test8/test9' },
         '/test5/%20path': { reqPath: '/test5/%20path', resBody: 'test10' }
     };
 
