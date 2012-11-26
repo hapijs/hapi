@@ -1,15 +1,27 @@
 // Load modules
 
-var expect = require('chai').expect;
-var Utils = process.env.TEST_COV ? require('../../lib-cov/utils') : require('../../lib/utils');
-var Version = require('../../package.json').version;
+var Chai = require('chai');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Package = require('../../package.json');
 
-describe('Utils', function() {
 
-    describe('#version', function() {
+// Declare internals
 
-        it('returns the correct package version number', function(done) {
-            expect(Utils.version()).to.equal(Version);
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
+
+describe('Utils', function () {
+
+    describe('#version', function () {
+
+        it('returns the correct package version number', function (done) {
+
+            expect(Hapi.Utils.version()).to.equal(Package.version);
             done();
         });
     });
