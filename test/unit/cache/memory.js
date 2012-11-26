@@ -1,7 +1,7 @@
 // Load modules
 
 var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Memory = require(libPath + 'cache/memory');
 var Cache = require(libPath + 'cache');
 var Defaults = require(libPath + 'defaults');

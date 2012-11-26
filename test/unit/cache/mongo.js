@@ -1,11 +1,11 @@
 // Load modules
 
 var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Mongo = require(libPath + 'cache/mongo');
 
 
-require('../suite')(function (useRedis, useMongo) {
+require('./suite')(function (useRedis, useMongo) {
 
     if (useMongo) {
         describe('Mongo', function () {

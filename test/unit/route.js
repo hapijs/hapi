@@ -1,11 +1,24 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
-var ServerMock = require('./mocks/server');
+var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 
 
 describe('Route', function () {
+
+    var server = { settings: Defaults.server };
 
     var _handler = function (request) {
 
@@ -16,7 +29,7 @@ describe('Route', function () {
 
         var fn = function () {
 
-            Route({}, ServerMock);
+            Route({}, server);
         };
         expect(fn).throws(Error, 'Route must be instantiated using new');
         done();
@@ -26,7 +39,7 @@ describe('Route', function () {
 
         var fn = function () {
 
-            var route = new Route({ method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ method: 'get', handler: _handler }, server);
         };
         expect(fn).throws(Error);
         done();
@@ -36,7 +49,7 @@ describe('Route', function () {
 
         var fn = function () {
 
-            var route = new Route({ path: '/test', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', handler: _handler }, server);
         };
         expect(fn).throws(Error, 'Route options missing method');
         done();
@@ -46,7 +59,7 @@ describe('Route', function () {
 
         var fn = function () {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
         };
         expect(fn).to.not.throw(Error);
         done();
@@ -56,7 +69,7 @@ describe('Route', function () {
 
         var fn = function () {
 
-            var route = new Route({ path: '/test', method: 'get', handler: null }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: null }, server);
         };
         expect(fn).throws(Error, 'Handler must appear once and only once');
         done();
@@ -270,7 +283,7 @@ describe('Route', function () {
 
         it('returns true when called with a matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
             var request = {
                 path: '/test',
                 method: 'get'
@@ -282,7 +295,7 @@ describe('Route', function () {
 
         it('returns false when called with a non-matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
             var request = {
                 path: '/test2',
                 method: 'get'
@@ -294,7 +307,7 @@ describe('Route', function () {
 
         it('returns false when called with an invalid path', function (done) {
 
-            var route = new Route({ path: '/{test}', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/{test}', method: 'get', handler: _handler }, server);
             var request = {
                 path: '/test%l',
                 method: 'get'
@@ -309,7 +322,7 @@ describe('Route', function () {
 
         it('returns true when called with a matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
 
             expect(route.test('/test')).to.be.true;
             done();
@@ -317,7 +330,7 @@ describe('Route', function () {
 
         it('returns false when called with a non-matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
 
             expect(route.test('/test2')).to.be.false;
             done();

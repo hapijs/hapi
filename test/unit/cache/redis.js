@@ -1,11 +1,11 @@
 // Load modules
 
 var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Redis = require(libPath + 'cache/redis');
 
 
-require('../suite')(function (useRedis) {
+require('./suite')(function (useRedis) {
 
     if (useRedis) {
         describe('Redis', function() {

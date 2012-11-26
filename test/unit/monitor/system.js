@@ -3,7 +3,9 @@
 var expect = require('chai').expect;
 var Fs = require('fs');
 var Sinon = require('sinon');
-var SystemMonitor = process.env.TEST_COV ? require('../../lib-cov/monitor/system') : require('../../lib/monitor/system');
+var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
+var SystemMonitor = require(libPath + 'monitor/system');
+
 
 describe('System Monitor', function() {
 
