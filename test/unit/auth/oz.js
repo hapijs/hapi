@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Scheme = require(libPath + 'auth/oz').Scheme;
 var Oz = require('oz');
 

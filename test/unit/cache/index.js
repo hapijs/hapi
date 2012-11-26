@@ -1,7 +1,7 @@
 // Load modules
 
 var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
+var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Cache = require(libPath + 'cache/index');
 var Server = require(libPath + 'server');
 var Defaults = require(libPath + 'defaults');
@@ -9,7 +9,7 @@ var Log = require(libPath + 'log');
 var Sinon = require('sinon');
 
 
-require('../suite')(function (useRedis, useMongo) {
+require('./suite')(function (useRedis, useMongo) {
 
     var key = { id: 'x', segment: 'test' };
 
@@ -1021,7 +1021,7 @@ require('../suite')(function (useRedis, useMongo) {
                 cache: {
                     expiresIn: 100,
                     staleIn: 20,
-                    staleTimeout: 5
+                    staleTimeout: 10
                 }
             };
 
@@ -1051,7 +1051,7 @@ require('../suite')(function (useRedis, useMongo) {
                                 expect(result3.gen).to.equal(2);     // Fresh
                                 done();
                             });
-                        }, 5);
+                        }, 1);
                     });
                 }, 21);
             });
