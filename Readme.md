@@ -540,7 +540,7 @@ In addition to the optional _'?'_ suffix, a param can also specify an expected n
 
 ```javascript
 server.addRoute({
-    path: '/{name}/{names*2}',
+    path: '/person/{names*2}',
     method: 'GET',
     handler: getPerson
 });
@@ -552,7 +552,7 @@ function getPerson(request) {
 }
 ```
 
-In the example code above if a request for `/name/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
+In the example code above if a request for `/person/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
 
 ### Route Handler
 
