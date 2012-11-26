@@ -1,17 +1,25 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
+var Shot = require('shot');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 var Payload = process.env.TEST_COV ? require('../../lib-cov/payload') : require('../../lib/payload');
 var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
-var Server = process.env.TEST_COV ? require('../../lib-cov/server') : require('../../lib/server');
-var NodeUtil = require('util');
-var Events = require('events');
-var Shot = require('shot');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 
 
 describe('Payload', function () {
 
-    var server = new Server({ payload: { maxBytes: 48 } });
+    var server = new Hapi.Server({ payload: { maxBytes: 48 } });
 
     var shotRequest = function (method, path, headers, payload, callback) {
 
@@ -38,6 +46,7 @@ describe('Payload', function () {
             };
 
             Payload.read(request, function (result) {
+
                 expect(result).not.to.exist;
                 done();
             });
@@ -55,6 +64,7 @@ describe('Payload', function () {
             };
 
             Payload.read(request, function (result) {
+
                 expect(result).not.to.exist;
                 done();
             });
@@ -74,6 +84,7 @@ describe('Payload', function () {
             };
 
             Payload.read(request, function (err) {
+
                 expect(err).to.be.an.instanceOf(Error);
                 done();
             });
@@ -93,6 +104,7 @@ describe('Payload', function () {
                 };
 
                 Payload.read(request, function (err) {
+
                     expect(err).to.not.exist;
                     expect(request.payload.item).to.equal('test');
                     done();
@@ -114,6 +126,7 @@ describe('Payload', function () {
                 };
 
                 Payload.read(request, function (err) {
+
                     expect(err).to.exist;
                     expect(request.payload).to.be.empty;
                     expect(err).to.be.an.instanceOf(Error);
@@ -136,6 +149,7 @@ describe('Payload', function () {
                 };
 
                 Payload.read(request, function (err) {
+
                     expect(err).to.not.exist;
                     expect(request.payload.item).to.equal('test');
                     done();
@@ -157,6 +171,7 @@ describe('Payload', function () {
                 };
 
                 Payload.read(request, function (err) {
+
                     expect(err).to.exist;
                     expect(request.payload).to.be.empty;
                     expect(err).to.be.an.instanceOf(Error);
@@ -179,6 +194,7 @@ describe('Payload', function () {
                 };
 
                 Payload.read(request, function (err) {
+
                     expect(err).to.exist;
                     expect(request.payload).to.be.empty;
                     expect(err).to.be.an.instanceOf(Error);
