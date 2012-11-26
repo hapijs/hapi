@@ -115,6 +115,32 @@ describe('System Monitor', function() {
                 done();
             });
         });
+
+        it('returns cpu usage delta from stat file', function(done) {
+
+            var pollStub = Sinon.stub(SystemMonitor.Monitor.prototype, 'poll_cpu', function(target, callback) {
+
+                return callback(null, {
+                    idle: 1,
+                    total: 2
+                });
+            });
+
+            var monitor = new SystemMonitor.Monitor();
+            var platform = process.platform;
+            process.platform = 'linux';
+
+            monitor.cpu('cpu0', function(err, stats) {
+
+                pollStub.restore();
+                process.platform = platform;
+                console.log(stats);
+                //done();
+            });
+
+            pollStub.restore();
+            done();
+        });
     });
 
     describe('#disk', function() {
