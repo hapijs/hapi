@@ -8,7 +8,9 @@ var Server = require(libPath + 'server');
 describe('Server', function () {
 
     it('throws an error constructed without new', function (done) {
+
         var fn = function () {
+
             Server('0.0.0.0', 8086, {});
         };
         expect(fn).throws(Error, 'Server must be instantiated using new');
@@ -16,30 +18,35 @@ describe('Server', function () {
     });
 
     it('defaults to port 80 when no port is provided', function (done) {
+
         var server = new Server();
         expect(server.settings.port).to.be.equal(80);
         done();
     });
 
     it('defaults to port 80 when a null port is provided', function (done) {
+
         var server = new Server('0.0.0.0', null);
         expect(server.settings.port).to.be.equal(80);
         done();
     });
 
     it('allows a ephemeral port to be set', function (done) {
+
         var server = new Server('0.0.0.0', 0);
         expect(server.settings.port).to.be.equal(0);
         done();
     });
 
     it('defaults to localhost when no host is provided', function (done) {
+
         var server = new Server();
         expect(server.settings.host).to.be.equal('localhost');
         done();
     });
 
     it('doesn\'t throw an error when host and port are provided', function (done) {
+
         var fn = function () {
             var server = new Server('0.0.0.0', 8083);
         };
@@ -48,6 +55,7 @@ describe('Server', function () {
     });
 
     it('throws an error when double port config is provided', function (done) {
+
         var fn = function () {
             var server = new Server(8080, 8084);
         };
@@ -56,6 +64,7 @@ describe('Server', function () {
     });
 
     it('throws an error when double host config is provided', function (done) {
+
         var fn = function () {
             var server = new Server('0.0.0.0', 'localhost');
         };
@@ -64,6 +73,7 @@ describe('Server', function () {
     });
 
     it('throws an error when unknown arg type is provided', function (done) {
+
         var fn = function () {
             var server = new Server(true);
         };
@@ -72,7 +82,9 @@ describe('Server', function () {
     });
 
     it('doesn\'t throw an error when enabling docs', function (done) {
+
         var fn = function () {
+
             var server = new Server('0.0.0.0', 8086, { docs: true });
         };
         expect(fn).to.not.throw(Error);
@@ -80,7 +92,9 @@ describe('Server', function () {
     });
 
     it('doesn\'t throw an error when enabling the debug console', function (done) {
+
         var fn = function () {
+
             var server = new Server('0.0.0.0', 8087, { debug: { websocketPort: 3002 } });
         };
         expect(fn).to.not.throw(Error);
@@ -88,7 +102,9 @@ describe('Server', function () {
     });
 
     it('doesn\'t throw an error when disabling cache', function (done) {
+
         var fn = function () {
+
             var server = new Server('0.0.0.0', 8088, { cache: false });
         };
         expect(fn).to.not.throw(Error);
@@ -96,14 +112,15 @@ describe('Server', function () {
     });
 
     it('assigns _monitor when config enables monitor', function (done) {
+
         var server = new Server('0.0.0.0', 8082, { monitor: true });
         expect(server._monitor).to.exist;
         done();
     });
 
     it('creates an https server when passed tls options', function (done) {
-        var tls = {
-        };
+
+        var tls = {};
 
         var server = new Server('0.0.0.0', 8082, { tls: tls });
         expect(server.listener instanceof Https.Server).to.equal(true);
@@ -111,18 +128,21 @@ describe('Server', function () {
     });
 
     it('doesn\'t throw an error when enabling auth', function (done) {
+
         var fn = function () {
+
             var server = new Server('0.0.0.0', 8086, { auth: { scheme: 'basic', loadUserFunc: function () { } } });
         };
         expect(fn).to.not.throw(Error);
         done();
     });
 
-
     describe('#_match', function () {
 
         it('throws an error when the method parameter is null', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8092);
                 server._match(null, '/test');
             };
@@ -131,7 +151,9 @@ describe('Server', function () {
         });
 
         it('throws an error when the path parameter is null', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8091);
                 server._match('POST', null);
             };
@@ -140,6 +162,7 @@ describe('Server', function () {
         });
 
         it('returns null when no routes are added', function (done) {
+
             var server = new Server('0.0.0.0', 8092);
             var result = server._match('GET', '/test');
 
@@ -148,6 +171,7 @@ describe('Server', function () {
         });
 
         it('returns the route when there is a match', function (done) {
+
             var server = new Server('0.0.0.0', 8092);
             server.addRoute({
                 method: 'GET',
@@ -162,11 +186,12 @@ describe('Server', function () {
         });
     });
 
-
     describe('#start', function () {
 
         it('doesn\'t throw an error', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8088);
                 server.start();
             };
@@ -174,10 +199,10 @@ describe('Server', function () {
             done();
         });
 
-        it('calls the callback when one is used', function(done) {
+        it('calls the callback when one is used', function (done) {
 
             var server = new Server('0.0.0.0', 0);
-            server.start(function() {
+            server.start(function () {
 
                 expect(server.settings.host).to.equal('0.0.0.0');
                 expect(server.settings.port).to.not.equal(0);
@@ -185,10 +210,10 @@ describe('Server', function () {
             });
         });
 
-        it('calls the callback when not using ephemeral port', function(done) {
+        it('calls the callback when not using ephemeral port', function (done) {
 
             var server = new Server('0.0.0.0', 8880);
-            server.start(function(host, port) {
+            server.start(function (host, port) {
 
                 expect(server.settings.host).to.equal('0.0.0.0');
                 expect(server.settings.port).to.equal(8880);
@@ -197,14 +222,16 @@ describe('Server', function () {
         });
     });
 
-
     describe('#stop', function () {
 
         it('doesn\'t throw an error when the server is started', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8089);
 
-                server.start(function() {
+                server.start(function () {
+
                     server.stop();
                     done();
                 });
@@ -213,7 +240,9 @@ describe('Server', function () {
         });
 
         it('throws an error when the server isn\'t started', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8090);
                 server.stop();
             };
@@ -226,7 +255,9 @@ describe('Server', function () {
     describe('#setRoutesDefaults', function () {
 
         it('throws an error when a default handler is provided', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8091);
                 server.setRoutesDefaults({ handler: function () { } });
             };
@@ -235,6 +266,7 @@ describe('Server', function () {
         });
 
         it('changes the value of routeDefaults with the passed in object', function (done) {
+
             var server = new Server('0.0.0.0', 8092);
             server.setRoutesDefaults({ item: true });
             expect(server.routeDefaults.item).to.be.true;
@@ -246,9 +278,10 @@ describe('Server', function () {
     describe('#addRoute', function () {
 
         it('throws an error when a route is passed in that is missing a path', function (done) {
+
             var fn = function () {
-                var route = {
-                };
+
+                var route = {};
                 var server = new Server('0.0.0.0', 8093);
                 server.addRoute(route);
             };
@@ -257,7 +290,9 @@ describe('Server', function () {
         });
 
         it('throws an error when a route is passed in that is missing a method', function (done) {
+
             var fn = function () {
+
                 var route = {
                     path: '/test'
                 };
@@ -269,7 +304,9 @@ describe('Server', function () {
         });
 
         it('throws an error when a route is passed in that is missing a handler', function (done) {
+
             var fn = function () {
+
                 var route = {
                     path: '/test',
                     method: 'put'
@@ -282,6 +319,7 @@ describe('Server', function () {
         });
 
         it('adds route to correct _routes method property', function (done) {
+
             var route = {
                 path: '/test',
                 method: 'put',
@@ -294,12 +332,26 @@ describe('Server', function () {
             expect(server._routes.put[0].path).to.equal('/test');
             done();
         });
+
+        it('throws an error when a new route conflicts with an existing route', function (done) {
+
+            var fn = function () {
+
+                var server = new Server();
+                server.addRoute({ path: '/test/{p}/{p}/end', method: 'put', handler: function () { } });
+                server.addRoute({ path: '/test/{p*2}/end', method: 'put', handler: function () { } });
+            };
+            expect(fn).to.throw(Error);
+            done();
+        });
     });
 
     describe('#addRoutes', function () {
 
         it('throws an error when null routes are passed in', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8097);
                 server.addRoutes(null);
             };
@@ -308,6 +360,7 @@ describe('Server', function () {
         });
 
         it('adds to routes object with the passed in routes values', function (done) {
+
             var routes = [{
                 path: '/test',
                 method: 'put',
@@ -328,7 +381,9 @@ describe('Server', function () {
     describe('#addHelper', function () {
 
         it('throws an error when name is not a string', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8097);
                 server.addHelper(0, function () { });
             };
@@ -337,7 +392,9 @@ describe('Server', function () {
         });
 
         it('throws an error when method is not a function', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8097);
                 server.addHelper('user', 'function');
             };
@@ -346,7 +403,9 @@ describe('Server', function () {
         });
 
         it('throws an error when options is not an object', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8097);
                 server.addHelper('user', function () { }, 'options');
             };
@@ -355,7 +414,9 @@ describe('Server', function () {
         });
 
         it('throws an error when options.generateKey is not a function', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8097);
                 server.addHelper('user', function () { }, { generateKey: 'function' });
             };
@@ -364,7 +425,9 @@ describe('Server', function () {
         });
 
         it('throws an error when options.cache is not valid', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8097, { cache: 'redis' });
                 server.addHelper('user', function () { }, { cache: { mode: 'none', expiresIn: 3000 } });
             };
@@ -373,7 +436,9 @@ describe('Server', function () {
         });
 
         it('throws an error when options.cache is not enabled but server cache is not', function (done) {
+
             var fn = function () {
+
                 var server = new Server('0.0.0.0', 8097);
                 server.addHelper('user', function () { }, { cache: { expiresIn: 3000 } });
             };
