@@ -71,6 +71,11 @@ describe('Response', function () {
         request.reply(file);
     };
 
+    var fileFnHandler = function (request) {
+
+        return './' + request.params.file;
+    };
+
     var directoryHandler = function (request) {
 
         var file = new Hapi.Response.File(__dirname);
@@ -160,6 +165,7 @@ describe('Response', function () {
         { method: 'GET', path: '/directory', handler: directoryHandler },
         { method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } },
         { method: 'GET', path: '/relativestaticfile', handler: { file: './package.json' } },
+        { method: 'GET', path: '/filefn/{file}', handler: { file: fileFnHandler } },
         { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
     ]);
 
@@ -339,6 +345,18 @@ describe('Response', function () {
                 expect(err).to.not.exist;
                 expect(body).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                done();
+            });
+        });
+
+        it('returns a file using the file function handler', function (done) {
+
+            Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(body).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/javascript');
                 expect(res.headers['content-length']).to.exist;
                 done();
             });
