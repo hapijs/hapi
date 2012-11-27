@@ -4,11 +4,12 @@ var expect = require('chai').expect;
 var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
 var Hapi = require(libPath + 'hapi');
 var Zlib = require('zlib');
+var Request = require('request');
 
 
 describe('Payload', function () {
 
-    var server = new Hapi.Server('0.0.0.0', 8080);
+    var server = new Hapi.Server('0.0.0.0', 17080);
     var message = { 'msg': 'This message is going to be gzipped.' };
     var badMessage = '{ this is just wrong }';
 
@@ -18,7 +19,7 @@ describe('Payload', function () {
         config: {
             handler: function (req) {
 
-                req.reply(req.payload)
+                req.reply(req.payload);
             }
         }
     };
@@ -70,7 +71,7 @@ describe('Payload', function () {
             expect(res.result).to.exist;
             expect(res.result).to.deep.equal(message);
             done();
-        });;
+        });
     });
 
     it('returns error if given non-JSON gzipped payload when expecting gzip', function (done) {
@@ -97,5 +98,38 @@ describe('Payload', function () {
             });
         });
     });
-});
 
+    it('returns a gzip response when accept-encoding: gzip is requested', function(done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Zlib.gzip(new Buffer(rawBody), function(err, zippedBody) {
+
+            server.start(function() {
+
+                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function(err, res, body) {
+
+                    expect(body).to.equal(zippedBody.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a gzip response when accept-encoding: deflate,gzip is requested', function(done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Zlib.gzip(new Buffer(rawBody), function(err, zippedBody) {
+
+            server.start(function() {
+
+                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function(err, res, body) {
+
+                    expect(body).to.equal(zippedBody.toString());
+                    done();
+                });
+            });
+        });
+    });
+});
