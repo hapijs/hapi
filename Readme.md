@@ -8,7 +8,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.9.0**
+Current version: **0.9.1**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -25,7 +25,9 @@ Current version: **0.9.0**
 		- [Payload](#payload)
 		- [Extensions](#extensions)
 			- [Unknown Route](#unknown-route)
-		- [Errors](#errors)
+        - [Format](#format)
+          - [Error Format](#error-format)
+          - [Payload Format](#payload-format)
 		- [Monitor](#monitor)
 		- [Authentication](#authentication)
 		- [Cache](#cache)
@@ -42,12 +44,15 @@ Current version: **0.9.0**
 		- [Path Processing](#path-processing)
 			- [Parameters](#parameters)
 		- [Route Handler](#route-handler)
+            - [Response](#response)
+			- [Proxy](#proxy)
+			- [Files](#files)
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
+		- [Path Validation](#path-validation)
 		- [Response Validation](#response-validation)
         - [Caching](#caching)
-        - [Proxy](#proxy)
         - [Route Prerequisites](#route-prerequisites)
 <p></p>
 	- [**Data Validation**](#data-validation)
@@ -117,7 +122,7 @@ var server = new Hapi.Server();
 - [`router`](#router)
 - [`payload`](#payload)
 - [`ext`](#extensions)
-- [`errors`](#Errors)
+- [`errors`](#errors)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
@@ -165,7 +170,7 @@ during request processing. The required extension function signature is _functio
 The extension points are:
 - `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)' methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
 - `onPreHandler` - called after request passes validation and body parsing, before the request handler.
-- `onPostHandler` - called after the request handler, before sending the response.
+- `onPostHandler` - called after the request handler, before sending the response. The actual state of the response depends on the response type used (e.g. direct, stream).
 - `onPostRoute` - called after the response was sent.
 - `onUnknownRoute` - if defined, overrides the default unknown resource (404) error response. The method must send the response manually via _request.raw.res_. Cannot be an array.
 
@@ -245,24 +250,58 @@ function onUnknownRoute(request) {
 }
 ```
 
-### Errors
+### Format
 
-If a different error format than the default JSON response is required, the server `errors.format` option can be assigned a function to generate a
-different error response. The function signature is _'function (result, callback)'_ where:
+The `format` option provides an extension point for use of custom methods to format error responses or payloads before they are sent back to the client.
+
+
+#### Error Format
+
+If a different error format than the default JSON response is required, the server `format.error` option can be assigned a function to generate a
+different error response. The function signature is _'formatted = function (result)'_ where:
 - _'result'_ - is the **hapi** error object returned by the route handler, and
-- _'callback'_ - is a callback function called with the formatted response. The callback function signature is _'function (code, payload, contentType)'_.
+- _'formatted'_ - is the formatted response object which contains the following keys:
+  - _`code`_ - the HTTP status code.
+  - _`payload`_ - the response payload.
+  - _`type`_ - the response payload content-type.
+  - _`headers`_ - any additional response HTTP headers (object).
+
+Note that the format function must be synchronous.
 
 For example:
 ```javascript
 var options = {
-    errors: {
-        format: function (result, callback) {
+    format: {
+        error: function (result) {
         
-            callback(500, 'Oops: ' + result.message, 'text/html');
+            return { code: 500, payload: 'Oops: ' + result.message, type: 'text/html' };
         }
     }
 };
 ```
+
+#### Payload Format
+
+In cases where every non-error payload has to be processed before being sent out (e.g. when returning a database object and need to hide certain fields or
+rename '_id' to 'id'), the `format.payload' option can be set to a function that is called on every result, immediately after 'request.reply' is called. The
+function's signature is _'formatted = function (result)'_ where:
+- _'result'_ - is the raw result object returned by the route handler, and
+- _'formatted'_ - is the formatted response to replace 'result'.
+
+Note that the format function must be synchronous, and it is only invoked for response types other than Stream.
+
+For example:
+```javascript
+var options = {
+    format: {
+        payload: function (result) {
+        
+            return 'something else instead';
+        }
+    }
+};
+```
+
 
 ### Monitor
 
@@ -398,14 +437,18 @@ to write additional text as the configuration itself serves as a living document
 
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
-* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-hander) for more information.
+* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_ or _'file'_ property.
+    * `proxy` - determines if a reverse proxy should be used to handle the request
+    * `file` - determines a file should be served for the route.  This is a string pointing to the full local path of the file.
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
   * `tags` - route tags (array of strings).
   * `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
-  * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to no query parameters allowed. See [Query Validation](#query-validation) for more information.
-  * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+  * `validate`
+    * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to any query parameters being allowed. See [Query Validation](#query-validation) for more information.
+    * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to _'false'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+    * `path` - validation rules for incoming requests' path parameters. Defaults to no validation (any path parameter allowed). Set to _'false'_ to forbid any path parameter. See [Path Validation](#path-validation) for more information.
   * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
   * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
     * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
@@ -420,7 +463,7 @@ to write additional text as the configuration itself serves as a living document
       * _'optional'_ - authentication is optional (validated if present).
     * `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
     * `scope` - required application scope. Defaults to _none_.
-    * `entity` - the required authenticated entity type. Available options include:
+    * `entity` - the required authenticated entity type. Not supported with every authorization scheme. Available options include:
       * _'any'_ - the authentication can be on behalf of a user or application.
       * _'user'_ - the authentication must be on behalf of a user.
       * _'app'_ - the authentication must be on behalf of an application.
@@ -440,7 +483,7 @@ var handler1 = function (request) {
 
 server.addRoute({ method: 'GET', path: '/option1', handler: handler1 });
 
-// Option 2 - add handler in seprate config object
+// Option 2 - add handler in separate config object
 
 var config2 = {
     payload: 'raw',
@@ -493,6 +536,42 @@ function getAlbum(request) {
 }
 ```
 
+In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  If the number of expected parts can be anything, then use the _'*'_ without a number.
+
+```javascript
+server.addRoute({
+    path: '/person/{names*2}',
+    method: 'GET',
+    handler: getPerson
+});
+
+function getPerson(request) {
+
+    var nameParts = request.params.names.split('/');
+    request.reply(new Person(namesParts[0], nameParts[1]));
+}
+```
+
+In the example code above if a request for `/person/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
+
+Below is a similar example without a requirement on the number of name parts that can be passed.
+
+```javascript
+server.addRoute({
+    path: '/people/{names*}',
+    method: 'GET',
+    handler: getPerson
+});
+
+function getPeople(request) {
+
+    var nameParts = request.params.names.split('/');
+    request.reply(loadPeople(namesParts));
+}
+```
+
+In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.  As a result of this behavior, {names*} must appear as the last parameter in the route path.  In other words, a param with 0 or more path parts must appear at the end of the end of the route path.
+
 ### Route Handler
 
 When the provided route handler method is called, it receives a _request_ object with the following properties:
@@ -504,27 +583,79 @@ When the provided route handler method is called, it receives a _request_ object
 - _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
 - _'session'_ - available for authenticated requests and includes:
-    - _'used'_ - user id.
-    - _'app'_ - application id.
-    - _'tos'_ - terms-of-service version.
-    - _'scope'_ - approved application scopes.
+    - _'id'_ - session identifier.
+    - _'used'_ - user id (optional).
+    - _'app'_ - application id (optional).
+    - _'scope'_ - approved application scopes (optional).
+    - _'ext.tos'_ - terms-of-service version (optional).
 - _'server'_ - a reference to the server object.
+- _'pre'_ - any requisites as described in [Prequisites](#prequisites).
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
-- _'response'_ - contains the route handler's response after the handler is called. **Direct interaction with this raw objects is not recommended.**
 
-The request object is also decorated with a _'reply'_ property which includes the following methods:
-- _'send([result])'_ - replies to the resource request with result - an object (sent as JSON), a string (sent as HTML), or an error generated using the 'Hapi.error' module described in [Errors](#errors). If no result is provided, an empty response body is sent. Calling _'send([result])'_ returns control over to the router.
-- _'pipe(stream)'_ - pipes the content of the stream into the response. Calling _'pipe([stream])'_ returns control over to the router.
+#### Response
+
+**hapi** provides native support for the following response types:
+- Empty - an empty response body (content-lenght of zero).
+- Text - plain text. Defaults to 'text/html' content-type.
+- Obj - Javascript object, converted to string. Defaults to 'application/json' content-type.
+- Stream - a stream object, directly piped into the HTTP response.
+- File - transmits a static file. Defaults to the matching mime type based on filename extension.
+- Direct - special response type for writing directly to the response object. Used for chunked responses.
+- Error - error objects generated using the 'Hapi.error' module or 'new Error()' described in [Response Errors](#response-errors).
+
+The request object includes a _'reply'_ property which includes the following methods:
+- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The mehtod will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
+- _'stream(stream)'_ - pipes the content of the stream into the response.
+- _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
+
+For convenience, the 'response' object is also decorated with a shortcut function _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_.
+
+The 'payload()' and 'stream()' methods return a **hapi** Response object created based on the result item provided.
+Depending on the response type, additional chainable methods are available:
 - _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI).
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
 - _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
 
-In addition, the _'reply([result])'_ shortcut is provided which is identical to calling _'reply.send([result])'_.
-
-The handler must call _'reply()'_, _'reply.send()'_, or _'reply.pipe()'_ (and only one, once) to return control over to the router. The helper methods are only available
+The handler must call _'reply()'_, _'reply.send()'_, or _'reply.payload/stream()...send()'_ (and only one, once) to return control over to the router. The reply methods are only available
 within the route handler and are disabled as soon as control is returned.
+
+#### Proxy
+
+It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
+* `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
+* `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
+* `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
+* `port` - The port to use when making a request to the host.
+* `protocol` - The protocol to use when making a request to the proxied host (http or https)
+* `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
+* `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
+
+For example, to proxy a request to the homepage to google:
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Proxy request to / to google.com
+http.addRoute({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
+
+http.start();
+```
+
+#### Files
+
+It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
+
+```javascript
+// Create Hapi servers
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve index.html file up a directory in the public folder
+http.addRoute({ method: 'GET', path: '/', handler: { file: __dirname + '/../public/index.html' } });
+
+http.start();
+```
 
 #### Request Logging
 
@@ -574,16 +705,25 @@ When a request URI includes a query component (the key-value part of the URI bet
 key-value pairs (see [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
 'request.query'.
 
-The route `config.query` defines the query validation rules performed before the route handler is invoked. Supported values:
-- _'false'_ or _'null'_ - no query parameters allowed. This is the default.
-- _'true'_ - any query parameters allowed (no validation performed).
+The route `config.validate.query` defines the query validation rules performed before the route handler is invoked. Supported values:
+- _'true'_ or _'{}'_ - any query parameters allowed (no validation performed).  This is the default.
+- _'false'_ - no query parameters allowed.
 - a validation rules object as described in [Data Validation](#data-validation).
 
 ### Payload Validation
 
-The route `config.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
-- _'null'_ - any payload allowed (no validation performed). This is the default.
-- _'false'_ or _'{}'_ - no payload allowed.
+The route `config.validate.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
+- _'true'_ or _'{}'_ - any payload allowed (no validation performed). This is the default.
+- _'false'_ - no payload allowed.
+- a validation rules object as described in [Data Validation](#data-validation).
+
+### Path Validation
+
+When a request comes in for a route that allows for path parameters the request is path parameters are parsed into request.params.
+
+The route `config.validate.path` defines the path validation rules performed before the route handler is invoked. Supported values:
+- _'true'_ or _'{}'_ - any path parameters allowed (no validation performed).  This is the default.
+- _'false'_ - no path variables allowed.
 - a validation rules object as described in [Data Validation](#data-validation).
 
 ### Response Validation
@@ -618,27 +758,6 @@ For example, to configure a route to be cached on the client and to expire after
 The server-side cache also supports these advanced options:
 * `staleIn` - number of milliseconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400000 milliseconds (one day) if using `expiresAt` or less than the value of `expiresIn`. Used together with `staleTimeout`.
 * `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
-
-### Proxy
-
-It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
-* `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
-* `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
-* `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
-* `port` - The port to use when making a request to the host.
-* `protocol` - The protocol to use when making a request to the proxied host (http or https)
-* `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
-* `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
-
-For example, to proxy a request to the homepage to google:
-```javascript
-// Create Hapi servers
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-// Proxy request to / to google.com
-http.addRoute({ method: 'GET', path: '/', config: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
-
-http.start();
 
 ### Prequisites
 

@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP API Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors":[
     "Van Nguyen <the.gol.effect@gmail.com>",
@@ -27,15 +27,15 @@
     "oz": "0.0.x",
     "request": "2.11.x",
     "redis": "0.8.x",
-    "ws": "0.4.x",
     "shot": "0.0.x",
-    "handlebars": "1.0.x",
     "mongodb": "1.1.x",
-    "multipart-parser": "0.x.x"
+    "multipart-parser": "0.x.x",
+    "lout": "0.x.x",
+    "hapi-helmet": "0.x.x",
+    "mime": "~1.2.7"
   },
   "devDependencies": {
     "mocha": "1.x.x",
-    "should": "1.x.x",
     "sinon": "1.3.4",
     "chai": "1.2.x"
   },
