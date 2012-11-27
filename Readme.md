@@ -8,7 +8,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.9.0**
+Current version: **0.9.1**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -535,6 +535,42 @@ function getAlbum(request) {
                   request.params.album);
 }
 ```
+
+In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  If the number of expected parts can be anything, then use the _'*'_ without a number.
+
+```javascript
+server.addRoute({
+    path: '/person/{names*2}',
+    method: 'GET',
+    handler: getPerson
+});
+
+function getPerson(request) {
+
+    var nameParts = request.params.names.split('/');
+    request.reply(new Person(namesParts[0], nameParts[1]));
+}
+```
+
+In the example code above if a request for `/person/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
+
+Below is a similar example without a requirement on the number of name parts that can be passed.
+
+```javascript
+server.addRoute({
+    path: '/people/{names*}',
+    method: 'GET',
+    handler: getPerson
+});
+
+function getPeople(request) {
+
+    var nameParts = request.params.names.split('/');
+    request.reply(loadPeople(namesParts));
+}
+```
+
+In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.  As a result of this behavior, {names*} must appear as the last parameter in the route path.  In other words, a param with 0 or more path parts must appear at the end of the end of the route path.
 
 ### Route Handler
 

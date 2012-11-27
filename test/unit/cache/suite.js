@@ -1,6 +1,6 @@
 // Load modules
 
-var libPath = process.env.TEST_COV ? '../lib-cov/' : '../lib/';
+var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Server = require(libPath + 'server');
 var Net = require('net');
 var Async = require('async');
