@@ -47,6 +47,7 @@ Current version: **0.9.1**
             - [Response](#response)
 			- [Proxy](#proxy)
 			- [Files](#files)
+			- [Directory](#directory)
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
@@ -648,14 +649,34 @@ http.start();
 It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
 
 ```javascript
-// Create Hapi servers
+// Create Hapi server
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve index.html file up a directory in the public folder
-http.addRoute({ method: 'GET', path: '/', handler: { file: __dirname + '/../public/index.html' } });
+http.addRoute({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
 
 http.start();
 ```
+
+#### Directory
+
+An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.  The following example shows how to serve a directory named 'public' and enable a directory listing in the case that a 'index.html' file doesn't exist.
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve the public folder with listing enabled
+http.addRoute({ method: 'GET', path: '/', handler: { directory: { path: './public/', listing: true } });
+
+http.start();
+```
+
+The directory can be an object, a string pointing to a path, or a function that takes a request and returns a path.  Below are the options directory is set to an object.
+
+* `listing` - determines if directory listing is enabled (default false)
+* `index` - determines if index.html will be served by default if it exists in the folder (default true)
+* `path` - the folder path to serve.  Optionally, this can be set to a function (`function(request)`) that returns a path
 
 #### Request Logging
 
