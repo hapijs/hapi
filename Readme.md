@@ -605,7 +605,7 @@ When the provided route handler method is called, it receives a _request_ object
 - Error - error objects generated using the 'Hapi.error' module or 'new Error()' described in [Response Errors](#response-errors).
 
 The request object includes a _'reply'_ property which includes the following methods:
-- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The mehtod will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
+- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The method will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
 - _'stream(stream)'_ - pipes the content of the stream into the response.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
 
