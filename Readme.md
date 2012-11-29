@@ -672,7 +672,7 @@ http.addRoute({ method: 'GET', path: '/', handler: { directory: { path: './publi
 http.start();
 ```
 
-The directory can be an object, a string pointing to a path, or a function that takes a request and returns a path.  Below are the options directory is set to an object.
+The directory can be an object, a string pointing to a path, or a function that takes a request and returns a path.  Below are the options that are available when directory is an object.
 
 * `listing` - determines if directory listing is enabled (default false)
 * `index` - determines if index.html will be served by default if it exists in the folder (default true)
