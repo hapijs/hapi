@@ -536,7 +536,7 @@ function getAlbum(request) {
 }
 ```
 
-In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  Below is an example demonstrating this:
+In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  If the number of expected parts can be anything, then use the _'*'_ without a number.
 
 ```javascript
 server.addRoute({
@@ -553,6 +553,24 @@ function getPerson(request) {
 ```
 
 In the example code above if a request for `/person/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
+
+Below is a similar example without a requirement on the number of name parts that can be passed.
+
+```javascript
+server.addRoute({
+    path: '/people/{names*}',
+    method: 'GET',
+    handler: getPerson
+});
+
+function getPeople(request) {
+
+    var nameParts = request.params.names.split('/');
+    request.reply(loadPeople(namesParts));
+}
+```
+
+In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.  As a result of this behavior, {names*} must appear as the last parameter in the route path.  In other words, a param with 0 or more path parts must appear at the end of the end of the route path.
 
 ### Route Handler
 
@@ -587,7 +605,7 @@ When the provided route handler method is called, it receives a _request_ object
 - Error - error objects generated using the 'Hapi.error' module or 'new Error()' described in [Response Errors](#response-errors).
 
 The request object includes a _'reply'_ property which includes the following methods:
-- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The mehtod will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
+- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The method will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
 - _'stream(stream)'_ - pipes the content of the stream into the response.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
 

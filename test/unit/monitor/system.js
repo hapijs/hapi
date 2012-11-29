@@ -116,31 +116,38 @@ describe('System Monitor', function() {
             });
         });
 
-        it('returns cpu usage delta from stat file', function(done) {
+    //     it.skip('returns cpu usage delta from stat file', function(done) {
 
-            var pollStub = Sinon.stub(SystemMonitor.Monitor.prototype, 'poll_cpu', function(target, callback) {
+    //         var isCalled = false;
+    //         var pollStub = Sinon.stub(SystemMonitor.Monitor.prototype, 'poll_cpu', function(target, callback) {
 
-                return callback(null, {
-                    idle: 1,
-                    total: 2
-                });
-            });
+    //             if (isCalled) {
+    //                 return callback(null, {
+    //                     idle: 3,
+    //                     total: 4
+    //                 });
+    //             }
+    //             else {
+    //                 isCalled = true;
+    //                 return callback(null, {
+    //                     idle: 1,
+    //                     total: 6
+    //                 });
+    //             }
+    //         });
 
-            var monitor = new SystemMonitor.Monitor();
-            var platform = process.platform;
-            process.platform = 'linux';
+    //         var monitor = new SystemMonitor.Monitor();
+    //         var platform = process.platform;
+    //         process.platform = 'linux';
 
-            monitor.cpu('cpu0', function(err, stats) {
+    //         monitor.cpu('cpu0', function(err, stats) {
 
-                pollStub.restore();
-                process.platform = platform;
-                console.log(stats);
-                //done();
-            });
-
-            pollStub.restore();
-            done();
-        });
+    //             pollStub.restore();
+    //             process.platform = platform;
+    //             expect(stats).to.equal('200.00');
+    //             done();
+    //         });
+    //     });
     });
 
     describe('#disk', function() {
