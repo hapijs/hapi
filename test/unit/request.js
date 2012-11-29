@@ -184,4 +184,52 @@ describe('Request', function () {
             done();
         });
     });
+
+    describe('path normalization', function () {
+
+        it('doesn\'t normalize a path when normalization is disabled', function (done) {
+
+            var request = new Request(server, _req, _res);
+            var url = 'http://localhost/%2dpage?param1=something';
+            request._setUrl(url);
+
+            expect(request.url).to.exist;
+            expect(request.url.href).to.equal(url);
+            expect(request.path).to.equal('/%2dpage');
+            expect(request.query.param1).to.equal('something');
+            done();
+        });
+
+        it('normalizes a path when normalization is enabled', function (done) {
+
+            var normalizedServer = { settings: Defaults.server };
+            normalizedServer.settings.router.normalizeRequestPath = true;
+
+            var request = new Request(normalizedServer, _req, _res);
+            var url = 'http://localhost/%2dpage?param1=something';
+            request._setUrl(url);
+
+            expect(request.url).to.exist;
+            expect(request.url.href).to.equal(url);
+            expect(request.path).to.equal('/-page');
+            expect(request.query.param1).to.equal('something');
+            done();
+        });
+
+        it('doesn\'t decode reserved characters but uppercases them', function (done) {
+
+            var normalizedServer = { settings: Defaults.server };
+            normalizedServer.settings.router.normalizeRequestPath = true;
+
+            var request = new Request(normalizedServer, _req, _res);
+            var url = 'http://localhost/%2d%21%2apage?param1=something';
+            request._setUrl(url);
+
+            expect(request.url).to.exist;
+            expect(request.url.href).to.equal(url);
+            expect(request.path).to.equal('/-%21%2Apage');
+            expect(request.query.param1).to.equal('something');
+            done();
+        });
+    });
 });
