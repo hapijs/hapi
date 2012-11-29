@@ -453,13 +453,13 @@
   
   var user = { name: 'john', email: 'john@example.com' };
   var empty = {};
-  var callback = functio () { };
+  var callback = function () { };
 
   // Wrong
 
   var user = {name: 'john', email: 'john@example.com'};
   var empty = {  };
-  var callback = functio () {};
+  var callback = function () {};
   ```
   
   - No space after `[` and before `]` in inlined arrays
