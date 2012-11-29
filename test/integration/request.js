@@ -1,7 +1,6 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Sinon = require('sinon');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 
 

@@ -1,7 +1,6 @@
 // Load modules
 
 var expect = require('chai').expect;
-var Sinon = require('sinon');
 var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Monitor = require(libPath + 'monitor/index');
 var OSMonitor = require(libPath + 'monitor/system');
