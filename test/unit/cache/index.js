@@ -1,15 +1,22 @@
 // Load modules
 
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
-var Cache = require(libPath + 'cache/index');
-var Server = require(libPath + 'server');
-var Defaults = require(libPath + 'defaults');
-var Log = require(libPath + 'log');
-var Sinon = require('sinon');
+var Chai = require('chai');
+var Hapi = process.env.TEST_COV ? require('../../../lib-cov/hapi') : require('../../../lib/hapi');
+var Defaults = process.env.TEST_COV ? require('../../../lib-cov/defaults') : require('../../../lib/defaults');
+var Cache = process.env.TEST_COV ? require('../../../lib-cov/cache/index') : require('../../../lib/cache/index');
 
 
-require('./suite')(function (useRedis, useMongo) {
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
+
+describe('Cache', function () {
 
     var key = { id: 'x', segment: 'test' };
 
@@ -29,241 +36,244 @@ require('./suite')(function (useRedis, useMongo) {
             done();
         });
 
-        var testEngine = function (engine) {
+        require('./suite')(function (useRedis, useMongo) {
 
-            var clientStart = function (next) {
+            var testEngine = function (engine) {
 
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.start(function (err) {
+                var clientStart = function (next) {
 
-                    next(err, client);
+                    var client = new Cache.Client(Defaults.cache(engine));
+                    client.start(function (err) {
+
+                        next(err, client);
+                    });
+                };
+
+                it('creates a new connection using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        expect(client.isReady()).to.equal(true);
+                        done();
+                    });
+                });
+
+                it('closes the connection using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        expect(client.isReady()).to.equal(true);
+                        client.stop();
+                        expect(client.isReady()).to.equal(false);
+                        done();
+                    });
+                });
+
+                it('ignored starting a connection twice on same event using ' + engine, function (done) {
+
+                    var client = new Cache.Client(Defaults.cache(engine));
+                    var x = 2;
+                    var start = function () {
+
+                        client.start(function (err) {
+
+                            expect(client.isReady()).to.equal(true);
+                            --x;
+                            if (!x) {
+                                done();
+                            }
+                        });
+                    };
+
+                    start();
+                    start();
+                });
+
+                it('ignored starting a connection twice chained using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        expect(err).to.not.exist;
+                        expect(client.isReady()).to.equal(true);
+
+                        client.start(function (err) {
+
+                            expect(err).to.not.exist;
+                            expect(client.isReady()).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns not found on get when using null key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.get(null, function (err, result) {
+
+                            expect(err).to.equal(null);
+                            expect(result).to.equal(null);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on set when using null key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.set(null, {}, 1000, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on get when using invalid key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.get({}, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on drop when using invalid key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.drop({}, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on set when using invalid key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.set({}, {}, 1000, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('ignores set when using non-positive ttl value using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.set(key, 'y', 0, function (err) {
+
+                            expect(err).to.not.exist;
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on drop when using null key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.drop(null, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on get when stopped using ' + engine, function (done) {
+
+                    var client = new Cache.Client(Defaults.cache(engine));
+                    client.stop();
+                    client.connection.get(key, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(result).to.not.exist;
+                        done();
+                    });
+                });
+
+                it('returns error on set when stopped using ' + engine, function (done) {
+
+                    var client = new Cache.Client(Defaults.cache(engine));
+                    client.stop();
+                    client.connection.set(key, 'y', 1, function (err) {
+
+                        expect(err).to.exist;
+                        done();
+                    });
+                });
+
+                it('returns error on drop when stopped using ' + engine, function (done) {
+
+                    var client = new Cache.Client(Defaults.cache(engine));
+                    client.stop();
+                    client.connection.drop(key, function (err) {
+
+                        expect(err).to.exist;
+                        done();
+                    });
+                });
+
+                it('returns error on missing segment name using ' + engine, function (done) {
+
+                    var config = {
+                        expiresIn: 50000,
+                        segment: ''
+                    };
+                    var fn = function () {
+                        var client = new Cache.Client(Defaults.cache(engine));
+                        var cache = new Cache.Policy(config, client);
+                    };
+                    expect(fn).to.throw(Error);
+                    done();
+                });
+
+                it('returns error on bad segment name using ' + engine, function (done) {
+
+                    var config = {
+                        expiresIn: 50000,
+                        segment: 'a\0b'
+                    };
+                    var fn = function () {
+                        var client = new Cache.Client(Defaults.cache(engine));
+                        var cache = new Cache.Policy(config, client);
+                    };
+                    expect(fn).to.throw(Error);
+                    done();
+                });
+
+                it('returns error when cache item dropped while stopped using ' + engine, function (done) {
+
+                    var client = new Cache.Client(Defaults.cache(engine));
+                    client.stop();
+                    client.drop('a', function (err) {
+
+                        expect(err).to.exist;
+                        done();
+                    });
                 });
             };
 
-            it('creates a new connection using ' + engine, function (done) {
+            testEngine('memory');
 
-                clientStart(function (err, client) {
+            if (useMongo) {
+                testEngine('mongodb');
+            }
 
-                    expect(client.isReady()).to.equal(true);
-                    done();
-                });
-            });
-
-            it('closes the connection using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    expect(client.isReady()).to.equal(true);
-                    client.stop();
-                    expect(client.isReady()).to.equal(false);
-                    done();
-                });
-            });
-
-            it('ignored starting a connection twice on same event using ' + engine, function (done) {
-
-                var client = new Cache.Client(Defaults.cache(engine));
-                var x = 2;
-                var start = function () {
-
-                    client.start(function (err) {
-
-                        expect(client.isReady()).to.equal(true);
-                        --x;
-                        if (!x) {
-                            done();
-                        }
-                    });
-                };
-
-                start();
-                start();
-            });
-
-            it('ignored starting a connection twice chained using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    expect(err).to.not.exist;
-                    expect(client.isReady()).to.equal(true);
-
-                    client.start(function (err) {
-
-                        expect(err).to.not.exist;
-                        expect(client.isReady()).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns not found on get when using null key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.get(null, function (err, result) {
-
-                        expect(err).to.equal(null);
-                        expect(result).to.equal(null);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on set when using null key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.set(null, {}, 1000, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on get when using invalid key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.get({}, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on drop when using invalid key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.drop({}, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on set when using invalid key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.set({}, {}, 1000, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('ignores set when using non-positive ttl value using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.set(key, 'y', 0, function (err) {
-
-                        expect(err).to.not.exist;
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on drop when using null key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.drop(null, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on get when stopped using ' + engine, function (done) {
-
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.stop();
-                client.connection.get(key, function (err, result) {
-
-                    expect(err).to.exist;
-                    expect(result).to.not.exist;
-                    done();
-                });
-            });
-
-            it('returns error on set when stopped using ' + engine, function (done) {
-
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.stop();
-                client.connection.set(key, 'y', 1, function (err) {
-
-                    expect(err).to.exist;
-                    done();
-                });
-            });
-
-            it('returns error on drop when stopped using ' + engine, function (done) {
-
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.stop();
-                client.connection.drop(key, function (err) {
-
-                    expect(err).to.exist;
-                    done();
-                });
-            });
-
-            it('returns error on missing segment name using ' + engine, function (done) {
-
-                var config = {
-                    expiresIn: 50000,
-                    segment: ''
-                };
-                var fn = function () {
-                    var client = new Cache.Client(Defaults.cache(engine));
-                    var cache = new Cache.Policy(config, client);
-                };
-                expect(fn).to.throw(Error);
-                done();
-            });
-
-            it('returns error on bad segment name using ' + engine, function (done) {
-
-                var config = {
-                    expiresIn: 50000,
-                    segment: 'a\0b'
-                };
-                var fn = function () {
-                    var client = new Cache.Client(Defaults.cache(engine));
-                    var cache = new Cache.Policy(config, client);
-                };
-                expect(fn).to.throw(Error);
-                done();
-            });
-
-            it('returns error when cache item dropped while stopped using ' + engine, function (done) {
-
-                var client = new Cache.Client(Defaults.cache(engine));
-                client.stop();
-                client.drop('a', function (err) {
-
-                    expect(err).to.exist;
-                    done();
-                });
-            });
-        };
-
-        testEngine('memory');
-
-        if (useMongo) {
-            testEngine('mongodb');
-        }
-
-        if (useRedis) {
-            testEngine('redis');
-        }
+            if (useRedis) {
+                testEngine('redis');
+            }
+        });
 
         // Error engine
 
@@ -302,7 +312,7 @@ require('./suite')(function (useRedis, useMongo) {
 
         it('logs an error when fails to start on bad connection', function (done) {
 
-            Log.once('log', function (event) {
+            Hapi.log.once('log', function (event) {
                 expect(event).to.exist;
                 expect(event.tags).to.exist;
                 expect(event.tags[0]).to.equal('cache');
@@ -371,7 +381,7 @@ require('./suite')(function (useRedis, useMongo) {
         });
     });
 
-    describe('Cache Rules', function () {
+    describe('Rules', function () {
 
         describe('#compile', function () {
 
@@ -910,212 +920,6 @@ require('./suite')(function (useRedis, useMongo) {
                 var ttl = Cache.ttl(rule, created);
                 expect(ttl).to.be.closeTo(60 * 60 * 1000, 60 * 60 * 1000);
                 done();
-            });
-        });
-    });
-
-    describe('Stale', function () {
-
-        it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
-
-            var options = {
-                cache: {
-                    expiresIn: 100,
-                    staleIn: 20,
-                    staleTimeout: 5
-                }
-            };
-
-            var gen = 0;
-            var method = function (id, next) {
-
-                setTimeout(function () {
-
-                    return next({ id: id, gen: ++gen });
-                }, 6);
-            };
-
-            var server = new Server('0.0.0.0', 8097, { cache: 'memory' });
-            server.addHelper('user', method, options);
-
-            var id = Math.random();
-            server.helpers.user(id, function (result1) {
-
-                expect(result1.gen).to.equal(1);     // Fresh
-                setTimeout(function () {
-
-                    server.helpers.user(id, function (result2) {
-
-                        expect(result2.gen).to.equal(1);     // Stale
-                        setTimeout(function () {
-
-                            server.helpers.user(id, function (result3) {
-
-                                expect(result3.gen).to.equal(2);     // Fresh
-                                done();
-                            });
-                        }, 3);
-                    });
-                }, 21);
-            });
-        });
-
-        it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
-
-            var options = {
-                cache: {
-                    expiresIn: 100,
-                    staleIn: 20,
-                    staleTimeout: 5
-                }
-            };
-
-            var gen = 0;
-            var method = function (id, next) {
-
-                setTimeout(function () {
-
-                    if (gen !== 1) {
-                        return next({ id: id, gen: ++gen });
-                    }
-                    else {
-                        ++gen;
-                        return next(new Error());
-                    }
-                }, 6);
-            };
-
-            var server = new Server('0.0.0.0', 8097, { cache: 'memory' });
-            server.addHelper('user', method, options);
-
-            var id = Math.random();
-            server.helpers.user(id, function (result1) {
-
-                expect(result1.gen).to.equal(1);     // Fresh
-                setTimeout(function () {
-
-                    server.helpers.user(id, function (result2) {
-
-                        // Generates a new one in background which will produce Error and clear the cache
-
-                        if (result2.gen !== undefined) {
-                            expect(result2.gen).to.equal(1);     // Stale
-                        }
-
-                        setTimeout(function () {
-
-                            server.helpers.user(id, function (result3) {
-
-                                expect(result3.gen).to.equal(3);     // Fresh
-                                done();
-                            });
-                        }, 3);
-                    });
-                }, 21);
-            });
-        });
-
-        it('returns fresh object calling a helper using the cache with stale config', function (done) {
-
-            var options = {
-                cache: {
-                    expiresIn: 100,
-                    staleIn: 20,
-                    staleTimeout: 10
-                }
-            };
-
-            var gen = 0;
-            var method = function (id, next) {
-
-                return next({ id: id, gen: ++gen });
-            };
-
-            var server = new Server('0.0.0.0', 8097, { cache: 'memory' });
-            server.addHelper('user', method, options);
-
-            var id = Math.random();
-            server.helpers.user(id, function (result1) {
-
-                expect(result1.gen).to.equal(1);     // Fresh
-                setTimeout(function () {
-
-                    server.helpers.user(id, function (result2) {
-
-                        expect(result2.gen).to.equal(2);     // Fresh
-
-                        setTimeout(function () {
-
-                            server.helpers.user(id, function (result3) {
-
-                                expect(result3.gen).to.equal(2);     // Fresh
-                                done();
-                            });
-                        }, 1);
-                    });
-                }, 21);
-            });
-        });
-
-        it('returns a valid result when calling a helper using the cache with bad cache connection', function (done) {
-
-            var server = new Server('0.0.0.0', 8097, { cache: 'memory' });
-            server.cache.stop();
-            var gen = 0;
-            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
-            var id = Math.random();
-            server.helpers.user(id, function (result1) {
-
-                expect(result1.id).to.equal(id);
-                expect(result1.gen).to.equal(1);
-                server.helpers.user(id, function (result2) {
-
-                    expect(result2.id).to.equal(id);
-                    expect(result2.gen).to.equal(2);
-                    done();
-                });
-            });
-        });
-
-        it('returns error when calling a helper using the cache with stale config when arrives within stale timeout', function (done) {
-
-            var options = {
-                cache: {
-                    expiresIn: 30,
-                    staleIn: 20,
-                    staleTimeout: 5
-                }
-            };
-
-            var gen = 0;
-            var method = function (id, next) {
-
-                if (gen !== 1) {
-                    return next({ id: id, gen: ++gen });
-                }
-                else {
-                    ++gen;
-                    return next(new Error());
-                }
-            };
-
-            var server = new Server('0.0.0.0', 8097, { cache: 'memory' });
-            server.addHelper('user', method, options);
-
-            var id = Math.random();
-            server.helpers.user(id, function (result1) {
-
-                expect(result1.gen).to.equal(1);     // Fresh
-                setTimeout(function () {
-
-                    server.helpers.user(id, function (result2) {
-
-                        // Generates a new one which will produce Error
-
-                        expect(result2).to.instanceof(Error);     // Stale
-                        done();
-                    });
-                }, 21);
             });
         });
     });
