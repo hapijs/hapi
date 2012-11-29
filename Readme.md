@@ -660,14 +660,14 @@ http.start();
 
 #### Directory
 
-An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.  The following example shows how to serve a directory named 'public' and enable a directory listing in the case that a 'index.html' file doesn't exist.
+An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.  The following example shows how to serve a directory named _'public'_ and enable a directory listing in the case that a 'index.html' file doesn't exist.
 
 ```javascript
 // Create Hapi server
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/', handler: { directory: { path: './public/', listing: true } });
+http.addRoute({ method: 'GET', path: '/{path}', handler: { directory: { path: './public/', listing: true } });
 
 http.start();
 ```
@@ -677,6 +677,42 @@ The directory can be an object, a string pointing to a path, or a function that 
 * `listing` - determines if directory listing is enabled (default false)
 * `index` - determines if index.html will be served by default if it exists in the folder (default true)
 * `path` - the folder path to serve.  Optionally, this can be set to a function (`function(request)`) that returns a path
+
+Below is an example of serving a directory from a path and using the configuration defaults.  The all of the files in the _'public'_ folder and subfolders will be accessible.  If public has an _'index.html'_ file then it will be served when navigating to the root URL.
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve the public folder with listing enabled
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: './public/' } });
+
+http.start();
+```
+
+A directory handler is also capable of being set to a function that returns a path to serve.  This is useful for using the same route but serving different folders.  Below is an example of how this can look:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve the public folder with listing enabled
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: serveDirectory } });
+
+function serveDirectory(request) {
+
+    if (isMobileDevice(request)) {
+        return './mobile';
+    }
+    else {
+        return './public';
+    }
+}
+
+http.start();
+```
+
+When serving a directory the route path must contain a parameter named _'path'_ that will be set to the requested file within the directory.  This parameter can use all of the options available to other path parameters.  For example, if the server should only serve files in the top level folder and not to any subfolder use _'{path?}'_.  If it is safe to navigate to child folders and files then use '_{path*}'_.  Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_ or similar.
 
 #### Request Logging
 
