@@ -33,7 +33,7 @@
     "lout": "0.x.x",
     "hapi-helmet": "0.x.x",
     "mime": "~1.2.7",
-    "hawk": "0.x.x"
+    "hawk": "0.0.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",

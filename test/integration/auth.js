@@ -498,6 +498,29 @@ describe('Auth', function () {
                 done();
             });
         });
+
+        it('returns a reply on successful auth when using a custom host header key', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk'), custom: '0.0.0.0:8080' } };
+
+            var config = {
+                auth: {
+                    scheme: 'hawk',
+                    getCredentialsFunc: getCredentials,
+                    hostHeaderKey: 'custom'
+                }
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            server.addRoute({ method: 'POST', path: '/hawk', handler: hawkHandler });
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
     });
 
     describe('Ext', function () {
