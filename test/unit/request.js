@@ -4,7 +4,6 @@ var Chai = require('chai');
 var Shot = require('shot');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 var Request = process.env.TEST_COV ? require('../../lib-cov/request') : require('../../lib/request');
-var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
 
 
 // Declare internals
@@ -19,7 +18,7 @@ var expect = Chai.expect;
 
 describe('Request', function () {
 
-    var server = { settings: Defaults.server };
+    var server = new Hapi.server('0.0.0.0', 18888);
 
     var _req = null;
     var _res = null;
@@ -202,8 +201,12 @@ describe('Request', function () {
 
         it('normalizes a path when normalization is enabled', function (done) {
 
-            var normalizedServer = { settings: Defaults.server };
-            normalizedServer.settings.router.normalizeRequestPath = true;
+            var options = {
+                router: {
+                    normalizeRequestPath: true
+                }
+            };
+            var normalizedServer = new Hapi.server('0.0.0.0', 18888, options);
 
             var request = new Request(normalizedServer, _req, _res);
             var url = 'http://localhost/%2dpage?param1=something';
@@ -218,8 +221,12 @@ describe('Request', function () {
 
         it('doesn\'t decode reserved characters but uppercases them', function (done) {
 
-            var normalizedServer = { settings: Defaults.server };
-            normalizedServer.settings.router.normalizeRequestPath = true;
+            var options = {
+                router: {
+                    normalizeRequestPath: true
+                }
+            };
+            var normalizedServer = new Hapi.server('0.0.0.0', 18888, options);
 
             var request = new Request(normalizedServer, _req, _res);
             var url = 'http://localhost/%2d%21%2apage?param1=something';
