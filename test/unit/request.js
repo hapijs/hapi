@@ -209,17 +209,17 @@ describe('Request', function () {
             var normalizedServer = new Hapi.server('0.0.0.0', 18888, options);
 
             var request = new Request(normalizedServer, _req, _res);
-            var url = 'http://localhost/%2dpage?param1=something';
+            var url = 'http://localhost/%2d%2apage?param1=something';
             request._setUrl(url);
 
             expect(request.url).to.exist;
             expect(request.url.href).to.equal(url);
-            expect(request.path).to.equal('/-page');
+            expect(request.path).to.equal('/%2D*page');
             expect(request.query.param1).to.equal('something');
             done();
         });
 
-        it('doesn\'t decode reserved characters but uppercases them', function (done) {
+        it('decodes certain reserved characters only', function (done) {
 
             var options = {
                 router: {
@@ -234,8 +234,27 @@ describe('Request', function () {
 
             expect(request.url).to.exist;
             expect(request.url.href).to.equal(url);
-            expect(request.path).to.equal('/-%21%2Apage');
+            expect(request.path).to.equal('/%2D!*page');
             expect(request.query.param1).to.equal('something');
+            done();
+        });
+
+        it('returns decoded unreserved characters', function (done) {
+
+            var options = {
+                router: {
+                    normalizeRequestPath: true
+                }
+            };
+            var normalizedServer = new Hapi.server('0.0.0.0', 18888, options);
+
+            var request = new Request(normalizedServer, _req, _res);
+            var url = 'http://localhost/%4d%4e%5E';
+            request._setUrl(url);
+
+            expect(request.url).to.exist;
+            expect(request.url.href).to.equal(url);
+            expect(request.path).to.equal('/MN%5E');
             done();
         });
     });
