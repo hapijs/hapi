@@ -3,182 +3,139 @@ var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Scheme = require(libPath + 'auth/oz').Scheme;
 var Oz = require('oz');
 
-describe('Oz Scheme', function() {
 
-    describe('#constructor', function() {
+describe('Auth', function () {
 
-        it('throws an error when constructed without new', function(done) {
+    describe('Oz', function () {
 
-            var fn = function() {
+        describe('#constructor', function () {
 
-                var scheme = Scheme();
-            };
+            it('throws an error when constructed without new', function (done) {
 
-            expect(fn).to.throw(Error);
-            done();
-        });
+                var fn = function () {
 
-        it('throws an error when constructed without options', function(done) {
+                    var scheme = Scheme();
+                };
 
-            var fn = function() {
+                expect(fn).to.throw(Error);
+                done();
+            });
 
-                var scheme = new Scheme(null);
-            };
+            it('throws an error when constructed without options', function (done) {
 
-            expect(fn).to.throw(Error, 'Invalid options');
-            done();
-        });
+                var fn = function () {
 
-        it('throws an error when constructed without oz scheme', function(done) {
+                    var scheme = new Scheme(null);
+                };
 
-            var fn = function() {
+                expect(fn).to.throw(Error, 'Invalid options');
+                done();
+            });
 
-                var scheme = new Scheme(null, {scheme: 'notOz'});
-            };
+            it('throws an error when constructed without oz scheme', function (done) {
 
-            expect(fn).to.throw(Error, 'Wrong scheme');
-            done();
-        });
+                var fn = function () {
 
-        it('throws an error when constructed without encryption password', function(done) {
+                    var scheme = new Scheme(null, { scheme: 'notOz' });
+                };
 
-            var fn = function() {
+                expect(fn).to.throw(Error, 'Wrong scheme');
+                done();
+            });
 
-                var scheme = new Scheme(null, {scheme: 'oz'});
-            };
+            it('throws an error when constructed without encryption password', function (done) {
 
-            expect(fn).to.throw(Error, 'Missing encryption password');
-            done();
-        });
+                var fn = function () {
 
-        it('throws an error when constructed without loadAppFunc', function(done) {
+                    var scheme = new Scheme(null, { scheme: 'oz' });
+                };
 
-            var fn = function() {
+                expect(fn).to.throw(Error, 'Missing encryption password');
+                done();
+            });
 
-                var scheme = new Scheme(null, {scheme: 'oz', encryptionPassword: 'test'});
-            };
+            it('throws an error when constructed without loadAppFunc', function (done) {
 
-            expect(fn).to.throw(Error, 'Missing required loadAppFunc method in configuration');
-            done();
-        });
+                var fn = function () {
 
-        it('throws an error when constructed without loadGrantFunc', function(done) {
+                    var scheme = new Scheme(null, { scheme: 'oz', encryptionPassword: 'test' });
+                };
 
-            var fn = function() {
+                expect(fn).to.throw(Error, 'Missing required loadAppFunc method in configuration');
+                done();
+            });
 
-                var scheme = new Scheme(null, {
-                    scheme: 'oz',
-                    encryptionPassword: 'test',
-                    loadAppFunc: function() { }
-                });
-            };
+            it('throws an error when constructed without loadGrantFunc', function (done) {
 
-            expect(fn).to.throw(Error, 'Missing required loadGrantFunc method in configuration');
-            done();
-        });
+                var fn = function () {
 
-        it('throws an error when constructed without server', function(done) {
+                    var scheme = new Scheme(null, {
+                        scheme: 'oz',
+                        encryptionPassword: 'test',
+                        loadAppFunc: function () { }
+                    });
+                };
 
-            var fn = function() {
+                expect(fn).to.throw(Error, 'Missing required loadGrantFunc method in configuration');
+                done();
+            });
 
-                var scheme = new Scheme(null, {
-                    scheme: 'oz',
-                    encryptionPassword: 'test',
-                    loadAppFunc: function() { },
-                    loadGrantFunc: function() { }
-                });
-            };
+            it('throws an error when constructed without server', function (done) {
 
-            expect(fn).to.throw(Error, 'Server is required');
-            done();
-        });
+                var fn = function () {
 
-        it('doesn\'t throw an error when constructed with all required parameters', function(done) {
+                    var scheme = new Scheme(null, {
+                        scheme: 'oz',
+                        encryptionPassword: 'test',
+                        loadAppFunc: function () { },
+                        loadGrantFunc: function () { }
+                    });
+                };
 
-            var fn = function() {
+                expect(fn).to.throw(Error, 'Server is required');
+                done();
+            });
+
+            it('doesn\'t throw an error when constructed with all required parameters', function (done) {
+
+                var fn = function () {
+
+                    var server = {
+                        settings: {},
+                        addRoutes: function () { }
+                    };
+
+                    var scheme = new Scheme(server, {
+                        scheme: 'oz',
+                        encryptionPassword: 'test',
+                        loadAppFunc: function () { },
+                        loadGrantFunc: function () { }
+                    });
+                };
+
+                expect(fn).to.not.throw(Error);
+                done();
+            });
+
+            it('applies oz settings when passed in', function (done) {
 
                 var server = {
-                    settings: { },
-                    addRoutes: function() { }
+                    settings: {},
+                    addRoutes: function () { }
                 };
 
-                var scheme = new Scheme(server, {
+                var settings = {
                     scheme: 'oz',
                     encryptionPassword: 'test',
-                    loadAppFunc: function() { },
-                    loadGrantFunc: function() { }
-                });
-            };
-
-            expect(fn).to.not.throw(Error);
-            done();
-        });
-
-        it('applies oz settings when passed in', function(done) {
-
-            var server = {
-                settings: { },
-                addRoutes: function() { }
-            };
-
-            var settings = {
-                scheme: 'oz',
-                encryptionPassword: 'test',
-                loadAppFunc: function() { },
-                loadGrantFunc: function() { },
-                ozSettings: { ticket: { myKey: 'myValue' } }
-            };
-
-            var scheme = new Scheme(server, settings);
-
-            expect(Oz.settings.ticket.myKey).to.equal('myValue');
-            done();
-        });
-
-        describe('authenticate', function() {
-
-            it('doesn\'t return an error when missing session and bad request with optional auth', function(done) {
-
-                var server = {
-                    settings: { },
-                    addRoutes: function() { }
+                    loadAppFunc: function () { },
+                    loadGrantFunc: function () { },
+                    ozSettings: { ticket: { myKey: 'myValue' } }
                 };
 
-                var request = {
-                    _route: {
-                        config: {
-                            auth: {
-                                mode: 'optional'
-                            }
-                        }
-                    },
-                    log: function() { },
-                    raw: {
-                        res: {
-                            setHeader: function() { }
-                        },
-                        req: {
-                            headers: {
-                                host: 'localhost'
-                            },
-                            url: 'http://localhost/test'
-                        }
-                    },
-                    server: server
-                };
+                var scheme = new Scheme(server, settings);
 
-                var scheme = new Scheme(server, {
-                    scheme: 'oz',
-                    encryptionPassword: 'test',
-                    loadAppFunc: function() { },
-                    loadGrantFunc: function() { }
-                });
-
-                scheme.authenticate(request, function(err) {
-
-                    expect(err).to.not.exist;
-                    done();
-                });
+                expect(Oz.settings.ticket.myKey).to.equal('myValue');
+                done();
             });
         });
     });

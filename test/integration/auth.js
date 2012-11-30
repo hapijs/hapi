@@ -507,7 +507,7 @@ describe('Auth', function () {
                 auth: {
                     scheme: 'hawk',
                     getCredentialsFunc: getCredentials,
-                    hostHeaderKey: 'custom'
+                    hostHeaderName: 'custom'
                 }
             };
 
@@ -532,9 +532,9 @@ describe('Auth', function () {
                     scheme: 'ext:any',
                     implementation: {
 
-                        authenticate: function (request, next) {
+                        authenticate: function (request, callback) {
 
-                            next();
+                            callback(null, {});
                         }
                     }
                 }
