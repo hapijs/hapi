@@ -661,14 +661,20 @@ http.start();
 
 #### Directory
 
-An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.  The following example shows how to serve a directory named _'public'_ and enable a directory listing in the case that a 'index.html' file doesn't exist.
+An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.
+
+When serving a directory the route path must contain a single parameter that will be set to the requested file within the directory.  This parameter can use the options available to other path parameters.  For example, if the server should only serve files in the top level folder and not to any subfolder use _'{path?}'_.  If it is safe to navigate to child folders and files then use '_{path*}'_.  Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_ or similar.
+
+When defining a route path for a directory the path must end in a parameter and must contain one and only one parameter.  If the route path doesn't end with a parameter then an error will be thrown when starting the server.
+
+The following example shows how to serve a directory named _'public'_ and enable a directory listing in the case that a 'index.html' file doesn't exist.
 
 ```javascript
 // Create Hapi server
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/{path}', handler: { directory: { path: './public/', listing: true } });
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } });
 
 http.start();
 ```
@@ -690,6 +696,8 @@ http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: './public
 
 http.start();
 ```
+
+As you have noticed, the directory path can be relative to the current working directory.  That being said, it is also acceptable to define full paths to the directory that should be served.
 
 A directory handler is also capable of being set to a function that returns a path to serve.  This is useful for using the same route but serving different folders.  Below is an example of how this can look:
 
@@ -713,7 +721,7 @@ function serveDirectory(request) {
 http.start();
 ```
 
-When serving a directory the route path must contain a parameter named _'path'_ that will be set to the requested file within the directory.  This parameter can use all of the options available to other path parameters.  For example, if the server should only serve files in the top level folder and not to any subfolder use _'{path?}'_.  If it is safe to navigate to child folders and files then use '_{path*}'_.  Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_ or similar.
+For further examples of using the directory handler please look in the _'examples'_ folder.
 
 #### Request Logging
 

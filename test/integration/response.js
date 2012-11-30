@@ -173,7 +173,7 @@ describe('Response', function () {
         { method: 'GET', path: '/filefn/{file}', handler: { file: fileFnHandler } },
         { method: 'GET', path: '/directory/{path*}', handler: { directory: './' } },
         { method: 'GET', path: '/directoryfn', handler: { directory: directoryFnHandler } },
-        { method: 'GET', path: '/directorylist', handler: { directory: { path: './', listing: true } } },
+        { method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: './', listing: true } } },
         { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
     ]);
 
