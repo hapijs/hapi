@@ -47,6 +47,7 @@ Current version: **0.9.1**
             - [Response](#response)
 			- [Proxy](#proxy)
 			- [Files](#files)
+			- [Directory](#directory)
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
@@ -649,14 +650,102 @@ http.start();
 It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
 
 ```javascript
-// Create Hapi servers
+// Create Hapi server
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve index.html file up a directory in the public folder
-http.addRoute({ method: 'GET', path: '/', handler: { file: __dirname + '/../public/index.html' } });
+http.addRoute({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
 
 http.start();
 ```
+
+It is also possible to use a function to return a path to the file.  The file function will be passed the current request and must return a string path to the file to serve.  Below is an example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve index.html file up a directory in the public folder
+http.addRoute({ method: 'GET', path: '/{path}', handler: { file: serveFile } });
+
+function serveFile(request) {
+
+    if (isMobileDevice(request)) {
+        return './mobile/' + request.params.path;
+    }
+    else {
+        return './public' + request.params.path;
+    }
+}
+
+http.start();
+```
+
+Note that an error will be thrown if attempting to add a route that has a path parameter and using a file handler that is set to a string.  For file function handlers it is safe to use a path parameter.
+
+#### Directory
+
+An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.
+
+When serving a directory the route path must contain a single parameter that will be set to the requested file within the directory.  This parameter can use the options available to other path parameters.  For example, if the server should only serve files in the top level folder and not to any subfolder use _'{path?}'_.  If it is safe to navigate to child folders and files then use '_{path*}'_.  Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_ or similar.
+
+When defining a route path for a directory the path must end in a parameter and must contain one and only one parameter.  If the route path doesn't end with a parameter then an error will be thrown when starting the server.
+
+The following example shows how to serve a directory named _'public'_ and enable a directory listing in the case that a 'index.html' file doesn't exist.
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve the public folder with listing enabled
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } } });
+
+http.start();
+```
+
+The directory must be an object with a path property.  The path can be a string pointing to a folder path or a function that takes a request and returns a path.  Below are the options that are available for the directory object.
+
+* `listing` - determines if directory listing is enabled (default false)
+* `index` - determines if index.html will be served by default if it exists in the folder (default true)
+* `path` - the folder path to serve.  Optionally, this can be set to a function (`function(request)`) that returns a path
+
+Below is an example of serving a directory from a path and using the configuration defaults.  The all of the files in the _'public'_ folder and subfolders will be accessible.  If public has an _'index.html'_ file then it will be served when navigating to the root URL.
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve the public folder with listing enabled
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/' } } });
+
+http.start();
+```
+
+As you have noticed, the directory path can be relative to the current working directory.  That being said, it is also acceptable to define full paths to the directory that should be served.
+
+A directory handler is also capable of being set to a function that returns a path to serve.  This is useful for using the same route but serving different folders.  Below is an example of how this can look:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve the public folder with listing enabled
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: serveDirectory } } });
+
+function serveDirectory(request) {
+
+    if (isMobileDevice(request)) {
+        return './mobile';
+    }
+    else {
+        return './public';
+    }
+}
+
+http.start();
+```
+
+For further examples of using the directory handler please look in the _'examples'_ folder.
 
 #### Request Logging
 
