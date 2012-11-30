@@ -4,7 +4,6 @@ var Chai = require('chai');
 var Shot = require('shot');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 var Request = process.env.TEST_COV ? require('../../lib-cov/request') : require('../../lib/request');
-var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
 
 
 // Declare internals
@@ -19,7 +18,7 @@ var expect = Chai.expect;
 
 describe('Request', function () {
 
-    var server = { settings: Defaults.server };
+    var server = new Hapi.server('0.0.0.0', 18888);
 
     var _req = null;
     var _res = null;
@@ -181,6 +180,62 @@ describe('Request', function () {
             expect(request.getLog('4').length).to.equal(4);
             expect(request.getLog('0').length).to.equal(0);
             expect(request.getLog().length).to.be.above(7);
+            done();
+        });
+    });
+
+    describe('path normalization', function () {
+
+        it('doesn\'t normalize a path when normalization is disabled', function (done) {
+
+            var request = new Request(server, _req, _res);
+            var url = 'http://localhost/%2dpage?param1=something';
+            request._setUrl(url);
+
+            expect(request.url).to.exist;
+            expect(request.url.href).to.equal(url);
+            expect(request.path).to.equal('/%2dpage');
+            expect(request.query.param1).to.equal('something');
+            done();
+        });
+
+        it('normalizes a path when normalization is enabled', function (done) {
+
+            var options = {
+                router: {
+                    normalizeRequestPath: true
+                }
+            };
+            var normalizedServer = new Hapi.server('0.0.0.0', 18888, options);
+
+            var request = new Request(normalizedServer, _req, _res);
+            var url = 'http://localhost/%2dpage?param1=something';
+            request._setUrl(url);
+
+            expect(request.url).to.exist;
+            expect(request.url.href).to.equal(url);
+            expect(request.path).to.equal('/-page');
+            expect(request.query.param1).to.equal('something');
+            done();
+        });
+
+        it('doesn\'t decode reserved characters but uppercases them', function (done) {
+
+            var options = {
+                router: {
+                    normalizeRequestPath: true
+                }
+            };
+            var normalizedServer = new Hapi.server('0.0.0.0', 18888, options);
+
+            var request = new Request(normalizedServer, _req, _res);
+            var url = 'http://localhost/%2d%21%2apage?param1=something';
+            request._setUrl(url);
+
+            expect(request.url).to.exist;
+            expect(request.url.href).to.equal(url);
+            expect(request.path).to.equal('/-%21%2Apage');
+            expect(request.query.param1).to.equal('something');
             done();
         });
     });
