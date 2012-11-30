@@ -219,7 +219,7 @@ describe('Request', function () {
             done();
         });
 
-        it('doesn\'t decode reserved characters but uppercases them', function (done) {
+        it('decodes reserved characters and uppercases the rest', function (done) {
 
             var options = {
                 router: {
