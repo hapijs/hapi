@@ -674,12 +674,12 @@ The following example shows how to serve a directory named _'public'_ and enable
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } });
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } } });
 
 http.start();
 ```
 
-The directory can be an object, a string pointing to a path, or a function that takes a request and returns a path.  Below are the options that are available when directory is an object.
+The directory must be an object with a path property.  The path can be a string pointing to a folder path or a function that takes a request and returns a path.  Below are the options that are available for the directory object.
 
 * `listing` - determines if directory listing is enabled (default false)
 * `index` - determines if index.html will be served by default if it exists in the folder (default true)
@@ -692,7 +692,7 @@ Below is an example of serving a directory from a path and using the configurati
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: './public/' } });
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/' } } });
 
 http.start();
 ```
@@ -706,7 +706,7 @@ A directory handler is also capable of being set to a function that returns a pa
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: serveDirectory } });
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: serveDirectory } } });
 
 function serveDirectory(request) {
 
