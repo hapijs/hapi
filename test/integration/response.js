@@ -80,7 +80,17 @@ describe('Response', function () {
         request.reply(file);
     };
 
-    var directoryHandler = function (request) {
+    var fileFnHandler = function (request) {
+
+        return './' + request.params.file;
+    };
+
+    var directoryFnHandler = function (request) {
+
+        return './lib/hapi.js';
+    };
+
+    var fileFolderHandler = function (request) {
 
         var file = new Hapi.Response.File(__dirname);
         request.reply(file);
@@ -166,9 +176,13 @@ describe('Response', function () {
         { method: 'GET', path: '/file', handler: fileHandler },
         { method: 'GET', path: '/relativefile', handler: relativeFileHandler },
         { method: 'GET', path: '/filenotfound', handler: fileNotFoundHandler },
-        { method: 'GET', path: '/directory', handler: directoryHandler },
+        { method: 'GET', path: '/filefolder', handler: fileFolderHandler },
         { method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } },
         { method: 'GET', path: '/relativestaticfile', handler: { file: './package.json' } },
+        { method: 'GET', path: '/filefn/{file}', handler: { file: fileFnHandler } },
+        { method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './' } } },
+        { method: 'GET', path: '/directoryfn/{path*}', handler: { directory: { path: directoryFnHandler } } },
+        { method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: './', listing: true } } },
         { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
     ]);
 
@@ -332,7 +346,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/directory', function (err, res) {
+                Request.get('http://localhost:17082/filefolder', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -348,6 +362,18 @@ describe('Response', function () {
                 expect(err).to.not.exist;
                 expect(body).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                done();
+            });
+        });
+
+        it('returns a file using the file function handler', function (done) {
+
+            Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(body).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/javascript');
                 expect(res.headers['content-length']).to.exist;
                 done();
             });
@@ -430,6 +456,100 @@ describe('Response', function () {
                     expect(res.headers['content-encoding']).to.equal('gzip');
                     expect(res.headers['content-length']).to.not.exist;
                     expect(body).to.exist;
+                    done();
+                });
+            });
+        });
+
+        it('throws an error when adding a route with a parameter and string path', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('doesn\'t throw an error when adding a route with a parameter and function path', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+    });
+
+    describe('#directory', function () {
+
+        it('returns a 404 when no index exists and listing is disabled', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17082/directory', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(404);
+                    done();
+                });
+            });
+        });
+
+        it('returns a file when requesting a file from the directory', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17082/directory/package.json', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('hapi');
+                    done();
+                });
+            });
+        });
+
+        it('returns the correct file when requesting a file from a child directory', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17082/directory/test/integration/response.js', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('http://localhost:17082/directory//test/integration/response.js');
+                    done();
+                });
+            });
+        });
+
+        it('returns a list of files when listing is enabled', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17082/directorylist', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns the correct file when using a fn directory handler', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17082/directoryfn', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('export');
                     done();
                 });
             });
