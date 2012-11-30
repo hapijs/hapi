@@ -73,7 +73,7 @@ describe('Batch', function () {
         request.reply(new Error('myerror'));
     };
 
-    function setupServer(done) {
+    function setupServer() {
 
         _server = new Hapi.Server('0.0.0.0', 18084, { batch: true });
         _server.addRoutes([
@@ -96,11 +96,6 @@ describe('Batch', function () {
                 }
             }
         ]);
-        _server.listener.on('listening', function () {
-
-            done();
-        });
-        _server.start();
     }
 
     function makeRequest(payload, callback) {
