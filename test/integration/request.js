@@ -1,7 +1,17 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 
 
 describe('Request', function () {
@@ -97,7 +107,7 @@ describe('Request', function () {
         });
 
         makeRequest('GET', '/tail', function (res) {
-            
+
             result = res.result;
         });
     });

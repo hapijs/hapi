@@ -1,11 +1,20 @@
 // Load modules
 
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
-var Hapi = require(libPath + 'hapi');
+var Chai = require('chai');
 var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 
 
 describe('Response', function () {
@@ -344,7 +353,7 @@ describe('Response', function () {
             });
         });
 
-        describe('when using a relative path', function() {
+        describe('when using a relative path', function () {
 
             it('returns a file in the response with the correct headers', function (done) {
 
@@ -397,7 +406,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                var date =  new Date(Date.now());
+                var date = new Date(Date.now());
                 var headers = {
                     'if-modified-since': new Date(date.setFullYear(date.getFullYear() + 1)).toUTCString()
                 };

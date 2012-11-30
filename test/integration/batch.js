@@ -1,9 +1,19 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
 var Sinon = require('sinon');
 var Async = require('async');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 
 
 describe('Batch', function () {
@@ -68,7 +78,7 @@ describe('Batch', function () {
         request.reply(request.pre.m5 + '\n');
     };
 
-    var errorHandler = function(request) {
+    var errorHandler = function (request) {
 
         request.reply(new Error('myerror'));
     };

@@ -1,16 +1,26 @@
 // Load modules
 
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
-var Monitor = require(libPath + 'monitor/index');
-var OSMonitor = require(libPath + 'monitor/system');
+var Chai = require('chai');
+var Hapi = process.env.TEST_COV ? require('../../../lib-cov/hapi') : require('../../../lib/hapi');
+var Monitor = process.env.TEST_COV ? require('../../../lib-cov/monitor') : require('../../../lib/monitor');
+var OSMonitor = process.env.TEST_COV ? require('../../../lib-cov/monitor/system') : require('../../../lib/monitor/system');
 
 
-describe('Monitor', function() {
+// Declare internals
 
-    it('throws an error constructed without new', function(done) {
+var internals = {};
 
-        var fn = function() {
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
+
+describe('Monitor', function () {
+
+    it('throws an error constructed without new', function (done) {
+
+        var fn = function () {
 
             var config = {
                 settings: {
@@ -29,9 +39,9 @@ describe('Monitor', function() {
         done();
     });
 
-    it('throws an error if opsInterval is too small', function(done) {
+    it('throws an error if opsInterval is too small', function (done) {
 
-        var fn = function() {
+        var fn = function () {
 
             var config = {
                 settings: {
@@ -50,9 +60,9 @@ describe('Monitor', function() {
         done();
     });
 
-    it('doesn\'t throw an error when opsInterval is more than 100', function(done) {
+    it('doesn\'t throw an error when opsInterval is more than 100', function (done) {
 
-        var fn = function() {
+        var fn = function () {
 
             var config = {
                 settings: {
@@ -70,7 +80,7 @@ describe('Monitor', function() {
         done();
     });
 
-    it('uses the passed in broadcastInterval and sets the event queue correctly', function(done) {
+    it('uses the passed in broadcastInterval and sets the event queue correctly', function (done) {
 
         var subscribers = {
             console: ['ops', 'request', 'log'],
@@ -86,8 +96,8 @@ describe('Monitor', function() {
                     broadcastInterval: 5
                 }
             },
-            on: function() { },
-            emit: function() { }
+            on: function () { },
+            emit: function () { }
         };
         var monitor = new Monitor(server);
 
@@ -98,9 +108,9 @@ describe('Monitor', function() {
         done();
     });
 
-    it('throws an error if subscribers is null', function(done) {
+    it('throws an error if subscribers is null', function (done) {
 
-        var fn = function() {
+        var fn = function () {
 
             var config = {
                 settings: {
@@ -118,9 +128,9 @@ describe('Monitor', function() {
         done();
     });
 
-    it('throws an error if requestsEvent is not response or tail', function(done) {
+    it('throws an error if requestsEvent is not response or tail', function (done) {
 
-        var fn = function() {
+        var fn = function () {
 
             var config = {
                 settings: {
@@ -138,9 +148,9 @@ describe('Monitor', function() {
         done();
     });
 
-    describe('#_broadcast', function() {
+    describe('#_broadcast', function () {
 
-        it('doesn\'t do anything if there are no subscribers', function(done) {
+        it('doesn\'t do anything if there are no subscribers', function (done) {
 
             var config = {
                 settings: {
@@ -160,9 +170,9 @@ describe('Monitor', function() {
         });
     });
 
-    describe('#_ops', function() {
+    describe('#_ops', function () {
 
-        it('sets the event with the result data correctly', function(done) {
+        it('sets the event with the result data correctly', function (done) {
 
             var results = {
                 osload: 1,
@@ -183,8 +193,8 @@ describe('Monitor', function() {
                         broadcastInterval: 5
                     }
                 },
-                on: function() { },
-                emit: function() { }
+                on: function () { },
+                emit: function () { }
             };
             var monitor = new Monitor(server);
 
@@ -201,9 +211,9 @@ describe('Monitor', function() {
         });
     });
 
-    describe('#_request', function() {
+    describe('#_request', function () {
 
-        it('sets the event with the request data correctly', function(done) {
+        it('sets the event with the request data correctly', function (done) {
 
             var subscribers = {
                 console: ['ops']
@@ -218,8 +228,8 @@ describe('Monitor', function() {
                         broadcastInterval: 5
                     }
                 },
-                on: function() { },
-                emit: function() { }
+                on: function () { },
+                emit: function () { }
             };
             var request = {
                 raw: {

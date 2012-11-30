@@ -1,11 +1,21 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
 var Stream = require('stream');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 
 
-describe('Cache', function() {
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
+
+describe('Cache', function () {
 
     var _server = null;
     var _serverUrl = 'http://127.0.0.1:17785';
@@ -77,9 +87,9 @@ describe('Cache', function() {
         done();
     }
 
-    function makeRequest(path, callback) {
+    var makeRequest = function (path, callback) {
 
-        var next = function(res) {
+        var next = function (res) {
 
             return callback(res);
         };
@@ -88,9 +98,9 @@ describe('Cache', function() {
             method: 'get',
             url: _serverUrl + path
         }, next);
-    }
+    };
 
-    function parseHeaders(res) {
+    var parseHeaders = function (res) {
 
         var headersObj = {};
         var headers = res._header.split('\r\n');
@@ -102,23 +112,13 @@ describe('Cache', function() {
         }
 
         return headersObj;
-    }
+    };
 
     before(setupServer);
 
-    it('returns max-age value when route uses default cache rules', function(done) {
+    it('returns max-age value when route uses default cache rules', function (done) {
 
-        makeRequest('/profile', function(rawRes) {
-
-            var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
-            done();
-        });
-    });
-
-    it('returns max-age value when route uses client cache mode', function(done) {
-
-        makeRequest('/profile', function(rawRes) {
+        makeRequest('/profile', function (rawRes) {
 
             var headers = parseHeaders(rawRes.raw.res);
             expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
@@ -126,9 +126,19 @@ describe('Cache', function() {
         });
     });
 
-    it('doesn\'t return max-age value when route is not cached', function(done) {
+    it('returns max-age value when route uses client cache mode', function (done) {
 
-        makeRequest('/item2', function(rawRes) {
+        makeRequest('/profile', function (rawRes) {
+
+            var headers = parseHeaders(rawRes.raw.res);
+            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+            done();
+        });
+    });
+
+    it('doesn\'t return max-age value when route is not cached', function (done) {
+
+        makeRequest('/item2', function (rawRes) {
 
             var headers = parseHeaders(rawRes.raw.res);
             expect(headers['Cache-Control']).to.not.equal('max-age=120, must-revalidate');
@@ -140,18 +150,18 @@ describe('Cache', function() {
 
         function test() {
 
-            makeRequest('/bad', function (rawRes) {});
+            makeRequest('/bad', function (rawRes) { });
         }
 
         expect(test).to.throw(Error);
         done();
     });
 
-    it('doesn\'t cache error responses', function(done) {
+    it('doesn\'t cache error responses', function (done) {
 
-        makeRequest('/error', function() {
+        makeRequest('/error', function () {
 
-            _server.cache.get({ segment: '/error', id: '/error' }, function(err, cached) {
+            _server.cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
 
                 expect(cached).to.not.exist;
                 done();
@@ -159,20 +169,20 @@ describe('Cache', function() {
         });
     });
 
-    it('doesn\'t send cache headers for responses with status codes other than 200', function(done) {
+    it('doesn\'t send cache headers for responses with status codes other than 200', function (done) {
 
-        makeRequest('/nocache', function(res) {
+        makeRequest('/nocache', function (res) {
 
             expect(res.headers['Cache-Control']).to.equal('no-cache');
             done();
         });
     });
 
-    it('caches responses with status codes of 200', function(done) {
+    it('caches responses with status codes of 200', function (done) {
 
-        makeRequest('/cache', function() {
+        makeRequest('/cache', function () {
 
-            _server.cache.get({ segment: '/cache', id: '/cache' }, function(err, cached) {
+            _server.cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
 
                 expect(cached).to.exist;
                 done();
@@ -180,21 +190,21 @@ describe('Cache', function() {
         });
     });
 
-    it('doesn\'t throw an error when requesting a non-strict route that is not cacheable', function(done) {
+    it('doesn\'t throw an error when requesting a non-strict route that is not cacheable', function (done) {
 
-        makeRequest('/notcacheablenostrict', function(res) {
+        makeRequest('/notcacheablenostrict', function (res) {
 
             expect(res.statusCode).to.equal(200);
             done();
         });
     });
 
-    it('throws an error when requesting a strict cached route that is not cacheable', function(done) {
+    it('throws an error when requesting a strict cached route that is not cacheable', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', 18885, { cache: { engine: 'memory' } });
         server.addRoute({ method: 'GET', path: '/notcacheable', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: true } } });
 
-        var fn = function() {
+        var fn = function () {
 
             server.inject({
                 method: 'get',

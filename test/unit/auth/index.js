@@ -1,6 +1,20 @@
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
-var Auth = require(libPath + 'auth/index');
+// Load modules
+
+var Chai = require('chai');
+var Oz = require('oz');
+var Hapi = process.env.TEST_COV ? require('../../../lib-cov/hapi') : require('../../../lib/hapi');
+var Auth = process.env.TEST_COV ? require('../../../lib-cov/auth') : require('../../../lib/auth');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
 
 describe('Auth', function () {
 
