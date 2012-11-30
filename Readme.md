@@ -659,6 +659,30 @@ http.addRoute({ method: 'GET', path: '/', handler: { file: './public/index.html'
 http.start();
 ```
 
+It is also possible to use a function to return a path to the file.  The file function will be passed the current request and must return a string path to the file to serve.  Below is an example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve index.html file up a directory in the public folder
+http.addRoute({ method: 'GET', path: '/{path}', handler: { file: serveFile } });
+
+function serveFile(request) {
+
+    if (isMobileDevice(request)) {
+        return './mobile/' + request.params.path;
+    }
+    else {
+        return './public' + request.params.path;
+    }
+}
+
+http.start();
+```
+
+Note that an error will be thrown if attempting to add a route that has a path parameter and using a file handler that is set to a string.  For file function handlers it is safe to use a path parameter.
+
 #### Directory
 
 An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.

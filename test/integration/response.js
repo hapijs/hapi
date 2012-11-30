@@ -172,7 +172,7 @@ describe('Response', function () {
         { method: 'GET', path: '/relativestaticfile', handler: { file: './package.json' } },
         { method: 'GET', path: '/filefn/{file}', handler: { file: fileFnHandler } },
         { method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './' } } },
-        { method: 'GET', path: '/directoryfn', handler: { directory: { path: directoryFnHandler } } },
+        { method: 'GET', path: '/directoryfn/{path*}', handler: { directory: { path: directoryFnHandler } } },
         { method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: './', listing: true } } },
         { method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } }
     ]);
@@ -450,6 +450,28 @@ describe('Response', function () {
                     done();
                 });
             });
+        });
+
+        it('throws an error when adding a route with a parameter and string path', function(done) {
+
+            var fn = function() {
+
+                server.addRoute({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('doesn\'t throw an error when adding a route with a parameter and function path', function(done) {
+
+            var fn = function() {
+
+                server.addRoute({ method: 'GET', path: '/fileparam/{path}', handler: { file: function() {} } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
         });
     });
 

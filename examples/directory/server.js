@@ -16,7 +16,7 @@ internals.main = function () {
     // Set routes
 
     http.addRoutes([
-        { method: 'GET', path: '/img/hapi', handler: { directory: { path: internals.serveImages } } },
+        { method: 'GET', path: '/img/{path}', handler: { directory: { path: internals.serveImages } } },
         { method: 'GET', path: '/files/{path*}', handler: { directory: { path: '../', listing: true } } },
         { method: 'GET', path: '/{path?}', handler: { directory: { path: './' } } }
     ]);
