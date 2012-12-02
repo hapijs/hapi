@@ -18,6 +18,42 @@ describe('Payload', function () {
 
     describe('raw mode', function () {
 
+        it('returns an error on req socket error', function (done) {
+
+            var handler = function (request) {
+
+                expect(request).to.not.exist;       // Must not be called
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error on req socket close', function (done) {
+
+            var handler = function (request) {
+
+                expect(request).to.not.exist;       // Must not be called
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(500);
+                done();
+            });
+        });
+
         it('returns a raw body', function (done) {
 
             var multipartPayload = '{"x":"1","y":"2","z":"3"}';
