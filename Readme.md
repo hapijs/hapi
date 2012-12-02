@@ -154,7 +154,7 @@ var server = new Hapi.Server(options);
 The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
 - `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
-- `normalizeRequestPath` - determines whether a path should be URL decoded and reserved percent-encodings capitalized.  Defaults to _false_.
+- `normalizeRequestPath` - determines whether a path should have certain reserved and unreserved percent encoded characters decoded.  Also, all percent encodings will be capitalized that cannot be decoded.  Defaults to _false_.
 
 ### Payload
 
