@@ -204,6 +204,42 @@ describe('Cache', function () {
                     });
                 });
             });
+
+            it('leaves the byte size unchanged when an object overrides existing key with same size', function (done) {
+
+                var key1 = {
+                    segment: 'test',
+                    id: 'test'
+                };
+                var itemToStore = {
+                    my: {
+                        array: [1, 2, 3],
+                        date: new Date(Date.now()),
+                        bool: true,
+                        string: 'test',
+                        undefined: undefined
+                    }
+                };
+
+                var memory = new Memory.Connection({ maxByteSize: 2000 });
+                expect(memory.cache).to.not.exist;
+
+                memory.start(function () {
+
+                    expect(memory.cache).to.exist;
+                    memory.set(key1, itemToStore, 10, function () {
+
+                        expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(68);
+                        expect(memory.cache[key1.segment][key1.id].item.my).to.exist;
+                        memory.set(key1, itemToStore, 10, function () {
+
+                            expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(68);
+                            expect(memory.cache[key1.segment][key1.id].item.my).to.exist;
+                            done();
+                        });
+                    });
+                });
+            });
         });
     });
 });
