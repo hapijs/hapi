@@ -2,8 +2,12 @@
  To Test:
 
  Run the server.
- Try various URLs like:
- http://localhost:8080/profile // { "id", "name" }
+ Try a batch request like the following:
+
+ POST /batch
+    { "requests": [{ "method": "get", "path": "/profile" }, { "method": "get", "path": "/item" }, { "method": "get", "path": "/item/$1.id" }]
+
+or a GET request to http://localhost:8080/request will perform the above request for you
  */
 
 // Load modules
@@ -24,19 +28,31 @@ internals.main = function () {
 
     // Create Hapi servers
 
-    var http = new Hapi.Server('0.0.0.0', 8080, config);
+    internals.http = new Hapi.Server('0.0.0.0', 8080, config);
 
     // Set routes
 
-    http.addRoutes([{ method: 'GET', path: '/profile', config: { handler: internals.profile } },
-                    { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
-                    { method: 'GET', path: '/item/{id}', config: { handler: internals.item } }]);
+    internals.http.addRoutes([{ method: 'GET', path: '/profile', handler: internals.profile },
+                    { method: 'GET', path: '/item', handler: internals.activeItem },
+                    { method: 'GET', path: '/item/{id}', handler: internals.item },
+                    { method: 'GET', path: '/request', handler: internals.requestBatch }]);
 
     // Start Hapi servers
 
-    http.start();
+    internals.http.start();
 };
 
+internals.requestBatch = function (request) {
+
+    internals.http.inject({
+        method: 'POST',
+        url: '/batch',
+        payload: '{ "requests": [{ "method": "get", "path": "/profile" }, { "method": "get", "path": "/item" }, { "method": "get", "path": "/item/$1.id" }] }'
+    }, function (res) {
+
+        request.reply(res.result);
+    });
+};
 
 internals.profile = function (request) {
     request.reply({
