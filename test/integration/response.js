@@ -156,6 +156,24 @@ describe('Response', function () {
             });
         });
 
+        it('returns a file in the response with the correct headers using process relative paths', function (done) {
+
+            var server = new Hapi.Server(17084, { files: { relativeTo: 'process' } });
+            server.addRoute({ method: 'GET', path: '/', handler: { file: './package.json' } });
+
+            server.start(function () {
+
+                Request.get('http://localhost:17084/', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
+            });
+        });
+
         it('returns a 404 when the file is not found', function (done) {
 
             var notFoundHandler = function (request) {
