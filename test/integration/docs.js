@@ -1,8 +1,19 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 var S = Hapi.Types.String;
+
 
 describe('Docs Generator', function () {
 
@@ -14,6 +25,7 @@ describe('Docs Generator', function () {
     var _serverWithoutPostUrl = 'http://127.0.0.1:18083';
 
     var handler = function (request) {
+
         request.reply('ok');
     };
 
@@ -25,6 +37,7 @@ describe('Docs Generator', function () {
             { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
         ]);
         _server.listener.on('listening', function () {
+
             done();
         });
         _server.start();
@@ -37,6 +50,7 @@ describe('Docs Generator', function () {
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);
         _serverWithoutPost.listener.on('listening', function () {
+
             done();
         });
         _serverWithoutPost.start();
@@ -45,6 +59,7 @@ describe('Docs Generator', function () {
     function makeRequest(path, callback) {
 
         var next = function (res) {
+
             return callback(res.result);
         };
 
@@ -59,6 +74,7 @@ describe('Docs Generator', function () {
     it('shows template when correct path is provided', function (done) {
 
         makeRequest('/docs?path=/test', function (res) {
+
             expect(res).to.equal('GET|POST|');
             done();
         });
@@ -67,6 +83,7 @@ describe('Docs Generator', function () {
     it('has a Not Found response when wrong path is provided', function (done) {
 
         makeRequest('/docs?path=blah', function (res) {
+
             expect(res.error).to.equal('Not Found');
             done();
         });
@@ -75,6 +92,7 @@ describe('Docs Generator', function () {
     it('displays the index if no path is provided', function (done) {
 
         makeRequest('/docs', function (res) {
+
             expect(res).to.equal('/test|/test|');
             done();
         });
@@ -83,6 +101,7 @@ describe('Docs Generator', function () {
     it('the index does\'t have the docs endpoint listed', function (done) {
 
         makeRequest('/docs', function (res) {
+
             expect(res).to.not.contain('/docs');
             done();
         });

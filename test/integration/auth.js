@@ -362,17 +362,17 @@ describe('Auth', function () {
     describe('Hawk', function () {
 
         var credentials = {
-                'john': {
-                    cred: {
-                        id: 'john',
-                        key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-                        algorithm: 'hmac-sha-256'
-                    }
-                },
-                'jane': {
-                    err: Hapi.error.internal('boom')
+            'john': {
+                cred: {
+                    id: 'john',
+                    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+                    algorithm: 'hmac-sha-256'
                 }
-            };
+            },
+            'jane': {
+                err: Hapi.error.internal('boom')
+            }
+        };
 
         var getCredentials = function (id, callback) {
 
@@ -384,9 +384,9 @@ describe('Auth', function () {
             }
         };
 
-        var hawkHeader = function(id, path) {
+        var hawkHeader = function (id, path) {
 
-            if (credentials[id] &&  credentials[id].cred) {
+            if (credentials[id] && credentials[id].cred) {
                 return Hawk.getAuthorizationHeader(credentials[id].cred, 'POST', path, '0.0.0.0', 8080);
             }
             else {
@@ -507,7 +507,7 @@ describe('Auth', function () {
                 auth: {
                     scheme: 'hawk',
                     getCredentialsFunc: getCredentials,
-                    hostHeaderKey: 'custom'
+                    hostHeaderName: 'custom'
                 }
             };
 
@@ -532,9 +532,9 @@ describe('Auth', function () {
                     scheme: 'ext:any',
                     implementation: {
 
-                        authenticate: function (request, next) {
+                        authenticate: function (request, callback) {
 
-                            next();
+                            callback(null, {});
                         }
                     }
                 }

@@ -1,10 +1,19 @@
 // Load modules
 
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
-var Hapi = require(libPath + 'hapi');
+var Chai = require('chai');
 var Zlib = require('zlib');
 var Request = require('request');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 
 
 describe('Payload', function () {
@@ -93,21 +102,21 @@ describe('Payload', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result.message).to.exist;
-                expect(res.result.message).to.equal('Invalid JSON body');
+                expect(res.result.message).to.equal('Invalid request payload format');
                 done();
             });
         });
     });
 
-    it('returns a gzip response when accept-encoding: gzip is requested', function(done) {
+    it('returns a gzip response when accept-encoding: gzip is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
-        Zlib.gzip(new Buffer(rawBody), function(err, zippedBody) {
+        Zlib.gzip(new Buffer(rawBody), function (err, zippedBody) {
 
-            server.start(function() {
+            server.start(function () {
 
-                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function(err, res, body) {
+                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -116,15 +125,15 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a gzip response when accept-encoding: deflate,gzip is requested', function(done) {
+    it('returns a gzip response when accept-encoding: deflate,gzip is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
-        Zlib.gzip(new Buffer(rawBody), function(err, zippedBody) {
+        Zlib.gzip(new Buffer(rawBody), function (err, zippedBody) {
 
-            server.start(function() {
+            server.start(function () {
 
-                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function(err, res, body) {
+                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();

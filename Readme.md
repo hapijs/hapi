@@ -8,7 +8,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.9.1**
+Current version: **0.9.2**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -28,6 +28,7 @@ Current version: **0.9.1**
         - [Format](#format)
           - [Error Format](#error-format)
           - [Payload Format](#payload-format)
+		- [Files](#files)
 		- [Monitor](#monitor)
 		- [Authentication](#authentication)
 		- [Cache](#cache)
@@ -46,7 +47,7 @@ Current version: **0.9.1**
 		- [Route Handler](#route-handler)
             - [Response](#response)
 			- [Proxy](#proxy)
-			- [Files](#files)
+			- [File](#file)
 			- [Directory](#directory)
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
@@ -123,7 +124,8 @@ var server = new Hapi.Server();
 - [`router`](#router)
 - [`payload`](#payload)
 - [`ext`](#extensions)
-- [`errors`](#errors)
+- [`format`](#format)
+- [`files`](#files)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
@@ -303,6 +305,15 @@ var options = {
     }
 };
 ```
+
+
+### Files
+
+**hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
+When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
+and defaults to _'routes'_:
+- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'addRoute()'_ or _'addRoutes()'_ methods are called. This means the location of the source code determines the location of the static resources when using relative paths.
+- _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
 
 
 ### Monitor
@@ -645,13 +656,16 @@ http.addRoute({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', 
 http.start();
 ```
 
-#### Files
+#### File
 
-It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
+File handlers provide a simple way to serve a static file for a given route. This is done by specifying an object with the `file`
+option as the route handler. The value of the `file` option is the absolute or relative path to the static resource. Relative paths
+are resolved based on the server's `files` option as described in (Files)[#files]. The route path cannot contain parameters when
+configured with a static file path. For example:
 
 ```javascript
 // Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
+var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'process' } });
 
 // Serve index.html file up a directory in the public folder
 http.addRoute({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
@@ -659,39 +673,47 @@ http.addRoute({ method: 'GET', path: '/', handler: { file: './public/index.html'
 http.start();
 ```
 
-It is also possible to use a function to return a path to the file.  The file function will be passed the current request and must return a string path to the file to serve.  Below is an example:
+The file handler also supports dynamic determination of the file being served based on the request, using a function as the value
+of the `file` option with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and
+must return a string with the relative or absolute path to the static resource. For example:
 
 ```javascript
 // Create Hapi server
 var http = new Hapi.Server('0.0.0.0', 8080);
 
-// Serve index.html file up a directory in the public folder
-http.addRoute({ method: 'GET', path: '/{path}', handler: { file: serveFile } });
-
-function serveFile(request) {
+// File mapping function
+var filePath = function (request) {
 
     if (isMobileDevice(request)) {
         return './mobile/' + request.params.path;
     }
-    else {
-        return './public' + request.params.path;
-    }
-}
+
+    return './public' + request.params.path;
+};
+
+http.addRoute({ method: 'GET', path: '/{path}', handler: { file: filePath } });
 
 http.start();
 ```
 
-Note that an error will be thrown if attempting to add a route that has a path parameter and using a file handler that is set to a string.  For file function handlers it is safe to use a path parameter.
 
 #### Directory
 
-An entire directory can be served easily with hapi.  Additionally, a directory listing or default index.html can be served when requesting a route that has a directory handler.
+Directory handlers provide a flexible way to server static content from an entire directory tree. Similar to other web servers, **hapi**
+allows mapping between a request path component to resources within a file system directory, including serving a default index.html or
+a directory content listing.
 
-When serving a directory the route path must contain a single parameter that will be set to the requested file within the directory.  This parameter can use the options available to other path parameters.  For example, if the server should only serve files in the top level folder and not to any subfolder use _'{path?}'_.  If it is safe to navigate to child folders and files then use '_{path*}'_.  Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_ or similar.
+Routes utilizing the directory handler must include a single path parameter at the end of the path string (e.g. _'/path/to/somewhere/{param}'_).
+The directory handler is an object with the following options:
+* `path` - a required path string or function. If the `path` is a string, it is used as the prefix for any resources requested within the route by appending the required route path parameter to the provided string. Alternatively, the `path` can be a function with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and must return a string with the relative or absolute path to the static resource. Relative paths are resolved based on the server's `files` option as described in (Files)[#files].
+* `index` - optional boolean, determines if 'index.html' will be served if exists in the folder when requesting a directory. Defaults to _'true'_.
+* `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
 
-When defining a route path for a directory the path must end in a parameter and must contain one and only one parameter.  If the route path doesn't end with a parameter then an error will be thrown when starting the server.
+The required route path parameter can use any of the parameter options (e.g. '{param}', '{param?}', '{param*}'). For example, to server
+only files in the top level folder and not to any subfolder use _'{path?}'_. If it is safe to navigate to child folders and files then
+use '_{path*}'_. Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_.
 
-The following example shows how to serve a directory named _'public'_ and enable a directory listing in the case that a 'index.html' file doesn't exist.
+The following example shows how to serve a directory named _'public'_ and enable a directory listing in case a 'index.html' file doesn't exist:
 
 ```javascript
 // Create Hapi server
@@ -703,49 +725,26 @@ http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: '
 http.start();
 ```
 
-The directory must be an object with a path property.  The path can be a string pointing to a folder path or a function that takes a request and returns a path.  Below are the options that are available for the directory object.
-
-* `listing` - determines if directory listing is enabled (default false)
-* `index` - determines if index.html will be served by default if it exists in the folder (default true)
-* `path` - the folder path to serve.  Optionally, this can be set to a function (`function(request)`) that returns a path
-
-Below is an example of serving a directory from a path and using the configuration defaults.  The all of the files in the _'public'_ folder and subfolders will be accessible.  If public has an _'index.html'_ file then it will be served when navigating to the root URL.
+A function `path` can be used to serve different directory trees based on the incoming request. For example:
 
 ```javascript
 // Create Hapi server
 var http = new Hapi.Server('0.0.0.0', 8080);
 
-// Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/' } } });
-
-http.start();
-```
-
-As you have noticed, the directory path can be relative to the current working directory.  That being said, it is also acceptable to define full paths to the directory that should be served.
-
-A directory handler is also capable of being set to a function that returns a path to serve.  This is useful for using the same route but serving different folders.  Below is an example of how this can look:
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-// Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: serveDirectory } } });
-
-function serveDirectory(request) {
+var directoryPath = function (request) {
 
     if (isMobileDevice(request)) {
         return './mobile';
     }
-    else {
-        return './public';
-    }
-}
+
+    return './public';
+};
+
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: directoryPath } } });
 
 http.start();
 ```
 
-For further examples of using the directory handler please look in the _'examples'_ folder.
 
 #### Request Logging
 
