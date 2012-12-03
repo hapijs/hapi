@@ -1,11 +1,21 @@
 // Load modules
 
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
-var ProcessMonitor = require(libPath + 'monitor/process');
+var Chai = require('chai');
+var Hapi = process.env.TEST_COV ? require('../../../lib-cov/hapi') : require('../../../lib/hapi');
+var ProcessMonitor = process.env.TEST_COV ? require('../../../lib-cov/monitor/process') : require('../../../lib/monitor/process');
 
 
-describe('Process Monitor', function() {
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
+
+describe('Process Monitor', function () {
 
     it('throws an error when constructed without new', function (done) {
 
@@ -17,7 +27,7 @@ describe('Process Monitor', function() {
         done();
     });
 
-    describe('#cpu', function() {
+    describe('#cpu', function () {
 
         it('passes the current cpu usage to the callback', function (done) {
 
@@ -31,7 +41,7 @@ describe('Process Monitor', function() {
         });
     });
 
-    describe('#memory', function() {
+    describe('#memory', function () {
 
         it('passes the current memory usage to the callback', function (done) {
 

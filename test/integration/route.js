@@ -1,12 +1,21 @@
 // Load modules
 
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
-var Route = require(libPath + 'route');
-var Hapi = require(libPath + 'hapi');
+var Chai = require('chai');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
 
 
-describe('Route', function() {
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
+
+describe('Route', function () {
 
     var _server = null;
     var _serverUrl = 'http://127.0.0.1:18095';
@@ -23,7 +32,7 @@ describe('Route', function() {
         '/test5/%20path': { reqPath: '/test5/%20path', resBody: 'test10' }
     };
 
-    var _handler = function(options) {
+    var _handler = function (options) {
 
         return function (request) {
 
@@ -40,7 +49,7 @@ describe('Route', function() {
 
         _server = new Hapi.Server('0.0.0.0', 18095, { cache: { engine: 'memory' } });
         _server.addRoutes(_routes);
-        _server.listener.on('listening', function() {
+        _server.listener.on('listening', function () {
 
             done();
         });
@@ -52,7 +61,7 @@ describe('Route', function() {
 
     function makeRequest(path, callback) {
 
-        var next = function(res) {
+        var next = function (res) {
 
             return callback(res);
         };
@@ -63,7 +72,7 @@ describe('Route', function() {
         }, next);
     }
 
-    (function() {
+    (function () {
 
         var test = function (path, options) {
 
@@ -71,7 +80,7 @@ describe('Route', function() {
 
             it('routes the path \'' + path + '\' to the correct route with the expected params set', function (done) {
 
-                makeRequest(options.reqPath, function(res) {
+                makeRequest(options.reqPath, function (res) {
 
                     expect(res.result).to.equal(options.resBody);
                     done();
