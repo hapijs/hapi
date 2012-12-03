@@ -356,6 +356,30 @@ describe('Server', function () {
             expect(fn).to.throw(Error);
             done();
         });
+
+        it('doesn\'t throw an error when routes differ in case and case is sensitive', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server({ router: { isCaseSensitive: true } });
+                server.addRoute({ path: '/test/{p}/End', method: 'put', handler: function () { } });
+                server.addRoute({ path: '/test/{p}/end', method: 'put', handler: function () { } });
+            };
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+
+        it('throws an error when routes differ in case and case is insensitive', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server({ router: { isCaseSensitive: false } });
+                server.addRoute({ path: '/test/{p}/End', method: 'put', handler: function () { } });
+                server.addRoute({ path: '/test/{p}/end', method: 'put', handler: function () { } });
+            };
+            expect(fn).to.throw(Error);
+            done();
+        });
     });
 
     describe('#addRoutes', function () {
