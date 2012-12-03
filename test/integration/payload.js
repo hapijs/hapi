@@ -138,29 +138,25 @@ describe('Payload', function () {
             request.reply(request.payload);
         };
 
-        var server = new Hapi.Server('0.0.0.0', 18990);
-        server.addRoute({ method: 'POST', path: '/invalid', config: { handler: invalidHandler } });
-        server.addRoute({ method: 'POST', path: '/', config: { handler: echo } });
+        var _server = new Hapi.Server('0.0.0.0', 18991);
+        _server.addRoute({ method: 'POST', path: '/invalid', handler: invalidHandler });
+        _server.addRoute({ method: 'POST', path: '/echo', handler: echo });
 
         var multipartPayload =
-            'This is the preamble.  It is to be ignored, though it\r\n' +
-                'is a handy place for mail composers to include an\r\n' +
-                'explanatory note to non-MIME compliant readers.\r\n' +
-                '--simpleboundary\r\n' +
-                '\r\n' +
-                'blah' +
-                '\r\n' +
-                '--simpleboundary\r\n' +
-                'Content-type: text/plain; charset=us-ascii\r\n' +
-                '\r\n' +
-                'blah2' +
-                '\r\n' +
-                '--simpleboundary--\r\n' +
-                'This is the epilogue.  It is also to be ignored.\r\n';
+                '--AaB03x\r\n'+
+                'content-disposition: form-data; name="field1"\r\n'+
+                '\r\n'+
+                'Joe Blow\r\nalmost tricked you!\r\n'+
+                '--AaB03x\r\n'+
+                'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n'+
+                'Content-Type: text/plain\r\n'+
+                '\r\n'+
+                '... contents of file1.txt ...\r\r\n'+
+                '--AaB03x--\r\n';
 
         it('returns an error on missing boundary in content-type header', function (done) {
 
-            server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
+            _server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(400);
@@ -170,10 +166,20 @@ describe('Payload', function () {
 
         it('returns an error on empty separator in content-type header', function (done) {
 
-            server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
+            _server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(400);
+                done();
+            });
+        });
+
+        it('returns parsed multipart data', function (done) {
+
+           _server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.result.field1).to.exist;
+                expect(res.result.pics).to.exist;
                 done();
             });
         });
@@ -188,6 +194,7 @@ describe('Payload', function () {
                 done();
             };
 
+            var server = new Hapi.Server('0.0.0.0', 18990);
             server.addRoute({ method: 'POST', path: '/file', config: { handler: fileHandler } });
             server.start(function () {
 
