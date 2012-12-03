@@ -198,7 +198,7 @@ describe('Response', function () {
 
         var filenameFn = function (request) {
 
-            return './' + request.params.file;
+            return '../../' + request.params.file;
         };
 
         it('returns a file using the build-in handler config', function (done) {
@@ -253,7 +253,7 @@ describe('Response', function () {
 
         it('returns a file using the built-in handler config (relative path)', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/relativestaticfile', handler: { file: './package.json' } });
+            server.addRoute({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
 
             Request.get('http://localhost:17082/relativestaticfile', function (err, res, body) {
 
