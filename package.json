@@ -29,7 +29,7 @@
     "redis": "0.8.x",
     "shot": "0.0.x",
     "mongodb": "1.1.x",
-    "multipart-parser": "0.x.x",
+    "formidable": "1.0.x",
     "lout": "0.x.x",
     "hapi-helmet": "0.x.x",
     "mime": "~1.2.7",

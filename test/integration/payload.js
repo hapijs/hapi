@@ -1,6 +1,9 @@
 // Load modules
 
 var Chai = require('chai');
+var Request = require('request');
+var Fs = require('fs');
+var Path = require('path');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 
 
@@ -130,23 +133,29 @@ describe('Payload', function () {
             expect(request).to.not.exist;       // Must not be called
         };
 
-        var server = new Hapi.Server();
+        var echo = function (request) {
+
+            request.reply(request.payload);
+        };
+
+        var server = new Hapi.Server('0.0.0.0', 18990);
         server.addRoute({ method: 'POST', path: '/invalid', config: { handler: invalidHandler } });
+        server.addRoute({ method: 'POST', path: '/', config: { handler: echo } });
 
         var multipartPayload =
             'This is the preamble.  It is to be ignored, though it\r\n' +
                 'is a handy place for mail composers to include an\r\n' +
                 'explanatory note to non-MIME compliant readers.\r\n' +
-                '--simple boundary\r\n' +
+                '--simpleboundary\r\n' +
                 '\r\n' +
                 'blah' +
                 '\r\n' +
-                '--simple boundary\r\n' +
+                '--simpleboundary\r\n' +
                 'Content-type: text/plain; charset=us-ascii\r\n' +
                 '\r\n' +
                 'blah2' +
                 '\r\n' +
-                '--simple boundary--\r\n' +
+                '--simpleboundary--\r\n' +
                 'This is the epilogue.  It is also to be ignored.\r\n';
 
         it('returns an error on missing boundary in content-type header', function (done) {
@@ -169,35 +178,22 @@ describe('Payload', function () {
             });
         });
 
-        var echo = function (request) {
+        it('parses a file correctly', function (done) {
 
-            request.reply(request.payload);
-        };
+            var file = Fs.readFileSync(Path.join(__dirname, '../../images/hapi.png'));
+            var fileHandler = function (request) {
 
-        server.addRoute({ method: 'POST', path: '/', config: { handler: echo } });
-
-        it('returns parsed multipart data', function (done) {
-
-            server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=simple boundary' } }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result.length).to.equal(2);
+                expect(request.raw.req.headers['content-type']).to.contain('multipart/form-data');
+                expect(request.payload['my_file']).to.contain('Photoshop');
                 done();
-            });
-        });
+            };
 
-        var invalidPayload =
-            '--simple boundary\r\n' +
-            'blah' +
-            '\r\n';
+            server.addRoute({ method: 'POST', path: '/file', config: { handler: fileHandler } });
+            server.start(function () {
 
-        it('returns an error on bad payload', function (done) {
-
-            server.inject({ method: 'POST', url: '/invalid', payload: invalidPayload, headers: { 'content-type': 'multipart/form-data; boundary=simple boundary' } }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
-                done();
+                var r = Request.post('http://127.0.0.1:18990/file');
+                var form = r.form();
+                form.append('my_file', file);
             });
         });
     });
