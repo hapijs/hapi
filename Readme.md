@@ -450,9 +450,10 @@ to write additional text as the configuration itself serves as a living document
 
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
-* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_ or _'file'_ property.
-    * `proxy` - determines if a reverse proxy should be used to handle the request
-    * `file` - determines a file should be served for the route.  This is a string pointing to the full local path of the file.
+* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_, _'file'_, or _'directory'_ property:
+    * `proxy` - generates a reverse proxy handler as described in (Proxy)[#proxy].
+    * `file` - generates a static file endpoint as described in (File)[#file].
+    * `directory` - generates a directory mapper for service static content as described in (Directory)[#directory].
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
