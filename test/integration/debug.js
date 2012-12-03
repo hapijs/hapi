@@ -17,7 +17,6 @@ var expect = Chai.expect;
 describe('Debug', function () {
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:18086';
 
     var profileHandler = function (request) {
 
@@ -43,7 +42,7 @@ describe('Debug', function () {
         });
     };
 
-    function setupServer(done) {
+    function setupServer() {
 
         _server = new Hapi.Server('0.0.0.0', 18086, { debug: { websocketPort: 3003 } });
         _server.addRoutes([
@@ -51,11 +50,6 @@ describe('Debug', function () {
             { method: 'GET', path: '/item', config: { handler: activeItemHandler } },
             { method: 'GET', path: '/item/{id}', config: { handler: itemHandler } }
         ]);
-        _server.listener.on('listening', function () {
-
-            done();
-        });
-        _server.start();
     }
 
     before(setupServer);

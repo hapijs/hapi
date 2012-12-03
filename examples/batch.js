@@ -8,6 +8,18 @@ var Hapi = require('../lib/hapi');
 var internals = {};
 
 
+/**
+ * To Test:
+ *
+ * Run the server and try a batch request like the following:
+ *
+ * POST /batch
+ *     { "requests": [{ "method": "get", "path": "/profile" }, { "method": "get", "path": "/item" }, { "method": "get", "path": "/item/$1.id" }]
+ *
+ * or a GET request to http://localhost:8080/request will perform the above request for you
+ */
+
+
 internals.profile = function (request) {
 
     request.reply({
@@ -35,15 +47,31 @@ internals.item = function (request) {
 };
 
 
+internals.requestBatch = function (request) {
+
+    internals.http.inject({
+        method: 'POST',
+        url: '/batch',
+        payload: '{ "requests": [{ "method": "get", "path": "/profile" }, { "method": "get", "path": "/item" }, { "method": "get", "path": "/item/$1.id" }] }'
+    }, function (res) {
+
+        request.reply(res.result);
+    });
+};
+
+
 internals.main = function () {
 
-    var http = new Hapi.Server(8080, { batch: true });
+    internals.http = new Hapi.Server(8080, { batch: true });
 
-    http.addRoutes([{ method: 'GET', path: '/profile', config: { handler: internals.profile } },
-                    { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
-                    { method: 'GET', path: '/item/{id}', config: { handler: internals.item } }]);
+    internals.http.addRoutes([
+        { method: 'GET', path: '/profile', handler: internals.profile },
+        { method: 'GET', path: '/item', handler: internals.activeItem },
+        { method: 'GET', path: '/item/{id}', handler: internals.item },
+        { method: 'GET', path: '/request', handler: internals.requestBatch }
+    ]);
 
-    http.start();
+    internals.http.start();
 };
 
 

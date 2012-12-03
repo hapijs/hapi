@@ -343,7 +343,7 @@ describe('Response', function () {
     describe('Directory', function () {
 
         var server = new Hapi.Server(17083);
-        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });
+        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '../../' } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -414,7 +414,7 @@ describe('Response', function () {
 
         it('returns a 403 when index and listing are disabled', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/directoryx/{path*}', handler: { directory: { path: '.', index: false } } });
+            server.addRoute({ method: 'GET', path: '/directoryx/{path*}', handler: { directory: { path: '../../', index: false } } });
 
             server.start(function () {
 
@@ -427,7 +427,7 @@ describe('Response', function () {
             });
         });
 
-        server.addRoute({ method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: '.', listing: true } } });
+        server.addRoute({ method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: '../../', listing: true } } });
 
         it('returns a list of files when listing is enabled', function (done) {
 
@@ -459,7 +459,7 @@ describe('Response', function () {
 
         it('returns a list of files when listing is enabled and index disabled', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/directorylistx/{path*}', handler: { directory: { path: '.', listing: true, index: false } } });
+            server.addRoute({ method: 'GET', path: '/directorylistx/{path*}', handler: { directory: { path: '../../', listing: true, index: false } } });
 
             server.start(function () {
 
@@ -473,7 +473,7 @@ describe('Response', function () {
             });
         });
 
-        server.addRoute({ method: 'GET', path: '/directoryIndex/{path*}', handler: { directory: { path: './test/integration/directory' } } });
+        server.addRoute({ method: 'GET', path: '/directoryIndex/{path*}', handler: { directory: { path: './directory/' } } });
 
         it('returns the index when found', function (done) {
 
@@ -506,14 +506,14 @@ describe('Response', function () {
 
             var directoryFn = function (request) {
 
-                return './lib/hapi.js';
+                return '../../lib/';
             };
 
-            server.addRoute({ method: 'GET', path: '/directoryfn/{path*}', handler: { directory: { path: directoryFn } } });
+            server.addRoute({ method: 'GET', path: '/directoryfn/{path?}', handler: { directory: { path: directoryFn } } });
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryfn', function (err, res, body) {
+                Request.get('http://localhost:17083/directoryfn/hapi.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
