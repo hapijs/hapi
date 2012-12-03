@@ -343,7 +343,7 @@ describe('Response', function () {
     describe('Directory', function () {
 
         var server = new Hapi.Server(17083);
-        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '../../' } } });
+        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '../..' } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -506,7 +506,7 @@ describe('Response', function () {
 
             var directoryFn = function (request) {
 
-                return '../../lib/';
+                return '../../lib';
             };
 
             server.addRoute({ method: 'GET', path: '/directoryfn/{path?}', handler: { directory: { path: directoryFn } } });
