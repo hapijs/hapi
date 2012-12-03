@@ -35,16 +35,6 @@ describe('Route', function () {
         done();
     });
 
-    it('throws an error if the path is missing', function (done) {
-
-        var fn = function () {
-
-            var route = new Route({ method: 'get', handler: _handler }, server);
-        };
-        expect(fn).throws(Error);
-        done();
-    });
-
     it('throws an error if the method is missing', function (done) {
 
         var fn = function () {
@@ -72,6 +62,16 @@ describe('Route', function () {
             var route = new Route({ path: '/test', method: 'get', handler: null }, server);
         };
         expect(fn).throws(Error, 'Handler must appear once and only once');
+        done();
+    });
+
+    it('throws an error if the path is includes an encoded non-reserved character', function (done) {
+
+        var fn = function () {
+
+            var route = new Route({ path: '/abc%21123', method: 'get', handler: _handler }, server);
+        };
+        expect(fn).throws(Error);
         done();
     });
 
