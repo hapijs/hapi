@@ -30,4 +30,4 @@ unit:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive -R xunit --ignore-leaks > results.xml --timeout 3000
 	@#$(MAKE) rm-lib-cov
 
-.PHONY: test tap test-cv test-cov-html unit lib-cov rm-lib-cov
+.PHONY: test tap test-cov test-cov-html unit lib-cov rm-lib-cov

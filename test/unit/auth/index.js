@@ -1,6 +1,20 @@
-var expect = require('chai').expect;
-var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
-var Auth = require(libPath + 'auth/index');
+// Load modules
+
+var Chai = require('chai');
+var Oz = require('oz');
+var Hapi = process.env.TEST_COV ? require('../../../lib-cov/hapi') : require('../../../lib/hapi');
+var Auth = process.env.TEST_COV ? require('../../../lib-cov/auth') : require('../../../lib/auth');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
 
 describe('Auth', function () {
 
@@ -63,7 +77,7 @@ describe('Auth', function () {
 
     describe('#authenticate', function () {
 
-        var test = function (scheme, isEntitySupported) {
+        var test = function (scheme) {
 
             it('doesn\'t throw an error when a session exists and entity is any (' + scheme.scheme + ')', function (done) {
 
@@ -73,15 +87,12 @@ describe('Auth', function () {
                     _route: {
                         config: {
                             auth: {
+                                entity: 'any'
                             }
                         }
                     },
                     log: function () { }
                 };
-
-                if (isEntitySupported) {
-                    request._route.config.auth.entity = 'any';
-                }
 
                 var server = {
                     settings: {},
@@ -97,11 +108,10 @@ describe('Auth', function () {
                 });
             });
 
-            it('doesn\'t throw an error when a session exists with a user (' + scheme.scheme + ')', function (done) {
+            it('doesn\'t throw an error when a session exists and entity defaults to any (' + scheme.scheme + ')', function (done) {
 
                 var request = {
                     session: {
-                        user: 'test'
                     },
                     _route: {
                         config: {
@@ -126,132 +136,160 @@ describe('Auth', function () {
                 });
             });
 
-            if (isEntitySupported) {
-                it('throws an error when a session exists without a user and no entity is provided (' + scheme.scheme + ')', function (done) {
+            it('doesn\'t throw an error when a session exists with a user and user entity specified (' + scheme.scheme + ')', function (done) {
 
-                    var request = {
-                        session: {
-                            test: 'test'
-                        },
-                        _route: {
-                            config: {
-                                auth: {
-                                }
+                var request = {
+                    session: {
+                        user: 'test'
+                    },
+                    _route: {
+                        config: {
+                            auth: {
+                                entity: 'user'
                             }
-                        },
-                        log: function () { }
-                    };
+                        }
+                    },
+                    log: function () { }
+                };
 
-                    var server = {
-                        settings: {},
-                        addRoutes: function () { }
-                    };
+                var server = {
+                    settings: {},
+                    addRoutes: function () { }
+                };
 
-                    var auth = new Auth(server, scheme);
+                var auth = new Auth(server, scheme);
 
-                    auth.authenticate(request, function (err) {
+                auth.authenticate(request, function (err) {
 
-                        expect(err).to.exist;
-                        expect(err).to.be.instanceOf(Error);
-                        done();
-                    });
+                    expect(err).to.not.exist;
+                    done();
                 });
+            });
 
-                it('throws an error when a session exists without a app and app entity is specified (' + scheme.scheme + ')', function (done) {
+            it('throws an error when a session exists without a user and user entity is specified (' + scheme.scheme + ')', function (done) {
 
-                    var request = {
-                        session: {
-                            user: 'test'
-                        },
-                        _route: {
-                            config: {
-                                auth: {
-                                    entity: 'app'
-                                }
+                var request = {
+                    session: {
+                    },
+                    _route: {
+                        config: {
+                            auth: {
+                                entity: 'user'
                             }
-                        },
-                        log: function () { }
-                    };
+                        }
+                    },
+                    log: function () { }
+                };
 
-                    var server = {
-                        settings: {},
-                        addRoutes: function () { }
-                    };
+                var server = {
+                    settings: {},
+                    addRoutes: function () { }
+                };
 
-                    var auth = new Auth(server, scheme);
+                var auth = new Auth(server, scheme);
 
-                    auth.authenticate(request, function (err) {
+                auth.authenticate(request, function (err) {
 
-                        expect(err).to.exist;
-                        expect(err).to.be.instanceOf(Error);
-                        done();
-                    });
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(Error);
+                    done();
                 });
+            });
 
-                it('doesn\'t throw an error when a session exists with a app and app entity is specified (' + scheme.scheme + ')', function (done) {
+            it('throws an error when a session exists without a app and app entity is specified (' + scheme.scheme + ')', function (done) {
 
-                    var request = {
-                        session: {
-                            app: 'test'
-                        },
-                        _route: {
-                            config: {
-                                auth: {
-                                    entity: 'app'
-                                }
+                var request = {
+                    session: {
+                        user: 'test'
+                    },
+                    _route: {
+                        config: {
+                            auth: {
+                                entity: 'app'
                             }
-                        },
-                        log: function () { }
-                    };
+                        }
+                    },
+                    log: function () { }
+                };
 
-                    var server = {
-                        settings: {},
-                        addRoutes: function () { }
-                    };
+                var server = {
+                    settings: {},
+                    addRoutes: function () { }
+                };
 
-                    var auth = new Auth(server, scheme);
+                var auth = new Auth(server, scheme);
 
-                    auth.authenticate(request, function (err) {
+                auth.authenticate(request, function (err) {
 
-                        expect(err).to.not.exist;
-                        done();
-                    });
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(Error);
+                    done();
                 });
+            });
 
-                it('throws an error when an unknown entity is specified (' + scheme.scheme + ')', function (done) {
+            it('doesn\'t throw an error when a session exists with a app and app entity is specified (' + scheme.scheme + ')', function (done) {
 
-                    var server = {
-                        settings: {},
-                        addRoutes: function () { },
-                        host: 'localhost'
-                    };
-
-                    var request = {
-                        session: {
-                            user: 'test'
-                        },
-                        _route: {
-                            config: {
-                                auth: {
-                                    entity: 'wrongEntity'
-                                }
+                var request = {
+                    session: {
+                        app: 'test'
+                    },
+                    _route: {
+                        config: {
+                            auth: {
+                                entity: 'app'
                             }
-                        },
-                        log: function () { },
-                        server: server,
-                        host: 'localhost'
-                    };
+                        }
+                    },
+                    log: function () { }
+                };
 
-                    var auth = new Auth(server, scheme);
+                var server = {
+                    settings: {},
+                    addRoutes: function () { }
+                };
 
-                    auth.authenticate(request, function (err) {
+                var auth = new Auth(server, scheme);
 
-                        expect(err).to.exist;
-                        expect(err).to.be.instanceOf(Error);
-                        done();
-                    });
+                auth.authenticate(request, function (err) {
+
+                    expect(err).to.not.exist;
+                    done();
                 });
-            }
+            });
+
+            it('throws an error when an unknown entity is specified (' + scheme.scheme + ')', function (done) {
+
+                var server = {
+                    settings: {},
+                    addRoutes: function () { },
+                    host: 'localhost'
+                };
+
+                var request = {
+                    session: {
+                        user: 'test'
+                    },
+                    _route: {
+                        config: {
+                            auth: {
+                                entity: 'wrongEntity'
+                            }
+                        }
+                    },
+                    log: function () { },
+                    server: server,
+                    host: 'localhost'
+                };
+
+                var auth = new Auth(server, scheme);
+
+                auth.authenticate(request, function (err) {
+
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(Error);
+                    done();
+                });
+            });
 
             it('throws an error when missing session and bad request (' + scheme.scheme + ')', function (done) {
 
@@ -264,6 +302,7 @@ describe('Auth', function () {
                     _route: {
                         config: {
                             auth: {
+                                entity: 'user'
                             }
                         }
                     },
@@ -281,10 +320,6 @@ describe('Auth', function () {
                     },
                     server: server
                 };
-
-                if (isEntitySupported) {
-                    request._route.config.auth.entity = 'user';
-                }
 
                 var auth = new Auth(server, scheme);
 
@@ -304,13 +339,20 @@ describe('Auth', function () {
             loadGrantFunc: function () { }
         };
 
-        test(oz, true);
+        test(oz);
 
         var basic = {
             scheme: 'basic',
             loadUserFunc: function () { }
         };
 
-        test(basic, false);
+        test(basic);
+
+        var hawk = {
+            scheme: 'hawk',
+            getCredentialsFunc: function () { }
+        };
+
+        test(hawk);
     });
 });

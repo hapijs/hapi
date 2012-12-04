@@ -2,6 +2,7 @@
 
 var Chai = require('chai');
 var Oz = require('oz');
+var Hawk = require('hawk');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 
 
@@ -76,7 +77,7 @@ describe('Auth', function () {
             { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
             { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: 200 } } },
-            { method: 'POST', path: '/double', handler: doubleHandler },
+            { method: 'POST', path: '/double', handler: doubleHandler }
         ]);
 
         it('returns a reply on successful auth', function (done) {
@@ -358,6 +359,170 @@ describe('Auth', function () {
         });
     });
 
+    describe('Hawk', function () {
+
+        var credentials = {
+            'john': {
+                cred: {
+                    id: 'john',
+                    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+                    algorithm: 'hmac-sha-256'
+                }
+            },
+            'jane': {
+                err: Hapi.error.internal('boom')
+            }
+        };
+
+        var getCredentials = function (id, callback) {
+
+            if (credentials[id]) {
+                return callback(credentials[id].err, credentials[id].cred);
+            }
+            else {
+                return callback(null, null);
+            }
+        };
+
+        var hawkHeader = function (id, path) {
+
+            if (credentials[id] && credentials[id].cred) {
+                return Hawk.getAuthorizationHeader(credentials[id].cred, 'POST', path, '0.0.0.0', 8080);
+            }
+            else {
+                return '';
+            }
+        };
+
+        var config = {
+            auth: {
+                scheme: 'hawk',
+                getCredentialsFunc: getCredentials
+            }
+        };
+
+        var server = new Hapi.Server('0.0.0.0', 8080, config);
+
+        var hawkHandler = function (request) {
+
+            request.reply('Success');
+        };
+
+        server.addRoutes([
+            { method: 'POST', path: '/hawk', handler: hawkHandler },
+            { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
+            { method: 'POST', path: '/hawkScope', handler: hawkHandler, config: { auth: { scope: 'x' } } },
+            { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: 200 } } }
+        ]);
+
+        it('returns a reply on successful auth', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on failed optional auth', function (done) {
+
+            var request = { method: 'POST', url: '/hawkOptional' };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns an error on bad auth header', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', 'abcd'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns an error on bad header format', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: 'junk', host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns an error on bad scheme', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: 'junk something', host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns an error on insufficient tos', function (done) {
+
+            var request = { method: 'POST', url: '/hawkTos', headers: { authorization: hawkHeader('john', '/hawkTos'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(403);
+                done();
+            });
+        });
+
+        it('returns an error on insufficient scope', function (done) {
+
+            var request = { method: 'POST', url: '/hawkScope', headers: { authorization: hawkHeader('john', '/hawkScope'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(403);
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth when using a custom host header key', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk'), custom: '0.0.0.0:8080' } };
+
+            var config = {
+                auth: {
+                    scheme: 'hawk',
+                    getCredentialsFunc: getCredentials,
+                    hostHeaderName: 'custom'
+                }
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            server.addRoute({ method: 'POST', path: '/hawk', handler: hawkHandler });
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+    });
+
     describe('Ext', function () {
 
         it('returns a reply on successful ext any', function (done) {
@@ -367,9 +532,9 @@ describe('Auth', function () {
                     scheme: 'ext:any',
                     implementation: {
 
-                        authenticate: function (request, next) {
+                        authenticate: function (request, callback) {
 
-                            next();
+                            callback(null, {});
                         }
                     }
                 }
@@ -393,4 +558,3 @@ describe('Auth', function () {
         });
     });
 });
-

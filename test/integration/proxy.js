@@ -1,8 +1,19 @@
 // Load modules
 
-var expect = require('chai').expect;
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Chai = require('chai');
 var Request = require('request');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+
 
 describe('Proxy', function () {
 
@@ -48,6 +59,7 @@ describe('Proxy', function () {
         ]);
 
         dummyServer.listener.on('listening', function () {
+
             if (listening) {
                 done();
             }
@@ -56,6 +68,7 @@ describe('Proxy', function () {
             }
         });
         _server.listener.on('listening', function () {
+
             if (listening) {
                 done();
             }
@@ -125,6 +138,7 @@ describe('Proxy', function () {
     function makeRequest(options, callback) {
 
         var next = function (err, res) {
+
             return callback(res);
         };
 
