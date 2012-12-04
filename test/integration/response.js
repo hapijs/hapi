@@ -571,14 +571,14 @@ describe('Response', function () {
             });
         });
 
-        it('returns a forbidden response when requesting a hidden file when showHidden is disabled', function (done) {
+        it('returns a 404 response when requesting a hidden file when showHidden is disabled', function (done) {
 
             server.start(function () {
 
                 Request.get('http://localhost:17083/noshowhidden/.gitignore', function (err, res, body) {
 
                     expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(403);
+                    expect(res.statusCode).to.equal(404);
                     done();
                 });
             });
