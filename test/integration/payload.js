@@ -104,7 +104,7 @@ describe('Payload', function () {
     });
 
     describe('unzip', function () {
-        
+
         it('returns an error on malformed payload', function (done) {
 
             var multipartPayload = '7d8d78347h8347d58w347hd58w374d58w37h5d8w37hd4';
@@ -143,15 +143,19 @@ describe('Payload', function () {
         _server.addRoute({ method: 'POST', path: '/echo', handler: echo });
 
         var multipartPayload =
-                '--AaB03x\r\n'+
-                'content-disposition: form-data; name="field1"\r\n'+
-                '\r\n'+
-                'Joe Blow\r\nalmost tricked you!\r\n'+
-                '--AaB03x\r\n'+
-                'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n'+
-                'Content-Type: text/plain\r\n'+
-                '\r\n'+
-                '... contents of file1.txt ...\r\r\n'+
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="field1"\r\n' +
+                '\r\n' +
+                'Joe Blow\r\nalmost tricked you!\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="field1"\r\n' +
+                '\r\n' +
+                'Repeated name segment\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+                'Content-Type: text/plain\r\n' +
+                '\r\n' +
+                '... contents of file1.txt ...\r\r\n' +
                 '--AaB03x--\r\n';
 
         it('returns an error on missing boundary in content-type header', function (done) {
@@ -176,9 +180,12 @@ describe('Payload', function () {
 
         it('returns parsed multipart data', function (done) {
 
-           _server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+            _server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
 
+                expect(Object.keys(res.result).length).to.equal(2);
                 expect(res.result.field1).to.exist;
+                expect(res.result.field1.length).to.equal(2);
+                expect(res.result.field1[1]).to.equal('Repeated name segment');
                 expect(res.result.pics).to.exist;
                 done();
             });
