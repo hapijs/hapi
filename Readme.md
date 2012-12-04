@@ -8,7 +8,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.9.1**
+Current version: **0.9.2**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -28,6 +28,7 @@ Current version: **0.9.1**
         - [Format](#format)
           - [Error Format](#error-format)
           - [Payload Format](#payload-format)
+		- [Files](#files)
 		- [Monitor](#monitor)
 		- [Authentication](#authentication)
 		- [Cache](#cache)
@@ -46,7 +47,8 @@ Current version: **0.9.1**
 		- [Route Handler](#route-handler)
             - [Response](#response)
 			- [Proxy](#proxy)
-			- [Files](#files)
+			- [File](#file)
+			- [Directory](#directory)
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
@@ -122,7 +124,8 @@ var server = new Hapi.Server();
 - [`router`](#router)
 - [`payload`](#payload)
 - [`ext`](#extensions)
-- [`errors`](#errors)
+- [`format`](#format)
+- [`files`](#files)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
@@ -153,6 +156,7 @@ var server = new Hapi.Server(options);
 The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
 - `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
+- `normalizeRequestPath` - determines whether a path should have certain reserved and unreserved percent encoded characters decoded.  Also, all percent encodings will be capitalized that cannot be decoded.  Defaults to _false_.
 
 ### Payload
 
@@ -303,6 +307,15 @@ var options = {
 ```
 
 
+### Files
+
+**hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
+When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
+and defaults to _'routes'_:
+- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'addRoute()'_ or _'addRoutes()'_ methods are called. This means the location of the source code determines the location of the static resources when using relative paths.
+- _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
+
+
 ### Monitor
 
 **hapi** comes with a built-in process monitor for three types of events:
@@ -437,9 +450,10 @@ to write additional text as the configuration itself serves as a living document
 
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
-* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_ or _'file'_ property.
-    * `proxy` - determines if a reverse proxy should be used to handle the request
-    * `file` - determines a file should be served for the route.  This is a string pointing to the full local path of the file.
+* `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_, _'file'_, or _'directory'_ property:
+    * `proxy` - generates a reverse proxy handler as described in (Proxy)[#proxy].
+    * `file` - generates a static file endpoint as described in (File)[#file].
+    * `directory` - generates a directory mapper for service static content as described in (Directory)[#directory].
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
   * `description` - route description.
   * `notes` - route notes (string or array of strings).
@@ -605,7 +619,7 @@ When the provided route handler method is called, it receives a _request_ object
 - Error - error objects generated using the 'Hapi.error' module or 'new Error()' described in [Response Errors](#response-errors).
 
 The request object includes a _'reply'_ property which includes the following methods:
-- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The mehtod will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
+- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The method will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
 - _'stream(stream)'_ - pipes the content of the stream into the response.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
 
@@ -643,19 +657,96 @@ http.addRoute({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', 
 http.start();
 ```
 
-#### Files
+#### File
 
-It is possible with hapi to respond with a file for a given route.  This is easy to configure on a route by specifying an object as the handler that has a property of file.  The value of file should be the full local path to the file that should be served.  Below is an example of this configuration.
+File handlers provide a simple way to serve a static file for a given route. This is done by specifying an object with the `file`
+option as the route handler. The value of the `file` option is the absolute or relative path to the static resource. Relative paths
+are resolved based on the server's `files` option as described in (Files)[#files]. The route path cannot contain parameters when
+configured with a static file path. For example:
 
 ```javascript
-// Create Hapi servers
-var http = new Hapi.Server('0.0.0.0', 8080);
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'process' } });
 
 // Serve index.html file up a directory in the public folder
-http.addRoute({ method: 'GET', path: '/', handler: { file: __dirname + '/../public/index.html' } });
+http.addRoute({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
 
 http.start();
 ```
+
+The file handler also supports dynamic determination of the file being served based on the request, using a function as the value
+of the `file` option with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and
+must return a string with the relative or absolute path to the static resource. For example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// File mapping function
+var filePath = function (request) {
+
+    if (isMobileDevice(request)) {
+        return './mobile/' + request.params.path;
+    }
+
+    return './public' + request.params.path;
+};
+
+http.addRoute({ method: 'GET', path: '/{path}', handler: { file: filePath } });
+
+http.start();
+```
+
+
+#### Directory
+
+Directory handlers provide a flexible way to server static content from an entire directory tree. Similar to other web servers, **hapi**
+allows mapping between a request path component to resources within a file system directory, including serving a default index.html or
+a directory content listing.
+
+Routes utilizing the directory handler must include a single path parameter at the end of the path string (e.g. _'/path/to/somewhere/{param}'_).
+The directory handler is an object with the following options:
+* `path` - a required path string or function. If the `path` is a string, it is used as the prefix for any resources requested within the route by appending the required route path parameter to the provided string. Alternatively, the `path` can be a function with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and must return a string with the relative or absolute path to the static resource. Relative paths are resolved based on the server's `files` option as described in (Files)[#files].
+* `index` - optional boolean, determines if 'index.html' will be served if exists in the folder when requesting a directory. Defaults to _'true'_.
+* `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
+* `showHidden` - optional boolean, determines if hidden files will be shown and served.  Defaults to _'false'_.
+
+The required route path parameter can use any of the parameter options (e.g. '{param}', '{param?}', '{param*}'). For example, to server
+only files in the top level folder and not to any subfolder use _'{path?}'_. If it is safe to navigate to child folders and files then
+use '_{path*}'_. Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_.
+
+The following example shows how to serve a directory named _'public'_ and enable a directory listing in case a 'index.html' file doesn't exist:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+// Serve the public folder with listing enabled
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } } });
+
+http.start();
+```
+
+A function `path` can be used to serve different directory trees based on the incoming request. For example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+var directoryPath = function (request) {
+
+    if (isMobileDevice(request)) {
+        return './mobile';
+    }
+
+    return './public';
+};
+
+http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: directoryPath } } });
+
+http.start();
+```
+
 
 #### Request Logging
 
@@ -746,6 +837,7 @@ Response validation can only be performed on object responses and will otherwise
 * `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the path fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules.
 * `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
 * `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
+* `strict` - determines if only _'Cacheable'_ responses are allowed.  If a response that is not _'Cacheable'_ is returned and strict mode is enabled then an error will be thrown.  Defaults to '_false_'.
 
 For example, to configure a route to be cached on the client and to expire after 2 minutes the configuration would look like the following:
 ```

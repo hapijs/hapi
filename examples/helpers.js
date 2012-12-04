@@ -10,10 +10,18 @@ var internals = {
 };
 
 
+internals.user = function (id, next) {
+
+    setTimeout(function () {
+
+        return next({ id: id, gen: ++internals.gen });
+    }, 110);
+};
+
+
 internals.main = function () {
 
-    // Create Hapi server
-    var server = new Hapi.Server('0.0.0.0', 8080, { cache: 'redis' });
+    var server = new Hapi.Server(8080, { cache: 'redis' });
 
     server.addHelper('user', internals.user, { cache: { expiresIn: 2000, staleIn: 1000, staleTimeout: 100 } });
 
@@ -37,15 +45,6 @@ internals.main = function () {
             });
         }, 1010);
     });
-};
-
-
-internals.user = function (id, next) {
-
-    setTimeout(function () {
-
-        return next({ id: id, gen: ++internals.gen });
-    }, 110);
 };
 
 

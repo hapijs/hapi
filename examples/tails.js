@@ -1,30 +1,11 @@
 // Load modules
 
-var Hapi = require('../../lib/hapi');
+var Hapi = require('../lib/hapi');
 
 
 // Declare internals
 
 var internals = {};
-
-
-internals.main = function () {
-
-    // Create Hapi servers
-    var http = new Hapi.Server('0.0.0.0', 8080);
-
-    // Set routes
-    http.addRoute({ method: 'GET', path: '/', handler: internals.get });
-
-    // Start Hapi servers
-    http.start();
-
-    // Listen to tail events
-    http.on('tail', function (request) {
-
-        console.log('Wag the dog');
-    });
-};
 
 
 internals.get = function (request) {
@@ -44,6 +25,21 @@ internals.get = function (request) {
     }, 2000);
 
     request.reply('Success!\n');
+};
+
+
+internals.main = function () {
+
+    var http = new Hapi.Server(8080);
+    http.addRoute({ method: 'GET', path: '/', handler: internals.get });
+    http.start();
+
+    // Listen to tail events
+
+    http.on('tail', function (request) {
+
+        console.log('Wag the dog');
+    });
 };
 
 
