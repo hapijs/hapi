@@ -45,6 +45,19 @@ describe('Batch', function () {
         });
     };
 
+    var badCharHandler = function (request) {
+
+        request.reply({
+            'id': 'test',
+            'name': Date.now()
+        });
+    };
+
+    var badValueHandler = function (request) {
+
+        request.reply(null);
+    };
+
     var fetch1 = function (request, next) {
 
         next('Hello');
@@ -91,6 +104,8 @@ describe('Batch', function () {
             { method: 'GET', path: '/item', handler: activeItemHandler },
             { method: 'GET', path: '/item/{id}', handler: itemHandler },
             { method: 'GET', path: '/error', handler: errorHandler },
+            { method: 'GET', path: '/badchar', handler: badCharHandler },
+            { method: 'GET', path: '/badvalue', handler: badValueHandler },
             {
                 method: 'GET',
                 path: '/fetch',
@@ -312,6 +327,44 @@ describe('Batch', function () {
         makeRequest('{ "requests": [{"method": "get", "path": "/item"}, {"method": "get", "path": "/item/$0.nothere"}] }', function (res) {
 
             expect(res.message).to.equal('Reference not found');
+            done();
+        });
+    });
+
+    it('handles a bad character in the reference value', function (done) {
+
+        makeRequest('{ "requests": [{"method": "get", "path": "/badchar"}, {"method": "get", "path": "/item/$0.name"}] }', function (res) {
+
+            expect(res.code).to.equal(500);
+            expect(res.message).to.equal('Reference value includes illegal characters');
+            done();
+        });
+    });
+
+    it('cannot use invalid character to request reference', function (done) {
+
+        makeRequest('{ "requests": [{"method": "get", "path": "/badvalue"}, {"method": "get", "path": "/item/$:.name"}] }', function (res) {
+
+            expect(res.code).to.equal(400);
+            done();
+        });
+    });
+
+    it('handles missing reference', function (done) {
+
+        makeRequest('{ "requests": [{"method": "get", "path": "/badvalue"}, {"method": "get", "path": "/item/$0.name"}] }', function (res) {
+
+            expect(res.code).to.equal(500);
+            expect(res.message).to.equal('Missing reference response');
+            done();
+        });
+    });
+
+    it('handles error when getting reference value', function (done) {
+
+        makeRequest('{ "requests": [{"method": "get", "path": "/item"}, {"method": "get", "path": "/item/$0.1"}] }', function (res) {
+
+            expect(res.code).to.equal(500);
             done();
         });
     });
