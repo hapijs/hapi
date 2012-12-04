@@ -362,6 +362,8 @@ describe('Response', function () {
 
         var server = new Hapi.Server(17083);
         server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '../..' } } });
+        server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: '../..', showHidden: true, listing: true } } });
+        server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: '../..', listing: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -536,6 +538,60 @@ describe('Response', function () {
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
                     expect(body).to.contain('export');
+                    done();
+                });
+            });
+        });
+
+        it('returns listing with hidden files when hidden files should be shown', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17083/showhidden', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('.gitignore');
+                    expect(body).to.contain('package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns listing without hidden files when hidden files should not be shown', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17083/noshowhidden', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.not.contain('.gitignore');
+                    expect(body).to.contain('package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns a forbidden response when requesting a hidden file when showHidden is disabled', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17083/noshowhidden/.gitignore', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(403);
+                    done();
+                });
+            });
+        });
+
+        it('returns a file when requesting a hidden file when showHidden is enabled', function (done) {
+
+            server.start(function () {
+
+                Request.get('http://localhost:17083/showhidden/.gitignore', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('node_modules');
                     done();
                 });
             });
