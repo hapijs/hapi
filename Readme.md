@@ -709,6 +709,7 @@ The directory handler is an object with the following options:
 * `path` - a required path string or function. If the `path` is a string, it is used as the prefix for any resources requested within the route by appending the required route path parameter to the provided string. Alternatively, the `path` can be a function with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and must return a string with the relative or absolute path to the static resource. Relative paths are resolved based on the server's `files` option as described in (Files)[#files].
 * `index` - optional boolean, determines if 'index.html' will be served if exists in the folder when requesting a directory. Defaults to _'true'_.
 * `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
+* `showHidden` - optional boolean, determines if hidden files will be shown and served.  Defaults to _'false'_.
 
 The required route path parameter can use any of the parameter options (e.g. '{param}', '{param?}', '{param*}'). For example, to server
 only files in the top level folder and not to any subfolder use _'{path?}'_. If it is safe to navigate to child folders and files then
