@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
 var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
 var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
 
