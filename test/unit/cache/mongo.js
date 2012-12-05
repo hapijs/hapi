@@ -1,6 +1,7 @@
 // Load modules
 
 var expect = require('chai').expect;
+var Sinon = require('sinon');
 var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Mongo = require(libPath + 'cache/mongo');
 
@@ -240,6 +241,32 @@ require('./suite')(function (useRedis, useMongo) {
                         });
                     });
                 });
+
+                it('passes an error to the callback when the collection is null', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27017,
+                        poolSize: 5
+                    };
+                    var mongo = new Mongo.Connection(options);
+
+                    mongo.start(function () {
+
+                        var collectionStub = Sinon.stub(mongo.client, 'collection');
+                        collectionStub.withArgs('testcollection').callsArgWith(1, null, null);
+
+                        mongo.getCollection('testcollection', function (err, result) {
+
+                            expect(err).to.exist;
+                            expect(result).to.not.exist;
+                            expect(err.message).to.equal('Received null collection object');
+                            collectionStub.restore();
+                            done();
+                        });
+                    });
+                });
             });
 
             describe('#get', function () {
@@ -314,7 +341,7 @@ require('./suite')(function (useRedis, useMongo) {
                     });
                 });
 
-                it('passes an error to the callback when there is an error getting the item', function (done) {
+                it('passes an error to the callback when there is an error finding the item', function (done) {
 
                     var options = {
                         partition: 'wwwtest',
@@ -333,8 +360,105 @@ require('./suite')(function (useRedis, useMongo) {
                         mongo.get(key, function (err, result) {
 
                             expect(err).to.exist;
+                            expect(result).to.not.exist;
                             done();
                         });
+                    });
+                });
+
+                it('passes an error to the callback when there is an error returned from getting an item', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27018,
+                        poolSize: 5
+                    };
+                    var key = {
+                        id: 'testerr',
+                        segment: 'testerr'
+                    };
+                    var mongo = new Mongo.Connection(options);
+                    mongo.client = true;
+                    mongo.isConnected = true;
+
+                    mongo.collections.testerr = {
+                        findOne: function (item, callback) {
+
+                            return callback(new Error('test'));
+                        }
+                    };
+
+                    mongo.get(key, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('test');
+                        expect(result).to.not.exist;
+                        done();
+                    });
+                });
+
+                it('passes an error to the callback when there is an issue with the record structure', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27018,
+                        poolSize: 5
+                    };
+                    var key = {
+                        id: 'testerr',
+                        segment: 'testerr'
+                    };
+                    var mongo = new Mongo.Connection(options);
+                    mongo.client = true;
+                    mongo.isConnected = true;
+
+                    mongo.collections.testerr = {
+                        findOne: function (item, callback) {
+
+                            return callback(null, { value: false });
+                        }
+                    };
+
+                    mongo.get(key, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('Incorrect record structure');
+                        expect(result).to.not.exist;
+                        done();
+                    });
+                });
+
+                it('passes an error to the callback when there is an issue parsing the record value', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27018,
+                        poolSize: 5
+                    };
+                    var key = {
+                        id: 'testerr',
+                        segment: 'testerr'
+                    };
+                    var mongo = new Mongo.Connection(options);
+                    mongo.client = true;
+                    mongo.isConnected = true;
+
+                    mongo.collections.testerr = {
+                        findOne: function (item, callback) {
+
+                            return callback(null, { value: 'test', stored: true });
+                        }
+                    };
+
+                    mongo.get(key, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('Bad value content');
+                        expect(result).to.not.exist;
+                        done();
                     });
                 });
             });
@@ -380,6 +504,71 @@ require('./suite')(function (useRedis, useMongo) {
                         });
                     });
                 });
+
+                it('passes an error to the callback when there is an error returned from setting an item', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27018,
+                        poolSize: 5
+                    };
+                    var key = {
+                        id: 'testerr',
+                        segment: 'testerr'
+                    };
+                    var mongo = new Mongo.Connection(options);
+                    mongo.client = true;
+                    mongo.isConnected = true;
+
+                    mongo.getCollection = function (item, callback) {
+
+                        return callback(new Error('test'));
+                    };
+
+                    mongo.set(key, true, 0, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('test');
+                        expect(result).to.not.exist;
+                        done();
+                    });
+                });
+
+                it('passes an error to the callback when there is an error returned from calling update', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27018,
+                        poolSize: 5
+                    };
+                    var key = {
+                        id: 'testerr',
+                        segment: 'testerr'
+                    };
+                    var mongo = new Mongo.Connection(options);
+                    mongo.client = true;
+                    mongo.isConnected = true;
+
+                    mongo.getCollection = function (item, callback) {
+
+                        return callback(null, {
+                            update: function (criteria, record, options, cb) {
+
+                                return cb(new Error('test'));
+                            }
+                        });
+                    };
+
+                    mongo.set(key, true, 0, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('test');
+                        expect(result).to.not.exist;
+                        done();
+                    });
+                });
             });
 
             describe('#drop', function () {
@@ -421,6 +610,71 @@ require('./suite')(function (useRedis, useMongo) {
                             expect(result).to.not.exist;
                             done();
                         });
+                    });
+                });
+
+                it('passes an error to the callback when there is an error returned from dropping an item', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27018,
+                        poolSize: 5
+                    };
+                    var key = {
+                        id: 'testerr',
+                        segment: 'testerr'
+                    };
+                    var mongo = new Mongo.Connection(options);
+                    mongo.client = true;
+                    mongo.isConnected = true;
+
+                    mongo.getCollection = function (item, callback) {
+
+                        return callback(new Error('test'));
+                    };
+
+                    mongo.drop(key, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('test');
+                        expect(result).to.not.exist;
+                        done();
+                    });
+                });
+
+                it('passes an error to the callback when there is an error returned from calling remove', function (done) {
+
+                    var options = {
+                        partition: 'wwwtest',
+                        host: '127.0.0.1',
+                        port: 27018,
+                        poolSize: 5
+                    };
+                    var key = {
+                        id: 'testerr',
+                        segment: 'testerr'
+                    };
+                    var mongo = new Mongo.Connection(options);
+                    mongo.client = true;
+                    mongo.isConnected = true;
+
+                    mongo.getCollection = function (item, callback) {
+
+                        return callback(null, {
+                            remove: function (criteria, safe, cb) {
+
+                                return cb(new Error('test'));
+                            }
+                        });
+                    };
+
+                    mongo.drop(key, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('test');
+                        expect(result).to.not.exist;
+                        done();
                     });
                 });
             });
