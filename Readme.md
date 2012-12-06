@@ -1,3 +1,4 @@
+<a href="/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
 ![hapi Logo](https://raw.github.com/walmartlabs/hapi/master/images/hapi.png)
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
