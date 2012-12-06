@@ -240,7 +240,7 @@ describe('Response', function () {
             Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
 
                 expect(err).to.not.exist;
-                expect(body).to.contain('hapi');
+                expect(body).to.contain('./lib');
                 expect(res.headers['content-type']).to.equal('application/javascript');
                 expect(res.headers['content-length']).to.exist;
                 done();
