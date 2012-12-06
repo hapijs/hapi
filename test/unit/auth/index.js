@@ -166,35 +166,35 @@ describe('Auth', function () {
                 });
             });
 
-            it('throws an error when a session exists without a user and user entity is specified (' + scheme.scheme + ')', function (done) {
+            // it('throws an error when a session exists without a user and user entity is specified (' + scheme.scheme + ')', function (done) {
 
-                var request = {
-                    session: {
-                    },
-                    _route: {
-                        config: {
-                            auth: {
-                                entity: 'user'
-                            }
-                        }
-                    },
-                    log: function () { }
-                };
+            //     var request = {
+            //         session: {
+            //         },
+            //         _route: {
+            //             config: {
+            //                 auth: {
+            //                     entity: 'user'
+            //                 }
+            //             }
+            //         },
+            //         log: function () { }
+            //     };
 
-                var server = {
-                    settings: {},
-                    addRoutes: function () { }
-                };
+            //     var server = {
+            //         settings: {},
+            //         addRoutes: function () { }
+            //     };
 
-                var auth = new Auth(server, scheme);
+            //     var auth = new Auth(server, scheme);
 
-                auth.authenticate(request, function (err) {
+            //     auth.authenticate(request, function (err) {
 
-                    expect(err).to.exist;
-                    expect(err).to.be.instanceOf(Error);
-                    done();
-                });
-            });
+            //         expect(err).to.exist;
+            //         expect(err).to.be.instanceOf(Error);
+            //         done();
+            //     });
+            // });
 
             it('throws an error when a session exists without a app and app entity is specified (' + scheme.scheme + ')', function (done) {
 
@@ -354,5 +354,187 @@ describe('Auth', function () {
         };
 
         test(hawk);
+    });
+
+    describe('#setStrategies', function () {
+
+        it('throws an error if no strategies are defined', function (done) {
+
+            var request = {
+                _route: {
+                    config: {
+                        auth: {}
+                    }
+                },
+                log: function () { }
+            };
+
+            var server = {
+                settings: {},
+                addRoutes: function () { }
+            };
+            
+            var scheme = {
+                strategies: {}
+            };
+
+            
+
+            var a = function () {
+
+                var auth = new Auth(server, scheme);
+            };
+
+            expect(a).to.throw(Error);
+            done();
+        });
+        
+        it('doesn\'t throw an error if strategies are defined but not used', function (done) {
+
+            var request = {
+                _route: {
+                    config: {
+                        auth: {}
+                    }
+                },
+                log: function () { }
+            };
+
+            var server = {
+                settings: {},
+                addRoutes: function () { }
+            };
+            
+            var scheme = {
+                strategies: {
+                    'test': {
+                        scheme: 'basic',
+                        loadUserFunc: function () {}
+                    }
+                }
+            };
+
+            var a = function () {
+
+                var auth = new Auth(server, scheme);
+            };
+
+            expect(a).to.not.throw(Error);
+            done();
+        });
+
+        it('doesn\'t throw an error if strategies are defined and used', function (done) {
+
+            var request = {
+                _route: {
+                    config: {
+                        auth: {
+                            mode: 'required',
+                            strategy: "test"
+                        }
+                    }
+                },
+                log: function () { },
+                raw: {
+                    res: {
+                        setHeader: function () { }
+                    },
+                    req: {
+                        headers: {
+                            host: 'localhost',
+                            authorization: 'basic d2FsbWFydDp3YWxtYXJ0'
+                        },
+                        url: 'http://localhost/test'
+                    }
+                },
+            };
+            
+
+            var server = {
+                settings: {},
+                addRoutes: function () { }
+            };
+            
+            var scheme = {
+                strategies: {
+                    'test': {
+                        scheme: 'basic',
+                        loadUserFunc: function (username, callback) {
+                            
+                            return callback(null, {id: 'walmart', password: 'walmart'})
+                        }
+                    }
+                }
+            };
+
+            var a = function () {
+
+                var auth = new Auth(server, scheme);
+                auth.authenticate(request, function (err) {
+
+                    expect(err).to.not.exist;
+                });
+            };
+
+            expect(a).to.not.throw(Error);
+            done();
+        });
+
+        it('returns an error if strategies are defined but non matching strategy requested', function (done) {
+
+            var request = {
+                _route: {
+                    config: {
+                        auth: {
+                            mode: 'required',
+                            strategy: "missing"
+                        }
+                    }
+                },
+                log: function () { },
+                raw: {
+                    res: {
+                        setHeader: function () { }
+                    },
+                    req: {
+                        headers: {
+                            host: 'localhost',
+                            authorization: 'basic d2FsbWFydDp3YWxtYXJ0'
+                        },
+                        url: 'http://localhost/test'
+                    }
+                },
+            };
+            
+
+            var server = {
+                settings: {},
+                addRoutes: function () { }
+            };
+            
+            var scheme = {
+                strategies: {
+                    'test': {
+                        scheme: 'basic',
+                        loadUserFunc: function (username, callback) {
+                            
+                            return callback(null, {id: 'walmart', password: 'walmart'})
+                        }
+                    }
+                }
+            };
+
+            var a = function () {
+
+                var auth = new Auth(server, scheme);
+                auth.authenticate(request, function (err) {
+
+                    expect(err).to.exist;
+                });
+            };
+
+            expect(a).to.not.throw(Error);
+            done();
+        });
     });
 });
