@@ -1,3 +1,4 @@
+<a href="/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
 ![hapi Logo](https://raw.github.com/walmartlabs/hapi/master/images/hapi.png)
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
@@ -8,7 +9,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.9.2**
+Current version: **0.9.x**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 

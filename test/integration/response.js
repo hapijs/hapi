@@ -4,7 +4,7 @@ var Chai = require('chai');
 var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
 
 
 // Declare internals
@@ -240,7 +240,7 @@ describe('Response', function () {
             Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
 
                 expect(err).to.not.exist;
-                expect(body).to.contain('hapi');
+                expect(body).to.contain('./lib');
                 expect(res.headers['content-type']).to.equal('application/javascript');
                 expect(res.headers['content-length']).to.exist;
                 done();
@@ -533,7 +533,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryfn/hapi.js', function (err, res, body) {
+                Request.get('http://localhost:17083/directoryfn/log.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
