@@ -1,6 +1,6 @@
 // Load modules
 
-var Hapi = require('../lib/hapi');
+var Hapi = require('../lib');
 
 
 // Declare internals

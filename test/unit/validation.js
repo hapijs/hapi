@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Querystring = require('querystring');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
 var Validation = process.env.TEST_COV ? require('../../lib-cov/validation') : require('../../lib/validation');
 
 
