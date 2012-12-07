@@ -4,7 +4,7 @@ var Chai = require('chai');
 var Request = require('request');
 var Fs = require('fs');
 var Path = require('path');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
+var Hapi = require('../helpers');
 
 
 // Declare internals

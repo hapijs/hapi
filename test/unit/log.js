@@ -1,7 +1,8 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
+var Hapi = require('../helpers');
+var LogHelper = require('../helpers');
 
 
 // Declare internals
@@ -15,21 +16,6 @@ var expect = Chai.expect;
 
 
 describe('Log', function () {
-
-    var stdoutIntercept = function (callback) {
-
-        var write = process.stdout.write;
-
-        process.stdout.write = function (string, encoding, fd) {
-
-            callback(string, encoding, fd);
-        };
-
-        return function () {
-
-            process.stdout.write = write;
-        };
-    };
 
     describe('#event', function () {
 
@@ -48,20 +34,13 @@ describe('Log', function () {
 
         it('outputs to stdout if no listeners exist', function (done) {
 
-            var env = process.env.NODE_ENV;
-            process.env.NODE_ENV = 'nottatest';
-
-            var unhookStdout = stdoutIntercept(function (output) {
+            Hapi._TEST.once('log', function (output) {
 
                 expect(output).to.contain('hello');
+                done();
             });
 
-            var tags = ['hello'];
-            Hapi.log.event(tags, null, Date.now());
-
-            process.env.NODE_ENV = env;
-            unhookStdout();
-            done();
+            Hapi.log.event(['hello'], null, Date.now());
         });
     });
 
@@ -74,15 +53,14 @@ describe('Log', function () {
                 data: 'test'
             };
 
-            var unhookStdout = stdoutIntercept(function (output) {
+            Hapi._TEST.once('log', function (output) {
 
                 expect(output).to.contain('test');
                 expect(output).to.contain('tag1');
+                done();
             });
 
-            Hapi.log.print(event, false, true);
-            unhookStdout();
-            done();
+            Hapi.log.print(event, false);
         });
 
         it('outputs correct error text to stdout', function (done) {
@@ -93,14 +71,13 @@ describe('Log', function () {
             };
             event.data.b = event.data;
 
-            var unhookStdout = stdoutIntercept(function (output) {
+            Hapi._TEST.once('log', function (output) {
 
                 expect(output).to.contain('JSON Error');
+                done();
             });
 
-            Hapi.log.print(event, false, true);
-            unhookStdout();
-            done();
+            Hapi.log.print(event, false);
         });
     });
 });
