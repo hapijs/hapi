@@ -130,6 +130,75 @@ require('./suite')(function (useRedis) {
                     });
                 });
 
+                it('passes an error to the callback when there is an error returned from getting an item', function (done) {
+
+                    var options = {
+                        host: '127.0.0.1',
+                        port: 6379
+                    };
+
+                    var redis = new Redis.Connection(options);
+                    redis.client = {
+                        get: function (item, callback) {
+
+                            callback(new Error());
+                        }
+                    };
+
+                    redis.get('test', function(err) {
+
+                        expect(err).to.exist;
+                        expect(err).to.be.instanceOf(Error);
+                        done();
+                    });
+                });
+
+                it('passes an error to the callback when there is an error parsing the result', function (done) {
+
+                    var options = {
+                        host: '127.0.0.1',
+                        port: 6379
+                    };
+
+                    var redis = new Redis.Connection(options);
+                    redis.client = {
+                        get: function (item, callback) {
+
+                            callback(null, 'test');
+                        }
+                    };
+
+                    redis.get('test', function(err) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('Bad envelope content');
+                        done();
+                    });
+                });
+
+                it('passes an error to the callback when there is an error with the envelope structure', function (done) {
+
+                    var options = {
+                        host: '127.0.0.1',
+                        port: 6379
+                    };
+
+                    var redis = new Redis.Connection(options);
+                    redis.client = {
+                        get: function (item, callback) {
+
+                            callback(null, '{ "item": "false" }');
+                        }
+                    };
+
+                    redis.get('test', function(err) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('Incorrect envelope structure');
+                        done();
+                    });
+                });
+
                 it('is able to retrieve an object thats stored when connection is started', function(done) {
 
                     var options = {
@@ -204,6 +273,29 @@ require('./suite')(function (useRedis) {
                         done();
                     });
                 });
+
+                it('passes an error to the callback when there is an error returned from setting an item', function (done) {
+
+                    var options = {
+                        host: '127.0.0.1',
+                        port: 6379
+                    };
+
+                    var redis = new Redis.Connection(options);
+                    redis.client = {
+                        set: function (key, item, callback) {
+
+                            callback(new Error());
+                        }
+                    };
+
+                    redis.set('test', 'test', 3600, function(err) {
+
+                        expect(err).to.exist;
+                        expect(err).to.be.instanceOf(Error);
+                        done();
+                    });
+                });
             });
 
             describe('#drop', function() {
@@ -222,6 +314,28 @@ require('./suite')(function (useRedis) {
                         expect(err).to.exist;
                         expect(err).to.be.instanceOf(Error);
                         expect(err.message).to.equal('Connection not started');
+                        done();
+                    });
+                });
+
+                it('deletes the item from redis', function (done) {
+
+                    var options = {
+                        host: '127.0.0.1',
+                        port: 6379
+                    };
+
+                    var redis = new Redis.Connection(options);
+                    redis.client = {
+                        del: function (key, callback) {
+
+                            callback(null, null);
+                        }
+                    };
+
+                    redis.drop('test', function(err) {
+
+                        expect(err).to.not.exist;
                         done();
                     });
                 });
