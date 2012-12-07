@@ -1,8 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Sinon = require('sinon');
-var Hapi = process.env.TEST_COV ? require('../../../lib-cov') : require('../../../lib');
+var Hapi = require('../../helpers');
 var Monitor = process.env.TEST_COV ? require('../../../lib-cov/monitor') : require('../../../lib/monitor');
 
 
@@ -421,14 +420,7 @@ describe('Monitor', function () {
 
     describe('#_display', function () {
 
-/*        it('prints to the log event data for ops events', function (done) {
-
-            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
-
-                expect(logData.data).to.contain('memory');
-                logStub.restore();
-                done();
-            });
+        it('prints to the log event data for ops events', function (done) {
 
             var settings = {
                 monitor: {
@@ -455,17 +447,16 @@ describe('Monitor', function () {
                 }]
             };
 
+            Hapi._TEST.once('log', function (message) {
+
+                expect(message).to.contain('memory');
+                done();
+            });
+
             monitor._display(data);
         });
 
         it('prints to the log event data for request events', function (done) {
-
-            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
-
-                expect(logData.data).to.contain('testMethod');
-                logStub.restore();
-                done();
-            });
 
             var settings = {
                 monitor: {
@@ -488,7 +479,13 @@ describe('Monitor', function () {
                 }]
             };
 
+            Hapi._TEST.once('log', function (message) {
+
+                expect(message).to.contain('testMethod');
+                done();
+            });
+
             monitor._display(data);
-        });*/
+        });
     });
 });
