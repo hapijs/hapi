@@ -2,9 +2,8 @@
 
 var Chai = require('chai');
 var Sinon = require('sinon');
-var libPath = process.env.TEST_COV ? '../../../lib-cov' : '../../../lib';
-var Hapi = process.env.TEST_COV ? require(libPath) : require(libPath);
-var Monitor = process.env.TEST_COV ? require(libPath + '/monitor') : require(libPath + '/monitor');
+var Hapi = process.env.TEST_COV ? require('../../../lib-cov') : require('../../../lib');
+var Monitor = process.env.TEST_COV ? require('../../../lib-cov/monitor') : require('../../../lib/monitor');
 
 
 // Declare internals
@@ -89,13 +88,13 @@ describe('Monitor', function () {
         };
 
         var settings = {
-                monitor: {
-                    opsInterval: 200,
-                    subscribers: subscribers,
-                    requestsEvent: 'response',
-                    broadcastInterval: 5
-                }
-            };
+            monitor: {
+                opsInterval: 200,
+                subscribers: subscribers,
+                requestsEvent: 'response',
+                broadcastInterval: 5
+            }
+        };
 
         var monitor = new Hapi.server(settings)._monitor;
 
@@ -183,13 +182,13 @@ describe('Monitor', function () {
             };
 
             var settings = {
-                    monitor: {
-                        opsInterval: 10000,
-                        subscribers: subscribers,
-                        requestsEvent: 'response',
-                        broadcastInterval: 5
-                    }
-                };
+                monitor: {
+                    opsInterval: 10000,
+                    subscribers: subscribers,
+                    requestsEvent: 'response',
+                    broadcastInterval: 5
+                }
+            };
 
             var monitor = new Hapi.server(settings)._monitor;
 
@@ -422,7 +421,27 @@ describe('Monitor', function () {
 
     describe('#_display', function () {
 
-        it('prints to the log event data for ops events', function (done) {
+/*        it('prints to the log event data for ops events', function (done) {
+
+            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
+
+                expect(logData.data).to.contain('memory');
+                logStub.restore();
+                done();
+            });
+
+            var settings = {
+                monitor: {
+                    opsInterval: 10000,
+                    subscribers: {
+                        console: ['ops']
+                    },
+                    requestsEvent: 'response',
+                    broadcastInterval: 5
+                }
+            };
+
+            var monitor = new Hapi.server(settings)._monitor;
 
             var data = {
                 events: [{
@@ -436,32 +455,30 @@ describe('Monitor', function () {
                 }]
             };
 
-            var subscribers = {
-                console: ['ops']
-            };
+            monitor._display(data);
+        });
+
+        it('prints to the log event data for request events', function (done) {
+
+            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
+
+                expect(logData.data).to.contain('testMethod');
+                logStub.restore();
+                done();
+            });
 
             var settings = {
                 monitor: {
                     opsInterval: 10000,
-                    subscribers: subscribers,
+                    subscribers: {
+                        console: ['ops']
+                    },
                     requestsEvent: 'response',
                     broadcastInterval: 5
                 }
             };
 
-            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
-
-                expect(logData.data).to.contain('memory');
-                logStub.restore();
-                done();
-            });
-
             var monitor = new Hapi.server(settings)._monitor;
-
-            monitor._display(data);
-        });
-
-        it('prints to the log event data for request events', function (done) {
 
             var data = {
                 events: [{
@@ -471,29 +488,7 @@ describe('Monitor', function () {
                 }]
             };
 
-            var subscribers = {
-                console: ['ops']
-            };
-
-            var settings = {
-                monitor: {
-                    opsInterval: 10000,
-                    subscribers: subscribers,
-                    requestsEvent: 'response',
-                    broadcastInterval: 5
-                }
-            };
-
-            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
-
-                expect(logData.data).to.contain('testMethod');
-                logStub.restore();
-                done();
-            });
-
-            var monitor = new Hapi.server(settings)._monitor;
-
             monitor._display(data);
-        });
+        });*/
     });
 });
