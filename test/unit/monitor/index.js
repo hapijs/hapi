@@ -1,7 +1,6 @@
 // Load modules
 
 var Chai = require('chai');
-var Sinon = require('sinon');
 var Hapi = process.env.TEST_COV ? require('../../../lib-cov') : require('../../../lib');
 var Monitor = process.env.TEST_COV ? require('../../../lib-cov/monitor') : require('../../../lib/monitor');
 
@@ -421,14 +420,7 @@ describe('Monitor', function () {
 
     describe('#_display', function () {
 
-/*        it('prints to the log event data for ops events', function (done) {
-
-            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
-
-                expect(logData.data).to.contain('memory');
-                logStub.restore();
-                done();
-            });
+        it('prints to the log event data for ops events', function (done) {
 
             var settings = {
                 monitor: {
@@ -455,17 +447,19 @@ describe('Monitor', function () {
                 }]
             };
 
+            var print = Hapi.log.print;
+
+            Hapi.log.print = function (event) {
+
+                expect(event.data).to.equal('memory: 0M cpu: 10');
+            };
+
             monitor._display(data);
+            Hapi.log.print = print;
+            done();
         });
 
         it('prints to the log event data for request events', function (done) {
-
-            var logStub = Sinon.stub(Hapi.log, 'print', function (logData) {
-
-                expect(logData.data).to.contain('testMethod');
-                logStub.restore();
-                done();
-            });
 
             var settings = {
                 monitor: {
@@ -484,11 +478,22 @@ describe('Monitor', function () {
                 events: [{
                     event: 'request',
                     instance: 'testInstance',
-                    method: 'testMethod'
+                    method: 'testMethod',
+                    path: 'testPath',
+                    responseTime: 10
                 }]
             };
 
+            var print = Hapi.log.print;
+
+            Hapi.log.print = function (event) {
+
+                expect(event.data).to.equal('testInstance: testMethod testPath (10ms)');
+            };
+
             monitor._display(data);
-        });*/
+            Hapi.log.print = print;
+            done();
+        });
     });
 });
