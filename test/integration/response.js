@@ -4,7 +4,7 @@ var Chai = require('chai');
 var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
+var Hapi = require('../helpers');
 
 
 // Declare internals

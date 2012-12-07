@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = process.env.TEST_COV ? require('../../../lib-cov') : require('../../../lib');
+var Hapi = require('../../helpers');
 var Monitor = process.env.TEST_COV ? require('../../../lib-cov/monitor') : require('../../../lib/monitor');
 
 
@@ -447,16 +447,13 @@ describe('Monitor', function () {
                 }]
             };
 
-            var print = Hapi.log.print;
+            Hapi._TEST.once('log', function (message) {
 
-            Hapi.log.print = function (event) {
-
-                expect(event.data).to.equal('memory: 0M cpu: 10');
-            };
+                expect(message).to.contain('memory');
+                done();
+            });
 
             monitor._display(data);
-            Hapi.log.print = print;
-            done();
         });
 
         it('prints to the log event data for request events', function (done) {
@@ -478,22 +475,17 @@ describe('Monitor', function () {
                 events: [{
                     event: 'request',
                     instance: 'testInstance',
-                    method: 'testMethod',
-                    path: 'testPath',
-                    responseTime: 10
+                    method: 'testMethod'
                 }]
             };
 
-            var print = Hapi.log.print;
+            Hapi._TEST.once('log', function (message) {
 
-            Hapi.log.print = function (event) {
-
-                expect(event.data).to.equal('testInstance: testMethod testPath (10ms)');
-            };
+                expect(message).to.contain('testMethod');
+                done();
+            });
 
             monitor._display(data);
-            Hapi.log.print = print;
-            done();
         });
     });
 });

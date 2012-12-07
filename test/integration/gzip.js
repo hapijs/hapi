@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Zlib = require('zlib');
 var Request = require('request');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
+var Hapi = require('../helpers');
 
 
 // Declare internals

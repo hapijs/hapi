@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Shot = require('shot');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
+var Hapi = require('../helpers');
 var Payload = process.env.TEST_COV ? require('../../lib-cov/payload') : require('../../lib/payload');
 var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
 
