@@ -110,7 +110,7 @@ The **hapi** Server object is the core of the framework and is constructed by in
 - _'port'_ - optional port. Defaults to '80' (or '443' for TLS).
 - _'options'_ - optional configuration as described in [Server Configuration](#server-configuration).
 
-```javascrip
+```javascript
 var Hapi = require('hapi');
 
 // Create a server on localhost port 80
@@ -646,6 +646,7 @@ It is possible with hapi to setup a reverse proxy for routes.  This is especiall
 * `protocol` - The protocol to use when making a request to the proxied host (http or https)
 * `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
 * `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
+* `httpClient` - A function that should make the request to the remote server and use execute the callback with a response.  By default this uses _'request'_ as the module.  The signature is (options, callback) where options will contain a url and method.
 
 For example, to proxy a request to the homepage to google:
 ```javascript
