@@ -4,7 +4,7 @@ var Chai = require('chai');
 var ChildProcess = require('child_process');
 var Fs = require('fs');
 var Sinon = require('sinon');
-var Hapi = process.env.TEST_COV ? require('../../../lib-cov') : require('../../../lib');
+var Hapi = require('../../helpers');
 var SystemMonitor = process.env.TEST_COV ? require('../../../lib-cov/monitor/system') : require('../../../lib/monitor/system');
 
 

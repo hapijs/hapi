@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var Sinon = require('sinon');
+var Mongodb = require('mongodb');
 var libPath = process.env.TEST_COV ? '../../../lib-cov/' : '../../../lib/';
 var Mongo = require(libPath + 'cache/mongo');
 
@@ -10,6 +11,23 @@ require('./suite')(function (useRedis, useMongo) {
 
     if (useMongo) {
         describe('Mongo', function () {
+
+            before(function (done) {
+
+                var db = new Mongodb.Db('unit-testing', new Mongodb.Server('127.0.0.1', 27017, { auto_reconnect: false, poolSize: 4 }), { safe: false });
+                db.open(function (err, db) {
+
+                    db.dropDatabase(function (err, done) {
+
+                        db.addUser('tester', 'secret', function (err, result) {
+
+                            expect(err).to.not.exist;
+                            db.close();
+                        });
+                    });
+                });
+                done();
+            });
 
             it('throws an error if not created with new', function (done) {
 
@@ -42,7 +60,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('returns an error when authentication fails', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5,
@@ -50,11 +68,29 @@ require('./suite')(function (useRedis, useMongo) {
                     };
                     var mongo = new Mongo.Connection(options);
 
-                    mongo.start(function (err, result) {
+                    mongo.start(function (err) {
 
                         expect(err).to.exist;
-                        expect(result).to.not.exist;
                         expect(err).to.be.instanceOf(Error);
+                        done();
+                    });
+                });
+
+                it('connects with authentication', function (done) {
+
+                    var options = {
+                        partition: 'unit-testing',
+                        host: '127.0.0.1',
+                        port: 27017,
+                        poolSize: 5,
+                        username: 'tester',
+                        password: 'secret'
+                    };
+                    var mongo = new Mongo.Connection(options);
+
+                    mongo.start(function (err) {
+
+                        expect(err).to.not.exist;
                         done();
                     });
                 });
@@ -62,17 +98,16 @@ require('./suite')(function (useRedis, useMongo) {
                 it('sets isReady to true when the connection succeeds', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
                     };
                     var mongo = new Mongo.Connection(options);
 
-                    mongo.start(function (err, result) {
+                    mongo.start(function (err) {
 
                         expect(err).to.not.exist;
-                        expect(result).to.not.exist;
                         expect(mongo.isReady()).to.be.true;
                         done();
                     });
@@ -84,7 +119,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('returns an error when the name is empty', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -101,7 +136,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('returns an error when the name has a null character', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -117,7 +152,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('returns an error when the name starts with system.', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -133,7 +168,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('returns an error when the name has a $ character', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -149,7 +184,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('returns an error when the name is too long', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -165,7 +200,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('returns null when the name is valid', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -184,7 +219,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when the connection is closed', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -203,7 +238,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes a collection to the callback', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -224,7 +259,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an error getting the collection', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -245,7 +280,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when the collection is null', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -274,7 +309,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when the connection is closed', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -293,7 +328,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes a null item to the callback when it doesn\'t exist', function (done) {
 
                     var options = {
-                        partition: 'hapi-cache',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -314,7 +349,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('is able to retrieve an object thats stored when connection is started', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -344,7 +379,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an error finding the item', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
@@ -369,7 +404,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an error returned from getting an item', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
@@ -401,7 +436,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an issue with the record structure', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
@@ -433,7 +468,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an issue parsing the record value', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
@@ -468,7 +503,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when the connection is closed', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -487,7 +522,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('doesn\'t return an error when the set succeeds', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -508,7 +543,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an error returned from setting an item', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
@@ -538,7 +573,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an error returned from calling update', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
@@ -576,7 +611,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when the connection is closed', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -595,7 +630,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('doesn\'t return an error when the drop succeeds', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27017,
                         poolSize: 5
@@ -616,7 +651,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an error returned from dropping an item', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
@@ -646,7 +681,7 @@ require('./suite')(function (useRedis, useMongo) {
                 it('passes an error to the callback when there is an error returned from calling remove', function (done) {
 
                     var options = {
-                        partition: 'wwwtest',
+                        partition: 'unit-testing',
                         host: '127.0.0.1',
                         port: 27018,
                         poolSize: 5
