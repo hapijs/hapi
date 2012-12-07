@@ -600,6 +600,8 @@ describe('Response', function () {
 
     describe('Stream', function () {
 
+        var _streamRequest = null;
+
         FakeStream = function (issue) {
 
             Stream.call(this);
@@ -640,6 +642,16 @@ describe('Response', function () {
                     }
                     break;
 
+                case 'closes':
+                    if (event === 'data') {
+                        callback('here is the response');
+                    }
+                    else if (event === 'end') {
+                        _streamRequest.raw.req.emit('close');
+                        callback();
+                    }
+                    break;
+
                 default:
                     if (event === 'data') {
                         callback('x');
@@ -654,10 +666,11 @@ describe('Response', function () {
 
         var handler = function (request) {
 
+            _streamRequest = request;
             request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Server('0.0.0.0', 19798);
         server.addRoute({ method: 'GET', path: '/stream/{issue?}', handler: handler });
 
         it('returns a stream reply', function (done) {
@@ -684,6 +697,18 @@ describe('Response', function () {
 
                 expect(res.readPayload()).to.equal('x');
                 done();
+            });
+        });
+
+        it('stops processing the stream when the request closes', function (done) {
+
+            server.start(function () {
+
+                Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Accept-Encoding': 'gzip' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
             });
         });
     });
