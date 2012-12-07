@@ -181,6 +181,23 @@ describe('System Monitor', function () {
             });
         });
 
+        it('returns disk usage information when target is a function', function (done) {
+
+            var monitor = new SystemMonitor.Monitor();
+
+            var execStub = Sinon.stub(ChildProcess, 'exec');
+            execStub.withArgs('df -m /').callsArgWith(1, null, 'Filesystem 1M-blocks Used Available Capacity  Mounted on\n/ 1220 333 1000 100%\n', '');
+
+            monitor.disk(function (err, usage) {
+
+                expect(err).to.not.exist;
+                expect(usage.total).to.equal(1220);
+                expect(usage.free).to.equal(1000);
+                execStub.restore();
+                done();
+            });
+        });
+
         it('returns an error when free space greater than total', function (done) {
 
             var monitor = new SystemMonitor.Monitor();
