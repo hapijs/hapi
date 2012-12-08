@@ -31,8 +31,9 @@ describe('Docs Generator', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 8083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } });
+        _server = new Hapi.Server('0.0.0.0', 8083);
         _server.addRoutes([
+            { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
             { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
         ]);
@@ -45,8 +46,9 @@ describe('Docs Generator', function () {
 
     function setupServerWithoutPost(done) {
 
-        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } });
+        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083);
         _serverWithoutPost.addRoutes([
+            { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);
         _serverWithoutPost.listener.on('listening', function () {
