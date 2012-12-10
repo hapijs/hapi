@@ -34,6 +34,7 @@ describe('Docs Generator', function () {
         _server = new Hapi.Server('0.0.0.0', 8083);
         _server.addRoutes([
             { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
+            { method: 'GET', path: '/defaults', handler: { docs: true } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
             { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
         ]);
@@ -95,7 +96,7 @@ describe('Docs Generator', function () {
 
         makeRequest('/docs', function (res) {
 
-            expect(res).to.equal('/test|/test|');
+            expect(res).to.equal('/defaults|/test|/test|');
             done();
         });
     });
@@ -105,6 +106,15 @@ describe('Docs Generator', function () {
         makeRequest('/docs', function (res) {
 
             expect(res).to.not.contain('/docs');
+            done();
+        });
+    });
+
+    it('shows template when correct path is provided using defaults', function (done) {
+
+        makeRequest('/defaults?path=/test', function (res) {
+
+            expect(res).to.contain('<!DOCTYPE html>');
             done();
         });
     });
