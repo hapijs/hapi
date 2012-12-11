@@ -49,7 +49,7 @@ describe('Auth', function () {
                 var auth = new Auth(null, { scheme: null });
             };
 
-            expect(fn).to.throw(Error, 'Missing scheme');
+            expect(fn).to.throw(Error, 'Auth options must include one of scheme or strategies but not both');
             done();
         });
 
