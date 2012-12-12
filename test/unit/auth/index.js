@@ -166,35 +166,35 @@ describe('Auth', function () {
                 });
             });
 
-            // it('throws an error when a session exists without a user and user entity is specified (' + scheme.scheme + ')', function (done) {
+            it('throws an error when a session exists without a user and user entity is specified (' + scheme.scheme + ')', function (done) {
 
-            //     var request = {
-            //         session: {
-            //         },
-            //         _route: {
-            //             config: {
-            //                 auth: {
-            //                     entity: 'user'
-            //                 }
-            //             }
-            //         },
-            //         log: function () { }
-            //     };
+                var request = {
+                    session: {
+                    },
+                    _route: {
+                        config: {
+                            auth: {
+                                entity: 'user'
+                            }
+                        }
+                    },
+                    log: function () { }
+                };
 
-            //     var server = {
-            //         settings: {},
-            //         addRoutes: function () { }
-            //     };
+                var server = {
+                    settings: {},
+                    addRoutes: function () { }
+                };
 
-            //     var auth = new Auth(server, scheme);
+                var auth = new Auth(server, scheme);
 
-            //     auth.authenticate(request, function (err) {
+                auth.authenticate(request, function (err) {
 
-            //         expect(err).to.exist;
-            //         expect(err).to.be.instanceOf(Error);
-            //         done();
-            //     });
-            // });
+                    expect(err).to.exist;
+                    expect(err).to.be.instanceOf(Error);
+                    done();
+                });
+            });
 
             it('throws an error when a session exists without a app and app entity is specified (' + scheme.scheme + ')', function (done) {
 
