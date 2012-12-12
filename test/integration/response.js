@@ -533,7 +533,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryfn/log.js', function (err, res, body) {
+                Request.get('http://localhost:17083/directoryfn/defaults.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);

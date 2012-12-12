@@ -1,8 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = require('../../helpers');
-var Monitor = process.env.TEST_COV ? require('../../../lib-cov/monitor') : require('../../../lib/monitor');
+var Hapi = require('../helpers');
 
 
 // Declare internals
@@ -16,68 +15,6 @@ var expect = Chai.expect;
 
 
 describe('Monitor', function () {
-
-    it('throws an error constructed without new', function (done) {
-
-        var fn = function () {
-
-            var config = {
-                settings: {
-                    monitor: {
-                        opsInterval: 50,
-                        subscribers: {},
-                        requestsEvent: 'response'
-                    }
-                }
-            };
-
-            var monitor = Monitor(config);
-        };
-
-        expect(fn).throws(Error, 'Monitor must be instantiated using new');
-        done();
-    });
-
-    it('throws an error if opsInterval is too small', function (done) {
-
-        var fn = function () {
-
-            var config = {
-                settings: {
-                    monitor: {
-                        opsInterval: 50,
-                        subscribers: {},
-                        requestsEvent: 'response'
-                    }
-                }
-            };
-
-            var monitor = new Monitor(config);
-        };
-
-        expect(fn).throws(Error, 'Invalid monitor.opsInterval configuration');
-        done();
-    });
-
-    it('doesn\'t throw an error when opsInterval is more than 100', function (done) {
-
-        var fn = function () {
-
-            var config = {
-                settings: {
-                    monitor: {
-                        opsInterval: 200,
-                        subscribers: {},
-                        requestsEvent: 'response'
-                    }
-                }
-            };
-            var monitor = new Monitor(config);
-        };
-
-        expect(fn).not.to.throw(Error);
-        done();
-    });
 
     it('uses the passed in broadcastInterval and sets the event queue correctly', function (done) {
 
@@ -101,68 +38,6 @@ describe('Monitor', function () {
         expect(monitor._eventQueues.request).to.exist;
         expect(monitor._eventQueues.log).to.exist;
         done();
-    });
-
-    it('throws an error if subscribers is null', function (done) {
-
-        var fn = function () {
-
-            var config = {
-                settings: {
-                    monitor: {
-                        opsInterval: 200,
-                        subscribers: null,
-                        requestsEvent: 'response'
-                    }
-                }
-            };
-            var monitor = new Monitor(config);
-        };
-
-        expect(fn).throws(Error, 'Invalid monitor.subscribers configuration');
-        done();
-    });
-
-    it('throws an error if requestsEvent is not response or tail', function (done) {
-
-        var fn = function () {
-
-            var config = {
-                settings: {
-                    monitor: {
-                        opsInterval: 200,
-                        subscribers: {},
-                        requestsEvent: 'test'
-                    }
-                }
-            };
-            var monitor = new Monitor(config);
-        };
-
-        expect(fn).throws(Error, 'Invalid monitor.requestsEvent configuration');
-        done();
-    });
-
-    describe('#_broadcast', function () {
-
-        it('doesn\'t do anything if there are no subscribers', function (done) {
-
-            var config = {
-                settings: {
-                    monitor: {
-                        opsInterval: 200,
-                        subscribers: {},
-                        requestsEvent: 'response'
-                    }
-                }
-            };
-
-            var monitor = new Monitor(config);
-            var broadcast = monitor._broadcast();
-
-            expect(broadcast()).to.not.exist;
-            done();
-        });
     });
 
     describe('#_ops', function () {
@@ -328,92 +203,6 @@ describe('Monitor', function () {
                 }
             };
 
-            done();
-        });
-    });
-
-    describe('#_request', function () {
-
-        it('sets the event with the request data correctly', function (done) {
-
-            var subscribers = {
-                console: ['ops']
-            };
-
-            var server = {
-                settings: {
-                    monitor: {
-                        opsInterval: 100000,
-                        subscribers: subscribers,
-                        requestsEvent: 'response',
-                        broadcastInterval: 5
-                    }
-                },
-                on: function () { },
-                emit: function () { }
-            };
-            var request = {
-                raw: {
-                    req: {
-                        headers: {
-                            'user-agent': 'test'
-                        }
-                    }
-                },
-                _analytics: {},
-                server: server
-            };
-            var monitor = new Monitor(server);
-
-            expect(monitor._subscriberQueues.console).to.exist;
-            expect(monitor._eventQueues.ops).to.exist;
-
-            var requestFn = monitor._request();
-            var event = requestFn(request);
-
-            expect(event.event).to.equal('request');
-            expect(event.source.userAgent).to.equal('test');
-            done();
-        });
-
-        it('logs errors when they occur', function (done) {
-
-            var subscribers = {
-                console: ['ops']
-            };
-
-            var server = {
-                settings: {
-                    monitor: {
-                        opsInterval: 100000,
-                        subscribers: subscribers,
-                        requestsEvent: 'response',
-                        broadcastInterval: 5,
-                        extendedRequests: true
-                    }
-                },
-                on: function () { },
-                emit: function () { }
-            };
-            var request = {
-                raw: {
-                    req: {
-                        headers: {
-                            'user-agent': 'test'
-                        }
-                    }
-                },
-                _analytics: {},
-                server: server,
-                _log: 'test'
-            };
-            var monitor = new Monitor(server);
-
-            var event = monitor._request()(request);
-
-            expect(event.event).to.equal('request');
-            expect(event.source.userAgent).to.equal('test');
-            expect(event.log).to.equal('test');
             done();
         });
     });
