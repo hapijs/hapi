@@ -1,8 +1,9 @@
 // Load modules
 
 var Chai = require('chai');
+var Fs = require('fs');
 var Request = require('request');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals
@@ -22,7 +23,7 @@ describe('Proxy', function () {
     var _server = null;
     var _serverUrl = 'http://127.0.0.1:18092';
 
-    function startServer(done) {
+    function startServer (done) {
 
         var listening = false;
 
@@ -30,7 +31,7 @@ describe('Proxy', function () {
             expiresIn: 500
         };
 
-        config = {
+        var config = {
             cache: {
                 engine: 'memory',
                 host: '127.0.0.1',
@@ -39,10 +40,13 @@ describe('Proxy', function () {
         };
 
         var dummyServer = new Hapi.Server('0.0.0.0', 18093);
-        dummyServer.addRoutes([{ method: 'GET', path: '/profile', handler: profile },
+        dummyServer.addRoutes([
+            { method: 'GET', path: '/profile', handler: profile },
             { method: 'GET', path: '/item', handler: activeItem },
+            { method: 'GET', path: '/proxyerror', handler: activeItem },
             { method: 'POST', path: '/item', handler: item },
             { method: 'GET', path: '/unauthorized', handler: unauthorized },
+            { method: 'POST', path: '/file', handler: streamHandler, config: { payload: 'stream' } },
             { method: 'POST', path: '/echo', handler: echoPostBody }
         ]);
 
@@ -53,8 +57,11 @@ describe('Proxy', function () {
             { method: 'GET', path: '/unauthorized', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
             { method: 'POST', path: '/item', handler: { proxy: { host: '127.0.0.1', port: 18093 } } },
             { method: 'POST', path: '/notfound', handler: { proxy: { host: '127.0.0.1', port: 18093 } } },
+            { method: 'GET', path: '/proxyerror', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
             { method: 'GET', path: '/postResponseError', handler: { proxy: { host: '127.0.0.1', port: 18093, postResponse: postResponseWithError } }, config: { cache: routeCache } },
+            { method: 'GET', path: '/errorResponse', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
             { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
+            { method: 'POST', path: '/file', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { payload: 'stream' } },
             { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } }
         ]);
 
@@ -81,17 +88,17 @@ describe('Proxy', function () {
         _server.start();
     }
 
-    function mapUri(request, callback) {
+    function mapUri (request, callback) {
 
         return callback(null, 'http://127.0.0.1:18093' + request.path, request.query);
     }
 
-    function mapUriWithError(request, callback) {
+    function mapUriWithError (request, callback) {
 
         return callback(new Error('myerror'));
     }
 
-    function profile(request) {
+    function profile (request) {
 
         request.reply({
             'id': 'fa0dbda9b1b',
@@ -99,7 +106,7 @@ describe('Proxy', function () {
         });
     }
 
-    function activeItem(request) {
+    function activeItem (request) {
 
         request.reply({
             'id': '55cf687663',
@@ -107,7 +114,7 @@ describe('Proxy', function () {
         });
     }
 
-    function item(request) {
+    function item (request) {
 
         request.reply.payload({
             'id': '55cf687663',
@@ -115,27 +122,33 @@ describe('Proxy', function () {
         }).created('http://google.com').send();
     }
 
-    function echoPostBody(request) {
+    function echoPostBody (request) {
 
         request.reply(request.payload);
     }
 
-    function unauthorized(request) {
+    function unauthorized (request) {
 
         request.reply(Hapi.Error.unauthorized('Not authorized'));
     }
 
-    function postResponseWithError(request) {
+    function postResponseWithError (request) {
 
         request.reply(Hapi.Error.forbidden('Forbidden'));
     }
 
-    function postResponse(request, settings, response, payload) {
+    function postResponse (request, settings, response, payload) {
 
         request.reply.payload(payload).type(response.headers['content-type']).send();
     }
 
-    function makeRequest(options, callback) {
+    function streamHandler (request) {
+
+        console.log(request);
+        request.reply('success');
+    }
+
+    function makeRequest (options, callback) {
 
         var next = function (err, res) {
 
@@ -183,7 +196,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('sends the correct status code with a request is unauthorized', function(done) {
+    it('sends the correct status code with a request is unauthorized', function (done) {
 
         makeRequest({ path: '/unauthorized', method: 'get' }, function (rawRes) {
 
@@ -192,7 +205,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('sends a 404 status code with a proxied route doesn\'t exist', function(done) {
+    it('sends a 404 status code with a proxied route doesn\'t exist', function (done) {
 
         makeRequest({ path: '/notfound', method: 'get' }, function (rawRes) {
 
@@ -201,7 +214,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards on the status code when a custom postResponse returns an error', function(done) {
+    it('forwards on the status code when a custom postResponse returns an error', function (done) {
 
         makeRequest({ path: '/postResponseError', method: 'get' }, function (rawRes) {
 
@@ -210,7 +223,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards the error message with a custom postResponse and a route error', function(done) {
+    it('forwards the error message with a custom postResponse and a route error', function (done) {
 
         makeRequest({ path: '/postResponseNotFound', method: 'get' }, function (rawRes) {
 
@@ -219,7 +232,24 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards on a POST body', function(done) {
+    it('handles an error from request safely', function (done) {
+
+        var requestStub = function (options, callback) {
+
+            callback(new Error());
+        };
+
+        var route = _server._match('get', '/proxyerror');
+        route.proxy.httpClient = requestStub;
+
+        makeRequest({ path: '/proxyerror', method: 'get' }, function (rawRes) {
+
+            expect(rawRes.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('forwards on a POST body', function (done) {
 
         makeRequest({ path: '/echo', method: 'post', form: { echo: true } }, function (rawRes) {
 
@@ -229,7 +259,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('replies with an error when it occurs in mapUri', function(done) {
+    it('replies with an error when it occurs in mapUri', function (done) {
 
         makeRequest({ path: '/maperror', method: 'get' }, function (rawRes) {
 
@@ -237,4 +267,13 @@ describe('Proxy', function () {
             done();
         });
     });
+
+   /* it.only('works with a stream when the proxy response is streamed', function (done) {
+
+        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post('http://localhost:18092/file', function (err, rawRes) {
+
+            console.log(err);
+            done();
+        }));
+    }); */
 });

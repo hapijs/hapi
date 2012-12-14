@@ -1,3 +1,4 @@
+<a href="/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
 ![hapi Logo](https://raw.github.com/walmartlabs/hapi/master/images/hapi.png)
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
@@ -8,7 +9,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.9.2**
+Current version: **0.9.x**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -33,7 +34,6 @@ Current version: **0.9.2**
 		- [Authentication](#authentication)
 		- [Cache](#cache)
 		- [Debug](#debug)
-		- [Documentation] (#documentation)
 		- [CORS](#cors)
 		- [Batch](#batch)
 <p></p>
@@ -49,6 +49,7 @@ Current version: **0.9.2**
 			- [Proxy](#proxy)
 			- [File](#file)
 			- [Directory](#directory)
+			- [Docs](#documentation)
 			- [Request Logging](#request-logging)
 		- [Query Validation](#query-validation)
 		- [Payload Validation](#payload-validation)
@@ -109,7 +110,7 @@ The **hapi** Server object is the core of the framework and is constructed by in
 - _'port'_ - optional port. Defaults to '80' (or '443' for TLS).
 - _'options'_ - optional configuration as described in [Server Configuration](#server-configuration).
 
-```javascrip
+```javascript
 var Hapi = require('hapi');
 
 // Create a server on localhost port 80
@@ -389,20 +390,6 @@ configuration:
 - `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
 - `queryKey` - the name or the request query parameter used to mark requests being debugged. Defaults to _debug_.
 
-### Documentation
-
-**This is an experimental feature and is likely to change!**
-
-In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided. By default the documentation
-generator is turned _off_. To enable the docs endpoint set the `docs` option to _true_ or to an object with custom configuration:
-- `docsEndpoint` - the path where the documentation will be served from. Default is '/docs'.
-- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html'.
-- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
-- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html'.
-- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
-- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
-
-By default there is an index page that lists all of the available routes configured in **hapi** that is located at the `docsEndpoint`.  From this page users are able to navigate to individual routes to read the related documentation.
 
 ### CORS
 
@@ -645,6 +632,7 @@ It is possible with hapi to setup a reverse proxy for routes.  This is especiall
 * `protocol` - The protocol to use when making a request to the proxied host (http or https)
 * `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
 * `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
+* `httpClient` - A function that should make the request to the remote server and use execute the callback with a response.  By default this uses _'request'_ as the module.  The signature is (options, callback) where options will contain a url and method.
 
 For example, to proxy a request to the homepage to google:
 ```javascript
@@ -746,6 +734,33 @@ http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: d
 
 http.start();
 ```
+
+
+### Documentation
+
+**This is an experimental feature and is likely to change!**
+
+In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided. By default the documentation
+generator is turned _off_. To enable the docs endpoint add a new route with a handler object that has a docs property set to true or to an object with the following options:
+- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html' inside the lout module.
+- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
+- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html' inside the lout module.
+- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
+- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
+
+By default there is an index page that lists all of the available routes configured in **hapi** that is located at the `docsEndpoint`.  From this page users are able to navigate to individual routes to read the related documentation.
+
+The simplest example of enabling docs on a site is shown in the following example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+http.addRoute({ method: 'GET', path: '/docs', handler: { docs: true } });
+
+http.start();
+```
+
 
 
 #### Request Logging
@@ -906,7 +921,7 @@ http.start();
 
 ## Data Validation
 
-**hapi** supports a rich set of data types and validation rules which are described in detail in [Validation Configuration](docs/ValidationConfig.md).
+**hapi** supports a rich set of data types and validation rules which are described in detail in the [**joi** module documentation](/walmartlabs/joi).
 For example:
 
 ```javascript

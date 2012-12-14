@@ -2,7 +2,7 @@
 
 var Https = require('https');
 var Chai = require('chai');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals

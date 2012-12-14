@@ -1,6 +1,6 @@
 // Load modules
 
-var Hapi = require('../lib/hapi');
+var Hapi = require('../lib');
 
 
 // Declare internals
@@ -41,9 +41,10 @@ internals.echo = function (request) {
 
 internals.main = function () {
 
-    var http = new Hapi.Server('0.0.0.0', 8080, { docs: true });
+    var http = new Hapi.Server('0.0.0.0', 8080);
 
     http.addRoutes([
+        { method: 'GET', path: '/docs', handler: { docs: true } },
         { method: 'GET', path: '/', config: { handler: internals.get, validate: { query: { username: S() } } } },
         { method: 'POST', path: '/', config: { handler: internals.echo, payload: 'parse' } },
         { method: 'GET', path: '/admin', config: { handler: internals.get, validate: { query: { username: S().required().with('password'), password: S() } } } },

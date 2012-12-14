@@ -1,9 +1,10 @@
 // Load modules
 
 var Chai = require('chai');
+var ChildProcess = require('child_process');
 var Fs = require('fs');
 var Sinon = require('sinon');
-var Hapi = process.env.TEST_COV ? require('../../../lib-cov/hapi') : require('../../../lib/hapi');
+var Hapi = require('../../helpers');
 var SystemMonitor = process.env.TEST_COV ? require('../../../lib-cov/monitor/system') : require('../../../lib/monitor/system');
 
 
@@ -126,38 +127,39 @@ describe('System Monitor', function () {
             });
         });
 
-        //     it.skip('returns cpu usage delta from stat file', function(done) {
+        it('returns cpu usage delta from stat file', function (done) {
 
-        //         var isCalled = false;
-        //         var pollStub = Sinon.stub(SystemMonitor.Monitor.prototype, 'poll_cpu', function(target, callback) {
+            var firstRun = true;
+            var monitor = new SystemMonitor.Monitor();
+            var pollStub = Sinon.stub(SystemMonitor.Monitor.prototype, 'poll_cpu', function (err, callback) {
 
-        //             if (isCalled) {
-        //                 return callback(null, {
-        //                     idle: 3,
-        //                     total: 4
-        //                 });
-        //             }
-        //             else {
-        //                 isCalled = true;
-        //                 return callback(null, {
-        //                     idle: 1,
-        //                     total: 6
-        //                 });
-        //             }
-        //         });
+                if (firstRun) {
+                    firstRun = false;
 
-        //         var monitor = new SystemMonitor.Monitor();
-        //         var platform = process.platform;
-        //         process.platform = 'linux';
+                    return callback(null, {
+                        idle: 1765610273,
+                        total: 1974415361
+                    });
+                }
 
-        //         monitor.cpu('cpu0', function(err, stats) {
+                return callback(null, {
+                    idle: 1765613273,
+                    total: 1994415361
+                });
+            });
+            pollStub.withArgs('test1');
 
-        //             pollStub.restore();
-        //             process.platform = platform;
-        //             expect(stats).to.equal('200.00');
-        //             done();
-        //         });
-        //     });
+            var platform = process.platform;
+            process.platform = 'linux';
+
+            monitor.cpu('test1', function (err, stats) {
+
+                pollStub.restore();
+                process.platform = platform;
+                expect(stats).to.equal('99.98');
+                done();
+            });
+        });
     });
 
     describe('#disk', function () {
@@ -166,12 +168,63 @@ describe('System Monitor', function () {
 
             var monitor = new SystemMonitor.Monitor();
 
-            monitor.disk(function (err, result) {
+            var execStub = Sinon.stub(ChildProcess, 'exec');
+            execStub.withArgs('df -m test1').callsArgWith(1, null, 'Filesystem 1M-blocks Used Available Capacity  Mounted on\ntest1 1220 333 1000 100%\n', '');
+
+            monitor.disk('test1', function (err, usage) {
 
                 expect(err).to.not.exist;
-                expect(result).to.exist;
-                expect(result.free).to.be.greaterThan(1);
-                expect(result.total).to.be.greaterThan(1);
+                expect(usage.total).to.equal(1220);
+                expect(usage.free).to.equal(1000);
+                execStub.restore();
+                done();
+            });
+        });
+
+        it('returns disk usage information when target is a function', function (done) {
+
+            var monitor = new SystemMonitor.Monitor();
+
+            var execStub = Sinon.stub(ChildProcess, 'exec');
+            execStub.withArgs('df -m /').callsArgWith(1, null, 'Filesystem 1M-blocks Used Available Capacity  Mounted on\n/ 1220 333 1000 100%\n', '');
+
+            monitor.disk(function (err, usage) {
+
+                expect(err).to.not.exist;
+                expect(usage.total).to.equal(1220);
+                expect(usage.free).to.equal(1000);
+                execStub.restore();
+                done();
+            });
+        });
+
+        it('returns an error when free space greater than total', function (done) {
+
+            var monitor = new SystemMonitor.Monitor();
+
+            var execStub = Sinon.stub(ChildProcess, 'exec');
+            execStub.withArgs('df -m test2').callsArgWith(1, null, 'Filesystem 1M-blocks Used Available Capacity  Mounted on\ntest2 220 333 1000 100%\n', '');
+
+            monitor.disk('test2', function (err, usage) {
+
+                expect(err).to.exist;
+                execStub.restore();
+                done();
+            });
+        });
+
+        it('passes any errors to the callback', function (done) {
+
+            var monitor = new SystemMonitor.Monitor();
+
+            var execStub = Sinon.stub(ChildProcess, 'exec');
+            execStub.withArgs('df -m test3').callsArgWith(1, new Error());
+
+            monitor.disk('test3', function (err, usage) {
+
+                expect(err).to.exist;
+                expect(usage).to.not.exist;
+                execStub.restore();
                 done();
             });
         });
