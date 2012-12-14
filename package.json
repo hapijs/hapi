@@ -30,10 +30,9 @@
     "oz": "0.0.x",
     "async": "0.1.x",
     "request": "2.11.x",
-    "redis": "0.8.x",
-    "mongodb": "1.1.x",
     "formidable": "1.0.x",
-    "mime": "1.2.x"
+    "mime": "1.2.x",
+    "catbox": "0.0.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
