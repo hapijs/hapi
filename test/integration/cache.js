@@ -7,7 +7,7 @@ var Async = require('async');
 var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
 
 
-describe('Cache', function() {
+describe.skip('Cache', function() {
     var _server = null;
     var _serverUrl = 'http://127.0.0.1:18085';
 

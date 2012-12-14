@@ -32,7 +32,8 @@
     "multipart-parser": "0.x.x",
     "lout": "0.x.x",
     "hapi-helmet": "0.x.x",
-    "mime": "~1.2.7"
+    "mime": "~1.2.7",
+    "catbox": "0.x.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
