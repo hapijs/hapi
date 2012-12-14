@@ -1,8 +1,19 @@
 // Load modules
 
-var expect = require('chai').expect;
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Chai = require('chai');
+var Hapi = require('../helpers');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 var S = Hapi.Types.String;
+
 
 describe('Docs Generator', function () {
 
@@ -14,17 +25,21 @@ describe('Docs Generator', function () {
     var _serverWithoutPostUrl = 'http://127.0.0.1:18083';
 
     var handler = function (request) {
+
         request.reply('ok');
     };
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 8083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } });
+        _server = new Hapi.Server('0.0.0.0', 8083);
         _server.addRoutes([
+            { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
+            { method: 'GET', path: '/defaults', handler: { docs: true } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
             { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
         ]);
         _server.listener.on('listening', function () {
+
             done();
         });
         _server.start();
@@ -32,11 +47,13 @@ describe('Docs Generator', function () {
 
     function setupServerWithoutPost(done) {
 
-        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } });
+        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083);
         _serverWithoutPost.addRoutes([
+            { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);
         _serverWithoutPost.listener.on('listening', function () {
+
             done();
         });
         _serverWithoutPost.start();
@@ -45,6 +62,7 @@ describe('Docs Generator', function () {
     function makeRequest(path, callback) {
 
         var next = function (res) {
+
             return callback(res.result);
         };
 
@@ -59,6 +77,7 @@ describe('Docs Generator', function () {
     it('shows template when correct path is provided', function (done) {
 
         makeRequest('/docs?path=/test', function (res) {
+
             expect(res).to.equal('GET|POST|');
             done();
         });
@@ -67,6 +86,7 @@ describe('Docs Generator', function () {
     it('has a Not Found response when wrong path is provided', function (done) {
 
         makeRequest('/docs?path=blah', function (res) {
+
             expect(res.error).to.equal('Not Found');
             done();
         });
@@ -75,7 +95,8 @@ describe('Docs Generator', function () {
     it('displays the index if no path is provided', function (done) {
 
         makeRequest('/docs', function (res) {
-            expect(res).to.equal('/test|/test|');
+
+            expect(res).to.equal('/defaults|/test|/test|');
             done();
         });
     });
@@ -83,7 +104,17 @@ describe('Docs Generator', function () {
     it('the index does\'t have the docs endpoint listed', function (done) {
 
         makeRequest('/docs', function (res) {
+
             expect(res).to.not.contain('/docs');
+            done();
+        });
+    });
+
+    it('shows template when correct path is provided using defaults', function (done) {
+
+        makeRequest('/defaults?path=/test', function (res) {
+
+            expect(res).to.contain('<!DOCTYPE html>');
             done();
         });
     });

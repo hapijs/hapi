@@ -1,11 +1,24 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
+var Hapi = require('../helpers');
 var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
-var ServerMock = require('./mocks/server');
+var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
+
+
+// Declare internals
+
+var internals = {};
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
 
 
 describe('Route', function () {
+
+    var server = { settings: Defaults.server };
 
     var _handler = function (request) {
 
@@ -16,19 +29,9 @@ describe('Route', function () {
 
         var fn = function () {
 
-            Route({}, ServerMock);
+            Route({}, server);
         };
         expect(fn).throws(Error, 'Route must be instantiated using new');
-        done();
-    });
-
-    it('throws an error if the path is missing', function (done) {
-
-        var fn = function () {
-
-            var route = new Route({ method: 'get', handler: _handler }, ServerMock);
-        };
-        expect(fn).throws(Error);
         done();
     });
 
@@ -36,7 +39,7 @@ describe('Route', function () {
 
         var fn = function () {
 
-            var route = new Route({ path: '/test', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', handler: _handler }, server);
         };
         expect(fn).throws(Error, 'Route options missing method');
         done();
@@ -46,7 +49,7 @@ describe('Route', function () {
 
         var fn = function () {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
         };
         expect(fn).to.not.throw(Error);
         done();
@@ -56,9 +59,19 @@ describe('Route', function () {
 
         var fn = function () {
 
-            var route = new Route({ path: '/test', method: 'get', handler: null }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: null }, server);
         };
         expect(fn).throws(Error, 'Handler must appear once and only once');
+        done();
+    });
+
+    it('throws an error if the path is includes an encoded non-reserved character', function (done) {
+
+        var fn = function () {
+
+            var route = new Route({ path: '/abc%21123', method: 'get', handler: _handler }, server);
+        };
+        expect(fn).throws(Error);
         done();
     });
 
@@ -99,17 +112,17 @@ describe('Route', function () {
                 '/{param*}/': false
             };
 
+            var test = function (path, isValid) {
+
+                it('validates the path \'' + path + '\' as ' + (isValid ? 'well-formed' : 'malformed'), function (done) {
+
+                    expect(!!(path.match(Route.validatePathRegex))).to.equal(isValid);
+                    done();
+                });
+            };
+
             var keys = Object.keys(paths);
             for (var i = 0, il = keys.length; i < il; ++i) {
-
-                function test(path, isValid) {
-
-                    it('validates the path \'' + path + '\' as ' + (isValid ? 'well-formed' : 'malformed'), function (done) {
-
-                        expect(!!(path.match(Route.validatePathRegex))).to.equal(isValid);
-                        done();
-                    });
-                };
                 test(keys[i], paths[keys[i]]);
             }
         }();
@@ -139,18 +152,18 @@ describe('Route', function () {
                 '/%20path/': '/%20path/'
             };
 
+            var test = function (path, fingerprint) {
+
+                it('process the path \'' + path + '\' as ' + fingerprint, function (done) {
+
+                    var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isTrailingSlashSensitive: false, isCaseSensitive: true } } });
+                    expect(route.fingerprint).to.equal(fingerprint);
+                    done();
+                });
+            };
+
             var keys = Object.keys(paths);
             for (var i = 0, il = keys.length; i < il; ++i) {
-
-                function test(path, fingerprint) {
-
-                    it('process the path \'' + path + '\' as ' + fingerprint, function (done) {
-
-                        var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isTrailingSlashSensitive: false, isCaseSensitive: true } } });
-                        expect(route.fingerprint).to.equal(fingerprint);
-                        done();
-                    });
-                };
                 test(keys[i], paths[keys[i]]);
             }
         }();
@@ -185,7 +198,25 @@ describe('Route', function () {
                 '/path/{param*2}/to': {
                     '/a/b/c/d': false,
                     '/path/a/b/to': {
-                        param: '/a/b'
+                        param: 'a/b'
+                    }
+                },
+                '/path/{param*}': {
+                    '/a/b/c/d': false,
+                    '/path/a/b/to': {
+                        param: 'a/b/to'
+                    },
+                    '/path/': {
+                        param: undefined
+                    }
+                },
+                '/path/{param*}|true': {
+                    '/path': false,
+                    '/path/a/b/to': {
+                        param: 'a/b/to'
+                    },
+                    '/path/': {
+                        param: undefined
                     }
                 },
                 '/path/{p1}/{p2?}': {
@@ -252,10 +283,10 @@ describe('Route', function () {
 
                                 done();
                             });
-                        };
+                        }
                         match(route, mkeys[m], matches[mkeys[m]]);
                     }
-                };
+                }
 
                 var pathParts = keys[i].split('|');
                 var isTrailingSlashSensitive = (pathParts[1] ? pathParts[1] === 'true' : false);
@@ -270,7 +301,7 @@ describe('Route', function () {
 
         it('returns true when called with a matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
             var request = {
                 path: '/test',
                 method: 'get'
@@ -282,7 +313,7 @@ describe('Route', function () {
 
         it('returns false when called with a non-matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
             var request = {
                 path: '/test2',
                 method: 'get'
@@ -294,7 +325,7 @@ describe('Route', function () {
 
         it('returns false when called with an invalid path', function (done) {
 
-            var route = new Route({ path: '/{test}', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/{test}', method: 'get', handler: _handler }, server);
             var request = {
                 path: '/test%l',
                 method: 'get'
@@ -309,7 +340,7 @@ describe('Route', function () {
 
         it('returns true when called with a matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
 
             expect(route.test('/test')).to.be.true;
             done();
@@ -317,7 +348,7 @@ describe('Route', function () {
 
         it('returns false when called with a non-matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, ServerMock);
+            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
 
             expect(route.test('/test2')).to.be.false;
             done();
