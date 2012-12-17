@@ -739,6 +739,151 @@ describe('Response', function () {
         });
     });
 
+    describe('Redirection', function () {
+
+        var handler = function (request) {
+
+            if (!request.query.x) {
+                return request.reply.redirect('example').send();
+            }
+
+            if (request.query.x === 'verbose') {
+                return request.reply.redirect().uri('examplex').message('We moved!').send();
+            }
+
+            if (request.query.x === '302') {
+                return request.reply.redirect('example').temporary().rewritable().send();
+            }
+
+            if (request.query.x === '307') {
+                return request.reply.redirect('example').temporary().rewritable(false).send();
+            }
+
+            if (request.query.x === '301') {
+                return request.reply.redirect('example').permanent().rewritable().send();
+            }
+
+            if (request.query.x === '308') {
+                return request.reply.redirect('example').permanent().rewritable(false).send();
+            }
+
+            if (request.query.x === '302f') {
+                return request.reply.redirect('example').rewritable().temporary().send();
+            }
+
+            if (request.query.x === '307f') {
+                return request.reply.redirect('example').rewritable(false).temporary().send();
+            }
+
+            if (request.query.x === '301f') {
+                return request.reply.redirect('example').rewritable().permanent().send();
+            }
+
+            if (request.query.x === '308f') {
+                return request.reply.redirect('example').rewritable(false).permanent().send();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.addRoute({ method: 'GET', path: '/redirect', config: { handler: handler } });
+
+        it('returns a redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('You are being redirected...');
+                expect(res.headers['Location']).to.equal('http://localhost:80/example');
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a redirection reply using verbose call', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=verbose' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('We moved!');
+                expect(res.headers['Location']).to.equal('http://localhost:80/examplex');
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a 301 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=301' }, function (res) {
+
+                expect(res.statusCode).to.equal(301);
+                done();
+            });
+        });
+
+        it('returns a 302 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=302' }, function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a 307 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=307' }, function (res) {
+
+                expect(res.statusCode).to.equal(307);
+                done();
+            });
+        });
+
+        it('returns a 308 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=308' }, function (res) {
+
+                expect(res.statusCode).to.equal(308);
+                done();
+            });
+        });
+
+        it('returns a 301 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=301f' }, function (res) {
+
+                expect(res.statusCode).to.equal(301);
+                done();
+            });
+        });
+
+        it('returns a 302 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=302f' }, function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a 307 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=307f' }, function (res) {
+
+                expect(res.statusCode).to.equal(307);
+                done();
+            });
+        });
+
+        it('returns a 308 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=308f' }, function (res) {
+
+                expect(res.statusCode).to.equal(308);
+                done();
+            });
+        });
+    });
+
     describe('#_respond', function () {
 
         it('returns an error reply on invalid Response._respond', function (done) {
