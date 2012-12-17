@@ -493,6 +493,17 @@ describe('Server', function () {
             });
         });
 
+        it('returns an error result when calling a helper that returns an error', function (done) {
+
+            var server = new Hapi.Server('0.0.0.0', 8097);
+            server.addHelper('user', function (id, next) { return next(new Error()); });
+            server.helpers.user(4, function (result) {
+
+                expect(result instanceof Error).to.equal(true);
+                done();
+            });
+        });
+
         it('returns a different result when calling a helper without using the cache', function (done) {
 
             var server = new Hapi.Server('0.0.0.0', 8097);
