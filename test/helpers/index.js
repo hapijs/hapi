@@ -30,5 +30,3 @@ Hapi.log.console = function (message) {
 
     internals.logger.emit('log', message);
 };
-
-

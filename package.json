@@ -25,6 +25,7 @@
     "joi": "0.0.x",
     "lout": "0.0.x",
     "hapi-helmet": "0.0.x",
+    "hapi-log": "0.0.x",
     "hawk": "0.0.x",
     "shot": "0.0.x",
     "oz": "0.0.x",

@@ -373,12 +373,12 @@ describe('Auth', function () {
                 settings: {},
                 addRoutes: function () { }
             };
-            
+
             var scheme = {
                 strategies: {}
             };
 
-            
+
 
             var a = function () {
 
@@ -388,7 +388,7 @@ describe('Auth', function () {
             expect(a).to.throw(Error);
             done();
         });
-        
+
         it('doesn\'t throw an error if strategies are defined but not used', function (done) {
 
             var request = {
@@ -404,7 +404,7 @@ describe('Auth', function () {
                 settings: {},
                 addRoutes: function () { }
             };
-            
+
             var scheme = {
                 strategies: {
                     'test': {
@@ -448,19 +448,19 @@ describe('Auth', function () {
                     }
                 },
             };
-            
+
 
             var server = {
                 settings: {},
                 addRoutes: function () { }
             };
-            
+
             var scheme = {
                 strategies: {
                     'test': {
                         scheme: 'basic',
                         loadUserFunc: function (username, callback) {
-                            
+
                             return callback(null, {id: 'walmart', password: 'walmart'})
                         }
                     }
@@ -505,19 +505,19 @@ describe('Auth', function () {
                     }
                 },
             };
-            
+
 
             var server = {
                 settings: {},
                 addRoutes: function () { }
             };
-            
+
             var scheme = {
                 strategies: {
                     'test': {
                         scheme: 'basic',
                         loadUserFunc: function (username, callback) {
-                            
+
                             return callback(null, {id: 'walmart', password: 'walmart'})
                         }
                     }
