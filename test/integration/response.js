@@ -1,6 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
+var Fs = require('fs');
 var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
@@ -606,6 +607,10 @@ describe('Response', function () {
 
             Stream.call(this);
             this.pause = this.resume = this.setEncoding = function () { };
+            var self = this;
+            this.destroy = function () {
+                self.readable = false;
+            }
             this.issue = issue;
             return this;
         };
@@ -670,10 +675,15 @@ describe('Response', function () {
             request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
         };
         
-        var echoOne = function (request) {
+        var handler2 = function (request) {
 
-            request.reply(1);
-        }
+            _streamRequest = request;
+            var simulation = new FakeStream(request.params.issue);
+            simulation.destroy = function () {
+                simulation.readable = false;
+            }
+            request.reply.stream(simulation).bytes(request.params.issue ? 0 : 1).send();
+        };
 
         var server = new Hapi.Server('0.0.0.0', 19798);
         server.addRoute({ method: 'GET', path: '/stream/{issue?}', handler: handler });
@@ -720,55 +730,21 @@ describe('Response', function () {
         
         it('deletes output stream on request stream closing', function (done) {
 
-            var testStream = new Stream;
-            testStream.readable = true;
-            testStream.path = "simulatedFile.json";
-            testStream.fd = null;
-            testStream.paused = false;
-            testStream.flags = 'r';
-            testStream.mode = 438
-            testStream.bufferSize = 65536;
-            testStream.destroy = function () {
-                console.log('testStream destroy called')
-                testStream.readable = false;
-            }
             
-            var runTest = function () {
+            var tmpFile = '/tmp/test.json';
+            var output = JSON.stringify({"x":"aaaaaaaaaaaa"});
+            Fs.writeFileSync(tmpFile, output);
+            var testStream = Fs.createReadStream(tmpFile);
+            
+            
+            server.start(function () {
 
-                testStream.pipe(Request(
-                    {
-                        uri: 'http://127.0.0.1:19798/stream/destroy',
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    },
-                    function (err, res) {
+                testStream.pipe(Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Content-Type': 'application/json' } }, function (err, res) {
 
-                        console.log('err', err, res.body)
-                        expect(res.statusCode).to.equal(200);
-                        done();
-                    }
-                ));
-                
-                var sourcestr = JSON.stringify({x: 'aaaaaaaaaaaa'});
-                testStream.emit(sourcestr);
-                testStream.emit('close');
-                // var output = sourcestr.slice(0, sourcestr.length/2);
-                // var output2 = sourcestr.slice(sourcestr.length/2);
-                // console.log(output, output2)
-                // testStream.emit('data', new Buffer(output));
-                // // testStream.destroy();
-                // testStream.emit('close');
-                // testStream.emit('data', new Buffer(output2));
-            };
-
-            if (server._started === false) {
-                server.start(runTest);
-            }
-            else {
-                runTest();
-            }
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                }));
+            });
         });
     });
 

@@ -144,7 +144,6 @@ describe('Proxy', function () {
 
     function streamHandler (request) {
 
-        console.log(request);
         request.reply('success');
     }
 
@@ -268,12 +267,12 @@ describe('Proxy', function () {
         });
     });
 
-   /* it.only('works with a stream when the proxy response is streamed', function (done) {
+    it('works with a stream when the proxy response is streamed', function (done) {
 
         Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post('http://localhost:18092/file', function (err, rawRes) {
 
-            console.log(err);
+            expect(rawRes.statusCode).to.equal(200);
             done();
         }));
-    }); */
+    }); 
 });
