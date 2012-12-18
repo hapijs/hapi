@@ -732,7 +732,6 @@ describe('Response', function () {
         
         it('should destroy downward stream on request stream closing', function (done) {
 
-            
             var tmpFile = '/tmp/test.json';
             var output = JSON.stringify({"x":"aaaaaaaaaaaa"});
             Fs.writeFileSync(tmpFile, output);
