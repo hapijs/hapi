@@ -253,14 +253,14 @@ describe('Server', function () {
             expect(fn).to.not.throw(Error);
         });
 
-        it('throws an error when the server isn\'t started', function (done) {
+        it('ignores repeated calls when the server isn\'t started', function (done) {
 
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 8090);
                 server.stop();
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.not.throw(Error);
             done();
         });
     });
