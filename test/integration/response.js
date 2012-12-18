@@ -1,10 +1,11 @@
 // Load modules
 
 var Chai = require('chai');
+var Fs = require('fs');
 var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals
@@ -240,7 +241,7 @@ describe('Response', function () {
             Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
 
                 expect(err).to.not.exist;
-                expect(body).to.contain('hapi');
+                expect(body).to.contain('./lib');
                 expect(res.headers['content-type']).to.equal('application/javascript');
                 expect(res.headers['content-length']).to.exist;
                 done();
@@ -533,7 +534,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryfn/hapi.js', function (err, res, body) {
+                Request.get('http://localhost:17083/directoryfn/defaults.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -600,10 +601,17 @@ describe('Response', function () {
 
     describe('Stream', function () {
 
+        var _streamRequest = null;
+
         FakeStream = function (issue) {
 
             Stream.call(this);
             this.pause = this.resume = this.setEncoding = function () { };
+            var self = this;
+            this.destroy = function () {
+
+                self.readable = false;
+            };
             this.issue = issue;
             return this;
         };
@@ -640,6 +648,16 @@ describe('Response', function () {
                     }
                     break;
 
+                case 'closes':
+                    if (event === 'data') {
+                        callback('here is the response');
+                    }
+                    else if (event === 'end') {
+                        _streamRequest.raw.req.emit('close');
+                        callback();
+                    }
+                    break;
+
                 default:
                     if (event === 'data') {
                         callback('x');
@@ -654,11 +672,24 @@ describe('Response', function () {
 
         var handler = function (request) {
 
+            _streamRequest = request;
             request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
         };
+        
+        var handler2 = function (request) {
 
-        var server = new Hapi.Server();
+            _streamRequest = request;
+            var simulation = new FakeStream(request.params.issue);
+            simulation.destroy = function () {
+
+                simulation.readable = false;
+            };
+            request.reply.stream(simulation).bytes(request.params.issue ? 0 : 1).send();
+        };
+
+        var server = new Hapi.Server('0.0.0.0', 19798);
         server.addRoute({ method: 'GET', path: '/stream/{issue?}', handler: handler });
+        server.addRoute({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
 
         it('returns a stream reply', function (done) {
 
@@ -686,6 +717,35 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('stops processing the stream when the request closes', function (done) {
+
+            server.start(function () {
+
+                Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Accept-Encoding': 'gzip' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+        
+        it('should destroy downward stream on request stream closing', function (done) {
+
+            var tmpFile = '/tmp/test.json';
+            var output = JSON.stringify({"x":"aaaaaaaaaaaa"});
+            Fs.writeFileSync(tmpFile, output);
+            var testStream = Fs.createReadStream(tmpFile);
+            
+            server.start(function () {
+
+                testStream.pipe(Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Content-Type': 'application/json' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                }));
+            });
+        });
     });
 
     describe('Cached', function () {
@@ -710,6 +770,151 @@ describe('Response', function () {
                     expect(res2.readPayload()).to.equal('{"status":"cached"}');
                     done();
                 });
+            });
+        });
+    });
+
+    describe('Redirection', function () {
+
+        var handler = function (request) {
+
+            if (!request.query.x) {
+                return request.reply.redirect('example').send();
+            }
+
+            if (request.query.x === 'verbose') {
+                return request.reply.redirect().uri('examplex').message('We moved!').send();
+            }
+
+            if (request.query.x === '302') {
+                return request.reply.redirect('example').temporary().rewritable().send();
+            }
+
+            if (request.query.x === '307') {
+                return request.reply.redirect('example').temporary().rewritable(false).send();
+            }
+
+            if (request.query.x === '301') {
+                return request.reply.redirect('example').permanent().rewritable().send();
+            }
+
+            if (request.query.x === '308') {
+                return request.reply.redirect('example').permanent().rewritable(false).send();
+            }
+
+            if (request.query.x === '302f') {
+                return request.reply.redirect('example').rewritable().temporary().send();
+            }
+
+            if (request.query.x === '307f') {
+                return request.reply.redirect('example').rewritable(false).temporary().send();
+            }
+
+            if (request.query.x === '301f') {
+                return request.reply.redirect('example').rewritable().permanent().send();
+            }
+
+            if (request.query.x === '308f') {
+                return request.reply.redirect('example').rewritable(false).permanent().send();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.addRoute({ method: 'GET', path: '/redirect', config: { handler: handler } });
+
+        it('returns a redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('You are being redirected...');
+                expect(res.headers['Location']).to.equal('http://localhost:80/example');
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a redirection reply using verbose call', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=verbose' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('We moved!');
+                expect(res.headers['Location']).to.equal('http://localhost:80/examplex');
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a 301 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=301' }, function (res) {
+
+                expect(res.statusCode).to.equal(301);
+                done();
+            });
+        });
+
+        it('returns a 302 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=302' }, function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a 307 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=307' }, function (res) {
+
+                expect(res.statusCode).to.equal(307);
+                done();
+            });
+        });
+
+        it('returns a 308 redirection reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=308' }, function (res) {
+
+                expect(res.statusCode).to.equal(308);
+                done();
+            });
+        });
+
+        it('returns a 301 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=301f' }, function (res) {
+
+                expect(res.statusCode).to.equal(301);
+                done();
+            });
+        });
+
+        it('returns a 302 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=302f' }, function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+
+        it('returns a 307 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=307f' }, function (res) {
+
+                expect(res.statusCode).to.equal(307);
+                done();
+            });
+        });
+
+        it('returns a 308 redirection reply (reveresed methods)', function (done) {
+
+            server.inject({ method: 'GET', url: '/redirect?x=308f' }, function (res) {
+
+                expect(res.statusCode).to.equal(308);
+                done();
             });
         });
     });

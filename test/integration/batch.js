@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Sinon = require('sinon');
 var Async = require('async');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals
