@@ -669,9 +669,15 @@ describe('Response', function () {
             _streamRequest = request;
             request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
         };
+        
+        var echoOne = function (request) {
+
+            request.reply(1);
+        }
 
         var server = new Hapi.Server('0.0.0.0', 19798);
         server.addRoute({ method: 'GET', path: '/stream/{issue?}', handler: handler });
+        server.addRoute({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
 
         it('returns a stream reply', function (done) {
 
@@ -710,6 +716,59 @@ describe('Response', function () {
                     done();
                 });
             });
+        });
+        
+        it('deletes output stream on request stream closing', function (done) {
+
+            var testStream = new Stream;
+            testStream.readable = true;
+            testStream.path = "simulatedFile.json";
+            testStream.fd = null;
+            testStream.paused = false;
+            testStream.flags = 'r';
+            testStream.mode = 438
+            testStream.bufferSize = 65536;
+            testStream.destroy = function () {
+                console.log('testStream destroy called')
+                testStream.readable = false;
+            }
+            
+            var runTest = function () {
+
+                testStream.pipe(Request(
+                    {
+                        uri: 'http://127.0.0.1:19798/stream/destroy',
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    },
+                    function (err, res) {
+
+                        console.log('err', err, res.body)
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    }
+                ));
+                
+                var sourcestr = JSON.stringify({x: 'aaaaaaaaaaaa'});
+                testStream.emit(sourcestr);
+                testStream.emit('close');
+                // var output = sourcestr.slice(0, sourcestr.length/2);
+                // var output2 = sourcestr.slice(sourcestr.length/2);
+                // console.log(output, output2)
+                // testStream.emit('data', new Buffer(output));
+                // // testStream.destroy();
+                // testStream.emit('close');
+                // testStream.emit('data', new Buffer(output2));
+            };
+
+            if (server._started === false) {
+                server.start(runTest);
+            }
+            else {
+                runTest();
+            }
         });
     });
 
