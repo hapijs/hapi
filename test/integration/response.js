@@ -1,6 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
+var Fs = require('fs');
 var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
@@ -606,6 +607,11 @@ describe('Response', function () {
 
             Stream.call(this);
             this.pause = this.resume = this.setEncoding = function () { };
+            var self = this;
+            this.destroy = function () {
+
+                self.readable = false;
+            };
             this.issue = issue;
             return this;
         };
@@ -669,9 +675,21 @@ describe('Response', function () {
             _streamRequest = request;
             request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
         };
+        
+        var handler2 = function (request) {
+
+            _streamRequest = request;
+            var simulation = new FakeStream(request.params.issue);
+            simulation.destroy = function () {
+
+                simulation.readable = false;
+            };
+            request.reply.stream(simulation).bytes(request.params.issue ? 0 : 1).send();
+        };
 
         var server = new Hapi.Server('0.0.0.0', 19798);
         server.addRoute({ method: 'GET', path: '/stream/{issue?}', handler: handler });
+        server.addRoute({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
 
         it('returns a stream reply', function (done) {
 
@@ -709,6 +727,23 @@ describe('Response', function () {
                     expect(res.statusCode).to.equal(200);
                     done();
                 });
+            });
+        });
+        
+        it('should destroy downward stream on request stream closing', function (done) {
+
+            var tmpFile = '/tmp/test.json';
+            var output = JSON.stringify({"x":"aaaaaaaaaaaa"});
+            Fs.writeFileSync(tmpFile, output);
+            var testStream = Fs.createReadStream(tmpFile);
+            
+            server.start(function () {
+
+                testStream.pipe(Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Content-Type': 'application/json' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                }));
             });
         });
     });
