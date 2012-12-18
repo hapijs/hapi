@@ -609,6 +609,7 @@ describe('Response', function () {
             this.pause = this.resume = this.setEncoding = function () { };
             var self = this;
             this.destroy = function () {
+
                 self.readable = false;
             }
             this.issue = issue;
@@ -728,14 +729,13 @@ describe('Response', function () {
             });
         });
         
-        it('deletes output stream on request stream closing', function (done) {
+        it('should destroy downward stream on request stream closing', function (done) {
 
             
             var tmpFile = '/tmp/test.json';
             var output = JSON.stringify({"x":"aaaaaaaaaaaa"});
             Fs.writeFileSync(tmpFile, output);
             var testStream = Fs.createReadStream(tmpFile);
-            
             
             server.start(function () {
 
