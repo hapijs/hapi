@@ -2,7 +2,7 @@
 
 var Https = require('https');
 var Chai = require('chai');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals
@@ -253,14 +253,14 @@ describe('Server', function () {
             expect(fn).to.not.throw(Error);
         });
 
-        it('throws an error when the server isn\'t started', function (done) {
+        it('ignores repeated calls when the server isn\'t started', function (done) {
 
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 8090);
                 server.stop();
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.not.throw(Error);
             done();
         });
     });
@@ -489,6 +489,17 @@ describe('Server', function () {
             server.helpers.user(4, function (result) {
 
                 expect(result.id).to.equal(4);
+                done();
+            });
+        });
+
+        it('returns an error result when calling a helper that returns an error', function (done) {
+
+            var server = new Hapi.Server('0.0.0.0', 8097);
+            server.addHelper('user', function (id, next) { return next(new Error()); });
+            server.helpers.user(4, function (result) {
+
+                expect(result instanceof Error).to.equal(true);
                 done();
             });
         });

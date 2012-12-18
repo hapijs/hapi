@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals
@@ -12,7 +12,7 @@ var internals = {};
 // Test shortcuts
 
 var expect = Chai.expect;
-var S = Hapi.Types.String;
+var S = Hapi.types.String;
 
 
 describe('Docs Generator', function () {
@@ -31,8 +31,10 @@ describe('Docs Generator', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 8083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } });
+        _server = new Hapi.Server('0.0.0.0', 8083);
         _server.addRoutes([
+            { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
+            { method: 'GET', path: '/defaults', handler: { docs: true } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
             { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
         ]);
@@ -45,8 +47,9 @@ describe('Docs Generator', function () {
 
     function setupServerWithoutPost(done) {
 
-        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083, { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } });
+        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083);
         _serverWithoutPost.addRoutes([
+            { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);
         _serverWithoutPost.listener.on('listening', function () {
@@ -93,7 +96,7 @@ describe('Docs Generator', function () {
 
         makeRequest('/docs', function (res) {
 
-            expect(res).to.equal('/test|/test|');
+            expect(res).to.equal('/defaults|/test|/test|');
             done();
         });
     });
@@ -103,6 +106,15 @@ describe('Docs Generator', function () {
         makeRequest('/docs', function (res) {
 
             expect(res).to.not.contain('/docs');
+            done();
+        });
+    });
+
+    it('shows template when correct path is provided using defaults', function (done) {
+
+        makeRequest('/defaults?path=/test', function (res) {
+
+            expect(res).to.contain('<!DOCTYPE html>');
             done();
         });
     });

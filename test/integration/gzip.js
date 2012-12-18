@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Zlib = require('zlib');
 var Request = require('request');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals
@@ -20,7 +20,7 @@ describe('Payload', function () {
 
     var server = new Hapi.Server('0.0.0.0', 17080);
     var message = { 'msg': 'This message is going to be gzipped.' };
-    var badMessage = '{ this is just wrong }';
+    var badMessage = '{ gzip this is just wrong }';
 
     var postHandler = {
         method: 'POST',

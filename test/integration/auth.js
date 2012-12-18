@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Oz = require('oz');
 var Hawk = require('hawk');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 
 
 // Declare internals
@@ -210,6 +210,134 @@ describe('Auth', function () {
                 expect(res.result.code).to.equal(403);
                 done();
             });
+        });
+        
+        it('should not ask for credentials if no server auth configured', function (done) {
+
+            var config = {};
+            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            server.addRoute({
+                path: '/noauth',
+                method: 'GET',
+                config: {
+                    handler: function (req) {
+
+                        req.reply('Success');
+                    }
+                }
+            });
+            var options = { method: 'GET', url: '/noauth' };
+            
+            server.inject(options, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+        
+        it('should ask for credentials if server has one default strategy', function (done) {
+
+            var config = {
+                auth: {
+                    scheme: 'basic',
+                    loadUserFunc: loadUser
+                }
+            };
+            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            server.addRoute({
+                path: '/noauth',
+                method: 'GET',
+                config: {
+                    handler: function (req) {
+
+                        req.reply('Success');
+                    }
+                }
+            });
+            
+            var validOptions = { method: 'GET', url: '/noauth', headers: { authorization: basicHeader('john', '12345') }};
+            server.inject(validOptions, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(200);
+                
+                var invalidOptions = { method: 'GET', url: '/noauth' };
+                server.inject(invalidOptions, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(401);
+                    done();
+                });
+            });
+        });
+
+        it('should throw if server has strategies but no default', function (done) {
+
+            var config = {
+                strategies: {
+                    'b': {
+                        scheme: 'basic',
+                        loadUserFunc: loadUser
+                    }
+                }
+            };
+            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            
+            var fn = function () {
+                
+                server.addRoute({
+                    path: '/noauth',
+                    method: 'GET',
+                    config: {
+                        handler: function (req) {
+
+                            req.reply('Success');
+                        }
+                    }
+                });
+            };
+            
+            expect(fn).to.throw();
+            done();
+        });
+        
+        it('should throw if server has strategies route refers to nonexistent strategy', function (done) {
+
+            var config = {
+                strategies: {
+                    'default': {
+                        scheme: 'basic',
+                        loadUserFunc: loadUser
+                    },
+                    'b': {
+                        scheme: 'basic',
+                        loadUserFunc: loadUser
+                    }
+                }
+            };
+            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            
+            var fn = function () {
+                
+                server.addRoute({
+                    path: '/noauth',
+                    method: 'GET',
+                    config: {
+                        auth: {
+                            mode: 'none',
+                            strategy: 'hello'
+                        },
+                        handler: function (req) {
+
+                            req.reply('Success');
+                        }
+                    }
+                });
+            };
+            
+            expect(fn).to.throw();
+            done();
         });
     });
 

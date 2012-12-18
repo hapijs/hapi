@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Shot = require('shot');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 var Request = process.env.TEST_COV ? require('../../lib-cov/request') : require('../../lib/request');
 
 

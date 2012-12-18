@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov/hapi') : require('../../lib/hapi');
+var Hapi = require('../helpers');
 var Package = require('../../package.json');
 
 
