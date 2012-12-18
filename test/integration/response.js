@@ -611,7 +611,7 @@ describe('Response', function () {
             this.destroy = function () {
 
                 self.readable = false;
-            }
+            };
             this.issue = issue;
             return this;
         };
@@ -681,8 +681,9 @@ describe('Response', function () {
             _streamRequest = request;
             var simulation = new FakeStream(request.params.issue);
             simulation.destroy = function () {
+
                 simulation.readable = false;
-            }
+            };
             request.reply.stream(simulation).bytes(request.params.issue ? 0 : 1).send();
         };
 
