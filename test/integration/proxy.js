@@ -269,7 +269,7 @@ describe('Proxy', function () {
 
     it('works with a stream when the proxy response is streamed', function (done) {
 
-        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post('http://localhost:18092/file', function (err, rawRes) {
+        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post('http://localhost:18092/file', function (err, rawRes, body) {
 
             expect(rawRes.statusCode).to.equal(200);
             done();

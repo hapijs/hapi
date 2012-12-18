@@ -4,7 +4,7 @@
   "homepage": "http://hapijs.com",
   "version": "0.10.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
-  "contributors":[
+  "contributors": [
     "Van Nguyen <the.gol.effect@gmail.com>",
     "Wyatt Preul <wpreul@gmail.com>"
   ],
@@ -33,7 +33,8 @@
     "request": "2.11.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
-    "catbox": "0.0.x"
+    "catbox": "0.0.x",
+    "memorystream": "0.2.0"
   },
   "devDependencies": {
     "mocha": "1.x.x",
