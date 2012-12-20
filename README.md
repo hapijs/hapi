@@ -9,7 +9,7 @@ with everything else.
 
 Mailing list: https://groups.google.com/group/hapijs
 
-Current version: **0.10.0**
+Current version: **0.10.1**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -68,8 +68,8 @@ Current version: **0.10.0**
 <p></p>
 	- [**Request Injection**](#request-injection)
 <p></p>
-- [**Server Helpers**](#server-helpers)
-
+	- [**Server Helpers**](#server-helpers)
+  
 # Usage
 
 ## Basic Usage
@@ -84,17 +84,17 @@ var server = new Hapi.Server('localhost', 8000);
 
 // Define the route
 var hello = {
-handler: function (request) {
-
-request.reply({ greeting: 'hello world' });
-}
+    handler: function (request) {
+    
+        request.reply({ greeting: 'hello world' });
+    }
 };
 
 // Add the route
 server.addRoute({
-method: 'GET',
-path: '/hello',
-config: hello
+    method: 'GET',
+    path: '/hello',
+    config: hello
 });
 
 // Start the server
@@ -143,10 +143,10 @@ The `tls` object is passed unchanged to the node.js HTTPS server and described i
 var Hapi = require('hapi');
 
 var options = {
-tls: {
-key: 'your_key',
-cert: 'your_cert'
-}
+    tls: {
+        key: 'your_key',
+        cert: 'your_cert'
+    }
 };
 
 var server = new Hapi.Server(options);
@@ -184,9 +184,9 @@ For example:
 var Hapi = require('hapi');
 
 var options = {
-ext: {
-onRequest: onRequest
-}
+    ext: {
+        onRequest: onRequest
+    }
 };
 
 // Create server
@@ -201,15 +201,15 @@ http.start();
 // Resource handler
 function get(request) {
 
-request.reply({ status: 'ok' });
+    request.reply({ status: 'ok' });
 }
 
 // Path rewrite
 function onRequest(request, next) {
 
-// Change all requests to '/test'
-request.setUrl('/test');
-next();
+    // Change all requests to '/test'
+    request.setUrl('/test');
+    next();
 }
 ```
 
@@ -227,9 +227,9 @@ For example, using the _'reply.close()'_ method:
 var Hapi = require('hapi');
 
 var options = {
-ext: {
-onUnknownRoute: onUnknownRoute
-}
+    ext: {
+        onUnknownRoute: onUnknownRoute
+    }
 };
 
 // Create server
@@ -241,9 +241,9 @@ http.start();
 // 404 handler
 function onUnknownRoute(request) {
 
-request.raw.res.writeHead(404);
-request.raw.res.end();
-request.reply.close();
+    request.raw.res.writeHead(404);
+    request.raw.res.end();
+    request.reply.close();
 }
 ```
 
@@ -251,7 +251,7 @@ Or using the _'reply(result)'_ method:
 ```javascript
 function onUnknownRoute(request) {
 
-request.reply({ roads: 'ocean' });
+    request.reply({ roads: 'ocean' });
 }
 ```
 
@@ -266,22 +266,22 @@ If a different error format than the default JSON response is required, the serv
 different error response. The function signature is _'formatted = function (result)'_ where:
 - _'result'_ - is the **hapi** error object returned by the route handler, and
 - _'formatted'_ - is the formatted response object which contains the following keys:
-- _`code`_ - the HTTP status code.
-- _`payload`_ - the response payload.
-- _`type`_ - the response payload content-type.
-- _`headers`_ - any additional response HTTP headers (object).
+  - _`code`_ - the HTTP status code.
+  - _`payload`_ - the response payload.
+  - _`type`_ - the response payload content-type.
+  - _`headers`_ - any additional response HTTP headers (object).
 
 Note that the format function must be synchronous.
 
 For example:
 ```javascript
 var options = {
-format: {
-error: function (result) {
-
-return { code: 500, payload: 'Oops: ' + result.message, type: 'text/html' };
-}
-}
+    format: {
+        error: function (result) {
+        
+            return { code: 500, payload: 'Oops: ' + result.message, type: 'text/html' };
+        }
+    }
 };
 ```
 
@@ -298,12 +298,12 @@ Note that the format function must be synchronous, and it is only invoked for re
 For example:
 ```javascript
 var options = {
-format: {
-payload: function (result) {
-
-return 'something else instead';
-}
-}
+    format: {
+        payload: function (result) {
+        
+            return 'something else instead';
+        }
+    }
 };
 ```
 
@@ -332,19 +332,19 @@ optional settings:
 - `opsInterval` - the interval in milliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
 - `extendedRequests` - determines if the full request log is sent or only the event summary. Defaults to _false_.
 - `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
-- 'response' - the response was sent but request tails may still be pending.
-- 'tail' - the response was sent and all request tails completed.
+  - 'response' - the response was sent but request tails may still be pending.
+  - 'tail' - the response was sent and all request tails completed.
 - `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
 
 For example:
 ```javascript
 var options = {
-monitor: {
-subscribers: {
-console: ['ops', 'request', 'log'],
-'http://localhost/logs': ['log']
-}
-}
+    monitor: {
+        subscribers: {
+            console: ['ops', 'request', 'log'],
+            'http://localhost/logs': ['log']
+        }
+    }
 };
 ```
 
@@ -367,12 +367,12 @@ For convenience, pre-configured options are provided for Redis, MongoDB, and an 
 * _'redis'_ - Connects to _127.0.0.1:6379_ using partition name 'hapi-cache'.
 * _'mongodb'_ - Connects to _127.0.0.1:27017_ using partition name 'hapi-cache', no authentication, and pool size 5.
 * _'memory'_ - This is an experimental engine and should be avoided in production environments.  The memory engine will run within the node process and supports the following option:
-- `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine.  Once this limit is reached no more items will be added to the cache.
+    - `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine.  Once this limit is reached no more items will be added to the cache.
 
 For example:
 ```javascript
 var options = {
-cache: 'redis'
+    cache: 'redis'
 };
 ```
 
@@ -433,41 +433,41 @@ The server object emits the following events:
 mechanism for defining routes without having to write code. This approach also enables producing dynamic route documentation without having
 to write additional text as the configuration itself serves as a living documentation.
 
-### Configuration options
+### Configuration options 
 
 * `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers prefixed with _':'_ as described in [Path Parameters](#path-processing).
 * `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
 * `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_, _'file'_, or _'directory'_ property:
-* `proxy` - generates a reverse proxy handler as described in (Proxy)[#proxy].
-* `file` - generates a static file endpoint as described in (File)[#file].
-* `directory` - generates a directory mapper for service static content as described in (Directory)[#directory].
+    * `proxy` - generates a reverse proxy handler as described in (Proxy)[#proxy].
+    * `file` - generates a static file endpoint as described in (File)[#file].
+    * `directory` - generates a directory mapper for service static content as described in (Directory)[#directory].
 * `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
-* `description` - route description.
-* `notes` - route notes (string or array of strings).
-* `tags` - route tags (array of strings).
-* `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
-* `validate`
-* `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to any query parameters being allowed. See [Query Validation](#query-validation) for more information.
-* `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to _'false'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
-* `path` - validation rules for incoming requests' path parameters. Defaults to no validation (any path parameter allowed). Set to _'false'_ to forbid any path parameter. See [Path Validation](#path-validation) for more information.
-* `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
-* `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
-* _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
-* _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
-* _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
-* `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
-* `pre` - an array with pre-handler methods as described in [Route Prerequisites](#route-prerequisites).
-* `auth` - authentication configuration
-* `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
-* _'none'_ - authentication not allowed.
-* _'required'_ - authentication is required.
-* _'optional'_ - authentication is optional (validated if present).
-* `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
-* `scope` - required application scope. Defaults to _none_.
-* `entity` - the required authenticated entity type. Not supported with every authorization scheme. Available options include:
-* _'any'_ - the authentication can be on behalf of a user or application.
-* _'user'_ - the authentication must be on behalf of a user.
-* _'app'_ - the authentication must be on behalf of an application.
+  * `description` - route description.
+  * `notes` - route notes (string or array of strings).
+  * `tags` - route tags (array of strings).
+  * `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
+  * `validate`
+    * `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to any query parameters being allowed. See [Query Validation](#query-validation) for more information.
+    * `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to _'false'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+    * `path` - validation rules for incoming requests' path parameters. Defaults to no validation (any path parameter allowed). Set to _'false'_ to forbid any path parameter. See [Path Validation](#path-validation) for more information.
+  * `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
+  * `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
+    * _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
+    * _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
+    * _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
+  * `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
+  * `pre` - an array with pre-handler methods as described in [Route Prerequisites](#route-prerequisites). 
+  * `auth` - authentication configuration
+    * `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
+      * _'none'_ - authentication not allowed.
+      * _'required'_ - authentication is required.
+      * _'optional'_ - authentication is optional (validated if present).
+    * `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
+    * `scope` - required application scope. Defaults to _none_.
+    * `entity` - the required authenticated entity type. Not supported with every authorization scheme. Available options include:
+      * _'any'_ - the authentication can be on behalf of a user or application.
+      * _'user'_ - the authentication must be on behalf of a user.
+      * _'app'_ - the authentication must be on behalf of an application.
 
 The `config` option was defined for easily spliting the routing table definition from the individual route information. For example:
 ```javascript
@@ -479,7 +479,7 @@ var server = new Hapi.Server();
 
 var handler1 = function (request) {
 
-request.reply('ok');
+    request.reply('ok');
 }
 
 server.addRoute({ method: 'GET', path: '/option1', handler: handler1 });
@@ -487,12 +487,12 @@ server.addRoute({ method: 'GET', path: '/option1', handler: handler1 });
 // Option 2 - add handler in separate config object
 
 var config2 = {
-payload: 'raw',
-// ... additional config options ...
-handler: function (request) {
+    payload: 'raw',
+    // ... additional config options ...
+    handler: function (request) {
 
-request.reply('ok');
-}
+        request.reply('ok');
+    }
 };
 
 server.addRoute({ method: 'GET', path: '/option2', config: config2});
@@ -503,7 +503,7 @@ server.addRoute({ method: 'GET', path: '/option2', config: config2});
 Each configuration option comes with a built-in default. To change these defaults, use the `setRoutesDefaults()` server method.
 ```javascript
 server.setRoutesDefaults({
-cors: false
+    cors: false
 });
 ```
 
@@ -518,22 +518,22 @@ Route matching is done on the request path only (excluding the query and other c
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
 '/book/{id}/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
-the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
+ the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
 an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/' (and may
 match '/book' based on the server `router` option).
 
 ```javascript
 server.addRoute({
-path: '/{album}/{song?}',
-method: 'GET',
-handler: getAlbum
+    path: '/{album}/{song?}',
+    method: 'GET',
+    handler: getAlbum
 });
 
 function getAlbum(request) {
 
-request.reply('You asked for ' +
-(request.params.song ? request.params.song + ' from ' : '') +
-request.params.album);
+    request.reply('You asked for ' +
+                  (request.params.song ? request.params.song + ' from ' : '') +
+                  request.params.album);
 }
 ```
 
@@ -541,15 +541,15 @@ In addition to the optional _'?'_ suffix, a param can also specify an expected n
 
 ```javascript
 server.addRoute({
-path: '/person/{names*2}',
-method: 'GET',
-handler: getPerson
+    path: '/person/{names*2}',
+    method: 'GET',
+    handler: getPerson
 });
 
 function getPerson(request) {
 
-var nameParts = request.params.names.split('/');
-request.reply(new Person(namesParts[0], nameParts[1]));
+    var nameParts = request.params.names.split('/');
+    request.reply(new Person(namesParts[0], nameParts[1]));
 }
 ```
 
@@ -559,15 +559,15 @@ Below is a similar example without a requirement on the number of name parts tha
 
 ```javascript
 server.addRoute({
-path: '/people/{names*}',
-method: 'GET',
-handler: getPerson
+    path: '/people/{names*}',
+    method: 'GET',
+    handler: getPerson
 });
 
 function getPeople(request) {
 
-var nameParts = request.params.names.split('/');
-request.reply(loadPeople(namesParts));
+    var nameParts = request.params.names.split('/');
+    request.reply(loadPeople(namesParts));
 }
 ```
 
@@ -584,11 +584,11 @@ When the provided route handler method is called, it receives a _request_ object
 - _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
 - _'session'_ - available for authenticated requests and includes:
-- _'id'_ - session identifier.
-- _'used'_ - user id (optional).
-- _'app'_ - application id (optional).
-- _'scope'_ - approved application scopes (optional).
-- _'ext.tos'_ - terms-of-service version (optional).
+    - _'id'_ - session identifier.
+    - _'used'_ - user id (optional).
+    - _'app'_ - application id (optional).
+    - _'scope'_ - approved application scopes (optional).
+    - _'ext.tos'_ - terms-of-service version (optional).
 - _'server'_ - a reference to the server object.
 - _'pre'_ - any requisites as described in [Prequisites](#prequisites).
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
@@ -681,11 +681,11 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 // File mapping function
 var filePath = function (request) {
 
-if (isMobileDevice(request)) {
-return './mobile/' + request.params.path;
-}
+    if (isMobileDevice(request)) {
+        return './mobile/' + request.params.path;
+    }
 
-return './public' + request.params.path;
+    return './public' + request.params.path;
 };
 
 http.addRoute({ method: 'GET', path: '/{path}', handler: { file: filePath } });
@@ -731,11 +731,11 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 
 var directoryPath = function (request) {
 
-if (isMobileDevice(request)) {
-return './mobile';
-}
+    if (isMobileDevice(request)) {
+        return './mobile';
+    }
 
-return './public';
+    return './public';
 };
 
 http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: directoryPath } } });
@@ -779,11 +779,11 @@ the server's behavior. It also enables batching all the request log events and d
 
 The request object is also decorated with the following methods.
 - _'log(tags, [data, timestamp])'_ which adds a record to the request log where:
-- _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
-- _'data'_ - an optional message string or object with the application data being logged.
-- _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+  - _'data'_ - an optional message string or object with the application data being logged.
+  - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
 - _'getLog(tags)'_ - Returns an array of events which match the tag(s) specifed.
-
+  
 For example:
 ```javascript
 var Hapi = require('hapi');
@@ -794,14 +794,14 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 // Route handler
 var testLogs = function (request) {
 
-request.log('error', new Error('Something failed'));
-
-if (request.getLog('error').length === 0) {
-request.reply('Success!');
-}
-else {
-request.reply('Failure!');
-}
+    request.log('error', new Error('Something failed'));
+    
+    if (request.getLog('error').length === 0) {
+        request.reply('Success!');
+    }
+    else {
+        request.reply('Failure!');
+    }
 };
 
 // Set routes
@@ -853,10 +853,10 @@ Response validation can only be performed on object responses and will otherwise
 
 'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route cache config has the following options:
 * `mode` - determines if the route is cached on the server, client, or both. Defaults to _'server+client'_.
-* `server+client` - Caches the route response on the server and client (default)
-* `client` - Sends the Cache-Control HTTP header on the response to support client caching
-* `server` - Caches the route on the server only
-* `none` - Disable cache for the route on both the client and server
+    * `server+client` - Caches the route response on the server and client (default)
+    * `client` - Sends the Cache-Control HTTP header on the response to support client caching
+    * `server` - Caches the route on the server only
+    * `none` - Disable cache for the route on both the client and server
 * `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the path fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules.
 * `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
 * `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
@@ -865,8 +865,8 @@ Response validation can only be performed on object responses and will otherwise
 For example, to configure a route to be cached on the client and to expire after 2 minutes the configuration would look like the following:
 ```
 {
-mode: 'client',
-expiresIn: 120000
+    mode: 'client',
+    expiresIn: 120000
 }
 ```
 
@@ -891,36 +891,36 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 
 var fetch1 = function (request, next) {
 
-next('Hello');
+    next('Hello');
 };
 
 var fetch2 = function (request, next) {
 
-next('World');
+    next('World');
 };
 
 var fetch3 = function (request, next) {
 
-next(request.pre.m1 + ' ' + request.pre.m2);
+    next(request.pre.m1 + ' ' + request.pre.m2);
 };
 
 var get = function (request) {
 
-request.reply(request.pre.m3 + '\n');
+    request.reply(request.pre.m3 + '\n');
 };
 
 // Set routes
 http.addRoute({
-method: 'GET',
-path: '/',
-config: {
-pre: [
-{ method: fetch1, assign: 'm1', mode: 'parallel' },
-{ method: fetch2, assign: 'm2', mode: 'parallel' },
-{ method: fetch3, assign: 'm3' },
-],
-handler: get
-}
+    method: 'GET',
+    path: '/',
+    config: {
+        pre: [
+            { method: fetch1, assign: 'm1', mode: 'parallel' },
+            { method: fetch2, assign: 'm2', mode: 'parallel' },
+            { method: fetch3, assign: 'm3' },
+        ],
+        handler: get
+    }
 });
 
 // Start Hapi servers
@@ -939,12 +939,12 @@ var S = Hapi.Types.String;
 var I = Hapi.Types.Int;
 
 var rules = {
-username: S().required().alphanum().min(3).max(30).with('email'),
-password: S().regex(/[a-zA-Z0-9]{3,30}/).without('token'),
-token: S(),
-birthyear: I().min(1850).max(2012),
-email: S().email(),
-type: S().valid('admin', 'limited', 'normal')
+  username: S().required().alphanum().min(3).max(30).with('email'),
+  password: S().regex(/[a-zA-Z0-9]{3,30}/).without('token'),
+  token: S(),
+  birthyear: I().min(1850).max(2012),
+  email: S().email(),
+  type: S().valid('admin', 'limited', 'normal')
 };
 ```
 
@@ -970,7 +970,7 @@ The _message_ value is optional and will be returned to the client in the respon
 ```javascript
 function onUnknownRoute(request) {
 
-request.reply(Hapi.Error.unknown('Sorry, nobody home'));
+    request.reply(Hapi.Error.unknown('Sorry, nobody home'));
 }
 ```
 
@@ -986,9 +986,9 @@ The complete error repsonse including any additional data is added to the reques
 Most of the server's events usually relate to a specific incoming request. However, there are sometimes event that do not have a specific request
 context. **hapi** provides a logging mechanism for general events using a singleton logger 'Hapi.Log' module. The logger provides the following methods:
 - _'event(tags, [data, timestamp])'_ - generates an event where:
-- _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
-- _'data'_ - an optional message string or object with the application data being logged.
-- _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+  - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+  - _'data'_ - an optional message string or object with the application data being logged.
+  - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
 - _'print(event)'_ - outputs the given _'event'_ to the console.
 
 The logger is an event emitter. When an event is generated, the logger's _'log'_ event is emitted with the event object as value.
@@ -1001,8 +1001,8 @@ var Hapi = require('hapi');
 // Listen to log events
 Hapi.Log.on('log', function (event) {
 
-// Send to console
-Hapi.Log.print(event);
+    // Send to console
+    Hapi.Log.print(event);
 });
 
 // Generate event
@@ -1033,19 +1033,19 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 // Route handler
 var get = function (request) {
 
-var tail1 = request.addTail('tail1');
-setTimeout(function () {
+    var tail1 = request.addTail('tail1');
+    setTimeout(function () {
 
-request.removeTail(tail1);              // Using removeTail() interface
-}, 5000);
+        request.removeTail(tail1);              // Using removeTail() interface
+    }, 5000);
 
-var tail2 = request.addTail('tail2');
-setTimeout(function () {
+    var tail2 = request.addTail('tail2');
+    setTimeout(function () {
 
-tail2();                                // Using tail function interface
-}, 2000);
+        tail2();                                // Using tail function interface
+    }, 2000);
 
-request.reply('Success!');
+    request.reply('Success!');
 };
 
 // Set routes
@@ -1054,7 +1054,7 @@ http.addRoute({ method: 'GET', path: '/', handler: get });
 // Listen to tail events
 http.on('tail', function (request) {
 
-console.log('Wag the dog');
+    console.log('Wag the dog');
 });
 
 // Start Hapi servers
@@ -1070,17 +1070,17 @@ implementing a batch mechanism which calls multiple internal routes.
 **hapi** uses the [**shot**](https://github.com/hueniverse/shot) module for performing injections. To inject a request, use the server's
 _'inject(options, callback)'_ method in which:
 - _'options'_ - is an object containing the request information. Available options:
-- `method` - the request HTTP method. Required.
-- `url` - the request URL (as it would appear in an incoming node request object). Required.
-- `headers` - any request headers. Optional.
-- `payload` - a string or Buffer containing the request payload. Optional.
-- `session` - a session object containing authentication information as described in [Route Handler](#route-handler). The `session` option is used to bypass the default authentication validation and use a pre-authenticated session. Optional.
+  - `method` - the request HTTP method. Required.
+  - `url` - the request URL (as it would appear in an incoming node request object). Required.
+  - `headers` - any request headers. Optional.
+  - `payload` - a string or Buffer containing the request payload. Optional.
+  - `session` - a session object containing authentication information as described in [Route Handler](#route-handler). The `session` option is used to bypass the default authentication validation and use a pre-authenticated session. Optional.
 - _'callback'_ - a callback function with the signature _'function (res)'_ where 'res' is the injection response object. The response object properties include:
-- _'headers'_ - an array containing the headers set.
-- _'statusCode'_ - the HTTP status code.
-- _'readPayload()'_ - the payload converted to a string.
-- _'result'_ - if present, the original route handler reply object.
-- _'raw'_ - the injection request and response objects.
+  - _'headers'_ - an array containing the headers set.
+  - _'statusCode'_ - the HTTP status code.
+  - _'readPayload()'_ - the payload converted to a string.
+  - _'result'_ - if present, the original route handler reply object.
+  - _'raw'_ - the injection request and response objects.
 
 **This is an experimental feature and is likely to change!**
 
@@ -1093,7 +1093,7 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 // Handler
 var get = function (request) {
 
-request.reply('Success!');
+    request.reply('Success!');
 };
 
 // Set routes
@@ -1101,13 +1101,13 @@ http.addRoute({ method: 'GET', path: '/', handler: get });
 
 // Injection options
 var req = {
-method: 'get',
-url: '/'
+    method: 'get',
+    url: '/'
 };
 
 http.inject(req, function (res) {
 
-console.log(res.result || res.readPayload());
+    console.log(res.result || res.readPayload());
 });
 ```
 
@@ -1124,8 +1124,8 @@ To add a helper, use the server's _'addHelper(name, method, options)'_ method wh
 * _'name'_ - is a unique helper name used to call the method (e.g. 'server.helpers.name').
 * _'method'_ - is the helper function.
 * _'options'_ - optional settings where:
-* `cache` - cache configuration as described in [Caching](#caching). `mode` can use the default or be set to 'server'.
-* `keyGenerator` - the server will automatically generate a unique key if the function's arguments (with the exception of the last 'next' argument) are all of type string, number, or boolean. However if the function uses other types of arguments, a key generation function must be provided which takes the same arguments as the function and returns a unique string (or null if no key can be generated). Note that when the keyGenerator method is invoked, the arguments list will include the next argument which must not be used in calculation of the key.
+  * `cache` - cache configuration as described in [Caching](#caching). `mode` can use the default or be set to 'server'.
+  * `keyGenerator` - the server will automatically generate a unique key if the function's arguments (with the exception of the last 'next' argument) are all of type string, number, or boolean. However if the function uses other types of arguments, a key generation function must be provided which takes the same arguments as the function and returns a unique string (or null if no key can be generated). Note that when the keyGenerator method is invoked, the arguments list will include the next argument which must not be used in calculation of the key.
 
 For example:
 ```javascript
@@ -1134,49 +1134,48 @@ var server = new Hapi.Server('0.0.0.0', 8080);
 
 var user = function (id, next) {
 
-next({ id: id });
+    next({ id: id });
 };
 
 var options = {
-cache: {
-expiresIn: 2000,
-staleIn: 1000,
-staleTimeout: 100
-},
-keyGenerator: function (id) {
+    cache: {
+        expiresIn: 2000,
+        staleIn: 1000,
+        staleTimeout: 100
+    },
+    keyGenerator: function (id) {
 
-return id;
-};
+        return id;
+    };
 };
 
 server.addHelper('user', user, options);
 
 server.helpers.user(4, function (result) {
 
-console.log(result);
+    console.log(result);
 });
 ```
 
 Or used as a prerequisites:
 ```javascript
 http.addRoute({
-method: 'GET',
-path: '/user/{id}',
-config: {
-pre: [
-{
-assign: 'user',
-method: function (request, next) {
+    method: 'GET',
+    path: '/user/{id}',
+    config: {
+        pre: [
+            {
+                assign: 'user',
+                method: function (request, next) {
 
-request.server.helpers.user(request.params.id, next);
-}
-}
-],
-handler: function (request) {
+                    request.server.helpers.user(request.params.id, next);
+                }
+            }
+        ],
+        handler: function (request) {
 
-request.reply(request.pre.user);
-}
-}
+            request.reply(request.pre.user);
+        }
+    }
 });
 ```
-
