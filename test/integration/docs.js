@@ -12,7 +12,7 @@ var internals = {};
 // Test shortcuts
 
 var expect = Chai.expect;
-var S = Hapi.Types.String;
+var S = Hapi.types.String;
 
 
 describe('Docs Generator', function () {

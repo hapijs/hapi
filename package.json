@@ -2,9 +2,9 @@
   "name": "hapi",
   "description": "HTTP API Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
-  "contributors":[
+  "contributors": [
     "Van Nguyen <the.gol.effect@gmail.com>",
     "Wyatt Preul <wpreul@gmail.com>"
   ],
