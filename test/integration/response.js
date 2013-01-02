@@ -152,6 +152,7 @@ describe('Response', function () {
                     expect(body).to.contain('hapi');
                     expect(res.headers['content-type']).to.equal('application/json');
                     expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                     done();
                 });
             });
@@ -170,6 +171,7 @@ describe('Response', function () {
                     expect(body).to.contain('hapi');
                     expect(res.headers['content-type']).to.equal('application/json');
                     expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                     done();
                 });
             });
