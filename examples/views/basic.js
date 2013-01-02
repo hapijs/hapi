@@ -1,9 +1,7 @@
 // Load modules
 
 var Hapi = require('../../lib');
-var request = require('request');
-
-var version =  "v" + require('../../package.json').version;
+var Request = require('request');
 
 // Declare internals
 
@@ -12,10 +10,10 @@ var internals = {};
 
 var basicHandler = function (request) {
 
-    request.reply.render('index', {
-        title: 'examples/views/index.js | Hapi ' + version, // auto pop version #
+    request.reply.view('index', {
+        title: 'examples/views/index.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
-    });
+    }).send();
 };
 
 
@@ -25,7 +23,7 @@ internals.main = function () {
         views: {
             path: __dirname + "/views",
             engine: {
-                name: "handlebars",
+                module: "handlebars",
                 extension: "html"
             },
             partials: {
