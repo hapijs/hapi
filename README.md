@@ -843,7 +843,10 @@ The route `config.validate.path` defines the path validation rules performed bef
 The route `config.response` defines the payload validation rules performed after the route handler is invoked. Supported values:
 - _'null'_ - any payload allowed (no validation performed). This is the default.
 - _'false'_ or _'{}'_ - no payload allowed.
-- a validation rules object as described in [Data Validation](#data-validation).
+- _'schema'_ - a validation rules object as described in [Data Validation](#data-validation).
+- _'sample'_ - the percentage of responses to validate.  By default 100% of responses will be validated, to turn this off set the value to 0.  To validate half of the responses set this value to 50.
+- _'onInvalid'_ - a string value of _'report'_ or _'block'_ that specifies what to do when a response is invalid.  By default an invalid response will _'block'_ the response.  If _'report'_ is used then the error message will be added to the request log.
+
 
 Response validation can only be performed on object responses and will otherwise result in an error.
 
