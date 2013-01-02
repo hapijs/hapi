@@ -126,64 +126,46 @@ describe('Validation', function () {
             });
         });
 
-        it('should report an error when sample is 50 and making 50 invalid requests', function (done) {
+        internals.calculateFailAverage = function (size, sample) {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
             request._route.config.response.onInvalid = 'report';
-            request._route.config.response.sample = 50;
+            request._route.config.response.sample = sample;
             request._response = Hapi.Response.generate({ wrongParam: 'test' });
+            var failureCount = 0;
 
-            request.log = function (tags, data) {
+            request.log = function () {
 
-                expect(data).to.contain('not allowed to be undefined');
-                done();
-
-                request.log = function () { };
+                failureCount++;
             };
 
             var validationResponse = function () {};
 
-            for (var i = 50; i > 0; i--) {
+            for (var i = size; i > 0; i--) {
                 Validation.response(request, validationResponse);
             }
-        });
 
-        it('should report an error when sample is 100 and making 25 invalid requests', function (done) {
+            return (failureCount / size) * 100;
+        };
 
-            var query = { username: 'walmart' };
-            var request = createRequestObject(query, route);
-            request._route.config.response.onInvalid = 'report';
-            request._route.config.response.sample = 25;
-            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+        it('sample percentage results in correct fail rate', function (done) {
 
-            request.log = function (tags, data) {
+            var rates = [];
 
-                expect(data).to.contain('not allowed to be undefined');
-                done();
-
-                request.log = function () { };
-            };
-
-            var validationResponse = function () {};
-
-            for (var i = 100; i > 0; i--) {
-                Validation.response(request, validationResponse);
+            for (var i = 50; i > 0; i--) {                                  // Try 50 times and take the max and min
+                rates.push(internals.calculateFailAverage(100, 25));
             }
-        });
 
-        it('should not return an error when sample is 1 and making 1 invalid requests', function (done) {
+            rates = rates.sort(function (a, b) {
 
-            var query = { username: 'walmart' };
-            var request = createRequestObject(query, route);
-            request._route.config.response.sample = 1;
-            request._response = Hapi.Response.generate({ wrongParam: 'test' });
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
+                return a - b;
             });
+
+            expect(rates[0]).to.be.greaterThan(9);                          // accept a 15 point margin
+            expect(rates[49]).to.be.lessThan(41);
+
+            done();
         });
 
         it('should report an error when responding with invalid response param and onInvalid is report', function (done) {
