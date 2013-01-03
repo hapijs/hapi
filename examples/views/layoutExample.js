@@ -9,10 +9,10 @@ var Multitool = require('multitool');
 var internals = {};
 
 
-var basicHandler = function (request) {
+var layoutExampleHandler = function (request) {
 
-    request.reply.view('basic', {
-        title: 'examples/views/basic.js | Hapi ' + Hapi.utils.version(),
+    request.reply.view('layoutExample/index', {
+        title: 'examples/views/layoutExample.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
     }).send();
 };
@@ -27,19 +27,16 @@ internals.main = function () {
                 module: "handlebars",
                 extension: "html"
             },
-            // layout: true,
-            partials: {
-                path: __dirname + "/views/partials"
-            }
+            layout: true
         }
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/', handler: basicHandler });
+    server.addRoute({ method: 'GET', path: '/', handler: layoutExampleHandler });
     server.start(function(){
         Multitool.Notify({
             app: "Hapi",
-            title: 'examples/views/basic.js',
+            title: 'examples/views/layoutExample.js',
             message: "Server started on port 3000"
         });
     });
