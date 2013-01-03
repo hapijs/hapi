@@ -27,7 +27,6 @@ internals.main = function () {
                 module: "handlebars",
                 extension: "html"
             },
-            // layout: true,
             partials: {
                 path: __dirname + "/views/partials"
             }
