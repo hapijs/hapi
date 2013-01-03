@@ -33,13 +33,7 @@ internals.main = function () {
 
     var server = new Hapi.Server(3000, options);
     server.addRoute({ method: 'GET', path: '/', handler: layoutExampleHandler });
-    server.start(function(){
-        Multitool.Notify({
-            app: "Hapi",
-            title: 'examples/views/layoutExample.js',
-            message: "Server started on port 3000"
-        });
-    });
+    server.start();
 };
 
 

@@ -11,7 +11,7 @@ var internals = {};
 
 var basicHandler = function (request) {
 
-    request.reply.view('basic', {
+    request.reply.view('basic/index', {
         title: 'examples/views/basic.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
     }).send();
@@ -36,13 +36,7 @@ internals.main = function () {
 
     var server = new Hapi.Server(3000, options);
     server.addRoute({ method: 'GET', path: '/', handler: basicHandler });
-    server.start(function(){
-        Multitool.Notify({
-            app: "Hapi",
-            title: 'examples/views/basic.js',
-            message: "Server started on port 3000"
-        });
-    });
+    server.start();
 };
 
 
