@@ -18,23 +18,20 @@ describe('Response', function () {
 
     describe('View', function () {
 
-        describe('#_generateListing', function () {
+        it('should not throw when created', function (done) {
 
-            it('returns an error when reading an invalid directory', function (done) {
-
-                var fn = (function () {
-                    Hapi.response.View.Views.init({
-                        path: __dirname + '/../views/handlebars'
-                    })
-                    var view = new Hapi.response.View('valid/test', {});
-                    
-                    expect(view._payload).to.exist;
-                    expect(view._payload.length).above(1);
-                });
+            var fn = (function () {
+                Hapi.response.View.Views.init({
+                    path: __dirname + '/../views/handlebars/valid'
+                })
+                var view = new Hapi.response.View('test', {});
                 
-                expect(fn).to.not.throw();
-                done();
+                expect(view._payload).to.exist;
+                expect(view._payload.length).above(1);
             });
+            
+            expect(fn).to.not.throw();
+            done();
         });
     });
 });
