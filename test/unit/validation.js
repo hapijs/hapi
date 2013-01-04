@@ -31,25 +31,28 @@ describe('Validation', function () {
     var createRequestObject = function (query, route, payload) {
 
         var qstr = Querystring.stringify(query);
+        var routeClone = Hapi.utils.clone(route);
 
         return {
             url: {
                 search: '?' + qstr,
                 query: query,
-                pathname: route.path,
-                path: route.path + '?' + qstr,//'/config?choices=1&choices=2',
-                href: route.path + '?' + qstr //'/config?choices=1&choices=2'
+                pathname: routeClone.path,
+                path: routeClone.path + '?' + qstr,//'/config?choices=1&choices=2',
+                href: routeClone.path + '?' + qstr //'/config?choices=1&choices=2'
             },
             query: query,
             payload: payload,
-            path: route.path,
-            method: route.method,
-            _route: { config: route.config },
+            path: routeClone.path,
+            method: routeClone.method,
+            _route: { config: routeClone.config },
             response: { result: {} }
         };
     };
 
     var createRequestObjectFromPath = function (path, params, route) {
+
+        var routeClone = Hapi.utils.clone(route);
 
         return {
             url: {
@@ -58,15 +61,15 @@ describe('Validation', function () {
                 href: path
             },
             params: params,
-            method: route.method,
-            _route: { config: route.config },
+            method: routeClone.method,
+            _route: { config: routeClone.config },
             response: { result: {} }
         };
     };
 
     describe('#response', function () {
 
-        var route = { method: 'GET', path: '/', config: { handler: testHandler, response: { username: S().required() } } };
+        var route = { method: 'GET', path: '/', config: { handler: testHandler, response: { schema: { username: S().required() } } } };
 
         it('should not raise an error when responding with valid param', function (done) {
 
@@ -82,15 +85,105 @@ describe('Validation', function () {
             });
         });
 
-        it('should raise an error when responding without invalid param', function (done) {
+        it('should raise an error when responding with invalid param', function (done) {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
                 expect(err).to.exist;
                 done();
+            });
+        });
+
+        it('should not raise an error when responding with invalid param and sample is 0', function (done) {
+
+            var query = { username: 'walmart' };
+            var request = createRequestObject(query, route);
+            request._route.config.response.sample = 0;
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+
+            Validation.response(request, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it('should raise an error when responding with invalid param and sample is 100', function (done) {
+
+            var query = { username: 'walmart' };
+            var request = createRequestObject(query, route);
+            request._route.config.response.sample = 100;
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+
+            Validation.response(request, function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+
+        internals.calculateFailAverage = function (size, sample) {
+
+            var query = { username: 'walmart' };
+            var request = createRequestObject(query, route);
+            request._route.config.response.onInvalid = 'report';
+            request._route.config.response.sample = sample;
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+            var failureCount = 0;
+
+            request.log = function () {
+
+                failureCount++;
+            };
+
+            var validationResponse = function () {};
+
+            for (var i = size; i > 0; i--) {
+                Validation.response(request, validationResponse);
+            }
+
+            return (failureCount / size) * 100;
+        };
+
+        it('sample percentage results in correct fail rate', function (done) {
+
+            var rates = [];
+
+            for (var i = 50; i > 0; i--) {                                  // Try 50 times and take the max and min
+                rates.push(internals.calculateFailAverage(100, 25));
+            }
+
+            rates = rates.sort(function (a, b) {
+
+                return a - b;
+            });
+
+            expect(rates[0]).to.be.greaterThan(9);                          // accept a 15 point margin
+            expect(rates[49]).to.be.lessThan(41);
+
+            done();
+        });
+
+        it('should report an error when responding with invalid response param and onInvalid is report', function (done) {
+
+            var query = { username: 'walmart' };
+            var request = createRequestObject(query, route);
+            request._route.config.response.onInvalid = 'report';
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+
+            request.log = function (tags, data) {
+
+                expect(data).to.contain('not allowed to be undefined');
+                done();
+            };
+
+            Validation.response(request, function (err) {
+
+                expect(err).to.not.exist;
             });
         });
 
