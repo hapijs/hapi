@@ -238,7 +238,6 @@ describe('Views', function () {
 
             var fn = (function () {
                 var html = testView.render('invalid/badmustache', {title: 'test', message: 'Hapi'});
-                console.log('html', html)
             });
             
             expect(fn).to.throw();
