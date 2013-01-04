@@ -24,7 +24,7 @@ describe('Response', function () {
                 Hapi.response.View.Views.init({
                     path: __dirname + '/../views/handlebars/valid'
                 })
-                var view = new Hapi.response.View('test', {});
+                var view = new Hapi.response.View('test', {message: "Ohai"});
                 
                 expect(view._payload).to.exist;
                 expect(view._payload.length).above(1);
