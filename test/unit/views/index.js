@@ -251,21 +251,82 @@ describe('Views', function () {
         it('should throw on invalid inputs unless configured otherwise', function (done) {
 
             var inputs = [
-                ['layout', {path: viewsPath, allowAbsolutePaths: false}, viewsPath + '/layout.html'],
-                [viewsPath + '/invalid/test', {path: viewsPath, allowAbsolutePaths: true}, viewsPath + '/invalid/test.html'],
+                ['layout', {path: viewsPath, allowAbsolutePaths: false}, viewsPath + '/layout.html', false],
+                [viewsPath + '/invalid/test', {path: viewsPath, allowAbsolutePaths: true}, viewsPath + '/invalid/test.html', false],
+                [viewsPath + '/invalid/test', {path: viewsPath, allowAbsolutePaths: false}, viewsPath + '/invalid/test.html', true],
+                ['invalid/../invalid/test', {path: viewsPath, allowInsecureAccess: true}, viewsPath + '/invalid/test.html', false],
+                ['invalid/../invalid/test', {path: viewsPath, allowInsecureAccess: false}, viewsPath + '/invalid/test.html', true],
+                ['doesnotexist', {path: viewsPath}, null, true]
             ];
             
             for(var i in inputs) {
                 var testInput = inputs[i][0];
                 var testOptions = inputs[i][1];
                 var testResult = inputs[i][2];
+                var shouldThrow = inputs[i][3];
                 
-                var tempView = new Views();
-                var t = tempView.init(testOptions);
-                var result = tempView.getPath(testInput);
-                expect(result).to.equal(testResult);
+                var fn = (function () {
+
+                    var tempView = new Views();
+                    var t = tempView.init(testOptions);
+                    var result = tempView.getPath(testInput);
+                    expect(result).to.equal(testResult);
+                });
+                
+                if (shouldThrow) {
+                    expect(fn).to.throw();
+                }
+                else {
+                    expect(fn).to.not.throw();
+                }
             }
             
+            done();
+        });
+    });
+    
+    describe('#loadPartials', function () {
+
+        it('should load partials and be able to render them', function (done) {
+
+            // This test does more than just test #loadPartials, move render part once integration tests added
+            var fn = (function () {
+
+                var tempView = new Views();
+                tempView.init({
+                    path: viewsPath + '/valid',
+                    partials: {
+                        path: viewsPath + '/valid/partials'
+                    }
+                });
+                
+                var html = tempView.render('testPartials', {});
+                expect(html).to.exist;
+                expect(html.length).above(1);
+            })
+            
+            expect(fn).to.not.throw();
+            done();
+        });
+    });
+    
+    describe('#processPartials', function () {
+
+        it('should throw err if passed err', function (done) {
+
+            var fn = (function () {
+
+                var tempView = new Views();
+                tempView.init({
+                    path: viewsPath + '/valid',
+                    partials: {
+                        path: viewsPath + '/valid/partials'
+                    }
+                });
+                tempView.processPartials("error", []);
+            })
+            
+            expect(fn).to.throw();
             done();
         });
     });
