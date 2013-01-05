@@ -130,7 +130,7 @@ describe('Validation', function () {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._route.config.response.onInvalid = 'report';
+            request._route.config.response.failAction = 'log';
             request._route.config.response.sample = sample;
             request._response = Hapi.Response.generate({ wrongParam: 'test' });
             var failureCount = 0;
@@ -168,11 +168,11 @@ describe('Validation', function () {
             done();
         });
 
-        it('should report an error when responding with invalid response param and onInvalid is report', function (done) {
+        it('should report an error when responding with invalid response param and failAction is report', function (done) {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._route.config.response.onInvalid = 'report';
+            request._route.config.response.failAction = 'log';
             request._response = Hapi.Response.generate({ wrongParam: 'test' });
 
             request.log = function (tags, data) {
