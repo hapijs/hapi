@@ -364,7 +364,7 @@ describe('Response', function () {
     describe('Directory', function () {
 
         var server = new Hapi.Server(17083);
-        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './' } } });
+        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
 

@@ -159,6 +159,18 @@ describe('State', function () {
             done();
         });
 
+        it('formats a header correctly with multiple cookies', function (done) {
+
+            var header = State.setCookieHeader([
+                { name: 'sid', value: 'fihfieuhr9384hf', ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' },
+                { name: 'pid', value: 'xyz' }
+            ]);
+            var expires = new Date(Date.now() + 3600);
+            expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+            expect(header[1]).to.equal('pid=xyz');
+            done();
+        });
+
         it('fails on bad cookie name', function (done) {
 
             var header = State.setCookieHeader({ name: 's;id', value: 'fihfieuhr9384hf', isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' });
