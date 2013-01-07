@@ -1,7 +1,6 @@
 // Load modules
 
 var Chai = require('chai');
-var Shot = require('shot');
 var Hapi = require('../helpers');
 var State = process.env.TEST_COV ? require('../../lib-cov/state') : require('../../lib/state');
 var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
@@ -140,6 +139,64 @@ describe('State', function () {
             var setLog = Hapi.utils.clone(Defaults.server.state);
             setLog.cookies.failAction = 'log';
             fail('abc="xyz', setLog);
+        });
+    });
+
+    describe('#setCookieHeader', function () {
+
+        it('skips an empty header', function (done) {
+
+            var header = State.setCookieHeader();
+            expect(header).to.deep.equal([]);
+            done();
+        });
+
+        it('formats a header correctly', function (done) {
+
+            var header = State.setCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' });
+            var expires = new Date(Date.now() + 3600);
+            expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+            done();
+        });
+
+        it('fails on bad cookie name', function (done) {
+
+            var header = State.setCookieHeader({ name: 's;id', value: 'fihfieuhr9384hf', isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' });
+            expect(header instanceof Error).to.equal(true);
+            expect(header.message).to.equal('Invalid cookie name: s;id');
+            done();
+        });
+
+        it('fails on bad cookie value', function (done) {
+
+            var header = State.setCookieHeader({ name: 'sid', value: 'fi"hfieuhr9384hf', isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' });
+            expect(header instanceof Error).to.equal(true);
+            expect(header.message).to.equal('Invalid cookie value: fi"hfieuhr9384hf');
+            done();
+        });
+
+        it('fails on bad cookie domain', function (done) {
+
+            var header = State.setCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', isSecure: true, isHttpOnly: false, path: '/', domain: '-example.com' });
+            expect(header instanceof Error).to.equal(true);
+            expect(header.message).to.equal('Invalid cookie domain: -example.com');
+            done();
+        });
+
+        it('fails on too long cookie domain', function (done) {
+
+            var header = State.setCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', isSecure: true, isHttpOnly: false, path: '/', domain: '1234567890123456789012345678901234567890123456789012345678901234567890.example.com' });
+            expect(header instanceof Error).to.equal(true);
+            expect(header.message).to.equal('Cookie domain too long: 1234567890123456789012345678901234567890123456789012345678901234567890.example.com');
+            done();
+        });
+
+        it('fails on bad cookie path', function (done) {
+
+            var header = State.setCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', isSecure: true, isHttpOnly: false, path: 'd', domain: 'example.com' });
+            expect(header instanceof Error).to.equal(true);
+            expect(header.message).to.equal('Invalid cookie path: d');
+            done();
         });
     });
 });

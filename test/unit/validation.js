@@ -163,7 +163,7 @@ describe('Validation', function () {
             });
 
             expect(rates[0]).to.be.greaterThan(9);                          // accept a 15 point margin
-            expect(rates[49]).to.be.lessThan(41);
+            expect(rates[49]).to.be.lessThan(42);
 
             done();
         });
