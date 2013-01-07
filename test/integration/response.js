@@ -364,9 +364,9 @@ describe('Response', function () {
     describe('Directory', function () {
 
         var server = new Hapi.Server(17083);
-        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '../..' } } });
-        server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: '../..', showHidden: true, listing: true } } });
-        server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: '../..', listing: true } } });
+        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './' } } });
+        server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
+        server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -411,7 +411,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/package.json', function (err, res, body) {
+                Request.get('http://localhost:17083/directory/response.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -425,11 +425,11 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/test/integration/response.js', function (err, res, body) {
+                Request.get('http://localhost:17083/directory/directory/index.html', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('http://localhost:17083/directory//test/integration/response.js');
+                    expect(body).to.contain('test');
                     done();
                 });
             });
@@ -553,8 +553,7 @@ describe('Response', function () {
                 Request.get('http://localhost:17083/showhidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
-                    expect(body).to.contain('.gitignore');
-                    expect(body).to.contain('package.json');
+                    expect(body).to.contain('.hidden');
                     done();
                 });
             });
@@ -567,8 +566,8 @@ describe('Response', function () {
                 Request.get('http://localhost:17083/noshowhidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
-                    expect(body).to.not.contain('.gitignore');
-                    expect(body).to.contain('package.json');
+                    expect(body).to.not.contain('.hidden');
+                    expect(body).to.contain('response.js');
                     done();
                 });
             });
@@ -578,7 +577,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/noshowhidden/.gitignore', function (err, res, body) {
+                Request.get('http://localhost:17083/noshowhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -591,10 +590,10 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/showhidden/.gitignore', function (err, res, body) {
+                Request.get('http://localhost:17083/showhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
-                    expect(body).to.contain('node_modules');
+                    expect(body).to.contain('test');
                     done();
                 });
             });
