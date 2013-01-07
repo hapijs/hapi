@@ -33,13 +33,13 @@
     "request": "2.11.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
-    "catbox": "0.0.x",
-    "handlebars": "1.0.x"
+    "catbox": "0.0.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
     "chai": "1.x.x",
-    "sinon": "1.x.x"
+    "sinon": "1.x.x",
+    "handlebars": "1.0.x"
   },
   "scripts": {
     "test": "make test && make unit"

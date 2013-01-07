@@ -11,8 +11,8 @@ var internals = {};
 
 var layoutExampleHandler = function (request) {
 
-    request.reply.view('layoutExample/index', {
-        title: 'examples/views/layoutExample.js | Hapi ' + Hapi.utils.version(),
+    request.reply.view('withLayout/index', {
+        title: 'examples/views/withLayout.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
     }).send();
 };
@@ -22,10 +22,10 @@ internals.main = function () {
 
     var options = {
         views: {
-            path: __dirname + "/views",
+            path: __dirname + '/views',
             engine: {
-                module: "handlebars",
-                extension: "html"
+                module: 'handlebars',
+                extension: 'html'
             },
             layout: true
         }
