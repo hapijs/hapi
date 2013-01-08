@@ -49,7 +49,7 @@ Current version: **0.11.0**
             - [Proxy](#proxy)
             - [File](#file)
             - [Directory](#directory)
-            - [View](#view)
+            - [Views](#views)
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
         - [Query Validation](#query-validation)
@@ -787,7 +787,7 @@ http.start();
 ```
 
 
-#### View
+#### Views
 
 Views provide a better way of generating HTML than string and variable concatenation. Similar to other web servers, 
 **hapi** views allow handlers to efficiently generate HTML using templates by executing an individual template with a
@@ -866,46 +866,162 @@ The View system supports Layouts. Layouts are a single template file which is us
 
 To use, set the Hapi view option `layout` to true and create a file `layout.html` in your `views.path`.
 
+**layout.js**
 ```javascript
-    ...
-    
-    var server = new Hapi.Server(8080, 'localhost', {
+
+    var options = {
         views: {
-            path: viewsPath,
+            path: __dirname + '/templates',
+            engine: {
+                module: 'handlebars',
+                extension: 'html'
+            },
             layout: true
         }
-    });
+    };
     
-    ...
+    var handler = function (request) {
+
+        request.reply.view('withLayout/index', {
+            title: 'examples/views/layout.js | Hapi ' + Hapi.utils.version(),
+            message: 'Hello World!\n'
+        }).send();
+    };
+
+    var server = new Hapi.Server(8080, options);
+    server.addRoute({ method: 'GET', path: '/', handler: handler });
+    server.start();
 ```
 
-The `layout.html` must be located in the path or an error will be returned. A more detailed example can be found in `examples/views/layout.js`.
+**templates/layout.html**
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <p>Layout header</p>
+        {{{ content }}}
+        <p>Layout footer</p>
+    </body>
+</html>
+```
+
+**templates/withLayout/index.html**
+```html
+<div>
+    <h1>{{message}}</h1>
+</div>
+```
+
+**returned to user**:
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>examples/views/layout.js | Hapi 0.11.0</title>
+    </head>
+    <body>
+        <p>Layout header</p>
+        <div>
+            <h1>Hello World!\n</h1>
+        </div>
+        <p>Layout footer</p>
+    </body>
+</html>
+```
+
+The `layout.html` must be located in the path or an error will be returned. Notice that the content from view template `withLayout/index` is executed with the context provided in the handler then embedded into the layout in place of `{{{ content }}}`. To change the keyword for embedding the view template, set the `layoutKeyword` option.
 
 
 #### Partials
 
 The View system also supports Partials. Partials are small segments of template code that can be nested and reused throughout other templates.
 
+**partials.js**
 ```javascript
-    ...
-    
-    var server = new Hapi.Server(8080, 'localhost', {
+
+    var options = {
         views: {
-            path: viewsPath,
-            partials: {}
+            path: __dirname + '/templates',
+            engine: {
+                module: 'handlebars'
+            },
+            partials: {
+                path: __dirname + '/templates/withPartials'
+            }
         }
-    });
+    };
     
     var handler = function (request) {
-    
-        request.reply.view('index', {message: "Hello, World!"}).send();
+
+        request.reply.view('withPartials/index', {
+            title: 'examples/views/partials.js | Hapi ' + Hapi.utils.version(),
+            message: 'Hello World!\n'
+        }).send();
     };
-    ...
+
+    var server = new Hapi.Server(3000, options);
+    server.addRoute({ method: 'GET', path: '/', handler: handler });
+    server.start();
 ```
 
-The above example will use `views.path` as the partials directory. Hapi will recursively find template files and automatically add them to the partial registry for use in view templates. Deeply nested partials are supported.
+**withPartials/index.html**
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        {{> header}}
+        <div>
+            <h1>{{message}}</h1>
+        </div>
+        {{> footer}}
+    </body>
+</html>
+```
 
-Assuming Handlebars is used, a view template can reference a partial stored in viewsPath/nav/nav.html like so:
+**withPartials/header.html**
+```html
+<div>
+    <h3>Views with Partials</h3>
+</div>
+```
+
+**withPartials/footer.html**
+```html
+<footer>
+    <p>hapi.js 2013</p>
+</footer>
+```
+
+**returned to user**
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>examples/views/partials.js | Hapi 0.11.0</title>
+    </head>
+    <body>
+        <div>
+            <h3>Views with Partials</h3>
+        </div>
+        <div>
+            <h1>Hello World!\n</h1>
+        </div>
+        <footer>
+            <p>hapi.js 2013</p>
+        </footer>
+    </body>
+</html>
+```
+
+The above example will use `views.partials.path` as the partials directory. Hapi will recursively find template files and automatically add them to the partial registry for use in view templates. 
+
+Deeply nested partials are also supported.  A view template can reference a partial stored in `viewsPath/nav/nav.html` like so:
 
 ```html
     <body>
@@ -913,8 +1029,6 @@ Assuming Handlebars is used, a view template can reference a partial stored in v
         <div id="container">
     ...
 ```
-
-A more detailed example can be found in `examples/views/partials.js`.
 
 
 
