@@ -3,16 +3,17 @@
 var Hapi = require('../../lib');
 var Request = require('request');
 
+
 // Declare internals
 
 var internals = {};
 
 
-var basicHandler = function (request) {
+var handler = function (request) {
 
     request.reply.view('basic/index', {
         title: 'examples/views/basic.js | Hapi ' + Hapi.utils.version(),
-        message: 'Hello World!\n'
+        message: 'Hello World!'
     }).send();
 };
 
@@ -21,7 +22,7 @@ internals.main = function () {
 
     var options = {
         views: {
-            path: __dirname + '/views',
+            path: __dirname + '/templates',
             engine: {
                 module: 'handlebars',
                 extension: 'html'
@@ -33,7 +34,7 @@ internals.main = function () {
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/', handler: basicHandler });
+    server.addRoute({ method: 'GET', path: '/', handler: handler });
     server.start();
 };
 
