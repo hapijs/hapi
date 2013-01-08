@@ -834,28 +834,133 @@ describe('Response', function () {
 
     describe('View', function () {
 
+        var viewPath = __dirname + '/../unit/templates/valid';
         var msg = "Hello, World!";
+        
         var handler = function (request) {
 
             return request.reply.view('test', { message: msg }).send();
         };
+        var absoluteHandler = function (request) {
 
-        var viewPath = __dirname + '/../unit/templates/valid';
-        var server = new Hapi.Server({
-            views: {
-                path: viewPath
-            }
-        });
-        server.addRoute({ method: 'GET', path: '/views', config: { handler: handler } });
+            return request.reply.view(viewPath + '/test', { message: msg }).send();
+        };
+        var insecureHandler = function (request) {
 
-        it('returns a compiled Handlebars template reply', function (done) {
+            return request.reply.view('../test', { message: msg }).send();
+        };
+        var nonexistentHandler = function (request) {
 
-            server.inject({ method: 'GET', url: '/views' }, function (res) {
+            return request.reply.view('testNope', { message: msg }).send();
+        };
+        var invalidHandler = function (request) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.have.string(msg);
-                expect(res.statusCode).to.equal(200);
-                done();
+            return request.reply.view('badmustache', { message: msg }, { path: viewPath + '/../invalid' }).send();
+        };
+        var layoutConflictHandler = function (request) {
+
+            return request.reply.view('test', { message: msg, content: 'fail' }).send();
+        };
+        var layoutErrHandler = function (request) {
+
+            return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' }).send();
+        };
+        
+
+        describe('Default', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    path: viewPath
+                }
+            });
+            server.addRoute({ method: 'GET', path: '/views', config: { handler: handler } });
+            server.addRoute({ method: 'GET', path: '/views/abspath', config: { handler: absoluteHandler } });
+            server.addRoute({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
+            server.addRoute({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
+            server.addRoute({ method: 'GET', path: '/views/invalid', config: { handler: invalidHandler } });
+            
+            it('returns a compiled Handlebars template reply', function (done) {
+
+                server.inject({ method: 'GET', url: '/views' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.result).to.have.string(msg);
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+            
+            it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/abspath' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+            
+            it('returns an error if path given includes ../ and allowInsecureAccess is false (by default)', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/insecure' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+            
+            it('returns an error if template does not exist', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/nonexistent' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+            
+            it('returns an error if engine.compile throws', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/invalid' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+        })
+        
+        describe('Layout', function (done) {
+
+            var layoutServer = new Hapi.Server({
+                views: {
+                    path: viewPath,
+                    layout: true
+                }
+            });
+            layoutServer.addRoute({ method: 'GET', path: '/layout/conflict', config: { handler: layoutConflictHandler } });
+            layoutServer.addRoute({ method: 'GET', path: '/layout/abspath', config: { handler: layoutErrHandler } });
+            
+            it('returns error on layoutKeyword conflict', function (done) {
+
+                layoutServer.inject({ method: 'GET', url: '/layout/conflict' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                })
+            });
+            
+            it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
+
+                layoutServer.inject({ method: 'GET', url: '/layout/abspath' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
             });
         });
     });
