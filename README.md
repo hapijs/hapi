@@ -29,6 +29,7 @@ Current version: **0.11.0**
           - [Error Format](#error-format)
           - [Payload Format](#payload-format)
         - [Files](#files)
+        - [Views](#views)
         - [Monitor](#monitor)
         - [Authentication](#authentication)
         - [Cache](#cache)
@@ -49,7 +50,7 @@ Current version: **0.11.0**
             - [Proxy](#proxy)
             - [File](#file)
             - [Directory](#directory)
-            - [Views](#views)
+            - [View](#view)
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
         - [Query Validation](#query-validation)
@@ -325,6 +326,26 @@ var options = {
     }
 };
 ```
+
+
+### Views
+
+To enable Views support, Hapi must be given an options object with a non-null `views` key. The views object
+ supports the following options:
+
+- `path` - (Required) the root file path where the request.reply.view function will resolve template names.
+- `engine` - the configuration for what template rendering engine will be used (default: handlebars).
+    - `module` - the npm module to require and use to compile templates (**this is experimental and may not not work with all modules**).
+    - `extension` - the file extension used by template files.
+- `partials` - this key enables partials support if non-null.
+    - `path` - the root file path where partials are located (if different from views.path).
+- `layout` - if set to true, layout support is enabled (default: false).
+- `layoutKeyword` - the key used by the template engine to denote where primary template content should go.
+- `encoding` - the text encoding used by the templates.
+- `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
+- `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
+- `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
+
 
 
 ### Files
@@ -789,7 +810,7 @@ http.start();
 ```
 
 
-#### Views
+#### View
 
 Views provide a better way of generating HTML than string and variable concatenation. Similar to other web servers, 
 **hapi** views allow handlers to efficiently generate HTML using templates by executing an individual template with a
@@ -851,31 +872,12 @@ On request, the user would be shown:
 </html>
 ```
 
-More examples covering features such as layouts and partials can be found in the `examples/views` folder.
 
-
-#### Options
-
-To enable Views support, Hapi must be given an options object with a non-null `views` key. The views object
- supports the following options:
-
-- `path` - (Required) the root file path where the request.reply.view function will resolve template names.
-- `engine` - the configuration for what template rendering engine will be used (default: handlebars).
-    - `module` - the npm module to require and use to compile templates (**this is experimental and may not not work with all modules**).
-    - `extension` - the file extension used by template files.
-- `partials` - this key enables partials support if non-null.
-    - `path` - the root file path where partials are located (if different from views.path).
-- `layout` - if set to true, layout support is enabled (default: false).
-- `layoutKeyword` - the key used by the template engine to denote where primary template content should go.
-- `encoding` - the text encoding used by the templates.
-- `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
-- `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
-- `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
-
-The above settings may also be overridden on a per view basis without affecting others:
+The Hapi.Server settings may also be overridden on a per view basis without affecting others:
 
     request.render.view(tmpl, ctx, { path: '/a/different/path' });
 
+More examples covering features such as layouts and partials can be found in the `examples/views` folder.
 
 #### Views Handler
 
