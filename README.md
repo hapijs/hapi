@@ -35,6 +35,7 @@ Current version: **0.10.1**
         - [Debug](#debug)
         - [CORS](#cors)
         - [Batch](#batch)
+        - [State](#state)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -61,6 +62,9 @@ Current version: **0.10.1**
 <p></p>
     - [**Response Errors**](#response-errors)
 <p></p>
+    - [**State Management**](#state-management)
+        - [Raw Cookies](#raw-cookies)
+<p></p>
     - [**General Events Logging**](#general-events-logging)
 <p></p>
     - [**Request Tails**](#request-tails)
@@ -71,6 +75,7 @@ Current version: **0.10.1**
 
 
 # Usage
+
 
 ## Basic Usage
 
@@ -134,6 +139,8 @@ var server = new Hapi.Server();
 - [`cache`](#cache)
 - [`debug`](#debug)
 - [`cors`](#cors)
+- [`batch`](#batch)
+- [`state`](#state)
 
 
 ### TLS
@@ -437,6 +444,15 @@ If an error occurs as a result of one the requests to an endpoint it will be inc
 *** At this time batch only supports requests to routes that use the GET method.
 
 
+### State
+
+HTTP state management (cookies) allows the server to store session information on the client which is sent back to the server with every
+request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). **hapi** will automatically parse incoming cookies based on the
+server's `state.cookies` configuration, where:
+- `parse` - determines is incoming 'Cookie' headers are parsed and stored in the 'request.cookies' object. Defaults to true.
+- _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
+
+
 ## Server Events
 
 The server object emits the following events:
@@ -460,7 +476,7 @@ to write additional text as the configuration itself serves as a living document
     - `file` - generates a static file endpoint as described in (File)[#file].
     - `directory` - generates a directory mapper for service static content as described in (Directory)[#directory].
 - `config` - route configuration grouped into a sub-object to allow splitting the routing table from the implementation details of each route. Options include:
-    _ `description` - route description.
+    - `description` - route description.
     - `notes` - route notes (string or array of strings).
     - `tags` - route tags (array of strings).
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
@@ -480,7 +496,7 @@ to write additional text as the configuration itself serves as a living document
             - _'none'_ - authentication not allowed.
             - _'required'_ - authentication is required.
             - _'optional'_ - authentication is optional (validated if present).
-            - `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
+        - `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
         - `scope` - required application scope. Defaults to _none_.
         - `entity` - the required authenticated entity type. Not supported with every authorization scheme. Available options include:
             - _'any'_ - the authentication can be on behalf of a user or application.
@@ -642,6 +658,7 @@ Depending on the response type, additional chainable methods are available:
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
 - _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
+- _'state(name, value, options)'_ - sets an HTTP state (cookie) as described in [Raw Cookies](#raw-cookies)
 
 The following methods are only available when using 'redirect()':
 - _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
@@ -657,14 +674,14 @@ within the route handler and are disabled as soon as control is returned.
 #### Proxy
 
 It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
-* `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
-* `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
-* `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
-* `port` - The port to use when making a request to the host.
-* `protocol` - The protocol to use when making a request to the proxied host (http or https)
-* `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
-* `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
-* `httpClient` - A function that should make the request to the remote server and use execute the callback with a response.  By default this uses _'request'_ as the module.  The signature is (options, callback) where options will contain a url and method.
+- `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
+- `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
+- `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
+- `port` - The port to use when making a request to the host.
+- `protocol` - The protocol to use when making a request to the proxied host (http or https)
+- `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
+- `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
+- `httpClient` - A function that should make the request to the remote server and use execute the callback with a response.  By default this uses _'request'_ as the module.  The signature is (options, callback) where options will contain a url and method.
 
 For example, to proxy a request to the homepage to google:
 ```javascript
@@ -874,10 +891,9 @@ The route `config.response` defines the payload validation rules performed after
 - _'null'_ - any payload allowed (no validation performed). This is the default.
 - _'false'_ or _'{}'_ - no payload allowed.
 - an object with the following options
-	- _'schema'_ - a validation rules object as described in [Data Validation](#data-validation).
-	- _'sample'_ - the percentage of responses to validate.  By default 100% of responses will be validated, to turn this off set the value to 0.  To validate half of the responses set this value to 50.
-	- _'onInvalid'_ - a string value of _'report'_ or _'block'_ that specifies what to do when a response is invalid.  By default an invalid response will _'block'_ the response.  If _'report'_ is used then the error message will be added to the request log.
-
+    - _'schema'_ - a validation rules object as described in [Data Validation](#data-validation).
+    - _'sample'_ - the percentage of responses to validate.  By default 100% of responses will be validated, to turn this off set the value to 0.  To validate half of the responses set this value to 50.
+    - _'failAction'_ - _'error'_ (return 500), _'log'_ (report error but send reply as-is), or _'ignore'_ (send reply as-is) when a response is invalid. Defaults to _'error'_.
 
 Response validation can only be performed on object responses and will otherwise result in an error.
 
@@ -1018,14 +1034,38 @@ Error responses are send as JSON payload with the following keys (unless an [err
 The complete error repsonse including any additional data is added to the request log.
 
 
+## State Management
+
+### Raw Cookies
+
+Cookies can be set directly via the response _'state(name, value, options)'_ interface where:
+- 'name' - is the cookie name,
+- 'value' - is the cookie value, and
+- 'options' - is an optional structure with the following optional keys:
+    - `ttl' - time-to-live in milliseconds.
+    - `isSecure` - sets the 'Secure' flag.
+    - `isHttpOnly` - sets the 'HttpOnly' flag.
+    - `path` - the path scope.
+    - `domain` - the domain scope.
+    - `encoding` - encoding performs on the provided value before serialization. Options are:
+        - 'none' - no encoding. This is the default value. Value must be a string.
+        - 'base64' - string value is encoded using Base64.
+        - 'base64json' - object value is JSON-stringified than encoded using Base64.
+        - 'form' - object value is encoded using the _x-www-form-urlencoded_ method.
+
+Cookie definitions can be registered with the server using the server's _'addState(name, options)'_ method, where 'options' is the same as above.
+If a cookie definition is found, the options are used for that cookie as defaults before other options specified at the time of state() invocation
+are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value.
+
+
 ## General Events Logging
 
 Most of the server's events usually relate to a specific incoming request. However, there are sometimes event that do not have a specific request
 context. **hapi** provides a logging mechanism for general events using a singleton logger 'Hapi.Log' module. The logger provides the following methods:
 - _'event(tags, [data, timestamp])'_ - generates an event where:
-     - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
+    - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
     - _'data'_ - an optional message string or object with the application data being logged.
-   - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
+    - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
 - _'print(event)'_ - outputs the given _'event'_ to the console.
 
 The logger is an event emitter. When an event is generated, the logger's _'log'_ event is emitted with the event object as value.
@@ -1219,3 +1259,8 @@ http.addRoute({
     }
 });
 ```
+
+
+# The End
+
+hapi hapi, joi joi
