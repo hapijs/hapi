@@ -789,21 +789,23 @@ http.start();
 
 #### View
 
-Views provide a better way of generating html than string and variable concatenation. Similar to other web servers, 
-**hapi** views allow handlers to efficiently generate html using templates by executing an individual template with a
+Views provide a better way of generating HTML than string and variable concatenation. Similar to other web servers, 
+**hapi** views allow handlers to efficiently generate HTML using templates by executing an individual template with a
 pre-generated context object (which may contain dynamic content).
 
 The following example shows how to render a basic handlebars/mustache template:
 
+```javascript
+    
     // Create Hapi server
     var http = new Hapi.Server('0.0.0.0', 8080, {
         views: {
             path: __dirname + '/templates'
         }
     });
-    
+        
     var handler = function (request) {
-    
+
         request.reply.view('index', {
             title: 'Views Example'
             message: 'Hello, World'
@@ -814,43 +816,105 @@ The following example shows how to render a basic handlebars/mustache template:
     http.addRoute({ method: 'GET', path: '/', handler: handler });
 
     http.start();
+```
 
 An example template (located at: __dirname/templates/index.html):
 
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>{{title}}</title>
-        </head>
-        <body>
-            <div>
-                <h1>{{message}}</h1>
-            </div>
-        </body>
-    </html>
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <div>
+            <h1>{{message}}</h1>
+        </div>
+    </body>
+</html>
+```
 
 More examples covering features such as layouts and partials can be found in the `examples/views` folder.
+
 
 #### Options
 
 To enable `views` support, Hapi must be given an options object with a non-null `views` key. The views object
  supports the following options:
 
-- `path` - (Required) the root file path where the request.reply.view function will resolve template names
-- `engine` - the configuration for what template rendering engine will be used (default: handlebars)
-- `engine.extension` - the file extension used by template files
-- `partials` - this key enables partials support if non-null
-- `partials.path` - the root file path where partials are located (if different from views.path)
-- `layout` - if set to true, layout support is enabled (default: false)
-- `layoutKeyword` - the key used by the template engine to denote where primary template content should go
-- `encoding` - the text encoding used by the templates
-- `cache` - if set to false, templates will not be cached (thus will be read from file on every use)
-- `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed
-- `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to .view()
+- `path` - (Required) the root file path where the request.reply.view function will resolve template names.
+- `engine` - the configuration for what template rendering engine will be used (default: handlebars).
+    - `module` - the npm module to require and use to compile templates (**this is experimental and may not not work with all modules**).
+    - `extension` - the file extension used by template files.
+- `partials` - this key enables partials support if non-null.
+    - `path` - the root file path where partials are located (if different from views.path).
+- `layout` - if set to true, layout support is enabled (default: false).
+- `layoutKeyword` - the key used by the template engine to denote where primary template content should go.
+- `encoding` - the text encoding used by the templates.
+- `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
+- `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
+- `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
 
 The above settings may also be overridden on a per view basis without affecting others:
 
     request.render.view(tmpl, ctx, { path: '/a/different/path' });
+
+
+#### Layouts
+
+The View system supports Layouts. Layouts are a single template file which is used as a parent template for individual view templates - the view template is directly embedded in a layout. This allows developers to give the website(s) a consistent appearance while also keeping HTML code as well as minimizing repeated code (the boilerplate with stylesheet includes, javascript includes, html displayed on every page).
+
+To use, set the Hapi view option `layout` to true and create a file `layout.html` in your `views.path`.
+
+```javascript
+    ...
+    
+    var server = new Hapi.Server(8080, 'localhost', {
+        views: {
+            path: viewsPath,
+            layout: true
+        }
+    });
+    
+    ...
+```
+
+The `layout.html` must be located in the path or an error will be returned. A more detailed example can be found in `examples/views/layout.js`.
+
+
+#### Partials
+
+The View system also supports Partials. Partials are small segments of template code that can be nested and reused throughout other templates.
+
+```javascript
+    ...
+    
+    var server = new Hapi.Server(8080, 'localhost', {
+        views: {
+            path: viewsPath,
+            partials: {}
+        }
+    });
+    
+    var handler = function (request) {
+    
+        request.reply.view('index', {message: "Hello, World!"}).send();
+    };
+    ...
+```
+
+The above example will use `views.path` as the partials directory. Hapi will recursively find template files and automatically add them to the partial registry for use in view templates. Deeply nested partials are supported.
+
+Assuming Handlebars is used, a view template can reference a partial stored in viewsPath/nav/nav.html like so:
+
+```html
+    <body>
+        {{> nav/nav}}
+        <div id="container">
+    ...
+```
+
+A more detailed example can be found in `examples/views/partials.js`.
 
 
 
