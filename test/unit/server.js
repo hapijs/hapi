@@ -132,6 +132,13 @@ describe('Server', function () {
         done();
     });
 
+    it('assigns this.views when config enables views', function (done) {
+
+        var server = new Hapi.Server('0.0.0.0', 8082, { views: { partials: { path: __dirname + '/templates' } } });
+        expect(server.views).to.exist;
+        done();
+    });
+
     it('creates an https server when passed tls options', function (done) {
 
         var tls = {};
