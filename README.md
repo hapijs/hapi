@@ -739,7 +739,7 @@ http.start();
 
 #### Directory
 
-Directory handlers provide a flexible way to server static content from an entire directory tree. Similar to other web servers, **hapi**
+Directory handlers provide a flexible way to serve static content from an entire directory tree. Similar to other web servers, **hapi**
 allows mapping between a request path component to resources within a file system directory, including serving a default index.html or
 a directory content listing.
 
