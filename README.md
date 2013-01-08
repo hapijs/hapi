@@ -798,7 +798,6 @@ The following example shows how to render a basic handlebars/mustache template:
 **index.js**
 ```javascript
     
-    // Create Hapi server
     var http = new Hapi.Server('0.0.0.0', 8080, {
         views: {
             path: __dirname + '/templates'
@@ -811,11 +810,9 @@ The following example shows how to render a basic handlebars/mustache template:
             title: 'Views Example'
             message: 'Hello, World'
         }).send();
-    }
+    };
 
-    // Serve the public folder with listing enabled
     http.addRoute({ method: 'GET', path: '/', handler: handler });
-
     http.start();
 ```
 
