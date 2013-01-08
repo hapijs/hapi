@@ -26,17 +26,47 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply.payload('text').type('text/plain').bytes(4).ttl(1000).send();
+                request.reply.payload('text')
+                             .type('text/plain')
+                             .bytes(4)
+                             .ttl(1000)
+                             .state('sid', 'abcdefg123456')
+                             .state('other', 'something', { isSecure: true })
+                             .unstate('x')
+                             .send();
             };
 
             var server = new Hapi.Server({ cache: { engine: 'memory' } });
             server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.addState('sid', { encoding: 'base64' });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('text');
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT']);
+                done();
+            });
+        });
+
+        it('returns an error on bad cookie', function (done) {
+
+            var handler = function (request) {
+
+                request.reply.payload('text')
+                             .state(';sid', 'abcdefg123456')
+                             .send();
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('An internal server error occurred');
+                expect(res.headers['Set-Cookie']).to.not.exist;
                 done();
             });
         });
@@ -112,6 +142,7 @@ describe('Response', function () {
                     .type('text/plain')
                     .bytes(13)
                     .ttl(1000)
+                    .state('sid', 'abcdefg123456')
                     .write('!hola ')
                     .write('amigos!');
 
@@ -125,6 +156,32 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(201);
                 expect(res.headers.location).to.equal(server.settings.uri + '/me');
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('!hola amigos!');
+                done();
+            });
+        });
+
+        it('returns a error on bad cookie', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Direct(request)
+                    .bytes(13)
+                    .state(';sid', 'abcdefg123456')
+                    .write('!hola ')
+                    .write('amigos!');
+
+                request.reply(response);
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);       // Too late to change at this point
+                expect(res.headers['Set-Cookie']).to.not.exist;
                 expect(res.readPayload()).to.equal('!hola amigos!');
                 done();
             });
@@ -152,6 +209,7 @@ describe('Response', function () {
                     expect(body).to.contain('hapi');
                     expect(res.headers['content-type']).to.equal('application/json');
                     expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                     done();
                 });
             });
@@ -170,6 +228,7 @@ describe('Response', function () {
                     expect(body).to.contain('hapi');
                     expect(res.headers['content-type']).to.equal('application/json');
                     expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                     done();
                 });
             });
@@ -362,9 +421,9 @@ describe('Response', function () {
     describe('Directory', function () {
 
         var server = new Hapi.Server(17083);
-        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '../..' } } });
-        server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: '../..', showHidden: true, listing: true } } });
-        server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: '../..', listing: true } } });
+        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
+        server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
+        server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -409,7 +468,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/package.json', function (err, res, body) {
+                Request.get('http://localhost:17083/directory/response.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -423,11 +482,11 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/test/integration/response.js', function (err, res, body) {
+                Request.get('http://localhost:17083/directory/directory/index.html', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('http://localhost:17083/directory//test/integration/response.js');
+                    expect(body).to.contain('test');
                     done();
                 });
             });
@@ -551,8 +610,7 @@ describe('Response', function () {
                 Request.get('http://localhost:17083/showhidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
-                    expect(body).to.contain('.gitignore');
-                    expect(body).to.contain('package.json');
+                    expect(body).to.contain('.hidden');
                     done();
                 });
             });
@@ -565,8 +623,8 @@ describe('Response', function () {
                 Request.get('http://localhost:17083/noshowhidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
-                    expect(body).to.not.contain('.gitignore');
-                    expect(body).to.contain('package.json');
+                    expect(body).to.not.contain('.hidden');
+                    expect(body).to.contain('response.js');
                     done();
                 });
             });
@@ -576,7 +634,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/noshowhidden/.gitignore', function (err, res, body) {
+                Request.get('http://localhost:17083/noshowhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -589,10 +647,10 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/showhidden/.gitignore', function (err, res, body) {
+                Request.get('http://localhost:17083/showhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
-                    expect(body).to.contain('node_modules');
+                    expect(body).to.contain('test');
                     done();
                 });
             });
@@ -675,7 +733,7 @@ describe('Response', function () {
             _streamRequest = request;
             request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
         };
-        
+
         var handler2 = function (request) {
 
             _streamRequest = request;
@@ -729,14 +787,14 @@ describe('Response', function () {
                 });
             });
         });
-        
+
         it('should destroy downward stream on request stream closing', function (done) {
 
             var tmpFile = '/tmp/test.json';
-            var output = JSON.stringify({"x":"aaaaaaaaaaaa"});
+            var output = JSON.stringify({ "x": "aaaaaaaaaaaa" });
             Fs.writeFileSync(tmpFile, output);
             var testStream = Fs.createReadStream(tmpFile);
-            
+
             server.start(function () {
 
                 testStream.pipe(Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Content-Type': 'application/json' } }, function (err, res) {
@@ -768,6 +826,139 @@ describe('Response', function () {
                 server.inject({ method: 'GET', url: '/cache' }, function (res2) {
 
                     expect(res2.readPayload()).to.equal('{"status":"cached"}');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('View', function () {
+
+        var viewPath = __dirname + '/../unit/templates/valid';
+        var msg = "Hello, World!";
+        
+        var handler = function (request) {
+
+            return request.reply.view('test', { message: msg }).send();
+        };
+        var absoluteHandler = function (request) {
+
+            return request.reply.view(viewPath + '/test', { message: msg }).send();
+        };
+        var insecureHandler = function (request) {
+
+            return request.reply.view('../test', { message: msg }).send();
+        };
+        var nonexistentHandler = function (request) {
+
+            return request.reply.view('testNope', { message: msg }).send();
+        };
+        var invalidHandler = function (request) {
+
+            return request.reply.view('badmustache', { message: msg }, { path: viewPath + '/../invalid' }).send();
+        };
+        var layoutConflictHandler = function (request) {
+
+            return request.reply.view('test', { message: msg, content: 'fail' }).send();
+        };
+        var layoutErrHandler = function (request) {
+
+            return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' }).send();
+        };
+        
+
+        describe('Default', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    path: viewPath
+                }
+            });
+            server.addRoute({ method: 'GET', path: '/views', config: { handler: handler } });
+            server.addRoute({ method: 'GET', path: '/views/abspath', config: { handler: absoluteHandler } });
+            server.addRoute({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
+            server.addRoute({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
+            server.addRoute({ method: 'GET', path: '/views/invalid', config: { handler: invalidHandler } });
+            
+            it('returns a compiled Handlebars template reply', function (done) {
+
+                server.inject({ method: 'GET', url: '/views' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.result).to.have.string(msg);
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+            
+            it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/abspath' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+            
+            it('returns an error if path given includes ../ and allowInsecureAccess is false (by default)', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/insecure' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+            
+            it('returns an error if template does not exist', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/nonexistent' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+            
+            it('returns an error if engine.compile throws', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/invalid' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+        })
+        
+        describe('Layout', function (done) {
+
+            var layoutServer = new Hapi.Server({
+                views: {
+                    path: viewPath,
+                    layout: true
+                }
+            });
+            layoutServer.addRoute({ method: 'GET', path: '/layout/conflict', config: { handler: layoutConflictHandler } });
+            layoutServer.addRoute({ method: 'GET', path: '/layout/abspath', config: { handler: layoutErrHandler } });
+            
+            it('returns error on layoutKeyword conflict', function (done) {
+
+                layoutServer.inject({ method: 'GET', url: '/layout/conflict' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                })
+            });
+            
+            it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
+
+                layoutServer.inject({ method: 'GET', url: '/layout/abspath' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(500);
                     done();
                 });
             });
