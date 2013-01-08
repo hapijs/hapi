@@ -877,6 +877,43 @@ The above settings may also be overridden on a per view basis without affecting 
     request.render.view(tmpl, ctx, { path: '/a/different/path' });
 
 
+#### Views Handler
+
+The route handler can be set to an object that points to a view file in order to make it easy to render a simple view.  The view context will have the payload, params, or querystring data that are available with the request.  For example, to render an _'about'_ page a route can be added as follows:
+
+```javascript
+    var http = new Hapi.Server('0.0.0.0', 8080, {
+        views: {
+            path: __dirname + '/templates'
+        }
+    });
+
+    http.addRoute({ method: 'GET', path: '/{user}/about', handler: { view: 'about });
+    http.start();
+```
+
+Then in the view there are properties for params, payload, and querystring.  Below is an example of rendering the _'user'_ that is passed in from the request path along with related values from the querystring.
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>About {{ params.user }}</title>
+    </head>
+    <body>
+        <div>
+            <h1>About {{ params.user }}</h1>
+            <div>
+                Age: {{ querystring.age }}
+            </div>
+            <div>
+                Interests: {{ querystring.interests }}
+            </div>
+        </div>
+    </body>
+</html>
+```
+
 #### Layouts
 
 The View system supports Layouts. Layouts are a single template file which is used as a parent template for individual view templates - the view template is directly embedded in a layout. This allows developers to give the website(s) a consistent appearance while also keeping HTML code as well as minimizing repeated code (the boilerplate with stylesheet includes, javascript includes, html displayed on every page).
