@@ -967,4 +967,30 @@ describe('Response', function () {
             });
         });
     });
+    
+    describe('Views', function () {
+
+        var msg = "Hello, World!";
+        var handler = function (request) {
+
+            return request.reply.view('test', {message: msg}).send();
+        };
+
+        var viewPath = __dirname + '/../unit/views/handlebars/valid';
+        var server = new Hapi.Server({views: {
+            path: viewPath
+        }});
+        server.addRoute({ method: 'GET', path: '/views', config: { handler: handler } });
+
+        it('returns a compiled Handlebars template reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/views' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.have.string(msg);
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
 });
