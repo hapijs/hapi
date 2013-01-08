@@ -1,6 +1,7 @@
 // Load modules
 
 var Hapi = require('../../lib');
+var Request = require('request');
 
 // Declare internals
 
@@ -20,9 +21,13 @@ internals.main = function () {
 
     var options = {
         views: {
-            path: __dirname + '/views',
+            path: __dirname + "/views",
             engine: {
-                module: 'handlebars'
+                module: "handlebars",
+                extension: "html"
+            },
+            partials: {
+                path: __dirname + "/views/partials"
             }
         }
     };

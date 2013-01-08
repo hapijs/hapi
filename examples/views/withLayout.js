@@ -2,7 +2,6 @@
 
 var Hapi = require('../../lib');
 var Request = require('request');
-var Multitool = require('multitool');
 
 // Declare internals
 
