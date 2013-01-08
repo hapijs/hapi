@@ -19,20 +19,39 @@ describe('Response', function () {
 
     describe('View', function () {
 
-        it('should not throw when created', function (done) {
+        it('does not throw when created', function (done) {
 
             var fn = (function () {
+
                 var manager = new Views({
                     path: __dirname + '/../templates/valid'
                 });
-                var view = new Hapi.response.View(manager, 'test', {message: "Ohai"});
-                
-                expect(view._payload).to.exist;
-                expect(view._payload.length).above(1);
+
+                var view = new Hapi.response.View(manager, 'test', { message: "Ohai" });
+                view._prepare({}, function (response) {
+
+                    expect(view._payload).to.exist;
+                    expect(view._payload.length).above(1);
+                });
             });
-            
+
             expect(fn).to.not.throw();
             done();
         });
+
+        it('returns error on invalid template path', function (done) {
+
+            var manager = new Views({
+                path: __dirname + '/../templates/invalid'
+            });
+
+            var view = new Hapi.response.View(manager, 'test', { message: "Ohai" });
+            view._prepare({}, function (response) {
+
+                expect(response instanceof Error).to.equal(true);
+                done();
+            });
+        });
     });
 });
+

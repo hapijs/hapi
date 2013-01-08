@@ -95,11 +95,8 @@ describe('Views', function () {
 
         it('should throw on compile error (invalid template code)', function (done) {
 
-            var fn = (function () {
-                var html = testView.render('invalid/badmustache', { title: 'test', message: 'Hapi' });
-            });
-
-            expect(fn).to.throw();
+            var error = testView.render('invalid/badmustache', { title: 'test', message: 'Hapi' });
+            expect(error instanceof Error).to.equal(true);
             done();
         });
 
