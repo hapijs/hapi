@@ -49,6 +49,7 @@ Current version: **0.10.1**
             - [Proxy](#proxy)
             - [File](#file)
             - [Directory](#directory)
+            - [View](#view)
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
         - [Query Validation](#query-validation)
@@ -784,6 +785,73 @@ http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: d
 
 http.start();
 ```
+
+
+#### View
+
+Views provide a better way of generating html than string and variable concatenation. Similar to other web servers, 
+**hapi** views allow handlers to efficiently generate html using templates by executing an individual template with a
+pre-generated context object (which may contain dynamic content).
+
+The following example shows how to render a basic handlebars/mustache template:
+
+    // Create Hapi server
+    var http = new Hapi.Server('0.0.0.0', 8080, {
+        views: {
+            path: __dirname + '/templates'
+        }
+    });
+    
+    var handler = function (request) {
+    
+        request.reply.view('index', {
+            title: 'Views Example'
+            message: 'Hello, World'
+        }).send();
+    }
+
+    // Serve the public folder with listing enabled
+    http.addRoute({ method: 'GET', path: '/', handler: handler });
+
+    http.start();
+
+An example template (located at: __dirname/templates/index.html):
+
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>{{title}}</title>
+        </head>
+        <body>
+            <div>
+                <h1>{{message}}</h1>
+            </div>
+        </body>
+    </html>
+
+More examples covering features such as layouts and partials can be found in the `examples/views` folder.
+
+#### Options
+
+To enable `views` support, Hapi must be given an options object with a non-null `views` key. The views object
+ supports the following options:
+
+- `path` - (Required) the root file path where the request.reply.view function will resolve template names
+- `engine` - the configuration for what template rendering engine will be used (default: handlebars)
+- `engine.extension` - the file extension used by template files
+- `partials` - this key enables partials support if non-null
+- `partials.path` - the root file path where partials are located (if different from views.path)
+- `layout` - if set to true, layout support is enabled (default: false)
+- `layoutKeyword` - the key used by the template engine to denote where primary template content should go
+- `encoding` - the text encoding used by the templates
+- `cache` - if set to false, templates will not be cached (thus will be read from file on every use)
+- `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed
+- `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to .view()
+
+The above settings may also be overridden on a per view basis without affecting others:
+
+    request.render.view(tmpl, ctx, { path: '/a/different/path' });
+
 
 
 ### Documentation
