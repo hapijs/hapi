@@ -120,4 +120,31 @@ describe('Views', function () {
             done();
         });
     });
+
+    describe('#handler', function () {
+
+        before(function () {
+
+            var options = {
+                views: {
+                    path: viewsPath
+                }
+            };
+
+            internals._handlerServer = new Hapi.Server(options);
+            internals._handlerServer.addRoute({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
+        });
+
+        it('handles routes to views', function (done) {
+
+            internals._handlerServer.inject({
+                method: 'GET',
+                url: '/hello'
+            }, function (res) {
+
+                expect(res.result).to.contain('hello');
+                done();
+            });
+        });
+    });
 });
