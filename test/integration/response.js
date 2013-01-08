@@ -732,7 +732,7 @@ describe('Response', function () {
             _streamRequest = request;
             request.reply.stream(new FakeStream(request.params.issue)).bytes(request.params.issue ? 0 : 1).send();
         };
-        
+
         var handler2 = function (request) {
 
             _streamRequest = request;
@@ -786,14 +786,14 @@ describe('Response', function () {
                 });
             });
         });
-        
+
         it('should destroy downward stream on request stream closing', function (done) {
 
             var tmpFile = '/tmp/test.json';
-            var output = JSON.stringify({"x":"aaaaaaaaaaaa"});
+            var output = JSON.stringify({ "x": "aaaaaaaaaaaa" });
             Fs.writeFileSync(tmpFile, output);
             var testStream = Fs.createReadStream(tmpFile);
-            
+
             server.start(function () {
 
                 testStream.pipe(Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Content-Type': 'application/json' } }, function (err, res) {
@@ -827,6 +827,34 @@ describe('Response', function () {
                     expect(res2.readPayload()).to.equal('{"status":"cached"}');
                     done();
                 });
+            });
+        });
+    });
+
+    describe('View', function () {
+
+        var msg = "Hello, World!";
+        var handler = function (request) {
+
+            return request.reply.view('test', { message: msg }).send();
+        };
+
+        var viewPath = __dirname + '/../unit/templates/valid';
+        var server = new Hapi.Server({
+            views: {
+                path: viewPath
+            }
+        });
+        server.addRoute({ method: 'GET', path: '/views', config: { handler: handler } });
+
+        it('returns a compiled Handlebars template reply', function (done) {
+
+            server.inject({ method: 'GET', url: '/views' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.have.string(msg);
+                expect(res.statusCode).to.equal(200);
+                done();
             });
         });
     });
@@ -1019,32 +1047,6 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('hello!');
-                done();
-            });
-        });
-    });
-    
-    describe('Views', function () {
-
-        var msg = "Hello, World!";
-        var handler = function (request) {
-
-            return request.reply.view('test', {message: msg}).send();
-        };
-
-        var viewPath = __dirname + '/../unit/views/handlebars/valid';
-        var server = new Hapi.Server({views: {
-            path: viewPath
-        }});
-        server.addRoute({ method: 'GET', path: '/views', config: { handler: handler } });
-
-        it('returns a compiled Handlebars template reply', function (done) {
-
-            server.inject({ method: 'GET', url: '/views' }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.have.string(msg);
-                expect(res.statusCode).to.equal(200);
                 done();
             });
         });
