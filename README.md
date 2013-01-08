@@ -752,7 +752,7 @@ The directory handler is an object with the following options:
 
 The required route path parameter can use any of the parameter options (e.g. '{param}', '{param?}', '{param*}'). For example, to server
 only files in the top level folder and not to any subfolder use _'{path?}'_. If it is safe to navigate to child folders and files then
-use '_{path*}'_. Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_.
+use _'{path*}'_. Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_.
 
 The following example shows how to serve a directory named _'public'_ and enable a directory listing in case a 'index.html' file doesn't exist:
 
