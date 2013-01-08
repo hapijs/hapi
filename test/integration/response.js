@@ -32,6 +32,7 @@ describe('Response', function () {
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
                              .state('other', 'something', { isSecure: true })
+                             .unstate('x')
                              .send();
             };
 
@@ -44,7 +45,7 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('text');
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
-                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure']);
+                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT']);
                 done();
             });
         });
