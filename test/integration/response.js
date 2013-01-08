@@ -26,17 +26,46 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply.payload('text').type('text/plain').bytes(4).ttl(1000).send();
+                request.reply.payload('text')
+                             .type('text/plain')
+                             .bytes(4)
+                             .ttl(1000)
+                             .state('sid', 'abcdefg123456')
+                             .state('other', 'something', { isSecure: true })
+                             .send();
             };
 
             var server = new Hapi.Server({ cache: { engine: 'memory' } });
             server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.addState('sid', { encoding: 'base64' });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('text');
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure']);
+                done();
+            });
+        });
+
+        it('returns an error on bad cookie', function (done) {
+
+            var handler = function (request) {
+
+                request.reply.payload('text')
+                             .state(';sid', 'abcdefg123456')
+                             .send();
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('An internal server error occurred');
+                expect(res.headers['Set-Cookie']).to.not.exist;
                 done();
             });
         });
@@ -112,6 +141,7 @@ describe('Response', function () {
                     .type('text/plain')
                     .bytes(13)
                     .ttl(1000)
+                    .state('sid', 'abcdefg123456')
                     .write('!hola ')
                     .write('amigos!');
 
@@ -125,6 +155,32 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(201);
                 expect(res.headers.location).to.equal(server.settings.uri + '/me');
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('!hola amigos!');
+                done();
+            });
+        });
+
+        it('returns a error on bad cookie', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Direct(request)
+                    .bytes(13)
+                    .state(';sid', 'abcdefg123456')
+                    .write('!hola ')
+                    .write('amigos!');
+
+                request.reply(response);
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);       // Too late to change at this point
+                expect(res.headers['Set-Cookie']).to.not.exist;
                 expect(res.readPayload()).to.equal('!hola amigos!');
                 done();
             });
@@ -364,7 +420,7 @@ describe('Response', function () {
     describe('Directory', function () {
 
         var server = new Hapi.Server(17083);
-        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './' } } });
+        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
 
