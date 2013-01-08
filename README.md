@@ -35,6 +35,7 @@ Current version: **0.10.1**
         - [Debug](#debug)
         - [CORS](#cors)
         - [Batch](#batch)
+        - [State](#state)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -62,6 +63,7 @@ Current version: **0.10.1**
     - [**Response Errors**](#response-errors)
 <p></p>
     - [**State Management**](#state-management)
+        - [Raw Cookies](#raw-cookies)
 <p></p>
     - [**General Events Logging**](#general-events-logging)
 <p></p>
@@ -137,6 +139,8 @@ var server = new Hapi.Server();
 - [`cache`](#cache)
 - [`debug`](#debug)
 - [`cors`](#cors)
+- [`batch`](#batch)
+- [`state`](#state)
 
 
 ### TLS
@@ -440,6 +444,15 @@ If an error occurs as a result of one the requests to an endpoint it will be inc
 *** At this time batch only supports requests to routes that use the GET method.
 
 
+### State
+
+HTTP state management (cookies) allows the server to store session information on the client which is sent back to the server with every
+request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). **hapi** will automatically parse incoming cookies based on the
+server's `state.cookies` configuration, where:
+- `parse` - determines is incoming 'Cookie' headers are parsed and stored in the 'request.cookies' object. Defaults to true.
+- _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
+
+
 ## Server Events
 
 The server object emits the following events:
@@ -645,6 +658,7 @@ Depending on the response type, additional chainable methods are available:
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
 - _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
+- _'state(name, value, options)'_ - sets an HTTP state (cookie) as described in [Raw Cookies](#raw-cookies)
 
 The following methods are only available when using 'redirect()':
 - _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
@@ -1022,6 +1036,26 @@ The complete error repsonse including any additional data is added to the reques
 
 ## State Management
 
+### Raw Cookies
+
+Cookies can be set directly via the response _'state(name, value, options)'_ interface where:
+- 'name' - is the cookie name,
+- 'value' - is the cookie value, and
+- 'options' - is an optional structure with the following optional keys:
+    - `ttl' - time-to-live in milliseconds.
+    - `isSecure` - sets the 'Secure' flag.
+    - `isHttpOnly` - sets the 'HttpOnly' flag.
+    - `path` - the path scope.
+    - `domain` - the domain scope.
+    - `encoding` - encoding performs on the provided value before serialization. Options are:
+        - 'none' - no encoding. This is the default value. Value must be a string.
+        - 'base64' - string value is encoded using Base64.
+        - 'base64json' - object value is JSON-stringified than encoded using Base64.
+        - 'form' - object value is encoded using the _x-www-form-urlencoded_ method.
+
+Cookie definitions can be registered with the server using the server's _'addState(name, options)'_ method, where 'options' is the same as above.
+If a cookie definition is found, the options are used for that cookie as defaults before other options specified at the time of state() invocation
+are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value.
 
 
 ## General Events Logging
