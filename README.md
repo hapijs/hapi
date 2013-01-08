@@ -795,6 +795,7 @@ pre-generated context object (which may contain dynamic content).
 
 The following example shows how to render a basic handlebars/mustache template:
 
+**index.js**
 ```javascript
     
     // Create Hapi server
@@ -818,8 +819,9 @@ The following example shows how to render a basic handlebars/mustache template:
     http.start();
 ```
 
-An example template (located at: __dirname/templates/index.html):
+An example template:
 
+**templates/index.html**
 ```html
 <!DOCTYPE html>
 <html>
@@ -829,6 +831,22 @@ An example template (located at: __dirname/templates/index.html):
     <body>
         <div>
             <h1>{{message}}</h1>
+        </div>
+    </body>
+</html>
+```
+
+On request, the user would be shown:
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Views Example</title>
+    </head>
+    <body>
+        <div>
+            <h1>Hello, World</h1>
         </div>
     </body>
 </html>
