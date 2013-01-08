@@ -854,7 +854,7 @@ More examples covering features such as layouts and partials can be found in the
 
 #### Options
 
-To enable `views` support, Hapi must be given an options object with a non-null `views` key. The views object
+To enable Views support, Hapi must be given an options object with a non-null `views` key. The views object
  supports the following options:
 
 - `path` - (Required) the root file path where the request.reply.view function will resolve template names.
