@@ -621,6 +621,7 @@ When the provided route handler method is called, it receives a _request_ object
 - _'params'_ - an object containing the path named parameters as described in [Path Parameters](#parameters).
 - _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
+- _'state'_ - an object containing parsed HTTP state information (cookies).
 - _'session'_ - available for authenticated requests and includes:
     - _'id'_ - session identifier.
     - _'used'_ - user id (optional).
