@@ -31,7 +31,7 @@ describe('State', function () {
                     }
                 },
                 server: {
-                    _states: {},
+                    _stateDefinitions: {},
                     settings: {
                         state: {
                             cookies: {
@@ -45,14 +45,14 @@ describe('State', function () {
             State.parseCookies(request, function (err) {
 
                 expect(err).not.to.exist;
-                expect(request.cookies).to.not.exist;
+                expect(request.state).to.not.exist;
                 done();
             });
         });
 
         describe('cases', function () {
 
-            var pass = function (header, values, settings, states) {
+            var pass = function (header, values, settings, definitions) {
 
                 it('parses cookie header: ' + header, function (done) {
 
@@ -65,7 +65,7 @@ describe('State', function () {
                             }
                         },
                         server: {
-                            _states: states || {},
+                            _stateDefinitions: definitions || {},
                             settings: {
                                 state: settings || Defaults.server.state
                             }
@@ -75,7 +75,7 @@ describe('State', function () {
                     State.parseCookies(request, function (err) {
 
                         expect(err).not.to.exist;
-                        expect(request.cookies).to.deep.equal(values);
+                        expect(request.state).to.deep.equal(values);
                         done();
                     });
                 });
@@ -97,7 +97,7 @@ describe('State', function () {
             pass('key=dGVzdA', { key: 'test' }, null, { key: { encoding: 'base64' } });
             pass('key=eyJ0ZXN0aW5nIjoianNvbiJ9', { key: { testing: 'json' } }, null, { key: { encoding: 'base64json' } });
 
-            var fail = function (header, settings, states) {
+            var fail = function (header, settings, definitions) {
 
                 it('fails parsing cookie header: ' + header, function (done) {
 
@@ -112,7 +112,7 @@ describe('State', function () {
                             }
                         },
                         server: {
-                            _states: states || {},
+                            _stateDefinitions: definitions || {},
                             settings: {
                                 state: settings || Defaults.server.state
                             }
@@ -167,8 +167,8 @@ describe('State', function () {
 
         it('formats a header with server definition', function (done) {
 
-            var states = { sid: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } };
-            var header = State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, states);
+            var definitions = { sid: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } };
+            var header = State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, definitions);
             var expires = new Date(Date.now() + 3600);
             expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
             done();
@@ -176,36 +176,36 @@ describe('State', function () {
 
         it('formats a header with server definition (base64)', function (done) {
 
-            var states = { sid: { encoding: 'base64' } };
-            var header = State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, states);
+            var definitions = { sid: { encoding: 'base64' } };
+            var header = State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, definitions);
             expect(header[0]).to.equal('sid=ZmloZmlldWhyOTM4NGhm');
             done();
         });
 
         it('formats a header with server definition (base64json)', function (done) {
 
-            var states = { sid: { encoding: 'base64json' } };
-            var header = State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, states);
+            var definitions = { sid: { encoding: 'base64json' } };
+            var header = State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions);
             expect(header[0]).to.equal('sid=eyJhIjoxLCJiIjoyLCJjIjozfQ==');
             done();
         });
 
         it('fails on a header with server definition and bad value (base64json)', function (done) {
 
-            var states = { sid: { encoding: 'base64json' } };
+            var definitions = { sid: { encoding: 'base64json' } };
             var bad = { a: {} };
             bad.b = bad.a;
             bad.a.x = bad.b;
 
-            var header = State.generateSetCookieHeader({ name: 'sid', value: bad }, states);
+            var header = State.generateSetCookieHeader({ name: 'sid', value: bad }, definitions);
             expect(header instanceof Error).to.equal(true);
             done();
         });
 
         it('formats a header with server definition (form)', function (done) {
 
-            var states = { sid: { encoding: 'form' } };
-            var header = State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, states);
+            var definitions = { sid: { encoding: 'form' } };
+            var header = State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions);
             expect(header[0]).to.equal('sid=a=1&b=2&c=3%20x');
             done();
         });
