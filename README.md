@@ -622,6 +622,7 @@ When the provided route handler method is called, it receives a _request_ object
 - _'params'_ - an object containing the path named parameters as described in [Path Parameters](#parameters).
 - _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
+- _'state'_ - an object containing parsed HTTP state information (cookies).
 - _'session'_ - available for authenticated requests and includes:
     - _'id'_ - session identifier.
     - _'used'_ - user id (optional).
@@ -660,6 +661,7 @@ Depending on the response type, additional chainable methods are available:
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
 - _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
 - _'state(name, value, options)'_ - sets an HTTP state (cookie) as described in [Raw Cookies](#raw-cookies)
+- _'unstate(name)'_ - instructs the client to remove the HTTP state.
 
 The following methods are only available when using 'redirect()':
 - _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
