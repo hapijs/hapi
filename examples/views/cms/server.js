@@ -55,8 +55,8 @@ internals.main = function () {
         views: {
             path: Path.join(__dirname, 'views'),
             engine: {
-                module: "handlebars",
-                extension: "html"
+                module: 'handlebars',
+                extension: 'html'
             },
             layout: true,
             partials: {

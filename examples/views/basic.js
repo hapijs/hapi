@@ -21,13 +21,13 @@ internals.main = function () {
 
     var options = {
         views: {
-            path: __dirname + "/views",
+            path: __dirname + '/views',
             engine: {
-                module: "handlebars",
-                extension: "html"
+                module: 'handlebars',
+                extension: 'html'
             },
             partials: {
-                path: __dirname + "/views/partials"
+                path: __dirname + '/views/partials'
             }
         }
     };
