@@ -345,7 +345,7 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 - `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
 - `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
 - `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
-
+- `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
 
 
 ### Files
@@ -877,7 +877,7 @@ The Hapi.Server settings may also be overridden on a per view basis without affe
 
     request.render.view(tmpl, ctx, { path: '/a/different/path' });
 
-More examples covering features such as layouts and partials can be found in the `examples/views` folder.
+Full working examples covering features such as layouts and partials can be found in the `examples/views/handlebars` folder.
 
 #### Views Handler
 

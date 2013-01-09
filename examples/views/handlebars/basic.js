@@ -1,6 +1,6 @@
 // Load modules
 
-var Hapi = require('../../lib');
+var Hapi = require('../../../lib');
 
 
 // Declare internals
@@ -10,9 +10,9 @@ var internals = {};
 
 var handler = function (request) {
 
-    request.reply.view('withLayout/index', {
-        title: 'examples/views/layout.js | Hapi ' + Hapi.utils.version(),
-        message: 'Hello World!\n'
+    request.reply.view('basic/index', {
+        title: 'examples/views/handlebars/basic.js | Hapi ' + Hapi.utils.version(),
+        message: 'Hello World!'
     }).send();
 };
 
@@ -23,10 +23,8 @@ internals.main = function () {
         views: {
             path: __dirname + '/templates',
             engine: {
-                module: 'handlebars',
-                extension: 'html'
-            },
-            layout: true
+                module: 'handlebars'
+            }
         }
     };
 
@@ -37,4 +35,3 @@ internals.main = function () {
 
 
 internals.main();
-
