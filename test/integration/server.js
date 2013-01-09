@@ -25,7 +25,7 @@ describe('Server', function () {
         request.reply('Fast');
     };
 
-    var server = new Hapi.Server({ timeout: 5 });
+    var server = new Hapi.Server({ timeout: { server: 10 } });
     server.addRoutes([
         { method: 'GET', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'GET', path: '/fast', config: { handler: fastHandler } }
@@ -44,11 +44,14 @@ describe('Server', function () {
         }, next);
     };
 
-    it('returns error response when server taking too long', function (done) {
+    it('returns server error message when server taking too long', function (done) {
+
+        var timer = new Hapi.utils.Timer();
 
         makeRequest('GET', '/timeout', function (res) {
 
             expect(res.statusCode).to.equal(503);
+            expect(timer.elapsed()).to.be.at.least(10);
             done();
         });
     });

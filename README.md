@@ -478,7 +478,10 @@ server's `state.cookies` configuration, where:
 
 ### Timeout
 
-In order to indicate when a server or dependent services are overwhelmed set the _'timeout'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout'_ is disabled.
+The _'timeout'_ object can contain a _'server'_ timeout value in milliseconds.  In order to indicate when a server or dependent services are overwhelmed set the _'timeout.server'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout.server'_ is disabled.
+
+For example, to set force the server to timeout when a request longer than 10 seconds to process the server can be initialized with the following options:
+`{ timeout: { server: 10000 } }`
 
 ## Server Events
 
