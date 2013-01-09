@@ -11,7 +11,7 @@ var internals = {};
 var handler = function (request) {
 
     request.reply.view('withPartials/index', {
-        title: 'examples/views/partials.js | Hapi ' + Hapi.utils.version(),
+        title: 'examples/views/handlebars/partials.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
     }).send();
 };
