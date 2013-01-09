@@ -26,8 +26,10 @@ internals.main = function () {
                 module: 'jade',
                 extension: 'jade'
             },
-            filename: __dirname + '/templates/layout.jade',
-            pretty: true
+            compileOptions: {
+                filename: __dirname + '/templates/layout.jade',
+                pretty: true
+            }
         }
     };
 
