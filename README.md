@@ -37,6 +37,7 @@ Current version: **0.11.0**
         - [CORS](#cors)
         - [Batch](#batch)
         - [State](#state)
+        - [Timeout](#timeout)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -143,6 +144,7 @@ var server = new Hapi.Server();
 - [`cors`](#cors)
 - [`batch`](#batch)
 - [`state`](#state)
+- [`timeout`](#timeout)
 
 
 ### TLS
@@ -474,6 +476,9 @@ server's `state.cookies` configuration, where:
 - `parse` - determines is incoming 'Cookie' headers are parsed and stored in the 'request.cookies' object. Defaults to true.
 - _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
 
+### Timeout
+
+In order to indicate when a server or dependent services are overwhelmed set the _'timeout'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout'_ is disabled.
 
 ## Server Events
 
