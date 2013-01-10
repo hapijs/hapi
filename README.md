@@ -487,7 +487,7 @@ The below example demonstrates how to force the server to timeout when it takes 
 `{ timeout: { server: 10000 } }`
 
 #### Client Timeout
-In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 5000 ms.  As a result, any request taking longer than 5 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
+In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 10000 ms.  As a result, any request taking longer than 10 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
 `{ timeout: { client: false } }`
 
 ## Server Events
