@@ -46,6 +46,7 @@ describe('Response', function () {
                 expect(res.result).to.equal('text');
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
                 expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT']);
                 done();
             });
@@ -106,7 +107,7 @@ describe('Response', function () {
             return request.reply();
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Server({ cors: { credentials: true } });
         server.addRoutes([
             { method: 'GET', path: '/', handler: handler },
         ]);
@@ -117,6 +118,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('');
+                expect(res.headers['Access-Control-Allow-Credentials']).to.equal('true');
                 done();
             });
         });
