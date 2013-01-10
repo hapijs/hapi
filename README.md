@@ -7,7 +7,7 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
-Current version: **0.11.0**
+Current version: **0.11.1**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -345,7 +345,7 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 - `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
 - `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
 - `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
-
+- `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
 
 
 ### Files
@@ -877,7 +877,7 @@ The Hapi.Server settings may also be overridden on a per view basis without affe
 
     request.render.view(tmpl, ctx, { path: '/a/different/path' });
 
-More examples covering features such as layouts and partials can be found in the `examples/views` folder.
+Full working examples covering features such as layouts and partials can be found in the `examples/views/handlebars` folder.
 
 #### Views Handler
 
@@ -976,7 +976,7 @@ To use, set the Hapi view option `layout` to true and create a file `layout.html
 <!DOCTYPE html>
 <html>
     <head>
-        <title>examples/views/layout.js | Hapi 0.11.0</title>
+        <title>examples/views/layout.js | Hapi 0.11.1</title>
     </head>
     <body>
         <p>Layout header</p>
@@ -1059,7 +1059,7 @@ The View system also supports Partials. Partials are small segments of template 
 <!DOCTYPE html>
 <html>
     <head>
-        <title>examples/views/partials.js | Hapi 0.11.0</title>
+        <title>examples/views/partials.js | Hapi 0.11.1</title>
     </head>
     <body>
         <div>
