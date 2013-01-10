@@ -7,13 +7,19 @@ var Hapi = require('../../lib');
 
 var internals = {};
 
+var ctx = {
+    title: 'examples/views/mixed/basic.js | Hapi ' + Hapi.utils.version(),
+    message: 'Hello World!'
+}
 
-var handler = function (request) {
+var oneHandler = function (request) {
 
-    request.reply.view('basic/index', {
-        title: 'examples/views/basic.js | Hapi ' + Hapi.utils.version(),
-        message: 'Hello World!'
-    }).send();
+    request.reply.view('index', ctx).send();
+};
+
+var twoHandler = function (request) {
+
+    request.reply.view('handlebars', ctx).send();
 };
 
 
@@ -36,7 +42,8 @@ internals.main = function () {
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/', handler: handler });
+    server.addRoute({ method: 'GET', path: '/one', handler: oneHandler });
+    server.addRoute({ method: 'GET', path: '/two', handler: twoHandler });
     server.start();
 };
 
