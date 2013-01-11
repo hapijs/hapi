@@ -2,6 +2,8 @@
 
 var Chai = require('chai');
 var Http = require('http');
+var NodeUtil = require('util');
+var Stream = require('stream');
 var Hapi = require('../helpers');
 
 
@@ -34,129 +36,216 @@ describe('Server', function () {
         request.reply('Fast');
     };
 
-    var server = new Hapi.Server('127.0.0.1', 21999, { timeout: { server: 50 } });
-    server.addRoutes([
-        { method: 'GET', path: '/timeout', config: { handler: timeoutHandler } },
-        { method: 'GET', path: '/slow', config: { handler: slowHandler } },
-        { method: 'GET', path: '/fast', config: { handler: fastHandler } }
-    ]);
+    var directHandler = function (request) {
 
-    var serverClientTimeout = new Hapi.Server('127.0.0.1', 21998, { timeout: { client: 50 } });
-    serverClientTimeout.addRoutes([
-        { method: 'POST', path: '/fast', config: { handler: fastHandler } }
-    ]);
+        var response = new Hapi.Response.Direct(request)
+            .created('me')
+            .type('text/plain')
+            .bytes(13)
+            .ttl(1000)
+            .write('!hola ')
+            .write('amigos!');
 
-    var serverClientNoTimeout = new Hapi.Server('127.0.0.1', 21997, { timeout: { client: false } });
-    serverClientNoTimeout.addRoutes([
-        { method: 'POST', path: '/fast', config: { handler: fastHandler } }
-    ]);
+        setTimeout(function () {
 
-    before(function (done) {
+            request.reply(response);
+        }, 55);
+    };
 
-        serverClientTimeout.start(function () {
+    var streamHandler = function (request) {
 
-            serverClientNoTimeout.start(done);
-        });
-    });
+        var s = new Stream();
+        s.readable = true;
 
-    it('returns server error message when server taking too long', function (done) {
+        s.resume = function () {
 
-        var timer = new Hapi.utils.Timer();
+            setTimeout(function () {
 
-        server.inject({ method: 'GET', url: '/timeout' }, function (res) {
+                s.emit('data', 'Hello');
+            }, 60);
 
-            expect(res.statusCode).to.equal(503);
-            expect(timer.elapsed()).to.be.at.least(49);
-            done();
-        });
-    });
+            setTimeout(function () {
 
-    it('doesn\'t return an error response when server is slow but faster than timerout', function (done) {
-
-        var timer = new Hapi.utils.Timer();
-        server.inject({ method: 'GET', url: '/slow' }, function (res) {
-
-            expect(timer.elapsed()).to.be.at.least(29);
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
-
-    it('doesn\'t return an error response when server takes less than timeout to respond', function (done) {
-
-        server.inject({ method: 'GET', url: '/fast' }, function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
-
-    it('returns client error message when client request taking too long', function (done) {
-
-        var timer = new Hapi.utils.Timer();
-        var options = {
-            hostname: '127.0.0.1',
-            port: 21998,
-            path: '/fast',
-            method: 'POST'
+                s.emit('end');
+            }, 70);
         };
 
+        request.reply.stream(s).send();
+    };
 
-        var req = Http.request(options, function (res) {
+    describe('response timeout', function () {
 
-            expect(res.statusCode).to.equal(408);
-            expect(timer.elapsed()).to.be.at.least(49);
-            done();
+        var server = new Hapi.Server('127.0.0.1', 21999, { timeout: { server: 50 } });
+        server.addRoutes([
+            { method: 'GET', path: '/timeout', config: { handler: timeoutHandler } },
+            { method: 'GET', path: '/slow', config: { handler: slowHandler } },
+            { method: 'GET', path: '/fast', config: { handler: fastHandler } },
+            { method: 'GET', path: '/direct', config: { handler: directHandler } },
+            { method: 'GET', path: '/stream', config: { handler: streamHandler } }
+        ]);
+
+        before(function (done) {
+
+            server.start(done);
         });
 
-        req.write('\n');
-        setTimeout(function() {
+        it('returns server error message when server taking too long', function (done) {
 
+            var timer = new Hapi.utils.Timer();
+
+            server.inject({ method: 'GET', url: '/timeout' }, function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                expect(timer.elapsed()).to.be.at.least(49);
+                done();
+            });
+        });
+
+        it('doesn\'t return an error response when server is slow but faster than timeout', function (done) {
+
+            var timer = new Hapi.utils.Timer();
+            server.inject({ method: 'GET', url: '/slow' }, function (res) {
+
+                expect(timer.elapsed()).to.be.at.least(29);
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('doesn\'t return an error response when server is slower than timeout but response has started', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: 21999,
+                path: '/stream',
+                method: 'GET'
+            };
+
+            var timer = new Hapi.utils.Timer();
+            var req = Http.request(options, function (res) {
+
+                expect(timer.elapsed()).to.be.at.least(59);
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
             req.end();
-        }, 100);
-    });
-
-    it('doesn\'t return a client error message when client request is fast', function (done) {
-
-        var timer = new Hapi.utils.Timer();
-        var options = {
-            hostname: '127.0.0.1',
-            port: 21998,
-            path: '/fast',
-            method: 'POST'
-        };
-
-
-        var req = Http.request(options, function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            done();
         });
 
-        req.end();
-    });
+        it('doesn\'t return an error response when server takes less than timeout to respond', function (done) {
 
-    it('client timeout can be disabled', function (done) {
+            server.inject({ method: 'GET', url: '/fast' }, function (res) {
 
-        var timer = new Hapi.utils.Timer();
-        var options = {
-            hostname: '127.0.0.1',
-            port: 21997,
-            path: '/fast',
-            method: 'POST'
-        };
-
-
-        var req = Http.request(options, function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            expect(timer.elapsed()).to.be.at.least(99);
-            done();
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
         });
 
-        setTimeout(function() {
+        it('doesn\'t return an error when handling a direct response that takes longer than timeout', function (done) {
 
-            req.end();
-        }, 100);
+            server.inject({ method: 'GET', url: '/direct' }, function (res) {
+
+                expect(res.statusCode).to.equal(201);
+                expect(res.readPayload()).to.equal('!hola amigos!');
+                done();
+            });
+        });
+    });
+
+    describe('request timeout', function () {
+
+        describe('with timeout set', function () {
+
+            var server = new Hapi.Server('127.0.0.1', 21998, { timeout: { client: 50 } });
+            server.addRoutes([
+                { method: 'POST', path: '/fast', config: { handler: fastHandler } }
+            ]);
+
+            before(function (done) {
+
+                server.start(done);
+            });
+
+            it('returns client error message when client request taking too long', function (done) {
+
+                var timer = new Hapi.utils.Timer();
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: 21998,
+                    path: '/fast',
+                    method: 'POST'
+                };
+
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(408);
+                    expect(timer.elapsed()).to.be.at.least(49);
+                    done();
+                });
+
+                req.write('\n');
+                setTimeout(function() {
+
+                    req.end();
+                }, 100);
+            });
+
+            it('doesn\'t return a client error message when client request is fast', function (done) {
+
+                var timer = new Hapi.utils.Timer();
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: 21998,
+                    path: '/fast',
+                    method: 'POST'
+                };
+
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+
+                req.end();
+            });
+        });
+
+        describe('with timeout disabled', function () {
+
+            var server = new Hapi.Server('127.0.0.1', 21997, { timeout: { client: false } });
+            server.addRoutes([
+                { method: 'POST', path: '/fast', config: { handler: fastHandler } }
+            ]);
+
+            before(function (done) {
+
+                server.start(done);
+            });
+
+            it('client doesn\'t return an error', function (done) {
+
+                var timer = new Hapi.utils.Timer();
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: 21997,
+                    path: '/fast',
+                    method: 'POST'
+                };
+
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(timer.elapsed()).to.be.at.least(99);
+                    done();
+                });
+
+                setTimeout(function() {
+
+                    req.end();
+                }, 100);
+            });
+        });
     });
 });
