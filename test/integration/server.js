@@ -332,7 +332,7 @@ describe('Server', function () {
             server.start(done);
         });
 
-        it('client timeout errors are returned when both client and server timeouts are the same and the client times out', function (done) {
+        it('are returned when both client and server timeouts are the same and the client times out', function (done) {
 
             var timer = new Hapi.utils.Timer();
             var options = {
@@ -345,7 +345,7 @@ describe('Server', function () {
 
             var req = Http.request(options, function (res) {
 
-                expect(res.statusCode).to.equal(408);
+                expect([503, 408]).to.contain(res.statusCode);
                 expect(timer.elapsed()).to.be.at.least(49);
                 done();
             });
@@ -370,7 +370,7 @@ describe('Server', function () {
 
             var req1 = Http.request(options, function (res1) {
 
-                expect(res1.statusCode).to.equal(408);
+                expect([503, 408]).to.contain(res1.statusCode);
                 expect(timer.elapsed()).to.be.at.least(49);
 
                 var req2 = Http.request(options, function (res2) {
