@@ -481,9 +481,9 @@ server's `state.cookies` configuration, where:
 The _'timeout'_ object can contain a _'server'_ and _'client'_ timeout value in milliseconds.  These are useful for limiting the amount of time a request or response should take to complete.
 
 #### Server Timeout
-In order to indicate when a server or dependent service are overwhelmed set the _'timeout.server'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout.server'_ is disabled.
+In order to indicate when a server or dependent services are overwhelmed set the _'timeout.server'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout.server'_ is disabled.
 
-The server timeout is measured as the time from executing a hapi request till starting to respond to the request.  Server timeouts are not calculated for _'Direct'_ response types.
+The server timeout is measured as the time from executing a hapi request till starting to respond to the request.  Server timeouts are not calculated for _'Direct'_ response types.  Also, if an endpoint takes longer than the timeout to generate a response the response will not be cached.
 
 The below example demonstrates how to force the server to timeout when it takes the server longer than 10 seconds to begin responding to a request:
 `{ timeout: { server: 10000 } }`
