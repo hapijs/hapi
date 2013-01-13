@@ -3,7 +3,9 @@
 var Chai = require('chai');
 var Request = require('request');
 var Fs = require('fs');
+var Http = require('http');
 var Path = require('path');
+var Stream = require('stream');
 var Hapi = require('../helpers');
 
 
@@ -100,6 +102,55 @@ describe('Payload', function () {
                 expect(res.result.x).to.equal('1');
                 done();
             });
+        });
+    });
+
+    describe('stream mode', function () {
+
+        var handler = function (request) {
+
+            expect(request.payload).to.not.exist;
+            request.reply('Success');
+        };
+
+        var server = new Hapi.Server('127.0.0.1', 22299);
+        server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'stream' } });
+
+        before(function (done) {
+
+            server.start(done);
+        });
+
+        it('doesn\'t set the request payload when streaming it in and the connection is interrupted', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: 22299,
+                path: '/',
+                method: 'POST'
+            };
+
+            var s = new Stream();
+            s.readable = true;
+
+            var iv = setInterval(function () {
+
+                s.emit('data', 'Hello');
+            }, 5);
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+
+            s.pipe(req);
+
+            setTimeout(function () {
+
+                req.abort();
+                clearInterval(iv);
+            }, 15);
         });
     });
 
