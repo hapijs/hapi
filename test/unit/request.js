@@ -18,7 +18,7 @@ var expect = Chai.expect;
 
 describe('Request', function () {
 
-    var server = new Hapi.server('0.0.0.0', 18888);
+    var server = new Hapi.server('0.0.0.0', 0);
 
     var _req = null;
     var _res = null;

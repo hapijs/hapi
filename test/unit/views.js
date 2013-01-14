@@ -17,8 +17,6 @@ var expect = Chai.expect;
 
 describe('Views', function () {
 
-    var manager = new Views();
-
     var viewsPath = __dirname + '/templates';
 
     describe('#render', function () {
