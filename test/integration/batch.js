@@ -19,7 +19,6 @@ var expect = Chai.expect;
 describe('Batch', function () {
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:18084';
 
     var profileHandler = function (request) {
 
@@ -98,7 +97,7 @@ describe('Batch', function () {
 
     function setupServer() {
 
-        _server = new Hapi.Server('0.0.0.0', 18084, { batch: true });
+        _server = new Hapi.Server('0.0.0.0', 0, { batch: true });
         _server.addRoutes([
             { method: 'GET', path: '/profile', handler: profileHandler },
             { method: 'GET', path: '/item', handler: activeItemHandler },
@@ -132,7 +131,7 @@ describe('Batch', function () {
 
         _server.inject({
             method: 'post',
-            url: _serverUrl + '/batch',
+            url: '/batch',
             payload: payload
         }, next);
     }

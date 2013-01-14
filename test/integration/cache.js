@@ -18,7 +18,6 @@ var expect = Chai.expect;
 describe('Cache', function () {
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:17785';
 
     var profileHandler = function (request) {
 
@@ -71,7 +70,7 @@ describe('Cache', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 17785, { cache: { engine: 'memory' } });
+        _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
 
         _server.addRoutes([
             { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000 } } },
@@ -96,7 +95,7 @@ describe('Cache', function () {
 
         _server.inject({
             method: 'get',
-            url: _serverUrl + path
+            url: path
         }, next);
     };
 
