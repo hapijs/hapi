@@ -37,6 +37,7 @@ Current version: **0.11.3**
         - [CORS](#cors)
         - [Batch](#batch)
         - [State](#state)
+        - [Timeout](#timeout)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -474,6 +475,15 @@ request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). **hapi*
 server's `state.cookies` configuration, where:
 - `parse` - determines is incoming 'Cookie' headers are parsed and stored in the 'request.cookies' object. Defaults to true.
 - _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
+
+
+### Timeout
+
+The _'timeout'_ object can contain a _'client'_ timeout value in milliseconds.  This value is useful for limiting the amount of time a request should take to complete.
+
+#### Client Timeout
+In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 10000 ms.  As a result, any request taking longer than 10 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
+`{ timeout: { client: false } }`
 
 
 ## Server Events
