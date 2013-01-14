@@ -233,11 +233,11 @@ describe('Server', function () {
 
         it('calls the callback when not using ephemeral port', function (done) {
 
-            var server = new Hapi.Server('0.0.0.0', 8880);
+            var server = new Hapi.Server('0.0.0.0', 19880);
             server.start(function (host, port) {
 
                 expect(server.settings.host).to.equal('0.0.0.0');
-                expect(server.settings.port).to.equal(8880);
+                expect(server.settings.port).to.equal(19880);
                 done();
             });
         });
