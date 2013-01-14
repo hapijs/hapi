@@ -138,7 +138,7 @@ describe('Payload', function () {
             request.reply(request.payload);
         };
 
-        var _server = new Hapi.Server('0.0.0.0', 18991);
+        var _server = new Hapi.Server('0.0.0.0', 0);
         _server.addRoute({ method: 'POST', path: '/invalid', handler: invalidHandler });
         _server.addRoute({ method: 'POST', path: '/echo', handler: echo });
 
@@ -201,11 +201,11 @@ describe('Payload', function () {
                 done();
             };
 
-            var server = new Hapi.Server('0.0.0.0', 18990);
+            var server = new Hapi.Server('0.0.0.0', 0);
             server.addRoute({ method: 'POST', path: '/file', config: { handler: fileHandler } });
             server.start(function () {
 
-                var r = Request.post('http://127.0.0.1:18990/file');
+                var r = Request.post(server.settings.uri + '/file');
                 var form = r.form();
                 form.append('my_file', file);
             });

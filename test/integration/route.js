@@ -18,7 +18,6 @@ var expect = Chai.expect;
 describe('Route', function () {
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:18095';
     var _routes = [];
     var _paths = {
         '/': { reqPath: '/', resBody: 'test1' },
@@ -47,7 +46,7 @@ describe('Route', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 18095, { cache: { engine: 'memory' } });
+        _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
         _server.addRoutes(_routes);
         _server.listener.on('listening', function () {
 
@@ -68,7 +67,7 @@ describe('Route', function () {
 
         _server.inject({
             method: 'get',
-            url: _serverUrl + path
+            url: path
         }, next);
     }
 

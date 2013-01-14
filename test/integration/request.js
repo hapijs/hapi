@@ -58,7 +58,7 @@ describe('Request', function () {
         }
     };
 
-    var server = new Hapi.Server('0.0.0.0', 18085, { ext: { onUnknownRoute: unknownRouteHandler, onPostHandler: postHandler } });
+    var server = new Hapi.Server('0.0.0.0', 0, { ext: { onUnknownRoute: unknownRouteHandler, onPostHandler: postHandler } });
     server.addRoutes([
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },

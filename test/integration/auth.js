@@ -55,7 +55,7 @@ describe('Auth', function () {
             }
         };
 
-        var server = new Hapi.Server('0.0.0.0', 8080, config);
+        var server = new Hapi.Server('0.0.0.0', 0, config);
 
         var basicHandler = function (request) {
 
