@@ -17,7 +17,6 @@ var expect = Chai.expect;
 describe('Prerequesites', function () {
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:18089';
 
     var fetch1 = function (request, next) {
 
@@ -64,7 +63,7 @@ describe('Prerequesites', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 18089, { batch: true });
+        _server = new Hapi.Server('0.0.0.0', 0, { batch: true });
         _server.addRoutes([
             {
                 method: 'GET',
@@ -118,7 +117,7 @@ describe('Prerequesites', function () {
 
         _server.inject({
             method: 'get',
-            url: _serverUrl + path
+            url: path
         }, next);
     }
 

@@ -454,7 +454,7 @@ describe('Response', function () {
 
     describe('Directory', function () {
 
-        var server = new Hapi.Server(17083);
+        var server = new Hapi.Server(0);
         server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
@@ -463,7 +463,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -476,7 +476,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/..', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/..', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -489,7 +489,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/xyz', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/xyz', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -502,7 +502,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/response.js', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/response.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -516,7 +516,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/directory/index.html', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/directory/index.html', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -532,7 +532,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryx', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryx', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -547,7 +547,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directorylist', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylist', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -561,7 +561,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directorylist/test', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylist/test', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -577,7 +577,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directorylistx', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylistx', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -593,7 +593,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryIndex', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryIndex', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -607,7 +607,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryIndex/invalid', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryIndex/invalid', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(500);
@@ -627,7 +627,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryfn/defaults.js', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryfn/defaults.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -641,7 +641,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/showhidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/showhidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('.hidden');
@@ -654,7 +654,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/noshowhidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/noshowhidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.not.contain('.hidden');
@@ -668,7 +668,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/noshowhidden/.hidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/noshowhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -681,7 +681,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/showhidden/.hidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/showhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('test');
