@@ -109,7 +109,7 @@ describe('Response', function () {
 
         var server = new Hapi.Server({ cors: { credentials: true } });
         server.addRoutes([
-            { method: 'GET', path: '/', handler: handler },
+            { method: 'GET', path: '/', handler: handler }
         ]);
 
         it('returns an empty reply', function (done) {

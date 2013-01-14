@@ -98,6 +98,7 @@ describe('Request', function () {
 
         var req = Hapi.Utils.clone(_req);
         req.pause = function () { };
+        req.once = function () { };
         var serverModified = Hapi.Utils.clone(server);
 
         req.url = 'http://localhost/?debug=test';

@@ -37,6 +37,7 @@ Current version: **0.11.3**
         - [CORS](#cors)
         - [Batch](#batch)
         - [State](#state)
+        - [Timeout](#timeout)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -143,6 +144,7 @@ var server = new Hapi.Server();
 - [`cors`](#cors)
 - [`batch`](#batch)
 - [`state`](#state)
+- [`timeout`](#timeout)
 
 
 ### TLS
@@ -475,6 +477,21 @@ server's `state.cookies` configuration, where:
 - `parse` - determines is incoming 'Cookie' headers are parsed and stored in the 'request.cookies' object. Defaults to true.
 - _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
 
+### Timeout
+
+The _'timeout'_ object can contain a _'server'_ and _'client'_ timeout value in milliseconds.  These are useful for limiting the amount of time a request or response should take to complete.
+
+#### Server Timeout
+In order to indicate when a server or dependent services are overwhelmed set the _'timeout.server'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout.server'_ is disabled.
+
+The server timeout is measured as the time from executing a hapi request till starting to respond to the request.  Server timeouts are not calculated for _'Direct'_ response types.  Also, if an endpoint takes longer than the timeout to generate a response the response will not be cached.
+
+The below example demonstrates how to force the server to timeout when it takes the server longer than 10 seconds to begin responding to a request:
+`{ timeout: { server: 10000 } }`
+
+#### Client Timeout
+In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 10000 ms.  As a result, any request taking longer than 10 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
+`{ timeout: { client: false } }`
 
 ## Server Events
 
