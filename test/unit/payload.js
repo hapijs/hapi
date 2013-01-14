@@ -19,6 +19,8 @@ var expect = Chai.expect;
 
 describe('Payload', function () {
 
+    var server = new Hapi.Server({ payload: { maxBytes: 48 } });
+
     var shotRequest = function (method, path, headers, payload, callback) {
 
         var reqOptions = {
@@ -40,8 +42,7 @@ describe('Payload', function () {
                     req: {
                         resume: function () { }
                     }
-                },
-                server: new Hapi.Server({ payload: { maxBytes: 48 } })
+                }
             };
 
             Payload.read(request, function (result) {
@@ -52,8 +53,6 @@ describe('Payload', function () {
         });
 
         it('passes null to the callback when the method is not put or post', function (done) {
-
-            var server = new Hapi.Server({ payload: { maxBytes: 48 } });
             var request = {
                 method: 'delete',
                 _route: new Route({ method: 'delete', path: '/', handler: function () { } }, server),
@@ -61,8 +60,7 @@ describe('Payload', function () {
                     req: {
                         resume: function () { }
                     }
-                },
-                server: server
+                }
             };
 
             Payload.read(request, function (result) {
@@ -73,8 +71,6 @@ describe('Payload', function () {
         });
 
         it('passes an error to the callback whenever an unsupported mime type is read', function (done) {
-
-            var server = new Hapi.Server({ payload: { maxBytes: 48 } });
             var request = {
                 method: 'post',
                 _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
@@ -84,8 +80,7 @@ describe('Payload', function () {
                             'content-type': 'blah'
                         }
                     }
-                },
-                server: server
+                }
             };
 
             Payload.read(request, function (err) {
@@ -97,7 +92,6 @@ describe('Payload', function () {
 
         it('sets the request payload property whenever reading a json request', function (done) {
 
-            var server = new Hapi.Server({ payload: { maxBytes: 48 } });
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ "item": "test" }', function (req, res) {
 
                 var request = {
@@ -120,7 +114,6 @@ describe('Payload', function () {
 
         it('passes an Error to the callback whenever reading an invalid json request', function (done) {
 
-            var server = new Hapi.Server({ payload: { maxBytes: 48 } });
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ this is just wrong }', function (req, res) {
 
                 var request = {
@@ -144,7 +137,6 @@ describe('Payload', function () {
 
         it('sets the request payload property whenever reading a form request', function (done) {
 
-            var server = new Hapi.Server({ payload: { maxBytes: 48 } });
             shotRequest('POST', '/', { 'content-type': 'application/x-www-form-urlencoded' }, 'item=test', function (req, res) {
 
                 var request = {
@@ -167,7 +159,6 @@ describe('Payload', function () {
 
         it('passes an Error to the callback whenever reading a payload too big (no header)', function (done) {
 
-            var server = new Hapi.Server({ payload: { maxBytes: 48 } });
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ "key":"12345678901234567890123456789012345678901234567890" }', function (req, res) {
 
                 var request = {
@@ -191,7 +182,6 @@ describe('Payload', function () {
 
         it('passes an Error to the callback whenever reading a payload too big (header)', function (done) {
 
-            var server = new Hapi.Server({ payload: { maxBytes: 48 } });
             shotRequest('POST', '/', { 'content-type': 'application/json', 'content-length': 62 }, '{ "key":"12345678901234567890123456789012345678901234567890" }', function (req, res) {
 
                 var request = {
