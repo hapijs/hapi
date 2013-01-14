@@ -3,7 +3,9 @@
 var Chai = require('chai');
 var Request = require('request');
 var Fs = require('fs');
+var Http = require('http');
 var Path = require('path');
+var Stream = require('stream');
 var Hapi = require('../helpers');
 
 
@@ -100,6 +102,145 @@ describe('Payload', function () {
                 expect(res.result.x).to.equal('1');
                 done();
             });
+        });
+
+        it('doesn\'t set the request payload when the request is interrupted and its streaming', function (done) {
+
+            var handler = function (request) {
+
+                expect(request.payload).to.not.exist;
+                request.reply('Success');
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 0);
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+
+            var s = new Stream();
+            s.readable = true;
+
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.settings.port,
+                    path: '/',
+                    method: 'POST'
+                };
+
+                var iv = setInterval(function () {
+
+                    s.emit('data', 'Hello');
+                }, 5);
+
+                var req = Http.request(options, function (res) {
+
+                });
+
+                req.on('error', function (err) {
+
+                    expect(err.code).to.equal('ECONNRESET');
+                    done();
+                });
+
+                s.pipe(req);
+
+                setTimeout(function () {
+
+                    req.abort();
+                    clearInterval(iv);
+                }, 15);
+            });
+        });
+
+        it('doesn\'t set the request payload when the request is interrupted', function (done) {
+
+            var handler = function (request) {
+
+                expect(request.payload).to.not.exist;
+                request.reply('Success');
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 0);
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.settings.port,
+                    path: '/',
+                    method: 'POST',
+                    headers: {
+                        'Content-Length': '10'
+                    }
+                };
+
+                var req = Http.request(options, function (res) {
+
+                });
+
+                req.write('Hello\n');
+
+                req.on('error', function (err) {
+
+                    expect(err.code).to.equal('ECONNRESET');
+                    done();
+                });
+
+                setTimeout(function () {
+
+                    req.abort();
+                }, 15);
+            });
+        });
+    });
+
+    describe('stream mode', function () {
+
+        var handler = function (request) {
+
+            expect(request.payload).to.not.exist;
+            request.reply('Success');
+        };
+
+        var server = new Hapi.Server('127.0.0.1', 0);
+        server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'stream' } });
+
+        before(function (done) {
+
+            server.start(done);
+        });
+
+        it('doesn\'t set the request payload when streaming data in and the connection is interrupted', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST'
+            };
+
+            var s = new Stream();
+            s.readable = true;
+
+            var iv = setInterval(function () {
+
+                s.emit('data', 'Hello');
+            }, 5);
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+
+            s.pipe(req);
+
+            setTimeout(function () {
+
+                req.abort();
+                clearInterval(iv);
+            }, 15);
         });
     });
 
