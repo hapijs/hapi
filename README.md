@@ -182,7 +182,7 @@ The `payload` option controls how incoming payloads (request body) are processed
 ### Extensions
 
 **hapi** does not support middleware extensibility as is commonly found in other web frameworks. Instead, **hapi** provides extension hooks for
-any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified stage
+any application-specific functionality. Each extension point accepts a single function or an array of functions to be executed at a specified stage
 during request processing. The required extension function signature is _function (request, next)_ where:
 - _'request'_ is the **hapi** request object, and
 - _'next'_ is the callback function the method **must** call upon completion to return control over to the router.
