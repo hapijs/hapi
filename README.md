@@ -831,7 +831,7 @@ The following example shows how to render a basic handlebars/mustache template:
     var handler = function (request) {
 
         request.reply.view('index', {
-            title: 'Views Example'
+            title: 'Views Example',
             message: 'Hello, World'
         }).send();
     };
