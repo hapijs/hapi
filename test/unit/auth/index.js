@@ -409,7 +409,7 @@ describe('Auth', function () {
                 strategies: {
                     'test': {
                         scheme: 'basic',
-                        loadUserFunc: function () {}
+                        loadUserFunc: function () { }
                     }
                 }
             };
@@ -461,7 +461,7 @@ describe('Auth', function () {
                         scheme: 'basic',
                         loadUserFunc: function (username, callback) {
 
-                            return callback(null, {id: 'walmart', password: 'walmart'})
+                            return callback(null, { id: 'walmart', password: 'walmart' })
                         }
                     }
                 }
@@ -518,7 +518,7 @@ describe('Auth', function () {
                         scheme: 'basic',
                         loadUserFunc: function (username, callback) {
 
-                            return callback(null, {id: 'walmart', password: 'walmart'})
+                            return callback(null, { id: 'walmart', password: 'walmart' })
                         }
                     }
                 }
