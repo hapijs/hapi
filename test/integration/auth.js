@@ -211,7 +211,7 @@ describe('Auth', function () {
                 done();
             });
         });
-        
+
         it('should not ask for credentials if no server auth configured', function (done) {
 
             var config = {};
@@ -227,7 +227,7 @@ describe('Auth', function () {
                 }
             });
             var options = { method: 'GET', url: '/noauth' };
-            
+
             server.inject(options, function (res) {
 
                 expect(res.result).to.exist;
@@ -235,7 +235,7 @@ describe('Auth', function () {
                 done();
             });
         });
-        
+
         it('should ask for credentials if server has one default strategy', function (done) {
 
             var config = {
@@ -255,13 +255,13 @@ describe('Auth', function () {
                     }
                 }
             });
-            
-            var validOptions = { method: 'GET', url: '/noauth', headers: { authorization: basicHeader('john', '12345') }};
+
+            var validOptions = { method: 'GET', url: '/noauth', headers: { authorization: basicHeader('john', '12345') } };
             server.inject(validOptions, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.statusCode).to.equal(200);
-                
+
                 var invalidOptions = { method: 'GET', url: '/noauth' };
                 server.inject(invalidOptions, function (res) {
 
@@ -283,9 +283,9 @@ describe('Auth', function () {
                 }
             };
             var server = new Hapi.Server('0.0.0.0', 8080, config);
-            
+
             var fn = function () {
-                
+
                 server.addRoute({
                     path: '/noauth',
                     method: 'GET',
@@ -297,11 +297,11 @@ describe('Auth', function () {
                     }
                 });
             };
-            
+
             expect(fn).to.throw();
             done();
         });
-        
+
         it('should throw if server has strategies route refers to nonexistent strategy', function (done) {
 
             var config = {
@@ -317,9 +317,9 @@ describe('Auth', function () {
                 }
             };
             var server = new Hapi.Server('0.0.0.0', 8080, config);
-            
+
             var fn = function () {
-                
+
                 server.addRoute({
                     path: '/noauth',
                     method: 'GET',
@@ -335,7 +335,7 @@ describe('Auth', function () {
                     }
                 });
             };
-            
+
             expect(fn).to.throw();
             done();
         });
@@ -494,7 +494,7 @@ describe('Auth', function () {
                 cred: {
                     id: 'john',
                     key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-                    algorithm: 'hmac-sha-256'
+                    algorithm: 'sha256'
                 }
             },
             'jane': {
