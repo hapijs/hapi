@@ -11,4 +11,4 @@ Code changes are welcome and should follow the guidelines below.
 * Fix the issue ensuring that your code follows the [style guide](https://github.com/walmartlabs/hapi/blob/master/docs/Style.md).
 * Add tests for your new code ensuring that you have 100% code coverage.
     * Run `make test-cov-html` to generate a report of test coverage
-* (Pull requests)[http://help.github.com/send-pull-requests/] should be made to the [develop branch](https://github.com/walmartlabs/hapi/tree/develop).
+* [Pull requests](http://help.github.com/send-pull-requests/) should be made to the [develop branch](https://github.com/walmartlabs/hapi/tree/develop).
