@@ -84,6 +84,7 @@ describe('Auth', function () {
                 var request = {
                     session: {
                     },
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -113,6 +114,7 @@ describe('Auth', function () {
                 var request = {
                     session: {
                     },
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -142,6 +144,7 @@ describe('Auth', function () {
                     session: {
                         user: 'test'
                     },
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -171,6 +174,7 @@ describe('Auth', function () {
                 var request = {
                     session: {
                     },
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -202,6 +206,7 @@ describe('Auth', function () {
                     session: {
                         user: 'test'
                     },
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -233,6 +238,7 @@ describe('Auth', function () {
                     session: {
                         app: 'test'
                     },
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -269,6 +275,7 @@ describe('Auth', function () {
                     session: {
                         user: 'test'
                     },
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -299,6 +306,7 @@ describe('Auth', function () {
                 };
 
                 var request = {
+                    _timestamp: Date.now(),
                     _route: {
                         config: {
                             auth: {
@@ -361,6 +369,7 @@ describe('Auth', function () {
         it('throws an error if no strategies are defined', function (done) {
 
             var request = {
+                _timestamp: Date.now(),
                 _route: {
                     config: {
                         auth: {}
@@ -392,6 +401,7 @@ describe('Auth', function () {
         it('doesn\'t throw an error if strategies are defined but not used', function (done) {
 
             var request = {
+                _timestamp: Date.now(),
                 _route: {
                     config: {
                         auth: {}
@@ -426,6 +436,7 @@ describe('Auth', function () {
         it('doesn\'t throw an error if strategies are defined and used', function (done) {
 
             var request = {
+                _timestamp: Date.now(),
                 _route: {
                     config: {
                         auth: {
@@ -483,6 +494,7 @@ describe('Auth', function () {
         it('returns an error if strategies are defined but non matching strategy requested', function (done) {
 
             var request = {
+                _timestamp: Date.now(),
                 _route: {
                     config: {
                         auth: {
