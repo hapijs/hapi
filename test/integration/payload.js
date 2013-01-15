@@ -402,6 +402,31 @@ describe('Payload', function () {
             s.emit('data', '{ "key": "value" }');
             req.end();
         });
+
+        it('returns a 200 status code when the request payload is streaming data with content-length being smaller than payload but payload truncates to a valid value ', function (done) {
+
+            var s = new Stream();
+            s.readable = true;
+
+            var options = {
+                uri: 'http://127.0.0.1:' + server.settings.port + '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': '18'
+                }
+            };
+
+            var req = Request(options, function (err, res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+
+            s.pipe(req);
+            s.emit('data', '{ "key": "value" } garbage here');
+            req.end();
+        });
     });
 
     describe('unzip', function () {
