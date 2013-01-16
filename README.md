@@ -375,7 +375,7 @@ optional settings:
 - `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
     - 'response' - the response was sent but request tails may still be pending.
     - 'tail' - the response was sent and all request tails completed.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
+- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
 
 For example:
 ```javascript
@@ -383,6 +383,18 @@ var options = {
     monitor: {
         subscribers: {
             console: ['ops', 'request', 'log'],
+            'http://localhost/logs': ['log']
+        }
+    }
+};
+```
+
+Disabling hapi console output:
+```javascript
+var options = {
+    monitor: {
+        subscribers: {
+            console: [],
             'http://localhost/logs': ['log']
         }
     }
