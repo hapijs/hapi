@@ -272,51 +272,23 @@ describe('Auth', function () {
             });
         });
 
-        it('should throw if server has strategies but no default', function (done) {
-
-            var config = {
-                strategies: {
-                    'b': {
-                        scheme: 'basic',
-                        loadUserFunc: loadUser
-                    }
-                }
-            };
-            var server = new Hapi.Server('0.0.0.0', 8080, config);
-
-            var fn = function () {
-
-                server.addRoute({
-                    path: '/noauth',
-                    method: 'GET',
-                    config: {
-                        handler: function (req) {
-
-                            req.reply('Success');
-                        }
-                    }
-                });
-            };
-
-            expect(fn).to.throw();
-            done();
-        });
-
         it('should throw if server has strategies route refers to nonexistent strategy', function (done) {
 
             var config = {
-                strategies: {
-                    'default': {
-                        scheme: 'basic',
-                        loadUserFunc: loadUser
-                    },
-                    'b': {
-                        scheme: 'basic',
-                        loadUserFunc: loadUser
+                auth: {
+                    strategies: {
+                        'default': {
+                            scheme: 'basic',
+                            loadUserFunc: loadUser
+                        },
+                        'b': {
+                            scheme: 'basic',
+                            loadUserFunc: loadUser
+                        }
                     }
                 }
             };
-            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            var server = new Hapi.Server('0.0.0.0', 0, config);
 
             var fn = function () {
 
@@ -325,7 +297,6 @@ describe('Auth', function () {
                     method: 'GET',
                     config: {
                         auth: {
-                            mode: 'none',
                             strategy: 'hello'
                         },
                         handler: function (req) {
@@ -680,6 +651,120 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+    });
+
+    describe('Multiple', function () {
+
+        var credentials = {
+            'john': {
+                cred: {
+                    id: 'john',
+                    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+                    algorithm: 'sha256'
+                }
+            },
+            'jane': {
+                err: Hapi.error.internal('boom')
+            }
+        };
+
+        var getCredentials = function (id, callback) {
+
+            if (credentials[id]) {
+                return callback(credentials[id].err, credentials[id].cred);
+            }
+            else {
+                return callback(null, null);
+            }
+        };
+
+        var loadUser = function (id, callback) {
+
+            if (id === 'john') {
+                return callback(null, {
+                    id: 'john',
+                    password: '12345',
+                    scope: [],
+                    ext: {
+                        tos: 100
+                    }
+                });
+            }
+            else if (id === 'jane') {
+                return callback(Hapi.error.internal('boom'));
+            }
+            else if (id === 'invalid') {
+                return callback(null, {});
+            }
+            else {
+                return callback(null, null);
+            }
+        };
+
+        var hawkHeader = function (id, path) {
+
+            if (credentials[id] && credentials[id].cred) {
+                return Hawk.getAuthorizationHeader(credentials[id].cred, 'POST', path, '0.0.0.0', 8080);
+            }
+            else {
+                return '';
+            }
+        };
+
+        var config = {
+            auth: {
+                strategies: {
+                    'default': {
+                        scheme: 'hawk',
+                        getCredentialsFunc: getCredentials
+                    },
+                    'hawk': {
+                        scheme: 'hawk',
+                        getCredentialsFunc: getCredentials
+                    },
+                    'basic': {
+                        scheme: 'basic',
+                        loadUserFunc: loadUser
+                    }
+                }
+            }
+        };
+
+        var server = new Hapi.Server('0.0.0.0', 8080, config);
+
+        var handler = function (request) {
+
+            request.reply('Success');
+        };
+
+        server.addRoutes([
+            { method: 'POST', path: '/multiple', handler: handler, config: { auth: { strategies: ['basic', 'hawk'] } } },
+            { method: 'POST', path: '/multipleOptional', handler: handler, config: { auth: { mode: 'optional' } } },
+            { method: 'POST', path: '/multipleScope', handler: handler, config: { auth: { scope: 'x' } } },
+            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: 200 } } }
+        ]);
+
+        it('returns a reply on successful auth of first auth strategy', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { authorization: basicHeader('john', '12345'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth of second auth strategy', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { authorization: hawkHeader('john', '/multiple'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
                 expect(res.result).to.equal('Success');
                 done();
             });
