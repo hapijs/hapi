@@ -110,7 +110,6 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
                 expect(res.result).to.equal('Success');
                 done();
             });
@@ -122,7 +121,6 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
                 expect(res.result.code).to.equal(401);
                 done();
             });
@@ -766,6 +764,74 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns an error when the auth strategies fail', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail', host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns a 401 response when missing the authorization header', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns a WWW-Authenticate header that has all challenge options when missing the authorization header', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.headers['WWW-Authenticate']).to.contain('Hawk ');
+                expect(res.headers['WWW-Authenticate']).to.contain('Basic ');
+                done();
+            });
+        });
+
+        it('returns a 401 error when the authorization header has both Basic and Hawk', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail; Hawk fail', host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns a 401 response when the authorization header has both Basic and Hawk and the second one is correct', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail; ' + hawkHeader('john', '/multiple'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns full error message on bad auth header', function (done) {
+
+            var request = { method: 'POST', url: '/multiple', headers: { authorization: hawkHeader('john', 'abcd'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result.code).to.equal(401);
+                expect(res.result.message).to.equal('Bad HTTP authentication header format, Bad mac');
                 done();
             });
         });
