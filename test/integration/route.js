@@ -21,6 +21,7 @@ describe('Route', function () {
     var _routes = [];
     var _paths = {
         '/': { reqPath: '/', resBody: 'test1' },
+        '/{param}': { reqPath: '/pathing', resBody: 'pathing' },
         '/path': { reqPath: '/path', resBody: 'test2' },
         '/path/': { reqPath: '/path/', resBody: 'test3' },
         '/path/to/somewhere': { reqPath: '/path/to/somewhere', resBody: 'test4' },
@@ -28,7 +29,9 @@ describe('Route', function () {
         '/test2/param/{param?}': { reqPath: '/test2/param/test6', resBody: 'test6' },
         '/test3/param/{param?}': { reqPath: '/test3/param', resBody: 'test7' },
         '/test4/param/{param*2}': { reqPath: '/test4/param/test8/test9', resBody: 'test8/test9' },
-        '/test5/%20path': { reqPath: '/test5/%20path', resBody: 'test10' }
+        '/test5/%20path': { reqPath: '/test5/%20path', resBody: 'test10' },
+        '/test2/param/hello': { reqPath: '/test2/param/hello', resBody: 'test2/param/hello' },
+        '/test2/param/help': { reqPath: '/test2/param/help', resBody: 'test2/param/help' }
     };
 
     var _handler = function (options) {
