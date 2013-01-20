@@ -796,8 +796,8 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.headers['WWW-Authenticate']).to.contain('Hawk ');
-                expect(res.headers['WWW-Authenticate']).to.contain('Basic ');
+                expect(res.headers['WWW-Authenticate']).to.contain('Hawk');
+                expect(res.headers['WWW-Authenticate']).to.contain('Basic');
                 done();
             });
         });
