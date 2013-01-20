@@ -130,12 +130,26 @@ describe('Auth', function () {
 
         it('returns an error on bad header format', function (done) {
 
-            var request = { method: 'POST', url: '/basic', headers: { authorization: 'junk' } };
+            var request = { method: 'POST', url: '/basic', headers: { authorization: 'basic' } };
 
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(401);
+                expect(res.result.code).to.equal(400);
+                expect(res.result.isMissing).to.equal(undefined);
+                done();
+            });
+        });
+
+        it('returns an error on bad header internal syntax', function (done) {
+
+            var request = { method: 'POST', url: '/basic', headers: { authorization: 'basic 123' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(400);
+                expect(res.result.isMissing).to.equal(undefined);
                 done();
             });
         });
@@ -148,6 +162,7 @@ describe('Auth', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(401);
+                expect(res.result.isMissing).to.equal(true);
                 done();
             });
         });

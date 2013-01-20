@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "hoek": "0.0.x",
-    "boom": "0.0.x",
+    "boom": "0.1.x",
     "joi": "0.0.x",
     "lout": "0.0.x",
     "hapi-helmet": "0.0.x",
