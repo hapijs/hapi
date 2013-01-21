@@ -347,7 +347,7 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0);
             server.addRoute(route);
 
-            expect(server._routes.put['2'][0].path).to.equal('/test');
+            expect(server._routes.put[0].path).to.equal('/test');
             done();
         });
 
@@ -415,7 +415,7 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0);
             server.addRoutes(routes);
 
-            expect(server._routes.put['2'][0].path).to.equal('/test');
+            expect(server._routes.put[0].path).to.equal('/test');
             done();
         });
     });

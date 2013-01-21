@@ -22,7 +22,7 @@ describe('Route', function () {
     var _paths = {
         '/': { reqPath: '/', resBody: 'test1' },
         '/{param}': { reqPath: '/pathing', resBody: 'pathing' },
-        '/path': { reqPath: '/path', resBody: 'test2' },
+        '/{param*5}': { reqPath: '/p/p/p/p/p', resBody: 'p/p/p/p/p' },
         '/path/': { reqPath: '/path/', resBody: 'test3' },
         '/path/to/somewhere': { reqPath: '/path/to/somewhere', resBody: 'test4' },
         '/test1/param/{param}': { reqPath: '/test1/param/test5', resBody: 'test5' },
@@ -30,6 +30,10 @@ describe('Route', function () {
         '/test3/param/{param?}': { reqPath: '/test3/param', resBody: 'test7' },
         '/test4/param/{param*2}': { reqPath: '/test4/param/test8/test9', resBody: 'test8/test9' },
         '/test5/%20path': { reqPath: '/test5/%20path', resBody: 'test10' },
+        '/a/{a*2}': { reqPath: '/a/a/a', resBody: '{a*2}' },
+        '/a/{b}': { reqPath: '/a/test', resBody: 'a/{b}' },
+        '/a/{c*3}': { reqPath: '/a/b/c/d', resBody: 'a' },
+        '/hello': { reqPath: '/hello', resBody: 'hello' },
         '/test2/param/hello': { reqPath: '/test2/param/hello', resBody: 'test2/param/hello' },
         '/test2/param/help': { reqPath: '/test2/param/help', resBody: 'test2/param/help' }
     };
