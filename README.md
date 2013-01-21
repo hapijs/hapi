@@ -410,8 +410,18 @@ The authentication interface is disabled by default and is still experimental.
 
 Enabling and using basic authenticaiton with hapi is straightforward.  Basic authentication requires validating a username and password combination.  Therefore, a prerequisite to using basic authentication is to have a function that will return the user information given the username.  The signature for this function is shown below:
 ```javascript
-function (id, callback)  // callback is a function that expects (err, { username, password })
+function (username, callback)  // callback is a function that expects (err, { username, password })
 ```
+
+Next setup the _'auth'_ server settings to look similar to the following:
+```
+auth: {
+    scheme: 'basic',
+    loadUserFunc: function (username, callback) { ... }
+}
+```
+
+After this is all done any request that has the _'Authentication'_ header using the _'Basic'_ scheme will validate the username and password.
 
 
 ### Cache
