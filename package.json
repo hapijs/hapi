@@ -27,7 +27,7 @@
     "lout": "0.0.x",
     "hapi-helmet": "0.0.x",
     "hapi-log": "0.0.x",
-    "hawk": "0.5.x",
+    "hawk": "0.6.x",
     "shot": "0.0.x",
     "oz": "0.0.x",
     "async": "0.1.x",
