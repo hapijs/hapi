@@ -423,6 +423,7 @@ auth: {
 
 After this is all done any request that has the _'Authentication'_ header using the _'Basic'_ scheme will validate the username and password.
 
+If you wish to hash the password found in the header before being compared to the one found in the database you can assign a function to the hashPasswordFunc property.  This takes the user object as the parameter and returns a hashed version of the password.
 
 ### Cache
 
