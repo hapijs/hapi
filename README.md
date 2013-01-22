@@ -7,7 +7,7 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
-Current version: **0.11.0**
+Current version: **0.11.3**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -37,6 +37,7 @@ Current version: **0.11.0**
         - [CORS](#cors)
         - [Batch](#batch)
         - [State](#state)
+        - [Timeout](#timeout)
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
@@ -182,7 +183,7 @@ The `payload` option controls how incoming payloads (request body) are processed
 ### Extensions
 
 **hapi** does not support middleware extensibility as is commonly found in other web frameworks. Instead, **hapi** provides extension hooks for
-any application-specific functionality. Each extension point accepts a single function or an array of functions to be execute at a specified stage
+any application-specific functionality. Each extension point accepts a single function or an array of functions to be executed at a specified stage
 during request processing. The required extension function signature is _function (request, next)_ where:
 - _'request'_ is the **hapi** request object, and
 - _'next'_ is the callback function the method **must** call upon completion to return control over to the router.
@@ -374,7 +375,7 @@ optional settings:
 - `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
     - 'response' - the response was sent but request tails may still be pending.
     - 'tail' - the response was sent and all request tails completed.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
+- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
 
 For example:
 ```javascript
@@ -382,6 +383,18 @@ var options = {
     monitor: {
         subscribers: {
             console: ['ops', 'request', 'log'],
+            'http://localhost/logs': ['log']
+        }
+    }
+};
+```
+
+Disabling hapi console output:
+```javascript
+var options = {
+    monitor: {
+        subscribers: {
+            console: [],
             'http://localhost/logs': ['log']
         }
     }
@@ -445,6 +458,7 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `additionalHeaders` - an array of additional headers to `headers`. Use this to keep the default headers in place.
 - `methods` - overrides the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to _'GET, HEAD, POST, PUT, DELETE, OPTIONS'_.
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
+- `credentials` - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
 
 **hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
 
@@ -473,6 +487,15 @@ request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). **hapi*
 server's `state.cookies` configuration, where:
 - `parse` - determines is incoming 'Cookie' headers are parsed and stored in the 'request.cookies' object. Defaults to true.
 - _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
+
+
+### Timeout
+
+The _'timeout'_ object can contain a _'client'_ timeout value in milliseconds.  This value is useful for limiting the amount of time a request should take to complete.
+
+#### Client Timeout
+In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 10000 ms.  As a result, any request taking longer than 10 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
+`{ timeout: { client: false } }`
 
 
 ## Server Events
@@ -830,7 +853,7 @@ The following example shows how to render a basic handlebars/mustache template:
     var handler = function (request) {
 
         request.reply.view('index', {
-            title: 'Views Example'
+            title: 'Views Example',
             message: 'Hello, World'
         }).send();
     };
@@ -976,7 +999,7 @@ To use, set the Hapi view option `layout` to true and create a file `layout.html
 <!DOCTYPE html>
 <html>
     <head>
-        <title>examples/views/layout.js | Hapi 0.11.0</title>
+        <title>examples/views/layout.js | Hapi 0.11.1</title>
     </head>
     <body>
         <p>Layout header</p>
@@ -1059,7 +1082,7 @@ The View system also supports Partials. Partials are small segments of template 
 <!DOCTYPE html>
 <html>
     <head>
-        <title>examples/views/partials.js | Hapi 0.11.0</title>
+        <title>examples/views/partials.js | Hapi 0.11.1</title>
     </head>
     <body>
         <div>

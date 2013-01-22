@@ -18,7 +18,7 @@ var expect = Chai.expect;
 
 describe('Payload', function () {
 
-    var server = new Hapi.Server('0.0.0.0', 17080);
+    var server = new Hapi.Server('0.0.0.0', 0);
     var message = { 'msg': 'This message is going to be gzipped.' };
     var badMessage = '{ gzip this is just wrong }';
 
@@ -116,7 +116,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -133,7 +133,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: 'http://localhost:17080', headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();

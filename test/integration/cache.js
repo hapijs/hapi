@@ -18,7 +18,6 @@ var expect = Chai.expect;
 describe('Cache', function () {
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:17785';
 
     var profileHandler = function (request) {
 
@@ -71,7 +70,7 @@ describe('Cache', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 17785, { cache: { engine: 'memory' } });
+        _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
 
         _server.addRoutes([
             { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000 } } },
@@ -81,7 +80,9 @@ describe('Cache', function () {
             { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { expiresIn: 120000 } } },
             { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { expiresIn: 120000, strict: true } } },
             { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { expiresIn: 120000, strict: true } } },
-            { method: 'GET', path: '/notcacheablenostrict', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: false } } }
+            { method: 'GET', path: '/notcacheablenostrict', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: false } } },
+            { method: 'GET', path: '/clientserver', config: { handler: profileHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
+            { method: 'GET', path: '/serverclient', config: { handler: profileHandler, cache: { mode: 'server+client', expiresIn: 120000 } } }
         ]);
 
         done();
@@ -96,7 +97,7 @@ describe('Cache', function () {
 
         _server.inject({
             method: 'get',
-            url: _serverUrl + path
+            url: path
         }, next);
     };
 
@@ -214,5 +215,29 @@ describe('Cache', function () {
 
         expect(fn).to.throw(Error, 'Attempted to cache non-cacheable item');
         done();
+    });
+
+    it('caches server+client the same as client+server', function (done) {
+
+        makeRequest('/serverclient', function (res1) {
+
+            _server.cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
+
+                expect(cached1).to.exist;
+                expect(res1.headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+
+
+                makeRequest('/clientserver', function (res2) {
+
+                    _server.cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
+
+                        expect(cached2).to.exist;
+                        expect(res2.headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+                        expect(cached1.item.payload).to.equal(cached2.item.payload);
+                        done();
+                    });
+                });
+            });
+        });
     });
 });
