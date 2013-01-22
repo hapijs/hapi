@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Hapi = require('../helpers');
-var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
 
 
 // Declare internals
@@ -35,7 +34,9 @@ describe('Route', function () {
         '/a/{c*3}': { reqPath: '/a/b/c/d', resBody: 'a' },
         '/hello': { reqPath: '/hello', resBody: 'hello' },
         '/test2/param/hello': { reqPath: '/test2/param/hello', resBody: 'test2/param/hello' },
-        '/test2/param/help': { reqPath: '/test2/param/help', resBody: 'test2/param/help' }
+        '/test2/param/help': { reqPath: '/test2/param/help', resBody: 'test2/param/help' },
+        '/a/b/{b?}': { reqPath: '/a/b/', resBody: 'a/b/{b?}' },
+        '/{param*3}': { reqPath: '/p/p/p', resBody: 'p/p/p' }
     };
 
     var _handler = function (options) {
