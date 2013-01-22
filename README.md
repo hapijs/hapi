@@ -423,7 +423,18 @@ auth: {
 
 After this is all done any request that has the _'Authentication'_ header using the _'Basic'_ scheme will validate the username and password.
 
-If you wish to hash the password found in the header before being compared to the one found in the database you can assign a function to the hashPasswordFunc property.  This takes the user object as the parameter and returns a hashed version of the password.
+If you wish to hash the password found in the header before being compared to the one found in the database you can assign a function to the _'hashPasswordFunc'_ property.  Below is an example of a hashPassword function.
+
+```javascript
+var hashPassword = function (password, user) {
+    
+    var hash = Crypto.createHash('sha1');
+    hash.update(password, 'utf8');
+    hash.update(user.salt, 'utf8');
+
+    return hash.digest('base64');
+}
+```
 
 ### Cache
 
