@@ -1,5 +1,6 @@
 // Load modules
 
+var Crypto = require('crypto');
 var Chai = require('chai');
 var Oz = require('oz');
 var Hawk = require('hawk');
@@ -25,12 +26,20 @@ describe('Auth', function () {
 
     describe('Basic', function () {
 
+        var hashPassword = function (password) {
+
+            var hash = Crypto.createHash('sha1');
+            hash.update(password, 'utf8');
+
+            return hash.digest('base64');
+        };
+
         var loadUser = function (id, callback) {
 
             if (id === 'john') {
                 return callback(null, {
                     id: 'john',
-                    password: '12345',
+                    password: hashPassword('12345'),
                     scope: [],
                     ext: {
                         tos: 100
@@ -51,7 +60,8 @@ describe('Auth', function () {
         var config = {
             auth: {
                 scheme: 'basic',
-                loadUserFunc: loadUser
+                loadUserFunc: loadUser,
+                hashPasswordFunc: hashPassword
             }
         };
 
@@ -256,7 +266,8 @@ describe('Auth', function () {
             var config = {
                 auth: {
                     scheme: 'basic',
-                    loadUserFunc: loadUser
+                    loadUserFunc: loadUser,
+                    hashPasswordFunc: hashPassword
                 }
             };
             var server = new Hapi.Server('0.0.0.0', 8080, config);
