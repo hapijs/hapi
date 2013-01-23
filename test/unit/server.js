@@ -27,17 +27,17 @@ describe('Server', function () {
         done();
     });
 
-    it('defaults to port 80 when no port is provided', function (done) {
+    it('defaults to port 0 when no port is provided', function (done) {
 
         var server = new Hapi.Server();
-        expect(server.settings.port).to.be.equal(80);
+        expect(server.settings.port).to.be.equal(0);
         done();
     });
 
-    it('defaults to port 80 when a null port is provided', function (done) {
+    it('defaults to port 0 when a null port is provided', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', null);
-        expect(server.settings.port).to.be.equal(80);
+        expect(server.settings.port).to.be.equal(0);
         done();
     });
 
@@ -48,11 +48,16 @@ describe('Server', function () {
         done();
     });
 
-    it('defaults to localhost when no host is provided', function (done) {
+    it('defaults to 0.0.0.0 when no host is provided after the server starts', function (done) {
 
         var server = new Hapi.Server();
-        expect(server.settings.host).to.be.equal('localhost');
-        done();
+        expect(server.settings.host).to.not.exist;
+
+        server.start(function () {
+
+            expect(server.settings.host).to.be.equal('0.0.0.0');
+            done();
+        });
     });
 
     it('doesn\'t throw an error when host and port are provided', function (done) {
@@ -99,7 +104,7 @@ describe('Server', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server('0.0.0.0', 0, { docs: true });
+            var server = new Hapi.Server({ docs: true });
         };
         expect(fn).to.not.throw(Error);
         done();

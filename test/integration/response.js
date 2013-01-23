@@ -1083,7 +1083,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('You are being redirected...');
-                expect(res.headers['Location']).to.equal('http://localhost:80/example');
+                expect(res.headers['Location']).to.equal('http://localhost:0/example');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
@@ -1095,7 +1095,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('We moved!');
-                expect(res.headers['Location']).to.equal('http://localhost:80/examplex');
+                expect(res.headers['Location']).to.equal('http://localhost:0/examplex');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
