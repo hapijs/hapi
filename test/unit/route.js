@@ -2,8 +2,8 @@
 
 var Chai = require('chai');
 var Hapi = require('../helpers');
-var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
-var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
+var Route = require('../../lib/route');
+var Defaults = require('../../lib/defaults');
 
 
 // Declare internals

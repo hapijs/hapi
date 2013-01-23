@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Shot = require('shot');
 var Hapi = require('../helpers');
-var Request = process.env.TEST_COV ? require('../../lib-cov/request') : require('../../lib/request');
+var Request = require('../../lib/request');
 
 
 // Declare internals
