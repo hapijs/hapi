@@ -164,13 +164,12 @@ describe('Auth', function () {
 
         it('returns an error on bad scheme', function (done) {
 
-            var request = { method: 'POST', url: '/basic', headers: { authorization: 'junk something' } };
+            var request = { method: 'POST', url: '/basic', headers: { authorization: 'something' } };
 
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(401);
-                expect(res.result.isMissing).to.equal(true);
                 done();
             });
         });
@@ -800,7 +799,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.statusCode).to.equal(401);
+                expect(res.statusCode).to.equal(400);
                 done();
             });
         });
@@ -828,24 +827,24 @@ describe('Auth', function () {
             });
         });
 
-        it('returns a 401 error when the authorization header has both Basic and Hawk', function (done) {
+        it('returns a 400 error when the authorization header has both Basic and Hawk and both are wrong', function (done) {
 
             var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail; Hawk fail', host: '0.0.0.0:8080' } };
 
             server.inject(request, function (res) {
 
-                expect(res.statusCode).to.equal(401);
+                expect(res.statusCode).to.equal(400);
                 done();
             });
         });
 
-        it('returns a 401 response when the authorization header has both Basic and Hawk and the second one is correct', function (done) {
+        it('returns a 400 response when the authorization header has both Basic and Hawk and the second one is correct', function (done) {
 
             var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail; ' + hawkHeader('john', '/multiple'), host: '0.0.0.0:8080' } };
 
             server.inject(request, function (res) {
 
-                expect(res.statusCode).to.equal(401);
+                expect(res.statusCode).to.equal(400);
                 done();
             });
         });
@@ -857,7 +856,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result.code).to.equal(401);
-                expect(res.result.message).to.equal('Bad HTTP authentication header format, Bad mac');
+                expect(res.result.message).to.equal('Bad mac');
                 done();
             });
         });
