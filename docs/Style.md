@@ -22,7 +22,7 @@
   - Give descriptive names
     - Do not use similar names or synonyms for different variables unless following a convention
     - `for...in` iterators should use descriptive names
-    - `for` iterators should use a single character names
+    - `for` iterators should use single character names
     - Use combination of plural for array and singular for each item in the array
   - Use camelCase, never underscores
   - Avoid using numbered variables (e.g. i1, i2, i3)
