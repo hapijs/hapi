@@ -476,6 +476,33 @@ var server = new Hapi.Server(config);
 
 In the above example only the user john can authenticate, all other users will result in an error.
 
+#### Multiple Authentication Strategies
+
+There may be instances where you want to allow more than one authentication strategy for an endpoint or for the entire server.  Below is an example of using both basic and hawk authentication strategies on the server and defaulting to basic.  The default strategy is what will be used by endpoints if they do not specify a scheme or list of strategies.
+
+```javascript
+ var config = {
+    auth: {
+        strategies: {
+            'default': {
+                scheme: 'basic',
+                loadUserFunc: internals.loadUser,
+                hashPasswordFunc: internals.hashPassword
+            },
+            'hawk': {
+                scheme: 'hawk',
+                getCredentialsFunc: internals.getCredentials
+            },
+            'basic': {
+                scheme: 'basic',
+                loadUserFunc: internals.loadUser,
+                hashPasswordFunc: internals.hashPassword
+            }
+        }
+    }
+};
+```
+
 ### Cache
 
 **hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
