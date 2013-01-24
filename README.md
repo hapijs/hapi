@@ -517,6 +517,12 @@ With multiple authentication strategies configured on the server, individual rou
 
 In the _'examples'_ folder is an _'auth.js'_ file that demonstrates creating a server with multiple authentication strategies.
 
+Below is an example of a route showing how to create a route that supports the _'hawk'_ and _'basic'_ strategies and where authentication is optional.
+
+```javascript
+{ method: 'GET', path: '/', handler: handler, config: { auth: { strategies: ['hawk', 'basic'], mode: 'optional' } } }
+```
+
 ### Cache
 
 **hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
