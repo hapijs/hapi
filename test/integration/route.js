@@ -24,6 +24,7 @@ describe('Route', function () {
         '/{param*5}': { reqPath: '/p/p/p/p/p', resBody: 'p/p/p/p/p' },
         '/path/': { reqPath: '/path/', resBody: 'test3' },
         '/path/to/somewhere': { reqPath: '/path/to/somewhere', resBody: 'test4' },
+        '/test1/param/{param*}': { reqPath: '/test1/param/test5/test6', resBody: 'test5/test6' },
         '/test1/param/{param}': { reqPath: '/test1/param/test5', resBody: 'test5' },
         '/test2/param/{param?}': { reqPath: '/test2/param/test6', resBody: 'test6' },
         '/test3/param/{param?}': { reqPath: '/test3/param', resBody: 'test7' },
@@ -32,6 +33,7 @@ describe('Route', function () {
         '/a/{a*2}': { reqPath: '/a/a/a', resBody: '{a*2}' },
         '/a/{b}': { reqPath: '/a/test', resBody: 'a/{b}' },
         '/a/{c*3}': { reqPath: '/a/b/c/d', resBody: 'a' },
+        '/{param*}': { reqPath: '/par/par/par/par/par/par/par', resBody: 'par/par/par/par/par/par/par' },
         '/hello': { reqPath: '/hello', resBody: 'hello' },
         '/test2/param/hello': { reqPath: '/test2/param/hello', resBody: 'test2/param/hello' },
         '/test2/param/help': { reqPath: '/test2/param/help', resBody: 'test2/param/help' },
@@ -56,12 +58,11 @@ describe('Route', function () {
 
         _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
         _server.addRoutes(_routes);
-        _server.listener.on('listening', function () {
+
+        _server.start(function () {
 
             done();
         });
-
-        _server.start();
     }
 
     before(setupServer);
