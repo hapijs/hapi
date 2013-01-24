@@ -929,6 +929,14 @@ describe('Response', function () {
 
             return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' }).send();
         };
+        var testMultiHandlerJade = function (request) {
+
+            return request.reply.view('testMulti', { message: "Hello World!"}).send();
+        };
+        var testMultiHandlerHB = function (request) {
+
+            return request.reply.view('test', { message: "Hello World!"}).send();
+        };
 
 
         describe('Default', function (done) {
@@ -994,7 +1002,7 @@ describe('Response', function () {
                     done();
                 });
             });
-        })
+        });
 
         describe('Layout', function (done) {
 
@@ -1023,6 +1031,41 @@ describe('Response', function () {
 
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+        });
+
+        describe('Multiple Engine Support', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    path: viewPath,
+                    engines: {
+                        'html': { module: 'handlebars' },
+                        'jade': { module: 'jade' }
+                    }
+                }
+            });
+            server.addRoute({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
+            server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+
+            it('should render jade template', function (done) {
+
+                server.inject({ method: 'GET', url: '/jade' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+            
+            it('should render handlebars template', function (done) {
+
+                server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
                     done();
                 });
             });

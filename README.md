@@ -338,6 +338,8 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 - `engine` - the configuration for what template rendering engine will be used (default: handlebars).
     - `module` - the npm module to require and use to compile templates (**this is experimental and may not not work with all modules**).
     - `extension` - the file extension used by template files.
+- `engines` - optional configuration for supporting multiple rendering engines
+    - `module` - the npm module to require and use 
 - `partials` - this key enables partials support if non-null.
     - `path` - the root file path where partials are located (if different from views.path).
 - `layout` - if set to true, layout support is enabled (default: false).
@@ -1108,6 +1110,45 @@ Deeply nested partials are also supported.  A view template can reference a part
         <div id="container">
     ...
 ```
+
+
+#### Multiple Engines
+
+Multiple engine support is functional for most templating systems (particularly those that employ a .compile function). Thus,
+ multiple templating systems may be used in a single Hapi instance. Custom options may be passed to each .view function to
+ customize compile options on a per endpoint basis - the functions behave as they would on a single-engine setup.
+
+Hapi distinguishes between the engines by checking which file extension has been configured by a particular templating engine.
+
+    var ctx = {
+        title: 'examples/views/mixed/basic.js | Hapi ' + Hapi.utils.version(),
+        message: 'Hello World!'
+    }
+    
+    var oneHandler = function (request) {
+        
+        request.reply.view('index', ctx).send();
+    };
+    
+    var twoHandler = function (request) {
+        
+        request.reply.view('handlebars', ctx).send();
+    };
+    
+    var options = {
+        views: {
+            path: __dirname + '/templates',
+            engines: {
+                'html': { module: 'handlebars' },
+                'jade': { module: 'jade' }
+            }
+        }
+    };
+
+    var server = new Hapi.Server(3000, options);
+    server.addRoute({ method: 'GET', path: '/one', handler: oneHandler });
+    server.addRoute({ method: 'GET', path: '/two', handler: twoHandler });
+    server.start();
 
 
 

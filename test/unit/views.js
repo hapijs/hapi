@@ -117,6 +117,29 @@ describe('Views', function () {
             expect(fn).to.not.throw();
             done();
         });
+        
+        it('should skip loading partial if engine does not have registerPartial method', function (done) {
+
+            var fn = (function () {
+
+                var tempView = new Views({
+                    path: viewsPath + '/valid',
+                    partials: {
+                        path: viewsPath + '/valid/partials'
+                    },
+                    engines: {
+                        'html': { module: 'jade' }
+                    }
+                });
+
+                var html = tempView.render('testPartials', {});
+                expect(html).to.exist;
+                expect(html.length).above(1);
+            })
+
+            expect(fn).to.not.throw();
+            done();
+        })
     });
 
     describe('#handler', function () {
