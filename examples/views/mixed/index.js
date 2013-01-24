@@ -1,6 +1,6 @@
 // Load modules
 
-var Hapi = require('../../lib');
+var Hapi = require('../../../lib');
 
 
 // Declare internals
@@ -28,16 +28,10 @@ internals.main = function () {
     var options = {
         views: {
             path: __dirname + '/templates',
-            engine: [
-                {
-                    module: 'handlebars',
-                    extension: 'html'
-                },
-                {
-                    module: 'jade',
-                    extension: 'jade'
-                }
-            ]
+            engines: {
+                'html': { module: 'handlebars' },
+                'jade': { module: 'jade' }
+            }
         }
     };
 

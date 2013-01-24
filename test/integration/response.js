@@ -929,10 +929,14 @@ describe('Response', function () {
 
             return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' }).send();
         };
-        var testMultiHandler = function (request) {
+        var testMultiHandlerJade = function (request) {
 
             return request.reply.view('testMulti', { message: "Hello World!"}).send();
-        }
+        };
+        var testMultiHandlerHB = function (request) {
+
+            return request.reply.view('test', { message: "Hello World!"}).send();
+        };
 
 
         describe('Default', function (done) {
@@ -998,7 +1002,7 @@ describe('Response', function () {
                     done();
                 });
             });
-        })
+        });
 
         describe('Layout', function (done) {
 
@@ -1043,11 +1047,12 @@ describe('Response', function () {
                     }
                 }
             });
-            server.addRoute({ method: 'GET', path: '/multi', config: { handler: testMultiHandler } });
+            server.addRoute({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
+            server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
 
-            it('should choose index.html over index.html.html if given `index`', function (done) {
+            it('should render jade template', function (done) {
 
-                server.inject({ method: 'GET', url: '/multi' }, function (res) {
+                server.inject({ method: 'GET', url: '/jade' }, function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(200);
@@ -1055,7 +1060,15 @@ describe('Response', function () {
                 });
             });
             
-            
+            it('should render handlebars template', function (done) {
+
+                server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
         });
     });
 
