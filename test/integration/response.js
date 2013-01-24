@@ -929,6 +929,10 @@ describe('Response', function () {
 
             return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' }).send();
         };
+        var testMultiHandler = function (request) {
+
+            return request.reply.view('testMulti', { message: "Hello World!"}).send();
+        }
 
 
         describe('Default', function (done) {
@@ -1026,6 +1030,32 @@ describe('Response', function () {
                     done();
                 });
             });
+        });
+
+        describe('Multiple Engine Support', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    path: viewPath,
+                    engines: {
+                        'html': { module: 'handlebars' },
+                        'jade': { module: 'jade' }
+                    }
+                }
+            });
+            server.addRoute({ method: 'GET', path: '/multi', config: { handler: testMultiHandler } });
+
+            it('should choose index.html over index.html.html if given `index`', function (done) {
+
+                server.inject({ method: 'GET', url: '/multi' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+            
+            
         });
     });
 
