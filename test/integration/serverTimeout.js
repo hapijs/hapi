@@ -40,6 +40,20 @@ describe('Server Timeout', function () {
         }, 30);
     };
 
+    var respondingHandler = function (request) {
+
+        var s = new Stream();
+        s.readable = true;
+        s.resume = function () { };
+        request.reply.stream(s).send();
+
+        for (var i = 10000; i > 0; --i) {
+            s.emit('data', i.toString());
+        }
+
+        s.emit('end');
+    };
+
     var fastHandler = function (request) {
 
         request.reply('Fast');
@@ -89,7 +103,8 @@ describe('Server Timeout', function () {
         { method: 'GET', path: '/slow', config: { handler: slowHandler } },
         { method: 'GET', path: '/fast', config: { handler: fastHandler } },
         { method: 'GET', path: '/direct', config: { handler: directHandler } },
-        { method: 'GET', path: '/stream', config: { handler: streamHandler } }
+        { method: 'GET', path: '/stream', config: { handler: streamHandler } },
+        { method: 'GET', path: '/responding', config: { handler: respondingHandler } }
     ]);
 
     before(function (done) {
@@ -118,6 +133,27 @@ describe('Server Timeout', function () {
             expect(res.statusCode).to.equal(200);
             done();
         });
+    });
+
+    it('doesn\'t return an error when server is responding when the timeout occurs', function (done) {
+
+        var timer = new Hapi.utils.Timer();
+
+        var options = {
+            hostname: '127.0.0.1',
+            port: _server.settings.port,
+            path: '/responding',
+            method: 'GET'
+        };
+
+        var req = Http.request(options, function (res) {
+
+            expect(timer.elapsed()).to.be.at.least(100);
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+
+        req.write('\n');
     });
 
     it('doesn\'t return an error response when server is slower than timeout but response has started', function (done) {
