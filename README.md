@@ -406,6 +406,75 @@ var options = {
 
 The authentication interface is disabled by default and is still experimental.
 
+#### Basic Authentication
+
+Enabling and using basic authenticaiton with hapi is straightforward.  Basic authentication requires validating a username and password combination.  Therefore, a prerequisite to using basic authentication is to have a function that will return the user information given the username.  The signature for this function is shown below:
+```javascript
+function (username, callback)  // callback is a function that expects (err, { id, password })
+```
+
+Next setup the _'auth'_ server settings to look similar to the following:
+```
+auth: {
+    scheme: 'basic',
+    loadUserFunc: function (username, callback) { 
+        
+        var user = { id: '', password: '' };
+        callback(null, user);
+    }
+}
+```
+
+Please note that the _'loadUserFunc'_ callback expects a user object with an _'id'_ and _'password'_ property.  The _'id'_ should match the incoming username in the request.  
+
+After basic authentication is setup any request that has the _'Authentication'_ header using the _'Basic'_ scheme will validate the username and password.
+
+If you wish to hash the password found in the header before being compared to the one found in the database you can assign a function to the _'hashPasswordFunc'_ property.  Below is an example of a hashPassword function.
+
+```javascript
+var hashPassword = function (password, user) {
+    
+    var hash = Crypto.createHash('sha1');
+    hash.update(password, 'utf8');
+    hash.update(user.salt, 'utf8');
+
+    return hash.digest('base64');
+}
+```
+
+#### Hawk Authentication
+
+The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'hawk',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+In the above example only the user john can authenticate, all other users will result in an error.
 
 ### Cache
 
