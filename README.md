@@ -503,6 +503,20 @@ There may be instances where you want to allow more than one authentication stra
 };
 ```
 
+With multiple authentication strategies configured on the server, individual routes can specify which of these strategies to support.  Below are the available options for the _'auth'_ config on a route.
+
+- `mode` - determines if a route requires authentication.  Options are _none_, _optional_, and _required_.
+- `strategy` - the authentication strategy to use, will use the default strategy if not set.
+- `strategies` - an array in priority order of what authentication strategies the route supports.
+- `scope` - required session scope in order to access the endpoint.
+- `tos` - number that represents terms of service.  Session must have an ext equal or greater than the configured tos value.
+- `entity` - the type of object that must exist on the session.  Options are _any_, _user_, and _app_.
+
+
+##### Examples
+
+In the _'examples'_ folder is an _'auth.js'_ file that demonstrates creating a server with multiple authentication strategies.
+
 ### Cache
 
 **hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
