@@ -24,7 +24,6 @@ Current version: **0.11.3**
         - [Router](#router)
         - [Payload](#payload)
         - [Extensions](#extensions)
-        - [Not Found](#not-found-route)
         - [Format](#format)
           - [Error Format](#error-format)
           - [Payload Format](#payload-format)
@@ -40,6 +39,8 @@ Current version: **0.11.3**
         - [Timeout](#timeout)
 <p></p>
     - [**Server Events**](#server-events)
+<p></p>
+    - [**Server Route Not Found](#not-found)
 <p></p>
     - [**Route Configuration**](#route-configuration)
         - [Configuration options](#configuration-options)
@@ -230,56 +231,6 @@ function onRequest(request, next) {
 }
 ```
 
-### Not Found Route
-
-**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
-`notFound` server option. The option should be a route configuration object with a handler property.
-
-For example, the default notFound route configuration can be set as shown below:
-```javascript
-var Hapi = require('hapi');
-
-var options = {
-    notFound: {
-        handler: notFoundHandler
-    }
-};
-
-// Create server
-var http = new Hapi.Server(8000, options);
-
-// Start server
-http.start();
-
-// 404 handler
-function notFoundHandler(request) {
-
-    request.reply(Hapi.Error.notFound('The page was not found'));
-}
-```
-
-The _'notFound'_ route configuration can also be set using the _'setNotFound'_ server method.  This method has the same requirements as the _'notFound'_ server configuration.  Below is an example creating a server and then setting the _'notFound'_ route configuration.
-
-For example, the default notFound route configuration can be set as shown below:
-```javascript
-var Hapi = require('hapi');
-
-
-// Create server
-var http = new Hapi.Server(8000);
-
-// Set the notFound route configuration
-http.setNotFound({ handler: notFoundHandler });
-
-// Start server
-http.start();
-
-// 404 handler
-function notFoundHandler(request) {
-
-    request.reply(Hapi.Error.notFound('The page was not found'));
-}
-```
 
 ### Format
 
@@ -509,6 +460,34 @@ In order to indicate to a client that they are taking too long to send a request
 The server object emits the following events:
 - _'response'_ - emitted after a response is sent back. Includes the request object as value.
 - _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
+
+
+## Not Found
+
+**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
+`setNotFound` server method. The method takes a route configuration object with a handler property.
+
+Below is an example creating a server and then setting the _'notFound'_ route configuration.
+
+For example, the default notFound route configuration can be set as shown below:
+```javascript
+var Hapi = require('hapi');
+
+// Create server
+var http = new Hapi.Server(8000);
+
+// Set the notFound route configuration
+http.setNotFound({ handler: notFoundHandler });
+
+// Start server
+http.start();
+
+// 404 handler
+function notFoundHandler(request) {
+
+    request.reply(Hapi.Error.notFound('The page was not found'));
+}
+```
 
 
 ## Route Configuration
