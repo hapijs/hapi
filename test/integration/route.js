@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Hapi = require('../helpers');
-var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
 
 
 // Declare internals
@@ -21,14 +20,25 @@ describe('Route', function () {
     var _routes = [];
     var _paths = {
         '/': { reqPath: '/', resBody: 'test1' },
-        '/path': { reqPath: '/path', resBody: 'test2' },
+        '/{param}': { reqPath: '/pathing', resBody: 'pathing' },
+        '/{param*5}': { reqPath: '/p/p/p/p/p', resBody: 'p/p/p/p/p' },
         '/path/': { reqPath: '/path/', resBody: 'test3' },
         '/path/to/somewhere': { reqPath: '/path/to/somewhere', resBody: 'test4' },
+        '/test1/param/{param*}': { reqPath: '/test1/param/test5/test6', resBody: 'test5/test6' },
         '/test1/param/{param}': { reqPath: '/test1/param/test5', resBody: 'test5' },
         '/test2/param/{param?}': { reqPath: '/test2/param/test6', resBody: 'test6' },
         '/test3/param/{param?}': { reqPath: '/test3/param', resBody: 'test7' },
         '/test4/param/{param*2}': { reqPath: '/test4/param/test8/test9', resBody: 'test8/test9' },
-        '/test5/%20path': { reqPath: '/test5/%20path', resBody: 'test10' }
+        '/test5/%20path': { reqPath: '/test5/%20path', resBody: 'test10' },
+        '/a/{a*2}': { reqPath: '/a/a/a', resBody: '{a*2}' },
+        '/a/{b}': { reqPath: '/a/test', resBody: 'a/{b}' },
+        '/a/{c*3}': { reqPath: '/a/b/c/d', resBody: 'a' },
+        '/{param*}': { reqPath: '/par/par/par/par/par/par/par', resBody: 'par/par/par/par/par/par/par' },
+        '/hello': { reqPath: '/hello', resBody: 'hello' },
+        '/test2/param/hello': { reqPath: '/test2/param/hello', resBody: 'test2/param/hello' },
+        '/test2/param/help': { reqPath: '/test2/param/help', resBody: 'test2/param/help' },
+        '/a/b/{b?}': { reqPath: '/a/b/', resBody: 'a/b/{b?}' },
+        '/{param*3}': { reqPath: '/p/p/p', resBody: 'p/p/p' }
     };
 
     var _handler = function (options) {
@@ -48,12 +58,11 @@ describe('Route', function () {
 
         _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
         _server.addRoutes(_routes);
-        _server.listener.on('listening', function () {
+
+        _server.start(function () {
 
             done();
         });
-
-        _server.start();
     }
 
     before(setupServer);
