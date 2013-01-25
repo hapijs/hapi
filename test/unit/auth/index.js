@@ -73,6 +73,154 @@ describe('Auth', function () {
             expect(fn).to.not.throw(Error);
             done();
         });
+
+        it('throws an error if no strategies are defined', function (done) {
+
+            var request = {
+                _timestamp: Date.now(),
+                _route: {
+                    config: {
+                        auth: {}
+                    }
+                },
+                log: function () { }
+            };
+
+            var server = {
+                settings: {},
+                addRoutes: function () { }
+            };
+
+            var scheme = {
+                strategies: {}
+            };
+
+            var a = function () {
+
+                var auth = new Auth(server, scheme);
+            };
+
+            expect(a).to.throw(Error);
+            done();
+        });
+
+        it('doesn\'t throw an error if strategies are defined but not used', function (done) {
+
+            var server = {
+                settings: {},
+                addRoutes: function () { }
+            };
+
+            var scheme = {
+                strategies: {
+                    'test': {
+                        scheme: 'basic',
+                        loadUserFunc: function () { }
+                    }
+                }
+            };
+
+            var a = function () {
+
+                var auth = new Auth(server, scheme);
+            };
+
+            expect(a).to.not.throw(Error);
+            done();
+        });
+
+        it('doesn\'t throw an error if strategies are defined and used', function (done) {
+
+            var request = {
+                _timestamp: Date.now(),
+                _route: {
+                    config: {
+                        auth: {
+                            mode: 'required',
+                            strategies: ['test']
+                        }
+                    }
+                },
+                log: function () { },
+                raw: {
+                    res: {
+                        setHeader: function () { }
+                    },
+                    req: {
+                        headers: {
+                            host: 'localhost',
+                            authorization: 'basic d2FsbWFydDp3YWxtYXJ0'
+                        },
+                        url: 'http://localhost/test'
+                    }
+                }
+            };
+
+
+            var server = {
+                settings: {},
+                addRoutes: function () { }
+            };
+
+            var scheme = {
+                strategies: {
+                    'test': {
+                        scheme: 'basic',
+                        loadUserFunc: function (username, callback) {
+
+                            return callback(null, { id: 'walmart', password: 'walmart' });
+                        }
+                    }
+                }
+            };
+
+            var a = function () {
+
+                var auth = new Auth(server, scheme);
+                auth.authenticate(request, function (err) {
+
+                    expect(err).to.not.exist;
+                });
+            };
+
+            expect(a).to.not.throw(Error);
+            done();
+        });
+
+        it('cannot create a route with a strategy not configured on the server', function (done) {
+
+            var config = {
+                auth: {
+                    mode: 'required',
+                    strategies: ['missing']
+                }
+            };
+
+            var options = {
+                auth: {
+                    strategies: {
+                        'test': {
+                            scheme: 'basic',
+                            loadUserFunc: function (username, callback) {
+
+                                return callback(null, { id: 'walmart', password: 'walmart' });
+                            }
+                        }
+                    }
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            var a = function () {
+
+                var handler = function (request) { };
+                server.addRoute({ method: 'GET', path: '/', handler: handler, config: config });
+            };
+
+            expect(a).to.throw(Error, 'Unknown authentication strategy: missing');
+            done();
+        });
     });
 
     describe('#authenticate', function () {
@@ -366,80 +514,19 @@ describe('Auth', function () {
         };
 
         test(hawk);
-    });
 
-    describe('#setStrategies', function () {
-
-        var handler = function (request) {
-
-        };
-
-        it('throws an error if no strategies are defined', function (done) {
-
-            var request = {
-                _timestamp: Date.now(),
-                _route: {
-                    config: {
-                        auth: {}
-                    }
-                },
-                log: function () { }
-            };
+        it('returns error on bad ext scheme callback', function (done) {
 
             var server = {
-                settings: {},
-                addRoutes: function () { }
+                settings: {}
             };
-
-            var scheme = {
-                strategies: {}
-            };
-
-
-
-            var a = function () {
-
-                var auth = new Auth(server, scheme);
-            };
-
-            expect(a).to.throw(Error);
-            done();
-        });
-
-        it('doesn\'t throw an error if strategies are defined but not used', function (done) {
-
-            var server = {
-                settings: {},
-                addRoutes: function () { }
-            };
-
-            var scheme = {
-                strategies: {
-                    'test': {
-                        scheme: 'basic',
-                        loadUserFunc: function () { }
-                    }
-                }
-            };
-
-            var a = function () {
-
-                var auth = new Auth(server, scheme);
-            };
-
-            expect(a).to.not.throw(Error);
-            done();
-        });
-
-        it('doesn\'t throw an error if strategies are defined and used', function (done) {
 
             var request = {
                 _timestamp: Date.now(),
                 _route: {
                     config: {
                         auth: {
-                            mode: 'required',
-                            strategies: ['test']
+                            strategies: ['default']
                         }
                     }
                 },
@@ -450,77 +537,33 @@ describe('Auth', function () {
                     },
                     req: {
                         headers: {
-                            host: 'localhost',
-                            authorization: 'basic d2FsbWFydDp3YWxtYXJ0'
+                            host: 'localhost'
                         },
                         url: 'http://localhost/test'
                     }
-                }
-            };
-
-
-            var server = {
-                settings: {},
-                addRoutes: function () { }
+                },
+                server: server
             };
 
             var scheme = {
-                strategies: {
-                    'test': {
-                        scheme: 'basic',
-                        loadUserFunc: function (username, callback) {
+                scheme: 'ext:test',
+                implementation: {
+                    authenticate: function (request, callback) {
 
-                            return callback(null, { id: 'walmart', password: 'walmart' });
-                        }
+                        return callback(null, null, false);
                     }
                 }
             };
 
-            var a = function () {
+            var auth = new Auth(server, scheme);
 
-                var auth = new Auth(server, scheme);
-                auth.authenticate(request, function (err) {
+            auth.authenticate(request, function (err) {
 
-                    expect(err).to.not.exist;
-                });
-            };
-
-            expect(a).to.not.throw(Error);
-            done();
-        });
-
-        it('cannot create a route with a strategy not configured on the server', function (done) {
-
-            var config = {
-                auth: {
-                    mode: 'required',
-                    strategies: ['missing']
-                }
-            };
-
-            var options = {
-                auth: {
-                    strategies: {
-                        'test': {
-                            scheme: 'basic',
-                            loadUserFunc: function (username, callback) {
-
-                                return callback(null, { id: 'walmart', password: 'walmart' });
-                            }
-                        }
-                    }
-                }
-            };
-
-            var server = new Hapi.Server(options);
-
-            var a = function () {
-
-                server.addRoute({ method: 'GET', path: '/', handler: handler, config: config });
-            };
-
-            expect(a).to.throw(Error, 'Unknown authentication strategy: missing');
-            done();
+                expect(err).to.exist;
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal('Authentication response missing both error and session');
+                done();
+            });
         });
     });
 });
