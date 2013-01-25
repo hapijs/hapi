@@ -24,6 +24,7 @@ Current version: **0.11.3**
         - [Router](#router)
         - [Payload](#payload)
         - [Extensions](#extensions)
+        - [Not Found](#not-found-route)
         - [Format](#format)
           - [Error Format](#error-format)
           - [Payload Format](#payload-format)
@@ -53,6 +54,7 @@ Current version: **0.11.3**
             - [View](#view)
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
+            - [Not Found](#not-found)
         - [Query Validation](#query-validation)
         - [Payload Validation](#payload-validation)
         - [Path Validation](#path-validation)
@@ -229,8 +231,6 @@ function onRequest(request, next) {
 ```
 
 ### Not Found Route
-
-#### Unknown Route
 
 **hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
 `notFound` server option. The option should be a route configuration object with a handler property.
@@ -1186,7 +1186,7 @@ http.start();
 The 'request.log' method is always available.
 
 
-### Not Found Route Handler
+### Not Found
 
 Whenever a route needs to respond with a simple 404 message use the _'notFound'_ handler.  This can be done by simply setting the route _'handler'_ property to the string 'notFound'.  Below is an example of a route that responds with a 404.
 ```javascript
