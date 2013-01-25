@@ -55,7 +55,7 @@ describe('NotFound', function () {
         });
     });
 
-    describe('can override the server notFound route', function () {
+    describe('can override the server notFound route with setNotFound', function () {
 
         var server = new Hapi.Server(0);
         server.addRoute({ method: 'GET', path: '/exists/{p*}', handler: function (request) { request.reply('OK'); } });
@@ -64,6 +64,36 @@ describe('NotFound', function () {
 
             request.reply(Hapi.Error.notFound('These these aren\'t the pages you\'re looking for.'));
         }});
+
+        it('returns custom response when requesting a route that doesn\'t exist', function (done) {
+
+            server.inject({ method: 'GET', url: '/page' }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                expect(res.result.message).to.equal('These these aren\'t the pages you\'re looking for.');
+                done();
+            });
+        });
+
+        it('returns 200 when making a request to an existing route', function (done) {
+
+            server.inject({ method: 'GET', url: '/exists/ok' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
+
+    describe('can override the server notFound route with server settings', function () {
+
+        var notFoundHandler = function (request) {
+
+            request.reply(Hapi.Error.notFound('These these aren\'t the pages you\'re looking for.'));
+        };
+
+        var server = new Hapi.Server(0, { notFound: { handler: notFoundHandler } });
+        server.addRoute({ method: 'GET', path: '/exists/{p*}', handler: function (request) { request.reply('OK'); } });
 
         it('returns custom response when requesting a route that doesn\'t exist', function (done) {
 
