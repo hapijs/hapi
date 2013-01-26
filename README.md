@@ -40,7 +40,7 @@ Current version: **0.11.3**
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
-    - [**Server Route Not Found](#not-found)
+    - [**Server Route Not Found](#route-not-found)
 <p></p>
     - [**Route Configuration**](#route-configuration)
         - [Configuration options](#configuration-options)
@@ -55,7 +55,7 @@ Current version: **0.11.3**
             - [View](#view)
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
-            - [Not Found](#not-found)
+            - [Not Found](#not-found-handler)
         - [Query Validation](#query-validation)
         - [Payload Validation](#payload-validation)
         - [Path Validation](#path-validation)
@@ -462,7 +462,7 @@ The server object emits the following events:
 - _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
 
 
-## Not Found
+## Route Not Found
 
 **hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
 `setNotFound` server method. The method takes a route configuration object with a handler property.
@@ -1165,7 +1165,7 @@ http.start();
 The 'request.log' method is always available.
 
 
-### Not Found
+### Not Found Handler
 
 Whenever a route needs to respond with a simple 404 message use the _'notFound'_ handler.  This can be done by simply setting the route _'handler'_ property to the string 'notFound'.  Below is an example of a route that responds with a 404.
 ```javascript
