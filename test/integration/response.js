@@ -1036,37 +1036,65 @@ describe('Response', function () {
             });
         });
 
-        describe('Multiple Engine Support', function (done) {
+        describe('Engine Support', function () {
 
-            var server = new Hapi.Server({
-                views: {
-                    path: viewPath,
-                    engines: {
-                        'html': { module: 'handlebars' },
-                        'jade': { module: 'jade' }
+            describe('Single', function () {
+
+                var server = new Hapi.Server({
+                    views: {
+                        path: viewPath,
+                        engine: {
+                            module: 'handlebars',
+                            extension: 'html',
+                            slashReplacement: '_',
+                        }
                     }
-                }
-            });
-            server.addRoute({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
-            server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                });
+                server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                
+                it('should render handlebars template', function (done) {
 
-            it('should render jade template', function (done) {
+                    server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
 
-                server.inject({ method: 'GET', url: '/jade' }, function (res) {
-
-                    expect(res.result).to.exist;
-                    expect(res.statusCode).to.equal(200);
-                    done();
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
                 });
             });
-            
-            it('should render handlebars template', function (done) {
 
-                server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+            describe('Multiple', function () {
 
-                    expect(res.result).to.exist;
-                    expect(res.statusCode).to.equal(200);
-                    done();
+                var server = new Hapi.Server({
+                    views: {
+                        path: viewPath,
+                        engines: {
+                            'html': { module: 'handlebars' },
+                            'jade': { module: 'jade' }
+                        }
+                    }
+                });
+                server.addRoute({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
+                server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+
+                it('should render jade template', function (done) {
+
+                    server.inject({ method: 'GET', url: '/jade' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+                
+                it('should render handlebars template', function (done) {
+
+                    server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
                 });
             });
         });
