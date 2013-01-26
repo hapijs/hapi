@@ -462,7 +462,7 @@ The server object emits the following events:
 - _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
 
 
-## Route Not Found
+## Server Route Not Found
 
 **hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
 `setNotFound` server method. The method takes a route configuration object with a handler property.
