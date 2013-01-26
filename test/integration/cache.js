@@ -73,7 +73,7 @@ describe('Cache', function () {
         _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
 
         _server.addRoutes([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000 } } },
+            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000, privacy: 'private' } } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
             { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
@@ -122,7 +122,7 @@ describe('Cache', function () {
         makeRequest('/profile', function (rawRes) {
 
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
@@ -132,7 +132,7 @@ describe('Cache', function () {
         makeRequest('/profile', function (rawRes) {
 
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
