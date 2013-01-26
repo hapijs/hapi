@@ -40,7 +40,7 @@ Current version: **0.11.3**
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
-    - [**Server Route Not Found](#route-not-found)
+    - [**Server Route Not Found**](#route-not-found)
 <p></p>
     - [**Route Configuration**](#route-configuration)
         - [Configuration options](#configuration-options)
