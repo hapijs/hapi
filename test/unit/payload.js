@@ -3,8 +3,8 @@
 var Chai = require('chai');
 var Shot = require('shot');
 var Hapi = require('../helpers');
-var Payload = process.env.TEST_COV ? require('../../lib-cov/payload') : require('../../lib/payload');
-var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
+var Payload = require('../../lib/payload');
+var Route = require('../../lib/route');
 
 
 // Declare internals

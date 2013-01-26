@@ -41,10 +41,12 @@
     "mocha": "1.x.x",
     "chai": "1.x.x",
     "sinon": "1.x.x",
-    "handlebars": "1.0.x"
+    "handlebars": "1.0.x",
+    "blanket": "1.x.x"
   },
   "scripts": {
-    "test": "make test && make unit"
+    "test": "make test && make unit",
+    "blanket": { "loader": "../../../test/helpers/blanketLoader" }
   },
   "licenses": [
     {
