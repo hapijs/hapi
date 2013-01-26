@@ -1070,7 +1070,13 @@ describe('Response', function () {
                         path: viewPath,
                         engines: {
                             'html': { module: 'handlebars' },
-                            'jade': { module: 'jade' }
+                            'jade': { module: 'jade' },
+                            'hbar': {
+                                module: 'handlebars',
+                                map: {
+                                    compile: function (engine) { return engine.compile; }
+                                }
+                            }
                         }
                     }
                 });
