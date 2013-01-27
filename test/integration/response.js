@@ -165,6 +165,32 @@ describe('Response', function () {
             });
         });
 
+        it('returns a direct reply with no payload', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Direct(request)
+                    .code(299)
+                    .type('text/plain')
+                    .bytes(13)
+                    .state('sid', 'abcdefg123456');
+
+                request.reply(response);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(299);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
         it('returns a direct reply (created)', function (done) {
 
             var handler = function (request) {
