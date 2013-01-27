@@ -35,7 +35,8 @@
     "formidable": "1.0.x",
     "mime": "1.2.x",
     "catbox": "0.1.x",
-    "cryptiles": "0.0.x"
+    "cryptiles": "0.0.x",
+    "iron": "0.0.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",

@@ -1,6 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
+var Iron = require('iron');
 var Hapi = require('../helpers');
 var State = process.env.TEST_COV ? require('../../lib-cov/state') : require('../../lib/state');
 var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
@@ -93,9 +94,11 @@ describe('State', function () {
 
             pass('a="b=123456789&c=something%20else"', { a: { b: '123456789', c: 'something else' } }, null, { a: { encoding: 'form' } });
             pass('a="b=%p123456789"', { a: { b: '%p123456789' } }, null, { a: { encoding: 'form' } });
+            pass('a=dGVzdA; a=dGVzdA', { a: ['test', 'test'] }, null, { a: { encoding: 'base64' } });
             pass('key=dGVzdA==', { key: 'test' }, null, { key: { encoding: 'base64' } });
             pass('key=dGVzdA', { key: 'test' }, null, { key: { encoding: 'base64' } });
             pass('key=eyJ0ZXN0aW5nIjoianNvbiJ9', { key: { testing: 'json' } }, null, { key: { encoding: 'base64json' } });
+            pass('key=Fe26.1**0c68b200eb53406edefb402bb84e265d056bd11eb6bdebf3627a4fd7d1db6d79*XL-d8bUCuSwIwIYtmjXZ3g*4yVxLHFllbJWLSve93se4w*34771b9abd1cadeb0118e2a337c066f32cb44c223e3610533fc56ef3bbc53d56*HEfokc825mlBi-9jm1I94DWeZJ5uifVRD0kx_o-jKp8', { key: { a: 1 } }, null, { key: { encoding: 'iron', password: 'password' } });
 
             var fail = function (header, settings, definitions) {
 
@@ -139,12 +142,16 @@ describe('State', function () {
             fail('a="1; b="2"; c=3');
             fail('a@="1"; b="2"; c=3');
             fail('a=1; b=2; c=3;;');
-
-            fail('key=eyJ0ZXN0aW5dnIjoianNvbiJ9', null, { key: { encoding: 'base64json' } });
+            fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9', null, { key: { encoding: 'base64json' } });
+            fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9; key=XeyJ0ZXN0aW5dnIjoianNvbiJ9', null, { key: { encoding: 'base64json' } });
+            fail('key=Fe26.2**0c68b200eb53406edefb402bb84e265d056bd11eb6bdebf3627a4fd7d1db6d79*XL-d8bUCuSwIwIYtmjXZ3g*4yVxLHFllbJWLSve93se4w*34771b9abd1cadeb0118e2a337c066f32cb44c223e3610533fc56ef3bbc53d56*HEfokc825mlBi-9jm1I94DWeZJ5uifVRD0kx_o-jKp8', null, { key: { encoding: 'iron', password: 'password' } });
+            fail('key=Fe26.1**0c68b200eb53406edefb402bb84e265d056bd11eb6bdebf3627a4fd7d1db6d79*XL-d8bUCuSwIwIYtmjXZ3g*4yVxLHFllbJWLSve93se4w*34771b9abd1cadeb0118e2a337c066f32cb44c223e3610533fc56ef3bbc53d56*HEfokc825mlBi-9jm1I94DWeZJ5uifVRD0kx_o-jKp8', null, { key: { encoding: 'iron', password: 'passwordx' } });
 
             var setLog = Hapi.utils.clone(Defaults.server.state);
             setLog.cookies.failAction = 'log';
             fail('abc="xyz', setLog);
+            fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } });
+            fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9; key=XeyJ0ZXN0aW5dnIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } });
         });
     });
 
