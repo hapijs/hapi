@@ -134,13 +134,13 @@ describe('Response', function () {
         });
     });
 
-    describe('Direct', function () {
+    describe('Raw', function () {
 
         it('returns a direct reply', function (done) {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .type('text/plain')
                     .bytes(13)
                     .ttl(1000)
@@ -169,7 +169,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .code(299)
                     .type('text/plain')
                     .bytes(13)
@@ -195,7 +195,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .created('me')
                     .type('text/plain')
                     .bytes(13)
@@ -226,7 +226,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .bytes(13)
                     .state(';sid', 'abcdefg123456')
                     .write('!hola ')

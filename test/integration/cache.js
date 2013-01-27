@@ -58,7 +58,7 @@ describe('Cache', function () {
 
     var notCacheableHandler = function (request) {
 
-        var response = new Hapi.Response.Direct(request)
+        var response = new Hapi.Response.Raw(request)
             .type('text/plain')
             .bytes(13)
             .ttl(1000)

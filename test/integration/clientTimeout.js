@@ -26,7 +26,7 @@ describe('Client Timeout', function () {
 
     var directHandler = function (request) {
 
-        var response = new Hapi.Response.Direct(request)
+        var response = new Hapi.Response.Raw(request)
             .created('me')
             .type('text/plain')
             .bytes(13)
