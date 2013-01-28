@@ -364,12 +364,12 @@ var options = {
 
 The authentication interface is disabled by default and is still experimental.
 
-The server can be configured to support several different authentication strategies.  Authentication is configured for the server by setting either adding a single strategy to the _'auth'_ object or by creating an object with different strategies and adding to
+Hapi supports several authentication schemes and can be configured with different authentication strategies that use these schemes.  Authentication is configured for the server by either assigning a single strategy to the _'auth'_ object or by creating an object with different strategies where the strategy names are the object keys.
 
 - `scheme` - when using a single authentication strategy set this to the configuration options for that strategy
-- `implementation` - when using a custom scheme set this to the function that will perform authentication.  Scheme must start with 'ext:'
+- `implementation` - when using a custom scheme set this to the function that will perform authentication.  Scheme must start with 'ext:' when using a custom implementation.
 
-When the server supports multiple authentication strategies then you can set strategies on the _'auth'_ object directly where the strategy name is the object key.  Every strategy object on the _'auth'_ object should have follow the same guidelines as above.
+When the server supports multiple authentication strategies then you can set strategies on the _'auth'_ object directly where the strategy name is the object key.  Every strategy object on the _'auth'_ object should follow the same guidelines as above.
 
 #### Basic Authentication
 
