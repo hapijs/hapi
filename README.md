@@ -56,6 +56,7 @@ Current version: **0.11.3**
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
             - [Not Found](#not-found-handler)
+        - [Route Authentication](#route-authentication)
         - [Query Validation](#query-validation)
         - [Payload Validation](#payload-validation)
         - [Path Validation](#path-validation)
@@ -362,6 +363,11 @@ var options = {
 ### Authentication
 
 The authentication interface is disabled by default and is still experimental.
+
+The server can be configured to support several different authentication strategies.  Authentication is configured for the server by setting either adding a single strategy to the _'auth'_ object or by creating an object with different strategies and adding to
+
+- `scheme` - when using a single authentication strategy set this to the configuration options for that strategy
+- `strategies` - an object with keys
 
 #### Basic Authentication
 
