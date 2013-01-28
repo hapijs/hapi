@@ -48,11 +48,14 @@ describe('Server', function () {
         done();
     });
 
-    it('defaults to localhost when no host is provided', function (done) {
+    it('defaults to 0.0.0.0 when no host is provided', function (done) {
 
-        var server = new Hapi.Server();
-        expect(server.settings.host).to.be.equal('localhost');
-        done();
+        var server = new Hapi.Server(0);
+        server.start(function () {
+
+            expect(server.settings.host).to.be.equal('0.0.0.0');
+            done();
+        });
     });
 
     it('doesn\'t throw an error when host and port are provided', function (done) {
