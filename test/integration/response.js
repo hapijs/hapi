@@ -134,21 +134,25 @@ describe('Response', function () {
         });
     });
 
-    describe('Direct', function () {
+    describe('Raw', function () {
 
-        it('returns a direct reply', function (done) {
+        it('returns a reply', function (done) {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .type('text/plain')
                     .bytes(13)
                     .ttl(1000)
-                    .state('sid', 'abcdefg123456')
-                    .write('!hola ')
-                    .write('amigos!');
+                    .state('sid', 'abcdefg123456');
 
-                request.reply(response);
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
@@ -165,20 +169,115 @@ describe('Response', function () {
             });
         });
 
-        it('returns a direct reply (created)', function (done) {
+        it('returns a reply using send()', function (done) {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = request.reply.raw();
+                response.type('text/plain')
+                        .bytes(13)
+                        .ttl(1000)
+                        .state('sid', 'abcdefg123456');
+
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!')
+                            .send();
+                });
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('!hola amigos!');
+                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns a reply with no payload', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Raw(request)
+                    .code(299)
+                    .type('text/plain')
+                    .bytes(13)
+                    .state('sid', 'abcdefg123456');
+
+                request.reply(response);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(299);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns a HEAD reply', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Raw(request)
+                    .type('text/plain')
+                    .bytes(13)
+                    .ttl(1000)
+                    .state('sid', 'abcdefg123456');
+
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+
+            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('');
+                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns a reply (created)', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Raw(request)
                     .created('me')
                     .type('text/plain')
                     .bytes(13)
                     .ttl(1000)
-                    .state('sid', 'abcdefg123456')
-                    .write('!hola ')
-                    .write('amigos!');
+                    .state('sid', 'abcdefg123456');
 
-                request.reply(response);
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
@@ -200,13 +299,17 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .bytes(13)
-                    .state(';sid', 'abcdefg123456')
-                    .write('!hola ')
-                    .write('amigos!');
+                    .state(';sid', 'abcdefg123456');
 
-                request.reply(response);
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
             };
 
             var server = new Hapi.Server();

@@ -24,7 +24,6 @@ Current version: **0.11.3**
         - [Router](#router)
         - [Payload](#payload)
         - [Extensions](#extensions)
-            - [Unknown Route](#unknown-route)
         - [Format](#format)
           - [Error Format](#error-format)
           - [Payload Format](#payload-format)
@@ -41,6 +40,8 @@ Current version: **0.11.3**
 <p></p>
     - [**Server Events**](#server-events)
 <p></p>
+    - [**Server Route Not Found**](#server-route-not-found)
+<p></p>
     - [**Route Configuration**](#route-configuration)
         - [Configuration options](#configuration-options)
         - [Override Route Defaults](#override-route-defaults)
@@ -54,6 +55,7 @@ Current version: **0.11.3**
             - [View](#view)
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
+            - [Not Found](#not-found-handler)
         - [Query Validation](#query-validation)
         - [Payload Validation](#payload-validation)
         - [Path Validation](#path-validation)
@@ -226,51 +228,6 @@ function onRequest(request, next) {
     // Change all requests to '/test'
     request.setUrl('/test');
     next();
-}
-```
-
-
-#### Unknown Route
-
-**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
-`ext.onUnknownRoute` server option. The extension function signature is _function (request)_ where:
-- _'request'_ is the **hapi** request object.
-
-When the extension handler is called, the _'request'_ object is decorated as described in [Route Handler](#route-handler) with the following additional method:
-- _'reply.close()'_ - returns control over to the server after the application has taken care of responding to the request via the _request.raw.res_ object directly.
-
-The method **must** return control over to the route using the _reply_ interface described in [Route Handler](#route-handler) or the _'reply.close()'_ method but not both.
-
-For example, using the _'reply.close()'_ method:
-```javascript
-var Hapi = require('hapi');
-
-var options = {
-    ext: {
-        onUnknownRoute: onUnknownRoute
-    }
-};
-
-// Create server
-var http = new Hapi.Server('localhost', 8000, options);
-
-// Start server
-http.start();
-
-// 404 handler
-function onUnknownRoute(request) {
-
-    request.raw.res.writeHead(404);
-    request.raw.res.end();
-    request.reply.close();
-}
-```
-
-Or using the _'reply(result)'_ method:
-```javascript
-function onUnknownRoute(request) {
-
-    request.reply({ roads: 'ocean' });
 }
 ```
 
@@ -503,6 +460,34 @@ In order to indicate to a client that they are taking too long to send a request
 The server object emits the following events:
 - _'response'_ - emitted after a response is sent back. Includes the request object as value.
 - _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
+
+
+## Server Route Not Found
+
+**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
+`setNotFound` server method. The method takes a route configuration object with a handler property.
+
+Below is an example creating a server and then setting the _'notFound'_ route configuration.
+
+For example, the default notFound route configuration can be set as shown below:
+```javascript
+var Hapi = require('hapi');
+
+// Create server
+var http = new Hapi.Server(8000);
+
+// Set the notFound route configuration
+http.setNotFound({ handler: notFoundHandler });
+
+// Start server
+http.start();
+
+// 404 handler
+function notFoundHandler(request) {
+
+    request.reply(Hapi.Error.notFound('The page was not found'));
+}
+```
 
 
 ## Route Configuration
@@ -1178,6 +1163,14 @@ http.start();
 ```
 
 The 'request.log' method is always available.
+
+
+### Not Found Handler
+
+Whenever a route needs to respond with a simple 404 message use the _'notFound'_ handler.  This can be done by simply setting the route _'handler'_ property to the string 'notFound'.  Below is an example of a route that responds with a 404.
+```javascript
+{ method: 'GET', path: '/hideme', handler: 'notFound' }
+```
 
 
 ### Query Validation

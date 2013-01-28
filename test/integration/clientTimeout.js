@@ -26,18 +26,22 @@ describe('Client Timeout', function () {
 
     var directHandler = function (request) {
 
-        var response = new Hapi.Response.Direct(request)
+        var response = new Hapi.Response.Raw(request)
             .created('me')
             .type('text/plain')
             .bytes(13)
-            .ttl(1000)
-            .write('!hola ')
-            .write('amigos!');
+            .ttl(1000);
 
-        setTimeout(function () {
+        response.begin(function (err) {
 
-            request.reply(response);
-        }, 55);
+            response.write('!hola ')
+                    .write('amigos!');
+
+            setTimeout(function () {
+
+                request.reply(response);
+            }, 55);
+        });
     };
 
     var streamHandler = function (request) {
@@ -94,7 +98,7 @@ describe('Client Timeout', function () {
             });
 
             req.write('\n');
-            setTimeout(function() {
+            setTimeout(function () {
 
                 req.end();
             }, 100);
@@ -190,7 +194,7 @@ describe('Client Timeout', function () {
                 done();
             });
 
-            setTimeout(function() {
+            setTimeout(function () {
 
                 req.end();
             }, 100);
