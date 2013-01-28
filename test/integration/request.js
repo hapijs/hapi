@@ -49,21 +49,21 @@ describe('Request', function () {
             request.reply('unknown-reply');
         }
         else if (request.path === '/unknown/close') {
-            request.raw.res.writeHead(400, { 'Content-Length': 13 });
-            request.raw.res.end('unknown-close');
-            request.reply.close();
+            request.reply.payload('unknown-close').send();
         }
         else {
             request.reply('unknown-error');
         }
     };
 
-    var server = new Hapi.Server('0.0.0.0', 0, { ext: { onUnknownRoute: unknownRouteHandler, onPostHandler: postHandler } });
+    var server = new Hapi.Server('0.0.0.0', 0, { ext: { onPostHandler: postHandler } });
     server.addRoutes([
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },
         { method: 'GET', path: '/ext', config: { handler: plainHandler } }
     ]);
+
+    server.setNotFound({ handler: unknownRouteHandler });
 
     var makeRequest = function (method, path, callback) {
 
@@ -135,8 +135,8 @@ describe('Request', function () {
 
         makeRequest('GET', '/unknown/close', function (res) {
 
-            expect(res.statusCode).to.equal(400);
-            expect(res.readPayload()).to.equal('unknown-close');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('unknown-close');
             done();
         });
     });
