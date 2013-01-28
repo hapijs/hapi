@@ -237,6 +237,28 @@ describe('State', function () {
             });
         });
 
+        it('formats a header with server definition (iron)', function (done) {
+
+            var definitions = { sid: { encoding: 'iron', password: 'password' } };
+            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header[0]).to.have.string('sid=Fe26.1*');
+                done();
+            });
+        });
+
+        it('fails a header with bad server definition (iron)', function (done) {
+
+            var definitions = { sid: { encoding: 'iron' } };
+            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
+
+                expect(err).to.exist;
+                expect(err.message).to.equal('Failed to encode cookie (sid) value: Empty password');
+                done();
+            });
+        });
+
         it('formats a header with multiple cookies', function (done) {
 
             State.generateSetCookieHeader([
