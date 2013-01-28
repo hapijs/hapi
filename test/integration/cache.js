@@ -61,11 +61,15 @@ describe('Cache', function () {
         var response = new Hapi.Response.Raw(request)
             .type('text/plain')
             .bytes(13)
-            .ttl(1000)
-            .write('!hola ')
-            .write('amigos!');
+            .ttl(1000);
 
-        request.reply(response);
+        response.begin(function (err) {
+
+            response.write('!hola ')
+                    .write('amigos!');
+
+            request.reply(response);
+        });
     };
 
     function setupServer(done) {
