@@ -187,7 +187,7 @@ describe('Response', function () {
                 });
             };
 
-            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
+            var server = new Hapi.Server();
             server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
@@ -196,7 +196,7 @@ describe('Response', function () {
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
                 expect(res.readPayload()).to.equal('!hola amigos!');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
-                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
                 done();
             });
         });
