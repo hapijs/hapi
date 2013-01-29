@@ -171,7 +171,6 @@ var server = new Hapi.Server(options);
 ### Router
 
 The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
-- `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
 - `normalizeRequestPath` - determines whether a path should have certain reserved and unreserved percent encoded characters decoded.  Also, all percent encodings will be capitalized that cannot be decoded.  Defaults to _false_.
 
@@ -586,8 +585,7 @@ Route matching is done on the request path only (excluding the query and other c
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
 '/book/{id}/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
  the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
-an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/' (and may
-match '/book' based on the server `router` option).
+an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/'.
 
 ```javascript
 server.addRoute({
