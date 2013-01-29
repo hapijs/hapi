@@ -56,6 +56,7 @@ Current version: **0.11.3**
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
             - [Not Found](#not-found-handler)
+        - [Route Authentication](#route-authentication)
         - [Query Validation](#query-validation)
         - [Payload Validation](#payload-validation)
         - [Path Validation](#path-validation)
@@ -361,6 +362,110 @@ var options = {
 ### Authentication
 
 The authentication interface is disabled by default and is still experimental.
+
+Hapi supports several authentication schemes and can be configured with different authentication strategies that use these schemes.  Authentication is configured for the server by either assigning a single strategy to the _'auth'_ object or by creating an object with different strategies where the strategy names are the object keys.
+
+- `scheme` - when using a single authentication strategy set this to the configuration options for that strategy
+- `implementation` - when using a custom scheme set this to the function that will perform authentication.  Scheme must start with 'ext:' when using a custom implementation.
+
+When the server supports multiple authentication strategies then you can set strategies on the _'auth'_ object directly where the strategy name is the object key.  Every strategy object on the _'auth'_ object should follow the same guidelines as above.
+
+#### Basic Authentication
+
+Enabling and using basic authentication with hapi is straightforward.  Basic authentication requires validating a username and password combination.  Therefore, a prerequisite to using basic authentication is to have a function that will return the user information given the username.  The signature for this function is shown below:
+```javascript
+function (username, callback)  // callback is a function that expects (err, { id, password })
+```
+
+Next setup the _'auth'_ server settings to look similar to the following:
+```
+auth: {
+    scheme: 'basic',
+    loadUserFunc: function (username, callback) { 
+        
+        var user = { id: '', password: '' };
+        callback(null, user);
+    }
+}
+```
+
+Please note that the _'loadUserFunc'_ callback expects a user object with an _'id'_ and _'password'_ property.  The _'id'_ should match the incoming username in the request.  
+
+After basic authentication is setup any request that has the _'Authentication'_ header using the _'Basic'_ scheme will validate the username and password.
+
+If you wish to hash the password found in the header before being compared to the one found in the database you can assign a function to the _'hashPasswordFunc'_ property.  Below is an example of a hashPassword function.
+
+```javascript
+var hashPassword = function (password, user) {
+    
+    var hash = Crypto.createHash('sha1');
+    hash.update(password, 'utf8');
+    hash.update(user.salt, 'utf8');
+
+    return hash.digest('base64');
+}
+```
+
+#### Hawk Authentication
+
+The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'hawk',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+In the above example only the user 'john' can authenticate, all other users will result in an error.
+
+#### Multiple Authentication Strategies
+
+There may be instances where you want to support more than one authentication strategy for a server.  Below is an example of using both basic and hawk authentication strategies on the server and defaulting to basic.  The default strategy is what will be used by endpoints if they do not specify a strategy to use.
+
+```javascript
+ var config = {
+    auth: {
+        'default': {
+            scheme: 'basic',
+            loadUserFunc: internals.loadUser,
+            hashPasswordFunc: internals.hashPassword
+        },
+        'hawk': {
+            scheme: 'hawk',
+            getCredentialsFunc: internals.getCredentials
+        },
+        'basic': {
+            scheme: 'basic',
+            loadUserFunc: internals.loadUser,
+            hashPasswordFunc: internals.hashPassword
+        }
+    }
+};
+```
+
+In the _'examples'_ folder is an _'auth.js'_ file that demonstrates creating a server with multiple authentication strategies.
 
 
 ### Cache
@@ -1170,6 +1275,25 @@ Whenever a route needs to respond with a simple 404 message use the _'notFound'_
 { method: 'GET', path: '/hideme', handler: 'notFound' }
 ```
 
+
+### Route Authentication
+
+To override the default authentication settings for a route use the _'auth'_ object on a routes configuration.  Below are the available options for the _'auth'_ configuration on a route.
+
+- `mode` - determines if a route requires authentication.  Options are _none_, _optional_, and _required_ (defaults to _required_ when the server has authentication configured and _none_ when it doesn't).
+- `strategy` - the authentication strategy to use, will use the default strategy if not set.
+- `strategies` - an array in priority order of what authentication strategies the route supports.
+- `scope` - required session scope in order to access the endpoint.
+- `tos` - number that represents terms of service.  Session must have an ext equal or greater than the configured tos value.
+- `entity` - the type of object that must exist on the session.  Options are _any_, _user_, and _app_.
+
+When multiple authentication strategies are configured on the server individual routes can specify which of those strategies to use in priority order.  Below is an example showing how to create a route that supports the _'hawk'_ and _'basic'_ strategies and where authentication is optional.
+
+```javascript
+{ method: 'GET', path: '/', handler: handler, config: { auth: { strategies: ['hawk', 'basic'], mode: 'optional' } } }
+```
+
+If a route doesn't specify the strategy or strategies to use then the servers _'default'_ strategy will be used.  When a single strategy is configured on the server then it will be given the strategy name _'default'_ and will be used by any route that supports authentication.
 
 ### Query Validation
 
