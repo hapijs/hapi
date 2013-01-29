@@ -299,15 +299,13 @@ describe('Auth', function () {
 
             var config = {
                 auth: {
-                    strategies: {
-                        'default': {
-                            scheme: 'basic',
-                            loadUserFunc: loadUser
-                        },
-                        'b': {
-                            scheme: 'basic',
-                            loadUserFunc: loadUser
-                        }
+                    'default': {
+                        scheme: 'basic',
+                        loadUserFunc: loadUser
+                    },
+                    'b': {
+                        scheme: 'basic',
+                        loadUserFunc: loadUser
                     }
                 }
             };
@@ -740,19 +738,17 @@ describe('Auth', function () {
 
         var config = {
             auth: {
-                strategies: {
-                    'default': {
-                        scheme: 'hawk',
-                        getCredentialsFunc: getCredentials
-                    },
-                    'hawk': {
-                        scheme: 'hawk',
-                        getCredentialsFunc: getCredentials
-                    },
-                    'basic': {
-                        scheme: 'basic',
-                        loadUserFunc: loadUser
-                    }
+                'default': {
+                    scheme: 'hawk',
+                    getCredentialsFunc: getCredentials
+                },
+                'hawk': {
+                    scheme: 'hawk',
+                    getCredentialsFunc: getCredentials
+                },
+                'basic': {
+                    scheme: 'basic',
+                    loadUserFunc: loadUser
                 }
             }
         };
