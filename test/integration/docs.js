@@ -29,26 +29,27 @@ describe('Docs Generator', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 0);
+        _server = new Hapi.Server();
         _server.addRoutes([
             { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/defaults', handler: { docs: true } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
-            { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
+            { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } },
+            { method: 'GET', path: '/notincluded', config: { handler: handler, docs: false } }
         ]);
 
-        _server.start(done);
+        done();
     }
 
     function setupServerWithoutPost(done) {
 
-        _serverWithoutPost = new Hapi.Server('0.0.0.0', 0);
+        _serverWithoutPost = new Hapi.Server();
         _serverWithoutPost.addRoutes([
             { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);
 
-        _serverWithoutPost.start(done);
+        done();
     }
 
     function makeRequest(path, callback) {
@@ -88,7 +89,7 @@ describe('Docs Generator', function () {
 
         makeRequest('/docs', function (res) {
 
-            expect(res).to.equal('/defaults|/defaults|/test|/test|/test|/test|');
+            expect(res).to.equal('/defaults|/test|/test|');
             done();
         });
     });
@@ -98,6 +99,15 @@ describe('Docs Generator', function () {
         makeRequest('/docs', function (res) {
 
             expect(res).to.not.contain('/docs');
+            done();
+        });
+    });
+
+    it('the index does\'t include routes that are configured with docs disabled', function (done) {
+
+        makeRequest('/docs', function (res) {
+
+            expect(res).to.not.contain('/notincluded');
             done();
         });
     });
