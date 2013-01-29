@@ -46,6 +46,7 @@ Current version: **0.11.3**
         - [Configuration options](#configuration-options)
         - [Override Route Defaults](#override-route-defaults)
         - [Path Processing](#path-processing)
+            - [Route Matching Order](#route-matching-order)
             - [Parameters](#parameters)
         - [Route Handler](#route-handler)
             - [Response](#response)
@@ -683,6 +684,36 @@ The **hapi** router iterates through the routing table on each incoming request 
 Route matching is done on the request path only (excluding the query and other components). The route `path` option support three types of paths:
 - Static - the route path is a static string which begin with _'/'_ and will only match incoming requests containing the exact string match (as defined by the server `router` option).
 - Parameterized - same as _static_ with the additional support of named parameters (enclosed in _'{}'_).
+
+#### Route Matching Order
+
+**hapi** matches incoming requests in a deterministic order. This means the order in which routes are added does not
+matter. To achieve this, **hapi** uses a set of rules to sort the routes from the most specific to the most generic. For example, the following
+path array shows the order in which an incoming request path will be matched against the routes, regardless of the order they are added:
+
+```javascript
+var paths = [
+    '/',
+    '/a',
+    '/b',
+    '/ab',
+    '/{p}',
+    '/a/b',
+    '/a/{p}',
+    '/b/',
+    '/a/b/c',
+    '/a/b/{p}',
+    '/a/{p}/b',
+    '/a/{p}/c',
+    '/a/{p*2}',
+    '/a/b/c/d',
+    '/a/b/{p*2}',
+    '/a/{p}/b/{x}',
+    '/{p*5}',
+    '/a/b/{p*}',
+    '/{p*}'
+];
+```
 
 
 #### Parameters
