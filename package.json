@@ -36,7 +36,7 @@
     "mime": "1.2.x",
     "catbox": "0.1.x",
     "cryptiles": "0.0.x",
-    "iron": "0.0.x"
+    "iron": "0.1.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
