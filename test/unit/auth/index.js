@@ -49,7 +49,7 @@ describe('Auth', function () {
                 var auth = new Auth(null, { scheme: null });
             };
 
-            expect(fn).to.throw(Error, 'Auth options must include one of scheme or strategies but not both');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -91,13 +91,9 @@ describe('Auth', function () {
                 addRoutes: function () { }
             };
 
-            var scheme = {
-                strategies: {}
-            };
-
             var a = function () {
 
-                var auth = new Auth(server, scheme);
+                var auth = new Auth(server, {});
             };
 
             expect(a).to.throw(Error);
@@ -112,11 +108,9 @@ describe('Auth', function () {
             };
 
             var scheme = {
-                strategies: {
-                    'test': {
-                        scheme: 'basic',
-                        loadUserFunc: function () { }
-                    }
+                'test': {
+                    scheme: 'basic',
+                    loadUserFunc: function () { }
                 }
             };
 
@@ -163,13 +157,11 @@ describe('Auth', function () {
             };
 
             var scheme = {
-                strategies: {
-                    'test': {
-                        scheme: 'basic',
-                        loadUserFunc: function (username, callback) {
+                'test': {
+                    scheme: 'basic',
+                    loadUserFunc: function (username, callback) {
 
-                            return callback(null, { id: 'walmart', password: 'walmart' });
-                        }
+                        return callback(null, { id: 'walmart', password: 'walmart' });
                     }
                 }
             };
@@ -198,13 +190,11 @@ describe('Auth', function () {
 
             var options = {
                 auth: {
-                    strategies: {
-                        'test': {
-                            scheme: 'basic',
-                            loadUserFunc: function (username, callback) {
+                    'test': {
+                        scheme: 'basic',
+                        loadUserFunc: function (username, callback) {
 
-                                return callback(null, { id: 'walmart', password: 'walmart' });
-                            }
+                            return callback(null, { id: 'walmart', password: 'walmart' });
                         }
                     }
                 }

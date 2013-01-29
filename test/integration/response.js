@@ -566,7 +566,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/directory', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -635,7 +635,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/directoryx', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryx/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -650,7 +650,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/directorylist', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylist/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -680,7 +680,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/directorylistx', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylistx/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -696,7 +696,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/directoryIndex', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryIndex/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -744,7 +744,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/showhidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/showhidden/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('.hidden');
@@ -757,7 +757,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/noshowhidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/noshowhidden/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.not.contain('.hidden');
@@ -902,7 +902,7 @@ describe('Response', function () {
 
         it('returns a stream reply', function (done) {
 
-            server.inject({ method: 'GET', url: '/stream' }, function (res) {
+            server.inject({ method: 'GET', url: '/stream/' }, function (res) {
 
                 expect(res.readPayload()).to.equal('x');
                 expect(res.statusCode).to.equal(200);
