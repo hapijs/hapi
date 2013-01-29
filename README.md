@@ -46,6 +46,7 @@ Current version: **0.11.3**
         - [Configuration options](#configuration-options)
         - [Override Route Defaults](#override-route-defaults)
         - [Path Processing](#path-processing)
+            - [Route Matching Order](#route-matching-order)
             - [Parameters](#parameters)
         - [Route Handler](#route-handler)
             - [Response](#response)
@@ -172,7 +173,6 @@ var server = new Hapi.Server(options);
 ### Router
 
 The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
-- `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
 - `normalizeRequestPath` - determines whether a path should have certain reserved and unreserved percent encoded characters decoded.  Also, all percent encodings will be capitalized that cannot be decoded.  Defaults to _false_.
 
@@ -685,14 +685,43 @@ Route matching is done on the request path only (excluding the query and other c
 - Static - the route path is a static string which begin with _'/'_ and will only match incoming requests containing the exact string match (as defined by the server `router` option).
 - Parameterized - same as _static_ with the additional support of named parameters (enclosed in _'{}'_).
 
+#### Route Matching Order
+
+**hapi** matches incoming requests in a deterministic order. This means the order in which routes are added does not
+matter. To achieve this, **hapi** uses a set of rules to sort the routes from the most specific to the most generic. For example, the following
+path array shows the order in which an incoming request path will be matched against the routes, regardless of the order they are added:
+
+```javascript
+var paths = [
+    '/',
+    '/a',
+    '/b',
+    '/ab',
+    '/{p}',
+    '/a/b',
+    '/a/{p}',
+    '/b/',
+    '/a/b/c',
+    '/a/b/{p}',
+    '/a/{p}/b',
+    '/a/{p}/c',
+    '/a/{p*2}',
+    '/a/b/c/d',
+    '/a/b/{p*2}',
+    '/a/{p}/b/{x}',
+    '/{p*5}',
+    '/a/b/{p*}',
+    '/{p*}'
+];
+```
+
 
 #### Parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
 '/book/{id}/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
  the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
-an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/' (and may
-match '/book' based on the server `router` option).
+an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/'.
 
 ```javascript
 server.addRoute({
