@@ -625,6 +625,7 @@ to write additional text as the configuration itself serves as a living document
         - _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
         - _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
     - `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
+    - `docs` - if set to false then the route will be hidden from the documentation generator.
     - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#route-prerequisites). 
     - `auth` - authentication configuration
         - `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
