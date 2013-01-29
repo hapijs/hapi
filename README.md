@@ -513,7 +513,7 @@ configuration:
 
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
 by web application running inside a browser which are loaded from a different domain than the API server. **hapi** provides a general purpose
-CORS implementation that sets very liberal restrictions on cross-origin access by default (on by default). CORS options:
+CORS implementation that sets very liberal restrictions on cross-origin access by default (off by default). CORS options:
 - `origin` - overrides the array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin _'*'_.
 - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to _one day_.
 - `headers` - overrides the array of allowed headers ('Access-Control-Allow-Headers'). Defaults to _'Authorization, Content-Type, If-None-Match'_.
@@ -522,7 +522,8 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 - `credentials` - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
 
-**hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
+**hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_.
+To disable CORS support for a single route, set the route _config.cors_ option to _false_.
 
 
 ### Batch
