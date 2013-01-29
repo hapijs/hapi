@@ -522,9 +522,6 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 - `credentials` - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
 
-**hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_.
-To disable CORS support for a single route, set the route _config.cors_ option to _false_.
-
 
 ### Batch
 
@@ -674,7 +671,7 @@ server.addRoute({ method: 'GET', path: '/option2', config: config2});
 Each configuration option comes with a built-in default. To change these defaults, use the `setRoutesDefaults()` server method.
 ```javascript
 server.setRoutesDefaults({
-    cors: false
+    auth: { mode: 'none' }
 });
 ```
 
