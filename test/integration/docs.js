@@ -88,7 +88,7 @@ describe('Docs Generator', function () {
 
         makeRequest('/docs', function (res) {
 
-            expect(res).to.equal('/defaults|/defaults|/test|/test|/test|/test|');
+            expect(res).to.equal('/defaults|/test|/test|');
             done();
         });
     });
