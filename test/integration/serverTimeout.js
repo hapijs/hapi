@@ -99,6 +99,9 @@ describe('Server Timeout', function () {
         { method: 'GET', path: '/responding', config: { handler: respondingHandler } }
     ]);
 
+    var _shortTimeoutServer = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 1 } });
+    _shortTimeoutServer.addRoute({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
+
     before(function (done) {
 
         _server.start(done);
@@ -124,6 +127,25 @@ describe('Server Timeout', function () {
 
             expect(res.statusCode).to.equal(503);
             expect(timer.elapsed()).to.be.at.least(49);
+            done();
+        });
+    });
+
+    it('returns server error message when server timeout is short and already occurs when request executes', function (done) {
+
+        _shortTimeoutServer._debugConsole = {
+            report: function () {
+
+                var timer = new Hapi.utils.Timer();
+                while (timer.elapsed() < 3) {
+
+                }
+            }
+        };
+
+        _shortTimeoutServer.inject({ method: 'GET', url: '/timeout' }, function (res) {
+
+            expect(res.statusCode).to.equal(503);
             done();
         });
     });
