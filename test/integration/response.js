@@ -1135,15 +1135,20 @@ describe('Response', function () {
                                     'html': {
                                         module: {
                                             compile: function (tmpl, options) {
+
                                                 return function (ctx) {
+
                                                     return tmpl;
                                                 }
                                             }
                                         },
                                         map: {
                                             execute: (function() {
+
                                                 return function (engine, compiled, ctx, options, partials) {
+
                                                     return function(ctx, options) {
+
                                                         return compiled(ctx, options);
                                                     }
                                                 }
