@@ -1038,6 +1038,140 @@ describe('Response', function () {
 
         describe('Engine Support', function () {
 
+            describe('Caching', function () {
+
+                it('should not throw if local cache disabled', function (done) {
+
+                    var fn = function() {
+
+                        var testServer = new Hapi.Server({
+                            views: {
+                                path: viewPath,
+                                engines: {
+                                    'html': { 
+                                        module: 'handlebars',
+                                        cache: false
+                                    },
+                                }
+                            }
+                        });
+                        testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                        testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                            expect(res.result).to.exist;
+                            expect(res.statusCode).to.equal(200);
+                            testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                                expect(res.result).to.exist;
+                                expect(res.statusCode).to.equal(200);
+                                // done();
+                            });
+                        });
+                    };
+                    expect(fn).to.not.throw();
+                    done();
+                });
+
+                it('should use the cache if all caching enabled', function (done) {
+
+                    var testServer = new Hapi.Server({
+                        views: {
+                            path: viewPath,
+                            cache: {},
+                            engines: {
+                                'html': {
+                                    module: 'handlebars'
+                                }
+                            }
+                        }
+                    });
+                    testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                    testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                            expect(res.result).to.exist;
+                            expect(res.statusCode).to.equal(200);
+                            done();
+                        });
+                    });
+                });
+
+                it('should not throw if global cache disabled', function (done) {
+
+                    var testServer = new Hapi.Server({
+                        views: {
+                            path: viewPath,
+                            cache: false,
+                            engine: {
+                                module: 'handlebars',
+                                extension: 'html',
+                                slashReplacement: '_',
+                            }
+                        }
+                    });
+                    testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                    testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+            });
+
+            describe('General', function () {
+
+                it('should throw if view module not found', function (done) {
+
+                    var fn = function() {
+
+                        var failServer = new Hapi.Server({
+                            views: {
+                                path: viewPath,
+                                engines: {
+                                    'html': { module: 'handlebars' },
+                                    'jade': { module: 'jade' },
+                                    'hbar': {
+                                        module: 'handlebars',
+                                        map: {
+                                            compile: function (engine) { return engine.compile; }
+                                        }
+                                    },
+                                    'err': {
+                                        module: 'hapi-module-that-does-not-exist'
+                                    }
+                                }
+                            }
+                        });
+                    };
+                    expect(fn).to.throw();
+                    done();
+                });
+
+                it('should work if view engine module is a pre-required module', function (done) {
+
+                    var options = {
+                        views: {
+                            path: viewPath,
+                            engines: {
+                                'test': {
+                                    module: require('jade')
+                                }
+                            }
+                        }
+                    };
+                    var fn = function() {
+
+                        var passServer = new Hapi.Server(options);
+                    };
+                    expect(fn).to.not.throw();
+                    done();
+                });
+            });
+
             describe('Single', function () {
 
                 var server = new Hapi.Server({
@@ -1076,12 +1210,13 @@ describe('Response', function () {
                                 map: {
                                     compile: function (engine) { return engine.compile; }
                                 }
-                            }
+                            },
                         }
                     }
                 });
                 server.addRoute({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
                 server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+
 
                 it('should render jade template', function (done) {
 
