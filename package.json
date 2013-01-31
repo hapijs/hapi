@@ -41,7 +41,7 @@
     "mocha": "1.x.x",
     "chai": "1.x.x",
     "sinon": "1.x.x",
-    "handlebars": "1.0.x",
+    "handlebars": ">= 1.0.8",
     "jade": "~0.28.1"
   },
   "scripts": {
