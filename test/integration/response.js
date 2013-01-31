@@ -1184,6 +1184,7 @@ describe('Response', function () {
                         }
                     }
                 });
+                
                 server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
                 
                 it('should render handlebars template', function (done) {
