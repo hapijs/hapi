@@ -7,7 +7,7 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
-Current version: **0.11.3**
+Current version: **0.12.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -803,6 +803,15 @@ When the provided route handler method is called, it receives a _request_ object
 - _'pre'_ - any requisites as described in [Prequisites](#prequisites).
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
+
+In addition, the handler method is bound to the request object which is also available using _this_:
+
+```javascript
+var handler = function () {
+
+    this.reply('Hello ' + this.params.user);
+};
+```
 
 
 #### Response

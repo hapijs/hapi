@@ -36,8 +36,14 @@ describe('Response', function () {
                              .send();
             };
 
+            var handlerBound = function () {
+
+                this.reply('Tada');
+            };
+
             var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com'] } });
             server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.addRoute({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.addState('sid', { encoding: 'base64' });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
@@ -48,7 +54,13 @@ describe('Response', function () {
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
                 expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
                 expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT']);
-                done();
+
+                server.inject({ method: 'GET', url: '/bound' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.result).to.equal('Tada');
+                    done();
+                });
             });
         });
 
