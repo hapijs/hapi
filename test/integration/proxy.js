@@ -21,11 +21,8 @@ describe('Proxy', function () {
     before(startServer);
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:18092';
 
     function startServer (done) {
-
-        var listening = false;
 
         var routeCache = {
             expiresIn: 500
@@ -39,7 +36,7 @@ describe('Proxy', function () {
             }
         };
 
-        var dummyServer = new Hapi.Server('0.0.0.0', 18093);
+        var dummyServer = new Hapi.Server('0.0.0.0', 0);
         dummyServer.addRoutes([
             { method: 'GET', path: '/profile', handler: profile },
             { method: 'GET', path: '/item', handler: activeItem },
@@ -50,47 +47,36 @@ describe('Proxy', function () {
             { method: 'POST', path: '/echo', handler: echoPostBody }
         ]);
 
-        _server = new Hapi.Server('0.0.0.0', 18092, config);
-        _server.addRoutes([
-            { method: 'GET', path: '/profile', handler: { proxy: { host: '127.0.0.1', port: 18093, xforward: true, passThrough: true } } },
-            { method: 'GET', path: '/item', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
-            { method: 'GET', path: '/unauthorized', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
-            { method: 'POST', path: '/item', handler: { proxy: { host: '127.0.0.1', port: 18093 } } },
-            { method: 'POST', path: '/notfound', handler: { proxy: { host: '127.0.0.1', port: 18093 } } },
-            { method: 'GET', path: '/proxyerror', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
-            { method: 'GET', path: '/postResponseError', handler: { proxy: { host: '127.0.0.1', port: 18093, postResponse: postResponseWithError } }, config: { cache: routeCache } },
-            { method: 'GET', path: '/errorResponse', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { cache: routeCache } },
-            { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
-            { method: 'POST', path: '/file', handler: { proxy: { host: '127.0.0.1', port: 18093 } }, config: { payload: 'stream' } },
-            { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } }
-        ]);
+        var mapUri = function (request, callback) {
 
-        dummyServer.listener.on('listening', function () {
+            return callback(null, dummyServer.settings.uri + request.path, request.query);
+        };
 
-            if (listening) {
+        _server = new Hapi.Server('0.0.0.0', 0, config);
+
+        dummyServer.start(function () {
+
+            var dummyPort = dummyServer.settings.port;
+
+            _server.addRoutes([
+                { method: 'GET', path: '/profile', handler: { proxy: { host: '127.0.0.1', port: dummyPort, xforward: true, passThrough: true } } },
+                { method: 'GET', path: '/item', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/unauthorized', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
+                { method: 'POST', path: '/item', handler: { proxy: { host: '127.0.0.1', port: dummyPort } } },
+                { method: 'POST', path: '/notfound', handler: { proxy: { host: '127.0.0.1', port: dummyPort } } },
+                { method: 'GET', path: '/proxyerror', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/postResponseError', handler: { proxy: { host: '127.0.0.1', port: dummyPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/errorResponse', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
+                { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
+                { method: 'POST', path: '/file', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { payload: 'stream' } },
+                { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } }
+            ]);
+
+            _server.start(function () {
+
                 done();
-            }
-            else {
-                listening = true;
-            }
+            });
         });
-        _server.listener.on('listening', function () {
-
-            if (listening) {
-                done();
-            }
-            else {
-                listening = true;
-            }
-        });
-
-        dummyServer.start();
-        _server.start();
-    }
-
-    function mapUri (request, callback) {
-
-        return callback(null, 'http://127.0.0.1:18093' + request.path, request.query);
     }
 
     function mapUriWithError (request, callback) {
@@ -160,7 +146,7 @@ describe('Proxy', function () {
 
         Request({
             method: options.method,
-            url: _serverUrl + options.path,
+            url: _server.settings.uri + options.path,
             form: options.form
         }, next);
     }
@@ -269,7 +255,7 @@ describe('Proxy', function () {
 
     it('works with a stream when the proxy response is streamed', function (done) {
 
-        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post('http://localhost:18092/file', function (err, rawRes, body) {
+        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post(_server.settings.uri + '/file', function (err, rawRes, body) {
 
             expect(rawRes.statusCode).to.equal(200);
             done();

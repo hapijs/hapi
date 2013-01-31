@@ -18,7 +18,7 @@ var expect = Chai.expect;
 
 describe('Request', function () {
 
-    var server = new Hapi.server('0.0.0.0', 18888);
+    var server = new Hapi.server('0.0.0.0', 0);
 
     var _req = null;
     var _res = null;
@@ -98,14 +98,11 @@ describe('Request', function () {
 
         var req = Hapi.Utils.clone(_req);
         req.pause = function () { };
-        var serverModified = Hapi.Utils.clone(server);
+        var debugServer= new Hapi.Server(0, { debug: { queryKey: 'debug' } });
 
         req.url = 'http://localhost/?debug=test';
-        serverModified.settings.debug = {
-            queryKey: 'debug'
-        };
 
-        var request = new Request(serverModified, req, _res);
+        var request = new Request(debugServer, req, _res);
 
         expect(request._debug).to.exist;
         done();

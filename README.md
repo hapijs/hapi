@@ -7,7 +7,7 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
-Current version: **0.11.3**
+Current version: **0.12.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -24,7 +24,6 @@ Current version: **0.11.3**
         - [Router](#router)
         - [Payload](#payload)
         - [Extensions](#extensions)
-            - [Unknown Route](#unknown-route)
         - [Format](#format)
           - [Error Format](#error-format)
           - [Payload Format](#payload-format)
@@ -37,13 +36,17 @@ Current version: **0.11.3**
         - [CORS](#cors)
         - [Batch](#batch)
         - [State](#state)
+        - [Timeout](#timeout)
 <p></p>
     - [**Server Events**](#server-events)
+<p></p>
+    - [**Server Route Not Found**](#server-route-not-found)
 <p></p>
     - [**Route Configuration**](#route-configuration)
         - [Configuration options](#configuration-options)
         - [Override Route Defaults](#override-route-defaults)
         - [Path Processing](#path-processing)
+            - [Route Matching Order](#route-matching-order)
             - [Parameters](#parameters)
         - [Route Handler](#route-handler)
             - [Response](#response)
@@ -53,12 +56,14 @@ Current version: **0.11.3**
             - [View](#view)
             - [Docs](#documentation)
             - [Request Logging](#request-logging)
+            - [Not Found](#not-found-handler)
+        - [Route Authentication](#route-authentication)
         - [Query Validation](#query-validation)
         - [Payload Validation](#payload-validation)
         - [Path Validation](#path-validation)
         - [Response Validation](#response-validation)
         - [Caching](#caching)
-        - [Route Prerequisites](#route-prerequisites)
+        - [Prerequisites](#prerequisites)
 <p></p>
     - [**Data Validation**](#data-validation)
 <p></p>
@@ -168,7 +173,6 @@ var server = new Hapi.Server(options);
 ### Router
 
 The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
-- `isTrailingSlashSensitive` - determines whether the paths '/example' and '/example/' are considered different resources. Defaults to _false_.
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
 - `normalizeRequestPath` - determines whether a path should have certain reserved and unreserved percent encoded characters decoded.  Also, all percent encodings will be capitalized that cannot be decoded.  Defaults to _false_.
 
@@ -225,51 +229,6 @@ function onRequest(request, next) {
     // Change all requests to '/test'
     request.setUrl('/test');
     next();
-}
-```
-
-
-#### Unknown Route
-
-**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
-`ext.onUnknownRoute` server option. The extension function signature is _function (request)_ where:
-- _'request'_ is the **hapi** request object.
-
-When the extension handler is called, the _'request'_ object is decorated as described in [Route Handler](#route-handler) with the following additional method:
-- _'reply.close()'_ - returns control over to the server after the application has taken care of responding to the request via the _request.raw.res_ object directly.
-
-The method **must** return control over to the route using the _reply_ interface described in [Route Handler](#route-handler) or the _'reply.close()'_ method but not both.
-
-For example, using the _'reply.close()'_ method:
-```javascript
-var Hapi = require('hapi');
-
-var options = {
-    ext: {
-        onUnknownRoute: onUnknownRoute
-    }
-};
-
-// Create server
-var http = new Hapi.Server('localhost', 8000, options);
-
-// Start server
-http.start();
-
-// 404 handler
-function onUnknownRoute(request) {
-
-    request.raw.res.writeHead(404);
-    request.raw.res.end();
-    request.reply.close();
-}
-```
-
-Or using the _'reply(result)'_ method:
-```javascript
-function onUnknownRoute(request) {
-
-    request.reply({ roads: 'ocean' });
 }
 ```
 
@@ -337,6 +296,8 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 - `engine` - the configuration for what template rendering engine will be used (default: handlebars).
     - `module` - the npm module to require and use to compile templates (**this is experimental and may not not work with all modules**).
     - `extension` - the file extension used by template files.
+- `engines` - optional configuration for supporting multiple rendering engines
+    - `module` - the npm module to require and use 
 - `partials` - this key enables partials support if non-null.
     - `path` - the root file path where partials are located (if different from views.path).
 - `layout` - if set to true, layout support is enabled (default: false).
@@ -374,7 +335,7 @@ optional settings:
 - `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
     - 'response' - the response was sent but request tails may still be pending.
     - 'tail' - the response was sent and all request tails completed.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three.
+- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
 
 For example:
 ```javascript
@@ -388,10 +349,126 @@ var options = {
 };
 ```
 
+Disabling hapi console output:
+```javascript
+var options = {
+    monitor: {
+        subscribers: {
+            console: [],
+            'http://localhost/logs': ['log']
+        }
+    }
+};
+```
+
 
 ### Authentication
 
 The authentication interface is disabled by default and is still experimental.
+
+Hapi supports several authentication schemes and can be configured with different authentication strategies that use these schemes.  Authentication is configured for the server by either assigning a single strategy to the _'auth'_ object or by creating an object with different strategies where the strategy names are the object keys.
+
+- `scheme` - when using a single authentication strategy set this to the configuration options for that strategy
+- `implementation` - when using a custom scheme set this to the function that will perform authentication.  Scheme must start with 'ext:' when using a custom implementation.
+
+When the server supports multiple authentication strategies then you can set strategies on the _'auth'_ object directly where the strategy name is the object key.  Every strategy object on the _'auth'_ object should follow the same guidelines as above.
+
+#### Basic Authentication
+
+Enabling and using basic authentication with hapi is straightforward.  Basic authentication requires validating a username and password combination.  Therefore, a prerequisite to using basic authentication is to have a function that will return the user information given the username.  The signature for this function is shown below:
+```javascript
+function (username, callback)  // callback is a function that expects (err, { id, password })
+```
+
+Next setup the _'auth'_ server settings to look similar to the following:
+```
+auth: {
+    scheme: 'basic',
+    loadUserFunc: function (username, callback) { 
+        
+        var user = { id: '', password: '' };
+        callback(null, user);
+    }
+}
+```
+
+Please note that the _'loadUserFunc'_ callback expects a user object with an _'id'_ and _'password'_ property.  The _'id'_ should match the incoming username in the request.  
+
+After basic authentication is setup any request that has the _'Authentication'_ header using the _'Basic'_ scheme will validate the username and password.
+
+If you wish to hash the password found in the header before being compared to the one found in the database you can assign a function to the _'hashPasswordFunc'_ property.  Below is an example of a hashPassword function.
+
+```javascript
+var hashPassword = function (password, user) {
+    
+    var hash = Crypto.createHash('sha1');
+    hash.update(password, 'utf8');
+    hash.update(user.salt, 'utf8');
+
+    return hash.digest('base64');
+}
+```
+
+#### Hawk Authentication
+
+The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'hawk',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+In the above example only the user 'john' can authenticate, all other users will result in an error.
+
+#### Multiple Authentication Strategies
+
+There may be instances where you want to support more than one authentication strategy for a server.  Below is an example of using both basic and hawk authentication strategies on the server and defaulting to basic.  The default strategy is what will be used by endpoints if they do not specify a strategy to use.
+
+```javascript
+ var config = {
+    auth: {
+        'default': {
+            scheme: 'basic',
+            loadUserFunc: internals.loadUser,
+            hashPasswordFunc: internals.hashPassword
+        },
+        'hawk': {
+            scheme: 'hawk',
+            getCredentialsFunc: internals.getCredentials
+        },
+        'basic': {
+            scheme: 'basic',
+            loadUserFunc: internals.loadUser,
+            hashPasswordFunc: internals.hashPassword
+        }
+    }
+};
+```
+
+In the _'examples'_ folder is an _'auth.js'_ file that demonstrates creating a server with multiple authentication strategies.
 
 
 ### Cache
@@ -438,7 +515,7 @@ configuration:
 
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
 by web application running inside a browser which are loaded from a different domain than the API server. **hapi** provides a general purpose
-CORS implementation that sets very liberal restrictions on cross-origin access by default (on by default). CORS options:
+CORS implementation that sets very liberal restrictions on cross-origin access by default (off by default). CORS options:
 - `origin` - overrides the array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin _'*'_.
 - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser checks for changes in policy. Defaults to _one day_.
 - `headers` - overrides the array of allowed headers ('Access-Control-Allow-Headers'). Defaults to _'Authorization, Content-Type, If-None-Match'_.
@@ -446,8 +523,6 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `methods` - overrides the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to _'GET, HEAD, POST, PUT, DELETE, OPTIONS'_.
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 - `credentials` - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
-
-**hapi** will automatically add an _OPTIONS_ handler for every route unless disabled. To disable CORS for the entire server, set the `cors` server option to _false_. To disable CORS support for a single route, set the route _config.cors_ option to _false_.
 
 
 ### Batch
@@ -476,11 +551,56 @@ server's `state.cookies` configuration, where:
 - _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
 
 
+### Timeout
+
+The _'timeout'_ object can contain a _'server'_ and _'client'_ timeout value in milliseconds.  These are useful for limiting the amount of time a request or response should take to complete.
+
+#### Server Timeout
+In order to indicate when a server or dependent services are overwhelmed set the _'timeout.server'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout.server'_ is disabled.
+
+The server timeout is measured as the time from executing a hapi request until a response is generated for the request and validated.  If an endpoint takes longer than the timeout to generate a response the response will not be cached.
+
+The example below demonstrates how to force the server to timeout when it takes the server longer than 10 seconds to begin responding to a request:
+`{ timeout: { server: 10000 } }`
+
+#### Client Timeout
+In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 10000 ms.  As a result, any request taking longer than 10 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
+`{ timeout: { client: false } }`
+
+
 ## Server Events
 
 The server object emits the following events:
 - _'response'_ - emitted after a response is sent back. Includes the request object as value.
 - _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
+
+
+## Server Route Not Found
+
+**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
+`setNotFound` server method. The method takes a route configuration object with a handler property.
+
+Below is an example creating a server and then setting the _'notFound'_ route configuration.
+
+For example, the default notFound route configuration can be set as shown below:
+```javascript
+var Hapi = require('hapi');
+
+// Create server
+var http = new Hapi.Server(8000);
+
+// Set the notFound route configuration
+http.setNotFound({ handler: notFoundHandler });
+
+// Start server
+http.start();
+
+// 404 handler
+function notFoundHandler(request) {
+
+    request.reply(Hapi.Error.notFound('The page was not found'));
+}
+```
 
 
 ## Route Configuration
@@ -513,7 +633,8 @@ to write additional text as the configuration itself serves as a living document
         - _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
         - _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
     - `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
-    - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#route-prerequisites). 
+    - `docs` - if set to false then the route will be hidden from the documentation generator.
+    - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#prerequisites). 
     - `auth` - authentication configuration
         - `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
             - _'none'_ - authentication not allowed.
@@ -561,7 +682,7 @@ server.addRoute({ method: 'GET', path: '/option2', config: config2});
 Each configuration option comes with a built-in default. To change these defaults, use the `setRoutesDefaults()` server method.
 ```javascript
 server.setRoutesDefaults({
-    cors: false
+    auth: { mode: 'none' }
 });
 ```
 
@@ -573,14 +694,43 @@ Route matching is done on the request path only (excluding the query and other c
 - Static - the route path is a static string which begin with _'/'_ and will only match incoming requests containing the exact string match (as defined by the server `router` option).
 - Parameterized - same as _static_ with the additional support of named parameters (enclosed in _'{}'_).
 
+#### Route Matching Order
+
+**hapi** matches incoming requests in a deterministic order. This means the order in which routes are added does not
+matter. To achieve this, **hapi** uses a set of rules to sort the routes from the most specific to the most generic. For example, the following
+path array shows the order in which an incoming request path will be matched against the routes, regardless of the order they are added:
+
+```javascript
+var paths = [
+    '/',
+    '/a',
+    '/b',
+    '/ab',
+    '/{p}',
+    '/a/b',
+    '/a/{p}',
+    '/b/',
+    '/a/b/c',
+    '/a/b/{p}',
+    '/a/{p}/b',
+    '/a/{p}/c',
+    '/a/{p*2}',
+    '/a/b/c/d',
+    '/a/b/{p*2}',
+    '/a/{p}/b/{x}',
+    '/{p*5}',
+    '/a/b/{p*}',
+    '/{p*}'
+];
+```
+
 
 #### Parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
 '/book/{id}/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
  the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
-an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/' (and may
-match '/book' based on the server `router` option).
+an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/'.
 
 ```javascript
 server.addRoute({
@@ -655,6 +805,15 @@ When the provided route handler method is called, it receives a _request_ object
 - _'pre'_ - any requisites as described in [Prequisites](#prequisites).
 - _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
+
+In addition, the handler method is bound to the request object which is also available using _this_:
+
+```javascript
+var handler = function () {
+
+    this.reply('Hello ' + this.params.user);
+};
+```
 
 
 #### Response
@@ -1088,6 +1247,45 @@ Deeply nested partials are also supported.  A view template can reference a part
 ```
 
 
+#### Multiple Engines
+
+Multiple engine support is functional for most templating systems (particularly those that employ a .compile function). Thus,
+ multiple templating systems may be used in a single Hapi instance. Custom options may be passed to each .view function to
+ customize compile options on a per endpoint basis - the functions behave as they would on a single-engine setup.
+
+Hapi distinguishes between the engines by checking which file extension has been configured by a particular templating engine.
+
+    var ctx = {
+        title: 'examples/views/mixed/basic.js | Hapi ' + Hapi.utils.version(),
+        message: 'Hello World!'
+    }
+    
+    var oneHandler = function (request) {
+        
+        request.reply.view('index', ctx).send();
+    };
+    
+    var twoHandler = function (request) {
+        
+        request.reply.view('handlebars', ctx).send();
+    };
+    
+    var options = {
+        views: {
+            path: __dirname + '/templates',
+            engines: {
+                'html': { module: 'handlebars' },
+                'jade': { module: 'jade' }
+            }
+        }
+    };
+
+    var server = new Hapi.Server(3000, options);
+    server.addRoute({ method: 'GET', path: '/one', handler: oneHandler });
+    server.addRoute({ method: 'GET', path: '/two', handler: twoHandler });
+    server.start();
+
+
 
 ### Documentation
 
@@ -1158,6 +1356,33 @@ http.start();
 The 'request.log' method is always available.
 
 
+### Not Found Handler
+
+Whenever a route needs to respond with a simple 404 message use the _'notFound'_ handler.  This can be done by simply setting the route _'handler'_ property to the string 'notFound'.  Below is an example of a route that responds with a 404.
+```javascript
+{ method: 'GET', path: '/hideme', handler: 'notFound' }
+```
+
+
+### Route Authentication
+
+To override the default authentication settings for a route use the _'auth'_ object on a routes configuration.  Below are the available options for the _'auth'_ configuration on a route.
+
+- `mode` - determines if a route requires authentication.  Options are _none_, _optional_, and _required_ (defaults to _required_ when the server has authentication configured and _none_ when it doesn't).
+- `strategy` - the authentication strategy to use, will use the default strategy if not set.
+- `strategies` - an array in priority order of what authentication strategies the route supports.
+- `scope` - required session scope in order to access the endpoint.
+- `tos` - number that represents terms of service.  Session must have an ext equal or greater than the configured tos value.
+- `entity` - the type of object that must exist on the session.  Options are _any_, _user_, and _app_.
+
+When multiple authentication strategies are configured on the server individual routes can specify which of those strategies to use in priority order.  Below is an example showing how to create a route that supports the _'hawk'_ and _'basic'_ strategies and where authentication is optional.
+
+```javascript
+{ method: 'GET', path: '/', handler: handler, config: { auth: { strategies: ['hawk', 'basic'], mode: 'optional' } } }
+```
+
+If a route doesn't specify the strategy or strategies to use then the servers _'default'_ strategy will be used.  When a single strategy is configured on the server then it will be given the strategy name _'default'_ and will be used by any route that supports authentication.
+
 ### Query Validation
 
 When a request URI includes a query component (the key-value part of the URI between _?_ and _#_), the query is parsed into its individual
@@ -1227,13 +1452,13 @@ The server-side cache also supports these advanced options:
 - `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
 
 
-### Prequisites
+### Prerequisites
 
 Before the handler is called, it is often necessary to perform other actions such as loading required reference data from a database. The `pre` option
 allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value 'parallel' in which case, all the parallel methods
 are executed first, then the rest in order. The `pre` is a mixed array of functions and objects. If a function is included, it is the same as including an
 object with a single `method` key. The object options are:
-- `method` - the function to call. The function signature is _'function (request, next)'_. _'next([result])'_ must be called when the operation concludes. If the result is an Error, execution of other prerequisites stops and the error is handled in the same way as when an error is returned from the route handler.
+- `method` - the function to call. The function signature is _'function (request, next)'_. _'next([result])'_ must be called when the operation concludes. If the result is an Error, execution of other prerequisites stops and the error is handled in the same way as when an error is returned from the route handler. The method can be a string invoking a [server helper](#server-helpers).
 - `assign` - key name to assign the result of the function to within 'request.pre'.
 - `mode` - set the calling order of the function to 'serial' or 'parallel'. Defaults to 'serial'.
 
@@ -1540,20 +1765,15 @@ server.helpers.user(4, function (result) {
 });
 ```
 
-Or used as a prerequisites:
+Or used as a prerequisites, by passing a string with the helper invocation using the helper name and passing parameters that are all
+members of the request object (without _next_):
 ```javascript
 http.addRoute({
     method: 'GET',
     path: '/user/{id}',
     config: {
         pre: [
-            {
-                assign: 'user',
-                method: function (request, next) {
-
-                    request.server.helpers.user(request.params.id, next);
-                }
-            }
+            'user(params.id)'
         ],
         handler: function (request) {
 

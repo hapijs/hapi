@@ -18,7 +18,6 @@ var expect = Chai.expect;
 describe('Cache', function () {
 
     var _server = null;
-    var _serverUrl = 'http://127.0.0.1:17785';
 
     var profileHandler = function (request) {
 
@@ -59,29 +58,35 @@ describe('Cache', function () {
 
     var notCacheableHandler = function (request) {
 
-        var response = new Hapi.Response.Direct(request)
+        var response = new Hapi.Response.Raw(request)
             .type('text/plain')
             .bytes(13)
-            .ttl(1000)
-            .write('!hola ')
-            .write('amigos!');
+            .ttl(1000);
 
-        request.reply(response);
+        response.begin(function (err) {
+
+            response.write('!hola ')
+                    .write('amigos!');
+
+            request.reply(response);
+        });
     };
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 17785, { cache: { engine: 'memory' } });
+        _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
 
         _server.addRoutes([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000 } } },
+            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000, privacy: 'private' } } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
             { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { expiresIn: 120000 } } },
             { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { expiresIn: 120000, strict: true } } },
             { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { expiresIn: 120000, strict: true } } },
-            { method: 'GET', path: '/notcacheablenostrict', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: false } } }
+            { method: 'GET', path: '/notcacheablenostrict', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: false } } },
+            { method: 'GET', path: '/clientserver', config: { handler: profileHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
+            { method: 'GET', path: '/serverclient', config: { handler: profileHandler, cache: { mode: 'server+client', expiresIn: 120000 } } }
         ]);
 
         done();
@@ -96,7 +101,7 @@ describe('Cache', function () {
 
         _server.inject({
             method: 'get',
-            url: _serverUrl + path
+            url: path
         }, next);
     };
 
@@ -121,7 +126,7 @@ describe('Cache', function () {
         makeRequest('/profile', function (rawRes) {
 
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
@@ -131,7 +136,7 @@ describe('Cache', function () {
         makeRequest('/profile', function (rawRes) {
 
             var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
@@ -214,5 +219,29 @@ describe('Cache', function () {
 
         expect(fn).to.throw(Error, 'Attempted to cache non-cacheable item');
         done();
+    });
+
+    it('caches server+client the same as client+server', function (done) {
+
+        makeRequest('/serverclient', function (res1) {
+
+            _server.cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
+
+                expect(cached1).to.exist;
+                expect(res1.headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+
+
+                makeRequest('/clientserver', function (res2) {
+
+                    _server.cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
+
+                        expect(cached2).to.exist;
+                        expect(res2.headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+                        expect(cached1.item.payload).to.equal(cached2.item.payload);
+                        done();
+                    });
+                });
+            });
+        });
     });
 });

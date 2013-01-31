@@ -16,9 +16,6 @@ var expect = Chai.expect;
 
 describe('Prerequesites', function () {
 
-    var _server = null;
-    var _serverUrl = 'http://127.0.0.1:18089';
-
     var fetch1 = function (request, next) {
 
         next('Hello');
@@ -62,52 +59,63 @@ describe('Prerequesites', function () {
         request.reply(request.pre.m1);
     };
 
-    function setupServer(done) {
+    var server = new Hapi.Server('0.0.0.0', 0, { batch: true });
 
-        _server = new Hapi.Server('0.0.0.0', 18089, { batch: true });
-        _server.addRoutes([
-            {
-                method: 'GET',
-                path: '/fetch1',
-                config: {
-                    pre: [
-                        { method: fetch1, assign: 'm1', mode: 'parallel' },
-                        { method: fetch2, assign: 'm2' },
-                        { method: fetch3, assign: 'm3', mode: 'parallel' },
-                        { method: fetch4, assign: 'm4', mode: 'parallel' },
-                        { method: fetch5, assign: 'm5' }
-                    ],
-                    handler: getFetch1
-                }
-            },
-            {
-                method: 'GET',
-                path: '/fetch2',
-                config: {
-                    pre: [
-                        { method: fetch1, assign: 'm1', mode: 'parallel' }
-                    ],
-                    handler: getFetch2
-                }
-            },
-            {
-                method: 'GET',
-                path: '/fetch3',
-                config: {
-                    pre: [
-                        { method: fetch1, assign: 'm1', mode: 'parallel' },
-                        { method: fetch6, assign: 'm6' }
-                    ],
-                    handler: getFetch2
+    server.addHelper('user', function (id, next) {
+
+        return next({ id: id });
+    });
+
+    server.addRoutes([
+        {
+            method: 'GET',
+            path: '/fetch1',
+            config: {
+                pre: [
+                    { method: fetch1, assign: 'm1', mode: 'parallel' },
+                    { method: fetch2, assign: 'm2' },
+                    { method: fetch3, assign: 'm3', mode: 'parallel' },
+                    { method: fetch4, assign: 'm4', mode: 'parallel' },
+                    { method: fetch5, assign: 'm5' }
+                ],
+                handler: getFetch1
+            }
+        },
+        {
+            method: 'GET',
+            path: '/fetch2',
+            config: {
+                pre: [
+                    { method: fetch1, assign: 'm1', mode: 'parallel' }
+                ],
+                handler: getFetch2
+            }
+        },
+        {
+            method: 'GET',
+            path: '/fetch3',
+            config: {
+                pre: [
+                    { method: fetch1, assign: 'm1', mode: 'parallel' },
+                    { method: fetch6, assign: 'm6' }
+                ],
+                handler: getFetch2
+            }
+        },
+        {
+            method: 'GET',
+            path: '/user/{id}',
+            config: {
+                pre: [
+                    'user(params.id)'
+                ],
+                handler: function () {
+
+                    return this.reply(this.pre.user);
                 }
             }
-        ]);
-        _server.listener.on('listening', function () {
-
-            done();
-        });
-        _server.start();
-    }
+        }
+    ]);
 
     function makeRequest(path, callback) {
 
@@ -116,13 +124,11 @@ describe('Prerequesites', function () {
             return callback(res.result);
         };
 
-        _server.inject({
+        server.inject({
             method: 'get',
-            url: _serverUrl + path
+            url: path
         }, next);
     }
-
-    before(setupServer);
 
     it('shows the complete prerequisite pipeline in the response', function (done) {
 
@@ -149,6 +155,61 @@ describe('Prerequesites', function () {
             expect(res.code).to.equal(500);
             done();
         });
+    });
+
+    it('returns a user record using helper', function (done) {
+
+        makeRequest('/user/5', function (res) {
+
+            expect(res).to.deep.equal({ id: '5' });
+            done();
+        });
+    });
+
+    it('fails on bad helper name', function (done) {
+
+        var test = function () {
+
+            server.addRoute({
+                method: 'GET',
+                path: '/x/{id}',
+                config: {
+                    pre: [
+                        'xuser(params.id)'
+                    ],
+                    handler: function () {
+
+                        return this.reply(this.pre.user);
+                    }
+                }
+            });
+        };
+
+        expect(test).to.throw('Unknown server helper method in prerequisite string');
+        done();
+    });
+
+    it('fails on bad method syntax name', function (done) {
+
+        var test = function () {
+
+            server.addRoute({
+                method: 'GET',
+                path: '/x/{id}',
+                config: {
+                    pre: [
+                        'userparams.id)'
+                    ],
+                    handler: function () {
+
+                        return this.reply(this.pre.user);
+                    }
+                }
+            });
+        };
+
+        expect(test).to.throw('Invalid prerequisite string method syntax');
+        done();
     });
 });
 

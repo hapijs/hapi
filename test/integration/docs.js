@@ -21,8 +21,6 @@ describe('Docs Generator', function () {
     var _indexTemplate = '{{#each routes}}{{this.path}}|{{/each}}';
     var _server = null;
     var _serverWithoutPost = null;
-    var _serverUrl = 'http://127.0.0.1:8083';
-    var _serverWithoutPostUrl = 'http://127.0.0.1:18083';
 
     var handler = function (request) {
 
@@ -31,32 +29,27 @@ describe('Docs Generator', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 8083);
+        _server = new Hapi.Server();
         _server.addRoutes([
             { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/defaults', handler: { docs: true } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
-            { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } }
+            { method: 'POST', path: '/test', config: { handler: handler, query: { param2: S().valid('first', 'last') } } },
+            { method: 'GET', path: '/notincluded', config: { handler: handler, docs: false } }
         ]);
-        _server.listener.on('listening', function () {
 
-            done();
-        });
-        _server.start();
+        done();
     }
 
     function setupServerWithoutPost(done) {
 
-        _serverWithoutPost = new Hapi.Server('0.0.0.0', 18083);
+        _serverWithoutPost = new Hapi.Server();
         _serverWithoutPost.addRoutes([
             { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);
-        _serverWithoutPost.listener.on('listening', function () {
 
-            done();
-        });
-        _serverWithoutPost.start();
+        done();
     }
 
     function makeRequest(path, callback) {
@@ -68,7 +61,7 @@ describe('Docs Generator', function () {
 
         _server.inject({
             method: 'get',
-            url: _serverUrl + path
+            url: path
         }, next);
     }
 
@@ -110,6 +103,15 @@ describe('Docs Generator', function () {
         });
     });
 
+    it('the index does\'t include routes that are configured with docs disabled', function (done) {
+
+        makeRequest('/docs', function (res) {
+
+            expect(res).to.not.contain('/notincluded');
+            done();
+        });
+    });
+
     it('shows template when correct path is provided using defaults', function (done) {
 
         makeRequest('/defaults?path=/test', function (res) {
@@ -127,7 +129,7 @@ describe('Docs Generator', function () {
 
             _serverWithoutPost.inject({
                 method: 'get',
-                url: _serverWithoutPostUrl + '/docs'
+                url: '/docs'
             }, function (res) {
 
                 expect(res).to.exist;
