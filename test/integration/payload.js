@@ -3,7 +3,9 @@
 var Chai = require('chai');
 var Request = require('request');
 var Fs = require('fs');
+var Http = require('http');
 var Path = require('path');
+var Stream = require('stream');
 var Hapi = require('../helpers');
 
 
@@ -101,6 +103,330 @@ describe('Payload', function () {
                 done();
             });
         });
+
+        it('doesn\'t set the request payload when the request is interrupted and its streaming', function (done) {
+
+            var handler = function (request) {
+
+                expect(request.payload).to.not.exist;
+                request.reply('Success');
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 0);
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+
+            var s = new Stream();
+            s.readable = true;
+
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.settings.port,
+                    path: '/',
+                    method: 'POST'
+                };
+
+                var iv = setInterval(function () {
+
+                    s.emit('data', 'Hello');
+                }, 5);
+
+                var req = Http.request(options, function (res) {
+
+                });
+
+                req.on('error', function (err) {
+
+                    expect(err.code).to.equal('ECONNRESET');
+                    done();
+                });
+
+                s.pipe(req);
+
+                setTimeout(function () {
+
+                    req.abort();
+                    clearInterval(iv);
+                }, 15);
+            });
+        });
+
+        it('doesn\'t set the request payload when the request is interrupted', function (done) {
+
+            var handler = function (request) {
+
+                expect(request.payload).to.not.exist;
+                request.reply('Success');
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 0);
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.settings.port,
+                    path: '/',
+                    method: 'POST',
+                    headers: {
+                        'Content-Length': '10'
+                    }
+                };
+
+                var req = Http.request(options, function (res) {
+
+                });
+
+                req.write('Hello\n');
+
+                req.on('error', function (err) {
+
+                    expect(err.code).to.equal('ECONNRESET');
+                    done();
+                });
+
+                setTimeout(function () {
+
+                    req.abort();
+                }, 15);
+            });
+        });
+
+        it('returns the correct raw body when content-length is smaller than payload', function (done) {
+
+            var multipartPayload = '{"x":"1","y":"2","z":"3"}';
+
+            var handler = function (request) {
+
+                expect(request.payload).to.not.exist;
+                expect(request.rawBody).to.equal(multipartPayload);
+                request.reply(request.rawBody);
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+
+            server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'Content-Length': '5' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal(multipartPayload);
+                done();
+            });
+        });
+
+        it('returns the correct raw body when content-length is larger than payload', function (done) {
+
+            var multipartPayload = '{"x":"1","y":"2","z":"3"}';
+
+            var handler = function (request) {
+
+                expect(request.payload).to.not.exist;
+                expect(request.rawBody).to.equal(multipartPayload);
+                request.reply(request.rawBody);
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+
+            server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'Content-Length': '500' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal(multipartPayload);
+                done();
+            });
+        });
+    });
+
+    describe('stream mode', function () {
+
+        var handler = function (request) {
+
+            expect(request.payload).to.not.exist;
+            request.reply('Success');
+        };
+
+        var server = new Hapi.Server('127.0.0.1', 0);
+        server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'stream' } });
+
+        before(function (done) {
+
+            server.start(done);
+        });
+
+        it('doesn\'t set the request payload when streaming data in and the connection is interrupted', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST'
+            };
+
+            var s = new Stream();
+            s.readable = true;
+
+            var iv = setInterval(function () {
+
+                s.emit('data', 'Hello');
+            }, 5);
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+
+            s.pipe(req);
+
+            setTimeout(function () {
+
+                req.abort();
+                clearInterval(iv);
+            }, 15);
+        });
+    });
+
+    describe('parse mode', function () {
+
+        var handler = function (request) {
+
+            expect(request.payload.key).to.equal('value');
+            request.reply('Success');
+        };
+
+        var server = new Hapi.Server('127.0.0.1', 0, { timeout: { client: 50 } });
+        server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
+
+        before(function (done) {
+
+            server.start(done);
+        });
+
+        it('sets the request payload with the streaming data', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            var s = new Stream();
+            s.readable = true;
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                res.on('data', function (data) {
+
+                    expect(data.toString()).to.equal('Success');
+                    done();
+                });
+            });
+
+            s.pipe(req);
+            s.emit('data', '{ "key": "value" }');
+            req.end();
+        });
+
+        it('times out when the request content-length is larger than payload', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': '100'
+                }
+            };
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(408);
+                done();
+            });
+
+            req.end('{ "key": "value" }');
+        });
+
+        it('returns a 400 status code when the request content-length is smaller than payload', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': '1'
+                }
+            };
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+
+            req.end('{ "key": "value" }');
+        });
+
+        it('returns a 400 status code when the request payload is streaming data with content-length being too small', function (done) {
+
+            var s = new Stream();
+            s.readable = true;
+
+            var options = {
+                uri: 'http://127.0.0.1:' + server.settings.port + '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': '1'
+                }
+            };
+
+            var req = Request(options, function (err, res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+
+            s.pipe(req);
+            s.emit('data', '{ "key": "value" }');
+            req.end();
+        });
+
+        it('returns a 200 status code when the request payload is streaming data with content-length being smaller than payload but payload truncates to a valid value ', function (done) {
+
+            var s = new Stream();
+            s.readable = true;
+
+            var options = {
+                uri: 'http://127.0.0.1:' + server.settings.port + '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': '18'
+                }
+            };
+
+            var req = Request(options, function (err, res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+
+            s.pipe(req);
+            s.emit('data', '{ "key": "value" } garbage here');
+            req.end();
+        });
     });
 
     describe('unzip', function () {
@@ -138,7 +464,7 @@ describe('Payload', function () {
             request.reply(request.payload);
         };
 
-        var _server = new Hapi.Server('0.0.0.0', 18991);
+        var _server = new Hapi.Server('0.0.0.0', 0);
         _server.addRoute({ method: 'POST', path: '/invalid', handler: invalidHandler });
         _server.addRoute({ method: 'POST', path: '/echo', handler: echo });
 
@@ -201,11 +527,11 @@ describe('Payload', function () {
                 done();
             };
 
-            var server = new Hapi.Server('0.0.0.0', 18990);
+            var server = new Hapi.Server('0.0.0.0', 0);
             server.addRoute({ method: 'POST', path: '/file', config: { handler: fileHandler } });
             server.start(function () {
 
-                var r = Request.post('http://127.0.0.1:18990/file');
+                var r = Request.post(server.settings.uri + '/file');
                 var form = r.form();
                 form.append('my_file', file);
             });

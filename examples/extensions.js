@@ -49,13 +49,6 @@ internals.onPostRoute = function (request, next) {
 };
 
 
-internals.onUnknownRoute = function (request) {
-
-    Hapi.Log.event('onUnknownRoute');
-    request.reply(Hapi.Error.notFound());
-};
-
-
 internals.main = function () {
 
     var config = {
@@ -65,10 +58,6 @@ internals.main = function () {
                            internals.onPreHandler2],        // After validation and body parsing, before route handler
             onPostHandler: internals.onPostHandler,         // After route handler returns, before setting response
             onPostRoute: internals.onPostRoute,             // After response sent
-
-            // Overrides hapi's default handler for unknown route. Cannot be an array!
-
-            onUnknownRoute: internals.onUnknownRoute
         }
     };
 

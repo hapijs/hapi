@@ -36,8 +36,14 @@ describe('Response', function () {
                              .send();
             };
 
+            var handlerBound = function () {
+
+                this.reply('Tada');
+            };
+
             var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com'] } });
             server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.addRoute({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.addState('sid', { encoding: 'base64' });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
@@ -48,7 +54,13 @@ describe('Response', function () {
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
                 expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
                 expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT']);
-                done();
+
+                server.inject({ method: 'GET', url: '/bound' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.result).to.equal('Tada');
+                    done();
+                });
             });
         });
 
@@ -134,21 +146,25 @@ describe('Response', function () {
         });
     });
 
-    describe('Direct', function () {
+    describe('Raw', function () {
 
-        it('returns a direct reply', function (done) {
+        it('returns a reply', function (done) {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .type('text/plain')
                     .bytes(13)
                     .ttl(1000)
-                    .state('sid', 'abcdefg123456')
-                    .write('!hola ')
-                    .write('amigos!');
+                    .state('sid', 'abcdefg123456');
 
-                request.reply(response);
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
@@ -165,20 +181,115 @@ describe('Response', function () {
             });
         });
 
-        it('returns a direct reply (created)', function (done) {
+        it('returns a reply using send()', function (done) {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = request.reply.raw();
+                response.type('text/plain')
+                        .bytes(13)
+                        .ttl(1000)
+                        .state('sid', 'abcdefg123456');
+
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!')
+                            .send();
+                });
+            };
+
+            var server = new Hapi.Server();
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('!hola amigos!');
+                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                done();
+            });
+        });
+
+        it('returns a reply with no payload', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Raw(request)
+                    .code(299)
+                    .type('text/plain')
+                    .bytes(13)
+                    .state('sid', 'abcdefg123456');
+
+                request.reply(response);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(299);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns a HEAD reply', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Raw(request)
+                    .type('text/plain')
+                    .bytes(13)
+                    .ttl(1000)
+                    .state('sid', 'abcdefg123456');
+
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
+            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+
+            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
+                expect(res.readPayload()).to.equal('');
+                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns a reply (created)', function (done) {
+
+            var handler = function (request) {
+
+                var response = new Hapi.Response.Raw(request)
                     .created('me')
                     .type('text/plain')
                     .bytes(13)
                     .ttl(1000)
-                    .state('sid', 'abcdefg123456')
-                    .write('!hola ')
-                    .write('amigos!');
+                    .state('sid', 'abcdefg123456');
 
-                request.reply(response);
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
@@ -200,13 +311,17 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                var response = new Hapi.Response.Direct(request)
+                var response = new Hapi.Response.Raw(request)
                     .bytes(13)
-                    .state(';sid', 'abcdefg123456')
-                    .write('!hola ')
-                    .write('amigos!');
+                    .state(';sid', 'abcdefg123456');
 
-                request.reply(response);
+                response.begin(function (err) {
+
+                    response.write('!hola ')
+                            .write('amigos!');
+
+                    request.reply(response);
+                });
             };
 
             var server = new Hapi.Server();
@@ -454,7 +569,7 @@ describe('Response', function () {
 
     describe('Directory', function () {
 
-        var server = new Hapi.Server(17083);
+        var server = new Hapi.Server(0);
         server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
@@ -463,7 +578,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -476,7 +591,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/..', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/..', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -489,7 +604,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/xyz', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/xyz', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -502,7 +617,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/response.js', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/response.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -516,7 +631,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directory/directory/index.html', function (err, res, body) {
+                Request.get(server.settings.uri + '/directory/directory/index.html', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -532,7 +647,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryx', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryx/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -547,7 +662,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directorylist', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylist/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -561,7 +676,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directorylist/test', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylist/test', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -577,7 +692,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directorylistx', function (err, res, body) {
+                Request.get(server.settings.uri + '/directorylistx/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -593,7 +708,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryIndex', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryIndex/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -607,7 +722,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryIndex/invalid', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryIndex/invalid', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(500);
@@ -627,7 +742,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/directoryfn/defaults.js', function (err, res, body) {
+                Request.get(server.settings.uri + '/directoryfn/defaults.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
@@ -641,7 +756,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/showhidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/showhidden/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('.hidden');
@@ -654,7 +769,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/noshowhidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/noshowhidden/', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.not.contain('.hidden');
@@ -668,7 +783,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/noshowhidden/.hidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/noshowhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -681,7 +796,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17083/showhidden/.hidden', function (err, res, body) {
+                Request.get(server.settings.uri + '/showhidden/.hidden', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('test');
@@ -799,7 +914,7 @@ describe('Response', function () {
 
         it('returns a stream reply', function (done) {
 
-            server.inject({ method: 'GET', url: '/stream' }, function (res) {
+            server.inject({ method: 'GET', url: '/stream/' }, function (res) {
 
                 expect(res.readPayload()).to.equal('x');
                 expect(res.statusCode).to.equal(200);
@@ -929,6 +1044,14 @@ describe('Response', function () {
 
             return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' }).send();
         };
+        var testMultiHandlerJade = function (request) {
+
+            return request.reply.view('testMulti', { message: "Hello World!"}).send();
+        };
+        var testMultiHandlerHB = function (request) {
+
+            return request.reply.view('test', { message: "Hello World!"}).send();
+        };
 
 
         describe('Default', function (done) {
@@ -994,7 +1117,7 @@ describe('Response', function () {
                     done();
                 });
             });
-        })
+        });
 
         describe('Layout', function (done) {
 
@@ -1024,6 +1147,257 @@ describe('Response', function () {
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(500);
                     done();
+                });
+            });
+        });
+
+        describe('Engine Support', function () {
+
+            describe('Caching', function () {
+
+                it('should not throw if local cache disabled', function (done) {
+
+                    var fn = function() {
+
+                        var testServer = new Hapi.Server({
+                            views: {
+                                path: viewPath,
+                                engines: {
+                                    'html': { 
+                                        module: 'handlebars',
+                                        cache: false
+                                    },
+                                }
+                            }
+                        });
+                        testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                        testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                            expect(res.result).to.exist;
+                            expect(res.statusCode).to.equal(200);
+                            testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                                expect(res.result).to.exist;
+                                expect(res.statusCode).to.equal(200);
+                                // done();
+                            });
+                        });
+                    };
+                    expect(fn).to.not.throw();
+                    done();
+                });
+
+                it('should use the cache if all caching enabled', function (done) {
+
+                    var testServer = new Hapi.Server({
+                        views: {
+                            path: viewPath,
+                            cache: {},
+                            engines: {
+                                'html': {
+                                    module: 'handlebars'
+                                }
+                            }
+                        }
+                    });
+                    testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                    testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                            expect(res.result).to.exist;
+                            expect(res.statusCode).to.equal(200);
+                            done();
+                        });
+                    });
+                });
+
+                it('should not throw if global cache disabled', function (done) {
+
+                    var testServer = new Hapi.Server({
+                        views: {
+                            path: viewPath,
+                            cache: false,
+                            engine: {
+                                module: 'handlebars',
+                                extension: 'html',
+                                slashReplacement: '_',
+                            }
+                        }
+                    });
+                    testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                    testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+            });
+
+            describe('General', function () {
+
+                it('should not throw if view map has execute function defined', function (done) {
+
+                    var fn = function() {
+
+                        var testServer = new Hapi.Server({
+                            views: {
+                                path: viewPath,
+                                engines: {
+                                    'html': {
+                                        module: {
+                                            compile: function (tmpl, options) {
+
+                                                return function (ctx) {
+
+                                                    return tmpl;
+                                                }
+                                            }
+                                        },
+                                        map: {
+                                            execute: (function() {
+
+                                                return function (engine, compiled, ctx, options, partials) {
+
+                                                    return function(ctx, options) {
+
+                                                        return compiled(ctx, options);
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        testServer.addRoute({ method: 'GET', path: '/exec', config: { handler: testMultiHandlerHB } });
+                        testServer.inject({ method: 'GET', url: '/exec' }, function (res) {
+
+                            expect(res.result).to.exist;
+                            expect(res.statusCode).to.equal(200);
+                            // done();
+                        });
+                    };
+                    expect(fn).to.not.throw();
+                    done();
+                });
+
+                it('should throw if view module not found', function (done) {
+
+                    var fn = function() {
+
+                        var failServer = new Hapi.Server({
+                            views: {
+                                path: viewPath,
+                                engines: {
+                                    'html': { module: 'handlebars' },
+                                    'jade': { module: 'jade' },
+                                    'hbar': {
+                                        module: 'handlebars',
+                                        map: {
+                                            compile: function (engine) { return engine.compile; }
+                                        }
+                                    },
+                                    'err': {
+                                        module: 'hapi-module-that-does-not-exist'
+                                    }
+                                }
+                            }
+                        });
+                    };
+                    expect(fn).to.throw();
+                    done();
+                });
+
+                it('should work if view engine module is a pre-required module', function (done) {
+
+                    var options = {
+                        views: {
+                            path: viewPath,
+                            engines: {
+                                'test': {
+                                    module: require('jade')
+                                }
+                            }
+                        }
+                    };
+                    var fn = function() {
+
+                        var passServer = new Hapi.Server(options);
+                    };
+                    expect(fn).to.not.throw();
+                    done();
+                });
+            });
+
+            describe('Single', function () {
+
+                var server = new Hapi.Server({
+                    views: {
+                        path: viewPath,
+                        engine: {
+                            module: 'handlebars',
+                            extension: 'html',
+                            slashReplacement: '_',
+                        }
+                    }
+                });
+                
+                server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                
+                it('should render handlebars template', function (done) {
+
+                    server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+            });
+
+            describe('Multiple', function () {
+
+                var server = new Hapi.Server({
+                    views: {
+                        path: viewPath,
+                        engines: {
+                            'html': { module: 'handlebars' },
+                            'jade': { module: 'jade' },
+                            'hbar': {
+                                module: 'handlebars',
+                                map: {
+                                    compile: function (engine) { return engine.compile; }
+                                }
+                            },
+                        }
+                    }
+                });
+                server.addRoute({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
+                server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+
+
+                it('should render jade template', function (done) {
+
+                    server.inject({ method: 'GET', url: '/jade' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+                
+                it('should render handlebars template', function (done) {
+
+                    server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
                 });
             });
         });
@@ -1074,8 +1448,13 @@ describe('Response', function () {
             }
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Server(0);
         server.addRoute({ method: 'GET', path: '/redirect', config: { handler: handler } });
+
+        before(function (done) {
+
+            server.start(done);
+        });
 
         it('returns a redirection reply', function (done) {
 
@@ -1083,7 +1462,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('You are being redirected...');
-                expect(res.headers['Location']).to.equal('http://localhost:80/example');
+                expect(res.headers['Location']).to.equal(server.settings.uri + '/example');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
@@ -1095,7 +1474,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('We moved!');
-                expect(res.headers['Location']).to.equal('http://localhost:80/examplex');
+                expect(res.headers['Location']).to.equal(server.settings.uri + '/examplex');
                 expect(res.statusCode).to.equal(302);
                 done();
             });

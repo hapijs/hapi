@@ -45,6 +45,7 @@ describe('Validation', function () {
             payload: payload,
             path: routeClone.path,
             method: routeClone.method,
+            _timestamp: Date.now(),
             _route: { config: routeClone.config },
             response: { result: {} }
         };
@@ -62,6 +63,7 @@ describe('Validation', function () {
             },
             params: params,
             method: routeClone.method,
+            _timestamp: Date.now(),
             _route: { config: routeClone.config },
             response: { result: {} }
         };
@@ -77,6 +79,20 @@ describe('Validation', function () {
             var request = createRequestObject(query, route);
 
             request._response = Hapi.Response.generate({ username: 'test' });
+
+            Validation.response(request, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it('an error response should skip response validation and not return an error', function (done) {
+
+            var query = { username: 'walmart' };
+            var request = createRequestObject(query, route);
+
+            request._response = Hapi.Response.generate(Hapi.Error.unauthorized('You are not authorized'));
 
             Validation.response(request, function (err) {
 
@@ -163,7 +179,7 @@ describe('Validation', function () {
             });
 
             expect(rates[0]).to.be.greaterThan(9);                          // accept a 15 point margin
-            expect(rates[49]).to.be.lessThan(42);
+            expect(rates[49]).to.be.lessThan(43);
 
             done();
         });
