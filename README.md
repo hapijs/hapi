@@ -11,7 +11,44 @@ Current version: **0.12.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
-## [API Reference](docs/Reference.md)
-
 ## Getting started
 
+In the directory where you will be creating your application create a _package.json_ by running
+```
+npm init
+```
+
+Now install **hapi** and have it saved to your _package.json_ dependencies by running
+```
+npm install hapi --save
+```
+
+Next create an _index.js_ file and add the following contents to it:
+```javascript
+var Hapi = require('hapi');
+
+// Create a server with a host and port
+var server = new Hapi.Server('localhost', 8000);
+
+// Define the route
+var hello = {
+    handler: function (request) {
+    
+        request.reply({ greeting: 'hello world' });
+    }
+};
+
+// Add the route
+server.addRoute({
+    method: 'GET',
+    path: '/hello',
+    config: hello
+});
+
+// Start the server
+server.start();
+```
+
+Start the server with `node .` and navigate to the website at 'http://localhost:8000' in a browser.
+
+## [API Reference](docs/Reference.md)
