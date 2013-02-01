@@ -13,7 +13,9 @@ Current version: **0.12.0**
 
 ## Getting started
 
-In the directory where you will be creating your application create a _package.json_ by running
+To demonstrate a basic example we will be creating a "hello world" service with a single API endpoint.
+
+Start by creating a _package.json_ by running
 ```
 npm init
 ```
