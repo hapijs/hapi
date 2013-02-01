@@ -53,7 +53,10 @@ server.addRoute({
 server.start();
 ```
 
-Start the server with `node .` and navigate to the website at 'http://localhost:8000/hello' in a browser and you will see the text 'hello world' rendered.
+Start the server with `node .` and navigate to the website at 'http://localhost:8000/hello' in a browser and you will see the following output:
+```json
+{"greeting":"hello world"}
+```
 
 ### Hello World Server + Validation
 
