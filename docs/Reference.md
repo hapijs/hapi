@@ -1,7 +1,6 @@
 # Table of Content
 
 - [**Usage**](#usage)
-    - [**Basic Usage**](#basic-usage)
 <p></p>
     - [**Server Construction**](#server-construction)
 <p></p>
@@ -68,38 +67,6 @@
 
 
 # Usage
-
-
-## Basic Usage
-
-The following is a simple "hello world" service with a single API endpoint:
-
-```javascript
-var Hapi = require('hapi');
-
-// Create a server with a host and port
-var server = new Hapi.Server('localhost', 8000);
-
-// Define the route
-var hello = {
-    handler: function (request) {
-    
-        request.reply({ greeting: 'hello world' });
-    }
-};
-
-// Add the route
-server.addRoute({
-    method: 'GET',
-    path: '/hello',
-    config: hello
-});
-
-// Start the server
-server.start();
-```
-
-Now navigate to http://localhost:8000/hello and you should receive 'hello world'.
 
 
 ## Server Construction
