@@ -15,6 +15,8 @@ Current version: **0.12.0**
 
 To demonstrate a basic example we will be creating a "hello world" service with a single API endpoint.
 
+### Hello World Server
+
 Start by creating a _package.json_ by running
 ```
 npm init
@@ -51,6 +53,30 @@ server.addRoute({
 server.start();
 ```
 
-Start the server with `node .` and navigate to the website at 'http://localhost:8000' in a browser.
+Start the server with `node .` and navigate to the website at 'http://localhost:8000/hello' in a browser and you will see the text 'hello world' rendered.
+
+### Hello World Server + Validation
+
+To demonstrate one of the more powerful features in **hapi** we will change the 'hello' route to only respond whenever a _'name'_ is present on the querystring.  Change the _'index.js'_ so that the _'hello'_ config object looks like the following:
+```javascript
+var hello = {
+    handler: function (request) {
+    
+        request.reply({ greeting: 'hello ' + request.query.name });
+    },
+    validate: { 
+        query: {
+            name: Hapi.Types.String().required()
+        }
+    }
+};
+```
+
+When you start the server with `node .` and navigate to 'http://localhost:8000/hello' you will get a 400 response with an error explaining that 'name' is required.  When the 'name' is omitted from the querystring the handler will not be called.  However, if you do provide a 'name' it will be echoed out in the response.  If you request 'http://localhost:8000/hello?name=John' then you will get the following response:
+```json
+{"greeting":"hello John"}
+```
+
+To learn more about the [various validation options](docs/Reference.md#query-validation) you can read the validation section in the reference.
 
 ## [API Reference](docs/Reference.md)
