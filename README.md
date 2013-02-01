@@ -80,6 +80,6 @@ When you start the server with `node .` and navigate to 'http://localhost:8000/h
 {"greeting":"hello John"}
 ```
 
-To learn more about the [various validation options](docs/Reference.md#query-validation) you can read the validation section in the reference.
+To learn more about the various validation options you can read the [validation section](docs/Reference.md#query-validation) in the reference.
 
 ## [API Reference](docs/Reference.md)
