@@ -331,6 +331,39 @@ describe('Auth', function () {
             expect(fn).to.throw();
             done();
         });
+
+        it('cannot add a route that has payload validation required', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error, 'Payload validation can only be required when all strategies support it');
+            done();
+        });
+
+        it('cannot add a route that has payload validation as optional', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error, 'Payload validation can only be configured for strategies that support it');
+            done();
+        });
+
+        it('can add a route that has payload validation as none', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
     });
 
     describe('Oz', function () {
@@ -476,6 +509,39 @@ describe('Auth', function () {
                     done();
                 });
             });
+        });
+
+        it('cannot add a route that has payload validation required', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error, 'Payload validation can only be required when all strategies support it');
+            done();
+        });
+
+        it('cannot add a route that has payload validation as optional', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error, 'Payload validation can only be configured for strategies that support it');
+            done();
+        });
+
+        it('can add a route that has payload validation as none', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
         });
     });
 
@@ -898,7 +964,8 @@ describe('Auth', function () {
             { method: 'POST', path: '/multiple', handler: handler, config: { auth: { strategies: ['basic', 'hawk'] } } },
             { method: 'POST', path: '/multipleOptional', handler: handler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/multipleScope', handler: handler, config: { auth: { scope: 'x' } } },
-            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: 200 } } }
+            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: 200 } } },
+            { method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'optional' }, payload: 'raw' } }
         ]);
 
         it('returns a reply on successful auth of first auth strategy', function (done) {
@@ -987,6 +1054,46 @@ describe('Auth', function () {
 
                 expect(res.result.code).to.equal(401);
                 expect(res.result.message).to.equal('Bad mac');
+                done();
+            });
+        });
+
+        it('cannot add a route that has payload validation required when one of the server strategies doesn\'t support it', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'required' } } });
+            };
+
+            expect(fn).to.throw(Error, 'Payload validation can only be required when all strategies support it');
+            done();
+        });
+
+        it('returns an error with payload validation when the payload is tampered with and the route has optional auth', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/multiplePayload', '0.0.0.0', 8080, { payload: payload });
+            payload += 'HACKED';
+            var request = { method: 'POST', url: '/multiplePayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                expect(res.result.message).to.equal('Payload is invalid');
+                done();
+            });
+        });
+
+        it('returns a successful reply with payload validation as optional when the payload is valid', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/multiplePayload', '0.0.0.0', 8080, { payload: payload });
+            var request = { method: 'POST', url: '/multiplePayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
                 done();
             });
         });

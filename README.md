@@ -640,6 +640,10 @@ to write additional text as the configuration itself serves as a living document
             - _'none'_ - authentication not allowed.
             - _'required'_ - authentication is required.
             - _'optional'_ - authentication is optional (validated if present).
+        - `payload` - if the authentication scheme supports payload validation this option enables it.  Default is _none_.
+            - _'none'_ - payload validation is disabled
+            - _'required'_ - payload validation is enabled and a request must provide it
+            - _'optional'_ - when a request provides validation parameters in the authorization header then the payload will be validated.
         - `tos` - minimum terms-of-service version required. This is compared to the terms-of-service version accepted by the user. Defaults to _none_.
         - `scope` - required application scope. Defaults to _none_.
         - `entity` - the required authenticated entity type. Not supported with every authorization scheme. Available options include:
