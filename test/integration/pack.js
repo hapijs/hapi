@@ -119,6 +119,37 @@ describe('Pack', function () {
         });
     });
 
+    it('requires plugin via server plugin interface', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            hapi: {
+                plugin: true,
+                version: '0.x.x'
+            },
+            register: function (pack, next) {
+
+                this.addRoute({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.plugin().register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            expect(routesList(server)).to.deep.equal(['/a']);
+
+            expect(function () {
+
+                server.plugin().register(plugin, function (err) { });
+            }).to.throw();
+
+            done();
+        });
+    });
+
     it('requires directory', function (done) {
 
         var server1 = new Hapi.Server();
