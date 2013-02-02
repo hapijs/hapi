@@ -21,7 +21,7 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "hoek": "0.2.x",
+    "hoek": "0.3.x",
     "boom": "0.2.x",
     "joi": "0.0.x",
     "lout": "0.0.x",
@@ -36,7 +36,8 @@
     "mime": "1.2.x",
     "catbox": "0.1.x",
     "cryptiles": "0.0.x",
-    "iron": "0.1.x"
+    "iron": "0.1.x",
+    "semver": "1.1.0"
   },
   "devDependencies": {
     "mocha": "1.x.x",
