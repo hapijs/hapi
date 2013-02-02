@@ -109,7 +109,7 @@ describe('Pack', function () {
         pack.addServer('s3', server3, ['a', 'b', 'd']);
         pack.addServer('s4', server4, ['b', 'test']);
 
-        pack.require('./pack/test', function (err) {
+        pack.require('./pack/test', { name: 'test' }, function (err) {
 
             expect(err).to.not.exist;
 
@@ -117,6 +117,9 @@ describe('Pack', function () {
             expect(routesList(server2)).to.deep.equal(['/test']);
             expect(server3._router.table['get']).to.not.exist;
             expect(routesList(server4)).to.deep.equal(['/test']);
+
+            expect(server1.api.test.add(1, 3)).to.equal(4);
+            expect(server1.api.test.glue('1', '3')).to.equal('13');
 
             done();
         });
