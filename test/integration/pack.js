@@ -61,6 +61,7 @@ describe('Pack', function () {
                 expect(memoryx.length).to.equal(1);
                 expect(sodd.length).to.equal(2);
 
+                this.addRoute({ method: 'GET', path: '/all', handler: function () { this.reply('all'); } });
                 a.addRoute({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
                 ab.addRoutes([{ method: 'GET', path: '/ab', handler: function () { this.reply('ab'); } }]);
                 memoryx.addRoute({ method: 'GET', path: '/memoryx', handler: function () { this.reply('memoryx'); } });
@@ -84,10 +85,12 @@ describe('Pack', function () {
 
             expect(err).to.not.exist;
 
-            expect(routesList(server1)).to.deep.equal(['/a', '/ab']);
-            expect(routesList(server2)).to.deep.equal(['/a', '/sodd']);
-            expect(routesList(server3)).to.deep.equal(['/a', '/ab']);
-            expect(routesList(server4)).to.deep.equal(['/sodd', '/memoryx']);
+            expect(routesList(server1)).to.deep.equal(['/a', '/ab', '/all']);
+            expect(routesList(server2)).to.deep.equal(['/a', '/all', '/sodd']);
+            expect(routesList(server3)).to.deep.equal(['/a', '/ab', '/all']);
+            expect(routesList(server4)).to.deep.equal(['/all', '/sodd', '/memoryx']);
+
+            expect(server1.plugins.test.version).to.equal('1.0.0');
 
             done();
         });
