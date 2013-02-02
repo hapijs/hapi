@@ -37,7 +37,7 @@ describe('Proxy', function () {
         };
 
         var dummyServer = new Hapi.Server('0.0.0.0', 0);
-        dummyServer.addRoutes([
+        dummyServer.route([
             { method: 'GET', path: '/profile', handler: profile },
             { method: 'GET', path: '/item', handler: activeItem },
             { method: 'GET', path: '/proxyerror', handler: activeItem },
@@ -58,7 +58,7 @@ describe('Proxy', function () {
 
             var dummyPort = dummyServer.settings.port;
 
-            _server.addRoutes([
+            _server.route([
                 { method: 'GET', path: '/profile', handler: { proxy: { host: '127.0.0.1', port: dummyPort, xforward: true, passThrough: true } } },
                 { method: 'GET', path: '/item', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
                 { method: 'GET', path: '/unauthorized', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },

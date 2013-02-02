@@ -57,13 +57,13 @@ describe('Request', function () {
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { ext: { onPostHandler: postHandler }, cors: true });
-    server.addRoutes([
+    server.route([
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },
         { method: 'GET', path: '/ext', config: { handler: plainHandler } }
     ]);
 
-    server.setNotFound({ handler: unknownRouteHandler });
+    server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
 
     var makeRequest = function (method, path, callback) {
 

@@ -71,12 +71,12 @@ internals.main = function () {
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/', handler: getPages });
-    server.addRoute({ method: 'GET', path: '/pages/{page}', handler: getPage });
-    server.addRoute({ method: 'GET', path: '/create', handler: view('create') });
-    server.addRoute({ method: 'POST', path: '/create', handler: createPage });
-    server.addRoute({ method: 'GET', path: '/pages/{page}/edit', handler: showEditForm });
-    server.addRoute({ method: 'POST', path: '/pages/{page}/edit', handler: updatePage });
+    server.route({ method: 'GET', path: '/', handler: getPages });
+    server.route({ method: 'GET', path: '/pages/{page}', handler: getPage });
+    server.route({ method: 'GET', path: '/create', handler: view('create') });
+    server.route({ method: 'POST', path: '/create', handler: createPage });
+    server.route({ method: 'GET', path: '/pages/{page}/edit', handler: showEditForm });
+    server.route({ method: 'POST', path: '/pages/{page}/edit', handler: updatePage });
     server.start();
 };
 

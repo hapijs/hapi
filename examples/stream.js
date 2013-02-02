@@ -20,7 +20,7 @@ internals.echo = function (request) {
 internals.main = function () {
 
     var http = new Hapi.Server(8080);
-    http.addRoute({ method: 'POST', path: '/', config: { handler: internals.echo, payload: 'stream' } });
+    http.route({ method: 'POST', path: '/', config: { handler: internals.echo, payload: 'stream' } });
     http.start();
 };
 

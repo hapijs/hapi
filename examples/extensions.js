@@ -62,7 +62,7 @@ internals.main = function () {
     };
 
     var http = new Hapi.Server(8080, config);
-    http.addRoute({ method: 'GET', path: '/', handler: internals.get });
+    http.route({ method: 'GET', path: '/', handler: internals.get });
     http.start();
 };
 

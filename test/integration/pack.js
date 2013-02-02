@@ -18,7 +18,7 @@ describe('Pack', function () {
 
     var routesList = function (server) {
 
-        var routes = server._routes['get'];
+        var routes = server._router.table['get'];
         var list = [];
         for (var i = 0, il = routes.length; i < il; ++i) {
             var route = routes[i];
@@ -61,14 +61,14 @@ describe('Pack', function () {
                 expect(memoryx.length).to.equal(1);
                 expect(sodd.length).to.equal(2);
 
-                this.addRoute({ method: 'GET', path: '/all', handler: function () { this.reply('all'); } });
-                a.addRoute({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
-                ab.addRoutes([{ method: 'GET', path: '/ab', handler: function () { this.reply('ab'); } }]);
-                memoryx.addRoute({ method: 'GET', path: '/memoryx', handler: function () { this.reply('memoryx'); } });
-                sodd.addRoute({ method: 'GET', path: '/sodd', handler: function () { this.reply('sodd'); } });
+                this.route({ method: 'GET', path: '/all', handler: function () { this.reply('all'); } });
+                a.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
+                ab.route([{ method: 'GET', path: '/ab', handler: function () { this.reply('ab'); } }]);
+                memoryx.route({ method: 'GET', path: '/memoryx', handler: function () { this.reply('memoryx'); } });
+                sodd.route({ method: 'GET', path: '/sodd', handler: function () { this.reply('sodd'); } });
 
-                memoryx.addState('sid', { encoding: 'base64' });
-                this.addHelper('test', function (next) {
+                memoryx.state('sid', { encoding: 'base64' });
+                this.helper('test', function (next) {
 
                     next('123');
                 });
@@ -113,9 +113,9 @@ describe('Pack', function () {
 
             expect(err).to.not.exist;
 
-            expect(server1._routes['get']).to.not.exist;
+            expect(server1._router.table['get']).to.not.exist;
             expect(routesList(server2)).to.deep.equal(['/test']);
-            expect(server3._routes['get']).to.not.exist;
+            expect(server3._router.table['get']).to.not.exist;
             expect(routesList(server4)).to.deep.equal(['/test']);
 
             done();
@@ -133,7 +133,7 @@ describe('Pack', function () {
             },
             register: function (pack, next) {
 
-                this.addRoute({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
+                this.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
                 next();
             }
         };
@@ -166,13 +166,13 @@ describe('Pack', function () {
         pack.addServer('s3', server3, ['a', 'b', 'd']);
         pack.addServer('s4', server4, ['b', 'test']);
 
-        pack.requireDirectory('./pack', 'skip', function (err) {
+        pack.requireDirectory('./pack', { exclude: 'skip' }, function (err) {
 
             expect(err).to.not.exist;
 
-            expect(server1._routes['get']).to.not.exist;
+            expect(server1._router.table['get']).to.not.exist;
             expect(routesList(server2)).to.deep.equal(['/test']);
-            expect(server3._routes['get']).to.not.exist;
+            expect(server3._router.table['get']).to.not.exist;
             expect(routesList(server4)).to.deep.equal(['/test']);
 
             done();

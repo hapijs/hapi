@@ -7,7 +7,7 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
-Current version: **0.12.0**
+Current version: **0.13.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -43,7 +43,7 @@ var hello = {
 };
 
 // Add the route
-server.addRoute({
+server.route({
     method: 'GET',
     path: '/hello',
     config: hello

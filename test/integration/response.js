@@ -42,9 +42,9 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com'] } });
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
-            server.addRoute({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
-            server.addState('sid', { encoding: 'base64' });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
+            server.state('sid', { encoding: 'base64' });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -74,7 +74,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -96,7 +96,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -120,7 +120,7 @@ describe('Response', function () {
         };
 
         var server = new Hapi.Server({ cors: { credentials: true } });
-        server.addRoutes([
+        server.route([
             { method: 'GET', path: '/', handler: handler },
         ]);
 
@@ -168,7 +168,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -200,7 +200,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -227,7 +227,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -259,7 +259,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
 
             server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
@@ -293,7 +293,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -325,7 +325,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -348,7 +348,7 @@ describe('Response', function () {
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
             };
 
-            server.addRoute({ method: 'GET', path: '/file', handler: handler });
+            server.route({ method: 'GET', path: '/file', handler: handler });
 
             server.start(function () {
 
@@ -367,7 +367,7 @@ describe('Response', function () {
         it('returns a file in the response with the correct headers using process relative paths', function (done) {
 
             var server = new Hapi.Server(17084, { files: { relativeTo: 'process' } });
-            server.addRoute({ method: 'GET', path: '/', handler: { file: './package.json' } });
+            server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
 
             server.start(function () {
 
@@ -390,7 +390,7 @@ describe('Response', function () {
                 request.reply(new Hapi.Response.File(__dirname + '/../../notHere'));
             };
 
-            server.addRoute({ method: 'GET', path: '/filenotfound', handler: notFoundHandler });
+            server.route({ method: 'GET', path: '/filenotfound', handler: notFoundHandler });
 
             server.start(function () {
 
@@ -410,7 +410,7 @@ describe('Response', function () {
                 request.reply(new Hapi.Response.File(__dirname));
             };
 
-            server.addRoute({ method: 'GET', path: '/filefolder', handler: folderHandler });
+            server.route({ method: 'GET', path: '/filefolder', handler: folderHandler });
 
             server.start(function () {
 
@@ -430,7 +430,7 @@ describe('Response', function () {
 
         it('returns a file using the build-in handler config', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } });
+            server.route({ method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } });
 
             Request.get('http://localhost:17082/staticfile', function (err, res, body) {
 
@@ -444,7 +444,7 @@ describe('Response', function () {
 
         it('returns a file using the file function with the build-in handler config', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
+            server.route({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
 
             Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
 
@@ -463,7 +463,7 @@ describe('Response', function () {
                 request.reply(new Hapi.Response.File('./package.json'));
             };
 
-            server.addRoute({ method: 'GET', path: '/relativefile', handler: relativeHandler });
+            server.route({ method: 'GET', path: '/relativefile', handler: relativeHandler });
 
             server.start(function () {
 
@@ -480,7 +480,7 @@ describe('Response', function () {
 
         it('returns a file using the built-in handler config (relative path)', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
+            server.route({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
 
             Request.get('http://localhost:17082/relativestaticfile', function (err, res, body) {
 
@@ -548,7 +548,7 @@ describe('Response', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
+                server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
             };
 
             expect(fn).to.throw(Error);
@@ -559,7 +559,7 @@ describe('Response', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
+                server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
             };
 
             expect(fn).to.not.throw(Error);
@@ -570,9 +570,9 @@ describe('Response', function () {
     describe('Directory', function () {
 
         var server = new Hapi.Server(0);
-        server.addRoute({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
-        server.addRoute({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
-        server.addRoute({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
+        server.route({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
+        server.route({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -643,7 +643,7 @@ describe('Response', function () {
 
         it('returns a 403 when index and listing are disabled', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/directoryx/{path*}', handler: { directory: { path: '../../', index: false } } });
+            server.route({ method: 'GET', path: '/directoryx/{path*}', handler: { directory: { path: '../../', index: false } } });
 
             server.start(function () {
 
@@ -656,7 +656,7 @@ describe('Response', function () {
             });
         });
 
-        server.addRoute({ method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: '../../', listing: true } } });
+        server.route({ method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: '../../', listing: true } } });
 
         it('returns a list of files when listing is enabled', function (done) {
 
@@ -688,7 +688,7 @@ describe('Response', function () {
 
         it('returns a list of files when listing is enabled and index disabled', function (done) {
 
-            server.addRoute({ method: 'GET', path: '/directorylistx/{path*}', handler: { directory: { path: '../../', listing: true, index: false } } });
+            server.route({ method: 'GET', path: '/directorylistx/{path*}', handler: { directory: { path: '../../', listing: true, index: false } } });
 
             server.start(function () {
 
@@ -702,7 +702,7 @@ describe('Response', function () {
             });
         });
 
-        server.addRoute({ method: 'GET', path: '/directoryIndex/{path*}', handler: { directory: { path: './directory/' } } });
+        server.route({ method: 'GET', path: '/directoryIndex/{path*}', handler: { directory: { path: './directory/' } } });
 
         it('returns the index when found', function (done) {
 
@@ -738,7 +738,7 @@ describe('Response', function () {
                 return '../../lib';
             };
 
-            server.addRoute({ method: 'GET', path: '/directoryfn/{path?}', handler: { directory: { path: directoryFn } } });
+            server.route({ method: 'GET', path: '/directoryfn/{path?}', handler: { directory: { path: directoryFn } } });
 
             server.start(function () {
 
@@ -908,9 +908,9 @@ describe('Response', function () {
         };
 
         var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] } });
-        server.addRoute({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
-        server.addRoute({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
-        server.addRoute({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { mode: 'client', expiresIn: 9999 } } });
+        server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+        server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
+        server.route({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { mode: 'client', expiresIn: 9999 } } });
 
         it('returns a stream reply', function (done) {
 
@@ -995,7 +995,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cache: { engine: 'memory' } });
-            server.addRoute({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } });
+            server.route({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } });
 
             server.inject({ method: 'GET', url: '/cache' }, function (res1) {
 
@@ -1061,11 +1061,11 @@ describe('Response', function () {
                     path: viewPath
                 }
             });
-            server.addRoute({ method: 'GET', path: '/views', config: { handler: handler } });
-            server.addRoute({ method: 'GET', path: '/views/abspath', config: { handler: absoluteHandler } });
-            server.addRoute({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
-            server.addRoute({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
-            server.addRoute({ method: 'GET', path: '/views/invalid', config: { handler: invalidHandler } });
+            server.route({ method: 'GET', path: '/views', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/views/abspath', config: { handler: absoluteHandler } });
+            server.route({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
+            server.route({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
+            server.route({ method: 'GET', path: '/views/invalid', config: { handler: invalidHandler } });
 
             it('returns a compiled Handlebars template reply', function (done) {
 
@@ -1127,8 +1127,8 @@ describe('Response', function () {
                     layout: true
                 }
             });
-            layoutServer.addRoute({ method: 'GET', path: '/layout/conflict', config: { handler: layoutConflictHandler } });
-            layoutServer.addRoute({ method: 'GET', path: '/layout/abspath', config: { handler: layoutErrHandler } });
+            layoutServer.route({ method: 'GET', path: '/layout/conflict', config: { handler: layoutConflictHandler } });
+            layoutServer.route({ method: 'GET', path: '/layout/abspath', config: { handler: layoutErrHandler } });
 
             it('returns error on layoutKeyword conflict', function (done) {
 
@@ -1170,7 +1170,7 @@ describe('Response', function () {
                                 }
                             }
                         });
-                        testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                        testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
                         testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
 
                             expect(res.result).to.exist;
@@ -1200,7 +1200,7 @@ describe('Response', function () {
                             }
                         }
                     });
-                    testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                    testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
                     testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
 
                         expect(res.result).to.exist;
@@ -1227,7 +1227,7 @@ describe('Response', function () {
                             }
                         }
                     });
-                    testServer.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                    testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
                     testServer.inject({ method: 'GET', url: '/handlebars' }, function (res) {
 
                         expect(res.result).to.exist;
@@ -1273,7 +1273,7 @@ describe('Response', function () {
                                 }
                             }
                         });
-                        testServer.addRoute({ method: 'GET', path: '/exec', config: { handler: testMultiHandlerHB } });
+                        testServer.route({ method: 'GET', path: '/exec', config: { handler: testMultiHandlerHB } });
                         testServer.inject({ method: 'GET', url: '/exec' }, function (res) {
 
                             expect(res.result).to.exist;
@@ -1346,7 +1346,7 @@ describe('Response', function () {
                     }
                 });
                 
-                server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
                 
                 it('should render handlebars template', function (done) {
 
@@ -1376,8 +1376,8 @@ describe('Response', function () {
                         }
                     }
                 });
-                server.addRoute({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
-                server.addRoute({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                server.route({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
+                server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
 
 
                 it('should render jade template', function (done) {
@@ -1449,7 +1449,7 @@ describe('Response', function () {
         };
 
         var server = new Hapi.Server(0);
-        server.addRoute({ method: 'GET', path: '/redirect', config: { handler: handler } });
+        server.route({ method: 'GET', path: '/redirect', config: { handler: handler } });
 
         before(function (done) {
 
@@ -1563,7 +1563,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -1590,7 +1590,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ format: { payload: formatPayload } });
-            server.addRoute({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
