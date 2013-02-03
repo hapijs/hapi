@@ -5,12 +5,12 @@ var internals = {};
 
 // Plugin registration
 
-exports.register = function (pack, next) {
+exports.register = function (pack, options, next) {
 
     var route = { path: '/test', method: 'GET', handler: function () { this.reply('testing123'); } };
-    this.select({ label: 'test' }).route(route);
-    this.api(internals.math);
-    this.api(internals.text);
+    pack.select({ label: 'test' }).route(route);
+    pack.api(internals.math);
+    pack.api(internals.text);
 
     return next();
 };
