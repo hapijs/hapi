@@ -49,11 +49,11 @@ exports.endpoints = {
                 post: { handler: Session.token, data: Session.type.endpoint, authentication: 'optional', user: 'any', tos: 'none' }}},
         "/profile": {
             base: User, // Special param:  handlers for sibling HTTP methods use convention:  base[http_method] = User.get
-            opts: { tos: 'none' }, // default opts, inherited by descendent controllers
+            opts: { tos: 'none' }, // default opts, inherited by descendant controllers
             // get: { tos: 'none' },  // not necessary, covered by existence of User.get;
             post: { data: User.type.user }, // handler unnecessary since following RESTful convention; tos inherited from parent.opts
             "/email": {
-                post: { handler: User.email, data: User.type.email }}} // inherited tos param
+                post: { handler: User.email, data: User.type.email }}}, // inherited tos param
         "/contacts": {
             get: { handler: User.contacts, query: ['exclude'], tos: 'none' }},
         "/who": {
@@ -89,15 +89,15 @@ exports.endpoints = {
                     post: { handler: Last.postProject }},
                 "/participants": {
                     post: { handler: Project.participants, query: ['message'], data: Project.type.participants },
-                    delete: { handler: Project.uninvite, data: Project.type.uninvite }
+                    delete: { handler: Project.uninvite, data: Project.type.uninvite },
                     "/:user": {
-                        delete: { handler: Project.uninvite }}}
+                        delete: { handler: Project.uninvite }}},
                 "/suggestion": {
                     delete: { handler: Suggestions.exclude }},
                 "/suggestions": {
                     get: { handler: Project.suggestions }},
                 "/task": {
-                    put: { handler: Task.put, query: ['suggestion', 'position'],  data: Task.type.put }}
+                    put: { handler: Task.put, query: ['suggestion', 'position'],  data: Task.type.put }},
                 "/tasks": {
                     get: { handler: Task.list }},
                 "/tips": {

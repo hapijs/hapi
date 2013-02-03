@@ -596,7 +596,7 @@ to write additional text as the configuration itself serves as a living document
             - _'user'_ - the authentication must be on behalf of a user.
             - _'app'_ - the authentication must be on behalf of an application.
 
-The `config` option was defined for easily spliting the routing table definition from the individual route information. For example:
+The `config` option was defined for easily splitting the routing table definition from the individual route information. For example:
 ```javascript
 var Hapi = require('hapi');
 
@@ -768,7 +768,7 @@ var handler = function () {
 #### Response
 
 **hapi** provides native support for the following response types:
-- Empty - an empty response body (content-lenght of zero).
+- Empty - an empty response body (content-length of zero).
 - Text - plain text. Defaults to 'text/html' content-type.
 - Obj - Javascript object, converted to string. Defaults to 'application/json' content-type.
 - Stream - a stream object, directly piped into the HTTP response.
@@ -1273,7 +1273,7 @@ The request object is also decorated with the following methods.
     - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the logged event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
     - _'data'_ - an optional message string or object with the application data being logged.
     - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
-- _'getLog(tags)'_ - Returns an array of events which match the tag(s) specifed.
+- _'getLog(tags)'_ - Returns an array of events which match the tag(s) specified.
 
 For example:
 ```javascript
@@ -1508,7 +1508,7 @@ Error responses are send as JSON payload with the following keys (unless an [err
 - _error_ - the HTTP status message (e.g. 'Bad Request').
 - _message_ - the returned message if provided.
 
-The complete error repsonse including any additional data is added to the request log.
+The complete error response including any additional data is added to the request log.
 
 
 ## State Management
