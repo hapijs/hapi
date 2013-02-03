@@ -87,7 +87,6 @@ var server = new Hapi.Server();
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
-- [`ext`](#extensions)
 - [`format`](#format)
 - [`files`](#files)
 - [`monitor`](#monitor)
@@ -152,14 +151,11 @@ For example:
 ```javascript
 var Hapi = require('hapi');
 
-var options = {
-    ext: {
-        onRequest: onRequest
-    }
-};
-
 // Create server
 var http = new Hapi.Server('localhost', 8000, options);
+
+// Register extension point
+http.ext('onRequest', onRequest);
 
 // Set routes
 http.route({ method: 'GET', path: '/test', handler: get });

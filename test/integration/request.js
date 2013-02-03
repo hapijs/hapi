@@ -56,7 +56,8 @@ describe('Request', function () {
         }
     };
 
-    var server = new Hapi.Server('0.0.0.0', 0, { ext: { onPostHandler: postHandler }, cors: true });
+    var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
+    server.ext('onPostHandler', postHandler);
     server.route([
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },

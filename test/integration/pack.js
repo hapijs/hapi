@@ -280,4 +280,40 @@ describe('Pack', function () {
         expect(err.message).to.equal('Plugin missing register() method');
         done();
     });
+
+    it('extends onRequest point', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            hapi: {
+                plugin: true,
+                version: '0.x.x'
+            },
+            register: function (pack, options, next) {
+
+                pack.route({ method: 'GET', path: '/b', handler: function () { this.reply('b'); } });
+                pack.ext('onRequest', function (request, cont) {
+
+                    request.setUrl('/b');
+                    cont();
+                });
+
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.plugin().register(plugin, { permissions: { ext: true } }, function (err) {
+
+            expect(err).to.not.exist;
+            expect(routesList(server)).to.deep.equal(['/b']);
+
+            server.inject({ method: 'GET', url: '/a' }, function (res) {
+
+                expect(res.result).to.equal('b');
+                done();
+            });
+        });
+    });
 });
