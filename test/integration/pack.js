@@ -36,10 +36,10 @@ describe('Pack', function () {
         var server4 = new Hapi.Server({ cache: 'memory' });
 
         var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, ['a', 'b']);
-        pack.server('s2', server2, ['a', 'c']);
-        pack.server('s3', server3, ['a', 'b', 'd']);
-        pack.server('s4', server4, ['b', 'x']);
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+        pack.server('s2', server2, { labels: ['a', 'c'] });
+        pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
+        pack.server('s4', server4, { labels: ['b', 'x'] });
 
         var plugin = {
             name: 'test',
@@ -104,10 +104,10 @@ describe('Pack', function () {
         var server4 = new Hapi.Server({ cache: 'memory' });
 
         var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, ['a', 'b']);
-        pack.server('s2', server2, ['a', 'test']);
-        pack.server('s3', server3, ['a', 'b', 'd']);
-        pack.server('s4', server4, ['b', 'test']);
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+        pack.server('s2', server2, { labels: ['a', 'test'] });
+        pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
+        pack.server('s4', server4, { labels: ['b', 'test'] });
 
         pack.require('./pack/test', { name: 'test' }, function (err) {
 
@@ -164,10 +164,10 @@ describe('Pack', function () {
         var server4 = new Hapi.Server({ cache: 'memory' });
 
         var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, ['a', 'b']);
-        pack.server('s2', server2, ['a', 'test']);
-        pack.server('s3', server3, ['a', 'b', 'd']);
-        pack.server('s4', server4, ['b', 'test']);
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+        pack.server('s2', server2, { labels: ['a', 'test'] });
+        pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
+        pack.server('s4', server4, { labels: ['b', 'test'] });
 
         pack.requireDirectory('./pack', { exclude: 'skip' }, function (err) {
 
@@ -186,7 +186,7 @@ describe('Pack', function () {
 
         var server1 = new Hapi.Server();
         var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, ['a', 'b']);
+        pack.server('s1', server1, { labels: ['a', 'b'] });
 
         pack.require('./pack/skip', function (err) {
 
@@ -200,7 +200,7 @@ describe('Pack', function () {
 
         var server1 = new Hapi.Server();
         var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, ['a', 'b']);
+        pack.server('s1', server1, { labels: ['a', 'b'] });
 
         pack.require('./pack/none', function (err) {
 
@@ -218,10 +218,10 @@ describe('Pack', function () {
         var server4 = new Hapi.Server(0, { cache: 'memory' });
 
         var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, ['a', 'b']);
-        pack.server('s2', server2, ['a', 'test']);
-        pack.server('s3', server3, ['a', 'b', 'd']);
-        pack.server('s4', server4, ['b', 'test']);
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+        pack.server('s2', server2, { labels: ['a', 'test'] });
+        pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
+        pack.server('s4', server4, { labels: ['b', 'test'] });
 
         pack.start(function () {
 

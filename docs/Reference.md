@@ -764,6 +764,7 @@ The request object includes a _'reply'_ property which includes the following me
 - _'stream(stream)'_ - pipes the content of the stream into the response.
 - _'redirect(uri)'_ - sets a redirection response. Defaults to 302.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
+- _'close()'_ - closes the response stream immediately without flushing any remaining unsent data. Used for ending the handler execution after manually sending a response.
 
 For convenience, the 'response' object is also decorated with a shortcut function _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_.
 

@@ -20,6 +20,33 @@ var expect = Chai.expect;
 
 describe('Response', function () {
 
+    describe('Manual', function () {
+
+        it('returns a reply', function (done) {
+
+            var handler = function () {
+
+                this.reply.close();
+            };
+
+            var server = new Hapi.Server({ cache: { engine: 'memory' } });
+            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/null' }, function (res) {
+
+                expect(res.readPayload()).to.equal('0\r\n\r\n');
+
+                expect(function () {
+
+                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
+                }).to.throw();
+
+                done();
+            });
+        });
+    });
+
     describe('Text', function () {
 
         it('returns a text reply', function (done) {
@@ -1046,11 +1073,11 @@ describe('Response', function () {
         };
         var testMultiHandlerJade = function (request) {
 
-            return request.reply.view('testMulti', { message: "Hello World!"}).send();
+            return request.reply.view('testMulti', { message: "Hello World!" }).send();
         };
         var testMultiHandlerHB = function (request) {
 
-            return request.reply.view('test', { message: "Hello World!"}).send();
+            return request.reply.view('test', { message: "Hello World!" }).send();
         };
 
 
@@ -1157,13 +1184,13 @@ describe('Response', function () {
 
                 it('should not throw if local cache disabled', function (done) {
 
-                    var fn = function() {
+                    var fn = function () {
 
                         var testServer = new Hapi.Server({
                             views: {
                                 path: viewPath,
                                 engines: {
-                                    'html': { 
+                                    'html': {
                                         module: 'handlebars',
                                         cache: false
                                     },
@@ -1241,7 +1268,7 @@ describe('Response', function () {
 
                 it('should not throw if view map has execute function defined', function (done) {
 
-                    var fn = function() {
+                    var fn = function () {
 
                         var testServer = new Hapi.Server({
                             views: {
@@ -1258,11 +1285,11 @@ describe('Response', function () {
                                             }
                                         },
                                         map: {
-                                            execute: (function() {
+                                            execute: (function () {
 
                                                 return function (engine, compiled, ctx, options, partials) {
 
-                                                    return function(ctx, options) {
+                                                    return function (ctx, options) {
 
                                                         return compiled(ctx, options);
                                                     }
@@ -1287,7 +1314,7 @@ describe('Response', function () {
 
                 it('should throw if view module not found', function (done) {
 
-                    var fn = function() {
+                    var fn = function () {
 
                         var failServer = new Hapi.Server({
                             views: {
@@ -1324,7 +1351,7 @@ describe('Response', function () {
                             }
                         }
                     };
-                    var fn = function() {
+                    var fn = function () {
 
                         var passServer = new Hapi.Server(options);
                     };
@@ -1345,9 +1372,9 @@ describe('Response', function () {
                         }
                     }
                 });
-                
+
                 server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
-                
+
                 it('should render handlebars template', function (done) {
 
                     server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
@@ -1389,7 +1416,7 @@ describe('Response', function () {
                         done();
                     });
                 });
-                
+
                 it('should render handlebars template', function (done) {
 
                     server.inject({ method: 'GET', url: '/handlebars' }, function (res) {
