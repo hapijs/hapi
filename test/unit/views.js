@@ -173,7 +173,7 @@ describe('Views', function () {
             };
 
             internals._handlerServer = new Hapi.Server(options);
-            internals._handlerServer.addRoute({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
+            internals._handlerServer.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
         });
 
         it('handles routes to views', function (done) {

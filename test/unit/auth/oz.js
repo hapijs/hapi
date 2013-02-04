@@ -114,7 +114,7 @@ describe('Auth', function () {
 
                     var server = {
                         settings: {},
-                        addRoutes: function () { }
+                        route: function () { }
                     };
 
                     var scheme = new Scheme(server, {
@@ -133,7 +133,7 @@ describe('Auth', function () {
 
                 var server = {
                     settings: {},
-                    addRoutes: function () { }
+                    route: function () { }
                 };
 
                 var settings = {

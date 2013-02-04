@@ -87,7 +87,6 @@ var server = new Hapi.Server();
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
-- [`ext`](#extensions)
 - [`format`](#format)
 - [`files`](#files)
 - [`monitor`](#monitor)
@@ -124,6 +123,7 @@ var server = new Hapi.Server(options);
 The `router` option controls how incoming request URIs are matched against the routing table. The router only uses the first match found. Router options:
 - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to _true_.
 - `normalizeRequestPath` - determines whether a path should have certain reserved and unreserved percent encoded characters decoded.  Also, all percent encodings will be capitalized that cannot be decoded.  Defaults to _false_.
+- `routeDefaults` - sets a default configuration for new routes which is overwritten by each route configuration.
 
 
 ### Payload
@@ -151,17 +151,14 @@ For example:
 ```javascript
 var Hapi = require('hapi');
 
-var options = {
-    ext: {
-        onRequest: onRequest
-    }
-};
-
 // Create server
 var http = new Hapi.Server('localhost', 8000, options);
 
+// Register extension point
+http.ext('onRequest', onRequest);
+
 // Set routes
-http.addRoute({ method: 'GET', path: '/test', handler: get });
+http.route({ method: 'GET', path: '/test', handler: get });
 
 // Start server
 http.start();
@@ -263,7 +260,7 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 **hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
 When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
 and defaults to _'routes'_:
-- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'addRoute()'_ or _'addRoutes()'_ methods are called. This means the location of the source code determines the location of the static resources when using relative paths.
+- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'route()'_ method is called. This means the location of the source code determines the location of the static resources when using relative paths.
 - _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
 
 
@@ -526,20 +523,16 @@ The server object emits the following events:
 
 ## Server Route Not Found
 
-**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can use the
-`setNotFound` server method. The method takes a route configuration object with a handler property.
-
-Below is an example creating a server and then setting the _'notFound'_ route configuration.
-
-For example, the default notFound route configuration can be set as shown below:
+**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can add a
+new catch-all route for a specific method or all methods:
 ```javascript
 var Hapi = require('hapi');
 
 // Create server
 var http = new Hapi.Server(8000);
 
-// Set the notFound route configuration
-http.setNotFound({ handler: notFoundHandler });
+// Override the default 404 handler
+http.route({ method: '*', path: '/{p*}, handler: notFoundHandler });
 
 // Start server
 http.start();
@@ -609,7 +602,7 @@ var handler1 = function (request) {
     request.reply('ok');
 }
 
-server.addRoute({ method: 'GET', path: '/option1', handler: handler1 });
+server.route({ method: 'GET', path: '/option1', handler: handler1 });
 
 // Option 2 - add handler in separate config object
 
@@ -622,17 +615,7 @@ var config2 = {
     }
 };
 
-server.addRoute({ method: 'GET', path: '/option2', config: config2});
-```
-
-
-### Override Route Defaults
-
-Each configuration option comes with a built-in default. To change these defaults, use the `setRoutesDefaults()` server method.
-```javascript
-server.setRoutesDefaults({
-    auth: { mode: 'none' }
-});
+server.route({ method: 'GET', path: '/option2', config: config2});
 ```
 
 
@@ -682,7 +665,7 @@ Parameterized paths are processed by matching the named parameters to the conten
 an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/'.
 
 ```javascript
-server.addRoute({
+server.route({
     path: '/{album}/{song?}',
     method: 'GET',
     handler: getAlbum
@@ -699,7 +682,7 @@ function getAlbum(request) {
 In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  If the number of expected parts can be anything, then use the _'*'_ without a number.
 
 ```javascript
-server.addRoute({
+server.route({
     path: '/person/{names*2}',
     method: 'GET',
     handler: getPerson
@@ -717,7 +700,7 @@ In the example code above if a request for `/person/john/smith` comes in then `r
 Below is a similar example without a requirement on the number of name parts that can be passed.
 
 ```javascript
-server.addRoute({
+server.route({
     path: '/people/{names*}',
     method: 'GET',
     handler: getPerson
@@ -781,6 +764,7 @@ The request object includes a _'reply'_ property which includes the following me
 - _'stream(stream)'_ - pipes the content of the stream into the response.
 - _'redirect(uri)'_ - sets a redirection response. Defaults to 302.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
+- _'close()'_ - closes the response stream immediately without flushing any remaining unsent data. Used for ending the handler execution after manually sending a response.
 
 For convenience, the 'response' object is also decorated with a shortcut function _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_.
 
@@ -822,7 +806,7 @@ For example, to proxy a request to the homepage to google:
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Proxy request to / to google.com
-http.addRoute({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
+http.route({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
 
 http.start();
 ```
@@ -840,7 +824,7 @@ configured with a static file path. For example:
 var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'process' } });
 
 // Serve index.html file up a directory in the public folder
-http.addRoute({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
+http.route({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
 
 http.start();
 ```
@@ -863,7 +847,7 @@ var filePath = function (request) {
     return './public' + request.params.path;
 };
 
-http.addRoute({ method: 'GET', path: '/{path}', handler: { file: filePath } });
+http.route({ method: 'GET', path: '/{path}', handler: { file: filePath } });
 
 http.start();
 ```
@@ -893,7 +877,7 @@ The following example shows how to serve a directory named _'public'_ and enable
 var http = new Hapi.Server('0.0.0.0', 8080);
 
 // Serve the public folder with listing enabled
-http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } } });
+http.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } } });
 
 http.start();
 ```
@@ -913,7 +897,7 @@ var directoryPath = function (request) {
     return './public';
 };
 
-http.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: directoryPath } } });
+http.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: directoryPath } } });
 
 http.start();
 ```
@@ -944,7 +928,7 @@ The following example shows how to render a basic handlebars/mustache template:
         }).send();
     };
 
-    http.addRoute({ method: 'GET', path: '/', handler: handler });
+    http.route({ method: 'GET', path: '/', handler: handler });
     http.start();
 ```
 
@@ -999,7 +983,7 @@ The route handler can be set to an object that points to a view file in order to
         }
     });
 
-    http.addRoute({ method: 'GET', path: '/{user}/about', handler: { view: 'about });
+    http.route({ method: 'GET', path: '/{user}/about', handler: { view: 'about });
     http.start();
 ```
 
@@ -1054,7 +1038,7 @@ To use, set the Hapi view option `layout` to true and create a file `layout.html
     };
 
     var server = new Hapi.Server(8080, options);
-    server.addRoute({ method: 'GET', path: '/', handler: handler });
+    server.route({ method: 'GET', path: '/', handler: handler });
     server.start();
 ```
 
@@ -1128,7 +1112,7 @@ The View system also supports Partials. Partials are small segments of template 
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/', handler: handler });
+    server.route({ method: 'GET', path: '/', handler: handler });
     server.start();
 ```
 
@@ -1230,8 +1214,8 @@ Hapi distinguishes between the engines by checking which file extension has been
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/one', handler: oneHandler });
-    server.addRoute({ method: 'GET', path: '/two', handler: twoHandler });
+    server.route({ method: 'GET', path: '/one', handler: oneHandler });
+    server.route({ method: 'GET', path: '/two', handler: twoHandler });
     server.start();
 
 
@@ -1256,7 +1240,7 @@ The simplest example of enabling docs on a site is shown in the following exampl
 // Create Hapi server
 var http = new Hapi.Server('0.0.0.0', 8080);
 
-http.addRoute({ method: 'GET', path: '/docs', handler: { docs: true } });
+http.route({ method: 'GET', path: '/docs', handler: { docs: true } });
 
 http.start();
 ```
@@ -1296,7 +1280,7 @@ var testLogs = function (request) {
 };
 
 // Set routes
-http.addRoute({ method: 'GET', path: '/', handler: testLogs });
+http.route({ method: 'GET', path: '/', handler: testLogs });
 
 // Start Hapi servers
 http.start();
@@ -1437,7 +1421,7 @@ var get = function (request) {
 };
 
 // Set routes
-http.addRoute({
+http.route({
     method: 'GET',
     path: '/',
     config: {
@@ -1530,7 +1514,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
         - 'base64json' - object value is JSON-stringified than encoded using Base64.
         - 'form' - object value is encoded using the _x-www-form-urlencoded_ method.
 
-Cookie definitions can be registered with the server using the server's _'addState(name, options)'_ method, where 'options' is the same as above.
+Cookie definitions can be registered with the server using the server's _'state(name, options)'_ method, where 'options' is the same as above.
 If a cookie definition is found, the options are used for that cookie as defaults before other options specified at the time of state() invocation
 are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value.
 
@@ -1604,7 +1588,7 @@ var get = function (request) {
 };
 
 // Set routes
-http.addRoute({ method: 'GET', path: '/', handler: get });
+http.route({ method: 'GET', path: '/', handler: get });
 
 // Listen to tail events
 http.on('tail', function (request) {
@@ -1653,7 +1637,7 @@ var get = function (request) {
 };
 
 // Set routes
-http.addRoute({ method: 'GET', path: '/', handler: get });
+http.route({ method: 'GET', path: '/', handler: get });
 
 // Injection options
 var req = {
@@ -1717,7 +1701,7 @@ server.helpers.user(4, function (result) {
 Or used as a prerequisites, by passing a string with the helper invocation using the helper name and passing parameters that are all
 members of the request object (without _next_):
 ```javascript
-http.addRoute({
+http.route({
     method: 'GET',
     path: '/user/{id}',
     config: {

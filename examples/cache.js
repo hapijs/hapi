@@ -50,7 +50,7 @@ internals.main = function () {
 
     var http = new Hapi.Server(8080, config);
 
-    http.addRoutes([
+    http.route([
         { method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } },
         { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
         { method: 'GET', path: '/item/{id}', config: { handler: internals.item, cache: { expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } } }
