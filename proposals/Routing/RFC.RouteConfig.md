@@ -77,7 +77,7 @@ The above are simple examples that hint at how difficult it can be to foresee, d
 ### Disadvantages of Trees
 
 #### Relative Complements: Computers >> Humans
-The tree structure I propose uses some inheritence for options (opts: {}) which get applied to all descendent controllers. 
+The tree structure I propose uses some inheritance for options (opts: {}) which get applied to all descendant controllers.
 
 Let's assume all controllers use the base opts.  But, later down the line, you add a new controller that should not have the inherited options.  It is not immediately obvious visually that the options will get passed down.  The computer can't really determine whether you intended to use the base opts or not.  
 

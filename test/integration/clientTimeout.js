@@ -68,7 +68,7 @@ describe('Client Timeout', function () {
     describe('with timeout set', function () {
 
         var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { client: 50 } });
-        _server.addRoutes([
+        _server.route([
             { method: 'POST', path: '/fast', config: { handler: fastHandler } },
             { method: 'GET', path: '/direct', config: { handler: directHandler } },
             { method: 'GET', path: '/stream', config: { handler: streamHandler } }
@@ -167,7 +167,7 @@ describe('Client Timeout', function () {
     describe('with timeout disabled', function () {
 
         var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { client: false } });
-        _server.addRoutes([
+        _server.route([
             { method: 'POST', path: '/fast', config: { handler: fastHandler } }
         ]);
 

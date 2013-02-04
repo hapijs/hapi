@@ -89,7 +89,7 @@ describe('Server Timeout', function () {
     };
 
     var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 }, cache: { engine: 'memory' } });
-    _server.addRoutes([
+    _server.route([
         { method: 'GET', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'GET', path: '/timeoutcache', config: { handler: cachedTimeoutHandler } },
         { method: 'GET', path: '/slow', config: { handler: slowHandler } },
@@ -100,7 +100,7 @@ describe('Server Timeout', function () {
     ]);
 
     var _shortTimeoutServer = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 1 } });
-    _shortTimeoutServer.addRoute({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
+    _shortTimeoutServer.route({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
 
     before(function (done) {
 
@@ -244,7 +244,7 @@ describe('Server and Client timeouts', function () {
     };
 
     var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50, client: 50 }, cache: { engine: 'memory' } });
-    _server.addRoutes([
+    _server.route([
         { method: 'POST', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'POST', path: '/timeoutcache', config: { handler: cachedTimeoutHandler } }
     ]);

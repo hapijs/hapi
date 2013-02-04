@@ -4,9 +4,9 @@
 
 ## Memory Cache Size
 
-The following document details a proprosal for allowing the memory cache strategy to be restricted with a maximum size.
+The following document details a proposal for allowing the memory cache strategy to be restricted with a maximum size.
 
-## Proprosed Solution 1
+## Proposed Solution 1
 
 A very simple solution to this problem is to limit the size by a maximum number of items that can be cached.
 

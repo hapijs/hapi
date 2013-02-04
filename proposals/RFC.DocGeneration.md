@@ -4,7 +4,7 @@
 
 ## Route Documentation
 
-The following document details a proprosal for generating pretty html markup describing a Hapi route.
+The following document details a proposal for generating pretty html markup describing a Hapi route.
 
 ## Overview of proposed solution
 
@@ -12,7 +12,7 @@ The documentation generator will leverage the existing route config object prope
 
 ## Route documentation details
 
-In order to keep things simple, when viewing the documentation for a route you will see all of the documentation for the methods that the route handles.  Additionally, you will also see the validation details for individual paramaters that the route accepts.
+In order to keep things simple, when viewing the documentation for a route you will see all of the documentation for the methods that the route handles.  Additionally, you will also see the validation details for individual parameters that the route accepts.
 
 ## Template engine input
 
