@@ -122,7 +122,14 @@ describe('Response', function () {
                 request.reply.payload(new Error('boom')).send();
             };
 
-            var server = new Hapi.Server();
+            var formatError= function (error) {
+
+                var options = error.toResponse();
+                options.payload.surprise = 'party';
+                return options;
+            };
+
+            var server = new Hapi.Server({ format: { error: formatError } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
@@ -130,6 +137,7 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('boom');
+                expect(res.result.surprise).to.equal('party');
                 done();
             });
         });
