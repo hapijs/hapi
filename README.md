@@ -1508,7 +1508,7 @@ http.start();
 
 ## Data Validation
 
-**hapi** supports a rich set of data types and validation rules which are described in detail in the [**joi** module documentation](/walmartlabs/joi).
+**hapi** supports a rich set of data types and validation rules which are described in detail in the [**joi** module documentation](http://github.com/walmartlabs/joi).
 For example:
 
 ```javascript
