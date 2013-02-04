@@ -86,4 +86,4 @@ To learn more about the various validation options you can read the [validation 
 
 ## [API Reference](docs/Reference.md)
 
-## [Breaking Changes](https://github.com/walmartlabs/hapi/issues/440)
+## [Breaking Changes](https://github.com/walmartlabs/hapi/issues?labels=breaking+changes)
