@@ -13,6 +13,10 @@ Current version: **0.13.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
+### [API Reference](/docs/Reference.md)
+
+### [Breaking Changes](https://github.com/walmartlabs/hapi/issues?labels=breaking+changes)
+
 ## Getting started
 
 To demonstrate a basic example we will be creating a "hello world" service with a single API endpoint.
@@ -84,6 +88,3 @@ When you start the server with `node .` and navigate to 'http://localhost:8000/h
 
 To learn more about the various validation options you can read the [validation section](docs/Reference.md#query-validation) in the reference.
 
-## [API Reference](docs/Reference.md)
-
-## [Breaking Changes](https://github.com/walmartlabs/hapi/issues?labels=breaking+changes)
