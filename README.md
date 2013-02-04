@@ -7,7 +7,10 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
+For the latest updates and releases follow [@hapijs](https://twitter.com/hapijs) on twitter.
+
 Current version: **0.13.0**
+[Breaking Changes](issues/440)
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
