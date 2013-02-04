@@ -192,7 +192,7 @@ during request processing. The required extension function signature is _functio
 - _'next'_ is the callback function the method **must** call upon completion to return control over to the router.
 
 The extension points are:
-- `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)' methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
+- `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)'_ methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
 - `onPreHandler` - called after request passes validation and body parsing, before the request handler.
 - `onPostHandler` - called after the request handler, before sending the response. The actual state of the response depends on the response type used (e.g. direct, stream).
 - `onPostRoute` - called after the response was sent.
