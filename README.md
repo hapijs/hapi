@@ -7,10 +7,9 @@ and other essential facilities are provided out-of-the-box and enabled using sim
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
 
-For the latest updates and releases follow [@hapijs](https://twitter.com/hapijs) on twitter.
+For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
 Current version: **0.13.0**
-[Breaking Changes](issues/440)
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -86,3 +85,5 @@ When you start the server with `node .` and navigate to 'http://localhost:8000/h
 To learn more about the various validation options you can read the [validation section](docs/Reference.md#query-validation) in the reference.
 
 ## [API Reference](docs/Reference.md)
+
+## [Breaking Changes](https://github.com/walmartlabs/hapi/issues/440)
