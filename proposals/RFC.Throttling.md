@@ -103,7 +103,7 @@ Finally, a configuration option will also need to exist to indicate if a sliding
 
 ## Tracking Usage
 
-When throttling is enabled, every request will need to increment its respected usage count.  However, not every use will necessarily require throttling limits be imposed, therefore a custom function can be added to the throttle configuration to determine if a user is tracked.  Below is what this entry in the configuraiton will look like:
+When throttling is enabled, every request will need to increment its respected usage count.  However, not every use will necessarily require throttling limits be imposed, therefore a custom function can be added to the throttle configuration to determine if a user is tracked.  Below is what this entry in the configuration++ will look like:
 
 ```javascript
     throttle: {

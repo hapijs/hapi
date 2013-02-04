@@ -114,7 +114,7 @@ The second, simpler, and more acceptable method is to alias the new Type within 
 
 Thus, subsequent calls to the new "type" will behave as fully registered types in much less code.
 
-*Note: The first method may eventually be deprecated. Then, the Type Registry becomes non-mutable which simplies the logic significantly.*
+*Note: The first method may eventually be deprecated. Then, the Type Registry becomes non-mutable which simplifies the logic significantly.*
 
 *Note: See "Reference A" before suggesting a pre-included Type for the Type Registry.*
 
@@ -335,7 +335,7 @@ Every call must have its own `Base()` prefix. This creates a new validation obje
 
 #### Overrides
 
-Each constraint is evaluated independantly and in order of chaining. In some cases, a subsequent constraint may override a prior constraint:
+Each constraint is evaluated independently and in order of chaining. In some cases, a subsequent constraint may override a prior constraint:
 
     String.required().optional() # This input will be considered optional
     String.required(false).required() # This input will be considered required

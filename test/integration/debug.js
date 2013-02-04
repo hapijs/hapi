@@ -45,7 +45,7 @@ describe('Debug', function () {
     function setupServer() {
 
         _server = new Hapi.Server('0.0.0.0', 0, { debug: { websocketPort: 3003 } });
-        _server.addRoutes([
+        _server.route([
             { method: 'GET', path: '/profile', config: { handler: profileHandler } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler } },
             { method: 'GET', path: '/item/{id}', config: { handler: itemHandler } }

@@ -33,8 +33,8 @@ describe('NotFound', function () {
     describe('using notFound routes', function () {
 
         var server = new Hapi.Server(0);
-        server.addRoute({ method: 'GET', path: '/exists/not', handler: 'notFound' });
-        server.addRoute({ method: 'GET', path: '/exists/{p*}', handler: function (request) { request.reply('OK'); } });
+        server.route({ method: 'GET', path: '/exists/not', handler: 'notFound' });
+        server.route({ method: 'GET', path: '/exists/{p*}', handler: function (request) { request.reply('OK'); } });
 
         it('returns 404 when making a request to a notFound route', function (done) {
 
@@ -55,12 +55,11 @@ describe('NotFound', function () {
         });
     });
 
-    describe('can override the server notFound route with setNotFound', function () {
+    describe('can override the server notFound route', function () {
 
         var server = new Hapi.Server(0);
-        server.addRoute({ method: 'GET', path: '/exists/{p*}', handler: function (request) { request.reply('OK'); } });
-
-        server.setNotFound({ handler: function (request) {
+        server.route({ method: 'GET', path: '/exists/{p*}', handler: function (request) { request.reply('OK'); } });
+        server.route({ method: '*', path: '/{p*}', handler: function (request) {
 
             request.reply(Hapi.Error.notFound('These these aren\'t the pages you\'re looking for.'));
         }});
