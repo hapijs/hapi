@@ -82,7 +82,7 @@ describe('Auth', function () {
             });
         };
 
-        server.addRoutes([
+        server.route([
             { method: 'POST', path: '/basic', handler: basicHandler },
             { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
@@ -238,7 +238,7 @@ describe('Auth', function () {
 
             var config = {};
             var server = new Hapi.Server('0.0.0.0', 8080, config);
-            server.addRoute({
+            server.route({
                 path: '/noauth',
                 method: 'GET',
                 config: {
@@ -268,7 +268,7 @@ describe('Auth', function () {
                 }
             };
             var server = new Hapi.Server('0.0.0.0', 8080, config);
-            server.addRoute({
+            server.route({
                 path: '/noauth',
                 method: 'GET',
                 config: {
@@ -313,7 +313,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({
+                server.route({
                     path: '/noauth',
                     method: 'GET',
                     config: {
@@ -375,7 +375,7 @@ describe('Auth', function () {
             request.reply('Success');
         };
 
-        server.addRoutes([
+        server.route([
             { method: 'POST', path: '/oz', handler: ozHandler },
             { method: 'POST', path: '/ozOptional', handler: ozHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/ozScope', handler: ozHandler, config: { auth: { scope: 'x' } } },
@@ -528,7 +528,7 @@ describe('Auth', function () {
             request.reply('Success');
         };
 
-        server.addRoutes([
+        server.route([
             { method: 'POST', path: '/hawk', handler: hawkHandler },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/hawkScope', handler: hawkHandler, config: { auth: { scope: 'x' } } },
@@ -632,7 +632,7 @@ describe('Auth', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 8080, config);
-            server.addRoute({ method: 'POST', path: '/hawk', handler: hawkHandler });
+            server.route({ method: 'POST', path: '/hawk', handler: hawkHandler });
 
             server.inject(request, function (res) {
 
@@ -666,7 +666,7 @@ describe('Auth', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 8080, config);
-            server.addRoute({ method: 'POST', path: '/ext', handler: handler });
+            server.route({ method: 'POST', path: '/ext', handler: handler });
 
             var request = { method: 'POST', url: '/ext' };
             server.inject(request, function (res) {
@@ -760,7 +760,7 @@ describe('Auth', function () {
             request.reply('Success');
         };
 
-        server.addRoutes([
+        server.route([
             { method: 'POST', path: '/multiple', handler: handler, config: { auth: { strategies: ['basic', 'hawk'] } } },
             { method: 'POST', path: '/multipleOptional', handler: handler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/multipleScope', handler: handler, config: { auth: { scope: 'x' } } },

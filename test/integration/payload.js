@@ -31,7 +31,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true } }, function (res) {
 
@@ -49,7 +49,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true } }, function (res) {
 
@@ -71,7 +71,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
             server.inject({ method: 'POST', url: '/', payload: multipartPayload }, function (res) {
 
@@ -94,7 +94,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'POST', url: '/', payload: multipartPayload }, function (res) {
 
@@ -113,7 +113,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
             var s = new Stream();
             s.readable = true;
@@ -161,7 +161,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
             server.start(function () {
 
@@ -206,7 +206,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
             server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'Content-Length': '5' } }, function (res) {
 
@@ -228,7 +228,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
             server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'Content-Length': '500' } }, function (res) {
 
@@ -248,7 +248,7 @@ describe('Payload', function () {
         };
 
         var server = new Hapi.Server('127.0.0.1', 0);
-        server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'stream' } });
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'stream' } });
 
         before(function (done) {
 
@@ -297,7 +297,7 @@ describe('Payload', function () {
         };
 
         var server = new Hapi.Server('127.0.0.1', 0, { timeout: { client: 50 } });
-        server.addRoute({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
 
         before(function (done) {
 
@@ -441,7 +441,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.addRoute({ method: 'POST', path: '/', config: { handler: handler } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
@@ -465,8 +465,8 @@ describe('Payload', function () {
         };
 
         var _server = new Hapi.Server('0.0.0.0', 0);
-        _server.addRoute({ method: 'POST', path: '/invalid', handler: invalidHandler });
-        _server.addRoute({ method: 'POST', path: '/echo', handler: echo });
+        _server.route({ method: 'POST', path: '/invalid', handler: invalidHandler });
+        _server.route({ method: 'POST', path: '/echo', handler: echo });
 
         var multipartPayload =
                 '--AaB03x\r\n' +
@@ -528,7 +528,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addRoute({ method: 'POST', path: '/file', config: { handler: fileHandler } });
+            server.route({ method: 'POST', path: '/file', config: { handler: fileHandler } });
             server.start(function () {
 
                 var r = Request.post(server.settings.uri + '/file');

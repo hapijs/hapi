@@ -92,7 +92,7 @@ internals.main = function () {
 
     var http = new Hapi.Server(0, config);
 
-    http.addRoutes([
+    http.route([
         { method: 'GET', path: '/basic', config: { handler: internals.handler, auth: { strategies: ['basic'] } } },
         { method: 'GET', path: '/hawk', config: { handler: internals.handler, auth: { strategies: ['hawk'] } } },
         { method: 'GET', path: '/multiple', config: { handler: internals.handler, auth: { strategies: ['basic', 'hawk'] } } }

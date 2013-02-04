@@ -1,0 +1,11 @@
+{
+  "name": "*test",
+  "description": "Test plugin module",
+  "version": "0.0.1",
+  "private": true,
+  "main": "lib/index",
+  "hapi": {
+	"version": "0.x.x",
+	"plugin": true
+  }
+}

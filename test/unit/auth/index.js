@@ -59,7 +59,7 @@ describe('Auth', function () {
 
                 var server = {
                     settings: {},
-                    addRoutes: function () { }
+                    route: function () { }
                 };
 
                 var auth = new Auth(server, {
@@ -88,7 +88,7 @@ describe('Auth', function () {
 
             var server = {
                 settings: {},
-                addRoutes: function () { }
+                route: function () { }
             };
 
             var a = function () {
@@ -104,7 +104,7 @@ describe('Auth', function () {
 
             var server = {
                 settings: {},
-                addRoutes: function () { }
+                route: function () { }
             };
 
             var scheme = {
@@ -153,7 +153,7 @@ describe('Auth', function () {
 
             var server = {
                 settings: {},
-                addRoutes: function () { }
+                route: function () { }
             };
 
             var scheme = {
@@ -205,7 +205,7 @@ describe('Auth', function () {
             var a = function () {
 
                 var handler = function (request) { };
-                server.addRoute({ method: 'GET', path: '/', handler: handler, config: config });
+                server.route({ method: 'GET', path: '/', handler: handler, config: config });
             };
 
             expect(a).to.throw(Error, 'Unknown authentication strategy: missing');
@@ -443,7 +443,7 @@ describe('Auth', function () {
 
                 var server = {
                     settings: {},
-                    addRoutes: function () { }
+                    route: function () { }
                 };
 
                 var request = {
