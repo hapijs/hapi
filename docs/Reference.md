@@ -729,7 +729,7 @@ When the provided route handler method is called, it receives a _request_ object
 - _'state'_ - an object containing parsed HTTP state information (cookies).
 - _'session'_ - available for authenticated requests and includes:
     - _'id'_ - session identifier.
-    - _'used'_ - user id (optional).
+    - _'user'_ - user id (optional).
     - _'app'_ - application id (optional).
     - _'scope'_ - approved application scopes (optional).
     - _'ext.tos'_ - terms-of-service version (optional).
