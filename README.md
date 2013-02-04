@@ -15,7 +15,7 @@ Current version: **0.13.0**
 
 ### [API Reference](/docs/Reference.md)
 
-### [Breaking Changes](https://github.com/walmartlabs/hapi/issues?labels=breaking+changes)
+### [Breaking Changes](https://github.com/walmartlabs/hapi/issues?labels=breaking+changes&state=closed)
 
 ## Getting started
 
