@@ -76,7 +76,7 @@ describe('Cache', function () {
 
         _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
 
-        _server.addRoutes([
+        _server.route([
             { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000, privacy: 'private' } } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
@@ -207,7 +207,7 @@ describe('Cache', function () {
     it('throws an error when requesting a strict cached route that is not cacheable', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', 18885, { cache: { engine: 'memory' } });
-        server.addRoute({ method: 'GET', path: '/notcacheable', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: true } } });
+        server.route({ method: 'GET', path: '/notcacheable', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: true } } });
 
         var fn = function () {
 

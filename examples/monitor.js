@@ -44,14 +44,14 @@ internals.main = function () {
     };
 
     var server = new Hapi.Server(8080, options);
-    server.addRoute({ method: 'GET', path: '/', handler: testHandler });
+    server.route({ method: 'GET', path: '/', handler: testHandler });
     server.start();
 
     // Monitor
 
     var monitor = new Hapi.Server(8081);
-    monitor.addRoute({ method: 'POST', path: '/requests', handler: requestsHandler });
-    monitor.addRoute({ method: 'POST', path: '/ops', handler: opsHandler });
+    monitor.route({ method: 'POST', path: '/requests', handler: requestsHandler });
+    monitor.route({ method: 'POST', path: '/ops', handler: opsHandler });
     monitor.start();
 };
 
