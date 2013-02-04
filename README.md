@@ -1,11 +1,13 @@
-<a href="/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
-![hapi Logo](https://raw.github.com/walmartlabs/hapi/master/images/hapi.png)
+<a href="https://github.com/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
+<a href="http://hapijs.com"><img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" /></a>
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
 authentication requirements, input validation, data caching and pre-fetching, developer documentation,
 and other essential facilities are provided out-of-the-box and enabled using simple JSON configuration
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
 with everything else.
+
+For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
 Current version: **0.13.0**
 
@@ -83,3 +85,5 @@ When you start the server with `node .` and navigate to 'http://localhost:8000/h
 To learn more about the various validation options you can read the [validation section](docs/Reference.md#query-validation) in the reference.
 
 ## [API Reference](docs/Reference.md)
+
+## [Breaking Changes](https://github.com/walmartlabs/hapi/issues?labels=breaking+changes)
