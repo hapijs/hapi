@@ -5,7 +5,6 @@
   "private": true,
   "main": "lib/index",
   "hapi": {
-	"version": "0.x.x",
-	"plugin": true
+	"plugin": "1.x.x"
   }
 }
