@@ -43,10 +43,9 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
+            version: '5.0.0',
             hapi: {
-                plugin: true,
-                version: '0.x.x'
+                plugin: '1.x.x'
             },
             register: function (pack, options, next) {
 
@@ -90,7 +89,7 @@ describe('Pack', function () {
             expect(routesList(server3)).to.deep.equal(['/a', '/ab', '/all']);
             expect(routesList(server4)).to.deep.equal(['/all', '/sodd', '/memoryx']);
 
-            expect(server1.plugins.test.version).to.equal('1.0.0');
+            expect(server1.plugins.test.version).to.equal('5.0.0');
 
             done();
         });
@@ -129,10 +128,9 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
+            version: '2.0.0',
             hapi: {
-                plugin: true,
-                version: '0.x.x'
+                plugin: '1.x.x'
             },
             register: function (pack, options, next) {
 
@@ -254,7 +252,7 @@ describe('Pack', function () {
     it('invalidates missing name', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ version: '0.0.0', hapi: { plugin: true }, register: function (pack, options, next) { next(); } });
+        var err = pack.validate({ version: '0.0.0', hapi: { plugin: '1.x.x' }, register: function (pack, options, next) { next(); } });
 
         expect(err).to.exist;
         expect(err.message).to.equal('Plugin missing name');
@@ -264,7 +262,7 @@ describe('Pack', function () {
     it('invalidates missing version', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ name: 'test', hapi: { plugin: true }, register: function (pack, options, next) { next(); } });
+        var err = pack.validate({ name: 'test', hapi: { plugin: '1.x.x' }, register: function (pack, options, next) { next(); } });
 
         expect(err).to.exist;
         expect(err.message).to.equal('Plugin missing version');
@@ -274,7 +272,7 @@ describe('Pack', function () {
     it('invalidates missing register method', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ name: 'test', version: '0.0.0', hapi: { plugin: true } });
+        var err = pack.validate({ name: 'test', version: '0.0.0', hapi: { plugin: '1.x.x' } });
 
         expect(err).to.exist;
         expect(err.message).to.equal('Plugin missing register() method');
@@ -285,10 +283,9 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
+            version: '3.0.0',
             hapi: {
-                plugin: true,
-                version: '0.x.x'
+                plugin: '1.x.x'
             },
             register: function (pack, options, next) {
 
