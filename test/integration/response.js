@@ -20,7 +20,7 @@ var expect = Chai.expect;
 
 describe('Response', function () {
 
-    describe('Manual', function () {
+    describe('External', function () {
 
         it('returns a reply', function (done) {
 
