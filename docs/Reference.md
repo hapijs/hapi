@@ -144,8 +144,6 @@ The extension points are:
 - `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)'_ methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
 - `onPreHandler` - called after request passes validation and body parsing, before the request handler.
 - `onPostHandler` - called after the request handler, before sending the response. The actual state of the response depends on the response type used (e.g. direct, stream).
-- `onPostRoute` - called after the response was sent.
-- `onUnknownRoute` - if defined, overrides the default unknown resource (404) error response. The method must send the response manually via _request.raw.res_. Cannot be an array.
 
 For example:
 ```javascript
@@ -729,7 +727,7 @@ When the provided route handler method is called, it receives a _request_ object
 - _'state'_ - an object containing parsed HTTP state information (cookies).
 - _'session'_ - available for authenticated requests and includes:
     - _'id'_ - session identifier.
-    - _'used'_ - user id (optional).
+    - _'user'_ - user id (optional).
     - _'app'_ - application id (optional).
     - _'scope'_ - approved application scopes (optional).
     - _'ext.tos'_ - terms-of-service version (optional).
