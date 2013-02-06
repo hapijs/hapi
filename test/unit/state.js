@@ -187,6 +187,17 @@ describe('State', function () {
             });
         });
 
+        it('formats a header with null value', function (done) {
+
+            State.generateSetCookieHeader({ name: 'sid', options: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } }, null, function (err, header) {
+
+                var expires = new Date(Date.now() + 3600);
+                expect(err).to.not.exist;
+                expect(header[0]).to.equal('sid=; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+                done();
+            });
+        });
+
         it('formats a header with server definition', function (done) {
 
             var definitions = { sid: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } };
