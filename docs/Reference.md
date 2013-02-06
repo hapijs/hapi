@@ -64,7 +64,7 @@
 - [**Server Helpers**](#server-helpers)
 <p></p>
 - [**Server Plugins**](#server-plugins)
-    - [Documentation Generator](#documentation)
+    - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
 
