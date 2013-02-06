@@ -87,6 +87,20 @@ describe('Validation', function () {
             });
         });
 
+        it('an error response should skip response validation and not return an error', function (done) {
+
+            var query = { username: 'walmart' };
+            var request = createRequestObject(query, route);
+
+            request._response = Hapi.Response.generate(Hapi.Error.unauthorized('You are not authorized'));
+
+            Validation.response(request, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
         it('should raise an error when responding with invalid param', function (done) {
 
             var query = { username: 'walmart' };

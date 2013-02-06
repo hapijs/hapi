@@ -64,7 +64,7 @@ internals.main = function () {
 
     internals.http = new Hapi.Server(8080, { batch: true });
 
-    internals.http.addRoutes([
+    internals.http.route([
         { method: 'GET', path: '/profile', handler: internals.profile },
         { method: 'GET', path: '/item', handler: internals.activeItem },
         { method: 'GET', path: '/item/{id}', handler: internals.item },

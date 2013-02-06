@@ -17,7 +17,7 @@ internals.get = function (request) {
 internals.main = function () {
 
     var server = new Hapi.Server(8080);
-    server.addRoute({ method: 'GET', path: '/', handler: internals.get });
+    server.route({ method: 'GET', path: '/', handler: internals.get });
 
     // Create request
 

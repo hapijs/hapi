@@ -225,7 +225,7 @@
       value = {
           func: function () {
           
-              cosole.log('example');
+              console.log('example');
           },
           message: 'hello'
       };

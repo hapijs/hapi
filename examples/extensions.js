@@ -42,27 +42,15 @@ internals.onPostHandler = function (request, next) {
 };
 
 
-internals.onPostRoute = function (request, next) {
-
-    Hapi.Log.event('onPostRoute');
-    next();
-};
-
-
 internals.main = function () {
 
-    var config = {
-        ext: {
-            onRequest: internals.onRequest,                 // New request, before handing over to the router (allows changes to method and url)
-            onPreHandler: [internals.onPreHandler1,
-                           internals.onPreHandler2],        // After validation and body parsing, before route handler
-            onPostHandler: internals.onPostHandler,         // After route handler returns, before setting response
-            onPostRoute: internals.onPostRoute,             // After response sent
-        }
-    };
+    var http = new Hapi.Server(8080);
 
-    var http = new Hapi.Server(8080, config);
-    http.addRoute({ method: 'GET', path: '/', handler: internals.get });
+    http.ext('onRequest', internals.onRequest);                                         // New request, before handing over to the router (allows changes to method and url)
+    http.ext('onPreHandler', [internals.onPreHandler1, internals.onPreHandler2]);       // After validation and body parsing, before route handler
+    http.ext('onPostHandler', internals.onPostHandler);                                 // After route handler returns, before setting response
+
+    http.route({ method: 'GET', path: '/', handler: internals.get });
     http.start();
 };
 

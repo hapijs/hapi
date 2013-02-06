@@ -51,7 +51,7 @@ internals.main = function () {
 
     var http = new Hapi.Server(8080);
 
-    http.addRoute({
+    http.route({
         method: 'GET',
         path: '/',
         config: {

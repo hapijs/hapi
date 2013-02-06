@@ -48,11 +48,14 @@ describe('Server', function () {
         done();
     });
 
-    it('defaults to localhost when no host is provided', function (done) {
+    it('defaults to 0.0.0.0 when no host is provided', function (done) {
 
-        var server = new Hapi.Server();
-        expect(server.settings.host).to.be.equal('localhost');
-        done();
+        var server = new Hapi.Server(0);
+        server.start(function () {
+
+            expect(server.settings.host).to.be.equal('0.0.0.0');
+            done();
+        });
     });
 
     it('doesn\'t throw an error when host and port are provided', function (done) {
@@ -158,6 +161,16 @@ describe('Server', function () {
         done();
     });
 
+    it('throws an error when router.routeDefaults.handler is provided', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Server({ router: { routeDefaults: { handler: function () { } } } });
+        };
+        expect(fn).to.throw(Error, 'Route defaults cannot include a handler');
+        done();
+    });
+
     describe('#_match', function () {
 
         it('throws an error when the method parameter is null', function (done) {
@@ -194,7 +207,7 @@ describe('Server', function () {
         it('returns the route when there is a match', function (done) {
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addRoute({
+            server.route({
                 method: 'GET',
                 path: '/test',
                 handler: function () { }
@@ -272,29 +285,7 @@ describe('Server', function () {
         });
     });
 
-    describe('#setRoutesDefaults', function () {
-
-        it('throws an error when a default handler is provided', function (done) {
-
-            var fn = function () {
-
-                var server = new Hapi.Server('0.0.0.0', 0);
-                server.setRoutesDefaults({ handler: function () { } });
-            };
-            expect(fn).to.throw(Error, 'Defaults cannot include a handler');
-            done();
-        });
-
-        it('changes the value of routeDefaults with the passed in object', function (done) {
-
-            var server = new Hapi.Server('0.0.0.0', 0);
-            server.setRoutesDefaults({ item: true });
-            expect(server.routeDefaults.item).to.be.true;
-            done();
-        });
-    });
-
-    describe('#addRoute', function () {
+    describe('#route', function () {
 
         it('throws an error when a route is passed in that is missing a path', function (done) {
 
@@ -302,7 +293,7 @@ describe('Server', function () {
 
                 var route = {};
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addRoute(route);
+                server.route(route);
             };
             expect(fn).to.throw(Error, 'Route options missing path');
             done();
@@ -316,7 +307,7 @@ describe('Server', function () {
                     path: '/test'
                 };
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addRoute(route);
+                server.route(route);
             };
             expect(fn).to.throw(Error, 'Route options missing method');
             done();
@@ -331,13 +322,13 @@ describe('Server', function () {
                     method: 'put'
                 };
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addRoute(route);
+                server.route(route);
             };
             expect(fn).to.throw(Error);
             done();
         });
 
-        it('adds route to correct _routes method property', function (done) {
+        it('adds route to correct _router method property', function (done) {
 
             var route = {
                 path: '/test',
@@ -345,9 +336,9 @@ describe('Server', function () {
                 handler: function () { }
             };
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addRoute(route);
+            server.route(route);
 
-            expect(server._routes.put[0].path).to.equal('/test');
+            expect(server._router.table.put[0].path).to.equal('/test');
             done();
         });
 
@@ -356,8 +347,8 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server();
-                server.addRoute({ path: '/test/{p}/{p}/end', method: 'put', handler: function () { } });
-                server.addRoute({ path: '/test/{p*2}/end', method: 'put', handler: function () { } });
+                server.route({ path: '/test/{p}/{p}/end', method: 'put', handler: function () { } });
+                server.route({ path: '/test/{p*2}/end', method: 'put', handler: function () { } });
             };
             expect(fn).to.throw(Error);
             done();
@@ -368,8 +359,8 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server({ router: { isCaseSensitive: true } });
-                server.addRoute({ path: '/test/{p}/End', method: 'put', handler: function () { } });
-                server.addRoute({ path: '/test/{p}/end', method: 'put', handler: function () { } });
+                server.route({ path: '/test/{p}/End', method: 'put', handler: function () { } });
+                server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
             };
             expect(fn).to.not.throw(Error);
             done();
@@ -380,22 +371,8 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server({ router: { isCaseSensitive: false } });
-                server.addRoute({ path: '/test/{p}/End', method: 'put', handler: function () { } });
-                server.addRoute({ path: '/test/{p}/end', method: 'put', handler: function () { } });
-            };
-            expect(fn).to.throw(Error);
-            done();
-        });
-    });
-
-    describe('#addRoutes', function () {
-
-        it('throws an error when null routes are passed in', function (done) {
-
-            var fn = function () {
-
-                var server = new Hapi.Server('0.0.0.0', 0);
-                server.addRoutes(null);
+                server.route({ path: '/test/{p}/End', method: 'put', handler: function () { } });
+                server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
             };
             expect(fn).to.throw(Error);
             done();
@@ -413,21 +390,21 @@ describe('Server', function () {
                 handler: function () { }
             }];
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addRoutes(routes);
+            server.route(routes);
 
-            expect(server._routes.put[0].path).to.equal('/test');
+            expect(server._router.table.put[0].path).to.equal('/test');
             done();
         });
     });
 
-    describe('#addHelper', function () {
+    describe('#helper', function () {
 
         it('throws an error when name is not a string', function (done) {
 
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addHelper(0, function () { });
+                server.helper(0, function () { });
             };
             expect(fn).to.throw(Error);
             done();
@@ -438,7 +415,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addHelper('user', 'function');
+                server.helper('user', 'function');
             };
             expect(fn).to.throw(Error);
             done();
@@ -449,7 +426,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addHelper('user', function () { }, 'options');
+                server.helper('user', function () { }, 'options');
             };
             expect(fn).to.throw(Error);
             done();
@@ -460,7 +437,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addHelper('user', function () { }, { generateKey: 'function' });
+                server.helper('user', function () { }, { generateKey: 'function' });
             };
             expect(fn).to.throw(Error);
             done();
@@ -471,7 +448,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0, { cache: 'redis' });
-                server.addHelper('user', function () { }, { cache: { mode: 'none', expiresIn: 3000 } });
+                server.helper('user', function () { }, { cache: { mode: 'none', expiresIn: 3000 } });
             };
             expect(fn).to.throw(Error);
             done();
@@ -482,7 +459,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0);
-                server.addHelper('user', function () { }, { cache: { expiresIn: 3000 } });
+                server.helper('user', function () { }, { cache: { expiresIn: 3000 } });
             };
             expect(fn).to.throw(Error);
             done();
@@ -491,7 +468,7 @@ describe('Server', function () {
         it('returns a valid result when calling a helper without using the cache', function (done) {
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addHelper('user', function (id, next) { return next({ id: id }); });
+            server.helper('user', function (id, next) { return next({ id: id }); });
             server.helpers.user(4, function (result) {
 
                 expect(result.id).to.equal(4);
@@ -502,7 +479,7 @@ describe('Server', function () {
         it('returns an error result when calling a helper that returns an error', function (done) {
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.addHelper('user', function (id, next) { return next(new Error()); });
+            server.helper('user', function (id, next) { return next(new Error()); });
             server.helpers.user(4, function (result) {
 
                 expect(result instanceof Error).to.equal(true);
@@ -514,7 +491,7 @@ describe('Server', function () {
 
             var server = new Hapi.Server('0.0.0.0', 0);
             var gen = 0;
-            server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); });
+            server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); });
             server.helpers.user(4, function (result1) {
 
                 expect(result1.id).to.equal(4);
@@ -534,7 +511,7 @@ describe('Server', function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0, { cache: 'memory' });
                 var gen = 0;
-                server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+                server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
                 var id = Math.random();
                 server.helpers.user(id, function (result1) {
 
@@ -553,7 +530,7 @@ describe('Server', function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0, { cache: 'memory' });
                 var gen = 0;
-                server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+                server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
                 var id1 = Math.random();
                 server.helpers.user(id1, function (result1) {
 
@@ -583,7 +560,7 @@ describe('Server', function () {
                     return next({ id: id, gen: ++gen });
                 };
 
-                server.addHelper('user', helper, { cache: { expiresIn: 2000 } });
+                server.helper('user', helper, { cache: { expiresIn: 2000 } });
 
                 server.helpers.user(id1, function (result1) {
 

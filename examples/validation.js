@@ -31,7 +31,7 @@ internals.main = function () {
 
     var http = new Hapi.Server(8080);
 
-    http.addRoutes([
+    http.route([
         { method: 'GET', path: '/', config: { handler: internals.get, validate: { query: { username: S() } } } },
         { method: 'GET', path: '/admin', config: { handler: internals.get, validate: { query: { username: S().required().with('password'), password: S() } } } },
         { method: 'GET', path: '/users', config: { handler: internals.get, validate: { query: { email: S().email().required().min(18) } } } },
@@ -47,7 +47,7 @@ internals.main = function () {
         participants: A().includes(S(), N())
     };
 
-    http.addRoute({ method: 'POST', path: '/users/{id}', config: { handler: internals.payload, validate: { query: {}, schema: schema } } });
+    http.route({ method: 'POST', path: '/users/{id}', config: { handler: internals.payload, validate: { query: {}, schema: schema } } });
 
     http.start();
 };

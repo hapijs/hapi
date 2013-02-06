@@ -18,7 +18,7 @@ internals.main = function () {
 
     var http = new Hapi.Server(8080);
 
-    http.addRoutes([
+    http.route([
         { method: 'GET', path: '/', handler: { file: './index.html' } },
         { method: 'GET', path: '/img/logo.jpg', handler: internals.serveLogo }
     ]);

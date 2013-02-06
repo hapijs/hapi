@@ -8,11 +8,19 @@ var Hapi = require('../../../lib');
 var internals = {};
 
 
-var handler = function (request) {
+var rootHandler = function (request) {
 
-    request.reply.view('layout', {
+    request.reply.view('index', {
         title: 'examples/views/jade/index.js | Hapi ' + Hapi.utils.version(),
-        message: 'Hello World!'
+        message: 'Index - Hello World!'
+    }).send();
+};
+
+var aboutHandler = function (request) {
+
+    request.reply.view('about', {
+        title: 'examples/views/jade/index.js | Hapi ' + Hapi.utils.version(),
+        message: 'About - Hello World!'
     }).send();
 };
 
@@ -27,14 +35,14 @@ internals.main = function () {
                 extension: 'jade'
             },
             compileOptions: {
-                filename: __dirname + '/templates/layout.jade',
                 pretty: true
             }
         }
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/', handler: handler });
+    server.route({ method: 'GET', path: '/', handler: rootHandler });
+    server.route({ method: 'GET', path: '/about', handler: aboutHandler });
     server.start();
 };
 
