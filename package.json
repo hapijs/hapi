@@ -50,7 +50,7 @@
   },
   "scripts": {
     "test": "make test && make test-cov",
-    "blanket": { "loader": "../../../test/helpers/blanketLoader", "pattern": "lib" },
+    "blanket": { "regexPattern": "^((?!\/node_modules\/)(?!\/test\/).)*$" },
     "travis-cov": { "threshold": 100 }
   },
   "licenses": [
