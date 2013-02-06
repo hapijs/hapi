@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Hapi = require('../../helpers');
-var Views = process.env.TEST_COV ? require('../../../lib-cov/views') : require('../../../lib/views');
+var Views = require('../../../lib/views');
 
 
 // Declare internals

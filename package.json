@@ -43,10 +43,14 @@
     "chai": "1.x.x",
     "sinon": "1.x.x",
     "handlebars": ">= 1.0.8",
-    "jade": "~0.28.1"
+    "jade": "~0.28.1",
+    "blanket": "1.x.x",
+    "travis-cov": "0.2.x"
   },
   "scripts": {
-    "test": "make test && make unit"
+    "test": "make test && make test-cov",
+    "blanket": { "regexPattern": "^((?!\/node_modules\/)(?!\/test\/).)*$" },
+    "travis-cov": { "threshold": 100 }
   },
   "licenses": [
     {
