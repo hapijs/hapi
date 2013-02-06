@@ -45,11 +45,13 @@
     "sinon": "1.x.x",
     "handlebars": ">= 1.0.8",
     "jade": "~0.28.1",
-    "blanket": "1.x.x"
+    "blanket": "1.x.x",
+    "travis-cov": "0.2.x"
   },
   "scripts": {
-    "test": "make test && make unit",
-    "blanket": { "loader": "../../../test/helpers/blanketLoader", "pattern": "lib" }
+    "test": "make test && make test-cov",
+    "blanket": { "loader": "../../../test/helpers/blanketLoader", "pattern": "lib" },
+    "travis-cov": { "threshold": 100 }
   },
   "licenses": [
     {
