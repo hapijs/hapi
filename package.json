@@ -24,7 +24,6 @@
     "hoek": "0.3.x",
     "boom": "0.2.x",
     "joi": "0.0.x",
-    "lout": "0.0.x",
     "hapi-helmet": "0.0.x",
     "hapi-log": "0.0.x",
     "hawk": "0.6.x",
