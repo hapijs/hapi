@@ -1690,7 +1690,7 @@ http.route({
 
 # Server Plugins
 
-## Documentation
+## Documentation Generator
 
 **This is an experimental feature and is likely to change!**
 
