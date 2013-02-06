@@ -864,7 +864,8 @@ describe('Auth', function () {
             scheme: 'cookie',
             password: 'password',
             ttl: 60 * 1000,
-            cookie: 'sid',
+            cookie: 'special',
+            clearInvalid: true,
             validateFunc: function (session, callback) {
 
                 return callback(session.user === 'valid' ? null : new Error('bad user'));
@@ -901,7 +902,7 @@ describe('Auth', function () {
                 expect(header[0]).to.contain('Max-Age=60000');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
 
-                server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'sid=' + cookie[1] } }, function (res) {
+                server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result).to.equal('resource');
@@ -920,8 +921,9 @@ describe('Auth', function () {
                 expect(header[0]).to.contain('Max-Age=60000');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
 
-                server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'sid=' + cookie[1] } }, function (res) {
+                server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
 
+                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure');
                     expect(res.statusCode).to.equal(401);
                     done();
                 });
