@@ -896,6 +896,14 @@ describe('Auth', function () {
             }
         });
 
+        server.route({
+            method: 'GET', path: '/logout', handler: function () {
+
+                this.clearSession();
+                return this.reply('logged-out');
+            }
+        });
+
         it('authenticates a request', function (done) {
 
             server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
@@ -910,6 +918,26 @@ describe('Auth', function () {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result).to.equal('resource');
+                    done();
+                });
+            });
+        });
+
+        it('ends a session', function (done) {
+
+            server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
+
+                expect(res.result).to.equal('valid');
+                var header = res.headers['Set-Cookie'];
+                expect(header.length).to.equal(1);
+                expect(header[0]).to.contain('Max-Age=60000');
+                var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
+
+                server.inject({ method: 'GET', url: '/logout', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('logged-out');
+                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure');
                     done();
                 });
             });
