@@ -868,7 +868,10 @@ describe('Auth', function () {
             clearInvalid: true,
             validateFunc: function (session, callback) {
 
-                return callback(session.user === 'valid' ? null : new Error('bad user'));
+                var override = Hapi.utils.clone(session);
+                override.something = 'new';
+
+                return callback(session.user === 'valid' ? null : new Error('bad user'), override);
             }
         };
 
@@ -888,6 +891,7 @@ describe('Auth', function () {
         server.route({
             method: 'GET', path: '/resource', handler: function () {
 
+                expect(this.session.something).to.equal('new');
                 return this.reply('resource');
             }
         });
