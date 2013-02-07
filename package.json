@@ -50,7 +50,7 @@
   },
   "scripts": {
     "test": "make test && make test-cov",
-    "blanket": { "regexPattern": "^((?!\/node_modules\/)(?!\/test\/).)*$" },
+    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/).)*$//", "branchTracking": true },
     "travis-cov": { "threshold": 100 }
   },
   "licenses": [
