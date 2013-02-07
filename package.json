@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP API Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     "Van Nguyen <the.gol.effect@gmail.com>",
@@ -21,11 +21,11 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "hoek": "0.3.x",
+    "hoek": "0.4.x",
     "boom": "0.2.x",
     "joi": "0.0.x",
     "hapi-helmet": "0.0.x",
-    "hapi-log": "0.0.x",
+    "hapi-log": "0.1.x",
     "hawk": "0.6.x",
     "shot": "0.0.x",
     "oz": "0.0.x",
