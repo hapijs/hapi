@@ -30,7 +30,7 @@ describe('Docs Generator', function () {
     function setupServer(done) {
 
         _server = new Hapi.Server();
-        _server.addRoutes([
+        _server.route([
             { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/defaults', handler: { docs: true } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } },
@@ -44,7 +44,7 @@ describe('Docs Generator', function () {
     function setupServerWithoutPost(done) {
 
         _serverWithoutPost = new Hapi.Server();
-        _serverWithoutPost.addRoutes([
+        _serverWithoutPost.route([
             { method: 'GET', path: '/docs', handler: { docs: { routeTemplate: _routeTemplate, indexTemplate: _indexTemplate } } },
             { method: 'GET', path: '/test', config: { handler: handler, query: { param1: S().required() } } }
         ]);

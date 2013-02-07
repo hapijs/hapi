@@ -43,7 +43,7 @@ internals.main = function () {
 
     var http = new Hapi.Server('0.0.0.0', 8080);
 
-    http.addRoutes([
+    http.route([
         { method: 'GET', path: '/docs', handler: { docs: true } },
         { method: 'GET', path: '/', config: { handler: internals.get, validate: { query: { username: S() } } } },
         { method: 'POST', path: '/', config: { handler: internals.echo, payload: 'parse' } },
@@ -63,7 +63,7 @@ internals.main = function () {
         participants: A().includes(S(), N())
     };
 
-    http.addRoute({
+    http.route({
         method: 'POST',
         path: '/users/{id}',
         config: {

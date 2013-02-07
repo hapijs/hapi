@@ -36,8 +36,8 @@ internals.main = function () {
     };
 
     var server = new Hapi.Server(3000, options);
-    server.addRoute({ method: 'GET', path: '/one', handler: oneHandler });
-    server.addRoute({ method: 'GET', path: '/two', handler: twoHandler });
+    server.route({ method: 'GET', path: '/one', handler: oneHandler });
+    server.route({ method: 'GET', path: '/two', handler: twoHandler });
     server.start();
 };
 

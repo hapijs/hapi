@@ -61,12 +61,12 @@ describe('Prerequesites', function () {
 
     var server = new Hapi.Server('0.0.0.0', 0, { batch: true });
 
-    server.addHelper('user', function (id, next) {
+    server.helper('user', function (id, next) {
 
         return next({ id: id });
     });
 
-    server.addRoutes([
+    server.route([
         {
             method: 'GET',
             path: '/fetch1',
@@ -170,7 +170,7 @@ describe('Prerequesites', function () {
 
         var test = function () {
 
-            server.addRoute({
+            server.route({
                 method: 'GET',
                 path: '/x/{id}',
                 config: {
@@ -193,7 +193,7 @@ describe('Prerequesites', function () {
 
         var test = function () {
 
-            server.addRoute({
+            server.route({
                 method: 'GET',
                 path: '/x/{id}',
                 config: {

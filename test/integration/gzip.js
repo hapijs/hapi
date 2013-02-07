@@ -33,7 +33,7 @@ describe('Payload', function () {
         }
     };
 
-    server.addRoute(postHandler);
+    server.route(postHandler);
 
     it('returns without error if given gzipped payload', function (done) {
 
