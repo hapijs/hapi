@@ -961,5 +961,72 @@ describe('Auth', function () {
                 });
             });
         });
+
+        describe('redirection', function (done) {
+
+            it('sends to login page (uri without query)', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login',
+                    appendNext: true,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', handler: function () {
+
+                        return this.reply('never');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('You are being redirected...');
+                    expect(res.statusCode).to.equal(302);
+                    expect(res.headers.Location).to.equal('http://example.com/login?next=%2F');
+                    done();
+                });
+            });
+
+            it('sends to login page (uri with query)', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login?mode=1',
+                    appendNext: true,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', handler: function () {
+
+                        return this.reply('never');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('You are being redirected...');
+                    expect(res.statusCode).to.equal(302);
+                    expect(res.headers.Location).to.equal('http://example.com/login?mode=1&next=%2F');
+                    done();
+                });
+            });
+        });
     });
 });
