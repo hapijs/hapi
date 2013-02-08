@@ -8,9 +8,6 @@
     - [Router](#router)
     - [Payload](#payload)
     - [Extensions](#extensions)
-    - [Format](#format)
-      - [Error Format](#error-format)
-      - [Payload Format](#payload-format)
     - [Files](#files)
     - [Views](#views)
     - [Monitor](#monitor)
@@ -88,7 +85,6 @@ var server = new Hapi.Server();
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
-- [`format`](#format)
 - [`files`](#files)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
@@ -175,60 +171,6 @@ function onRequest(request, next) {
     request.setUrl('/test');
     next();
 }
-```
-
-
-### Format
-
-The `format` option provides an extension point for use of custom methods to format error responses or payloads before they are sent back to the client.
-
-
-#### Error Format
-
-If a different error format than the default JSON response is required, the server `format.error` option can be assigned a function to generate a
-different error response. The function signature is _'formatted = function (result)'_ where:
-- _'result'_ - is the **hapi** error object returned by the route handler, and
-- _'formatted'_ - is the formatted response object which contains the following keys:
-    - _`code`_ - the HTTP status code.
-    - _`payload`_ - the response payload.
-    - _`type`_ - the response payload content-type.
-    - _`headers`_ - any additional response HTTP headers (object).
-
-Note that the format function must be synchronous.
-
-For example:
-```javascript
-var options = {
-    format: {
-        error: function (result) {
-        
-            return { code: 500, payload: 'Oops: ' + result.message, type: 'text/html' };
-        }
-    }
-};
-```
-
-
-#### Payload Format
-
-In cases where every non-error payload has to be processed before being sent out (e.g. when returning a database object and need to hide certain fields or
-rename '_id' to 'id'), the `format.payload' option can be set to a function that is called on every result, immediately after 'request.reply' is called. The
-function's signature is _'formatted = function (result)'_ where:
-- _'result'_ - is the raw result object returned by the route handler, and
-- _'formatted'_ - is the formatted response to replace 'result'.
-
-Note that the format function must be synchronous, and it is only invoked for response types other than Stream.
-
-For example:
-```javascript
-var options = {
-    format: {
-        payload: function (result) {
-        
-            return 'something else instead';
-        }
-    }
-};
 ```
 
 
