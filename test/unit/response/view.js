@@ -28,7 +28,7 @@ describe('Response', function () {
                 });
 
                 var view = new Hapi.response.View(manager, 'test', { message: "Ohai" });
-                view._prepare({}, function (response) {
+                view._prepare({ _states: [] }, function (response) {
 
                     expect(view._payload).to.exist;
                     expect(view._payload.length).above(1);

@@ -72,6 +72,12 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
             server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.state('sid', { encoding: 'base64' });
+            server.ext('onPostHandler', function (request, next) {
+
+                request.setState('test', '123');
+                request.clearState('empty');
+                next();
+            });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -80,7 +86,7 @@ describe('Response', function () {
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
                 expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
-                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT']);
+                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
 
                 server.inject({ method: 'GET', url: '/bound' }, function (res) {
 
@@ -122,7 +128,7 @@ describe('Response', function () {
                 request.reply.payload(new Error('boom')).send();
             };
 
-            var formatError= function (error) {
+            var formatError = function (error) {
 
                 var options = error.toResponse();
                 options.payload.surprise = 'party';

@@ -1487,7 +1487,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
 - 'name' - is the cookie name,
 - 'value' - is the cookie value, and
 - 'options' - is an optional structure with the following optional keys:
-    - `ttl' - time-to-live in milliseconds.
+    - `ttl` - time-to-live in milliseconds.
     - `isSecure` - sets the 'Secure' flag.
     - `isHttpOnly` - sets the 'HttpOnly' flag.
     - `path` - the path scope.
