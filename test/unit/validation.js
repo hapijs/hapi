@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Querystring = require('querystring');
 var Hapi = require('../helpers');
-var Validation = process.env.TEST_COV ? require('../../lib-cov/validation') : require('../../lib/validation');
+var Validation = require('../../lib/validation');
 
 
 // Declare internals

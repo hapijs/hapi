@@ -3,8 +3,8 @@
 var Chai = require('chai');
 var Iron = require('iron');
 var Hapi = require('../helpers');
-var State = process.env.TEST_COV ? require('../../lib-cov/state') : require('../../lib/state');
-var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
+var State = require('../../lib/state');
+var Defaults = require('../../lib/defaults');
 
 
 // Declare internals

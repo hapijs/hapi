@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Oz = require('oz');
 var Hapi = require('../../helpers');
-var Auth = process.env.TEST_COV ? require('../../../lib-cov/auth') : require('../../../lib/auth');
+var Auth = require('../../../lib/auth');
 
 
 // Declare internals

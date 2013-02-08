@@ -1374,7 +1374,7 @@ For example:
 var Hapi = require('hapi');
 
 var S = Hapi.Types.String;
-var I = Hapi.Types.Int;
+var I = Hapi.Types.Number;
 
 var rules = {
     username: S().required().alphanum().min(3).max(30).with('email'),
