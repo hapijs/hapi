@@ -38,7 +38,6 @@
         - [File](#file)
         - [Directory](#directory)
         - [View](#view)
-        - [Docs](#documentation)
         - [Request Logging](#request-logging)
         - [Not Found](#not-found-handler)
     - [Route Authentication](#route-authentication)
@@ -63,7 +62,9 @@
 - [**Request Injection**](#request-injection)
 <p></p>
 - [**Server Helpers**](#server-helpers)
-
+<p></p>
+- [**Server Plugins**](#server-plugins)
+    - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
 
@@ -1229,33 +1230,6 @@ Hapi distinguishes between the engines by checking which file extension has been
     server.start();
 
 
-
-### Documentation
-
-**This is an experimental feature and is likely to change!**
-
-In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided. By default the documentation
-generator is turned _off_. To enable the docs endpoint add a new route with a handler object that has a docs property set to true or to an object with the following options:
-- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html' inside the lout module.
-- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
-- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html' inside the lout module.
-- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
-- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
-
-By default there is an index page that lists all of the available routes configured in **hapi** that is located at the `docsEndpoint`.  From this page users are able to navigate to individual routes to read the related documentation.
-
-The simplest example of enabling docs on a site is shown in the following example:
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-http.route({ method: 'GET', path: '/docs', handler: { docs: true } });
-
-http.start();
-```
-
-
 #### Request Logging
 
 In addition to the [General Events Logging](#general-events-logging) mechanism provided to log non-request-specific events, **hapi** provides
@@ -1458,7 +1432,7 @@ For example:
 var Hapi = require('hapi');
 
 var S = Hapi.Types.String;
-var I = Hapi.Types.Int;
+var I = Hapi.Types.Number;
 
 var rules = {
     username: S().required().alphanum().min(3).max(30).with('email'),
@@ -1513,7 +1487,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
 - 'name' - is the cookie name,
 - 'value' - is the cookie value, and
 - 'options' - is an optional structure with the following optional keys:
-    - `ttl' - time-to-live in milliseconds.
+    - `ttl` - time-to-live in milliseconds.
     - `isSecure` - sets the 'Secure' flag.
     - `isHttpOnly` - sets the 'HttpOnly' flag.
     - `path` - the path scope.
@@ -1726,6 +1700,35 @@ http.route({
 });
 ```
 
+# Server Plugins
+
+## Documentation Generator
+
+**This is an experimental feature and is likely to change!**
+
+In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator named **lout** can be installed and enabled as a plugin. Install **lout** by either running `npm install lout` in your sites working directory or add _'lout'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
+The following options can be passed into **lout** when adding it to a server
+- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html' inside the lout module.
+- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
+- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html' inside the lout module.
+- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
+- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
+
+The simplest example of enabling **lout** on a site is shown in the following example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+var loutConfig = { plugin: { indexTemplatePath: './templates' } };
+
+http.plugin().require('lout', loutConfig, function () {
+    
+    http.start();
+});
+
+```
 
 # The End
 

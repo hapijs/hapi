@@ -451,6 +451,7 @@ describe('Auth', function () {
                     _route: {
                         config: {
                             auth: {
+                                mode: 'required',
                                 entity: 'user',
                                 strategies: ['default']
                             }
