@@ -92,7 +92,7 @@ describe('Validation', function () {
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
 
-            request.response = Hapi.Response.generate(Hapi.Error.unauthorized('You are not authorized'));
+            request.response = Hapi.Response.generate(Hapi.error.unauthorized('You are not authorized'));
 
             Validation.response(request, function (err) {
 
