@@ -89,7 +89,7 @@ describe('Pack', function () {
             expect(routesList(server3)).to.deep.equal(['/a', '/ab', '/all']);
             expect(routesList(server4)).to.deep.equal(['/all', '/sodd', '/memoryx']);
 
-            expect(server1.plugins.test.version).to.equal('5.0.0');
+            expect(server1.plugin.list.test.version).to.equal('5.0.0');
 
             done();
         });
@@ -117,8 +117,8 @@ describe('Pack', function () {
             expect(server3._router.table['get']).to.not.exist;
             expect(routesList(server4)).to.deep.equal(['/test']);
 
-            expect(server1.api.test.add(1, 3)).to.equal(4);
-            expect(server1.api.test.glue('1', '3')).to.equal('13');
+            expect(server1.plugins.test.add(1, 3)).to.equal(4);
+            expect(server1.plugins.test.glue('1', '3')).to.equal('13');
 
             done();
         });

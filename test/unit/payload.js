@@ -64,6 +64,8 @@ describe('Payload', function () {
                 }
             };
 
+            request.route = request._route.config;
+
             Payload.read(request, function (result) {
 
                 expect(result).not.to.exist;
@@ -85,6 +87,8 @@ describe('Payload', function () {
                 }
             };
 
+            request.route = request._route.config;
+
             Payload.read(request, function (err) {
 
                 expect(err).to.be.an.instanceOf(Error);
@@ -105,6 +109,8 @@ describe('Payload', function () {
                     },
                     server: server
                 };
+
+                request.route = request._route.config;
 
                 Payload.read(request, function (err) {
 
@@ -128,6 +134,8 @@ describe('Payload', function () {
                     },
                     server: server
                 };
+
+                request.route = request._route.config;
 
                 Payload.read(request, function (err) {
 
@@ -153,6 +161,8 @@ describe('Payload', function () {
                     server: server
                 };
 
+                request.route = request._route.config;
+
                 Payload.read(request, function (err) {
 
                     expect(err).to.not.exist;
@@ -175,6 +185,8 @@ describe('Payload', function () {
                     },
                     server: server
                 };
+
+                request.route = request._route.config;
 
                 Payload.read(request, function (err) {
 
@@ -199,6 +211,8 @@ describe('Payload', function () {
                     },
                     server: server
                 };
+
+                request.route = request._route.config;
 
                 Payload.read(request, function (err) {
 

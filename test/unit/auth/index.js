@@ -78,11 +78,7 @@ describe('Auth', function () {
 
             var request = {
                 _timestamp: Date.now(),
-                _route: {
-                    config: {
-                        auth: {}
-                    }
-                },
+                route: { auth: {} },
                 log: function () { }
             };
 
@@ -127,12 +123,10 @@ describe('Auth', function () {
 
             var request = {
                 _timestamp: Date.now(),
-                _route: {
-                    config: {
-                        auth: {
-                            mode: 'required',
-                            strategies: ['test']
-                        }
+                route: {
+                    auth: {
+                        mode: 'required',
+                        strategies: ['test']
                     }
                 },
                 log: function () { },
@@ -228,12 +222,10 @@ describe('Auth', function () {
                 var request = {
                     session: {},
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                entity: 'any',
-                                strategies: [scheme.scheme]
-                            }
+                    route: {
+                        auth: {
+                            entity: 'any',
+                            strategies: [scheme.scheme]
                         }
                     },
                     log: function () { },
@@ -259,11 +251,9 @@ describe('Auth', function () {
                     session: {
                     },
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                strategies: [scheme.scheme]
-                            }
+                    route: {
+                        auth: {
+                            strategies: [scheme.scheme]
                         }
                     },
                     log: function () { },
@@ -290,12 +280,10 @@ describe('Auth', function () {
                         user: 'test'
                     },
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                entity: 'user',
-                                strategies: [scheme.scheme]
-                            }
+                    route: {
+                        auth: {
+                            entity: 'user',
+                            strategies: [scheme.scheme]
                         }
                     },
                     log: function () { },
@@ -320,12 +308,10 @@ describe('Auth', function () {
                 var request = {
                     session: {},
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                entity: 'user',
-                                strategies: [scheme.scheme]
-                            }
+                    route: {
+                        auth: {
+                            entity: 'user',
+                            strategies: [scheme.scheme]
                         }
                     },
                     log: function () { },
@@ -353,12 +339,10 @@ describe('Auth', function () {
                         user: 'test'
                     },
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                entity: 'app',
-                                strategies: [scheme.scheme]
-                            }
+                    route: {
+                        auth: {
+                            entity: 'app',
+                            strategies: [scheme.scheme]
                         }
                     },
                     log: function () { },
@@ -386,12 +370,10 @@ describe('Auth', function () {
                         app: 'test'
                     },
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                entity: 'app',
-                                strategies: [scheme.scheme]
-                            }
+                    route: {
+                        auth: {
+                            entity: 'app',
+                            strategies: [scheme.scheme]
                         }
                     },
                     log: function () { },
@@ -418,12 +400,10 @@ describe('Auth', function () {
                         user: 'test'
                     },
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                entity: 'wrongEntity',
-                                strategies: [scheme.scheme]
-                            }
+                    route: {
+                        auth: {
+                            entity: 'wrongEntity',
+                            strategies: [scheme.scheme]
                         }
                     },
                     log: function () { },
@@ -448,13 +428,11 @@ describe('Auth', function () {
 
                 var request = {
                     _timestamp: Date.now(),
-                    _route: {
-                        config: {
-                            auth: {
-                                mode: 'required',
-                                entity: 'user',
-                                strategies: ['default']
-                            }
+                    route: {
+                        auth: {
+                            mode: 'required',
+                            entity: 'user',
+                            strategies: ['default']
                         }
                     },
                     log: function () { },
@@ -514,11 +492,9 @@ describe('Auth', function () {
 
             var request = {
                 _timestamp: Date.now(),
-                _route: {
-                    config: {
-                        auth: {
-                            strategies: ['default']
-                        }
+                route: {
+                    auth: {
+                        strategies: ['default']
                     }
                 },
                 log: function () { },
