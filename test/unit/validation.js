@@ -46,7 +46,7 @@ describe('Validation', function () {
             path: routeClone.path,
             method: routeClone.method,
             _timestamp: Date.now(),
-            _route: { config: routeClone.config },
+            route: routeClone.config,
             response: { result: {} }
         };
     };
@@ -64,7 +64,7 @@ describe('Validation', function () {
             params: params,
             method: routeClone.method,
             _timestamp: Date.now(),
-            _route: { config: routeClone.config },
+            route: routeClone.config,
             response: { result: {} }
         };
     };
@@ -78,7 +78,7 @@ describe('Validation', function () {
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
 
-            request._response = Hapi.Response.generate({ username: 'test' });
+            request.response = Hapi.Response.generate({ username: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -92,7 +92,7 @@ describe('Validation', function () {
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
 
-            request._response = Hapi.Response.generate(Hapi.Error.unauthorized('You are not authorized'));
+            request.response = Hapi.Response.generate(Hapi.Error.unauthorized('You are not authorized'));
 
             Validation.response(request, function (err) {
 
@@ -105,7 +105,7 @@ describe('Validation', function () {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+            request.response = Hapi.Response.generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -118,8 +118,8 @@ describe('Validation', function () {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._route.config.response.sample = 0;
-            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+            request.route.response.sample = 0;
+            request.response = Hapi.Response.generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -132,8 +132,8 @@ describe('Validation', function () {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._route.config.response.sample = 100;
-            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+            request.route.response.sample = 100;
+            request.response = Hapi.Response.generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -146,9 +146,9 @@ describe('Validation', function () {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._route.config.response.failAction = 'log';
-            request._route.config.response.sample = sample;
-            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+            request.route.response.failAction = 'log';
+            request.route.response.sample = sample;
+            request.response = Hapi.Response.generate({ wrongParam: 'test' });
             var failureCount = 0;
 
             request.log = function () {
@@ -188,8 +188,8 @@ describe('Validation', function () {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._route.config.response.failAction = 'log';
-            request._response = Hapi.Response.generate({ wrongParam: 'test' });
+            request.route.response.failAction = 'log';
+            request.response = Hapi.Response.generate({ wrongParam: 'test' });
 
             request.log = function (tags, data) {
 
@@ -207,7 +207,7 @@ describe('Validation', function () {
 
             var query = { username: 'walmart' };
             var request = createRequestObject(query, route);
-            request._response = Hapi.Response.generate('test');
+            request.response = Hapi.Response.generate('test');
 
             Validation.response(request, function (err) {
 

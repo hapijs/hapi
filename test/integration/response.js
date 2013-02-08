@@ -128,14 +128,7 @@ describe('Response', function () {
                 request.reply.payload(new Error('boom')).send();
             };
 
-            var formatError = function (error) {
-
-                var options = error.toResponse();
-                options.payload.surprise = 'party';
-                return options;
-            };
-
-            var server = new Hapi.Server({ format: { error: formatError } });
+            var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
@@ -143,7 +136,6 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('boom');
-                expect(res.result.surprise).to.equal('party');
                 done();
             });
         });
@@ -1655,32 +1647,6 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('An internal server error occurred');
-                done();
-            });
-        });
-    });
-
-    describe('#format.payload', function () {
-
-        it('returns a formatted reply', function (done) {
-
-            var formatPayload = function (result) {
-
-                return result + '!';
-            };
-
-            var handler = function (request) {
-
-                request.reply('hello');
-            };
-
-            var server = new Hapi.Server({ format: { payload: formatPayload } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-            server.inject({ method: 'GET', url: '/' }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('hello!');
                 done();
             });
         });
