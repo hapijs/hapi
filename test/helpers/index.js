@@ -2,7 +2,7 @@
 
 var NodeUtil = require('util');
 var Events = require('events');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
+var Hapi = require('../../lib');
 
 
 // Declare internals
