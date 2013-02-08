@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Hapi = require('../../helpers');
-var Views = process.env.TEST_COV ? require('../../../lib-cov/views') : require('../../../lib/views');
+var Views = require('../../../lib/views');
 
 
 // Declare internals
@@ -28,7 +28,7 @@ describe('Response', function () {
                 });
 
                 var view = new Hapi.response.View(manager, 'test', { message: "Ohai" });
-                view._prepare({}, function (response) {
+                view._prepare({ _states: [] }, function (response) {
 
                     expect(view._payload).to.exist;
                     expect(view._payload.length).above(1);
