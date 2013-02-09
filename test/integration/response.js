@@ -35,7 +35,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/null' }, function (res) {
 
-                expect(res.readPayload()).to.equal('0\r\n\r\n');
+                expect(res.readPayload()).to.equal('');
 
                 expect(function () {
 
