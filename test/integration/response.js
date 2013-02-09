@@ -26,6 +26,7 @@ describe('Response', function () {
 
             var handler = function () {
 
+                this.raw.res.end();
                 this.reply.close();
             };
 
@@ -35,7 +36,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/null' }, function (res) {
 
-                expect(res.readPayload()).to.equal('');
+                expect(res.readPayload()).to.equal('0\r\n\r\n');
 
                 expect(function () {
 
