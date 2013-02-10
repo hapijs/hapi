@@ -232,11 +232,6 @@ describe('Route', function () {
                         p1: 'a',
                         p2: undefined
                     }
-                },
-                '/{p*}': {
-                    '/path/': {
-                        p: 'path/'
-                    }
                 }
             };
 
