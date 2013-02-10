@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP API Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     "Van Nguyen <the.gol.effect@gmail.com>",
@@ -37,8 +37,7 @@
     "catbox": "0.1.x",
     "cryptiles": "0.0.x",
     "iron": "0.1.x",
-    "semver": "1.1.0",
-    "lru-cache": "~2.2.2"
+    "semver": "1.1.0"
   },
   "devDependencies": {
     "mocha": "1.x.x",

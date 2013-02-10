@@ -546,6 +546,23 @@ describe('Response', function () {
             });
         });
 
+        it('returns a 304 when the request has a future modifed-since', function (done) {
+
+            server.start(function () {
+
+                var date = new Date(Date.now());
+                var headers = {
+                    'if-modified-since': new Date(date.setFullYear(date.getFullYear() + 1)).toUTCString()
+                };
+
+                Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(304);
+                    done();
+                });
+            });
+        });
+
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
             server.start(function () {
@@ -591,6 +608,8 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.route({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.route({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
+        server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+        server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -654,6 +673,48 @@ describe('Response', function () {
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
                     expect(body).to.contain('test');
+                    done();
+                });
+            });
+        });
+
+        it('returns the correct listing links when viewing top level path', function (done) {
+
+            server.start(function () {
+
+                Request.get(server.settings.uri + '/', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('href="/response.js"');
+                    done();
+                });
+            });
+        });
+
+        it('doesn\'t contain any double / when viewing sub path listing', function (done) {
+
+            server.start(function () {
+
+                Request.get(server.settings.uri + '/showindex/', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.not.contain('//');
+                    done();
+                });
+            });
+        });
+
+        it('has the correct link to sub folders when inside of a sub folder listing', function (done) {
+
+            server.start(function () {
+
+                Request.get(server.settings.uri + '/showindex/directory/subdir', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('href="/showindex/directory/subdir/subsubdir"');
                     done();
                 });
             });
