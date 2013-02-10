@@ -546,23 +546,6 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 304 when the request has a future modifed-since', function (done) {
-
-            server.start(function () {
-
-                var date = new Date(Date.now());
-                var headers = {
-                    'if-modified-since': new Date(date.setFullYear(date.getFullYear() + 1)).toUTCString()
-                };
-
-                Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res) {
-
-                    expect(res.statusCode).to.equal(304);
-                    done();
-                });
-            });
-        });
-
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
             server.start(function () {
