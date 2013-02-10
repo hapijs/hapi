@@ -1027,6 +1027,37 @@ describe('Auth', function () {
                     done();
                 });
             });
+
+            it('does not redirect on try', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login',
+                    appendNext: true,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', config: { auth: { mode: 'try' } }, handler: function () {
+
+                        return this.reply('try');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('try');
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
         });
     });
 });
