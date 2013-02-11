@@ -20,33 +20,6 @@ var expect = Chai.expect;
 
 describe('Response', function () {
 
-    describe('External', function () {
-
-        it('returns a reply', function (done) {
-
-            var handler = function () {
-
-                this.reply.close();
-            };
-
-            var server = new Hapi.Server({ cache: { engine: 'memory' } });
-            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
-            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
-
-            server.inject({ method: 'GET', url: '/null' }, function (res) {
-
-                expect(res.readPayload()).to.equal('0\r\n\r\n');
-
-                expect(function () {
-
-                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
-                }).to.throw();
-
-                done();
-            });
-        });
-    });
-
     describe('Text', function () {
 
         it('returns a text reply', function (done) {
@@ -1608,6 +1581,118 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/redirect?x=308f' }, function (res) {
 
                 expect(res.statusCode).to.equal(308);
+                done();
+            });
+        });
+    });
+
+    describe('External', function () {
+
+        it('returns a reply', function (done) {
+
+            var handler = function () {
+
+                this.raw.res.end();
+                this.reply.close();
+            };
+
+            var server = new Hapi.Server({ cache: { engine: 'memory' } });
+            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/null' }, function (res) {
+
+                expect(res.readPayload()).to.equal('0\r\n\r\n');
+
+                expect(function () {
+
+                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
+                }).to.throw();
+
+                done();
+            });
+        });
+    });
+
+    describe('Extension', function () {
+
+        it('returns a reply using custom response without _prepare', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _transmit: function (request, callback) {
+
+                        request.raw.res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': 11 });
+                        request.raw.res.end('Hello World');
+                    }
+                };
+
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.readPayload()).to.equal('Hello World');
+                done();
+            });
+        });
+
+        it('returns an internal error on error response loop', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _prepare: function (request, callback) {
+
+                        callback(Hapi.error.badRequest());
+                    },
+                    _transmit: function () { }
+                };
+
+                this.setState('bad', {});
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.code).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error on infinite _prepare loop', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _prepare: function (request, callback) {
+
+                        callback(custom);
+                    }
+                };
+
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.code).to.equal(500);
                 done();
             });
         });
