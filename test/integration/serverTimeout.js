@@ -174,7 +174,7 @@ describe('Server Timeout', function () {
 
         var req = Http.request(options, function (res) {
 
-            expect(timer.elapsed()).to.be.at.least(100);
+            expect(timer.elapsed()).to.be.at.least(98);
             expect(res.statusCode).to.equal(200);
             done();
         });

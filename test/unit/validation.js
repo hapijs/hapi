@@ -75,7 +75,7 @@ describe('Validation', function () {
 
         it('should not raise an error when responding with valid param', function (done) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
             request.response = Hapi.Response.generate({ username: 'test' });
@@ -89,10 +89,10 @@ describe('Validation', function () {
 
         it('an error response should skip response validation and not return an error', function (done) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request.response = Hapi.Response.generate(Hapi.Error.unauthorized('You are not authorized'));
+            request.response = Hapi.Response.generate(Hapi.error.unauthorized('You are not authorized'));
 
             Validation.response(request, function (err) {
 
@@ -103,7 +103,7 @@ describe('Validation', function () {
 
         it('should raise an error when responding with invalid param', function (done) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.response = Hapi.Response.generate({ wrongParam: 'test' });
 
@@ -116,7 +116,7 @@ describe('Validation', function () {
 
         it('should not raise an error when responding with invalid param and sample is 0', function (done) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.sample = 0;
             request.response = Hapi.Response.generate({ wrongParam: 'test' });
@@ -130,7 +130,7 @@ describe('Validation', function () {
 
         it('should raise an error when responding with invalid param and sample is 100', function (done) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.sample = 100;
             request.response = Hapi.Response.generate({ wrongParam: 'test' });
@@ -144,7 +144,7 @@ describe('Validation', function () {
 
         internals.calculateFailAverage = function (size, sample) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
             request.route.response.sample = sample;
@@ -186,7 +186,7 @@ describe('Validation', function () {
 
         it('should report an error when responding with invalid response param and failAction is report', function (done) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
             request.response = Hapi.Response.generate({ wrongParam: 'test' });
@@ -205,7 +205,7 @@ describe('Validation', function () {
 
         it('should raise an error when validating a non-object response', function (done) {
 
-            var query = { username: 'walmart' };
+            var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.response = Hapi.Response.generate('test');
 

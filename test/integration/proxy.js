@@ -115,12 +115,12 @@ describe('Proxy', function () {
 
     function unauthorized (request) {
 
-        request.reply(Hapi.Error.unauthorized('Not authorized'));
+        request.reply(Hapi.error.unauthorized('Not authorized'));
     }
 
     function postResponseWithError (request) {
 
-        request.reply(Hapi.Error.forbidden('Forbidden'));
+        request.reply(Hapi.error.forbidden('Forbidden'));
     }
 
     function postResponse (request, settings, response, payload) {

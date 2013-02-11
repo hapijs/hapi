@@ -20,33 +20,6 @@ var expect = Chai.expect;
 
 describe('Response', function () {
 
-    describe('External', function () {
-
-        it('returns a reply', function (done) {
-
-            var handler = function () {
-
-                this.reply.close();
-            };
-
-            var server = new Hapi.Server({ cache: { engine: 'memory' } });
-            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
-            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
-
-            server.inject({ method: 'GET', url: '/null' }, function (res) {
-
-                expect(res.readPayload()).to.equal('0\r\n\r\n');
-
-                expect(function () {
-
-                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
-                }).to.throw();
-
-                done();
-            });
-        });
-    });
-
     describe('Text', function () {
 
         it('returns a text reply', function (done) {
@@ -372,10 +345,9 @@ describe('Response', function () {
 
     describe('File', function () {
 
-        var server = new Hapi.Server(17082);
-
         it('returns a file in the response with the correct headers', function (done) {
 
+            var server = new Hapi.Server(0);
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -385,7 +357,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/file', function (err, res, body) {
+                Request.get(server.settings.uri + '/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -399,12 +371,12 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers using process relative paths', function (done) {
 
-            var server = new Hapi.Server(17084, { files: { relativeTo: 'process' } });
+            var server = new Hapi.Server(0, { files: { relativeTo: 'process' } });
             server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
 
             server.start(function () {
 
-                Request.get('http://localhost:17084/', function (err, res, body) {
+                Request.get(server.settings.uri, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -418,6 +390,7 @@ describe('Response', function () {
 
         it('returns a 404 when the file is not found', function (done) {
 
+            var server = new Hapi.Server(0);
             var notFoundHandler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../notHere'));
@@ -427,7 +400,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/filenotfound', function (err, res) {
+                Request.get(server.settings.uri + '/filenotfound', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -438,6 +411,7 @@ describe('Response', function () {
 
         it('returns a 403 when the file is a directory', function (done) {
 
+            var server = new Hapi.Server(0);
             var folderHandler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname));
@@ -447,7 +421,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/filefolder', function (err, res) {
+                Request.get(server.settings.uri + '/filefolder', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -463,34 +437,43 @@ describe('Response', function () {
 
         it('returns a file using the build-in handler config', function (done) {
 
+            var server = new Hapi.Server(0);
             server.route({ method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } });
 
-            Request.get('http://localhost:17082/staticfile', function (err, res, body) {
+            server.start(function () {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
-                expect(res.headers['content-length']).to.exist;
-                done();
+                Request.get(server.settings.uri + '/staticfile', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
             });
         });
 
         it('returns a file using the file function with the build-in handler config', function (done) {
 
+            var server = new Hapi.Server(0);
             server.route({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
 
-            Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
+            server.start(function () {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('./lib');
-                expect(res.headers['content-type']).to.equal('application/javascript');
-                expect(res.headers['content-length']).to.exist;
-                done();
+                Request.get(server.settings.uri + '/filefn/index.js', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('./lib');
+                    expect(res.headers['content-type']).to.equal('application/javascript');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
             });
         });
 
         it('returns a file in the response with the correct headers (relative path)', function (done) {
 
+            var server = new Hapi.Server(0);
             var relativeHandler = function (request) {
 
                 request.reply(new Hapi.Response.File('./package.json'));
@@ -500,7 +483,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/relativefile', function (err, res, body) {
+                Request.get(server.settings.uri + '/relativefile', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -513,29 +496,41 @@ describe('Response', function () {
 
         it('returns a file using the built-in handler config (relative path)', function (done) {
 
+            var server = new Hapi.Server(0);
             server.route({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
 
-            Request.get('http://localhost:17082/relativestaticfile', function (err, res, body) {
+            server.start(function () {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
-                expect(res.headers['content-length']).to.exist;
-                done();
+                Request.get(server.settings.uri + '/relativestaticfile', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
             });
         });
 
         it('returns a 304 when the request has a matching etag', function (done) {
 
+            var server = new Hapi.Server(0);
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
             server.start(function () {
 
-                Request.get('http://localhost:17082/file', function (err, res1) {
+                Request.get(server.settings.uri + '/file', function (err, res1) {
 
                     var headers = {
                         'if-none-match': res1.headers.etag
                     };
 
-                    Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res2) {
+                    Request.get({ url: server.settings.uri + '/file', headers: headers }, function (err, res2) {
 
                         expect(res2.statusCode).to.equal(304);
                         done();
@@ -544,28 +539,46 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 304 when the request has a future modifed-since', function (done) {
+        it('returns a 304 when the request has if-modified-since and the response hasn\'t been modified since', function (done) {
+
+            var server = new Hapi.Server(0);
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
 
             server.start(function () {
 
-                var date = new Date(Date.now());
-                var headers = {
-                    'if-modified-since': new Date(date.setFullYear(date.getFullYear() + 1)).toUTCString()
-                };
+                Request.get(server.settings.uri, function (err, res1) {
 
-                Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res) {
+                    var headers = {
+                        'if-modified-since': res1.headers.date
+                    };
 
-                    expect(res.statusCode).to.equal(304);
-                    done();
+                    Request.get({ url: server.settings.uri + '/file', headers: headers }, function (err, res2) {
+
+                        expect(res2.statusCode).to.equal(304);
+                        done();
+                    });
                 });
             });
         });
 
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
+            var server = new Hapi.Server(0);
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
             server.start(function () {
 
-                Request.get({ url: 'http://localhost:17082/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+                Request.get({ url: server.settings.uri + '/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.headers['content-type']).to.equal('application/json');
@@ -581,6 +594,7 @@ describe('Response', function () {
 
             var fn = function () {
 
+                var server = new Hapi.Server(0);
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
             };
 
@@ -592,6 +606,7 @@ describe('Response', function () {
 
             var fn = function () {
 
+                var server = new Hapi.Server(0);
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
             };
 
@@ -1625,6 +1640,118 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/redirect?x=308f' }, function (res) {
 
                 expect(res.statusCode).to.equal(308);
+                done();
+            });
+        });
+    });
+
+    describe('External', function () {
+
+        it('returns a reply', function (done) {
+
+            var handler = function () {
+
+                this.raw.res.end();
+                this.reply.close();
+            };
+
+            var server = new Hapi.Server({ cache: { engine: 'memory' } });
+            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/null' }, function (res) {
+
+                expect(res.readPayload()).to.equal('0\r\n\r\n');
+
+                expect(function () {
+
+                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
+                }).to.throw();
+
+                done();
+            });
+        });
+    });
+
+    describe('Extension', function () {
+
+        it('returns a reply using custom response without _prepare', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _transmit: function (request, callback) {
+
+                        request.raw.res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': 11 });
+                        request.raw.res.end('Hello World');
+                    }
+                };
+
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.readPayload()).to.equal('Hello World');
+                done();
+            });
+        });
+
+        it('returns an internal error on error response loop', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _prepare: function (request, callback) {
+
+                        callback(Hapi.error.badRequest());
+                    },
+                    _transmit: function () { }
+                };
+
+                this.setState('bad', {});
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.code).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error on infinite _prepare loop', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _prepare: function (request, callback) {
+
+                        callback(custom);
+                    }
+                };
+
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.code).to.equal(500);
                 done();
             });
         });
