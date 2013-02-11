@@ -769,6 +769,20 @@ describe('Auth', function () {
             });
         });
 
+        it('returns a reply on successful auth when payload validation is optional and no payload hash exists', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayloadOptional', '0.0.0.0', 8080);
+            var request = { method: 'POST', url: '/hawkPayloadOptional', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
         it('returns a reply on successful auth and when payload validation is disabled', function (done) {
 
             var payload = 'Here is my payload';
