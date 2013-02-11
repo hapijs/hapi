@@ -41,7 +41,7 @@ describe('Response', function () {
                 this.reply('Tada');
             };
 
-            var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com'] } });
+            var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com', 'www.example.com'] } });
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
             server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.state('sid', { encoding: 'base64' });
@@ -57,14 +57,15 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('text');
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
-                expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com www.example.com');
                 expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
                 expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
 
-                server.inject({ method: 'GET', url: '/bound' }, function (res) {
+                server.inject({ method: 'GET', url: '/bound', headers: { origin: 'www.example.com' } }, function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.result).to.equal('Tada');
+                    expect(res.headers['Access-Control-Allow-Origin']).to.equal('www.example.com');
                     done();
                 });
             });
