@@ -1,3 +1,5 @@
+***Please note that any feature left undocumented is experimental and may have breaking changes in future releases.***
+
 # Table of Content
 
 <p></p>
@@ -8,9 +10,6 @@
     - [Router](#router)
     - [Payload](#payload)
     - [Extensions](#extensions)
-    - [Format](#format)
-      - [Error Format](#error-format)
-      - [Payload Format](#payload-format)
     - [Files](#files)
     - [Views](#views)
     - [Monitor](#monitor)
@@ -38,7 +37,6 @@
         - [File](#file)
         - [Directory](#directory)
         - [View](#view)
-        - [Docs](#documentation)
         - [Request Logging](#request-logging)
         - [Not Found](#not-found-handler)
     - [Route Authentication](#route-authentication)
@@ -63,7 +61,9 @@
 - [**Request Injection**](#request-injection)
 <p></p>
 - [**Server Helpers**](#server-helpers)
-
+<p></p>
+- [**Server Plugins**](#server-plugins)
+    - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
 
@@ -87,7 +87,6 @@ var server = new Hapi.Server();
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
-- [`format`](#format)
 - [`files`](#files)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
@@ -177,60 +176,6 @@ function onRequest(request, next) {
 ```
 
 
-### Format
-
-The `format` option provides an extension point for use of custom methods to format error responses or payloads before they are sent back to the client.
-
-
-#### Error Format
-
-If a different error format than the default JSON response is required, the server `format.error` option can be assigned a function to generate a
-different error response. The function signature is _'formatted = function (result)'_ where:
-- _'result'_ - is the **hapi** error object returned by the route handler, and
-- _'formatted'_ - is the formatted response object which contains the following keys:
-    - _`code`_ - the HTTP status code.
-    - _`payload`_ - the response payload.
-    - _`type`_ - the response payload content-type.
-    - _`headers`_ - any additional response HTTP headers (object).
-
-Note that the format function must be synchronous.
-
-For example:
-```javascript
-var options = {
-    format: {
-        error: function (result) {
-        
-            return { code: 500, payload: 'Oops: ' + result.message, type: 'text/html' };
-        }
-    }
-};
-```
-
-
-#### Payload Format
-
-In cases where every non-error payload has to be processed before being sent out (e.g. when returning a database object and need to hide certain fields or
-rename '_id' to 'id'), the `format.payload' option can be set to a function that is called on every result, immediately after 'request.reply' is called. The
-function's signature is _'formatted = function (result)'_ where:
-- _'result'_ - is the raw result object returned by the route handler, and
-- _'formatted'_ - is the formatted response to replace 'result'.
-
-Note that the format function must be synchronous, and it is only invoked for response types other than Stream.
-
-For example:
-```javascript
-var options = {
-    format: {
-        payload: function (result) {
-        
-            return 'something else instead';
-        }
-    }
-};
-```
-
-
 ### Views
 
 To enable Views support, Hapi must be given an options object with a non-null `views` key. The views object
@@ -279,7 +224,7 @@ optional settings:
 - `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
     - 'response' - the response was sent but request tails may still be pending.
     - 'tail' - the response was sent and all request tails completed.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
+- `subscribers` - an object where each key is a destination and each value is either an array or object with an array of subscriptions. The subscriptions that are available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
 
 For example:
 ```javascript
@@ -304,6 +249,18 @@ var options = {
     }
 };
 ```
+
+Log messages are created with tags.  Usually a log will include a tag to indicate if it is related to an error or info along with where the message originates.  If, for example, the console should only output error's that were logged you can use the following configuration:
+```javascript
+var options = {
+    monitor: {
+        subscribers: {
+            console: { tags: ['error'], events: ['log'] }
+        }
+    }
+};
+```
+
 
 
 ### Authentication
@@ -1217,33 +1174,6 @@ Hapi distinguishes between the engines by checking which file extension has been
     server.start();
 
 
-
-### Documentation
-
-**This is an experimental feature and is likely to change!**
-
-In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided. By default the documentation
-generator is turned _off_. To enable the docs endpoint add a new route with a handler object that has a docs property set to true or to an object with the following options:
-- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html' inside the lout module.
-- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
-- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html' inside the lout module.
-- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
-- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
-
-By default there is an index page that lists all of the available routes configured in **hapi** that is located at the `docsEndpoint`.  From this page users are able to navigate to individual routes to read the related documentation.
-
-The simplest example of enabling docs on a site is shown in the following example:
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-http.route({ method: 'GET', path: '/docs', handler: { docs: true } });
-
-http.start();
-```
-
-
 #### Request Logging
 
 In addition to the [General Events Logging](#general-events-logging) mechanism provided to log non-request-specific events, **hapi** provides
@@ -1446,7 +1376,7 @@ For example:
 var Hapi = require('hapi');
 
 var S = Hapi.Types.String;
-var I = Hapi.Types.Int;
+var I = Hapi.Types.Number;
 
 var rules = {
     username: S().required().alphanum().min(3).max(30).with('email'),
@@ -1501,7 +1431,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
 - 'name' - is the cookie name,
 - 'value' - is the cookie value, and
 - 'options' - is an optional structure with the following optional keys:
-    - `ttl' - time-to-live in milliseconds.
+    - `ttl` - time-to-live in milliseconds.
     - `isSecure` - sets the 'Secure' flag.
     - `isHttpOnly` - sets the 'HttpOnly' flag.
     - `path` - the path scope.
@@ -1714,6 +1644,35 @@ http.route({
 });
 ```
 
+# Server Plugins
+
+## Documentation Generator
+
+**This is an experimental feature and is likely to change!**
+
+In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator named **lout** can be installed and enabled as a plugin. Install **lout** by either running `npm install lout` in your sites working directory or add _'lout'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
+The following options can be passed into **lout** when adding it to a server
+- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html' inside the lout module.
+- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
+- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html' inside the lout module.
+- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
+- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
+
+The simplest example of enabling **lout** on a site is shown in the following example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+var loutConfig = { plugin: { indexTemplatePath: './templates' } };
+
+http.plugin().require('lout', loutConfig, function () {
+    
+    http.start();
+});
+
+```
 
 # The End
 

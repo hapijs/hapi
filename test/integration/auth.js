@@ -471,7 +471,7 @@ describe('Auth', function () {
 
         it('returns a reply on failed optional auth', function (done) {
 
-            var request = { method: 'POST', url: '/ozOptional' };
+            var request = { method: 'POST', url: '/ozOptional', headers: { host: 'example.com:8080' } };
 
             server.inject(request, function (res) {
 
@@ -620,7 +620,7 @@ describe('Auth', function () {
 
         it('returns a reply on failed optional auth', function (done) {
 
-            var request = { method: 'POST', url: '/hawkOptional' };
+            var request = { method: 'POST', url: '/hawkOptional', headers: { host: 'example.com:8080' } };
 
             server.inject(request, function (res) {
 
@@ -1095,6 +1095,209 @@ describe('Auth', function () {
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('Success');
                 done();
+            });
+        });
+    });
+
+    describe('Cookie', function (done) {
+
+        var config = {
+            scheme: 'cookie',
+            password: 'password',
+            ttl: 60 * 1000,
+            cookie: 'special',
+            clearInvalid: true,
+            validateFunc: function (session, callback) {
+
+                var override = Hapi.utils.clone(session);
+                override.something = 'new';
+
+                return callback(session.user === 'valid' ? null : new Error('bad user'), override);
+            }
+        };
+
+        var server = new Hapi.Server({ auth: config });
+
+        server.route({
+            method: 'GET', path: '/login/{user}', config: {
+                auth: { mode: 'try' }, handler: function () {
+
+                    this.setSession({ user: this.params.user });
+
+                    return this.reply(this.params.user);
+                }
+            }
+        });
+
+        server.route({
+            method: 'GET', path: '/resource', handler: function () {
+
+                expect(this.session.something).to.equal('new');
+                return this.reply('resource');
+            }
+        });
+
+        server.route({
+            method: 'GET', path: '/logout', handler: function () {
+
+                this.clearSession();
+                return this.reply('logged-out');
+            }
+        });
+
+        it('authenticates a request', function (done) {
+
+            server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
+
+                expect(res.result).to.equal('valid');
+                var header = res.headers['Set-Cookie'];
+                expect(header.length).to.equal(1);
+                expect(header[0]).to.contain('Max-Age=60000');
+                var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
+
+                server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('resource');
+                    done();
+                });
+            });
+        });
+
+        it('ends a session', function (done) {
+
+            server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
+
+                expect(res.result).to.equal('valid');
+                var header = res.headers['Set-Cookie'];
+                expect(header.length).to.equal(1);
+                expect(header[0]).to.contain('Max-Age=60000');
+                var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
+
+                server.inject({ method: 'GET', url: '/logout', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('logged-out');
+                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
+                    done();
+                });
+            });
+        });
+
+        it('fails a request with invalid session', function (done) {
+
+            server.inject({ method: 'GET', url: '/login/invalid' }, function (res) {
+
+                expect(res.result).to.equal('invalid');
+                var header = res.headers['Set-Cookie'];
+                expect(header.length).to.equal(1);
+                expect(header[0]).to.contain('Max-Age=60000');
+                var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
+
+                server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
+
+                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
+                    expect(res.statusCode).to.equal(401);
+                    done();
+                });
+            });
+        });
+
+        describe('redirection', function (done) {
+
+            it('sends to login page (uri without query)', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login',
+                    appendNext: true,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', handler: function () {
+
+                        return this.reply('never');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('You are being redirected...');
+                    expect(res.statusCode).to.equal(302);
+                    expect(res.headers.Location).to.equal('http://example.com/login?next=%2F');
+                    done();
+                });
+            });
+
+            it('sends to login page (uri with query)', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login?mode=1',
+                    appendNext: true,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', handler: function () {
+
+                        return this.reply('never');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('You are being redirected...');
+                    expect(res.statusCode).to.equal(302);
+                    expect(res.headers.Location).to.equal('http://example.com/login?mode=1&next=%2F');
+                    done();
+                });
+            });
+
+            it('does not redirect on try', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login',
+                    appendNext: true,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', config: { auth: { mode: 'try' } }, handler: function () {
+
+                        return this.reply('try');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('try');
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
             });
         });
     });
