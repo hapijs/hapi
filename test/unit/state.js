@@ -107,6 +107,7 @@ describe('State', function () {
                 it('fails parsing cookie header: ' + header, function (done) {
 
                     var ignore = false;
+                    var cleared = '';
 
                     var request = {
                         raw: {
@@ -124,6 +125,10 @@ describe('State', function () {
                         },
                         log: function (tags, data) {
                             ignore = true;
+                        },
+                        clearState: function (name) {
+
+                            cleared = name;
                         }
                     };
 
@@ -134,6 +139,10 @@ describe('State', function () {
                         }
                         else {
                             expect(err).to.exist;
+                        }
+
+                        if (request.server.settings.state.cookies.clearInvalid) {
+                            expect(cleared).to.equal('sid');
                         }
 
                         done();
@@ -162,6 +171,10 @@ describe('State', function () {
             fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9; key=XeyJ0ZXN0aW5dnIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } });
             fail('sid=a=1&b=2&c=3%20x', setLog, { sid: { encoding: 'form', sign: { password: 'password' } } });
             fail('sid=a=1&b=2&c=3%20x; sid=a=1&b=2&c=3%20x', setLog, { sid: { encoding: 'form', sign: { password: 'password' } } });
+
+            var clearInvalid = Hapi.utils.clone(Defaults.server.state);
+            clearInvalid.cookies.clearInvalid = true;
+            fail('sid=a=1&b=2&c=3%20x', clearInvalid, { sid: { encoding: 'form', sign: { password: 'password' } } });
         });
     });
 

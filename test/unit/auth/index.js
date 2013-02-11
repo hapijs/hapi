@@ -137,7 +137,7 @@ describe('Auth', function () {
                     req: {
                         headers: {
                             host: 'localhost',
-                            authorization: 'basic d2FsbWFydDp3YWxtYXJ0'
+                            authorization: 'basic ' + (new Buffer('steve:password').toString('base64'))
                         },
                         url: 'http://localhost/test'
                     }
@@ -155,7 +155,7 @@ describe('Auth', function () {
                     scheme: 'basic',
                     loadUserFunc: function (username, callback) {
 
-                        return callback(null, { id: 'walmart', password: 'walmart' });
+                        return callback(null, { id: 'steve', password: 'password' });
                     }
                 }
             };
@@ -188,7 +188,7 @@ describe('Auth', function () {
                         scheme: 'basic',
                         loadUserFunc: function (username, callback) {
 
-                            return callback(null, { id: 'walmart', password: 'walmart' });
+                            return callback(null, { id: 'steve', password: 'password' });
                         }
                     }
                 }

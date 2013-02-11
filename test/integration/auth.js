@@ -937,7 +937,7 @@ describe('Auth', function () {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result).to.equal('logged-out');
-                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure');
+                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
                     done();
                 });
             });
@@ -955,7 +955,7 @@ describe('Auth', function () {
 
                 server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
 
-                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure');
+                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
                     expect(res.statusCode).to.equal(401);
                     done();
                 });
@@ -1024,6 +1024,37 @@ describe('Auth', function () {
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
                     expect(res.headers.Location).to.equal('http://example.com/login?mode=1&next=%2F');
+                    done();
+                });
+            });
+
+            it('does not redirect on try', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login',
+                    appendNext: true,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', config: { auth: { mode: 'try' } }, handler: function () {
+
+                        return this.reply('try');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('try');
+                    expect(res.statusCode).to.equal(200);
                     done();
                 });
             });
