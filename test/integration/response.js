@@ -93,6 +93,45 @@ describe('Response', function () {
         });
     });
 
+
+    describe('Obj', function () {
+
+        it('returns an JSONP response', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
+
+                expect(res.readPayload()).to.equal('me({"some":"value"});');
+                done();
+            });
+        });
+
+        it('returns response on bad JSONP parameter', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me*' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('Invalid JSONP parameter value');
+                done();
+            });
+        });
+    });
+
     describe('Error', function () {
 
         it('returns an error reply', function (done) {
