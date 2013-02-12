@@ -109,6 +109,7 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
 
                 expect(res.readPayload()).to.equal('me({"some":"value"});');
+                expect(res.headers['Content-Length']).to.equal(21);
                 done();
             });
         });
