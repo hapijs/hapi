@@ -71,21 +71,19 @@ internals.main = function () {
 
     var config = {
         auth: {
-            strategies: {
-                'default': {
-                    scheme: 'basic',
-                    loadUserFunc: internals.loadUser,
-                    hashPasswordFunc: internals.hashPassword
-                },
-                'hawk': {
-                    scheme: 'hawk',
-                    getCredentialsFunc: internals.getCredentials
-                },
-                'basic': {
-                    scheme: 'basic',
-                    loadUserFunc: internals.loadUser,
-                    hashPasswordFunc: internals.hashPassword
-                }
+            'default': {
+                scheme: 'basic',
+                loadUserFunc: internals.loadUser,
+                hashPasswordFunc: internals.hashPassword
+            },
+            'hawk': {
+                scheme: 'hawk',
+                getCredentialsFunc: internals.getCredentials
+            },
+            'basic': {
+                scheme: 'basic',
+                loadUserFunc: internals.loadUser,
+                hashPasswordFunc: internals.hashPassword
             }
         }
     };
