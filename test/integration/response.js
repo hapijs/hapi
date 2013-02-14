@@ -28,7 +28,6 @@ describe('Response', function () {
 
                 request.reply.payload('text')
                              .type('text/plain')
-                             .bytes(4)
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
                              .state('other', 'something', { isSecure: true })
@@ -93,6 +92,46 @@ describe('Response', function () {
         });
     });
 
+
+    describe('Obj', function () {
+
+        it('returns an JSONP response', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
+
+                expect(res.readPayload()).to.equal('me({"some":"value"});');
+                expect(res.headers['Content-Length']).to.equal(21);
+                done();
+            });
+        });
+
+        it('returns response on bad JSONP parameter', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me*' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('Invalid JSONP parameter value');
+                done();
+            });
+        });
+    });
+
     describe('Error', function () {
 
         it('returns an error reply', function (done) {
@@ -135,8 +174,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('');
+                expect(res.result).to.not.exist;
                 expect(res.headers['Access-Control-Allow-Credentials']).to.equal('true');
                 done();
             });
@@ -146,8 +184,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/?x=1' }, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('');
+                expect(res.result).to.not.exist;
                 done();
             });
         });
@@ -1000,10 +1037,19 @@ describe('Response', function () {
                          .send();
         };
 
+        var handler4 = function (request) {
+
+            _streamRequest = request;
+            request.reply.stream(new FakeStream())
+                         .state(';sid', 'abcdefg123456')
+                         .send();
+        };
+
         var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] } });
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
         server.route({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { mode: 'client', expiresIn: 9999 } } });
+        server.route({ method: 'GET', path: '/stream4', config: { handler: handler4 } });
 
         it('returns a stream reply', function (done) {
 
@@ -1026,6 +1072,15 @@ describe('Response', function () {
                 expect(res.headers.Location).to.equal(server.settings.uri + '/special');
                 expect(res.headers['Cache-Control']).to.equal('no-cache');
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns an error on bad state', function (done) {
+
+            server.inject({ method: 'GET', url: '/stream4' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
