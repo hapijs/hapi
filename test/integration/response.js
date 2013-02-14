@@ -175,8 +175,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('');
+                expect(res.result).to.not.exist;
                 expect(res.headers['Access-Control-Allow-Credentials']).to.equal('true');
                 done();
             });
@@ -186,8 +185,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/?x=1' }, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('');
+                expect(res.result).to.not.exist;
                 done();
             });
         });
