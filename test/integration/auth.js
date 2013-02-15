@@ -331,6 +331,39 @@ describe('Auth', function () {
             expect(fn).to.throw();
             done();
         });
+
+        it('cannot add a route that has payload validation required', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('cannot add a route that has payload validation as optional', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('can add a route that has payload validation as none', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
     });
 
     describe('Oz', function () {
@@ -477,6 +510,39 @@ describe('Auth', function () {
                 });
             });
         });
+
+        it('cannot add a route that has payload validation required', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('cannot add a route that has payload validation as optional', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('can add a route that has payload validation as none', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
     });
 
     describe('Hawk', function () {
@@ -532,7 +598,12 @@ describe('Auth', function () {
             { method: 'POST', path: '/hawk', handler: hawkHandler },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/hawkScope', handler: hawkHandler, config: { auth: { scope: 'x' } } },
-            { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: 200 } } }
+            { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: 200 } } },
+            { method: 'POST', path: '/hawkPayload', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } },
+            { method: 'POST', path: '/hawkPayloadOptional', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } },
+            { method: 'POST', path: '/hawkPayloadNone', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } },
+            { method: 'POST', path: '/hawkOptionalPayload', handler: hawkHandler, config: { auth: { mode: 'optional', payload: 'required' }, payload: 'raw' } },
+            { method: 'POST', path: '/hawkNonePayload', handler: hawkHandler, config: { auth: { mode: 'none', payload: 'required' }, payload: 'raw' } }
         ]);
 
         it('returns a reply on successful auth', function (done) {
@@ -601,7 +672,6 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
                 expect(res.result.code).to.equal(403);
                 done();
             });
@@ -613,7 +683,6 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
                 expect(res.result.code).to.equal(403);
                 done();
             });
@@ -636,7 +705,152 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth and payload validation', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayload', '0.0.0.0', 8080, { payload: payload });
+            var request = { method: 'POST', url: '/hawkPayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns an error with payload validation when the payload is tampered with', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayload', '0.0.0.0', 8080, { payload: payload });
+            payload += 'HACKED';
+            var request = { method: 'POST', url: '/hawkPayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                expect(res.result.message).to.equal('Payload is invalid');
+                done();
+            });
+        });
+
+        it('returns an error with payload validation when the payload is tampered with and the route has optional validation', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayloadOptional', '0.0.0.0', 8080, { payload: payload });
+            payload += 'HACKED';
+            var request = { method: 'POST', url: '/hawkPayloadOptional', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                expect(res.result.message).to.equal('Payload is invalid');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth and payload validation when validation is optional', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayloadOptional', '0.0.0.0', 8080, { payload: payload });
+            var request = { method: 'POST', url: '/hawkPayloadOptional', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
                 expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth when payload validation is optional and no payload hash exists', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayloadOptional', '0.0.0.0', 8080);
+            var request = { method: 'POST', url: '/hawkPayloadOptional', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth and when payload validation is disabled', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayloadNone', '0.0.0.0', 8080, { payload: payload });
+            var request = { method: 'POST', url: '/hawkPayloadNone', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth when the payload is tampered with and the route has disabled validation', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkPayloadNone', '0.0.0.0', 8080, { payload: payload });
+            payload += 'HACKED';
+            var request = { method: 'POST', url: '/hawkPayloadNone', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth when auth is optional and when payload validation is required', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkOptionalPayload', '0.0.0.0', 8080, { payload: payload });
+            var request = { method: 'POST', url: '/hawkOptionalPayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns an error with payload validation when the payload is tampered with and the route has optional auth', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkOptionalPayload', '0.0.0.0', 8080, { payload: payload });
+            payload += 'HACKED';
+            var request = { method: 'POST', url: '/hawkOptionalPayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                expect(res.result.message).to.equal('Payload is invalid');
+                done();
+            });
+        });
+
+        it('returns a successful reply with payload validation required when the payload is tampered with and the route has no auth', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/hawkNonePayload', '0.0.0.0', 8080, { payload: payload });
+            payload += 'HACKED';
+            var request = { method: 'POST', url: '/hawkNonePayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('Success');
                 done();
             });
@@ -764,7 +978,8 @@ describe('Auth', function () {
             { method: 'POST', path: '/multiple', handler: handler, config: { auth: { strategies: ['basic', 'hawk'] } } },
             { method: 'POST', path: '/multipleOptional', handler: handler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/multipleScope', handler: handler, config: { auth: { scope: 'x' } } },
-            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: 200 } } }
+            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: 200 } } },
+            { method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'optional' }, payload: 'raw' } }
         ]);
 
         it('returns a reply on successful auth of first auth strategy', function (done) {
@@ -853,6 +1068,46 @@ describe('Auth', function () {
 
                 expect(res.result.code).to.equal(401);
                 expect(res.result.message).to.equal('Bad mac');
+                done();
+            });
+        });
+
+        it('cannot add a route that has payload validation required when one of the server strategies doesn\'t support it', function (done) {
+
+            var fn = function () {
+
+                server.addRoute({ method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'required' } } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('returns an error with payload validation when the payload is tampered with and the route has optional auth', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/multiplePayload', '0.0.0.0', 8080, { payload: payload });
+            payload += 'HACKED';
+            var request = { method: 'POST', url: '/multiplePayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                expect(res.result.message).to.equal('Payload is invalid');
+                done();
+            });
+        });
+
+        it('returns a successful reply with payload validation as optional when the payload is valid', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.getAuthorizationHeader(credentials.john.cred, 'POST', '/multiplePayload', '0.0.0.0', 8080, { payload: payload });
+            var request = { method: 'POST', url: '/multiplePayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
                 done();
             });
         });
