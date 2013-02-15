@@ -339,7 +339,7 @@ describe('Auth', function () {
                 server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
             };
 
-            expect(fn).to.throw(Error, 'Payload validation can only be required when all strategies support it');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -350,7 +350,7 @@ describe('Auth', function () {
                 server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
             };
 
-            expect(fn).to.throw(Error, 'Payload validation can only be configured for strategies that support it');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -518,7 +518,7 @@ describe('Auth', function () {
                 server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
             };
 
-            expect(fn).to.throw(Error, 'Payload validation can only be required when all strategies support it');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -529,7 +529,7 @@ describe('Auth', function () {
                 server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
             };
 
-            expect(fn).to.throw(Error, 'Payload validation can only be configured for strategies that support it');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -1079,7 +1079,7 @@ describe('Auth', function () {
                 server.addRoute({ method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'required' } } });
             };
 
-            expect(fn).to.throw(Error, 'Payload validation can only be required when all strategies support it');
+            expect(fn).to.throw(Error);
             done();
         });
 
