@@ -94,13 +94,24 @@ describe('Schema', function () {
             });
         });
 
-        it.only('fails when config payload has invalid value', function (done) {
+        it('fails when config payload has invalid value', function (done) {
 
             var settings = { method: 'GET', path: '/', handler: function() {}, config: { payload: 'something' } };
 
             Schema.route(settings, function (err) {
 
                 expect(err).to.exist;
+                done();
+            });
+        });
+
+        it('succeeds when required fields are present', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {} };
+
+            Schema.route(settings, function (err) {
+
+                expect(err).to.not.exist;
                 done();
             });
         });
