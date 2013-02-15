@@ -37,7 +37,7 @@ describe('Schema', function () {
 
         it('fails when unknown properties exist', function (done) {
 
-            var server = new Hapi.Server({ strict: false });
+            var server = new Hapi.Server();
             server.settings.unknown = true;
 
             Schema.server(server.settings, function (err) {
@@ -67,6 +67,53 @@ describe('Schema', function () {
 
             expect(fn).to.not.throw(Error);
             done();
+        });
+    });
+
+    describe('#route', function () {
+
+        it('fails when unknown properties exist', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {}, unknown: true };
+
+            Schema.route(settings, function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+
+        it('fails when a required property is missing', function (done) {
+
+            var settings = { method: 'GET' };
+
+            Schema.route(settings, function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+
+        it('fails when config payload has invalid value', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {}, config: { payload: 'something' } };
+
+            Schema.route(settings, function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+
+        it('succeeds when required fields are present', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {} };
+
+            Schema.route(settings, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
         });
     });
 });
