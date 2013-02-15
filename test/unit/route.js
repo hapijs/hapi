@@ -41,7 +41,7 @@ describe('Route', function () {
 
             var route = new Route({ path: '/test', handler: _handler }, server);
         };
-        expect(fn).throws(Error, 'Route options missing method');
+        expect(fn).throws(Error);
         done();
     });
 
@@ -61,7 +61,7 @@ describe('Route', function () {
 
             var route = new Route({ path: '/test', method: 'get', handler: null }, server);
         };
-        expect(fn).throws(Error, 'Handler must appear once and only once');
+        expect(fn).throws(Error);
         done();
     });
 
