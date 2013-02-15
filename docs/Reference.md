@@ -10,7 +10,7 @@
     - [Router](#router)
     - [Payload](#payload)
     - [Extensions](#extensions)
-    - [Files](#files)
+    - [Static Files](#static-files)
     - [Views](#views)
     - [Monitor](#monitor)
     - [Authentication](#authentication)
@@ -175,6 +175,14 @@ function onRequest(request, next) {
 }
 ```
 
+### Static Files
+
+**hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
+When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
+and defaults to _'routes'_:
+- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'route()'_ method is called. This means the location of the source code determines the location of the static resources when using relative paths.
+- _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
+
 
 ### Views
 
@@ -196,15 +204,6 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 - `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
 - `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
 - `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
-
-
-### Files
-
-**hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
-When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
-and defaults to _'routes'_:
-- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'route()'_ method is called. This means the location of the source code determines the location of the static resources when using relative paths.
-- _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
 
 
 ### Monitor
