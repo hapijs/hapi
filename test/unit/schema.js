@@ -76,7 +76,7 @@ describe('Schema', function () {
 
             var settings = { method: 'GET', path: '/', handler: function() {}, unknown: true };
 
-            Schema.route(settings, function (err) {
+            Schema.route(settings, {}, function (err) {
 
                 expect(err).to.exist;
                 done();
@@ -87,7 +87,7 @@ describe('Schema', function () {
 
             var settings = { method: 'GET' };
 
-            Schema.route(settings, function (err) {
+            Schema.route(settings, {}, function (err) {
 
                 expect(err).to.exist;
                 done();
@@ -96,9 +96,10 @@ describe('Schema', function () {
 
         it('fails when config payload has invalid value', function (done) {
 
-            var settings = { method: 'GET', path: '/', handler: function() {}, config: { payload: 'something' } };
+            var settings = { method: 'GET', path: '/', handler: function () { } };
+            var config = { payload: 'something' };
 
-            Schema.route(settings, function (err) {
+            Schema.route(settings, config, function (err) {
 
                 expect(err).to.exist;
                 done();
@@ -109,7 +110,7 @@ describe('Schema', function () {
 
             var settings = { method: 'GET', path: '/', handler: function() {} };
 
-            Schema.route(settings, function (err) {
+            Schema.route(settings, {}, function (err) {
 
                 expect(err).to.not.exist;
                 done();
