@@ -63,7 +63,12 @@ describe('Prerequesites', function () {
 
     server.helper('user', function (id, next) {
 
-        return next({ id: id });
+        return next({ id: id, name: 'Bob' });
+    });
+
+    server.helper('name', function (user, next) {
+
+        return next(user.name);
     });
 
     server.route([
@@ -114,6 +119,20 @@ describe('Prerequesites', function () {
                     return this.reply(this.pre.user);
                 }
             }
+        },
+        {
+            method: 'GET',
+            path: '/user/{id}/name',
+            config: {
+                pre: [
+                    'user(params.id)',
+                    'name(pre.user)'
+                ],
+                handler: function () {
+
+                    return this.reply(this.pre.name);
+                }
+            }
         }
     ]);
 
@@ -161,7 +180,16 @@ describe('Prerequesites', function () {
 
         makeRequest('/user/5', function (res) {
 
-            expect(res).to.deep.equal({ id: '5' });
+            expect(res).to.deep.equal({ id: '5', name: 'Bob' });
+            done();
+        });
+    });
+
+    it('returns a user name using multiple helpers', function (done) {
+
+        makeRequest('/user/5/name', function (res) {
+
+            expect(res).to.equal('Bob');
             done();
         });
     });

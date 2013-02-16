@@ -295,7 +295,7 @@ describe('Server', function () {
                 var server = new Hapi.Server('0.0.0.0', 0);
                 server.route(route);
             };
-            expect(fn).to.throw(Error, 'Route options missing path');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -309,7 +309,7 @@ describe('Server', function () {
                 var server = new Hapi.Server('0.0.0.0', 0);
                 server.route(route);
             };
-            expect(fn).to.throw(Error, 'Route options missing method');
+            expect(fn).to.throw(Error);
             done();
         });
 
