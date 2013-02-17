@@ -1,6 +1,5 @@
 // Load modules
 
-var NodeUtil = require('util');
 var Events = require('events');
 var Hapi = require('../../lib');
 
@@ -20,7 +19,7 @@ internals.Logger = function () {
     return this;
 };
 
-NodeUtil.inherits(internals.Logger, Events.EventEmitter);
+Hapi.utils.inherits(internals.Logger, Events.EventEmitter);
 module.exports._TEST = internals.logger = new internals.Logger();
 
 

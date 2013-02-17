@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Http = require('http');
-var NodeUtil = require('util');
 var Stream = require('stream');
 var Hapi = require('../helpers');
 
