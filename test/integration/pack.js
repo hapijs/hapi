@@ -44,9 +44,6 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '5.0.0',
-            hapi: {
-                plugin: '1.x.x'
-            },
             register: function (pack, options, next) {
 
                 var a = pack.select({ label: 'a' });
@@ -129,9 +126,6 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '2.0.0',
-            hapi: {
-                plugin: '1.x.x'
-            },
             register: function (pack, options, next) {
 
                 pack.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
@@ -176,20 +170,6 @@ describe('Pack', function () {
             expect(server3._router.table['get']).to.not.exist;
             expect(routesList(server4)).to.deep.equal(['/test']);
 
-            done();
-        });
-    });
-
-    it('fails to require module with bad version requirements', function (done) {
-
-        var server1 = new Hapi.Server();
-        var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, { labels: ['a', 'b'] });
-
-        pack.require('./pack/skip', function (err) {
-
-            expect(err).to.exist;
-            expect(err.message).to.equal('Incompatible hapi plugin version');
             done();
         });
     });
@@ -239,14 +219,15 @@ describe('Pack', function () {
         });
     });
 
-    it('invalidates not a plugin', function (done) {
+    it('fails to register a bad plugin', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ name: 'test', version: '0.0.0', register: function (pack, options, next) { next(); } });
+        pack.register({ version: '0.0.0', register: function (pack, options, next) { next(); } }, function (err) {
 
-        expect(err).to.exist;
-        expect(err.message).to.equal('Not a hapi plugin');
-        done();
+            expect(err).to.exist;
+            expect(err.message).to.equal('Plugin missing name');
+            done();
+        });
     });
 
     it('invalidates missing name', function (done) {
