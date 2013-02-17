@@ -62,7 +62,7 @@ describe('Schema', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server({ cache: 'memory', docs: true });
+                var server = new Hapi.Server({ cache: 'memory' });
             };
 
             expect(fn).to.not.throw(Error);

@@ -98,26 +98,6 @@ describe('Server', function () {
         done();
     });
 
-    it('doesn\'t throw an error when enabling docs', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server('0.0.0.0', 0, { docs: true });
-        };
-        expect(fn).to.not.throw(Error);
-        done();
-    });
-
-    it('doesn\'t throw an error when enabling the debug console', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server('0.0.0.0', 0, { debug: { websocketPort: 3002 } });
-        };
-        expect(fn).to.not.throw(Error);
-        done();
-    });
-
     it('doesn\'t throw an error when disabling cache', function (done) {
 
         var fn = function () {
