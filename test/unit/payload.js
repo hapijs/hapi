@@ -64,7 +64,7 @@ describe('Payload', function () {
                 }
             };
 
-            request.route = request._route.config;
+            request.route = request._route.settings;
 
             Payload.read(request, function (result) {
 
@@ -87,7 +87,7 @@ describe('Payload', function () {
                 }
             };
 
-            request.route = request._route.config;
+            request.route = request._route.settings;
 
             Payload.read(request, function (err) {
 
@@ -110,7 +110,7 @@ describe('Payload', function () {
                     server: server
                 };
 
-                request.route = request._route.config;
+                request.route = request._route.settings;
 
                 Payload.read(request, function (err) {
 
@@ -135,7 +135,7 @@ describe('Payload', function () {
                     server: server
                 };
 
-                request.route = request._route.config;
+                request.route = request._route.settings;
 
                 Payload.read(request, function (err) {
 
@@ -161,7 +161,7 @@ describe('Payload', function () {
                     server: server
                 };
 
-                request.route = request._route.config;
+                request.route = request._route.settings;
 
                 Payload.read(request, function (err) {
 
@@ -186,7 +186,7 @@ describe('Payload', function () {
                     server: server
                 };
 
-                request.route = request._route.config;
+                request.route = request._route.settings;
 
                 Payload.read(request, function (err) {
 
@@ -212,7 +212,7 @@ describe('Payload', function () {
                     server: server
                 };
 
-                request.route = request._route.config;
+                request.route = request._route.settings;
 
                 Payload.read(request, function (err) {
 

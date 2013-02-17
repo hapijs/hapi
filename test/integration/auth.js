@@ -65,7 +65,7 @@ describe('Auth', function () {
             }
         };
 
-        var server = new Hapi.Server('0.0.0.0', 0, config);
+        var server = new Hapi.Server(config);
 
         var basicHandler = function (request) {
 
@@ -237,7 +237,7 @@ describe('Auth', function () {
         it('should not ask for credentials if no server auth configured', function (done) {
 
             var config = {};
-            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            var server = new Hapi.Server(config);
             server.route({
                 path: '/noauth',
                 method: 'GET',
@@ -267,7 +267,7 @@ describe('Auth', function () {
                     hashPasswordFunc: hashPassword
                 }
             };
-            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            var server = new Hapi.Server(config);
             server.route({
                 path: '/noauth',
                 method: 'GET',
@@ -309,7 +309,7 @@ describe('Auth', function () {
                     }
                 }
             };
-            var server = new Hapi.Server('0.0.0.0', 0, config);
+            var server = new Hapi.Server(config);
 
             var fn = function () {
 
@@ -336,7 +336,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
             };
 
             expect(fn).to.throw(Error);
@@ -347,7 +347,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
             };
 
             expect(fn).to.throw(Error);
@@ -358,7 +358,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
             };
 
             expect(fn).to.not.throw(Error);
@@ -401,7 +401,7 @@ describe('Auth', function () {
             }
         };
 
-        var server = new Hapi.Server('example.com', 8080, config);
+        var server = new Hapi.Server(config);
 
         var ozHandler = function (request) {
 
@@ -515,7 +515,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
             };
 
             expect(fn).to.throw(Error);
@@ -526,7 +526,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
             };
 
             expect(fn).to.throw(Error);
@@ -537,7 +537,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
             };
 
             expect(fn).to.not.throw(Error);
@@ -587,7 +587,7 @@ describe('Auth', function () {
             }
         };
 
-        var server = new Hapi.Server('0.0.0.0', 8080, config);
+        var server = new Hapi.Server(config);
 
         var hawkHandler = function (request) {
 
@@ -700,7 +700,7 @@ describe('Auth', function () {
                 }
             };
 
-            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            var server = new Hapi.Server(config);
             server.route({ method: 'POST', path: '/hawk', handler: hawkHandler });
 
             server.inject(request, function (res) {
@@ -879,7 +879,7 @@ describe('Auth', function () {
                 request.reply('Success');
             };
 
-            var server = new Hapi.Server('0.0.0.0', 8080, config);
+            var server = new Hapi.Server(config);
             server.route({ method: 'POST', path: '/ext', handler: handler });
 
             var request = { method: 'POST', url: '/ext' };
@@ -967,7 +967,7 @@ describe('Auth', function () {
             }
         };
 
-        var server = new Hapi.Server('0.0.0.0', 8080, config);
+        var server = new Hapi.Server(config);
 
         var handler = function (request) {
 
@@ -1076,7 +1076,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.addRoute({ method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'required' } } });
+                server.route({ method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'required' } } });
             };
 
             expect(fn).to.throw(Error);
