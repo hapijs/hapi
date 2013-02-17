@@ -1,5 +1,5 @@
 <a href="https://github.com/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
-<a href="http://hapijs.com"><img src="/images/hapi.png" /></a>
+<a href="http://hapijs.com"><img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" /></a>
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
 authentication requirements, input validation, data caching and pre-fetching, developer documentation,
