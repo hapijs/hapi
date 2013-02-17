@@ -284,7 +284,7 @@ describe('Payload', function () {
 
                 req.abort();
                 clearInterval(iv);
-            }, 15);
+            }, 25);
         });
     });
 

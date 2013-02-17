@@ -295,7 +295,7 @@ describe('Server', function () {
                 var server = new Hapi.Server('0.0.0.0', 0);
                 server.route(route);
             };
-            expect(fn).to.throw(Error, 'Route options missing path');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -309,7 +309,7 @@ describe('Server', function () {
                 var server = new Hapi.Server('0.0.0.0', 0);
                 server.route(route);
             };
-            expect(fn).to.throw(Error, 'Route options missing method');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -575,6 +575,23 @@ describe('Server', function () {
                     });
                 });
             });
+        });
+    });
+
+    describe('#_routeTable', function () {
+
+        it('returns an array of the current routes', function (done) {
+
+            var server = new Hapi.Server('0.0.0.0', 0);
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server._routeTable();
+
+            expect(routes.length).to.equal(2);
+            expect(routes[0].path).to.equal('/test/');
+            done();
         });
     });
 });
