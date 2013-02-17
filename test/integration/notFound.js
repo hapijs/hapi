@@ -61,7 +61,7 @@ describe('NotFound', function () {
         server.route({ method: 'GET', path: '/exists/{p*}', handler: function (request) { request.reply('OK'); } });
         server.route({ method: '*', path: '/{p*}', handler: function (request) {
 
-            request.reply(Hapi.Error.notFound('These these aren\'t the pages you\'re looking for.'));
+            request.reply(Hapi.error.notFound('These these aren\'t the pages you\'re looking for.'));
         }});
 
         it('returns custom response when requesting a route that doesn\'t exist', function (done) {

@@ -2,8 +2,8 @@
 
 var Chai = require('chai');
 var Hapi = require('../helpers');
-var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
-var Defaults = process.env.TEST_COV ? require('../../lib-cov/defaults') : require('../../lib/defaults');
+var Route = require('../../lib/route');
+var Defaults = require('../../lib/defaults');
 
 
 // Declare internals
@@ -41,7 +41,7 @@ describe('Route', function () {
 
             var route = new Route({ path: '/test', handler: _handler }, server);
         };
-        expect(fn).throws(Error, 'Route options missing method');
+        expect(fn).throws(Error);
         done();
     });
 
@@ -61,7 +61,7 @@ describe('Route', function () {
 
             var route = new Route({ path: '/test', method: 'get', handler: null }, server);
         };
-        expect(fn).throws(Error, 'Handler must appear once and only once');
+        expect(fn).throws(Error);
         done();
     });
 
