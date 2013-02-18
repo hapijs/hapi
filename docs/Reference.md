@@ -15,7 +15,6 @@
     - [Monitor](#monitor)
     - [Authentication](#authentication)
     - [Cache](#cache)
-    - [Debug](#debug)
     - [CORS](#cors)
     - [Batch](#batch)
     - [State](#state)
@@ -91,7 +90,6 @@ var server = new Hapi.Server();
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
-- [`debug`](#debug)
 - [`cors`](#cors)
 - [`batch`](#batch)
 - [`state`](#state)
@@ -399,18 +397,6 @@ Enabling the server cache only creates the cache interface but does not enable c
 and configured in the route or helper configuration.
 
 
-### Debug
-
-To assist in debugging server events related to specific incoming requests, **hapi** includes an optional debug console which is turned _off_ by default.
-The debug console is a simple web page in which developers can subscribe to a debug id, and then include that debug id as an extra query parameter in each
-request. The server will use WebSocket to stream the subscribed request logs to the web page in real-time. In application using multiple server instances,
-only one can enable the debug interface using the default port. To enable the debug console set the `debug` option to _true_ or to an object with custom
-configuration:
-- `websocketPort` - the port used by the WebSocket connection. Defaults to _3000_.
-- `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
-- `queryKey` - the name or the request query parameter used to mark requests being debugged. Defaults to _debug_.
-
-
 ### CORS
 
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
@@ -529,7 +515,6 @@ to write additional text as the configuration itself serves as a living document
         - _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
         - _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
     - `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
-    - `docs` - if set to false then the route will be hidden from the documentation generator.
     - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#prerequisites). 
     - `auth` - authentication configuration
         - `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:

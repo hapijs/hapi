@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Http = require('http');
-var NodeUtil = require('util');
 var Stream = require('stream');
 var Hapi = require('../helpers');
 
@@ -133,15 +132,11 @@ describe('Server Timeout', function () {
 
     it('returns server error message when server timeout is short and already occurs when request executes', function (done) {
 
-        _shortTimeoutServer._debugConsole = {
-            report: function () {
-
-                var timer = new Hapi.utils.Timer();
-                while (timer.elapsed() < 3) {
-
-                }
-            }
-        };
+        _shortTimeoutServer.ext('onRequest', function (request, next) {
+            var timer = new Hapi.utils.Timer();
+            while (timer.elapsed() < 3);
+            next();
+        });
 
         _shortTimeoutServer.inject({ method: 'GET', url: '/timeout' }, function (res) {
 

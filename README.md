@@ -1,5 +1,5 @@
 <a href="https://github.com/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
-<a href="http://hapijs.com"><img src="/images/hapi.png" /></a>
+<a href="http://hapijs.com"><img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" /></a>
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
 authentication requirements, input validation, data caching and pre-fetching, developer documentation,
@@ -9,7 +9,7 @@ with everything else.
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **0.13.2**
+Current version: **0.14.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 
@@ -172,4 +172,4 @@ server.start();
 When you run the server with `node .` and view the homepage you will see the custom greeting message rendered.  More information on using templates with **hapi** can be found in the [views](docs/Reference.md#views) section of the [API Reference](docs/Reference.md).
 
 
-### [Contributors](github.com/walmartlabs/hapi/contributors)
+### [Contributors](https://github.com/walmartlabs/hapi/contributors)

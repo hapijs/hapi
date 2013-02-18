@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Fs = require('fs');
-var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
 var Hapi = require('../helpers');
@@ -953,7 +952,7 @@ describe('Response', function () {
             return this;
         };
 
-        NodeUtil.inherits(FakeStream, Stream);
+        Hapi.utils.inherits(FakeStream, Stream);
 
         FakeStream.prototype.on = FakeStream.prototype.addListener = function (event, callback) {
 
