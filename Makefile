@@ -15,6 +15,6 @@ unit:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive -R xunit --ignore-leaks > results.xml --timeout 3000
 
 complexity:
-	./node_modules/.bin/cr lib -o complexity.txt
+	./node_modules/.bin/cr -o complexity.md -f markdown lib
 
 .PHONY: test tap test-cov test-cov-html unit lib-cov rm-lib-cov
