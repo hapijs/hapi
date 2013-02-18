@@ -14,4 +14,7 @@ test-cov-html:
 unit:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive -R xunit --ignore-leaks > results.xml --timeout 3000
 
+complexity:
+	./node_modules/.bin/cr lib -o complexity.txt
+
 .PHONY: test tap test-cov test-cov-html unit lib-cov rm-lib-cov
