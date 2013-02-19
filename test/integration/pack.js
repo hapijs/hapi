@@ -105,7 +105,7 @@ describe('Pack', function () {
         pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
         pack.server('s4', server4, { labels: ['b', 'test'] });
 
-        pack.require('./pack/test', { name: 'test' }, function (err) {
+        pack.allow({ route: true }).require('./pack/test', {}, function (err) {
 
             expect(err).to.not.exist;
 
@@ -114,8 +114,8 @@ describe('Pack', function () {
             expect(server3._router.table['get']).to.not.exist;
             expect(routesList(server4)).to.deep.equal(['/test']);
 
-            expect(server1.plugins.test.add(1, 3)).to.equal(4);
-            expect(server1.plugins.test.glue('1', '3')).to.equal('13');
+            expect(server1.plugins['*test'].add(1, 3)).to.equal(4);
+            expect(server1.plugins['*test'].glue('1', '3')).to.equal('13');
 
             done();
         });
@@ -148,39 +148,13 @@ describe('Pack', function () {
         });
     });
 
-    it('requires directory', function (done) {
-
-        var server1 = new Hapi.Server();
-        var server2 = new Hapi.Server({ tls: {} });
-        var server3 = new Hapi.Server({ tls: {}, cache: 'memory' });
-        var server4 = new Hapi.Server({ cache: 'memory' });
-
-        var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, { labels: ['a', 'b'] });
-        pack.server('s2', server2, { labels: ['a', 'test'] });
-        pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
-        pack.server('s4', server4, { labels: ['b', 'test'] });
-
-        pack.requireDirectory('./pack', { exclude: 'skip' }, function (err) {
-
-            expect(err).to.not.exist;
-
-            expect(server1._router.table['get']).to.not.exist;
-            expect(routesList(server2)).to.deep.equal(['/test']);
-            expect(server3._router.table['get']).to.not.exist;
-            expect(routesList(server4)).to.deep.equal(['/test']);
-
-            done();
-        });
-    });
-
     it('fails to require missing module', function (done) {
 
         var server1 = new Hapi.Server();
         var pack = new Hapi.Pack({ a: 1 });
         pack.server('s1', server1, { labels: ['a', 'b'] });
 
-        pack.require('./pack/none', function (err) {
+        pack.allow({}).require('./pack/none', function (err) {
 
             expect(err).to.exist;
             expect(err.message).to.contain('Cannot find module');
@@ -296,7 +270,7 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        server.plugin().register(plugin, { permissions: { ext: true } }, function (err) {
+        server.plugin().allow({ ext: true }).register(plugin, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/b']);
