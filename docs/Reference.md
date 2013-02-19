@@ -439,7 +439,7 @@ server's `state.cookies` configuration, where:
 
 ### Timeout
 
-The _'timeout'_ object can contain a _'server'_ and _'client'_ timeout value in milliseconds.  These are useful for limiting the amount of time a request or response should take to complete.
+The `timeout` object can contain `server`, `client`, and `socket` timeout values in milliseconds.  These are useful for limiting the amount of time a request or response should take to complete.
 
 #### Server Timeout
 In order to indicate when a server or dependent services are overwhelmed set the _'timeout.server'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout.server'_ is disabled.
@@ -452,6 +452,11 @@ The example below demonstrates how to force the server to timeout when it takes 
 #### Client Timeout
 In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 10000 ms.  As a result, any request taking longer than 10 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
 `{ timeout: { client: false } }`
+
+#### Socket Timeout
+In node, server requests automatically time out after 2 minutes. To override this value set the `socket` timeout value.
+Defaults to 'null' which leaves the node default as-is. Below is an example of changing the socket timeout to :
+`{ timeout: { socket: 3 * 60 * 1000 } }`
 
 
 ## Server Events
