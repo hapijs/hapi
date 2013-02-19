@@ -248,7 +248,7 @@ describe('Validation', function () {
 
         it('should raise an error when responding with an invalid path param', function (done) {
 
-            var request = createRequestObjectFromPath('/test', { id: 'test' }, route);
+            var request = createRequestObjectFromPath('/test', { id: 'test', something: true }, route);
 
             Validation.path(request, function (err) {
 

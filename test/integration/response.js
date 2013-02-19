@@ -69,6 +69,23 @@ describe('Response', function () {
             });
         });
 
+        it('returns a text reply when sending a buffer', function (done) {
+
+            var handler = function () {
+
+                this.reply(new Buffer('Tada'));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('Tada');
+                done();
+            });
+        });
+
         it('returns an error on bad cookie', function (done) {
 
             var handler = function (request) {
