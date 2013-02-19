@@ -178,7 +178,7 @@ describe('Validation', function () {
                 return a - b;
             });
 
-            expect(rates[0]).to.be.greaterThan(9);                          // accept a 15 point margin
+            expect(rates[0]).to.be.greaterThan(8);                          // accept a 15 point margin
             expect(rates[49]).to.be.lessThan(43);
 
             done();
@@ -248,7 +248,7 @@ describe('Validation', function () {
 
         it('should raise an error when responding with an invalid path param', function (done) {
 
-            var request = createRequestObjectFromPath('/test', { id: 'test' }, route);
+            var request = createRequestObjectFromPath('/test', { id: 'test', something: true }, route);
 
             Validation.path(request, function (err) {
 
