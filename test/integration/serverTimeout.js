@@ -312,9 +312,9 @@ describe('Socket timeout', function () {
     var server = new Hapi.Server('0.0.0.0', 0, { timeout: { client: 45, socket: 50 } });
     server.route({
         method: 'GET', path: '/', config: {
-            handler: function () {
+            handler: function (request) {
 
-                setTimeout(function (request) {
+                setTimeout(function () {
 
                     request.reply('too late');
                 }, 70);
