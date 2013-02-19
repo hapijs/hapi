@@ -3,6 +3,7 @@
 var Chai = require('chai');
 var Http = require('http');
 var Stream = require('stream');
+var Request = require('request');
 var Hapi = require('../helpers');
 
 
@@ -268,7 +269,7 @@ describe('Server and Client timeouts', function () {
         });
 
         req.write('\n');
-        setTimeout(function() {
+        setTimeout(function () {
 
             req.end();
         }, 100);
@@ -299,9 +300,45 @@ describe('Server and Client timeouts', function () {
         });
 
         req1.write('\n');
-        setTimeout(function() {
+        setTimeout(function () {
 
             req1.end();
         }, 100);
+    });
+});
+
+describe('Socket timeout', function () {
+
+    var server = new Hapi.Server('0.0.0.0', 0, { timeout: { client: 45, socket: 50 } });
+    server.route({
+        method: 'GET', path: '/', config: {
+            handler: function () {
+
+                setTimeout(function (request) {
+
+                    request.reply('too late');
+                }, 70);
+            }
+        }
+    });
+
+    var port = 0;
+    before(function (done) {
+
+        server.start(function () {
+
+            port = server.settings.port;
+            done();
+        });
+    });
+
+    it('closes connection on socket timeout', function (done) {
+
+        Request('http://localhost:' + port + '/', function (err, response, body) {
+
+            expect(err).to.exist;
+            expect(err.message).to.equal('socket hang up');
+            done();
+        });
     });
 });
