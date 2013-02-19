@@ -58,7 +58,7 @@ describe('Error', function () {
 
             var err = Hapi.Error.unauthorized('boom', 'Test');
             expect(err.code).to.equal(401);
-            expect(err.toResponse().headers['WWW-Authenticate']).to.equal('Test');
+            expect(err.toResponse().headers['WWW-Authenticate']).to.equal('Test error="boom"');
             done();
         });
     });
@@ -130,7 +130,7 @@ describe('Error', function () {
 
         it('formats an external error', function (done) {
 
-            var external = new Oz.error.unauthorized('test');
+            var external = new Oz.error.unauthorized('test', 'Oz');
             external.test = { x: 1 };
 
             var err = new Hapi.Error(external);
