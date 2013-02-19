@@ -188,6 +188,20 @@ describe('Pack', function () {
         });
     });
 
+    it('fails to require missing module in default route', function (done) {
+
+        var server1 = new Hapi.Server();
+        var pack = new Hapi.Pack({ a: 1 });
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+
+        pack.require('none', function (err) {
+
+            expect(err).to.exist;
+            expect(err.message).to.contain('Cannot find module');
+            done();
+        });
+    });
+
     it('starts and stops', function (done) {
 
         var server1 = new Hapi.Server(0);
