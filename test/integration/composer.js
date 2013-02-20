@@ -18,7 +18,7 @@ describe('Composer', function () {
 
     it('composes pack', function (done) {
 
-        var options = [{
+        var options = {
             servers: {
                 ren: {
                     port: 0,
@@ -43,8 +43,11 @@ describe('Composer', function () {
                     version: false,
                     plugins: '/'
                 }
+            },
+            permissions: {
+                ext: true
             }
-        }];
+        };
 
         var composer = new Hapi.Composer(options);
         composer.compose(function (err) {
