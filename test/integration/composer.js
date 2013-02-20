@@ -29,7 +29,7 @@ describe('Composer', function () {
                                 console: ['ops', 'request', 'log']
                             }
                         },
-                        cache: 'redis'
+                        cache: 'memory'
                     }
                 },
                 stimpy: {
