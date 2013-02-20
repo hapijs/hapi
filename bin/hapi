@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+
+var Optimist = require('optimist');
+var Hapi = require('../');
+
+var argv = Optimist.usage('Usage: $0 -c config.json')
+                    .demand(['c'])
+                    .argv;
+
+var options = null;
+try {
+    options = require(process.cwd() + '/' + argv.c);
+}
+catch (err) {
+    console.log('Failed loading configuration file: ' + argv.c + ' (' + err.message + ')');
+    process.exit(1);
+}
+
+var composer = new Hapi.Composer(options);
+composer.compose(function (err) {
+
+    Hapi.utils.assert(!err, 'Failed loading plugins: ' + (err && err.message));
+    composer.start(function (err) {
+
+        Hapi.utils.assert(!err, 'Failed starting server: ' + (err && err.message));
+    });
+});
+
+
+
+
