@@ -87,7 +87,7 @@ describe('Schema', function () {
 
             var settings = { method: 'GET' };
 
-            Schema.route(settings, {}, function (err) {
+            Schema.route(settings, null, function (err) {
 
                 expect(err).to.exist;
                 done();
