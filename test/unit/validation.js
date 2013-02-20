@@ -193,7 +193,7 @@ describe('Validation', function () {
 
             request.log = function (tags, data) {
 
-                expect(data).to.contain('not allowed to be undefined');
+                expect(data).to.contain('the key wrongParam is not allowed');
                 done();
             };
 

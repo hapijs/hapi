@@ -105,17 +105,17 @@ describe('Pack', function () {
         pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
         pack.server('s4', server4, { labels: ['b', 'test'] });
 
-        pack.allow({ route: true }).require('./pack/test', {}, function (err) {
+        pack.allow({ route: true }).require('./pack/--test1', {}, function (err) {
 
             expect(err).to.not.exist;
 
             expect(server1._router.table['get']).to.not.exist;
-            expect(routesList(server2)).to.deep.equal(['/test']);
+            expect(routesList(server2)).to.deep.equal(['/test1']);
             expect(server3._router.table['get']).to.not.exist;
-            expect(routesList(server4)).to.deep.equal(['/test']);
+            expect(routesList(server4)).to.deep.equal(['/test1']);
 
-            expect(server1.plugins['*test'].add(1, 3)).to.equal(4);
-            expect(server1.plugins['*test'].glue('1', '3')).to.equal('13');
+            expect(server1.plugins['--test1'].add(1, 3)).to.equal(4);
+            expect(server1.plugins['--test1'].glue('1', '3')).to.equal('13');
 
             done();
         });
@@ -144,6 +144,17 @@ describe('Pack', function () {
                 server.plugin().register(plugin, function (err) { });
             }).to.throw();
 
+            done();
+        });
+    });
+
+    it('requires multiple plugins using array', function (done) {
+
+        var server = new Hapi.Server();
+        server.plugin({ labels: 'test' }).require(['./pack/--test1', './pack/--test2'], function (err) {
+
+            expect(err).to.not.exist;
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
             done();
         });
     });
