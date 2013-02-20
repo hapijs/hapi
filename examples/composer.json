@@ -1,0 +1,27 @@
+{
+  "servers": {
+    "ren": {
+      "host": "localhost",
+      "port": 8001,
+      "labels": ["api", "nasty"],
+      "config": {
+        "monitor": {
+          "subscribers": {
+            "console": ["ops", "request", "log"]
+          }
+        },
+        "cache": "redis"
+      }
+    },
+    "stimpy": {
+      "port": 8002,
+      "labels": ["api", "nice"]
+    }
+  },
+  "plugins": {
+    "furball": {
+      "version": false,
+      "plugins": "/"
+    }
+  }
+}
