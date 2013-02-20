@@ -159,6 +159,17 @@ describe('Pack', function () {
         });
     });
 
+    it('requires multiple plugins using object', function (done) {
+
+        var server = new Hapi.Server();
+        server.plugin({ labels: 'test' }).require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
+
+            expect(err).to.not.exist;
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
+            done();
+        });
+    });
+
     it('fails to require missing module', function (done) {
 
         var server1 = new Hapi.Server();
