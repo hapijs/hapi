@@ -209,4 +209,18 @@ describe('Payload', function () {
             });
         });
     });
+
+    it('returns an identity response when accept-encoding is missing', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        server.start(function () {
+
+            Request.post({ url: server.settings.uri, headers: { }, body: rawBody }, function (err, res, body) {
+
+                expect(body).to.equal(rawBody);
+                done();
+            });
+        });
+    });
 });
