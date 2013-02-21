@@ -35,7 +35,8 @@
     "cryptiles": "0.1.x",
     "iron": "0.2.x",
     "lru-cache": "2.2.x",
-    "optimist": "0.3.x"
+    "optimist": "0.3.x",
+    "negotiator": "0.2.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
