@@ -341,6 +341,53 @@ var server = new Hapi.Server(config);
 
 In the above example only the user 'john' can authenticate, all other users will result in an error.
 
+#### Hawk Bewit Authentication
+
+[Hawk](https://github.com/hueniverse/hawk) allows for authentication to GET endpoints by constructing a specially formed URI.  To learn more about this feature in general please read the [Single URI Authorization](https://github.com/hueniverse/hawk#single-uri-authorization) section of the hawk readme.  Hapi supports this type of authentication through use of the _'bewit'_ scheme.  Only endpoints using the _'GET'_ HTTP method are allowed to support the _'bewit'_ scheme.  Below is an example of how to enable the _'bewit'_ scheme on a server.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'bewit',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+From a client perspective the URI must contain the _'bewit'_ querystring key with the bewit token value.  Below is an example of constructing a URI to a resource with the _'bewit'_ key.
+
+```javascript
+var Hawk = require('hawk');
+
+var cred = {
+    id: 'john',
+    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+    algorithm: 'sha256'
+};
+
+var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
+var uri = 'http://site.com/endpoint?bewit=' + bewit;
+```
+
 #### Multiple Authentication Strategies
 
 There may be instances where you want to support more than one authentication strategy for a server.  Below is an example of using both basic and hawk authentication strategies on the server and defaulting to basic.  The default strategy is what will be used by endpoints if they do not specify a strategy to use.
