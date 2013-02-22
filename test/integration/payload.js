@@ -6,6 +6,7 @@ var Fs = require('fs');
 var Http = require('http');
 var Path = require('path');
 var Stream = require('stream');
+var Zlib = require('zlib');
 var Hapi = require('../helpers');
 
 
@@ -278,6 +279,10 @@ describe('Payload', function () {
                 done();
             });
 
+            req.on('error', function () {
+
+            });
+
             s.pipe(req);
 
             setTimeout(function () {
@@ -448,6 +453,28 @@ describe('Payload', function () {
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(400);
                 done();
+            });
+        });
+
+        it('doesn\'t return an error when the payload has the correct gzip header and gzipped payload', function (done) {
+
+            var multipartPayload = '{"hi":"hello"}';
+
+            Zlib.gzip(multipartPayload, function (err, result) {
+
+                var handler = function (request) {
+
+                   request.reply('Success');
+                };
+
+                var server = new Hapi.Server();
+                server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
+                server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'gzip' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
             });
         });
     });

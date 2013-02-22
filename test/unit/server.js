@@ -223,17 +223,6 @@ describe('Server', function () {
                 done();
             });
         });
-
-        it('calls the callback when not using ephemeral port', function (done) {
-
-            var server = new Hapi.Server('0.0.0.0', 8880);
-            server.start(function (host, port) {
-
-                expect(server.settings.host).to.equal('0.0.0.0');
-                expect(server.settings.port).to.equal(8880);
-                done();
-            });
-        });
     });
 
     describe('#stop', function () {

@@ -268,6 +268,10 @@ describe('Server and Client timeouts', function () {
             done();
         });
 
+        req.on('error', function () {
+
+        });
+
         req.write('\n');
         setTimeout(function () {
 
@@ -296,7 +300,15 @@ describe('Server and Client timeouts', function () {
                 done();
             });
 
+            req2.on('error', function () {
+
+            });
+
             req2.end();
+        });
+
+        req1.on('error', function () {
+
         });
 
         req1.write('\n');

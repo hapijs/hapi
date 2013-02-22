@@ -102,7 +102,6 @@ describe('Payload', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result.message).to.exist;
-                expect(res.result.message).to.equal('Invalid request payload format');
                 done();
             });
         });
