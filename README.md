@@ -171,5 +171,8 @@ server.start();
 
 When you run the server with `node .` and view the homepage you will see the custom greeting message rendered.  More information on using templates with **hapi** can be found in the [views](docs/Reference.md#views) section of the [API Reference](docs/Reference.md).
 
+### Community
+
+For discussion about hapi join the [#hapi channel](http://webchat.freenode.net/?channels=hapi) on irc.freenode.net.
 
 ### [Contributors](https://github.com/walmartlabs/hapi/contributors)
