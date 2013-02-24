@@ -857,6 +857,191 @@ describe('Auth', function () {
         });
     });
 
+    describe('Bewit', function () {
+
+        var credentials = {
+            'john': {
+                cred: {
+                    id: 'john',
+                    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+                    algorithm: 'sha256'
+                }
+            },
+            'jane': {
+                err: Hapi.error.internal('boom')
+            }
+        };
+
+        var getCredentials = function (id, callback) {
+
+            if (credentials[id]) {
+                return callback(credentials[id].err, credentials[id].cred);
+            }
+            else {
+                return callback(null, null);
+            }
+        };
+
+        var getBewit = function (id, path) {
+
+            if (credentials[id] && credentials[id].cred) {
+                return Hawk.uri.getBewit(credentials[id].cred, path, '0.0.0.0', 8080, 60);
+            }
+            else {
+                return '';
+            }
+        };
+
+        var config = {
+            auth: {
+                scheme: 'bewit',
+                getCredentialsFunc: getCredentials
+            }
+        };
+
+        var server = new Hapi.Server(config);
+
+        var bewitHandler = function (request) {
+
+            request.reply('Success');
+        };
+
+        server.route([
+            { method: 'GET', path: '/bewit', handler: bewitHandler },
+            { method: 'GET', path: '/bewitOptional', handler: bewitHandler, config: { auth: { mode: 'optional' } } },
+            { method: 'GET', path: '/bewitScope', handler: bewitHandler, config: { auth: { scope: 'x' } } },
+            { method: 'GET', path: '/bewitTos', handler: bewitHandler, config: { auth: { tos: 200 } } }
+        ]);
+
+        it('returns a reply on successful auth', function (done) {
+
+            var bewit = getBewit('john', '/bewit');
+            var request = { method: 'GET', url: '/bewit?bewit=' + bewit, headers: { host: '0.0.0.0:8080' }};
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns an error reply on failed optional auth', function (done) {
+
+            var bewit = getBewit('john', '/abc');
+            var request = { method: 'GET', url: '/bewitOptional?bewit=' + bewit, headers: { host: 'example.com:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result.code).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns an error on bad bewit', function (done) {
+
+            var bewit = getBewit('john', '/abc');
+            var request = { method: 'GET', url: '/bewit?bewit=' + bewit, headers: { host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result.code).to.equal(401);
+                done();
+            });
+        });
+
+        it('returns an error on bad bewit format', function (done) {
+
+            var request = { method: 'GET', url: '/bewit?bewit=junk', headers: { host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result.code).to.equal(400);
+                done();
+            });
+        });
+
+        it('returns an error on insufficient tos', function (done) {
+
+            var bewit = getBewit('john', '/bewitTos');
+            var request = { method: 'GET', url: '/bewitTos?bewit=' + bewit, headers: { host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result.code).to.equal(403);
+                done();
+            });
+        });
+
+        it('returns an error on insufficient scope', function (done) {
+
+            var bewit = getBewit('john', '/bewitScope');
+            var request = { method: 'GET', url: '/bewitScope?bewit=' + bewit, headers: { host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result.code).to.equal(403);
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth when using a custom host header key', function (done) {
+
+            var bewit = getBewit('john', '/bewit');
+            var request = { method: 'GET', url: '/bewit?bewit=' + bewit, headers: { custom: '0.0.0.0:8080' } };
+
+            var config = {
+                auth: {
+                    scheme: 'bewit',
+                    getCredentialsFunc: getCredentials,
+                    hostHeaderName: 'custom'
+                }
+            };
+
+            var server = new Hapi.Server(config);
+            server.route({ method: 'GET', path: '/bewit', handler: bewitHandler });
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('cannot add a route that has payload validation required', function (done) {
+
+            var fn = function () {
+
+                server.route({ method: 'POST', path: '/bewitPayload', handler: bewitHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('cannot add a route that has payload validation as optional', function (done) {
+
+            var fn = function () {
+
+                server.route({ method: 'POST', path: '/bewitPayload', handler: bewitHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('can add a route that has payload validation as none', function (done) {
+
+            var fn = function () {
+
+                server.route({ method: 'POST', path: '/bewitPayload', handler: bewitHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+    });
+
     describe('Ext', function () {
 
         it('returns a reply on successful ext any', function (done) {

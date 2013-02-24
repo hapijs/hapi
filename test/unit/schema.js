@@ -116,5 +116,38 @@ describe('Schema', function () {
                 done();
             });
         });
+
+        it('succeeds when route config has a description', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {}, config: { description: 'here is my description' } };
+
+            Schema.route(settings, {}, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it('succeeds when route config has tags', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {}, config: { tags: ['tag1', 'tag2'] } };
+
+            Schema.route(settings, {}, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it('succeeds when route config has notes', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {}, config: { notes: 'here is a note' } };
+
+            Schema.route(settings, {}, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
     });
 });
