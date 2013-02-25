@@ -12,6 +12,7 @@ For the latest updates and release information follow [@hapijs](https://twitter.
 Current version: **0.14.1**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
+<img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
 
 ### [API Reference](/docs/Reference.md)
 
