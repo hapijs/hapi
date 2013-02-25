@@ -96,7 +96,7 @@ describe('Client Timeout', function () {
                 done();
             });
 
-            req.on('error', function (err) {
+            req.on('error', function (err) {                    // Will error out, so don't allow error to escape test
 
             });
 
