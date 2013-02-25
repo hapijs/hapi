@@ -78,6 +78,17 @@ describe('Server', function () {
         done();
     });
 
+    it('throws an error when invalid config properties are provided', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Server({ cache: 'memory', something: false });
+        };
+
+        expect(fn).throws(Error);
+        done();
+    });
+
     it('throws an error when double host config is provided', function (done) {
 
         var fn = function () {
