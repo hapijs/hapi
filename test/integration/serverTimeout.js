@@ -260,12 +260,15 @@ describe('Server and Client timeouts', function () {
             method: 'POST'
         };
 
-
         var req = Http.request(options, function (res) {
 
             expect([503, 408]).to.contain(res.statusCode);
             expect(timer.elapsed()).to.be.at.least(49);
             done();
+        });
+
+        req.on('error', function (err) {
+
         });
 
         req.write('\n');
@@ -296,7 +299,15 @@ describe('Server and Client timeouts', function () {
                 done();
             });
 
+            req2.on('error', function (err) {
+
+            });
+
             req2.end();
+        });
+
+        req1.on('error', function (err) {
+
         });
 
         req1.write('\n');
