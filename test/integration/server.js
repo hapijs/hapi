@@ -23,18 +23,23 @@ describe('Server', function () {
 
         _server.start(function () {
 
-            var socket = new Net.Socket();
-            socket.connect(_server.settings.port, '127.0.0.1', function () {
+            var socket1 = new Net.Socket();
+            var socket2 = new Net.Socket();
 
-                expect(_server.listener.connections).to.equal(1);
+            socket1.connect(_server.settings.port, _server.settings.host, function () {
+                socket2.connect(_server.settings.port, _server.settings.host, function () {
 
-                _server.stop(function () {
+                    expect(_server.listener.connections).to.be.greaterThan(0);
 
-                    expect(_server.listener.connections).to.equal(0);
-                    done();
+                    _server.stop(function () {
+
+                        expect(_server.listener.connections).to.equal(0);
+                        done();
+                    });
+
+                    socket1.end();
+                    socket2.end();
                 });
-
-                socket.end();
             });
         });
     });
