@@ -28,7 +28,7 @@
     "shot": "0.0.x",
     "oz": "0.1.x",
     "async": "0.1.x",
-    "request": "2.11.x",
+    "request": "2.14.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
     "catbox": "0.1.x",
