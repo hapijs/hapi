@@ -9,7 +9,7 @@ var argv = Optimist.usage('Usage: $0 -c config.json')
 
 var options = null;
 try {
-    options = require(process.cwd() + '/' + argv.c);
+    options = require(argv.c[0] !== '/' ? process.cwd() + '/' + argv.c : argv.c);
 }
 catch (err) {
     console.log('Failed loading configuration file: ' + argv.c + ' (' + err.message + ')');
