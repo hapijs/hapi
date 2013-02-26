@@ -9,7 +9,7 @@ with everything else.
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **0.14.2**
+Current version: **0.14.3**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 <img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
