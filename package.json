@@ -20,7 +20,7 @@
     "node": "0.8.x"
   },
   "dependencies": {
-    "hoek": "0.4.x",
+    "hoek": "0.5.x",
     "boom": "0.3.x",
     "joi": "0.1.x",
     "good": "0.0.x",
