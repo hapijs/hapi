@@ -1189,6 +1189,24 @@ describe('Response', function () {
             });
         });
 
+        it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', function (done) {
+
+            var tmpFile = '/tmp/test.json';
+            var output = JSON.stringify({ "x": "aaaaaaaaaaaa" });
+            Fs.writeFileSync(tmpFile, output);
+            var testStream = Fs.createReadStream(tmpFile);
+
+            server.start(function () {
+
+                testStream.pipe(Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.headers['Content-Length']).to.not.exist;
+                    done();
+                }));
+            });
+        });
+
         it('returns a stream reply (created)', function (done) {
 
             server.inject({ method: 'GET', url: '/stream3' }, function (res) {
