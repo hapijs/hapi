@@ -593,6 +593,116 @@ describe('Response', function () {
             });
         });
 
+        it('invalidates etags when file changes', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
+
+            // No etag, never requested
+
+            server.inject({ method: 'GET', url: '/note' }, function (res1) {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.readPayload()).to.equal('Test');
+                expect(res1.headers.etag).to.not.exist;
+
+                // No etag, previously requested
+
+                server.inject({ method: 'GET', url: '/note' }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.readPayload()).to.equal('Test');
+                    expect(res2.headers.etag).to.exist;
+
+                    var etag1 = res2.headers.etag;
+
+                    // etag
+
+                    server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag1 } }, function (res3) {
+
+                        expect(res3.statusCode).to.equal(304);
+
+                        var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
+                        Fs.writeSync(fd, new Buffer('Test'), 0, 4);
+                        Fs.closeSync(fd);
+
+                        // etag after file modified, content unchanged
+
+                        server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag1 } }, function (res4) {
+
+                            expect(res4.statusCode).to.equal(200);
+                            expect(res4.readPayload()).to.equal('Test');
+                            expect(res4.headers.etag).to.not.exist;
+
+                            // No etag, previously requested
+
+                            server.inject({ method: 'GET', url: '/note' }, function (res5) {
+
+                                expect(res5.statusCode).to.equal(200);
+                                expect(res5.readPayload()).to.equal('Test');
+                                expect(res5.headers.etag).to.exist;
+
+                                var etag2 = res5.headers.etag;
+                                expect(etag1).to.equal(etag2);
+
+                                var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
+                                Fs.writeSync(fd, new Buffer('Test1'), 0, 5);
+                                Fs.closeSync(fd);
+
+                                // etag after file modified, content changed
+
+                                server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag2 } }, function (res6) {
+
+                                    expect(res6.statusCode).to.equal(200);
+                                    expect(res6.readPayload()).to.equal('Test1');
+                                    expect(res6.headers.etag).to.not.exist;
+
+                                    // No etag, previously requested
+
+                                    server.inject({ method: 'GET', url: '/note' }, function (res7) {
+
+                                        expect(res7.statusCode).to.equal(200);
+                                        expect(res7.readPayload()).to.equal('Test1');
+                                        expect(res7.headers.etag).to.exist;
+
+                                        var etag3 = res7.headers.etag;
+                                        expect(etag1).to.not.equal(etag3);
+
+                                        var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
+                                        Fs.writeSync(fd, new Buffer('Test'), 0, 4);
+                                        Fs.closeSync(fd);
+
+                                        // No etag, content restored
+
+                                        server.inject({ method: 'GET', url: '/note' }, function (res8) {
+
+                                            expect(res8.statusCode).to.equal(200);
+                                            expect(res8.readPayload()).to.equal('Test');
+
+                                            // No etag, previously requested
+
+                                            server.inject({ method: 'GET', url: '/note' }, function (res9) {
+
+                                                expect(res9.statusCode).to.equal(200);
+                                                expect(res9.readPayload()).to.equal('Test');
+                                                expect(res9.headers.etag).to.exist;
+
+                                                var etag4 = res9.headers.etag;
+                                                expect(etag1).to.equal(etag4);
+
+                                                done();
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
         it('returns a 304 when the request has if-modified-since and the response hasn\'t been modified since', function (done) {
 
             var server = new Hapi.Server(0);
