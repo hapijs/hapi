@@ -218,14 +218,15 @@ describe('Pack', function () {
             expect(server3._started).to.equal(true);
             expect(server4._started).to.equal(true);
 
-            pack.stop();
+            pack.stop(function () {
 
-            expect(server1._started).to.equal(false);
-            expect(server2._started).to.equal(false);
-            expect(server3._started).to.equal(false);
-            expect(server4._started).to.equal(false);
+                expect(server1._started).to.equal(false);
+                expect(server2._started).to.equal(false);
+                expect(server3._started).to.equal(false);
+                expect(server4._started).to.equal(false);
 
-            done();
+                done();
+            });
         });
     });
 
