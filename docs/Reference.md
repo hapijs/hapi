@@ -30,6 +30,7 @@
     - [Path Processing](#path-processing)
         - [Route Matching Order](#route-matching-order)
         - [Parameters](#parameters)
+    - [Request Payload Parsing](#request-payload-parsing)
     - [Route Handler](#route-handler)
         - [Response](#response)
         - [Proxy](#proxy)
@@ -706,6 +707,17 @@ function getPeople(request) {
 
 In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.  As a result of this behavior, {names*} must appear as the last parameter in the route path.  In other words, a param with 0 or more path parts must appear at the end of the end of the route path.
 
+### Request Payload Parsing
+
+Incoming requests that contains a payload and a supported 'Content-Type' header are parsed when the route _'payload'_ option is set to _'parse'_.  Currently the following 'Content-Type' header values are automatically parsed and assigned to the `request.payload` value.
+
+    - application/json
+    - application/x-www-form-urlencoded
+    - multipart/form-data
+    
+When parsing is enabled for a route and the request has a payload and an unsupported 'Content-Type' header an error will be returned to the client.
+
+The module [formidable](https://npmjs.org/package/formidable) is used for processing the 'multipart/form-data'.  This is capable of recieving files as well as other form data.  All values are assigned to their respective form names on the _'payload'_ object.  
 
 ### Route Handler
 
