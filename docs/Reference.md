@@ -709,7 +709,7 @@ In the example people are loaded by passing in a names array.  If a request come
 
 ### Request Payload Parsing
 
-Incoming requests that contains a payload and a supported 'Content-Type' header are parsed when the route _'payload'_ option is set to _'parse'_.  Currently the following 'Content-Type' header values are automatically parsed and assigned to the `request.payload` value.
+Incoming requests that contain a payload and a supported 'Content-Type' header are parsed when the route _'payload'_ option is set to _'parse'_.  Currently, the following 'Content-Type' header values are parsed and assigned to the `request.payload` object.
 
     - application/json
     - application/x-www-form-urlencoded
@@ -717,7 +717,7 @@ Incoming requests that contains a payload and a supported 'Content-Type' header 
     
 When parsing is enabled for a route and the request has a payload and an unsupported 'Content-Type' header an error will be returned to the client.
 
-The module [formidable](https://npmjs.org/package/formidable) is used for processing the 'multipart/form-data'.  This is capable of recieving files as well as other form data.  All values are assigned to their respective form names on the _'payload'_ object.  
+The module [formidable](https://npmjs.org/package/formidable) is used for processing the 'multipart/form-data'.  Formidable is capable of receiving files as well as other form data.  All values are assigned to their respective form names on the _'payload'_ object.  
 
 ### Route Handler
 
