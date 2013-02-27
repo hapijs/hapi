@@ -27,6 +27,14 @@ composer.compose(function (err) {
     composer.start(function (err) {
 
         Hapi.utils.assert(!err, 'Failed starting server: ' + (err && err.message));
+
+        process.on('SIGQUIT', function () {                                             // Use kill -s QUIT {pid} to kill the server gracefully
+
+            http.stop(function () {
+
+                process.exit();
+            });
+        });
     });
 });
 
