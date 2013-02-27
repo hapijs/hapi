@@ -754,6 +754,30 @@ describe('Response', function () {
             });
         });
 
+        it('returns a deflated file in the response when the request accepts deflate', function (done) {
+
+            var server = new Hapi.Server(0);
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.start(function () {
+
+                Request.get({ url: server.settings.uri + '/file', headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-encoding']).to.equal('deflate');
+                    expect(res.headers['content-length']).to.not.exist;
+                    expect(body).to.exist;
+                    done();
+                });
+            });
+        });
+
         it('throws an error when adding a route with a parameter and string path', function (done) {
 
             var fn = function () {
@@ -1217,6 +1241,27 @@ describe('Response', function () {
             server1.start(function () {
 
                 testStream.pipe(Request.get({ uri: server1.settings.uri + '/stream/closes', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.headers['Content-Length']).to.not.exist;
+                    done();
+                }));
+            });
+        });
+
+        it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', function (done) {
+
+            var tmpFile = '/tmp/deflateTest.json';
+            var output = JSON.stringify({ "x": "aaaaaaaaaaaa" });
+            Fs.writeFileSync(tmpFile, output);
+            var testStream = Fs.createReadStream(tmpFile);
+
+            var server1 = new Hapi.Server(0);
+            server1.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+
+            server1.start(function () {
+
+                testStream.pipe(Request.get({ uri: server1.settings.uri + '/stream/closes', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (err, res) {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers['Content-Length']).to.not.exist;
