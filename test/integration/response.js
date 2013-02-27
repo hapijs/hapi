@@ -850,7 +850,7 @@ describe('Response', function () {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('no_suck_path');
+                    expect(body).to.contain('no_such_path');
                     done();
                 });
             });
