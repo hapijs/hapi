@@ -1230,22 +1230,32 @@ describe('Response', function () {
 
         it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', function (done) {
 
-            var tmpFile = '/tmp/gzipTest.json';
-            var output = JSON.stringify({ "x": "aaaaaaaaaaaa" });
-            Fs.writeFileSync(tmpFile, output);
-            var testStream = Fs.createReadStream(tmpFile);
+            var streamHandler = function (request) {
+
+                var stream = new Stream();
+                stream.readable = true;
+                stream.resume = function () {
+
+                    setTimeout(function () {
+
+                        stream.emit('end', 'hi');
+                    }, 5);
+                };
+
+                request.reply.stream(stream).send();
+            };
 
             var server1 = new Hapi.Server(0);
-            server1.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server1.route({ method: 'GET', path: '/stream', config: { handler: streamHandler, cache: { mode: 'client', expiresIn: 9999 } } });
 
             server1.start(function () {
 
-                testStream.pipe(Request.get({ uri: server1.settings.uri + '/stream/closes', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
+                Request.get({ uri: server1.settings.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers['Content-Length']).to.not.exist;
                     done();
-                }));
+                });
             });
         });
 
