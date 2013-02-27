@@ -224,7 +224,7 @@ describe('Proxy', function () {
             callback(new Error());
         };
 
-        var route = _server._match('get', '/proxyerror');
+        var route = _server._router.route({ method: 'get', path: '/proxyerror' });
         route.proxy.httpClient = requestStub;
 
         makeRequest({ path: '/proxyerror', method: 'get' }, function (rawRes) {
