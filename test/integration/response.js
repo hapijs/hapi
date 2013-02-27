@@ -787,6 +787,7 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
         server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+        server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: ['./', '../'], listing: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -836,6 +837,20 @@ describe('Response', function () {
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
                     expect(body).to.contain('hapi');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file when requesting a file from multi directory setup', function (done) {
+
+            server.start(function () {
+
+                Request.get(server.settings.uri + '/multiple/unit/response/directory.js', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('no_such_path');
                     done();
                 });
             });
