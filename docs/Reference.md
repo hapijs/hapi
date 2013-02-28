@@ -178,9 +178,10 @@ function onRequest(request, next) {
 
 **hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
 When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
-and defaults to _'process'_:
+and defaults to _'cwd'_:
+- _'cwd'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
 - _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'route()'_ method is called. This means the location of the source code determines the location of the static resources when using relative paths.
-- _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
+- an absolute prefix path - an absolute path (e.g. '/path') used as a prefix for all relative paths.
 
 
 ### Views
@@ -834,7 +835,7 @@ configured with a static file path. For example:
 
 ```javascript
 // Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'process' } });
+var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'cwd' } });
 
 // Serve index.html file up a directory in the public folder
 http.route({ method: 'GET', path: '/', handler: { file: './public/index.html' } });

@@ -423,9 +423,9 @@ describe('Response', function () {
             });
         });
 
-        it('returns a file in the response with the correct headers using process relative paths', function (done) {
+        it('returns a file in the response with the correct headers using cwd relative paths', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'process' } });
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
             server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
 
             server.start(function () {
@@ -444,13 +444,9 @@ describe('Response', function () {
 
         it('returns a 404 when the file is not found', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
-            var notFoundHandler = function (request) {
+            var server = new Hapi.Server(0, { files: { relativeTo: '/no/such/path/x1' } });
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../notHere'));
-            };
-
-            server.route({ method: 'GET', path: '/filenotfound', handler: notFoundHandler });
+            server.route({ method: 'GET', path: '/filenotfound', handler: { file: 'nopes' } });
 
             server.start(function () {
 
@@ -465,13 +461,9 @@ describe('Response', function () {
 
         it('returns a 403 when the file is a directory', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
-            var folderHandler = function (request) {
+            var server = new Hapi.Server(0);
 
-                request.reply(new Hapi.Response.File(__dirname));
-            };
-
-            server.route({ method: 'GET', path: '/filefolder', handler: folderHandler });
+            server.route({ method: 'GET', path: '/filefolder', handler: { file: 'examples' } });
 
             server.start(function () {
 
