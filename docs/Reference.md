@@ -63,6 +63,7 @@
 - [**Server Helpers**](#server-helpers)
 <p></p>
 - [**Server Plugins**](#server-plugins)
+    - [CSRF Protection](#csrf-protection)
     - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
@@ -1704,6 +1705,11 @@ http.route({
 ```
 
 # Server Plugins
+
+## CSRF Protection
+
+In order to help mitigate CSRF threats there is a plugin for **hapi** called [crumb](https://npmjs.org/package/crumb) that can be installed.  Install **crumb** by either running `npm install crumb` in your sites working directory or add _'crumb'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
 
 ## Documentation Generator
 
