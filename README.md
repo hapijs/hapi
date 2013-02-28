@@ -9,7 +9,7 @@ with everything else.
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **0.14.3**
+Current version: **0.15.0**
 
 [![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
 <img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
@@ -97,20 +97,20 @@ The **hapi** route handler can be used to easily serve files, directories, rende
 ```javascript
 server.route({
     method: 'GET',
-	path: '/{path*}',
-	handler: {
-		directory: { path: './public', listing: false, index: true }
-	}
+  path: '/{path*}',
+  handler: {
+    directory: { path: './public', listing: false, index: true }
+  }
 });
 ```
 
 Create a folder named _'public'_ and add a _'index.html'_ file in the folder with the following contents:
 ```html
 <html>
-    	<head><title>Hello Static</title></head>
-	<body>
-		Hello Static
-	</body>
+      <head><title>Hello Static</title></head>
+  <body>
+    Hello Static
+  </body>
 </html>
 ```
 
@@ -127,10 +127,10 @@ npm install handlebars
 Next create a directory named _'templates'_ that will contain the template files.  In this directory create a _'index.html'_ with the following contents:
 ```html
 <html>
-	<head><title>{{greeting}}</title></head>
-	<body>
-		{{greeting}}
-	</body>
+  <head><title>{{greeting}}</title></head>
+  <body>
+    {{greeting}}
+  </body>
 </html>
 ```
 
@@ -154,7 +154,7 @@ var server = new Hapi.Server('localhost', 8000, options);
 var hello = {
     handler: function (request) {
     
-    	// Render the view with the custom greeting
+      // Render the view with the custom greeting
         request.reply.view('index.html', { greeting: 'hello world' }).send();
     }
 };

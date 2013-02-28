@@ -401,7 +401,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -444,7 +444,7 @@ describe('Response', function () {
 
         it('returns a 404 when the file is not found', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var notFoundHandler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../notHere'));
@@ -465,7 +465,7 @@ describe('Response', function () {
 
         it('returns a 403 when the file is a directory', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var folderHandler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname));
@@ -491,7 +491,7 @@ describe('Response', function () {
 
         it('returns a file using the build-in handler config', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } });
 
             server.start(function () {
@@ -509,7 +509,7 @@ describe('Response', function () {
 
         it('returns a file using the file function with the build-in handler config', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
 
             server.start(function () {
@@ -527,7 +527,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers (relative path)', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var relativeHandler = function (request) {
 
                 request.reply(new Hapi.Response.File('./package.json'));
@@ -550,7 +550,7 @@ describe('Response', function () {
 
         it('returns a file using the built-in handler config (relative path)', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
 
             server.start(function () {
@@ -568,7 +568,7 @@ describe('Response', function () {
 
         it('returns a 304 when the request has a matching etag', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -595,7 +595,7 @@ describe('Response', function () {
 
         it('invalidates etags when file changes', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
 
             server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
 
@@ -705,7 +705,7 @@ describe('Response', function () {
 
         it('returns a 304 when the request has if-modified-since and the response hasn\'t been modified since', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -732,7 +732,7 @@ describe('Response', function () {
 
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -756,7 +756,7 @@ describe('Response', function () {
 
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -782,7 +782,7 @@ describe('Response', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server(0);
+                var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
             };
 
@@ -794,7 +794,7 @@ describe('Response', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server(0);
+                var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
             };
 
@@ -805,7 +805,7 @@ describe('Response', function () {
 
     describe('Directory', function () {
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.route({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.route({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
@@ -1432,7 +1432,6 @@ describe('Response', function () {
 
             return request.reply.view('test', { message: "Hello World!" }).send();
         };
-
 
         describe('Default', function (done) {
 

@@ -178,7 +178,7 @@ function onRequest(request, next) {
 
 **hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
 When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
-and defaults to _'routes'_:
+and defaults to _'process'_:
 - _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'route()'_ method is called. This means the location of the source code determines the location of the static resources when using relative paths.
 - _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
 
@@ -799,7 +799,7 @@ It is possible with hapi to setup a reverse proxy for routes.  This is especiall
 - `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
 - `port` - The port to use when making a request to the host.
 - `protocol` - The protocol to use when making a request to the proxied host (http or https)
-- `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
+- `mapUri` - A function used to map the request URI to the proxied URI. The function signature is _function (request, callback)_ where 'request' is the incoming request object, and callback is 'function (err, uri)'.  Cannot be used together with `host`, `port`, or `protocol`.
 - `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
 - `httpClient` - A function that should make the request to the remote server and use execute the callback with a response.  By default this uses _'request'_ as the module.  The signature is (options, callback) where options will contain a url and method.
 
@@ -812,6 +812,16 @@ var http = new Hapi.Server('0.0.0.0', 8080);
 http.route({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
 
 http.start();
+```
+
+Using `mapUri`:
+```javascript
+var mapper = function (request, callback) {
+
+    callback(null, 'https://www.google.com/?q=' + request.param.term);
+};
+
+http.route({ method: 'GET', path: '/{term}', handler: { proxy: { mapUri: mapper } } });
 ```
 
 
