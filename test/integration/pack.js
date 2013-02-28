@@ -170,6 +170,25 @@ describe('Pack', function () {
         });
     });
 
+    it('requires plugin with views', function (done) {
+
+        var server = new Hapi.Server();
+        server.plugin().require({ './pack/--views': { message: 'viewing it' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/view' }, function (res) {
+
+                expect(res.result).to.equal('<h1>viewing it</h1>');
+
+                server.inject({ method: 'GET', url: '/file' }, function (res) {
+
+                    expect(res.readPayload()).to.equal('<h1>{{message}}</h1>');
+                    done();
+                });
+            });
+        });
+    });
+
     it('fails to require missing module', function (done) {
 
         var server1 = new Hapi.Server();
