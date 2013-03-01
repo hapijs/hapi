@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Stream = require('stream');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals

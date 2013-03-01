@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Oz = require('oz');
-var Hapi = require('../../helpers');
+var Hapi = require('../../..');
 var Auth = require('../../../lib/auth');
 
 

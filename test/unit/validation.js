@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Querystring = require('querystring');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 var Validation = require('../../lib/validation');
 
 

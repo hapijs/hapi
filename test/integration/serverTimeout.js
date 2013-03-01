@@ -4,7 +4,7 @@ var Chai = require('chai');
 var Http = require('http');
 var Stream = require('stream');
 var Request = require('request');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals

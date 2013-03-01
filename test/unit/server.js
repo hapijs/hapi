@@ -2,7 +2,7 @@
 
 var Https = require('https');
 var Chai = require('chai');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals
@@ -116,13 +116,6 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0, { cache: false });
         };
         expect(fn).to.not.throw(Error);
-        done();
-    });
-
-    it('assigns _monitor when config enables monitor', function (done) {
-
-        var server = new Hapi.Server('0.0.0.0', 0, { monitor: true });
-        expect(server._monitor).to.exist;
         done();
     });
 

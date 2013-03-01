@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals
@@ -24,11 +24,6 @@ describe('Composer', function () {
                     port: 0,
                     labels: ['api', 'nasty'],
                     config: {
-                        monitor: {
-                            subscribers: {
-                                console: ['ops', 'request', 'log']
-                            }
-                        },
                         cache: 'memory'
                     }
                 },

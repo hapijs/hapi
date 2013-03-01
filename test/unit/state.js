@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Iron = require('iron');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 var State = require('../../lib/state');
 var Defaults = require('../../lib/defaults');
 
