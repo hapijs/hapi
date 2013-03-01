@@ -1,3 +1,5 @@
+***Please note that any feature left undocumented is experimental and may have breaking changes in future releases.***
+
 # Table of Content
 
 <p></p>
@@ -8,15 +10,11 @@
     - [Router](#router)
     - [Payload](#payload)
     - [Extensions](#extensions)
-    - [Format](#format)
-      - [Error Format](#error-format)
-      - [Payload Format](#payload-format)
-    - [Files](#files)
+    - [Static Files](#static-files)
     - [Views](#views)
     - [Monitor](#monitor)
     - [Authentication](#authentication)
     - [Cache](#cache)
-    - [Debug](#debug)
     - [CORS](#cors)
     - [Batch](#batch)
     - [State](#state)
@@ -32,13 +30,13 @@
     - [Path Processing](#path-processing)
         - [Route Matching Order](#route-matching-order)
         - [Parameters](#parameters)
+    - [Request Payload Parsing](#request-payload-parsing)
     - [Route Handler](#route-handler)
         - [Response](#response)
         - [Proxy](#proxy)
         - [File](#file)
         - [Directory](#directory)
         - [View](#view)
-        - [Docs](#documentation)
         - [Request Logging](#request-logging)
         - [Not Found](#not-found-handler)
     - [Route Authentication](#route-authentication)
@@ -63,7 +61,10 @@
 - [**Request Injection**](#request-injection)
 <p></p>
 - [**Server Helpers**](#server-helpers)
-
+<p></p>
+- [**Server Plugins**](#server-plugins)
+    - [CSRF Protection](#csrf-protection)
+    - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
 
@@ -87,12 +88,10 @@ var server = new Hapi.Server();
 - [`tls`](#tls)
 - [`router`](#router)
 - [`payload`](#payload)
-- [`format`](#format)
 - [`files`](#files)
 - [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
-- [`debug`](#debug)
 - [`cors`](#cors)
 - [`batch`](#batch)
 - [`state`](#state)
@@ -144,8 +143,6 @@ The extension points are:
 - `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)'_ methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
 - `onPreHandler` - called after request passes validation and body parsing, before the request handler.
 - `onPostHandler` - called after the request handler, before sending the response. The actual state of the response depends on the response type used (e.g. direct, stream).
-- `onPostRoute` - called after the response was sent.
-- `onUnknownRoute` - if defined, overrides the default unknown resource (404) error response. The method must send the response manually via _request.raw.res_. Cannot be an array.
 
 For example:
 ```javascript
@@ -178,59 +175,14 @@ function onRequest(request, next) {
 }
 ```
 
+### Static Files
 
-### Format
-
-The `format` option provides an extension point for use of custom methods to format error responses or payloads before they are sent back to the client.
-
-
-#### Error Format
-
-If a different error format than the default JSON response is required, the server `format.error` option can be assigned a function to generate a
-different error response. The function signature is _'formatted = function (result)'_ where:
-- _'result'_ - is the **hapi** error object returned by the route handler, and
-- _'formatted'_ - is the formatted response object which contains the following keys:
-    - _`code`_ - the HTTP status code.
-    - _`payload`_ - the response payload.
-    - _`type`_ - the response payload content-type.
-    - _`headers`_ - any additional response HTTP headers (object).
-
-Note that the format function must be synchronous.
-
-For example:
-```javascript
-var options = {
-    format: {
-        error: function (result) {
-        
-            return { code: 500, payload: 'Oops: ' + result.message, type: 'text/html' };
-        }
-    }
-};
-```
-
-
-#### Payload Format
-
-In cases where every non-error payload has to be processed before being sent out (e.g. when returning a database object and need to hide certain fields or
-rename '_id' to 'id'), the `format.payload' option can be set to a function that is called on every result, immediately after 'request.reply' is called. The
-function's signature is _'formatted = function (result)'_ where:
-- _'result'_ - is the raw result object returned by the route handler, and
-- _'formatted'_ - is the formatted response to replace 'result'.
-
-Note that the format function must be synchronous, and it is only invoked for response types other than Stream.
-
-For example:
-```javascript
-var options = {
-    format: {
-        payload: function (result) {
-        
-            return 'something else instead';
-        }
-    }
-};
-```
+**hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
+When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
+and defaults to _'cwd'_:
+- _'cwd'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
+- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'route()'_ method is called. This means the location of the source code determines the location of the static resources when using relative paths.
+- an absolute prefix path - an absolute path (e.g. '/path') used as a prefix for all relative paths.
 
 
 ### Views
@@ -255,15 +207,6 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 - `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
 
 
-### Files
-
-**hapi** provides built-in support for serving static files and directories as described in [File](#file) and [Directory](#directory).
-When these handlers are provided with relative paths, the `files.relativeTo` server option determines how these paths are resolved
-and defaults to _'routes'_:
-- _'routes'_ - relative paths are resolved based on the location of the files in which the server's _'route()'_ method is called. This means the location of the source code determines the location of the static resources when using relative paths.
-- _'process'_ - relative paths are resolved using the active process path (_'process.cwd()'_).
-
-
 ### Monitor
 
 **hapi** comes with a built-in process monitor for three types of events:
@@ -281,7 +224,7 @@ optional settings:
 - `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
     - 'response' - the response was sent but request tails may still be pending.
     - 'tail' - the response was sent and all request tails completed.
-- `subscribers` - an object where each key is a destination and each value an array subscriptions. Subscriptions available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
+- `subscribers` - an object where each key is a destination and each value is either an array or object with an array of subscriptions. The subscriptions that are available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
 
 For example:
 ```javascript
@@ -306,6 +249,18 @@ var options = {
     }
 };
 ```
+
+Log messages are created with tags.  Usually a log will include a tag to indicate if it is related to an error or info along with where the message originates.  If, for example, the console should only output error's that were logged you can use the following configuration:
+```javascript
+var options = {
+    monitor: {
+        subscribers: {
+            console: { tags: ['error'], events: ['log'] }
+        }
+    }
+};
+```
+
 
 
 ### Authentication
@@ -389,6 +344,53 @@ var server = new Hapi.Server(config);
 
 In the above example only the user 'john' can authenticate, all other users will result in an error.
 
+#### Hawk Bewit Authentication
+
+[Hawk](https://github.com/hueniverse/hawk) allows for authentication to endpoints by constructing a specially formed URI.  To learn more about this feature in general please read the [Single URI Authorization](https://github.com/hueniverse/hawk#single-uri-authorization) section of the hawk readme.  Hapi supports this type of authentication through use of the _'bewit'_ scheme.  Only endpoints using the _'GET'_ HTTP method are allowed to support the _'bewit'_ scheme.  Below is an example of how to enable _'bewit'_ support on a server.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'bewit',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+From a client perspective the URI must contain the _'bewit'_ querystring key with the bewit token value.  Below is an example of constructing a URI to a resource with the _'bewit'_ key.
+
+```javascript
+var Hawk = require('hawk');
+
+var cred = {
+    id: 'john',
+    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+    algorithm: 'sha256'
+};
+
+var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
+var uri = 'http://site.com/endpoint?bewit=' + bewit;
+```
+
 #### Multiple Authentication Strategies
 
 There may be instances where you want to support more than one authentication strategy for a server.  Below is an example of using both basic and hawk authentication strategies on the server and defaulting to basic.  The default strategy is what will be used by endpoints if they do not specify a strategy to use.
@@ -445,18 +447,6 @@ Enabling the server cache only creates the cache interface but does not enable c
 and configured in the route or helper configuration.
 
 
-### Debug
-
-To assist in debugging server events related to specific incoming requests, **hapi** includes an optional debug console which is turned _off_ by default.
-The debug console is a simple web page in which developers can subscribe to a debug id, and then include that debug id as an extra query parameter in each
-request. The server will use WebSocket to stream the subscribed request logs to the web page in real-time. In application using multiple server instances,
-only one can enable the debug interface using the default port. To enable the debug console set the `debug` option to _true_ or to an object with custom
-configuration:
-- `websocketPort` - the port used by the WebSocket connection. Defaults to _3000_.
-- `debugEndpoint` - the debug console request path added to the server routes. Defaults to _'/debug/console'_.
-- `queryKey` - the name or the request query parameter used to mark requests being debugged. Defaults to _debug_.
-
-
 ### CORS
 
 The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. This is required
@@ -499,7 +489,7 @@ server's `state.cookies` configuration, where:
 
 ### Timeout
 
-The _'timeout'_ object can contain a _'server'_ and _'client'_ timeout value in milliseconds.  These are useful for limiting the amount of time a request or response should take to complete.
+The `timeout` object can contain `server`, `client`, and `socket` timeout values in milliseconds.  These are useful for limiting the amount of time a request or response should take to complete.
 
 #### Server Timeout
 In order to indicate when a server or dependent services are overwhelmed set the _'timeout.server'_ property.  This property should be set to the maximum number of milliseconds to allow a server response to take before responding with a 503 status code.  By default _'timeout.server'_ is disabled.
@@ -512,6 +502,11 @@ The example below demonstrates how to force the server to timeout when it takes 
 #### Client Timeout
 In order to indicate to a client that they are taking too long to send a request the _'timeout.client'_ option should be set.  By default this value is set to 10000 ms.  As a result, any request taking longer than 10 seconds to complete will error out with a 408 status code.  Below is an example of disabling the client timeout:
 `{ timeout: { client: false } }`
+
+#### Socket Timeout
+In node, server requests automatically time out after 2 minutes. To override this value set the `socket` timeout value.
+Defaults to 'null' which leaves the node default as-is. Below is an example of changing the socket timeout to :
+`{ timeout: { socket: 3 * 60 * 1000 } }`
 
 
 ## Server Events
@@ -556,6 +551,7 @@ to write additional text as the configuration itself serves as a living document
 
 - `path` - the absolute path or regular expression to match against incoming requests. Path comparison is configured using the server [`router`](#router) option. String paths can include named identifiers enclosed in _'{}'_ as described in [Path Parameters](#path-processing).
 - `method` - the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_. **hapi** does not provide a way to add a route to all methods.
+- `vhost` - an optional domain string or array of domain strings for limiting the route to only requests with a matching host header field. Defaults to all hosts.
 - `handler` - the business logic function called after authentication and validation to generate the response. The function signature is _function (request)_ where _'request'_ is the **hapi** request object. See [Route Handler](#route-handler) for more information.  Optionally, this can be an object with a _'proxy'_, _'file'_, or _'directory'_ property:
     - `proxy` - generates a reverse proxy handler as described in (Proxy)[#proxy].
     - `file` - generates a static file endpoint as described in (File)[#file].
@@ -575,7 +571,6 @@ to write additional text as the configuration itself serves as a living document
         - _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
         - _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
     - `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
-    - `docs` - if set to false then the route will be hidden from the documentation generator.
     - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#prerequisites). 
     - `auth` - authentication configuration
         - `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
@@ -715,6 +710,17 @@ function getPeople(request) {
 
 In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.  As a result of this behavior, {names*} must appear as the last parameter in the route path.  In other words, a param with 0 or more path parts must appear at the end of the end of the route path.
 
+### Request Payload Parsing
+
+Incoming requests that contain a payload and a supported 'Content-Type' header are parsed when the route _'payload'_ option is set to _'parse'_.  Currently, the following 'Content-Type' header values are parsed and assigned to the `request.payload` object.
+
+    - application/json
+    - application/x-www-form-urlencoded
+    - multipart/form-data
+    
+When parsing is enabled for a route and the request has a payload and an unsupported 'Content-Type' header an error will be returned to the client.
+
+The module [formidable](https://npmjs.org/package/formidable) is used for processing the 'multipart/form-data'.  Formidable is capable of receiving files as well as other form data.  All values are assigned to their respective form names on the _'payload'_ object.  
 
 ### Route Handler
 
@@ -796,7 +802,7 @@ It is possible with hapi to setup a reverse proxy for routes.  This is especiall
 - `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
 - `port` - The port to use when making a request to the host.
 - `protocol` - The protocol to use when making a request to the proxied host (http or https)
-- `mapUri` - A function that receives the clients request and a passes the URI to a callback to make the proxied request to.  If host is set mapUri cannot be used, set either host or mapUri.
+- `mapUri` - A function used to map the request URI to the proxied URI. The function signature is _function (request, callback)_ where 'request' is the incoming request object, and callback is 'function (err, uri)'.  Cannot be used together with `host`, `port`, or `protocol`.
 - `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
 - `httpClient` - A function that should make the request to the remote server and use execute the callback with a response.  By default this uses _'request'_ as the module.  The signature is (options, callback) where options will contain a url and method.
 
@@ -811,6 +817,16 @@ http.route({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', hos
 http.start();
 ```
 
+Using `mapUri`:
+```javascript
+var mapper = function (request, callback) {
+
+    callback(null, 'https://www.google.com/?q=' + request.param.term);
+};
+
+http.route({ method: 'GET', path: '/{term}', handler: { proxy: { mapUri: mapper } } });
+```
+
 
 #### File
 
@@ -821,7 +837,7 @@ configured with a static file path. For example:
 
 ```javascript
 // Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'process' } });
+var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'cwd' } });
 
 // Serve index.html file up a directory in the public folder
 http.route({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
@@ -861,7 +877,7 @@ a directory content listing.
 
 Routes utilizing the directory handler must include a single path parameter at the end of the path string (e.g. _'/path/to/somewhere/{param}'_).
 The directory handler is an object with the following options:
-- `path` - a required path string or function. If the `path` is a string, it is used as the prefix for any resources requested within the route by appending the required route path parameter to the provided string. Alternatively, the `path` can be a function with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and must return a string with the relative or absolute path to the static resource. Relative paths are resolved based on the server's `files` option as described in (Files)[#files].
+- `path` - a required path string, an array of strings, or function. If the `path` is a string, it is used as the prefix for any resources requested within the route by appending the required route path parameter to the provided string. An array of string will be attemped in order until a match is found. Alternatively, the `path` can be a function with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and must return a string with the relative or absolute path to the static resource. Relative paths are resolved based on the server's `files` option as described in (Files)[#files].
 - `index` - optional boolean, determines if 'index.html' will be served if exists in the folder when requesting a directory. Defaults to _'true'_.
 - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
 - `showHidden` - optional boolean, determines if hidden files will be shown and served.  Defaults to _'false'_.
@@ -1219,33 +1235,6 @@ Hapi distinguishes between the engines by checking which file extension has been
     server.start();
 
 
-
-### Documentation
-
-**This is an experimental feature and is likely to change!**
-
-In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator is provided. By default the documentation
-generator is turned _off_. To enable the docs endpoint add a new route with a handler object that has a docs property set to true or to an object with the following options:
-- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html' inside the lout module.
-- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
-- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html' inside the lout module.
-- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
-- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
-
-By default there is an index page that lists all of the available routes configured in **hapi** that is located at the `docsEndpoint`.  From this page users are able to navigate to individual routes to read the related documentation.
-
-The simplest example of enabling docs on a site is shown in the following example:
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-http.route({ method: 'GET', path: '/docs', handler: { docs: true } });
-
-http.start();
-```
-
-
 #### Request Logging
 
 In addition to the [General Events Logging](#general-events-logging) mechanism provided to log non-request-specific events, **hapi** provides
@@ -1448,7 +1437,7 @@ For example:
 var Hapi = require('hapi');
 
 var S = Hapi.Types.String;
-var I = Hapi.Types.Int;
+var I = Hapi.Types.Number;
 
 var rules = {
     username: S().required().alphanum().min(3).max(30).with('email'),
@@ -1503,7 +1492,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
 - 'name' - is the cookie name,
 - 'value' - is the cookie value, and
 - 'options' - is an optional structure with the following optional keys:
-    - `ttl' - time-to-live in milliseconds.
+    - `ttl` - time-to-live in milliseconds.
     - `isSecure` - sets the 'Secure' flag.
     - `isHttpOnly` - sets the 'HttpOnly' flag.
     - `path` - the path scope.
@@ -1716,6 +1705,48 @@ http.route({
 });
 ```
 
+# Server Plugins
+
+## CSRF Protection
+
+In order to help mitigate CSRF threats there is a plugin for **hapi** called [crumb](https://npmjs.org/package/crumb) that can be installed.  Install **crumb** by either running `npm install crumb` in your sites working directory or add _'crumb'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
+The following plugin options are available for **crumb**
+- `name` - name of cookie to store crumb.  Default is 'crumb'.
+- `size` - number of characters to randomly generate for crumb value.  Default is '43'. 
+- `autoGenerate` - bool value to indicate if the crumb should be created automatically.  Default is 'true'.
+- `addToViewContext` - bool value to indicate if crumb is added to the context of a view before the context is bound (making it accessible in a template).  Default is 'true'.
+- `cookieOptions`
+    - `path` - cookie path to restrict access to crumb cookie.  Default is '/'.
+
+
+## Documentation Generator
+
+**This is an experimental feature and is likely to change!**
+
+In order to make it easy to generate documentation for the routes you add to **hapi**, a documentation generator named **lout** can be installed and enabled as a plugin. Install **lout** by either running `npm install lout` in your sites working directory or add _'lout'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
+The following options can be passed into **lout** when adding it to a server
+- `indexTemplatePath` - the file path where the index template file is located.  Default is 'lib/templates/index.html' inside the lout module.
+- `indexTemplate` - the raw source of a index template to use.  If `indexTemplate` is provided then it will be used over the file located at `indexTemplatePath`.
+- `routeTemplatePath` - the file path where the routes template file is located.  Default is 'lib/templates/route.html' inside the lout module.
+- `routeTemplate` - the raw source of a route template to use.  If `routeTemplate` is provided then it will be used over the file located at `routeTemplatePath`.
+- `templateParams` - an optional object of any extra information you want to pass into your template, this will be located in the templateParams object in the template data object.
+
+The simplest example of enabling **lout** on a site is shown in the following example:
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080);
+
+var loutConfig = { plugin: { indexTemplatePath: './templates' } };
+
+http.plugin().require('lout', loutConfig, function () {
+    
+    http.start();
+});
+
+```
 
 # The End
 

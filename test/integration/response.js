@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Fs = require('fs');
-var NodeUtil = require('util');
 var Stream = require('stream');
 var Request = require('request');
 var Hapi = require('../helpers');
@@ -20,33 +19,6 @@ var expect = Chai.expect;
 
 describe('Response', function () {
 
-    describe('Manual', function () {
-
-        it('returns a reply', function (done) {
-
-            var handler = function () {
-
-                this.reply.close();
-            };
-
-            var server = new Hapi.Server({ cache: { engine: 'memory' } });
-            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
-            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
-
-            server.inject({ method: 'GET', url: '/null' }, function (res) {
-
-                expect(res.readPayload()).to.equal('0\r\n\r\n');
-
-                expect(function () {
-
-                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
-                }).to.throw();
-
-                done();
-            });
-        });
-    });
-
     describe('Text', function () {
 
         it('returns a text reply', function (done) {
@@ -55,7 +27,6 @@ describe('Response', function () {
 
                 request.reply.payload('text')
                              .type('text/plain')
-                             .bytes(4)
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
                              .state('other', 'something', { isSecure: true })
@@ -68,26 +39,50 @@ describe('Response', function () {
                 this.reply('Tada');
             };
 
-            var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com'] } });
+            var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com', 'www.example.com'] } });
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
             server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.state('sid', { encoding: 'base64' });
+            server.ext('onPostHandler', function (request, next) {
+
+                request.setState('test', '123');
+                request.clearState('empty');
+                next();
+            });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('text');
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
-                expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com www.example.com');
                 expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
-                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT']);
+                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
 
-                server.inject({ method: 'GET', url: '/bound' }, function (res) {
+                server.inject({ method: 'GET', url: '/bound', headers: { origin: 'www.example.com' } }, function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.result).to.equal('Tada');
+                    expect(res.headers['Access-Control-Allow-Origin']).to.equal('www.example.com');
                     done();
                 });
+            });
+        });
+
+        it('returns a text reply when sending a buffer', function (done) {
+
+            var handler = function () {
+
+                this.reply(new Buffer('Tada'));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('Tada');
+                done();
             });
         });
 
@@ -113,6 +108,46 @@ describe('Response', function () {
         });
     });
 
+
+    describe('Obj', function () {
+
+        it('returns an JSONP response', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
+
+                expect(res.readPayload()).to.equal('me({"some":"value"});');
+                expect(res.headers['Content-Length']).to.equal(21);
+                done();
+            });
+        });
+
+        it('returns response on bad JSONP parameter', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me*' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('Invalid JSONP parameter value');
+                done();
+            });
+        });
+    });
+
     describe('Error', function () {
 
         it('returns an error reply', function (done) {
@@ -122,14 +157,7 @@ describe('Response', function () {
                 request.reply.payload(new Error('boom')).send();
             };
 
-            var formatError= function (error) {
-
-                var options = error.toResponse();
-                options.payload.surprise = 'party';
-                return options;
-            };
-
-            var server = new Hapi.Server({ format: { error: formatError } });
+            var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
@@ -137,7 +165,6 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('boom');
-                expect(res.result.surprise).to.equal('party');
                 done();
             });
         });
@@ -163,8 +190,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('');
+                expect(res.result).to.not.exist;
                 expect(res.headers['Access-Control-Allow-Credentials']).to.equal('true');
                 done();
             });
@@ -174,8 +200,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/?x=1' }, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('');
+                expect(res.result).to.not.exist;
                 done();
             });
         });
@@ -374,10 +399,9 @@ describe('Response', function () {
 
     describe('File', function () {
 
-        var server = new Hapi.Server(17082);
-
         it('returns a file in the response with the correct headers', function (done) {
 
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -387,7 +411,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/file', function (err, res, body) {
+                Request.get(server.settings.uri + '/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -399,14 +423,14 @@ describe('Response', function () {
             });
         });
 
-        it('returns a file in the response with the correct headers using process relative paths', function (done) {
+        it('returns a file in the response with the correct headers using cwd relative paths', function (done) {
 
-            var server = new Hapi.Server(17084, { files: { relativeTo: 'process' } });
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
             server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
 
             server.start(function () {
 
-                Request.get('http://localhost:17084/', function (err, res, body) {
+                Request.get(server.settings.uri, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -420,16 +444,13 @@ describe('Response', function () {
 
         it('returns a 404 when the file is not found', function (done) {
 
-            var notFoundHandler = function (request) {
+            var server = new Hapi.Server(0, { files: { relativeTo: '/no/such/path/x1' } });
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../notHere'));
-            };
-
-            server.route({ method: 'GET', path: '/filenotfound', handler: notFoundHandler });
+            server.route({ method: 'GET', path: '/filenotfound', handler: { file: 'nopes' } });
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/filenotfound', function (err, res) {
+                Request.get(server.settings.uri + '/filenotfound', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -440,16 +461,13 @@ describe('Response', function () {
 
         it('returns a 403 when the file is a directory', function (done) {
 
-            var folderHandler = function (request) {
+            var server = new Hapi.Server(0);
 
-                request.reply(new Hapi.Response.File(__dirname));
-            };
-
-            server.route({ method: 'GET', path: '/filefolder', handler: folderHandler });
+            server.route({ method: 'GET', path: '/filefolder', handler: { file: 'examples' } });
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/filefolder', function (err, res) {
+                Request.get(server.settings.uri + '/filefolder', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -465,34 +483,43 @@ describe('Response', function () {
 
         it('returns a file using the build-in handler config', function (done) {
 
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } });
 
-            Request.get('http://localhost:17082/staticfile', function (err, res, body) {
+            server.start(function () {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
-                expect(res.headers['content-length']).to.exist;
-                done();
+                Request.get(server.settings.uri + '/staticfile', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
             });
         });
 
         it('returns a file using the file function with the build-in handler config', function (done) {
 
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
 
-            Request.get('http://localhost:17082/filefn/index.js', function (err, res, body) {
+            server.start(function () {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('./lib');
-                expect(res.headers['content-type']).to.equal('application/javascript');
-                expect(res.headers['content-length']).to.exist;
-                done();
+                Request.get(server.settings.uri + '/filefn/index.js', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('./lib');
+                    expect(res.headers['content-type']).to.equal('application/javascript');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
             });
         });
 
         it('returns a file in the response with the correct headers (relative path)', function (done) {
 
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var relativeHandler = function (request) {
 
                 request.reply(new Hapi.Response.File('./package.json'));
@@ -502,7 +529,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get('http://localhost:17082/relativefile', function (err, res, body) {
+                Request.get(server.settings.uri + '/relativefile', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -515,29 +542,41 @@ describe('Response', function () {
 
         it('returns a file using the built-in handler config (relative path)', function (done) {
 
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
 
-            Request.get('http://localhost:17082/relativestaticfile', function (err, res, body) {
+            server.start(function () {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
-                expect(res.headers['content-length']).to.exist;
-                done();
+                Request.get(server.settings.uri + '/relativestaticfile', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    done();
+                });
             });
         });
 
         it('returns a 304 when the request has a matching etag', function (done) {
 
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
             server.start(function () {
 
-                Request.get('http://localhost:17082/file', function (err, res1) {
+                Request.get(server.settings.uri + '/file', function (err, res1) {
 
                     var headers = {
                         'if-none-match': res1.headers.etag
                     };
 
-                    Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res2) {
+                    Request.get({ url: server.settings.uri + '/file', headers: headers }, function (err, res2) {
 
                         expect(res2.statusCode).to.equal(304);
                         done();
@@ -546,28 +585,156 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 304 when the request has a future modifed-since', function (done) {
+        it('invalidates etags when file changes', function (done) {
+
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+
+            server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
+
+            // No etag, never requested
+
+            server.inject({ method: 'GET', url: '/note' }, function (res1) {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.readPayload()).to.equal('Test');
+                expect(res1.headers.etag).to.not.exist;
+
+                // No etag, previously requested
+
+                server.inject({ method: 'GET', url: '/note' }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.readPayload()).to.equal('Test');
+                    expect(res2.headers.etag).to.exist;
+
+                    var etag1 = res2.headers.etag;
+
+                    // etag
+
+                    server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag1 } }, function (res3) {
+
+                        expect(res3.statusCode).to.equal(304);
+
+                        var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
+                        Fs.writeSync(fd, new Buffer('Test'), 0, 4);
+                        Fs.closeSync(fd);
+
+                        // etag after file modified, content unchanged
+
+                        server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag1 } }, function (res4) {
+
+                            expect(res4.statusCode).to.equal(200);
+                            expect(res4.readPayload()).to.equal('Test');
+                            expect(res4.headers.etag).to.not.exist;
+
+                            // No etag, previously requested
+
+                            server.inject({ method: 'GET', url: '/note' }, function (res5) {
+
+                                expect(res5.statusCode).to.equal(200);
+                                expect(res5.readPayload()).to.equal('Test');
+                                expect(res5.headers.etag).to.exist;
+
+                                var etag2 = res5.headers.etag;
+                                expect(etag1).to.equal(etag2);
+
+                                var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
+                                Fs.writeSync(fd, new Buffer('Test1'), 0, 5);
+                                Fs.closeSync(fd);
+
+                                // etag after file modified, content changed
+
+                                server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag2 } }, function (res6) {
+
+                                    expect(res6.statusCode).to.equal(200);
+                                    expect(res6.readPayload()).to.equal('Test1');
+                                    expect(res6.headers.etag).to.not.exist;
+
+                                    // No etag, previously requested
+
+                                    server.inject({ method: 'GET', url: '/note' }, function (res7) {
+
+                                        expect(res7.statusCode).to.equal(200);
+                                        expect(res7.readPayload()).to.equal('Test1');
+                                        expect(res7.headers.etag).to.exist;
+
+                                        var etag3 = res7.headers.etag;
+                                        expect(etag1).to.not.equal(etag3);
+
+                                        var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
+                                        Fs.writeSync(fd, new Buffer('Test'), 0, 4);
+                                        Fs.closeSync(fd);
+
+                                        // No etag, content restored
+
+                                        server.inject({ method: 'GET', url: '/note' }, function (res8) {
+
+                                            expect(res8.statusCode).to.equal(200);
+                                            expect(res8.readPayload()).to.equal('Test');
+
+                                            // No etag, previously requested
+
+                                            server.inject({ method: 'GET', url: '/note' }, function (res9) {
+
+                                                expect(res9.statusCode).to.equal(200);
+                                                expect(res9.readPayload()).to.equal('Test');
+                                                expect(res9.headers.etag).to.exist;
+
+                                                var etag4 = res9.headers.etag;
+                                                expect(etag1).to.equal(etag4);
+
+                                                done();
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it('returns a 304 when the request has if-modified-since and the response hasn\'t been modified since', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
 
             server.start(function () {
 
-                var date = new Date(Date.now());
-                var headers = {
-                    'if-modified-since': new Date(date.setFullYear(date.getFullYear() + 1)).toUTCString()
-                };
+                Request.get(server.settings.uri, function (err, res1) {
 
-                Request.get({ url: 'http://localhost:17082/file', headers: headers }, function (err, res) {
+                    var headers = {
+                        'if-modified-since': res1.headers.date
+                    };
 
-                    expect(res.statusCode).to.equal(304);
-                    done();
+                    Request.get({ url: server.settings.uri + '/file', headers: headers }, function (err, res2) {
+
+                        expect(res2.statusCode).to.equal(304);
+                        done();
+                    });
                 });
             });
         });
 
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
             server.start(function () {
 
-                Request.get({ url: 'http://localhost:17082/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+                Request.get({ url: server.settings.uri + '/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.headers['content-type']).to.equal('application/json');
@@ -579,10 +746,35 @@ describe('Response', function () {
             });
         });
 
+        it('returns a deflated file in the response when the request accepts deflate', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.start(function () {
+
+                Request.get({ url: server.settings.uri + '/file', headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-encoding']).to.equal('deflate');
+                    expect(res.headers['content-length']).to.not.exist;
+                    expect(body).to.exist;
+                    done();
+                });
+            });
+        });
+
         it('throws an error when adding a route with a parameter and string path', function (done) {
 
             var fn = function () {
 
+                var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
             };
 
@@ -594,6 +786,7 @@ describe('Response', function () {
 
             var fn = function () {
 
+                var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
             };
 
@@ -604,12 +797,13 @@ describe('Response', function () {
 
     describe('Directory', function () {
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.route({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.route({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
         server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+        server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: ['./', '../'], listing: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -659,6 +853,20 @@ describe('Response', function () {
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(200);
                     expect(body).to.contain('hapi');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file when requesting a file from multi directory setup', function (done) {
+
+            server.start(function () {
+
+                Request.get(server.settings.uri + '/multiple/unit/response/directory.js', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.contain('no_such_path');
                     done();
                 });
             });
@@ -902,7 +1110,7 @@ describe('Response', function () {
             return this;
         };
 
-        NodeUtil.inherits(FakeStream, Stream);
+        Hapi.utils.inherits(FakeStream, Stream);
 
         FakeStream.prototype.on = FakeStream.prototype.addListener = function (event, callback) {
 
@@ -986,10 +1194,19 @@ describe('Response', function () {
                          .send();
         };
 
+        var handler4 = function (request) {
+
+            _streamRequest = request;
+            request.reply.stream(new FakeStream())
+                         .state(';sid', 'abcdefg123456')
+                         .send();
+        };
+
         var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] } });
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
         server.route({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { mode: 'client', expiresIn: 9999 } } });
+        server.route({ method: 'GET', path: '/stream4', config: { handler: handler4 } });
 
         it('returns a stream reply', function (done) {
 
@@ -1003,6 +1220,68 @@ describe('Response', function () {
             });
         });
 
+        it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', function (done) {
+
+            var streamHandler = function (request) {
+
+                var stream = new Stream();
+                stream.readable = true;
+                stream.resume = function () {
+
+                    setTimeout(function () {
+
+                        stream.emit('end', 'hi');
+                    }, 5);
+                };
+
+                request.reply.stream(stream).send();
+            };
+
+            var server1 = new Hapi.Server(0);
+            server1.route({ method: 'GET', path: '/stream', handler: streamHandler });
+
+            server1.start(function () {
+
+                Request.get({ uri: server1.settings.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.headers['Content-Length']).to.not.exist;
+                    done();
+                });
+            });
+        });
+
+        it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', function (done) {
+
+            var streamHandler = function (request) {
+
+                var stream = new Stream();
+                stream.readable = true;
+                stream.resume = function () {
+
+                    setTimeout(function () {
+
+                        stream.emit('end', 'hi');
+                    }, 5);
+                };
+
+                request.reply.stream(stream).send();
+            };
+
+            var server1 = new Hapi.Server(0);
+            server1.route({ method: 'GET', path: '/stream', handler: streamHandler });
+
+            server1.start(function () {
+
+                Request.get({ uri: server1.settings.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (err, res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.headers['Content-Length']).to.not.exist;
+                    done();
+                });
+            });
+        });
+
         it('returns a stream reply (created)', function (done) {
 
             server.inject({ method: 'GET', url: '/stream3' }, function (res) {
@@ -1012,6 +1291,15 @@ describe('Response', function () {
                 expect(res.headers.Location).to.equal(server.settings.uri + '/special');
                 expect(res.headers['Cache-Control']).to.equal('no-cache');
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns an error on bad state', function (done) {
+
+            server.inject({ method: 'GET', url: '/stream4' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
@@ -1131,7 +1419,6 @@ describe('Response', function () {
 
             return request.reply.view('test', { message: "Hello World!" }).send();
         };
-
 
         describe('Default', function (done) {
 
@@ -1632,6 +1919,118 @@ describe('Response', function () {
         });
     });
 
+    describe('External', function () {
+
+        it('returns a reply', function (done) {
+
+            var handler = function () {
+
+                this.raw.res.end();
+                this.reply.close();
+            };
+
+            var server = new Hapi.Server({ cache: { engine: 'memory' } });
+            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/null' }, function (res) {
+
+                expect(res.readPayload()).to.equal('0\r\n\r\n');
+
+                expect(function () {
+
+                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
+                }).to.throw();
+
+                done();
+            });
+        });
+    });
+
+    describe('Extension', function () {
+
+        it('returns a reply using custom response without _prepare', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _transmit: function (request, callback) {
+
+                        request.raw.res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': 11 });
+                        request.raw.res.end('Hello World');
+                    }
+                };
+
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.readPayload()).to.equal('Hello World');
+                done();
+            });
+        });
+
+        it('returns an internal error on error response loop', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _prepare: function (request, callback) {
+
+                        callback(Hapi.error.badRequest());
+                    },
+                    _transmit: function () { }
+                };
+
+                this.setState('bad', {});
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.code).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error on infinite _prepare loop', function (done) {
+
+            var handler = function () {
+
+                var custom = {
+                    variety: 'x-custom',
+                    varieties: { 'x-custom': true },
+                    _prepare: function (request, callback) {
+
+                        callback(custom);
+                    }
+                };
+
+                this.reply(custom);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.code).to.equal(500);
+                done();
+            });
+        });
+    });
+
     describe('#_respond', function () {
 
         it('returns an error reply on invalid Response._respond', function (done) {
@@ -1649,32 +2048,6 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('An internal server error occurred');
-                done();
-            });
-        });
-    });
-
-    describe('#format.payload', function () {
-
-        it('returns a formatted reply', function (done) {
-
-            var formatPayload = function (result) {
-
-                return result + '!';
-            };
-
-            var handler = function (request) {
-
-                request.reply('hello');
-            };
-
-            var server = new Hapi.Server({ format: { payload: formatPayload } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-            server.inject({ method: 'GET', url: '/' }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('hello!');
                 done();
             });
         });

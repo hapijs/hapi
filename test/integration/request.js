@@ -56,12 +56,19 @@ describe('Request', function () {
         }
     };
 
+    var responseErrorHandler = function (request) {
+
+        request.reply('success');
+        request.raw.res.emit('error', new Error('fail'));
+    };
+
     var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
     server.ext('onPostHandler', postHandler);
     server.route([
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },
-        { method: 'GET', path: '/ext', config: { handler: plainHandler } }
+        { method: 'GET', path: '/ext', config: { handler: plainHandler } },
+        { method: 'GET', path: '/response', config: { handler: responseErrorHandler } }
     ]);
 
     server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
@@ -138,6 +145,15 @@ describe('Request', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('unknown-close');
+            done();
+        });
+    });
+
+    it('handles errors on the response after the response has been started', function (done) {
+
+        makeRequest('GET', '/response', function (res) {
+
+            expect(res.result).to.equal('success');
             done();
         });
     });

@@ -22,10 +22,10 @@ describe('Response', function () {
 
             it('returns an error when reading an invalid directory', function (done) {
 
-                var dir = new Hapi.response.Directory('no_such_path', {});
-                dir._generateListing(function (response) {
+                var dir = new Hapi.response.Directory(['no_such_path'], {});
+                dir._generateListing('no_such_path', null, function (response) {
 
-                    expect(response.code).to.equal(500);
+                    expect(response.response.code).to.equal(500);
                     done();
                 });
             });

@@ -97,7 +97,7 @@ describe('Batch', function () {
 
     function setupServer() {
 
-        _server = new Hapi.Server('0.0.0.0', 0, { batch: true });
+        _server = new Hapi.Server({ batch: true });
         _server.route([
             { method: 'GET', path: '/profile', handler: profileHandler },
             { method: 'GET', path: '/item', handler: activeItemHandler },

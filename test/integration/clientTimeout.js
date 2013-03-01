@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Http = require('http');
-var NodeUtil = require('util');
 var Stream = require('stream');
 var Hapi = require('../helpers');
 
@@ -97,6 +96,10 @@ describe('Client Timeout', function () {
                 done();
             });
 
+            req.on('error', function (err) {                    // Will error out, so don't allow error to escape test
+
+            });
+
             req.write('\n');
             setTimeout(function () {
 
@@ -152,11 +155,15 @@ describe('Client Timeout', function () {
                 method: 'GET'
             };
 
-
             var req = Http.request(options, function (res) {
 
                 expect(timer.elapsed()).to.be.at.least(59);
                 expect(res.statusCode).to.equal(200);
+                done();
+            });
+
+            req.once('error', function (err) {
+
                 done();
             });
 

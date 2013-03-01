@@ -78,6 +78,17 @@ describe('Server', function () {
         done();
     });
 
+    it('throws an error when invalid config properties are provided', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Server({ cache: 'memory', something: false });
+        };
+
+        expect(fn).throws(Error);
+        done();
+    });
+
     it('throws an error when double host config is provided', function (done) {
 
         var fn = function () {
@@ -95,26 +106,6 @@ describe('Server', function () {
             var server = new Hapi.Server(true);
         };
         expect(fn).throws(Error);
-        done();
-    });
-
-    it('doesn\'t throw an error when enabling docs', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server('0.0.0.0', 0, { docs: true });
-        };
-        expect(fn).to.not.throw(Error);
-        done();
-    });
-
-    it('doesn\'t throw an error when enabling the debug console', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server('0.0.0.0', 0, { debug: { websocketPort: 3002 } });
-        };
-        expect(fn).to.not.throw(Error);
         done();
     });
 
@@ -171,55 +162,6 @@ describe('Server', function () {
         done();
     });
 
-    describe('#_match', function () {
-
-        it('throws an error when the method parameter is null', function (done) {
-
-            var fn = function () {
-
-                var server = new Hapi.Server('0.0.0.0', 0);
-                server._match(null, '/test');
-            };
-            expect(fn).to.throw(Error, 'The method parameter must be provided');
-            done();
-        });
-
-        it('throws an error when the path parameter is null', function (done) {
-
-            var fn = function () {
-
-                var server = new Hapi.Server('0.0.0.0', 0);
-                server._match('POST', null);
-            };
-            expect(fn).to.throw(Error, 'The path parameter must be provided');
-            done();
-        });
-
-        it('returns null when no routes are added', function (done) {
-
-            var server = new Hapi.Server('0.0.0.0', 0);
-            var result = server._match('GET', '/test');
-
-            expect(result).to.not.exist;
-            done();
-        });
-
-        it('returns the route when there is a match', function (done) {
-
-            var server = new Hapi.Server('0.0.0.0', 0);
-            server.route({
-                method: 'GET',
-                path: '/test',
-                handler: function () { }
-            });
-            var result = server._match('GET', '/test');
-
-            expect(result).exist;
-            expect(result.path).to.equal('/test');
-            done();
-        });
-    });
-
     describe('#start', function () {
 
         it('doesn\'t throw an error', function (done) {
@@ -240,17 +182,6 @@ describe('Server', function () {
 
                 expect(server.settings.host).to.equal('0.0.0.0');
                 expect(server.settings.port).to.not.equal(0);
-                done();
-            });
-        });
-
-        it('calls the callback when not using ephemeral port', function (done) {
-
-            var server = new Hapi.Server('0.0.0.0', 8880);
-            server.start(function (host, port) {
-
-                expect(server.settings.host).to.equal('0.0.0.0');
-                expect(server.settings.port).to.equal(8880);
                 done();
             });
         });
@@ -295,7 +226,7 @@ describe('Server', function () {
                 var server = new Hapi.Server('0.0.0.0', 0);
                 server.route(route);
             };
-            expect(fn).to.throw(Error, 'Route options missing path');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -309,7 +240,7 @@ describe('Server', function () {
                 var server = new Hapi.Server('0.0.0.0', 0);
                 server.route(route);
             };
-            expect(fn).to.throw(Error, 'Route options missing method');
+            expect(fn).to.throw(Error);
             done();
         });
 
@@ -575,6 +506,23 @@ describe('Server', function () {
                     });
                 });
             });
+        });
+    });
+
+    describe('#routingTable', function () {
+
+        it('returns an array of the current routes', function (done) {
+
+            var server = new Hapi.Server('0.0.0.0', 0);
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.routingTable();
+
+            expect(routes.length).to.equal(2);
+            expect(routes[0].path).to.equal('/test/');
+            done();
         });
     });
 });

@@ -1,8 +1,8 @@
 {
   "name": "hapi",
-  "description": "HTTP API Server framework",
+  "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.13.2",
+  "version": "0.15.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     "Van Nguyen <the.gol.effect@gmail.com>",
@@ -13,42 +13,50 @@
   "keywords": [
     "framework",
     "http",
-    "authentication",
     "api",
     "router"
   ],
   "engines": {
-    "node": ">=0.8.0"
+    "node": "0.8.x"
   },
   "dependencies": {
-    "hoek": "0.3.x",
-    "boom": "0.2.x",
-    "joi": "0.0.x",
-    "lout": "0.0.x",
-    "hapi-helmet": "0.0.x",
-    "hapi-log": "0.0.x",
-    "hawk": "0.6.x",
+    "hoek": "0.5.x",
+    "boom": "0.3.x",
+    "joi": "0.1.x",
+    "good": "0.0.x",
+    "hawk": "0.7.x",
     "shot": "0.0.x",
-    "oz": "0.0.x",
+    "oz": "0.1.x",
     "async": "0.1.x",
-    "request": "2.11.x",
+    "request": "2.14.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
     "catbox": "0.1.x",
-    "cryptiles": "0.0.x",
-    "iron": "0.1.x",
-    "semver": "1.1.0",
-    "json-stringify-safe": "~3.0.0"
+    "json-stringify-safe": "~3.0.0",
+    "cryptiles": "0.1.x",
+    "iron": "0.2.x",
+    "lru-cache": "2.2.x",
+    "optimist": "0.3.x",
+    "negotiator": "0.2.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",
     "chai": "1.x.x",
     "sinon": "1.x.x",
-    "handlebars": ">= 1.0.8",
-    "jade": "~0.28.1"
+    "handlebars": "1.0.x",
+    "jade": "0.28.x",
+    "blanket": "1.0.x",
+    "travis-cov": "0.2.x",
+    "complexity-report": "0.x.x",
+    "furball": "0.0.x"
+  },
+  "bin": {
+    "hapi": "./bin/hapi"
   },
   "scripts": {
-    "test": "make test && make unit"
+    "test": "make test && make test-cov",
+    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/helpers\/)(?!\/test\/unit\/)(?!\/test\/integration\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } },
+    "travis-cov": { "threshold": 100 }
   },
   "licenses": [
     {

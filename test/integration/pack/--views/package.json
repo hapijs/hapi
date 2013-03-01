@@ -1,10 +1,7 @@
 {
-  "name": "*test",
+  "name": "--views",
   "description": "Test plugin module",
   "version": "0.0.1",
   "private": true,
-  "main": "lib/index",
-  "hapi": {
-	"plugin": "1.x.x"
-  }
+  "main": "lib/index"
 }

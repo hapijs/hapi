@@ -44,9 +44,6 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '5.0.0',
-            hapi: {
-                plugin: '1.x.x'
-            },
             register: function (pack, options, next) {
 
                 var a = pack.select({ label: 'a' });
@@ -89,7 +86,7 @@ describe('Pack', function () {
             expect(routesList(server3)).to.deep.equal(['/a', '/ab', '/all']);
             expect(routesList(server4)).to.deep.equal(['/all', '/sodd', '/memoryx']);
 
-            expect(server1.plugins.test.version).to.equal('5.0.0');
+            expect(server1.plugin.list.test.version).to.equal('5.0.0');
 
             done();
         });
@@ -108,17 +105,17 @@ describe('Pack', function () {
         pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
         pack.server('s4', server4, { labels: ['b', 'test'] });
 
-        pack.require('./pack/test', { name: 'test' }, function (err) {
+        pack.allow({ route: true }).require('./pack/--test1', {}, function (err) {
 
             expect(err).to.not.exist;
 
             expect(server1._router.table['get']).to.not.exist;
-            expect(routesList(server2)).to.deep.equal(['/test']);
+            expect(routesList(server2)).to.deep.equal(['/test1']);
             expect(server3._router.table['get']).to.not.exist;
-            expect(routesList(server4)).to.deep.equal(['/test']);
+            expect(routesList(server4)).to.deep.equal(['/test1']);
 
-            expect(server1.api.test.add(1, 3)).to.equal(4);
-            expect(server1.api.test.glue('1', '3')).to.equal('13');
+            expect(server1.plugins['--test1'].add(1, 3)).to.equal(4);
+            expect(server1.plugins['--test1'].glue('1', '3')).to.equal('13');
 
             done();
         });
@@ -129,9 +126,6 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '2.0.0',
-            hapi: {
-                plugin: '1.x.x'
-            },
             register: function (pack, options, next) {
 
                 pack.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
@@ -154,43 +148,44 @@ describe('Pack', function () {
         });
     });
 
-    it('requires directory', function (done) {
+    it('requires multiple plugins using array', function (done) {
 
-        var server1 = new Hapi.Server();
-        var server2 = new Hapi.Server({ tls: {} });
-        var server3 = new Hapi.Server({ tls: {}, cache: 'memory' });
-        var server4 = new Hapi.Server({ cache: 'memory' });
-
-        var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, { labels: ['a', 'b'] });
-        pack.server('s2', server2, { labels: ['a', 'test'] });
-        pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
-        pack.server('s4', server4, { labels: ['b', 'test'] });
-
-        pack.requireDirectory('./pack', { exclude: 'skip' }, function (err) {
+        var server = new Hapi.Server();
+        server.plugin({ labels: 'test' }).require(['./pack/--test1', './pack/--test2'], function (err) {
 
             expect(err).to.not.exist;
-
-            expect(server1._router.table['get']).to.not.exist;
-            expect(routesList(server2)).to.deep.equal(['/test']);
-            expect(server3._router.table['get']).to.not.exist;
-            expect(routesList(server4)).to.deep.equal(['/test']);
-
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
             done();
         });
     });
 
-    it('fails to require module with bad version requirements', function (done) {
+    it('requires multiple plugins using object', function (done) {
 
-        var server1 = new Hapi.Server();
-        var pack = new Hapi.Pack({ a: 1 });
-        pack.server('s1', server1, { labels: ['a', 'b'] });
+        var server = new Hapi.Server();
+        server.plugin({ labels: 'test' }).require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
 
-        pack.require('./pack/skip', function (err) {
-
-            expect(err).to.exist;
-            expect(err.message).to.equal('Incompatible hapi plugin version');
+            expect(err).to.not.exist;
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
             done();
+        });
+    });
+
+    it('requires plugin with views', function (done) {
+
+        var server = new Hapi.Server();
+        server.plugin().require({ './pack/--views': { message: 'viewing it' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/view' }, function (res) {
+
+                expect(res.result).to.equal('<h1>viewing it</h1>');
+
+                server.inject({ method: 'GET', url: '/file' }, function (res) {
+
+                    expect(res.readPayload()).to.equal('<h1>{{message}}</h1>');
+                    done();
+                });
+            });
         });
     });
 
@@ -200,7 +195,21 @@ describe('Pack', function () {
         var pack = new Hapi.Pack({ a: 1 });
         pack.server('s1', server1, { labels: ['a', 'b'] });
 
-        pack.require('./pack/none', function (err) {
+        pack.allow({}).require('./pack/none', function (err) {
+
+            expect(err).to.exist;
+            expect(err.message).to.contain('Cannot find module');
+            done();
+        });
+    });
+
+    it('fails to require missing module in default route', function (done) {
+
+        var server1 = new Hapi.Server();
+        var pack = new Hapi.Pack({ a: 1 });
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+
+        pack.require('none', function (err) {
 
             expect(err).to.exist;
             expect(err.message).to.contain('Cannot find module');
@@ -228,25 +237,27 @@ describe('Pack', function () {
             expect(server3._started).to.equal(true);
             expect(server4._started).to.equal(true);
 
-            pack.stop();
+            pack.stop(function () {
 
-            expect(server1._started).to.equal(false);
-            expect(server2._started).to.equal(false);
-            expect(server3._started).to.equal(false);
-            expect(server4._started).to.equal(false);
+                expect(server1._started).to.equal(false);
+                expect(server2._started).to.equal(false);
+                expect(server3._started).to.equal(false);
+                expect(server4._started).to.equal(false);
 
-            done();
+                done();
+            });
         });
     });
 
-    it('invalidates not a plugin', function (done) {
+    it('fails to register a bad plugin', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ name: 'test', version: '0.0.0', register: function (pack, options, next) { next(); } });
+        pack.register({ version: '0.0.0', register: function (pack, options, next) { next(); } }, function (err) {
 
-        expect(err).to.exist;
-        expect(err.message).to.equal('Not a hapi plugin');
-        done();
+            expect(err).to.exist;
+            expect(err.message).to.equal('Plugin missing name');
+            done();
+        });
     });
 
     it('invalidates missing name', function (done) {
@@ -301,7 +312,7 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        server.plugin().register(plugin, { permissions: { ext: true } }, function (err) {
+        server.plugin().allow({ ext: true }).register(plugin, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/b']);

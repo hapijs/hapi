@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+
+var Optimist = require('optimist');
+var Hapi = require('../');
+
+var argv = Optimist.usage('Usage: $0 -c config.json [-p node_modules_path]')
+                    .demand(['c'])
+                    .argv;
+
+var config = null;
+try {
+    config = require(argv.c[0] !== '/' ? process.cwd() + '/' + argv.c : argv.c);
+}
+catch (err) {
+    console.log('Failed loading configuration file: ' + argv.c + ' (' + err.message + ')');
+    process.exit(1);
+}
+
+var packOptions = {
+    requirePath: argv.p || null
+};
+
+var composer = new Hapi.Composer(config, packOptions);
+composer.compose(function (err) {
+
+    Hapi.utils.assert(!err, 'Failed loading plugins: ' + (err && err.message));
+    composer.start(function (err) {
+
+        Hapi.utils.assert(!err, 'Failed starting server: ' + (err && err.message));
+
+        process.on('SIGQUIT', function () {                                             // Use kill -s QUIT {pid} to kill the server gracefully
+
+            http.stop(function () {
+
+                process.exit();
+            });
+        });
+    });
+});
+
+
+
+

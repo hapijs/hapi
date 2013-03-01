@@ -1,8 +1,7 @@
 // Load modules
 
-var NodeUtil = require('util');
 var Events = require('events');
-var Hapi = process.env.TEST_COV ? require('../../lib-cov') : require('../../lib');
+var Hapi = require('../../lib');
 
 
 // Declare internals
@@ -20,7 +19,7 @@ internals.Logger = function () {
     return this;
 };
 
-NodeUtil.inherits(internals.Logger, Events.EventEmitter);
+Hapi.utils.inherits(internals.Logger, Events.EventEmitter);
 module.exports._TEST = internals.logger = new internals.Logger();
 
 

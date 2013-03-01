@@ -20,7 +20,7 @@ describe('Proxy', function () {
 
     before(startServer);
 
-    var _server = null;
+    var server = null;
 
     function startServer (done) {
 
@@ -52,13 +52,13 @@ describe('Proxy', function () {
             return callback(null, dummyServer.settings.uri + request.path, request.query);
         };
 
-        _server = new Hapi.Server('0.0.0.0', 0, config);
+        server = new Hapi.Server('0.0.0.0', 0, config);
 
         dummyServer.start(function () {
 
             var dummyPort = dummyServer.settings.port;
 
-            _server.route([
+            server.route([
                 { method: 'GET', path: '/profile', handler: { proxy: { host: '127.0.0.1', port: dummyPort, xforward: true, passThrough: true } } },
                 { method: 'GET', path: '/item', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
                 { method: 'GET', path: '/unauthorized', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
@@ -72,7 +72,7 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } }
             ]);
 
-            _server.start(function () {
+            server.start(function () {
 
                 done();
             });
@@ -115,12 +115,12 @@ describe('Proxy', function () {
 
     function unauthorized (request) {
 
-        request.reply(Hapi.Error.unauthorized('Not authorized'));
+        request.reply(Hapi.error.unauthorized('Not authorized'));
     }
 
     function postResponseWithError (request) {
 
-        request.reply(Hapi.Error.forbidden('Forbidden'));
+        request.reply(Hapi.error.forbidden('Forbidden'));
     }
 
     function postResponse (request, settings, response, payload) {
@@ -146,7 +146,7 @@ describe('Proxy', function () {
 
         Request({
             method: options.method,
-            url: _server.settings.uri + options.path,
+            url: server.settings.uri + options.path,
             form: options.form
         }, next);
     }
@@ -224,7 +224,7 @@ describe('Proxy', function () {
             callback(new Error());
         };
 
-        var route = _server._match('get', '/proxyerror');
+        var route = server._router.route({ method: 'get', path: '/proxyerror', raw: { req: { headers: {} } } });
         route.proxy.httpClient = requestStub;
 
         makeRequest({ path: '/proxyerror', method: 'get' }, function (rawRes) {
@@ -255,7 +255,7 @@ describe('Proxy', function () {
 
     it('works with a stream when the proxy response is streamed', function (done) {
 
-        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post(_server.settings.uri + '/file', function (err, rawRes, body) {
+        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post(server.settings.uri + '/file', function (err, rawRes, body) {
 
             expect(rawRes.statusCode).to.equal(200);
             done();
