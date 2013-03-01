@@ -4,7 +4,7 @@ var Crypto = require('crypto');
 var Chai = require('chai');
 var Oz = require('oz');
 var Hawk = require('hawk');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals

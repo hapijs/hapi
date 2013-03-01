@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Zlib = require('zlib');
 var Request = require('request');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals

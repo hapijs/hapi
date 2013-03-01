@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = require('../../helpers');
+var Hapi = require('../../..');
 var Views = require('../../../lib/views');
 
 

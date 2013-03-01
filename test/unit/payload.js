@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Shot = require('shot');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 var Payload = require('../../lib/payload');
 var Route = require('../../lib/route');
 
