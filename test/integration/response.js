@@ -1261,12 +1261,7 @@ describe('Response', function () {
 
                     setTimeout(function () {
 
-                        stream.emit('data', 'hi');
-                    }, 2);
-
-                    setTimeout(function () {
-
-                        request.raw.req.destroy();
+                        stream.emit('end', 'hi');
                     }, 5);
                 };
 
