@@ -7,7 +7,7 @@ var Http = require('http');
 var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals

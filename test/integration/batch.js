@@ -3,7 +3,7 @@
 var Chai = require('chai');
 var Sinon = require('sinon');
 var Async = require('async');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals

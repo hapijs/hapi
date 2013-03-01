@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Net = require('net');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals
