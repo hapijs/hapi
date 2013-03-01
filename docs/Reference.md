@@ -63,6 +63,7 @@
 - [**Server Helpers**](#server-helpers)
 <p></p>
 - [**Server Plugins**](#server-plugins)
+    - [CSRF Protection](#csrf-protection)
     - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
@@ -1704,6 +1705,19 @@ http.route({
 ```
 
 # Server Plugins
+
+## CSRF Protection
+
+In order to help mitigate CSRF threats there is a plugin for **hapi** called [crumb](https://npmjs.org/package/crumb) that can be installed.  Install **crumb** by either running `npm install crumb` in your sites working directory or add _'crumb'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
+The following plugin options are available for **crumb**
+- `name` - name of cookie to store crumb.  Default is 'crumb'.
+- `size` - number of characters to randomly generate for crumb value.  Default is '43'. 
+- `autoGenerate` - bool value to indicate if the crumb should be created automatically.  Default is 'true'.
+- `addToViewContext` - bool value to indicate if crumb is added to the context of a view before the context is bound (making it accessible in a template).  Default is 'true'.
+- `cookieOptions`
+    - `path` - cookie path to restrict access to crumb cookie.  Default is '/'.
+
 
 ## Documentation Generator
 
