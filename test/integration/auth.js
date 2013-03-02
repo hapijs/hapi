@@ -1351,7 +1351,7 @@ describe('Auth', function () {
                 expect(res.result).to.equal('valid');
                 var header = res.headers['Set-Cookie'];
                 expect(header.length).to.equal(1);
-                expect(header[0]).to.contain('Max-Age=60000');
+                expect(header[0]).to.contain('Max-Age=60');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
 
                 server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
@@ -1370,7 +1370,7 @@ describe('Auth', function () {
                 expect(res.result).to.equal('valid');
                 var header = res.headers['Set-Cookie'];
                 expect(header.length).to.equal(1);
-                expect(header[0]).to.contain('Max-Age=60000');
+                expect(header[0]).to.contain('Max-Age=60');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
 
                 server.inject({ method: 'GET', url: '/logout', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
@@ -1390,7 +1390,7 @@ describe('Auth', function () {
                 expect(res.result).to.equal('invalid');
                 var header = res.headers['Set-Cookie'];
                 expect(header.length).to.equal(1);
-                expect(header[0]).to.contain('Max-Age=60000');
+                expect(header[0]).to.contain('Max-Age=60');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
 
                 server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
