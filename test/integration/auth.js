@@ -713,9 +713,9 @@ describe('Auth', function () {
 
         it('returns a reply on successful auth and payload validation', function (done) {
 
-            var payload = 'Here is my payload';
-            var authHeader = Hawk.getAuthorizationHeader('http://0.0.0.0:8080/hawkPayload', 'POST', { credentials: credentials.john.cred, payload: payload });
-            var request = { method: 'POST', url: '/hawkPayload', headers: { authorization: authHeader, host: '0.0.0.0:8080' }, payload: payload };
+            var payload = 'application text formatted payload';
+            var authHeader = Hawk.getAuthorizationHeader('http://0.0.0.0:8080/hawkPayload', 'POST', { credentials: credentials.john.cred, payload: payload, contentType: 'application/text' });
+            var request = { method: 'POST', url: '/hawkPayload', headers: { authorization: authHeader, host: '0.0.0.0:8080', 'content-type': 'application/text' }, payload: payload };
 
             server.inject(request, function (res) {
 

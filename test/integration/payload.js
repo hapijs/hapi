@@ -383,6 +383,50 @@ describe('Payload', function () {
             req.end('{ "key": "value" }');
         });
 
+        it('returns an error on unsupported mime type', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/unknown',
+                    'Content-Length': '18'
+                }
+            };
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+
+            req.end('{ "key": "value" }');
+        });
+
+        it('returns 200 on text mime type', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                    'Content-Length': '18'
+                }
+            };
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+
+            req.end('{ "key": "value" }');
+        });
+
         it('returns a 400 status code when the request payload is streaming data with content-length being too small', function (done) {
 
             var s = new Stream();
