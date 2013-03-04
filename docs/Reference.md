@@ -15,7 +15,6 @@
     - [Authentication](#authentication)
     - [Cache](#cache)
     - [CORS](#cors)
-    - [Batch](#batch)
     - [State](#state)
     - [Timeout](#timeout)
 <p></p>
@@ -91,7 +90,6 @@ var server = new Hapi.Server();
 - [`authentication`](#authentication)
 - [`cache`](#cache)
 - [`cors`](#cors)
-- [`batch`](#batch)
 - [`state`](#state)
 
 
@@ -401,23 +399,6 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `methods` - overrides the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to _'GET, HEAD, POST, PUT, DELETE, OPTIONS'_.
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
 - `credentials` - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
-
-
-### Batch
-
-The batch endpoint makes it easy to combine requests into a single one.  It also supports pipelining so you are able to take the result of one of the endpoints in the batch request and use it in a subsequent endpoint.  The batch endpoint only responds to POST requests.
-By default the batch endpoint is turned _off_.  To enable the batch endpoint set the `batch` option to _true_ or to an object with the following custom configuration:
-- `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
-
-As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/{id}/profile/'.  You can make a POST request to the batch endpoint with the following body:
-`{ "requests": [ {"method": "get", "path": "/currentuser"}, {"method": "get", "path": "/users/$0.id/profile"} ] }` and it will return an array with the current user and their profile.
-
-The response body to the batch endpoint is an ordered array of the response to each request.  Therefore, if you make a request to the batch endpoint that looks like `{ "requests": [ {"method": "get", "path": "/users/1"}, {"method": "get", "path": "/users/2"} ] }` the response might look like:
-`[{"userId": "1", "username": "bob"}, {"userId": "2", "username": "billy" }]` where the first item in the response array is the result of the request from the first item in the request array.
-
-If an error occurs as a result of one the requests to an endpoint it will be included in the response in the same location in the array as the request causing the issue.  The error object will include an error property that you can interrogate.  At this time the response is a 200 even when a request in the batch returns a different code.
-
-*** At this time batch only supports requests to routes that use the GET method.
 
 
 ### State
@@ -1647,6 +1628,13 @@ http.route({
 ```
 
 # Server Plugins
+
+## Batch Requests
+
+There is a plugin for **hapi** called [bassmaster](https://npmjs.org/package/bassmaster) that can be installed to enable a batch endpoint for combining multiple requests into a single request.  Install **bassmaster** by either running `npm install bassmaster` in your sites working directory or add _'bassmaster'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
+The following plugin options are available for **bassmaster**
+- `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
 ## CSRF Protection
 
