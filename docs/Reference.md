@@ -707,6 +707,7 @@ Depending on the response type, additional chainable methods are available:
 - _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
 - _'state(name, value, options)'_ - sets an HTTP state (cookie) as described in [Raw Cookies](#raw-cookies)
 - _'unstate(name)'_ - instructs the client to remove the HTTP state.
+- _'header(name, value)'_ - sets a HTTP header with the provided value.
 
 The following methods are only available when using 'redirect()':
 - _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
