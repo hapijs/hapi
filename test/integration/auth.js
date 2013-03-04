@@ -462,8 +462,8 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
-                var envelope = JSON.parse(res.readPayload());
+                expect(res.payload).to.exist;
+                var envelope = JSON.parse(res.payload);
                 expect(envelope.app).to.equal('123');
                 done();
             });
