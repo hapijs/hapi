@@ -134,7 +134,7 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        server.plugin().register(plugin, function (err) {
+        server.plugin.register(plugin, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/a']);
@@ -150,8 +150,8 @@ describe('Pack', function () {
 
     it('requires multiple plugins using array', function (done) {
 
-        var server = new Hapi.Server();
-        server.plugin({ labels: 'test' }).require(['./pack/--test1', './pack/--test2'], function (err) {
+        var server = new Hapi.Server({ plugin: { labels: 'test' } });
+        server.plugin.require(['./pack/--test1', './pack/--test2'], function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
@@ -161,8 +161,8 @@ describe('Pack', function () {
 
     it('requires multiple plugins using object', function (done) {
 
-        var server = new Hapi.Server();
-        server.plugin({ labels: 'test' }).require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
+        var server = new Hapi.Server({ plugin: { labels: 'test' } });
+        server.plugin.require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
@@ -173,7 +173,7 @@ describe('Pack', function () {
     it('requires plugin with views', function (done) {
 
         var server = new Hapi.Server();
-        server.plugin().require({ './pack/--views': { message: 'viewing it' } }, function (err) {
+        server.plugin.require({ './pack/--views': { message: 'viewing it' } }, function (err) {
 
             expect(err).to.not.exist;
             server.inject({ method: 'GET', url: '/view' }, function (res) {
@@ -312,7 +312,7 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        server.plugin().allow({ ext: true }).register(plugin, function (err) {
+        server.plugin.allow({ ext: true }).register(plugin, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/b']);
