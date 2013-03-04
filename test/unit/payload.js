@@ -73,29 +73,6 @@ describe('Payload', function () {
             });
         });
 
-        it('passes an error to the callback whenever an unsupported mime type is read', function (done) {
-            var request = {
-                _timestamp: Date.now(),
-                method: 'post',
-                _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
-                raw: {
-                    req: {
-                        headers: {
-                            'content-type': 'blah'
-                        }
-                    }
-                }
-            };
-
-            request.route = request._route.settings;
-
-            Payload.read(request, function (err) {
-
-                expect(err).to.be.an.instanceOf(Error);
-                done();
-            });
-        });
-
         it('sets the request payload property whenever reading a json request', function (done) {
 
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ "item": "test" }', function (req, res) {
