@@ -150,7 +150,7 @@ describe('Pack', function () {
 
     it('requires multiple plugins using array', function (done) {
 
-        var server = new Hapi.Server({ plugin: { labels: 'test' } });
+        var server = new Hapi.Server({ pack: { labels: 'test' } });
         server.plugin.require(['./pack/--test1', './pack/--test2'], function (err) {
 
             expect(err).to.not.exist;
@@ -161,7 +161,7 @@ describe('Pack', function () {
 
     it('requires multiple plugins using object', function (done) {
 
-        var server = new Hapi.Server({ plugin: { labels: 'test' } });
+        var server = new Hapi.Server({ pack: { labels: 'test' } });
         server.plugin.require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
 
             expect(err).to.not.exist;
@@ -263,7 +263,7 @@ describe('Pack', function () {
     it('invalidates missing name', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ version: '0.0.0', hapi: { plugin: '1.x.x' }, register: function (pack, options, next) { next(); } });
+        var err = pack.validate({ version: '0.0.0', register: function (pack, options, next) { next(); } });
 
         expect(err).to.exist;
         expect(err.message).to.equal('Plugin missing name');
@@ -273,7 +273,7 @@ describe('Pack', function () {
     it('invalidates missing version', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ name: 'test', hapi: { plugin: '1.x.x' }, register: function (pack, options, next) { next(); } });
+        var err = pack.validate({ name: 'test', register: function (pack, options, next) { next(); } });
 
         expect(err).to.exist;
         expect(err.message).to.equal('Plugin missing version');
@@ -283,7 +283,7 @@ describe('Pack', function () {
     it('invalidates missing register method', function (done) {
 
         var pack = new Hapi.Pack({ a: 1 });
-        var err = pack.validate({ name: 'test', version: '0.0.0', hapi: { plugin: '1.x.x' } });
+        var err = pack.validate({ name: 'test', version: '0.0.0' });
 
         expect(err).to.exist;
         expect(err.message).to.equal('Plugin missing register() method');
@@ -295,9 +295,6 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '3.0.0',
-            hapi: {
-                plugin: '1.x.x'
-            },
             register: function (pack, options, next) {
 
                 pack.route({ method: 'GET', path: '/b', handler: function () { this.reply('b'); } });
