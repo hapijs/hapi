@@ -182,7 +182,7 @@ describe('Pack', function () {
 
                 server.inject({ method: 'GET', url: '/file' }, function (res) {
 
-                    expect(res.readPayload()).to.equal('<h1>{{message}}</h1>');
+                    expect(res.result).to.equal('<h1>{{message}}</h1>');
                     done();
                 });
             });

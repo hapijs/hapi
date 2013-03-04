@@ -90,7 +90,7 @@ describe('Request', function () {
 
         makeRequest('GET', '/custom', function (res) {
 
-            expect(res.headers['Content-Type']).to.equal('text/plain');
+            expect(res.headers['Content-Type']).to.equal('text/plain; charset=utf-8');
             done();
         });
     });
