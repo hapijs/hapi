@@ -47,7 +47,7 @@
     "blanket": "1.0.x",
     "travis-cov": "0.2.x",
     "complexity-report": "0.x.x",
-    "furball": "0.0.x"
+    "furball": "0.1.x"
   },
   "bin": {
     "hapi": "./bin/hapi"
