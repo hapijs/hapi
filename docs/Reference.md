@@ -12,11 +12,9 @@
     - [Extensions](#extensions)
     - [Static Files](#static-files)
     - [Views](#views)
-    - [Monitor](#monitor)
     - [Authentication](#authentication)
     - [Cache](#cache)
     - [CORS](#cors)
-    - [Batch](#batch)
     - [State](#state)
     - [Timeout](#timeout)
 <p></p>
@@ -54,7 +52,7 @@
 - [**State Management**](#state-management)
     - [Raw Cookies](#raw-cookies)
 <p></p>
-- [**General Events Logging**](#general-events-logging)
+- [**Server Logging**](#server-logging)
 <p></p>
 - [**Request Tails**](#request-tails)
 <p></p>
@@ -89,11 +87,9 @@ var server = new Hapi.Server();
 - [`router`](#router)
 - [`payload`](#payload)
 - [`files`](#files)
-- [`monitor`](#monitor)
 - [`authentication`](#authentication)
 - [`cache`](#cache)
 - [`cors`](#cors)
-- [`batch`](#batch)
 - [`state`](#state)
 
 
@@ -205,62 +201,6 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 - `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
 - `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
 - `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
-
-
-### Monitor
-
-**hapi** comes with a built-in process monitor for three types of events:
-- System and process performance (ops) - CPU, memory, disk, and other metrics.
-- Requests logging (request) - framework and application generated logs generated during the lifecycle of each incoming request.
-- General events (log) - logging information not bound to a specific request such as system errors, background processing, configuration errors, etc. Described in [General Events Logging](#general-events-logging).
-
-The monitor is _off_ by default and can be turned on using the `monitor` server option. To use the default settings, simply set the value to _true_.
-Applications with multiple server instances, each with its own monitor should only include one _log_ subscription per destination as general events (log)
-are a process-wide facility and will result in duplicated log events. To override some or all of the defaults, set `monitor` to an object with the following
-optional settings:
-- `broadcastInterval` - the interval in milliseconds to send collected events to subscribers. _0_ means send immediately. Defaults to _0_.
-- `opsInterval` - the interval in milliseconds to sample system and process performance metrics. Minimum is _100ms_. Defaults to _15 seconds_.
-- `extendedRequests` - determines if the full request log is sent or only the event summary. Defaults to _false_.
-- `requestsEvent` - the event type used to capture completed requests. Defaults to 'tail'. Options are:
-    - 'response' - the response was sent but request tails may still be pending.
-    - 'tail' - the response was sent and all request tails completed.
-- `subscribers` - an object where each key is a destination and each value is either an array or object with an array of subscriptions. The subscriptions that are available are _ops_, _request_, and _log_. The destination can be a URI or _console_. Defaults to a console subscription to all three. To disable the console output for the server instance pass an empty array into the subscribers "console" configuration. 
-
-For example:
-```javascript
-var options = {
-    monitor: {
-        subscribers: {
-            console: ['ops', 'request', 'log'],
-            'http://localhost/logs': ['log']
-        }
-    }
-};
-```
-
-Disabling hapi console output:
-```javascript
-var options = {
-    monitor: {
-        subscribers: {
-            console: [],
-            'http://localhost/logs': ['log']
-        }
-    }
-};
-```
-
-Log messages are created with tags.  Usually a log will include a tag to indicate if it is related to an error or info along with where the message originates.  If, for example, the console should only output error's that were logged you can use the following configuration:
-```javascript
-var options = {
-    monitor: {
-        subscribers: {
-            console: { tags: ['error'], events: ['log'] }
-        }
-    }
-};
-```
-
 
 
 ### Authentication
@@ -461,23 +401,6 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `credentials` - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
 
 
-### Batch
-
-The batch endpoint makes it easy to combine requests into a single one.  It also supports pipelining so you are able to take the result of one of the endpoints in the batch request and use it in a subsequent endpoint.  The batch endpoint only responds to POST requests.
-By default the batch endpoint is turned _off_.  To enable the batch endpoint set the `batch` option to _true_ or to an object with the following custom configuration:
-- `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
-
-As an example to help explain the use of the endpoint, assume that the server has a route at '/currentuser' and '/users/{id}/profile/'.  You can make a POST request to the batch endpoint with the following body:
-`{ "requests": [ {"method": "get", "path": "/currentuser"}, {"method": "get", "path": "/users/$0.id/profile"} ] }` and it will return an array with the current user and their profile.
-
-The response body to the batch endpoint is an ordered array of the response to each request.  Therefore, if you make a request to the batch endpoint that looks like `{ "requests": [ {"method": "get", "path": "/users/1"}, {"method": "get", "path": "/users/2"} ] }` the response might look like:
-`[{"userId": "1", "username": "bob"}, {"userId": "2", "username": "billy" }]` where the first item in the response array is the result of the request from the first item in the request array.
-
-If an error occurs as a result of one the requests to an endpoint it will be included in the response in the same location in the array as the request causing the issue.  The error object will include an error property that you can interrogate.  At this time the response is a 200 even when a request in the batch returns a different code.
-
-*** At this time batch only supports requests to routes that use the GET method.
-
-
 ### State
 
 HTTP state management (cookies) allows the server to store session information on the client which is sent back to the server with every
@@ -512,8 +435,10 @@ Defaults to 'null' which leaves the node default as-is. Below is an example of c
 ## Server Events
 
 The server object emits the following events:
-- _'response'_ - emitted after a response is sent back. Includes the request object as value.
-- _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails).
+- _'log'_ - [general server events](#server-logging).
+- _'request'_ - events generated by the [request logging method](#request-logging). Multiple events per request.
+- _'response'_ - emitted after a response is sent back. Includes the request object as value. Single event per request.
+- _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails). Single event per request.
 
 
 ## Server Route Not Found
@@ -782,6 +707,7 @@ Depending on the response type, additional chainable methods are available:
 - _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
 - _'state(name, value, options)'_ - sets an HTTP state (cookie) as described in [Raw Cookies](#raw-cookies)
 - _'unstate(name)'_ - instructs the client to remove the HTTP state.
+- _'header(name, value)'_ - sets a HTTP header with the provided value.
 
 The following methods are only available when using 'redirect()':
 - _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
@@ -929,23 +855,22 @@ The following example shows how to render a basic handlebars/mustache template:
 
 **index.js**
 ```javascript
-    
-    var http = new Hapi.Server('0.0.0.0', 8080, {
-        views: {
-            path: __dirname + '/templates'
-        }
-    });
+var http = new Hapi.Server('0.0.0.0', 8080, {
+    views: {
+        path: __dirname + '/templates'
+    }
+});
         
-    var handler = function (request) {
+var handler = function (request) {
 
-        request.reply.view('index', {
-            title: 'Views Example',
-            message: 'Hello, World'
-        }).send();
-    };
+    request.reply.view('index', {
+        title: 'Views Example',
+        message: 'Hello, World'
+    }).send();
+};
 
-    http.route({ method: 'GET', path: '/', handler: handler });
-    http.start();
+http.route({ method: 'GET', path: '/', handler: handler });
+http.start();
 ```
 
 An example template:
@@ -993,14 +918,14 @@ Full working examples covering features such as layouts and partials can be foun
 The route handler can be set to an object that points to a view file in order to make it easy to render a simple view.  The view context will have the payload, params, or querystring data that are available with the request.  For example, to render an _'about'_ page a route can be added as follows:
 
 ```javascript
-    var http = new Hapi.Server('0.0.0.0', 8080, {
-        views: {
-            path: __dirname + '/templates'
-        }
-    });
+var http = new Hapi.Server('0.0.0.0', 8080, {
+    views: {
+        path: __dirname + '/templates'
+    }
+});
 
-    http.route({ method: 'GET', path: '/{user}/about', handler: { view: 'about });
-    http.start();
+http.route({ method: 'GET', path: '/{user}/about', handler: { view: 'about });
+http.start();
 ```
 
 Then in the view there are properties for params, payload, and querystring.  Below is an example of rendering the _'user'_ that is passed in from the request path along with related values from the querystring.
@@ -1033,29 +958,28 @@ To use, set the Hapi view option `layout` to true and create a file `layout.html
 
 **layout.js**
 ```javascript
-
-    var options = {
-        views: {
-            path: __dirname + '/templates',
-            engine: {
-                module: 'handlebars',
-                extension: 'html'
-            },
-            layout: true
-        }
-    };
+var options = {
+    views: {
+        path: __dirname + '/templates',
+        engine: {
+            module: 'handlebars',
+            extension: 'html'
+        },
+        layout: true
+    }
+};
     
-    var handler = function (request) {
+var handler = function (request) {
 
-        request.reply.view('withLayout/index', {
-            title: 'examples/views/layout.js | Hapi ' + Hapi.utils.version(),
-            message: 'Hello World!\n'
-        }).send();
-    };
+    request.reply.view('withLayout/index', {
+        title: 'examples/views/layout.js | Hapi ' + Hapi.utils.version(),
+        message: 'Hello World!\n'
+    }).send();
+};
 
-    var server = new Hapi.Server(8080, options);
-    server.route({ method: 'GET', path: '/', handler: handler });
-    server.start();
+var server = new Hapi.Server(8080, options);
+server.route({ method: 'GET', path: '/', handler: handler });
+server.start();
 ```
 
 **templates/layout.html**
@@ -1106,30 +1030,29 @@ The View system also supports Partials. Partials are small segments of template 
 
 **partials.js**
 ```javascript
-
-    var options = {
-        views: {
-            path: __dirname + '/templates',
-            engine: {
-                module: 'handlebars'
-            },
-            partials: {
-                path: __dirname + '/templates/withPartials'
-            }
+var options = {
+    views: {
+        path: __dirname + '/templates',
+        engine: {
+            module: 'handlebars'
+        },
+        partials: {
+            path: __dirname + '/templates/withPartials'
         }
-    };
+    }
+};
     
-    var handler = function (request) {
+var handler = function (request) {
 
-        request.reply.view('withPartials/index', {
-            title: 'examples/views/partials.js | Hapi ' + Hapi.utils.version(),
-            message: 'Hello World!\n'
-        }).send();
-    };
+    request.reply.view('withPartials/index', {
+        title: 'examples/views/partials.js | Hapi ' + Hapi.utils.version(),
+        message: 'Hello World!\n'
+    }).send();
+};
 
-    var server = new Hapi.Server(3000, options);
-    server.route({ method: 'GET', path: '/', handler: handler });
-    server.start();
+var server = new Hapi.Server(3000, options);
+server.route({ method: 'GET', path: '/', handler: handler });
+server.start();
 ```
 
 **withPartials/index.html**
@@ -1204,40 +1127,42 @@ Multiple engine support is functional for most templating systems (particularly 
 
 Hapi distinguishes between the engines by checking which file extension has been configured by a particular templating engine.
 
-    var ctx = {
-        title: 'examples/views/mixed/basic.js | Hapi ' + Hapi.utils.version(),
-        message: 'Hello World!'
-    }
+```javascript
+var ctx = {
+    title: 'examples/views/mixed/basic.js | Hapi ' + Hapi.utils.version(),
+    message: 'Hello World!'
+}
     
-    var oneHandler = function (request) {
+var oneHandler = function (request) {
         
-        request.reply.view('index', ctx).send();
-    };
+    request.reply.view('index', ctx).send();
+};
     
-    var twoHandler = function (request) {
+var twoHandler = function (request) {
         
-        request.reply.view('handlebars', ctx).send();
-    };
+    request.reply.view('handlebars', ctx).send();
+};
     
-    var options = {
-        views: {
-            path: __dirname + '/templates',
-            engines: {
-                'html': { module: 'handlebars' },
-                'jade': { module: 'jade' }
-            }
+var options = {
+    views: {
+        path: __dirname + '/templates',
+        engines: {
+            'html': { module: 'handlebars' },
+            'jade': { module: 'jade' }
         }
-    };
+    }
+};
 
-    var server = new Hapi.Server(3000, options);
-    server.route({ method: 'GET', path: '/one', handler: oneHandler });
-    server.route({ method: 'GET', path: '/two', handler: twoHandler });
-    server.start();
+var server = new Hapi.Server(3000, options);
+server.route({ method: 'GET', path: '/one', handler: oneHandler });
+server.route({ method: 'GET', path: '/two', handler: twoHandler });
+server.start();
+```
 
 
 #### Request Logging
 
-In addition to the [General Events Logging](#general-events-logging) mechanism provided to log non-request-specific events, **hapi** provides
+In addition to the [Server Logging](#server-logging) mechanism provided to log non-request-specific events, **hapi** provides
 a logging interface for individual requests. By associating log events with the request responsible for them, it is easier to debug and understand
 the server's behavior. It also enables batching all the request log events and deliver them to the monitor as a single package.
 
@@ -1508,33 +1433,31 @@ If a cookie definition is found, the options are used for that cookie as default
 are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value.
 
 
-## General Events Logging
+## Server Logging
 
 Most of the server's events usually relate to a specific incoming request. However, there are sometimes event that do not have a specific request
-context. **hapi** provides a logging mechanism for general events using a singleton logger 'Hapi.Log' module. The logger provides the following methods:
-- _'event(tags, [data, timestamp])'_ - generates an event where:
+context. **hapi** provides a logging mechanism for general server events:
+- _'log(tags, [data, timestamp])'_ - emits a server log event where:
     - _'tags'_ - a single string or an array of strings (e.g. _['error', 'database', 'read']_) used to identify the event. Tags are used instead of log levels and provide a much more expressive mechanism for describing and filtering events.
     - _'data'_ - an optional message string or object with the application data being logged.
     - _'timestamp'_ - an optional timestamp override (if not present, the server will use current time), expressed in milliseconds since 1970 (_new Date().getTime()_).
-- _'print(event)'_ - outputs the given _'event'_ to the console.
-
-The logger is an event emitter. When an event is generated, the logger's _'log'_ event is emitted with the event object as value.
-If no listeners are registered, the event is printed to the console.
 
 For example:
 ```javascript
 var Hapi = require('hapi');
 
+// Create server
+var server = new Hapi.Server();
+
 // Listen to log events
-Hapi.Log.on('log', function (event) {
+server.on('log', function (event) {
 
     // Send to console
-    Hapi.Log.print(event);
+    Hoek.print(event);
 });
 
 // Generate event
-Hapi.Log.event(['test','info'], 'Test event');
-
+server.log(['test','info'], 'Test event');
 ```
 
 
@@ -1706,6 +1629,13 @@ http.route({
 ```
 
 # Server Plugins
+
+## Batch Requests
+
+There is a plugin for **hapi** called [bassmaster](https://npmjs.org/package/bassmaster) that can be installed to enable a batch endpoint for combining multiple requests into a single request.  Install **bassmaster** by either running `npm install bassmaster` in your sites working directory or add _'bassmaster'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
+
+The following plugin options are available for **bassmaster**
+- `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
 ## CSRF Protection
 

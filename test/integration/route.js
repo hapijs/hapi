@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Async = require('async');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
 
 

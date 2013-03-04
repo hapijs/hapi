@@ -4,7 +4,7 @@ var Chai = require('chai');
 var Fs = require('fs');
 var Stream = require('stream');
 var Request = require('request');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals
@@ -25,8 +25,9 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply.payload('text')
+                request.reply.payload('text\0!')
                              .type('text/plain')
+                             .encoding('ascii')
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
                              .state('other', 'something', { isSecure: true })
@@ -52,8 +53,8 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('text');
+                expect(res.payload).to.exist;
+                expect(res.payload).to.equal('text !');
                 expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com www.example.com');
                 expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
@@ -66,23 +67,6 @@ describe('Response', function () {
                     expect(res.headers['Access-Control-Allow-Origin']).to.equal('www.example.com');
                     done();
                 });
-            });
-        });
-
-        it('returns a text reply when sending a buffer', function (done) {
-
-            var handler = function () {
-
-                this.reply(new Buffer('Tada'));
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-            server.inject({ method: 'GET', url: '/' }, function (res) {
-
-                expect(res.result).to.equal('Tada');
-                done();
             });
         });
 
@@ -108,6 +92,25 @@ describe('Response', function () {
         });
     });
 
+    describe('Buffer', function () {
+
+        it('returns a reply', function (done) {
+
+            var handler = function () {
+
+                this.reply(new Buffer('Tada'));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('Tada');
+                done();
+            });
+        });
+    });
 
     describe('Obj', function () {
 
@@ -123,7 +126,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
 
-                expect(res.readPayload()).to.equal('me({"some":"value"});');
+                expect(res.payload).to.equal('me({"some":"value"});');
                 expect(res.headers['Content-Length']).to.equal(21);
                 done();
             });
@@ -190,7 +193,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result).to.not.exist;
+                expect(res.result).to.equal('');
                 expect(res.headers['Access-Control-Allow-Credentials']).to.equal('true');
                 done();
             });
@@ -200,7 +203,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/?x=1' }, function (res) {
 
-                expect(res.result).to.not.exist;
+                expect(res.result).to.equal('');
                 done();
             });
         });
@@ -234,7 +237,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
-                expect(res.readPayload()).to.equal('!hola amigos!');
+                expect(res.result).to.equal('!hola amigos!');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
@@ -266,7 +269,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
-                expect(res.readPayload()).to.equal('!hola amigos!');
+                expect(res.result).to.equal('!hola amigos!');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['access-control-allow-origin']).to.not.exist;
                 done();
@@ -293,7 +296,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(299);
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
-                expect(res.readPayload()).to.equal('');
+                expect(res.result).to.equal('');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
             });
@@ -325,7 +328,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
-                expect(res.readPayload()).to.equal('');
+                expect(res.result).to.equal('');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
@@ -360,7 +363,7 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(201);
                 expect(res.headers.location).to.equal(server.settings.uri + '/me');
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=abcdefg123456']);
-                expect(res.readPayload()).to.equal('!hola amigos!');
+                expect(res.result).to.equal('!hola amigos!');
                 expect(res.headers['cache-control']).to.equal('no-cache');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
@@ -391,7 +394,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);       // Too late to change at this point
                 expect(res.headers['Set-Cookie']).to.not.exist;
-                expect(res.readPayload()).to.equal('!hola amigos!');
+                expect(res.result).to.equal('!hola amigos!');
                 done();
             });
         });
@@ -596,7 +599,7 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/note' }, function (res1) {
 
                 expect(res1.statusCode).to.equal(200);
-                expect(res1.readPayload()).to.equal('Test');
+                expect(res1.result).to.equal('Test');
                 expect(res1.headers.etag).to.not.exist;
 
                 // No etag, previously requested
@@ -604,7 +607,7 @@ describe('Response', function () {
                 server.inject({ method: 'GET', url: '/note' }, function (res2) {
 
                     expect(res2.statusCode).to.equal(200);
-                    expect(res2.readPayload()).to.equal('Test');
+                    expect(res2.result).to.equal('Test');
                     expect(res2.headers.etag).to.exist;
 
                     var etag1 = res2.headers.etag;
@@ -624,7 +627,7 @@ describe('Response', function () {
                         server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag1 } }, function (res4) {
 
                             expect(res4.statusCode).to.equal(200);
-                            expect(res4.readPayload()).to.equal('Test');
+                            expect(res4.result).to.equal('Test');
                             expect(res4.headers.etag).to.not.exist;
 
                             // No etag, previously requested
@@ -632,7 +635,7 @@ describe('Response', function () {
                             server.inject({ method: 'GET', url: '/note' }, function (res5) {
 
                                 expect(res5.statusCode).to.equal(200);
-                                expect(res5.readPayload()).to.equal('Test');
+                                expect(res5.result).to.equal('Test');
                                 expect(res5.headers.etag).to.exist;
 
                                 var etag2 = res5.headers.etag;
@@ -647,7 +650,7 @@ describe('Response', function () {
                                 server.inject({ method: 'GET', url: '/note', headers: { 'if-none-match': etag2 } }, function (res6) {
 
                                     expect(res6.statusCode).to.equal(200);
-                                    expect(res6.readPayload()).to.equal('Test1');
+                                    expect(res6.result).to.equal('Test1');
                                     expect(res6.headers.etag).to.not.exist;
 
                                     // No etag, previously requested
@@ -655,7 +658,7 @@ describe('Response', function () {
                                     server.inject({ method: 'GET', url: '/note' }, function (res7) {
 
                                         expect(res7.statusCode).to.equal(200);
-                                        expect(res7.readPayload()).to.equal('Test1');
+                                        expect(res7.result).to.equal('Test1');
                                         expect(res7.headers.etag).to.exist;
 
                                         var etag3 = res7.headers.etag;
@@ -670,14 +673,14 @@ describe('Response', function () {
                                         server.inject({ method: 'GET', url: '/note' }, function (res8) {
 
                                             expect(res8.statusCode).to.equal(200);
-                                            expect(res8.readPayload()).to.equal('Test');
+                                            expect(res8.result).to.equal('Test');
 
                                             // No etag, previously requested
 
                                             server.inject({ method: 'GET', url: '/note' }, function (res9) {
 
                                                 expect(res9.statusCode).to.equal(200);
-                                                expect(res9.readPayload()).to.equal('Test');
+                                                expect(res9.result).to.equal('Test');
                                                 expect(res9.headers.etag).to.exist;
 
                                                 var etag4 = res9.headers.etag;
@@ -1212,7 +1215,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/stream/' }, function (res) {
 
-                expect(res.readPayload()).to.equal('x');
+                expect(res.result).to.equal('x');
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['Cache-Control']).to.equal('max-age=2, must-revalidate');
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
@@ -1286,7 +1289,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/stream3' }, function (res) {
 
-                expect(res.readPayload()).to.equal('x');
+                expect(res.result).to.equal('x');
                 expect(res.statusCode).to.equal(201);
                 expect(res.headers.Location).to.equal(server.settings.uri + '/special');
                 expect(res.headers['Cache-Control']).to.equal('no-cache');
@@ -1308,7 +1311,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/stream/error' }, function (res) {
 
-                expect(res.readPayload()).to.equal('');
+                expect(res.result).to.equal('');
                 done();
             });
         });
@@ -1317,7 +1320,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/stream/double' }, function (res) {
 
-                expect(res.readPayload()).to.equal('x');
+                expect(res.result).to.equal('x');
                 done();
             });
         });
@@ -1371,7 +1374,7 @@ describe('Response', function () {
 
                 server.inject({ method: 'GET', url: '/cache' }, function (res2) {
 
-                    expect(res2.readPayload()).to.equal('{"status":"cached"}');
+                    expect(res2.result).to.equal('{"status":"cached"}');
                     done();
                 });
             });
@@ -1935,7 +1938,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/null' }, function (res) {
 
-                expect(res.readPayload()).to.equal('0\r\n\r\n');
+                expect(res.result).to.equal('');
 
                 expect(function () {
 
@@ -1971,7 +1974,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.readPayload()).to.equal('Hello World');
+                expect(res.result).to.equal('Hello World');
                 done();
             });
         });

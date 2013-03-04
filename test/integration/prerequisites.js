@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals
@@ -59,7 +59,7 @@ describe('Prerequesites', function () {
         request.reply(request.pre.m1);
     };
 
-    var server = new Hapi.Server('0.0.0.0', 0, { batch: true });
+    var server = new Hapi.Server('0.0.0.0', 0);
 
     server.helper('user', function (id, next) {
 

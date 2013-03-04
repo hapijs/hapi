@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Iron = require('iron');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 var State = require('../../lib/state');
 var Defaults = require('../../lib/defaults');
 
@@ -196,7 +196,7 @@ describe('State', function () {
 
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
-                expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+                expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
                 done();
             });
         });
@@ -207,7 +207,7 @@ describe('State', function () {
 
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
-                expect(header[0]).to.equal('sid=; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+                expect(header[0]).to.equal('sid=; Max-Age=3; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
                 done();
             });
         });
@@ -219,7 +219,7 @@ describe('State', function () {
 
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
-                expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+                expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
                 done();
             });
         });
@@ -342,7 +342,7 @@ describe('State', function () {
 
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
-                expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3600; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+                expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
                 expect(header[1]).to.equal('pid=xyz');
                 done();
             });

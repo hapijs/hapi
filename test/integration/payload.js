@@ -7,7 +7,7 @@ var Http = require('http');
 var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 
 
 // Declare internals
@@ -377,6 +377,50 @@ describe('Payload', function () {
             var req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(400);
+                done();
+            });
+
+            req.end('{ "key": "value" }');
+        });
+
+        it('returns an error on unsupported mime type', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/unknown',
+                    'Content-Length': '18'
+                }
+            };
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+
+            req.end('{ "key": "value" }');
+        });
+
+        it('returns 200 on text mime type', function (done) {
+
+            var options = {
+                hostname: '127.0.0.1',
+                port: server.settings.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                    'Content-Length': '18'
+                }
+            };
+
+            var req = Http.request(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
                 done();
             });
 

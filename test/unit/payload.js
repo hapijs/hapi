@@ -2,7 +2,7 @@
 
 var Chai = require('chai');
 var Shot = require('shot');
-var Hapi = require('../helpers');
+var Hapi = require('../..');
 var Payload = require('../../lib/payload');
 var Route = require('../../lib/route');
 
@@ -69,29 +69,6 @@ describe('Payload', function () {
             Payload.read(request, function (result) {
 
                 expect(result).not.to.exist;
-                done();
-            });
-        });
-
-        it('passes an error to the callback whenever an unsupported mime type is read', function (done) {
-            var request = {
-                _timestamp: Date.now(),
-                method: 'post',
-                _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
-                raw: {
-                    req: {
-                        headers: {
-                            'content-type': 'blah'
-                        }
-                    }
-                }
-            };
-
-            request.route = request._route.settings;
-
-            Payload.read(request, function (err) {
-
-                expect(err).to.be.an.instanceOf(Error);
                 done();
             });
         });

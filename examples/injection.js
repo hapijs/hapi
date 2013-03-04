@@ -28,7 +28,7 @@ internals.main = function () {
 
     server.inject(req, function (res) {
 
-        console.log(res.result || res.readPayload());
+        console.log(res.result);
     });
 };
 
