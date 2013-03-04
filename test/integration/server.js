@@ -17,23 +17,23 @@ var expect = Chai.expect;
 
 describe('Server', function () {
 
-    var _server = new Hapi.Server(0);
+    var server = Hapi.createServer(0);
 
     it('won\t stop until all connections are closed', function (done) {
 
-        _server.start(function () {
+        server.start(function () {
 
             var socket1 = new Net.Socket();
             var socket2 = new Net.Socket();
 
-            socket1.connect(_server.settings.port, _server.settings.host, function () {
-                socket2.connect(_server.settings.port, _server.settings.host, function () {
+            socket1.connect(server.settings.port, server.settings.host, function () {
+                socket2.connect(server.settings.port, server.settings.host, function () {
 
-                    expect(_server.listener.connections).to.be.greaterThan(0);
+                    expect(server.listener.connections).to.be.greaterThan(0);
 
-                    _server.stop(function () {
+                    server.stop(function () {
 
-                        expect(_server.listener.connections).to.equal(0);
+                        expect(server.listener.connections).to.equal(0);
                         done();
                     });
 

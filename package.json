@@ -31,7 +31,7 @@
     "formidable": "1.0.x",
     "mime": "1.2.x",
     "catbox": "0.1.x",
-    "json-stringify-safe": "~3.0.0",
+    "json-stringify-safe": "3.0.x",
     "cryptiles": "0.1.x",
     "iron": "0.2.x",
     "lru-cache": "2.2.x",
