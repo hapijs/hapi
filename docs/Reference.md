@@ -440,6 +440,41 @@ The server object emits the following events:
 - _'response'_ - emitted after a response is sent back. Includes the request object as value. Single event per request.
 - _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails). Single event per request.
 
+When provided, event objects include:
+- `timestamp` - the event timestamp
+- `id` - if the event relates to a request, the request id
+- `tags` - an array of tags (e.g. 'error', 'http')
+- `data` - optional event-specific data
+
+The _'log'_ event includes the event object and a tags object (where each tag is a key with the value `true`):
+```javascript
+server.on('log', function (event, tags) {
+
+    if (tags.error) {
+        console.log('Server error: ' + event.data);
+    }
+});
+```
+
+The _'request'_ event includes the request object, the event object, and a tags object (where each tag is a key with the value `true`):
+```javascript
+server.on('request', function (request, event, tags) {
+
+    if (tags.received) {
+        console.log('New request: ' + event.id);
+    }
+});
+```
+```
+
+The _'response'_ and _'tail'_ events includes the request object:
+```javascript
+server.on('response', function (request) {
+
+    console.log('Response sent for request: ' + request.id);
+});
+```
+
 
 ## Server Route Not Found
 
