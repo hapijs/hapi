@@ -413,10 +413,10 @@ server's `state.cookies` configuration, where:
 Please note that when using the _'log'_ fail action that the server will emit a _'request'_ event that has a request and event object being passed to any event handler.  For example, the following demonstrates how to check for errors from cookie parsing:
 
 ```javascript
-server.on('request', function (request, event) {
+server.on('request', function (request, event, tags) {
     
-   if (event.tags.indexOf('error') !== -1 && event.tags.indexOf('state') !== -1) {
-       // the event is for a request with that had an error with the cookie
+   if (tags.error && tags.state) {
+       // cookie parsing error
    } 
 });
 ```
