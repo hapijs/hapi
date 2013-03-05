@@ -61,6 +61,7 @@
 - [**Server Helpers**](#server-helpers)
 <p></p>
 - [**Server Plugins**](#server-plugins)
+    - [Batch Requests](#batch-requests)
     - [CSRF Protection](#csrf-protection)
     - [Documentation Generator](#documentation-generator)
 
@@ -408,6 +409,17 @@ request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). **hapi*
 server's `state.cookies` configuration, where:
 - `parse` - determines is incoming 'Cookie' headers are parsed and stored in the 'request.cookies' object. Defaults to true.
 - _'failAction'_ - allowed values are: _'error'_ (return 500), _'log'_ (report error but continue), or _'ignore'_ (continue) when a request cookie fails parsing. Defaults to _'error'_.
+
+Please note that when using the _'log'_ fail action that the server will emit a _'request'_ event that has a request and event object being passed to any event handler.  For example, the following demonstrates how to check for errors from cookie parsing:
+
+```javascript
+server.on('request', function (request, event) {
+    
+   if (event.tags.indexOf('error') !== -1 && event.tags.indexOf('state') !== -1) {
+       // the event is for a request with that had an error with the cookie
+   } 
+});
+```
 
 
 ### Timeout
