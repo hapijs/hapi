@@ -39,7 +39,7 @@ Next create an _'index.js'_ file and add the following contents to it:
 var Hapi = require('hapi');
 
 // Create a server with a host and port
-var server = new Hapi.Server('localhost', 8000);
+var server = Hapi.createServer('localhost', 8000);
 
 // Define the route
 var hello = {
@@ -97,20 +97,20 @@ The **hapi** route handler can be used to easily serve files, directories, rende
 ```javascript
 server.route({
     method: 'GET',
-  path: '/{path*}',
-  handler: {
-    directory: { path: './public', listing: false, index: true }
-  }
+    path: '/{path*}',
+    handler: {
+        directory: { path: './public', listing: false, index: true }
+    }
 });
 ```
 
 Create a folder named _'public'_ and add a _'index.html'_ file in the folder with the following contents:
 ```html
 <html>
-      <head><title>Hello Static</title></head>
-  <body>
-    Hello Static
-  </body>
+    <head><title>Hello Static</title></head>
+    <body>
+        Hello Static
+    </body>
 </html>
 ```
 
@@ -127,10 +127,10 @@ npm install handlebars
 Next create a directory named _'templates'_ that will contain the template files.  In this directory create a _'index.html'_ with the following contents:
 ```html
 <html>
-  <head><title>{{greeting}}</title></head>
-  <body>
-    {{greeting}}
-  </body>
+    <head><title>{{greeting}}</title></head>
+    <body>
+        {{greeting}}
+    </body>
 </html>
 ```
 
@@ -148,7 +148,7 @@ var options = {
 };
 
 // Create a server with a host, port, and options
-var server = new Hapi.Server('localhost', 8000, options);
+var server = Hapi.createServer('localhost', 8000, options);
 
 // Define the route
 var hello = {
