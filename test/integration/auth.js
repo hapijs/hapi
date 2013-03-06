@@ -4,6 +4,7 @@ var Crypto = require('crypto');
 var Chai = require('chai');
 var Oz = require('oz');
 var Hawk = require('hawk');
+var Stream = require('stream');
 var Hapi = require('../..');
 
 
@@ -591,11 +592,38 @@ describe('Auth', function () {
 
         var hawkHandler = function (request) {
 
-            request.reply('Success');
+            request.reply.payload('Success').send();
+        };
+
+        var hawkErrorHandler = function (request) {
+
+            request.reply.payload(new Error()).send();
+        };
+
+        var hawkStreamHandler = function (request) {
+
+            var stream = new Stream();
+            stream.readable = true;
+            stream.resume = function () {
+
+                setTimeout(function () {
+
+                    stream.emit('data', 'hi');
+                }, 2);
+
+                setTimeout(function () {
+
+                    stream.emit('end', 'hi');
+                }, 5);
+            };
+
+            request.reply.stream(stream).send();
         };
 
         server.route([
             { method: 'POST', path: '/hawk', handler: hawkHandler },
+            { method: 'POST', path: '/hawkError', handler: hawkErrorHandler },
+            { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/hawkScope', handler: hawkHandler, config: { auth: { scope: 'x' } } },
             { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: 200 } } },
@@ -612,7 +640,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('Success');
                 done();
             });
@@ -624,8 +652,43 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
                 expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('includes authorization header in response when the response is a stream', function (done) {
+
+            var request = { method: 'POST', url: '/hawkStream', headers: { authorization: hawkHeader('john', '/hawkStream'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.raw.res._trailer).to.contain('Hawk');
+                done();
+            });
+        });
+
+        it('includes authorization header in response when the response is text', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.headers.Authorization).to.contain('Hawk');
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('doesn\'t include authorization header in response when the response is an error', function (done) {
+
+            var request = { method: 'POST', url: '/hawkError', headers: { authorization: hawkHeader('john', '/hawkError'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.headers.Authorization).to.not.exist;
                 done();
             });
         });
