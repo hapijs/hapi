@@ -55,7 +55,7 @@ describe('Composer', function () {
 
                 composer.packs[0].servers[0].inject({ method: 'GET', url: '/' }, function (res) {
 
-                    expect(res.result).to.deep.equal([{ "name": "furball", "version": "0.1.0" }]);
+                    expect(res.result[0].name).to.equal('furball');
                     done();
                 });
             });

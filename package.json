@@ -8,7 +8,7 @@
     "Van Nguyen <the.gol.effect@gmail.com>",
     "Wyatt Preul <wpreul@gmail.com>"
   ],
-  "repository": "git://github.com/walmartlabs/hapi",
+  "repository": "git://github.com/spumko/hapi",
   "main": "index",
   "keywords": [
     "framework",
@@ -60,7 +60,7 @@
   "licenses": [
     {
       "type": "BSD",
-      "url": "http://github.com/walmartlabs/hapi/raw/master/LICENSE"
+      "url": "http://github.com/spumko/hapi/raw/master/LICENSE"
     }
   ]
 }

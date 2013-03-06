@@ -1,5 +1,5 @@
-<a href="https://github.com/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
-<a href="http://hapijs.com"><img src="https://raw.github.com/walmartlabs/hapi/master/images/hapi.png" /></a>
+<a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
+<img src="https://raw.github.com/spumko/hapi/master/images/hapi.png" />
 
 A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
 authentication requirements, input validation, data caching and pre-fetching, developer documentation,
@@ -11,12 +11,12 @@ For the latest updates and release information follow [@hapijs](https://twitter.
 
 Current version: **0.15.0**
 
-[![Build Status](https://secure.travis-ci.org/walmartlabs/hapi.png)](http://travis-ci.org/walmartlabs/hapi)
+[![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
 <img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
 
 ### [API Reference](/docs/Reference.md)
 
-### [Breaking Changes](https://github.com/walmartlabs/hapi/issues?labels=breaking+changes&state=closed)
+### [Breaking Changes](https://github.com/spumko/hapi/issues?labels=breaking+changes&state=closed)
 
 ## Getting started
 
@@ -176,4 +176,4 @@ When you run the server with `node .` and view the homepage you will see the cus
 
 For discussion about hapi join the [#hapi channel](http://webchat.freenode.net/?channels=hapi) on irc.freenode.net.
 
-### [Contributors](https://github.com/walmartlabs/hapi/contributors)
+### [Contributors](https://github.com/spumko/hapi/contributors)
