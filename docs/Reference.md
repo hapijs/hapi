@@ -13,6 +13,11 @@
     - [Static Files](#static-files)
     - [Views](#views)
     - [Authentication](#authentication)
+        - [Basic Authentication](#basic-authentication)
+        - [Cookie Authentication](#cookie-authentication)
+        - [Hawk Authentication](#hawk-authentication)
+        - [Hawk Bewit Authentication](#hawk-bewit-authentication)
+        - [Multiple Authentication Strategies](#multiple-authentication-strategies)
     - [Cache](#cache)
     - [CORS](#cors)
     - [State](#state)
@@ -249,6 +254,41 @@ var hashPassword = function (password, user) {
 
     return hash.digest('base64');
 }
+```
+
+#### Cookie Authentication
+
+***hapi*** has built-in support for cookie authentication.  Cookie authentication can be enabled with the _'cookie'_ scheme.  Below are the options available in a strategy that is using the _'cookie'_ scheme.
+
+- `scheme` - 'cookie'
+- `password` - used for deriving a key using PBKDF2
+- `ttl` - sets the cookie expires time in milliseconds
+- `cookie` - name of cookie used to save state
+- `clearInvalid` - when _'true'_ any authentication cookie that fails to authenticate will be marked as expired on the response
+- `validateFunc` - function that has the signature _'(session, callback)'_ and determines if the session passes authentication.  The callback function has the following signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
+
+Below is an example of configuring a server to use cookie authentication.
+
+```javascript
+var Hapi = require('hapi');
+
+var validateCookie = function (session, callback) {
+    
+    return callback(session.user === 'valid' ? null : new Error('bad user'), null);
+};
+
+var config = {
+    auth: {
+        scheme: 'cookie',
+        password: 'secret',
+        ttl: 60 * 1000,                 // Expire after a minute
+        cookie: 'membership',           // Cookie name
+        clearInvalid: true,
+        validateFunc: validateCookie
+    }
+};
+
+var server = new Hapi.Server(config);
 ```
 
 #### Hawk Authentication
