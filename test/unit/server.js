@@ -434,18 +434,21 @@ describe('Server', function () {
             it('returns a valid result when calling a helper using the cache', function (done) {
 
                 var server = new Hapi.Server('0.0.0.0', 0, { cache: 'memory' });
-                var gen = 0;
-                server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
-                var id = Math.random();
-                server.helpers.user(id, function (result1) {
+                server.start(function() {
 
-                    expect(result1.id).to.equal(id);
-                    expect(result1.gen).to.equal(1);
-                    server.helpers.user(id, function (result2) {
+                    var gen = 0;
+                    server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+                    var id = Math.random();
+                    server.helpers.user(id, function (result1) {
 
-                        expect(result2.id).to.equal(id);
-                        expect(result2.gen).to.equal(1);
-                        done();
+                        expect(result1.id).to.equal(id);
+                        expect(result1.gen).to.equal(1);
+                        server.helpers.user(id, function (result2) {
+
+                            expect(result2.id).to.equal(id);
+                            expect(result2.gen).to.equal(1);
+                            done();
+                        });
                     });
                 });
             });

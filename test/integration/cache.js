@@ -89,7 +89,7 @@ describe('Cache', function () {
             { method: 'GET', path: '/serverclient', config: { handler: profileHandler, cache: { mode: 'server+client', expiresIn: 120000 } } }
         ]);
 
-        done();
+        _server.start(done);
     }
 
     var makeRequest = function (path, callback) {
