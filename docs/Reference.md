@@ -1302,7 +1302,11 @@ Whenever a route needs to respond with a simple 404 message use the _'notFound'_
 
 To override the default authentication settings for a route use the _'auth'_ object on a routes configuration.  Below are the available options for the _'auth'_ configuration on a route.
 
-- `mode` - determines if a route requires authentication.  Options are _none_, _optional_, and _required_ (defaults to _required_ when the server has authentication configured and _none_ when it doesn't).
+- `mode` - determines if a route requires authentication.  Options are _none_, _optional_, _try_, and _required_ (defaults to _required_ when the server has authentication configured and _none_ when it doesn't).
+    - `none` - authentication is not attempted
+    - `optional` - authentication is attempted when the client tries to authenticate.  If authentication fails then an error will be returned to the client.  If the client doesn't try to authenticate then the resource is served without a session being set.
+    - `try` - authentication is attempted when the client tries to authenticate.  If authentication fails then the reason is included on the session object but the resource is still served.
+    - `required` - the client must be authenticated for the resource to be served, otherwise an error is returned.
 - `strategy` - the authentication strategy to use, will use the default strategy if not set.
 - `strategies` - an array in priority order of what authentication strategies the route supports.
 - `scope` - required session scope in order to access the endpoint.
@@ -1316,6 +1320,8 @@ When multiple authentication strategies are configured on the server individual 
 ```
 
 If a route doesn't specify the strategy or strategies to use then the servers _'default'_ strategy will be used.  When a single strategy is configured on the server then it will be given the strategy name _'default'_ and will be used by any route that supports authentication.
+
+In a route handler the request object has an _'isAuthenticated'_ property that indicates whether or not the request has been authenticated.
 
 ### Query Validation
 
