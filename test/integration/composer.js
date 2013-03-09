@@ -22,7 +22,7 @@ describe('Composer', function () {
             servers: {
                 ren: {
                     port: 0,
-                    labels: ['api', 'nasty'],
+                    labels: ['api', 'nasty', 'test'],
                     config: {
                         cache: 'memory'
                     }
@@ -34,10 +34,7 @@ describe('Composer', function () {
                 }
             },
             plugins: {
-                furball: {
-                    version: false,
-                    plugins: '/'
-                }
+                '../test/integration/pack/--test1': { }
             },
             permissions: {
                 ext: true
@@ -53,9 +50,9 @@ describe('Composer', function () {
                 expect(err).to.not.exist;
                 composer.stop();
 
-                composer.packs[0].servers[0].inject({ method: 'GET', url: '/' }, function (res) {
+                composer.packs[0].servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
 
-                    expect(res.result[0].name).to.equal('furball');
+                    expect(res.result).to.equal('testing123');
                     done();
                 });
             });

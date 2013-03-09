@@ -22,7 +22,7 @@
   "dependencies": {
     "hoek": "0.6.x",
     "boom": "0.3.x",
-    "joi": "0.1.x",
+    "joi": "0.2.x",
     "hawk": "0.10.x",
     "shot": "0.1.x",
     "oz": "0.1.x",
@@ -30,7 +30,7 @@
     "request": "2.14.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
-    "catbox": "0.1.x",
+    "catbox": "0.2.x",
     "json-stringify-safe": "3.0.x",
     "cryptiles": "0.1.x",
     "iron": "0.2.x",
@@ -46,8 +46,7 @@
     "jade": "0.28.x",
     "blanket": "1.0.x",
     "travis-cov": "0.2.x",
-    "complexity-report": "0.x.x",
-    "furball": "0.1.x"
+    "complexity-report": "0.x.x"
   },
   "bin": {
     "hapi": "./bin/hapi"
