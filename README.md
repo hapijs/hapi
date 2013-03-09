@@ -9,7 +9,7 @@ with everything else.
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **0.15.0**
+Current version: **0.15.1**
 
 [![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
 <img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
