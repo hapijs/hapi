@@ -39,13 +39,9 @@
     "negotiator": "0.2.x"
   },
   "devDependencies": {
-    "mocha": "1.x.x",
-    "chai": "1.x.x",
-    "sinon": "1.x.x",
+    "lab": "0.0.x",
     "handlebars": "1.0.x",
     "jade": "0.28.x",
-    "blanket": "1.0.x",
-    "travis-cov": "0.2.x",
     "complexity-report": "0.x.x"
   },
   "bin": {
@@ -53,7 +49,7 @@
   },
   "scripts": {
     "test": "make test && make test-cov",
-    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/helpers\/)(?!\/test\/unit\/)(?!\/test\/integration\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } },
+    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/unit\/)(?!\/test\/integration\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } },
     "travis-cov": { "threshold": 100 }
   },
   "licenses": [
