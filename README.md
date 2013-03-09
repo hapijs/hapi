@@ -14,6 +14,7 @@ Current version: **0.15.0**
 [![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
 <img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
 
+
 ### [API Reference](/docs/Reference.md)
 
 ### [Breaking Changes](https://github.com/spumko/hapi/issues?labels=breaking+changes&state=closed)
