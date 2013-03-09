@@ -1364,18 +1364,21 @@ describe('Response', function () {
                 request.reply({ status: 'cached' });
             };
 
-            var server = new Hapi.Server({ cache: { engine: 'memory' } });
+            var server = new Hapi.Server(0, { cache: { engine: 'memory' } });
             server.route({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } });
 
-            server.inject({ method: 'GET', url: '/cache' }, function (res1) {
+            server.start(function () {
 
-                expect(res1.result).to.exist;
-                expect(res1.result.status).to.equal('cached');
+                server.inject({ method: 'GET', url: '/cache' }, function (res1) {
 
-                server.inject({ method: 'GET', url: '/cache' }, function (res2) {
+                    expect(res1.result).to.exist;
+                    expect(res1.result.status).to.equal('cached');
 
-                    expect(res2.result).to.equal('{"status":"cached"}');
-                    done();
+                    server.inject({ method: 'GET', url: '/cache' }, function (res2) {
+
+                        expect(res2.result).to.equal('{"status":"cached"}');
+                        done();
+                    });
                 });
             });
         });
