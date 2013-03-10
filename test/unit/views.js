@@ -1,6 +1,6 @@
 // Load modules
 
-var Chai = require('chai');
+var Lab = require('lab');
 var Hapi = require('../..');
 var Views = require('../../lib/views');
 
@@ -12,7 +12,11 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Views', function () {
@@ -30,7 +34,7 @@ describe('Views', function () {
             path: viewsPath,
             layout: true
         });
-        
+
         it('should work and not throw with valid (no layouts)', function (done) {
 
             var fn = (function () {
@@ -117,7 +121,7 @@ describe('Views', function () {
             expect(fn).to.not.throw();
             done();
         });
-        
+
         it('should load partials and render them EVEN if viewsPath has trailing slash', function (done) {
 
             var fn = (function () {
@@ -137,7 +141,7 @@ describe('Views', function () {
             expect(fn).to.not.throw();
             done();
         });
-        
+
         it('should skip loading partial if engine does not have registerPartial method', function (done) {
 
             var fn = (function () {
@@ -164,17 +168,14 @@ describe('Views', function () {
 
     describe('#handler', function () {
 
-        before(function () {
+        var options = {
+            views: {
+                path: viewsPath
+            }
+        };
 
-            var options = {
-                views: {
-                    path: viewsPath
-                }
-            };
-
-            internals._handlerServer = new Hapi.Server(options);
-            internals._handlerServer.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
-        });
+        internals._handlerServer = new Hapi.Server(options);
+        internals._handlerServer.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
 
         it('handles routes to views', function (done) {
 

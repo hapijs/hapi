@@ -1,6 +1,6 @@
 // Load modules
 
-var Chai = require('chai');
+var Lab = require('lab');
 var Async = require('async');
 var Hapi = require('../..');
 var Route = process.env.TEST_COV ? require('../../lib-cov/route') : require('../../lib/route');
@@ -13,7 +13,11 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Route', function () {

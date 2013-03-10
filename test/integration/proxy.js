@@ -1,6 +1,6 @@
 // Load modules
 
-var Chai = require('chai');
+var Lab = require('lab');
 var Fs = require('fs');
 var Request = require('request');
 var Hapi = require('../..');
@@ -13,31 +13,77 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Proxy', function () {
 
-    before(startServer);
-
     var server = null;
 
-    function startServer (done) {
+    before(function (done) {
 
-        var routeCache = {
-            expiresIn: 500
-        };
+        // Define backend handlers
 
-        var config = {
-            cache: {
-                engine: 'memory',
-                host: '127.0.0.1',
-                port: 6379
-            }
-        };
+        var mapUriWithError = function (request, callback) {
 
-        var dummyServer = new Hapi.Server('0.0.0.0', 0);
-        dummyServer.route([
+            return callback(new Error('myerror'));
+        }
+
+        var profile = function () {
+
+            this.reply({
+                'id': 'fa0dbda9b1b',
+                'name': 'John Doe'
+            });
+        }
+
+        var activeItem = function () {
+
+            this.reply({
+                'id': '55cf687663',
+                'name': 'Active Item'
+            });
+        }
+
+        var item = function () {
+
+            this.reply.payload({
+                'id': '55cf687663',
+                'name': 'Item'
+            }).created('http://google.com').send();
+        }
+
+        var echoPostBody = function () {
+
+            this.reply(this.payload);
+        }
+
+        var unauthorized = function () {
+
+            this.reply(Hapi.error.unauthorized('Not authorized'));
+        }
+
+        var postResponseWithError = function (request) {
+
+            request.reply(Hapi.error.forbidden('Forbidden'));
+        }
+
+        var postResponse = function (request, settings, response, payload) {
+
+            request.reply.payload(payload).type(response.headers['content-type']).send();
+        }
+
+        var streamHandler = function () {
+
+            this.reply('success');
+        }
+
+        var backendServer = new Hapi.Server(0);
+        backendServer.route([
             { method: 'GET', path: '/profile', handler: profile },
             { method: 'GET', path: '/item', handler: activeItem },
             { method: 'GET', path: '/proxyerror', handler: activeItem },
@@ -49,26 +95,26 @@ describe('Proxy', function () {
 
         var mapUri = function (request, callback) {
 
-            return callback(null, dummyServer.settings.uri + request.path, request.query);
+            return callback(null, backendServer.settings.uri + request.path + (request.url.search || ''));
         };
 
-        server = new Hapi.Server('0.0.0.0', 0, config);
+        backendServer.start(function () {
 
-        dummyServer.start(function () {
+            var backendPort = backendServer.settings.port;
+            var routeCache = { expiresIn: 500 };
 
-            var dummyPort = dummyServer.settings.port;
-
+            server = new Hapi.Server(0, { cache: { engine: 'memory' } });
             server.route([
-                { method: 'GET', path: '/profile', handler: { proxy: { host: '127.0.0.1', port: dummyPort, xforward: true, passThrough: true } } },
-                { method: 'GET', path: '/item', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
-                { method: 'GET', path: '/unauthorized', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
-                { method: 'POST', path: '/item', handler: { proxy: { host: '127.0.0.1', port: dummyPort } } },
-                { method: 'POST', path: '/notfound', handler: { proxy: { host: '127.0.0.1', port: dummyPort } } },
-                { method: 'GET', path: '/proxyerror', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
-                { method: 'GET', path: '/postResponseError', handler: { proxy: { host: '127.0.0.1', port: dummyPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
-                { method: 'GET', path: '/errorResponse', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
+                { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/unauthorized', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                { method: 'POST', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } } },
+                { method: 'POST', path: '/notfound', handler: { proxy: { host: 'localhost', port: backendPort } } },
+                { method: 'GET', path: '/proxyerror', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/postResponseError', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/errorResponse', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
                 { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
-                { method: 'POST', path: '/file', handler: { proxy: { host: '127.0.0.1', port: dummyPort } }, config: { payload: 'stream' } },
+                { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: 'stream' } },
                 { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } }
             ]);
 
@@ -77,61 +123,7 @@ describe('Proxy', function () {
                 done();
             });
         });
-    }
-
-    function mapUriWithError (request, callback) {
-
-        return callback(new Error('myerror'));
-    }
-
-    function profile (request) {
-
-        request.reply({
-            'id': 'fa0dbda9b1b',
-            'name': 'John Doe'
-        });
-    }
-
-    function activeItem (request) {
-
-        request.reply({
-            'id': '55cf687663',
-            'name': 'Active Item'
-        });
-    }
-
-    function item (request) {
-
-        request.reply.payload({
-            'id': '55cf687663',
-            'name': 'Item'
-        }).created('http://google.com').send();
-    }
-
-    function echoPostBody (request) {
-
-        request.reply(request.payload);
-    }
-
-    function unauthorized (request) {
-
-        request.reply(Hapi.error.unauthorized('Not authorized'));
-    }
-
-    function postResponseWithError (request) {
-
-        request.reply(Hapi.error.forbidden('Forbidden'));
-    }
-
-    function postResponse (request, settings, response, payload) {
-
-        request.reply.payload(payload).type(response.headers['content-type']).send();
-    }
-
-    function streamHandler (request) {
-
-        request.reply('success');
-    }
+    });
 
     function makeRequest (options, callback) {
 

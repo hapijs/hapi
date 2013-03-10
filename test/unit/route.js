@@ -1,6 +1,6 @@
 // Load modules
 
-var Chai = require('chai');
+var Lab = require('lab');
 var Hapi = require('../..');
 var Route = require('../../lib/route');
 var Defaults = require('../../lib/defaults');
@@ -13,7 +13,11 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Route', function () {
