@@ -1,7 +1,7 @@
 // Load modules
 
+var Lab = require('lab');
 var Https = require('https');
-var Chai = require('chai');
 var Hapi = require('../..');
 
 
@@ -12,7 +12,11 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Server', function () {

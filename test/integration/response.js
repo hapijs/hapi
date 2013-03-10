@@ -1,6 +1,6 @@
 // Load modules
 
-var Chai = require('chai');
+var Lab = require('lab');
 var Fs = require('fs');
 var Stream = require('stream');
 var Request = require('request');
@@ -14,7 +14,11 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Response', function () {
@@ -700,7 +704,7 @@ describe('Response', function () {
 
         it('returns a 304 when the request has if-modified-since and the response hasn\'t been modified since', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server(0);
             var handler = function (request) {
 
                 request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
@@ -710,7 +714,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri, function (err, res1) {
+                Request.get({ url: server.settings.uri + '/file' }, function (err, res1) {
 
                     var headers = {
                         'if-modified-since': res1.headers.date
