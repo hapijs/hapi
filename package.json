@@ -49,8 +49,7 @@
   },
   "scripts": {
     "test": "make test && make test-cov",
-    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/unit\/)(?!\/test\/integration\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } },
-    "travis-cov": { "threshold": 100 }
+    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } }
   },
   "licenses": [
     {

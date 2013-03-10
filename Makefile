@@ -1,14 +1,11 @@
 test:
-	@NODE_ENV=test ./node_modules/.bin/lab
-
-test-cov:
-	@NODE_ENV=test ./node_modules/.bin/lab -c -r coverage
-
+	@./node_modules/.bin/lab
+test-cov: 
+	@./node_modules/.bin/lab -r threshold -t 100
 test-cov-html:
-	@NODE_ENV=test ./node_modules/.bin/lab -c -r html > coverage.html
-
+	@./node_modules/.bin/lab -r html -o coverage.html
 complexity:
-	./node_modules/.bin/cr -o complexity.md -f markdown lib
+	@./node_modules/.bin/cr -o complexity.md -f markdown lib
 
-.PHONY: test test-cov test-cov-html
+.PHONY: test test-cov test-cov-html complexity
 
