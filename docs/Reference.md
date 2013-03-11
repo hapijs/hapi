@@ -66,9 +66,13 @@
 - [**Server Helpers**](#server-helpers)
 <p></p>
 - [**Server Plugins**](#server-plugins)
-    - [Batch Requests](#batch-requests)
-    - [CSRF Protection](#csrf-protection)
-    - [Documentation Generator](#documentation-generator)
+    - [Creating a Plugin](#creating-a-plugin) 
+        - [Schema](#plugin-schema)
+        - [Permissions](#plugin-permissions)
+    - [Installable Plugins](#installable-plugins)
+        - [Batch Requests](#batch-requests)
+        - [CSRF Protection](#csrf-protection)
+        - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
 
@@ -1723,14 +1727,22 @@ http.route({
 
 # Server Plugins
 
-## Batch Requests
+## Creating a Plugin
+
+### Plugin Schema
+
+### Plugin Permissions
+
+## Installable Plugins
+
+### Batch Requests
 
 There is a plugin for **hapi** called [bassmaster](https://npmjs.org/package/bassmaster) that can be installed to enable a batch endpoint for combining multiple requests into a single request.  Install **bassmaster** by either running `npm install bassmaster` in your sites working directory or add _'bassmaster'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
 
 The following plugin options are available for **bassmaster**
 - `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
-## CSRF Protection
+### CSRF Protection
 
 In order to help mitigate CSRF threats there is a plugin for **hapi** called [crumb](https://npmjs.org/package/crumb) that can be installed.  Install **crumb** by either running `npm install crumb` in your sites working directory or add _'crumb'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
 
@@ -1743,7 +1755,7 @@ The following plugin options are available for **crumb**
     - `path` - cookie path to restrict access to crumb cookie.  Default is '/'.
 
 
-## Documentation Generator
+### Documentation Generator
 
 **This is an experimental feature and is likely to change!**
 
