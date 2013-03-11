@@ -48,8 +48,7 @@
     "hapi": "./bin/hapi"
   },
   "scripts": {
-    "test": "make test && make test-cov",
-    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } }
+    "test": "make test-cov"
   },
   "licenses": [
     {
