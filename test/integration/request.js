@@ -161,4 +161,86 @@ describe('Request', function () {
             done();
         });
     });
+    
+    it('returns 500 on handler exception (same tick)', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function (request) {
+
+            var x = a.b.c;
+        };
+
+        server.route({ method: 'GET', path: '/domain', handler: handler });
+
+        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+    
+    it('returns 500 on handler exception (next tick)', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function (request) {
+
+            setTimeout(function () {
+
+                var x = a.b.c;
+            }, 1);
+        };
+
+        server.route({ method: 'GET', path: '/domain', handler: handler });
+
+        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+    
+    it('ignores second call to reply()', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function () {
+
+            var reply = this.reply;
+            reply('123');
+            reply('456');
+        };
+
+        server.route({ method: 'GET', path: '/domain', handler: handler });
+
+        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+
+            expect(res.result).to.equal('123');
+            done();
+        });
+    });
+    
+    
+    it('returns 500 on ext method exception (same tick)', function (done) {
+
+        var server = new Hapi.Server();
+        server.ext('onRequest', function (request, next) {
+           
+           var x = a.b.c; 
+        });
+
+        var handler = function () {
+
+            this.reply('neven gonna happen');
+        };
+
+        server.route({ method: 'GET', path: '/domain', handler: handler });
+
+        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
 });
