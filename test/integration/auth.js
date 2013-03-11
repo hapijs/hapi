@@ -4,6 +4,7 @@ var Crypto = require('crypto');
 var Lab = require('lab');
 var Oz = require('oz');
 var Hawk = require('hawk');
+var Stream = require('stream');
 var Hapi = require('../..');
 
 
@@ -595,11 +596,38 @@ describe('Auth', function () {
 
         var hawkHandler = function (request) {
 
-            request.reply('Success');
+            request.reply.payload('Success').send();
+        };
+
+        var hawkErrorHandler = function (request) {
+
+            request.reply.payload(new Error()).send();
+        };
+
+        var hawkStreamHandler = function (request) {
+
+            var stream = new Stream();
+            stream.readable = true;
+            stream.resume = function () {
+
+                setTimeout(function () {
+
+                    stream.emit('data', 'hi');
+                }, 2);
+
+                setTimeout(function () {
+
+                    stream.emit('end', '');
+                }, 5);
+            };
+
+            request.reply.stream(stream).send();
         };
 
         server.route([
             { method: 'POST', path: '/hawk', handler: hawkHandler },
+            { method: 'POST', path: '/hawkError', handler: hawkErrorHandler },
+            { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/hawkScope', handler: hawkHandler, config: { auth: { scope: 'x' } } },
             { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: 200 } } },
@@ -616,7 +644,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('Success');
                 done();
             });
@@ -628,8 +656,96 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
                 expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('includes authorization header in response when the response is a stream', function (done) {
+
+            var request = { method: 'POST', url: '/hawkStream', headers: { authorization: hawkHeader('john', '/hawkStream'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.raw.res._trailer).to.contain('Hawk');
+
+                var attributes = Hawk.utils.parseAuthorizationHeader(res.raw.req.headers.authorization);
+
+                var artifacts = {
+                    method: res.raw.req.method,
+                    host: res.raw.req.headers.host.split(':')[0],
+                    port: res.raw.req.headers.host.split(':')[1],
+                    resource: res.raw.req.url,
+                    ts: attributes.ts,
+                    nonce: attributes.nonce,
+                    ext: attributes.ext,
+                    mac: attributes.mac
+                };
+
+                var options = {
+                    payload: res.payload
+                };
+
+                getCredentials('john', function (err, cred) {
+
+                    artifacts.credentials = cred;
+                    var header = Hawk.server.header(artifacts, options);
+                    var trailerAuth = res.raw.res._trailer.split(':')[1];
+                    trailerAuth = trailerAuth.substr(1, trailerAuth.lastIndexOf('"'));
+
+                    expect(header).to.equal(trailerAuth);
+                    done();
+                });
+            });
+        });
+
+        it('includes valid authorization header in response when the response is text', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.headers.Authorization).to.contain('Hawk');
+                expect(res.statusCode).to.equal(200);
+
+                var attributes = Hawk.utils.parseAuthorizationHeader(res.raw.req.headers.authorization);
+
+                var artifacts = {
+                    method: res.raw.req.method,
+                    host: res.raw.req.headers.host.split(':')[0],
+                    port: res.raw.req.headers.host.split(':')[1],
+                    resource: res.raw.req.url,
+                    ts: attributes.ts,
+                    nonce: attributes.nonce,
+                    ext: attributes.ext,
+                    mac: attributes.mac
+                };
+
+                var options = {
+                    payload: res.payload,
+                    contentType: res.headers['Content-Type']
+                };
+
+                getCredentials('john', function (err, cred) {
+
+                    artifacts.credentials = cred;
+                    var header = Hawk.server.header(artifacts, options);
+                    expect(header).to.equal(res.headers.Authorization);
+
+                    done();
+                });
+            });
+        });
+
+        it('doesn\'t include authorization header in response when the response is an error', function (done) {
+
+            var request = { method: 'POST', url: '/hawkError', headers: { authorization: hawkHeader('john', '/hawkError'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.headers.Authorization).to.not.exist;
                 done();
             });
         });
