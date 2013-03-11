@@ -694,6 +694,7 @@ describe('Auth', function () {
                     var trailerAuth = res.raw.res._trailer.split(':')[1];
                     trailerAuth = trailerAuth.substr(1, trailerAuth.lastIndexOf('"'));
 
+                    expect(res.headers.Trailer).to.contain('Authorization');
                     expect(header).to.equal(trailerAuth);
                     done();
                 });
