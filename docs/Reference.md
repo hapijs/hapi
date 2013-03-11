@@ -1727,6 +1727,8 @@ http.route({
 
 # Server Plugins
 
+There are several extension points for **hapi** plugins to use.  A plugin can be as basic as adding a route or it can add extend server functionality.
+
 ## Creating a Plugin
 
 ### Plugin Schema
