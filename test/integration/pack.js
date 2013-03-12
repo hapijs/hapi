@@ -274,6 +274,16 @@ describe('Pack', function () {
         done();
     });
 
+    it('invalidates bad name', function (done) {
+
+        var pack = new Hapi.Pack();
+        var err = pack.validate({ name: 'hapi', version: '0.0.0', register: function (pack, options, next) { next(); } });
+
+        expect(err).to.exist;
+        expect(err.message).to.equal('Plugin name cannot be \'hapi\'');
+        done();
+    });
+
     it('invalidates missing version', function (done) {
 
         var pack = new Hapi.Pack();
