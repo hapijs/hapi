@@ -163,9 +163,9 @@ http.route({ method: 'GET', path: '/test', handler: get });
 http.start();
 
 // Resource handler
-function get(request) {
+function get() {
 
-    request.reply({ status: 'ok' });
+    this.reply({ status: 'ok' });
 }
 
 // Path rewrite
@@ -545,9 +545,9 @@ http.route({ method: '*', path: '/{p*}, handler: notFoundHandler });
 http.start();
 
 // 404 handler
-function notFoundHandler(request) {
+function notFoundHandler() {
 
-    request.reply(Hapi.Error.notFound('The page was not found'));
+    this.reply(Hapi.Error.notFound('The page was not found'));
 }
 ```
 
@@ -604,9 +604,9 @@ var server = new Hapi.Server();
 
 // Option 1 - add handler directly in route definition
 
-var handler1 = function (request) {
+var handler1 = function () {
 
-    request.reply('ok');
+    this.reply('ok');
 }
 
 server.route({ method: 'GET', path: '/option1', handler: handler1 });
@@ -616,9 +616,9 @@ server.route({ method: 'GET', path: '/option1', handler: handler1 });
 var config2 = {
     payload: 'raw',
     // ... additional config options ...
-    handler: function (request) {
+    handler: function () {
 
-        request.reply('ok');
+        this.reply('ok');
     }
 };
 
@@ -678,11 +678,11 @@ server.route({
     handler: getAlbum
 });
 
-function getAlbum(request) {
+function getAlbum() {
 
-    request.reply('You asked for ' +
-                  (request.params.song ? request.params.song + ' from ' : '') +
-                  request.params.album);
+    this.reply('You asked for ' +
+                (this.params.song ? this.params.song + ' from ' : '') +
+                this.params.album);
 }
 ```
 
@@ -695,10 +695,10 @@ server.route({
     handler: getPerson
 });
 
-function getPerson(request) {
+function getPerson() {
 
-    var nameParts = request.params.names.split('/');
-    request.reply(new Person(namesParts[0], nameParts[1]));
+    var nameParts = this.params.names.split('/');
+    this.reply(new Person(namesParts[0], nameParts[1]));
 }
 ```
 
@@ -713,10 +713,10 @@ server.route({
     handler: getPerson
 });
 
-function getPeople(request) {
+function getPeople() {
 
-    var nameParts = request.params.names.split('/');
-    request.reply(loadPeople(namesParts));
+    var nameParts = this.params.names.split('/');
+    this.reply(loadPeople(namesParts));
 }
 ```
 
@@ -735,6 +735,36 @@ When parsing is enabled for a route and the request has a payload and an unsuppo
 The module [formidable](https://npmjs.org/package/formidable) is used for processing the 'multipart/form-data'.  Formidable is capable of receiving files as well as other form data.  All values are assigned to their respective form names on the _'payload'_ object.  
 
 ### Route Handler
+
+Route handlers can use one of three declaration styles:
+
+No arguments (the request object is bound to `this`, decorated by the `reply` interface):
+```javascript
+var handler = function () {
+
+    this.reply('success');
+};
+```
+
+One argument (the request is passed as an argument, decorated by the `reply` interface):
+```javascript
+var handler = function (request) {
+
+    request.reply('success');
+};
+```
+
+Two arguments (the request and the `reply` interface are passed as arguments):
+```javascript
+var handler = function (request, reply) {
+
+    reply('success');
+};
+```
+
+**Note**: The two-arguments style is provided for symmetry with extension functions and prerequisite functions where the function
+signature is _'function (request, next)'_. In order to enable interchangeable use of these functions, the two argument style does
+not provide any of the reply method decorations listed under [handler response](#response) (e.g. you must call 'reply(result);').
 
 When the provided route handler method is called, it receives a _request_ object with the following properties:
 - _'url'_ - the parsed request URI.
@@ -777,14 +807,17 @@ var handler = function () {
 - Direct - special response type for writing directly to the response object. Used for chunked responses.
 - Error - error objects generated using the 'Hapi.error' module or 'new Error()' described in [Response Errors](#response-errors).
 
-The request object includes a _'reply'_ property which includes the following methods:
-- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The method will automatically identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
+Based on the handler function declaration style, a _'reply'_ function is provided which includes the following properties:
+- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The method will automatically
+  identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an
+  instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
 - _'stream(stream)'_ - pipes the content of the stream into the response.
 - _'redirect(uri)'_ - sets a redirection response. Defaults to 302.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
-- _'close()'_ - closes the response stream immediately without flushing any remaining unsent data. Used for ending the handler execution after manually sending a response.
+- _'close()'_ - closes the response stream immediately without flushing any remaining unsent data. Used for ending the handler execution
+  after manually sending a response.
 
-For convenience, the 'response' object is also decorated with a shortcut function _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_.
+For convenience, the reply function can be simply invoke as _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_, depending on the result.
 
 The 'payload()', 'stream()', and 'redirect()' methods return a **hapi** Response object created based on the result item provided.
 Depending on the response type, additional chainable methods are available:
