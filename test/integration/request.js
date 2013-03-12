@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Hapi = require('../..');
+var Request = require('../../lib/request');
 
 
 // Declare internals
@@ -240,6 +241,67 @@ describe('Request', function () {
         server.inject({ method: 'GET', url: '/domain' }, function (res) {
 
             expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('invokes handler with no arguments', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function () {
+
+            expect(this instanceof Request).to.equal(true);
+            expect(arguments.length).to.equal(0);
+            this.reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ method: 'GET', url: '/' }, function (res) {
+
+            expect(res.result).to.equal('ok');
+            done();
+        });
+    });
+
+    it('invokes handler with 1 arguments', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function (request) {
+
+            expect(this instanceof Request).to.equal(false);
+            expect(arguments.length).to.equal(1);
+            request.reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ method: 'GET', url: '/' }, function (res) {
+
+            expect(res.result).to.equal('ok');
+            done();
+        });
+    });
+
+    it('invokes handler with 3 arguments', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function (request, reply) {
+
+            expect(this instanceof Request).to.equal(false);
+            expect(arguments.length).to.equal(2);
+            expect(reply.send).to.not.exist;
+            reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ method: 'GET', url: '/' }, function (res) {
+
+            expect(res.result).to.equal('ok');
             done();
         });
     });
