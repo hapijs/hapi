@@ -31,7 +31,7 @@ describe('Ext', function () {
             done();
         });
 
-        it('sorts dependencies', function (done) {
+        var testDeps = function (scenario, callback) {
 
             var generateExt = function (value) {
 
@@ -44,16 +44,10 @@ describe('Ext', function () {
             };
 
             var ext = new Ext();
-            ext._add('onRequest', generateExt(0), { before: 'a' });
-            ext._add('onRequest', generateExt(1), { after: 'f' }, 'a');
-            ext._add('onRequest', generateExt(2), { before: 'a' });
-            ext._add('onRequest', generateExt(3), { before: ['b', 'c'] }, 'a');
-            ext._add('onRequest', generateExt(4), { after: 'c' }, 'b');
-            ext._add('onRequest', generateExt(5), {}, 'c');
-            ext._add('onRequest', generateExt(6), {}, 'd');
-            ext._add('onRequest', generateExt(7), {}, 'e');
-            ext._add('onRequest', generateExt(8), { before: 'd' });
-            ext._add('onRequest', generateExt(9), { after: 'c' }, 'a');
+            scenario.forEach(function (record, i) {
+
+                ext._add('onRequest', generateExt(record.id), { before: record.before, after: record.after }, record.group);
+            });
 
             var request = {
                 log: function () { }
@@ -62,7 +56,50 @@ describe('Ext', function () {
             ext.invoke(request, 'onRequest', function (err) {
 
                 expect(err).to.not.exist;
-                expect(request.x).to.equal('0213547869');
+                callback(request.x);
+            });
+        };
+
+        it('sorts dependencies (1)', function (done) {
+
+            var scenario = [
+                { id: '0', before: 'a' },
+                { id: '1', after: 'f', group: 'a' },
+                { id: '2', before: 'a' },
+                { id: '3', before: ['b', 'c'], group: 'a' },
+                { id: '4', after: 'c', group: 'b' },
+                { id: '5', group: 'c' },
+                { id: '6', group: 'd' },
+                { id: '7', group: 'e' },
+                { id: '8', before: 'd' },
+                { id: '9', after: 'c', group: 'a' }
+            ];
+
+            testDeps(scenario, function (result) {
+
+                expect(result).to.equal('0213547869');
+                done();
+            });
+        });
+
+        it('sorts dependencies (2)', function (done) {
+
+            var scenario = [
+                { id: '0', before: 'a' },
+                { id: '1', after: 'f', group: 'a' },
+                { id: '2', before: 'a' },
+                { id: '3', before: ['b', 'c'], group: 'a' },
+                { id: '4', after: 'c', group: 'b' },
+                { id: '5', group: 'c' },
+                { id: '6', group: 'd' },
+                { id: '7', group: 'e' },
+                { id: '8', before: 'd', after: 'e' },
+                { id: '9', after: 'c', group: 'a' }
+            ];
+
+            testDeps(scenario, function (result) {
+
+                expect(result).to.equal('0213547869');
                 done();
             });
         });
