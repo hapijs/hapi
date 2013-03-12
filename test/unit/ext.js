@@ -49,14 +49,14 @@ describe('Ext', function () {
             ext._add('onRequest', generateExt(2), { before: 'a' });
             ext._add('onRequest', generateExt(3), { before: ['b', 'c'] }, 'a');
             ext._add('onRequest', generateExt(4), { after: 'c' }, 'b');
-            ext._add('onRequest', generateExt(5), { before: 'a' }, 'c');
-            ext._add('onRequest', generateExt(6), { before: 'a' }, 'd');
-            ext._add('onRequest', generateExt(7), { before: 'a' }, 'e');
+            ext._add('onRequest', generateExt(5), {}, 'c');
+            ext._add('onRequest', generateExt(6), {}, 'd');
+            ext._add('onRequest', generateExt(7), {}, 'e');
             ext._add('onRequest', generateExt(8), { before: 'd' });
             ext._add('onRequest', generateExt(9), { after: 'c' }, 'a');
 
             var request = {
-                log: function () {}
+                log: function () { }
             };
 
             ext.invoke(request, 'onRequest', function (err) {
