@@ -27,7 +27,7 @@ describe('Ext', function () {
 
             var ext = new Ext();
             ext.sort('onRequest');
-            expect(ext.onRequest).to.equal(null);
+            expect(ext._events.onRequest).to.equal(null);
             done();
         });
     });
