@@ -1752,7 +1752,7 @@ Since permissions can change between servers it is necessary to return an error 
 ```javascript
 exports.register = function (pack, options, next) {
 
-    if (typeof pack.route !== 'function) {
+    if (typeof pack.route !== 'function') {
         return next(new Error('Plugin requires route permission'));
     }
     
