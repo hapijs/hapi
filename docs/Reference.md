@@ -1727,9 +1727,11 @@ http.route({
 
 # Server Plugins
 
-There are several extension points for **hapi** plugins to use.  A plugin can be as basic as adding a route or it can add extend server functionality.
+There are several extension points for **hapi** plugins to use.  A plugin can be as basic as adding a route or it can extend server functionality.
 
 ## Creating a Plugin
+
+A **hapi** plugin should be a module that can be installable.  Therefore, it will need a _'package.json'_ file and a unique name.  In order to identify the version of **hapi** that the plugin is compatible with specify a `peerDependencies` section in the _'package.json'_ and add an entry for hapi.  To help with the plugin creation process there is a grunt-init project called [grunt-init-hapi-plugin](https://github.com/spumko/grunt-init-hapi-plugin) that can be installed.
 
 ### Plugin Schema
 
