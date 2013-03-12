@@ -1735,7 +1735,11 @@ A **hapi** plugin should be a module that can be installable.  Therefore, it wil
 
 ### Plugin Schema
 
+The _'main'_ module file for the plugin must export a `register` function.  The funciton signature is `(pack, options, next)` where `next` has the signature of `(err)`.  If an error occurs when registering the plugin then call next with an `Error` object. 
+
 ### Plugin Permissions
+
+
 
 ## Installable Plugins
 
