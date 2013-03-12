@@ -1739,7 +1739,26 @@ The _'main'_ module file for the plugin must export a `register` function.  The 
 
 ### Plugin Permissions
 
+A plugin is always able to control the _'api.[plugin name]'_ object.  However, permissions restrict access to several other server features, these are listed below:
+- `route` - determines if a plugin can add routes to a server.  Default is _'true'_.
+- `state` - when _'true'_ the plugin can set cookies.  Default is _'true'_.
+- `helper` - determines if a plugin can add server helpers.  Default is _'true'_.
+- `events` - controls access to server events.  Default is _'true'_.
+- `views` - view manager access.  Default is _'true'_.
+- `ext` - can add extension events.  Default is _'false'_.
 
+Since permissions can change between servers it is necessary to return an error when a plugin is missing a required permission.  Below is an example of returning an error when a plugin doesn't have access to add a route:
+
+```javascript
+exports.register = function (pack, options, next) {
+
+    if (typeof pack.route !== 'function) {
+        return next(new Error('Plugin requires route permission'));
+    }
+    
+    ...
+};
+```
 
 ## Installable Plugins
 
