@@ -53,6 +53,11 @@ describe('Prerequesites', function () {
         next(Hapi.error.internal('boom'));
     };
 
+    var fetchException = function (request, next) {
+
+        a.b.c;
+    };
+
     var getFetch1 = function (request) {
 
         request.reply(request.pre.m5);
@@ -107,6 +112,17 @@ describe('Prerequesites', function () {
                 pre: [
                     { method: fetch1, assign: 'm1', mode: 'parallel' },
                     { method: fetch6, assign: 'm6' }
+                ],
+                handler: getFetch2
+            }
+        },
+        {
+            method: 'GET',
+            path: '/fetchException',
+            config: {
+                pre: [
+                    { method: fetch1, assign: 'm1', mode: 'parallel' },
+                    { method: fetchException, assign: 'm6' }
                 ],
                 handler: getFetch2
             }
@@ -171,9 +187,18 @@ describe('Prerequesites', function () {
         });
     });
 
-    it('returns error is prerequisite returns error', function (done) {
+    it('returns error if prerequisite returns error', function (done) {
 
         makeRequest('/fetch3', function (res) {
+
+            expect(res.code).to.equal(500);
+            done();
+        });
+    });
+
+    it('returns 500 if prerequisite throws', function (done) {
+
+        makeRequest('/fetchException', function (res) {
 
             expect(res.code).to.equal(500);
             done();
