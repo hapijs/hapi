@@ -362,15 +362,15 @@ describe('Pack', function () {
 
             server1.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result).to.equal('|1|2|')
+                expect(res.result).to.equal('|2|1|')
 
                 server2.inject({ method: 'GET', url: '/' }, function (res) {
 
-                    expect(res.result).to.equal('|1|3|')
+                    expect(res.result).to.equal('|3|1|')
 
                     server3.inject({ method: 'GET', url: '/' }, function (res) {
 
-                        expect(res.result).to.equal('|2|3|')
+                        expect(res.result).to.equal('|3|2|')
                         done();
                     });
                 });

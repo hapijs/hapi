@@ -12,7 +12,7 @@ exports.register = function (pack, options, next) {
         request.plugins.deps = request.plugins.deps || '|';
         request.plugins.deps += '1|'
         cont();
-    });
+    }, { after: '--deps3' });
 
     return next();
 };
