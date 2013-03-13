@@ -66,9 +66,13 @@
 - [**Server Helpers**](#server-helpers)
 <p></p>
 - [**Server Plugins**](#server-plugins)
-    - [Batch Requests](#batch-requests)
-    - [CSRF Protection](#csrf-protection)
-    - [Documentation Generator](#documentation-generator)
+    - [Creating a Plugin](#creating-a-plugin) 
+        - [Schema](#plugin-schema)
+        - [Permissions](#plugin-permissions)
+    - [Installable Plugins](#installable-plugins)
+        - [Batch Requests](#batch-requests)
+        - [CSRF Protection](#csrf-protection)
+        - [Documentation Generator](#documentation-generator)
 
 ## Server Construction
 
@@ -1756,14 +1760,49 @@ http.route({
 
 # Server Plugins
 
-## Batch Requests
+There are several extension points for **hapi** plugins to use.  A plugin can be as basic as adding a route or it can extend server functionality.
+
+## Creating a Plugin
+
+A **hapi** plugin should be a module that can be installable.  Therefore, it will need a _'package.json'_ file and a unique name.  In order to identify the version of **hapi** that the plugin is compatible with specify a `peerDependencies` section in the _'package.json'_ and add an entry for hapi.  To help with the plugin creation process there is a grunt-init project called [grunt-init-hapi-plugin](https://github.com/spumko/grunt-init-hapi-plugin) that can be installed.
+
+### Plugin Schema
+
+The _'main'_ module file for the plugin must export a `register` function.  The funciton signature is `(pack, options, next)` where `next` has the signature of `(err)`.  If an error occurs when registering the plugin then call next with an `Error` object. 
+
+### Plugin Permissions
+
+A plugin is always able to control the _'api.[plugin name]'_ object.  However, permissions restrict access to several other server features, these are listed below:
+- `route` - determines if a plugin can add routes to a server.  Default is _'true'_.
+- `state` - when _'true'_ the plugin can set cookies.  Default is _'true'_.
+- `helper` - determines if a plugin can add server helpers.  Default is _'true'_.
+- `events` - controls access to server events.  Default is _'true'_.
+- `views` - view manager access.  Default is _'true'_.
+- `ext` - can add extension events.  Default is _'false'_.
+
+Since permissions can change between servers it is necessary to return an error when a plugin is missing a required permission.  Below is an example of returning an error when a plugin doesn't have access to add a route:
+
+```javascript
+exports.register = function (pack, options, next) {
+
+    if (typeof pack.route !== 'function') {
+        return next(new Error('Plugin requires route permission'));
+    }
+    
+    ...
+};
+```
+
+## Installable Plugins
+
+### Batch Requests
 
 There is a plugin for **hapi** called [bassmaster](https://npmjs.org/package/bassmaster) that can be installed to enable a batch endpoint for combining multiple requests into a single request.  Install **bassmaster** by either running `npm install bassmaster` in your sites working directory or add _'bassmaster'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
 
 The following plugin options are available for **bassmaster**
 - `batchEndpoint` - the path where batch requests will be served from.  Default is '/batch'.
 
-## CSRF Protection
+### CSRF Protection
 
 In order to help mitigate CSRF threats there is a plugin for **hapi** called [crumb](https://npmjs.org/package/crumb) that can be installed.  Install **crumb** by either running `npm install crumb` in your sites working directory or add _'crumb'_ to the dependencies section of the _'package.json'_ file and run `npm install`.
 
@@ -1776,7 +1815,7 @@ The following plugin options are available for **crumb**
     - `path` - cookie path to restrict access to crumb cookie.  Default is '/'.
 
 
-## Documentation Generator
+### Documentation Generator
 
 **This is an experimental feature and is likely to change!**
 
