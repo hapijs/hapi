@@ -100,18 +100,6 @@ describe('Request', function () {
 
     describe('#_setMethod', function () {
 
-        it('throws an error when a null method is passed in', function (done) {
-
-            var fn = function () {
-
-                var request = new Request(server, _req, _res);
-                request._setMethod(null);
-            };
-
-            expect(fn).throws(Error, 'method must be provided');
-            done();
-        });
-
         it('changes method with a lowercase version of the value passed in', function (done) {
 
             var request = new Request(server, _req, _res);
