@@ -336,7 +336,7 @@ describe('Pack', function () {
         });
     });
     
-    it('adds multiple ext functions', function (done) {
+    it('adds multiple ext functions with dependencies', function (done) {
 
         var server1 = new Hapi.Server();
         var server2 = new Hapi.Server();
