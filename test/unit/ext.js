@@ -129,7 +129,7 @@ describe('Ext', function () {
             expect(function () {
 
                 testDeps(scenario, function (result) { });
-            }).to.throw();
+            }).to.throw('onRequest extension add by c created a dependencies error');
 
             done();
         });
