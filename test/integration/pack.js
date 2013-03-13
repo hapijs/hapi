@@ -199,12 +199,11 @@ describe('Pack', function () {
         var pack = new Hapi.Pack();
         pack.server('s1', server1, { labels: ['a', 'b'] });
 
-        pack.allow({}).require('./pack/none', function (err) {
+        expect(function () {
 
-            expect(err).to.exist;
-            expect(err.message).to.contain('Cannot find module');
-            done();
-        });
+            pack.allow({}).require('./pack/none', function (err) { });
+        }).to.throw('Cannot find module');
+        done();
     });
 
     it('fails to require missing module in default route', function (done) {
@@ -213,12 +212,11 @@ describe('Pack', function () {
         var pack = new Hapi.Pack();
         pack.server('s1', server1, { labels: ['a', 'b'] });
 
-        pack.require('none', function (err) {
+        expect(function () {
 
-            expect(err).to.exist;
-            expect(err.message).to.contain('Cannot find module');
-            done();
-        });
+            pack.require('none', function (err) { });
+        }).to.throw('Cannot find module');
+        done();
     });
 
     it('starts and stops', function (done) {
@@ -256,12 +254,12 @@ describe('Pack', function () {
     it('fails to register a bad plugin', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.register({ version: '0.0.0', register: function (pack, options, next) { next(); } }, function (err) {
+        expect(function () {
 
-            expect(err).to.exist;
-            expect(err.message).to.equal('Plugin missing name');
-            done();
-        });
+            pack.register({ version: '0.0.0', register: function (pack, options, next) { next(); } }, function (err) { });
+        }).to.throw('Plugin missing name');
+
+        done();
     });
 
     it('invalidates missing name', function (done) {
@@ -277,10 +275,10 @@ describe('Pack', function () {
     it('invalidates bad name', function (done) {
 
         var pack = new Hapi.Pack();
-        var err = pack.validate({ name: 'hapi', version: '0.0.0', register: function (pack, options, next) { next(); } });
+        var err = pack.validate({ name: '?', version: '0.0.0', register: function (pack, options, next) { next(); } });
 
         expect(err).to.exist;
-        expect(err.message).to.equal('Plugin name cannot be \'hapi\'');
+        expect(err.message).to.equal('Plugin name cannot be \'?\'');
         done();
     });
 
@@ -335,7 +333,7 @@ describe('Pack', function () {
             });
         });
     });
-    
+
     it('adds multiple ext functions with dependencies', function (done) {
 
         var server1 = new Hapi.Server();
@@ -348,14 +346,14 @@ describe('Pack', function () {
         pack.server('s3', server3, { labels: ['c', 'b'] });
 
         var handler = function () {
-          
+
             return this.reply(this.plugins.deps);
         };
-        
+
         server1.route({ method: 'GET', path: '/', handler: handler });
         server2.route({ method: 'GET', path: '/', handler: handler });
         server3.route({ method: 'GET', path: '/', handler: handler });
-        
+
         pack.allow({ ext: true }).require(['./pack/--deps1', './pack/--deps2', './pack/--deps3'], function (err) {
 
             expect(err).to.not.exist;
@@ -376,5 +374,45 @@ describe('Pack', function () {
                 });
             });
         });
+    });
+
+    it('fails to require single plugin with dependencies', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.plugin.allow({ ext: true }).require('./pack/--deps1', function (err) { });
+        }).to.throw('Plugin \'--deps1\' missing dependencies: --deps2');
+        done();
+    });
+
+    it('fails to register single plugin with dependencies', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '3.0.0',
+            register: function (pack, options, next) {
+
+                pack.dependency('none');
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.plugin.allow({ ext: true }).register(plugin, function (err) { });
+        }).to.throw('Plugin \'test\' missing dependencies: none');
+        done();
+    });
+
+    it('fails to require multiple plugin with dependencies', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.plugin.allow({ ext: true }).require(['./pack/--deps1', './pack/--deps3'], function (err) { });
+        }).to.throw('Plugin \'--deps1\' missing dependencies: --deps2');
+        done();
     });
 });
