@@ -39,7 +39,7 @@ describe('Pack', function () {
         var server3 = new Hapi.Server({ tls: {}, cache: 'memory' });
         var server4 = new Hapi.Server({ cache: 'memory' });
 
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         pack.server('s1', server1, { labels: ['a', 'b'] });
         pack.server('s2', server2, { labels: ['a', 'c'] });
         pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
@@ -103,7 +103,7 @@ describe('Pack', function () {
         var server3 = new Hapi.Server({ tls: {}, cache: 'memory' });
         var server4 = new Hapi.Server({ cache: 'memory' });
 
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         pack.server('s1', server1, { labels: ['a', 'b'] });
         pack.server('s2', server2, { labels: ['a', 'test'] });
         pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
@@ -196,7 +196,7 @@ describe('Pack', function () {
     it('fails to require missing module', function (done) {
 
         var server1 = new Hapi.Server();
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         pack.server('s1', server1, { labels: ['a', 'b'] });
 
         pack.allow({}).require('./pack/none', function (err) {
@@ -210,7 +210,7 @@ describe('Pack', function () {
     it('fails to require missing module in default route', function (done) {
 
         var server1 = new Hapi.Server();
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         pack.server('s1', server1, { labels: ['a', 'b'] });
 
         pack.require('none', function (err) {
@@ -228,7 +228,7 @@ describe('Pack', function () {
         var server3 = new Hapi.Server(0, { tls: {}, cache: 'memory' });
         var server4 = new Hapi.Server(0, { cache: 'memory' });
 
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         pack.server('s1', server1, { labels: ['a', 'b'] });
         pack.server('s2', server2, { labels: ['a', 'test'] });
         pack.server('s3', server3, { labels: ['a', 'b', 'd'] });
@@ -255,7 +255,7 @@ describe('Pack', function () {
 
     it('fails to register a bad plugin', function (done) {
 
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         pack.register({ version: '0.0.0', register: function (pack, options, next) { next(); } }, function (err) {
 
             expect(err).to.exist;
@@ -266,7 +266,7 @@ describe('Pack', function () {
 
     it('invalidates missing name', function (done) {
 
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         var err = pack.validate({ version: '0.0.0', register: function (pack, options, next) { next(); } });
 
         expect(err).to.exist;
@@ -274,9 +274,19 @@ describe('Pack', function () {
         done();
     });
 
+    it('invalidates bad name', function (done) {
+
+        var pack = new Hapi.Pack();
+        var err = pack.validate({ name: 'hapi', version: '0.0.0', register: function (pack, options, next) { next(); } });
+
+        expect(err).to.exist;
+        expect(err.message).to.equal('Plugin name cannot be \'hapi\'');
+        done();
+    });
+
     it('invalidates missing version', function (done) {
 
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         var err = pack.validate({ name: 'test', register: function (pack, options, next) { next(); } });
 
         expect(err).to.exist;
@@ -286,7 +296,7 @@ describe('Pack', function () {
 
     it('invalidates missing register method', function (done) {
 
-        var pack = new Hapi.Pack({ a: 1 });
+        var pack = new Hapi.Pack();
         var err = pack.validate({ name: 'test', version: '0.0.0' });
 
         expect(err).to.exist;
@@ -322,6 +332,48 @@ describe('Pack', function () {
 
                 expect(res.result).to.equal('b');
                 done();
+            });
+        });
+    });
+    
+    it('adds multiple ext functions', function (done) {
+
+        var server1 = new Hapi.Server();
+        var server2 = new Hapi.Server();
+        var server3 = new Hapi.Server();
+
+        var pack = new Hapi.Pack();
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+        pack.server('s2', server2, { labels: ['a', 'c'] });
+        pack.server('s3', server3, { labels: ['c', 'b'] });
+
+        var handler = function () {
+          
+            return this.reply(this.plugins.deps);
+        };
+        
+        server1.route({ method: 'GET', path: '/', handler: handler });
+        server2.route({ method: 'GET', path: '/', handler: handler });
+        server3.route({ method: 'GET', path: '/', handler: handler });
+        
+        pack.allow({ ext: true }).require(['./pack/--deps1', './pack/--deps2', './pack/--deps3'], function (err) {
+
+            expect(err).to.not.exist;
+
+            server1.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('|1|2|')
+
+                server2.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('|1|3|')
+
+                    server3.inject({ method: 'GET', url: '/' }, function (res) {
+
+                        expect(res.result).to.equal('|2|3|')
+                        done();
+                    });
+                });
             });
         });
     });
