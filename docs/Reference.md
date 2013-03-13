@@ -521,7 +521,6 @@ server.on('request', function (request, event, tags) {
     }
 });
 ```
-```
 
 The _'response'_ and _'tail'_ events includes the request object:
 ```javascript
