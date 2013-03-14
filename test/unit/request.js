@@ -131,8 +131,8 @@ describe('Request', function () {
         it('adds a log event to the request', function (done) {
 
             var request = new Request(server, _req, _res);
-            request.log('1', 'log event 1');
-            request.log(['2'], 'log event 2');
+            request.log('1', 'log event 1', Date.now());
+            request.log(['2'], 'log event 2', new Date(Date.now()));
             request.log(['3', '4']);
             request.log(['1', '4']);
             request.log(['2', '3']);
@@ -141,6 +141,7 @@ describe('Request', function () {
 
             expect(request.getLog('1').length).to.equal(2);
             expect(request.getLog('4').length).to.equal(4);
+            expect(request.getLog(['4']).length).to.equal(4);
             expect(request.getLog('0').length).to.equal(0);
             expect(request.getLog().length).to.be.above(7);
             done();
