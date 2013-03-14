@@ -96,6 +96,50 @@ describe('Pack', function () {
         });
     });
 
+    it('registers plugins with options', function (done) {
+
+        var server1 = new Hapi.Server();
+
+        var pack = new Hapi.Pack();
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+
+        var plugin = {
+            name: 'test',
+            version: '5.0.0',
+            register: function (pack, options, next) {
+
+                expect(options.something).to.be.true;
+                next();
+            }
+        };
+
+        pack.register(plugin, { something: true }, function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
+    it('registers plugin via server plugin interface', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '2.0.0',
+            register: function (pack, options, next) {
+
+                expect(options.something).to.be.true;
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.plugin.allow({ route: true }).register(plugin, { something: true }, function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
     it('requires plugin', function (done) {
 
         var server1 = new Hapi.Server();
@@ -121,6 +165,20 @@ describe('Pack', function () {
             expect(server1.plugins['--test1'].add(1, 3)).to.equal(4);
             expect(server1.plugins['--test1'].glue('1', '3')).to.equal('13');
 
+            done();
+        });
+    });
+
+    it('requires a plugin with options', function (done) {
+
+        var server1 = new Hapi.Server();
+
+        var pack = new Hapi.Pack();
+        pack.server('s1', server1, { labels: ['a', 'b'] });
+
+        pack.require('./pack/--test1', { something: true }, function (err) {
+
+            expect(err).to.not.exist;
             done();
         });
     });

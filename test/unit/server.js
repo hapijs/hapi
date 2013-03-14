@@ -404,6 +404,21 @@ describe('Server', function () {
             });
         });
 
+        it('returns a valid result when calling a helper when using the cache', function (done) {
+
+            var server = new Hapi.Server('0.0.0.0', 0, { cache: 'memory' });
+            server.start(function () {
+
+                server.helper('user', function (id, str, next) { return next({ id: id, str: str }); }, { cache: { expiresIn: 1000, mode: 'server' } });
+                server.helpers.user(4, 'something', function (result) {
+
+                    expect(result.id).to.equal(4);
+                    expect(result.str).to.equal('something');
+                    done();
+                });
+            });
+        });
+
         it('returns an error result when calling a helper that returns an error', function (done) {
 
             var server = new Hapi.Server('0.0.0.0', 0);
@@ -522,6 +537,28 @@ describe('Server', function () {
 
             expect(routes.length).to.equal(2);
             expect(routes[0].path).to.equal('/test/');
+            done();
+        });
+    });
+
+    describe('#log', function () {
+
+        it('emits a log event', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.once('log', function (event) {
+
+                expect(event.data).to.equal('log event 1');
+            });
+            server.log('1', 'log event 1', Date.now());
+
+            server.once('log', function (event) {
+
+                expect(event.data).to.equal('log event 2');
+            });
+            server.log(['2'], 'log event 2', new Date(Date.now()));
+
             done();
         });
     });
