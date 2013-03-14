@@ -37,6 +37,7 @@ describe('Response', function () {
                              .state('sid', 'abcdefg123456')
                              .state('other', 'something', { isSecure: true })
                              .unstate('x')
+                             .header('Content-Type', 'text/plain; something=something')
                              .send();
             };
 
@@ -133,6 +134,24 @@ describe('Response', function () {
 
                 expect(res.payload).to.equal('me({"some":"value"});');
                 expect(res.headers['Content-Length']).to.equal(21);
+                done();
+            });
+        });
+
+        it('returns an JSONP response when response is a buffer', function (done) {
+
+            var handler = function (request) {
+
+                request.reply(new Buffer('value'));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
+
+                expect(res.payload).to.equal('me(value);');
+                expect(res.headers['Content-Length']).to.equal(10);
                 done();
             });
         });
@@ -1210,13 +1229,20 @@ describe('Response', function () {
 
         var handler2 = function (request) {
 
-            _streamRequest = request;
-            var simulation = new FakeStream(request.params.issue);
-            simulation.destroy = function () {
+            var stream = new Stream();
+            stream.readable = true;
+            stream.resume = function () {
 
-                simulation.readable = false;
+                stream.emit('end', 'hello');
             };
-            request.reply.stream(simulation).bytes(request.params.issue ? 0 : 1).send();
+            stream.response = {
+                headers: {
+                    custom: 'header'
+                }
+            };
+
+            var streamRes = new Hapi.response.Stream(stream);
+            request.reply(streamRes);
         };
 
         var handler3 = function (request) {
@@ -1237,11 +1263,29 @@ describe('Response', function () {
                          .send();
         };
 
+        var handler5 = function (request) {
+
+            var stream = new Stream();
+            stream.readable = true;
+            stream.resume = function () {
+
+                stream.emit('end', 'hello');
+            };
+            stream.response = {
+                code: 201
+            };
+
+            var streamRes = new Hapi.response.Stream(stream);
+            request.reply(streamRes);
+        };
+
         var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] } });
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
+        server.route({ method: 'GET', path: '/stream2', config: { handler: handler2 } });
         server.route({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { mode: 'client', expiresIn: 9999 } } });
         server.route({ method: 'GET', path: '/stream4', config: { handler: handler4 } });
+        server.route({ method: 'GET', path: '/stream5', config: { handler: handler5 } });
 
         it('returns a stream reply', function (done) {
 
@@ -1251,6 +1295,25 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['Cache-Control']).to.equal('max-age=2, must-revalidate');
                 expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
+        it('returns a stream reply with custom response headers', function (done) {
+
+            server.inject({ method: 'GET', url: '/stream2' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.custom).to.equal('header');
+                done();
+            });
+        });
+
+        it('returns a stream reply with custom response status code', function (done) {
+
+            server.inject({ method: 'GET', url: '/stream5' }, function (res) {
+
+                expect(res.statusCode).to.equal(201);
                 done();
             });
         });
