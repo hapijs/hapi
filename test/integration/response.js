@@ -5,6 +5,7 @@ var Fs = require('fs');
 var Stream = require('stream');
 var Request = require('request');
 var Hapi = require('../..');
+var ResponseError = require('../../lib/response/error');
 
 
 // Declare internals
@@ -173,6 +174,33 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('boom');
                 done();
+            });
+        });
+
+        it('returns an error response reply', function (done) {
+
+            var handler = function (request) {
+
+                var error = new ResponseError(Hapi.error.internal('kaboom'));
+                request.reply(error);
+            };
+
+            var server = new Hapi.Server();
+
+            server.once('internalError', function (request, err) {
+
+                expect(err).to.exist;
+                expect(err.trace[0]).to.contain('test/integration/response');
+                done();
+            });
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
     });
