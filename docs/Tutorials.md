@@ -5,6 +5,8 @@
 1. Hapi version 0.15.x or greater is installed
 2. A folder with a package.json and main entry point file exist (index.js)
 
+Please read the reference guide for an overview of creating the [plugin structure](docs/Reference.md#creating-a-plugin).
+
 ### Creating an API
 
 A plugin always has the ability to add properties and methods to the _'api'_ object.  This object is useful for exposing any functionality publically.  This tutorial will demonstrate how to add a function and property to this object.
