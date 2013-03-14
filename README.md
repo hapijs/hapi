@@ -17,6 +17,8 @@ Current version: **0.15.2**
 
 ### [API Reference](/docs/Reference.md)
 
+### [Tutorials](/docs/Tutorials.md)
+
 ### [Breaking Changes](https://github.com/spumko/hapi/issues?labels=breaking+changes&state=closed)
 
 ## Getting started
