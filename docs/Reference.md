@@ -551,7 +551,7 @@ var Hapi = require('hapi');
 var http = new Hapi.Server(8000);
 
 // Override the default 404 handler
-http.route({ method: '*', path: '/{p*}, handler: notFoundHandler });
+http.route({ method: '*', path: '/{p*}', handler: notFoundHandler });
 
 // Start server
 http.start();
