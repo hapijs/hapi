@@ -98,29 +98,10 @@ describe('Cache', function () {
 
     var makeRequest = function (path, callback) {
 
-        var next = function (res) {
-
-            return callback(res);
-        };
-
         _server.inject({
             method: 'get',
             url: path
-        }, next);
-    };
-
-    var parseHeaders = function (res) {
-
-        var headersObj = {};
-        var headers = res._header.split('\r\n');
-
-        for (var i = 0, il = headers.length; i < il; i++) {
-            var header = headers[i].split(':');
-            var headerValue = header[1] ? header[1].trim() : '';
-            headersObj[header[0]] = headerValue;
-        }
-
-        return headersObj;
+        }, callback);
     };
 
     before(setupServer);
@@ -129,8 +110,7 @@ describe('Cache', function () {
 
         makeRequest('/profile', function (rawRes) {
 
-            var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate, private');
+            expect(rawRes.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
@@ -139,8 +119,7 @@ describe('Cache', function () {
 
         makeRequest('/profile', function (rawRes) {
 
-            var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.equal('max-age=120, must-revalidate, private');
+            expect(rawRes.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
@@ -149,8 +128,7 @@ describe('Cache', function () {
 
         makeRequest('/item2', function (rawRes) {
 
-            var headers = parseHeaders(rawRes.raw.res);
-            expect(headers['Cache-Control']).to.not.equal('max-age=120, must-revalidate');
+            expect(rawRes.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
             done();
         });
     });
@@ -182,7 +160,7 @@ describe('Cache', function () {
 
         makeRequest('/nocache', function (res) {
 
-            expect(res.headers['Cache-Control']).to.equal('no-cache');
+            expect(res.headers['cache-control']).to.equal('no-cache');
             done();
         });
     });
@@ -232,7 +210,7 @@ describe('Cache', function () {
             _server.cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
 
                 expect(cached1).to.exist;
-                expect(res1.headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+                expect(res1.headers['cache-control']).to.equal('max-age=120, must-revalidate');
 
 
                 makeRequest('/clientserver', function (res2) {
@@ -240,7 +218,7 @@ describe('Cache', function () {
                     _server.cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
 
                         expect(cached2).to.exist;
-                        expect(res2.headers['Cache-Control']).to.equal('max-age=120, must-revalidate');
+                        expect(res2.headers['cache-control']).to.equal('max-age=120, must-revalidate');
                         expect(cached1.item.payload).to.equal(cached2.item.payload);
                         done();
                     });
