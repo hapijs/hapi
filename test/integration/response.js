@@ -61,16 +61,16 @@ describe('Response', function () {
 
                 expect(res.payload).to.exist;
                 expect(res.payload).to.equal('text !');
-                expect(res.headers['Cache-Control']).to.equal('max-age=1, must-revalidate');
-                expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com www.example.com');
-                expect(res.headers['Access-Control-Allow-Credentials']).to.not.exist;
-                expect(res.headers['Set-Cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
+                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com www.example.com');
+                expect(res.headers['access-control-allow-credentials']).to.not.exist;
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
 
                 server.inject({ method: 'GET', url: '/bound', headers: { origin: 'www.example.com' } }, function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.result).to.equal('Tada');
-                    expect(res.headers['Access-Control-Allow-Origin']).to.equal('www.example.com');
+                    expect(res.headers['access-control-allow-origin']).to.equal('www.example.com');
                     done();
                 });
             });
@@ -92,7 +92,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('An internal server error occurred');
-                expect(res.headers['Set-Cookie']).to.not.exist;
+                expect(res.headers['set-cookie']).to.not.exist;
                 done();
             });
         });
@@ -133,7 +133,7 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
 
                 expect(res.payload).to.equal('me({"some":"value"});');
-                expect(res.headers['Content-Length']).to.equal(21);
+                expect(res.headers['content-length']).to.equal(21);
                 done();
             });
         });
@@ -151,7 +151,7 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/?callback=me' }, function (res) {
 
                 expect(res.payload).to.equal('me(value);');
-                expect(res.headers['Content-Length']).to.equal(10);
+                expect(res.headers['content-length']).to.equal(10);
                 done();
             });
         });
@@ -245,7 +245,7 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.result).to.equal('');
-                expect(res.headers['Access-Control-Allow-Credentials']).to.equal('true');
+                expect(res.headers['access-control-allow-credentials']).to.equal('true');
                 done();
             });
         });
@@ -444,7 +444,7 @@ describe('Response', function () {
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.statusCode).to.equal(200);       // Too late to change at this point
-                expect(res.headers['Set-Cookie']).to.not.exist;
+                expect(res.headers['set-cookie']).to.not.exist;
                 expect(res.result).to.equal('!hola amigos!');
                 done();
             });
@@ -1293,8 +1293,8 @@ describe('Response', function () {
 
                 expect(res.result).to.equal('x');
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['Cache-Control']).to.equal('max-age=2, must-revalidate');
-                expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
             });
         });
@@ -1343,7 +1343,7 @@ describe('Response', function () {
                 Request.get({ uri: server1.settings.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
 
                     expect(res.statusCode).to.equal(200);
-                    expect(res.headers['Content-Length']).to.not.exist;
+                    expect(res.headers['content-length']).to.not.exist;
                     done();
                 });
             });
@@ -1374,7 +1374,7 @@ describe('Response', function () {
                 Request.get({ uri: server1.settings.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (err, res) {
 
                     expect(res.statusCode).to.equal(200);
-                    expect(res.headers['Content-Length']).to.not.exist;
+                    expect(res.headers['content-length']).to.not.exist;
                     done();
                 });
             });
@@ -1386,9 +1386,9 @@ describe('Response', function () {
 
                 expect(res.result).to.equal('x');
                 expect(res.statusCode).to.equal(201);
-                expect(res.headers.Location).to.equal(server.settings.uri + '/special');
-                expect(res.headers['Cache-Control']).to.equal('no-cache');
-                expect(res.headers['Access-Control-Allow-Origin']).to.equal('test.example.com');
+                expect(res.headers.location).to.equal(server.settings.uri + '/special');
+                expect(res.headers['cache-control']).to.equal('no-cache');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
             });
         });
@@ -1929,7 +1929,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('You are being redirected...');
-                expect(res.headers['Location']).to.equal(server.settings.uri + '/example');
+                expect(res.headers['location']).to.equal(server.settings.uri + '/example');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
@@ -1941,7 +1941,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('We moved!');
-                expect(res.headers['Location']).to.equal(server.settings.uri + '/examplex');
+                expect(res.headers['location']).to.equal(server.settings.uri + '/examplex');
                 expect(res.statusCode).to.equal(302);
                 done();
             });

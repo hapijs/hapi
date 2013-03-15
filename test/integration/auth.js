@@ -708,7 +708,7 @@ describe('Auth', function () {
                     var trailerAuth = res.raw.res._trailer.split(':')[1];
                     trailerAuth = trailerAuth.substr(1, trailerAuth.lastIndexOf('"'));
 
-                    expect(res.headers.Trailer).to.contain('Authorization');
+                    expect(res.headers.trailer).to.contain('Authorization');
                     expect(header).to.equal(trailerAuth);
                     done();
                 });
@@ -721,7 +721,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.headers.Authorization).to.contain('Hawk');
+                expect(res.headers.authorization).to.contain('Hawk');
                 expect(res.statusCode).to.equal(200);
 
                 var attributes = Hawk.utils.parseAuthorizationHeader(res.raw.req.headers.authorization);
@@ -739,14 +739,14 @@ describe('Auth', function () {
 
                 var options = {
                     payload: res.payload,
-                    contentType: res.headers['Content-Type']
+                    contentType: res.headers['content-type']
                 };
 
                 getCredentials('john', function (err, cred) {
 
                     artifacts.credentials = cred;
                     var header = Hawk.server.header(artifacts, options);
-                    expect(header).to.equal(res.headers.Authorization);
+                    expect(header).to.equal(res.headers.authorization);
 
                     done();
                 });
@@ -771,7 +771,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.statusCode).to.equal(500);
-                expect(res.headers.Authorization).to.not.exist;
+                expect(res.headers.authorization).to.not.exist;
                 done();
             });
         });
@@ -1363,8 +1363,8 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.headers['WWW-Authenticate']).to.contain('Hawk');
-                expect(res.headers['WWW-Authenticate']).to.contain('Basic');
+                expect(res.headers['www-authenticate']).to.contain('Hawk');
+                expect(res.headers['www-authenticate']).to.contain('Basic');
                 done();
             });
         });
@@ -1495,7 +1495,7 @@ describe('Auth', function () {
             server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
 
                 expect(res.result).to.equal('valid');
-                var header = res.headers['Set-Cookie'];
+                var header = res.headers['set-cookie'];
                 expect(header.length).to.equal(1);
                 expect(header[0]).to.contain('Max-Age=60');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
@@ -1514,7 +1514,7 @@ describe('Auth', function () {
             server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
 
                 expect(res.result).to.equal('valid');
-                var header = res.headers['Set-Cookie'];
+                var header = res.headers['set-cookie'];
                 expect(header.length).to.equal(1);
                 expect(header[0]).to.contain('Max-Age=60');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
@@ -1523,7 +1523,7 @@ describe('Auth', function () {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result).to.equal('logged-out');
-                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
+                    expect(res.headers['set-cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
                     done();
                 });
             });
@@ -1534,14 +1534,14 @@ describe('Auth', function () {
             server.inject({ method: 'GET', url: '/login/invalid' }, function (res) {
 
                 expect(res.result).to.equal('invalid');
-                var header = res.headers['Set-Cookie'];
+                var header = res.headers['set-cookie'];
                 expect(header.length).to.equal(1);
                 expect(header[0]).to.contain('Max-Age=60');
                 var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
 
                 server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
 
-                    expect(res.headers['Set-Cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
+                    expect(res.headers['set-cookie'][0]).to.equal('special=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/');
                     expect(res.statusCode).to.equal(401);
                     done();
                 });
@@ -1577,7 +1577,7 @@ describe('Auth', function () {
 
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
-                    expect(res.headers.Location).to.equal('http://example.com/login?next=%2F');
+                    expect(res.headers.location).to.equal('http://example.com/login?next=%2F');
                     done();
                 });
             });
@@ -1609,7 +1609,7 @@ describe('Auth', function () {
 
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
-                    expect(res.headers.Location).to.equal('http://example.com/login?mode=1&next=%2F');
+                    expect(res.headers.location).to.equal('http://example.com/login?mode=1&next=%2F');
                     done();
                 });
             });
@@ -1641,7 +1641,7 @@ describe('Auth', function () {
 
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
-                    expect(res.headers.Location).to.equal('http://example.com/login?mode=1');
+                    expect(res.headers.location).to.equal('http://example.com/login?mode=1');
                     done();
                 });
             });
