@@ -562,6 +562,13 @@ describe('Auth', function () {
             },
             'jane': {
                 err: Hapi.error.internal('boom')
+            },
+            'joan': {
+                cred: {
+                    id: 'joan',
+                    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+                    algorithm: 'sha256'
+                }
             }
         };
 
@@ -599,6 +606,12 @@ describe('Auth', function () {
             request.reply.payload('Success').send();
         };
 
+        var hawkChangeHandler = function (request) {
+
+            request.session.algorithm = 'ha';
+            request.reply.payload('Success').send();
+        };
+
         var hawkErrorHandler = function (request) {
 
             request.reply.payload(new Error()).send();
@@ -626,6 +639,7 @@ describe('Auth', function () {
 
         server.route([
             { method: 'POST', path: '/hawk', handler: hawkHandler },
+            { method: 'POST', path: '/hawkchange', handler: hawkChangeHandler },
             { method: 'POST', path: '/hawkError', handler: hawkErrorHandler },
             { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
@@ -736,6 +750,17 @@ describe('Auth', function () {
 
                     done();
                 });
+            });
+        });
+
+        it('returns an error when the hawk auth response header can\'t be created', function (done) {
+
+            var request = { method: 'POST', url: '/hawkchange', headers: { authorization: hawkHeader('joan', '/hawkchange'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
             });
         });
 
@@ -1585,6 +1610,38 @@ describe('Auth', function () {
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
                     expect(res.headers.Location).to.equal('http://example.com/login?mode=1&next=%2F');
+                    done();
+                });
+            });
+
+            it('sends to login page and doesn\'t append the next query when appendNext is false', function (done) {
+
+                var config = {
+                    scheme: 'cookie',
+                    password: 'password',
+                    ttl: 60 * 1000,
+                    redirectTo: 'http://example.com/login?mode=1',
+                    appendNext: false,
+                    validateFunc: function (session, callback) {
+
+                        return callback();
+                    }
+                };
+
+                var server = new Hapi.Server({ auth: config });
+
+                server.route({
+                    method: 'GET', path: '/', handler: function () {
+
+                        return this.reply('never');
+                    }
+                });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('You are being redirected...');
+                    expect(res.statusCode).to.equal(302);
+                    expect(res.headers.Location).to.equal('http://example.com/login?mode=1');
                     done();
                 });
             });
