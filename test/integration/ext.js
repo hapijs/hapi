@@ -20,7 +20,7 @@ var it = Lab.test;
 
 describe('Ext', function () {
 
-    describe('onRequest', function (done) {
+    describe('#onRequest', function (done) {
 
         it('replies with custom response', function (done) {
 
@@ -35,6 +35,34 @@ describe('Ext', function () {
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.result.message).to.equal('boom');
+                done();
+            });
+        });
+    });
+
+    describe('#ext', function () {
+
+        it('supports adding an array of ext methods', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onPreHandler', [
+                function (request, next) {
+
+                    request.x = '1';
+                    next();
+                },
+                function (request, next) {
+
+                    request.x += '2';
+                    next();
+                }
+            ]);
+
+            server.route({ method: 'GET', path: '/', handler: function () { this.reply(this.x); } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('12');
                 done();
             });
         });
