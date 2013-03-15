@@ -103,6 +103,7 @@ describe('Proxy', function () {
             { method: 'POST', path: '/file', handler: streamHandler, config: { payload: 'stream' } },
             { method: 'POST', path: '/echo', handler: echoPostBody },
             { method: 'GET', path: '/headers', handler: headers },
+            { method: 'GET', path: '/noHeaders', handler: headers },
             { method: 'GET', path: '/forward', handler: forward }
         ]);
 
@@ -130,7 +131,8 @@ describe('Proxy', function () {
                 { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: 'stream' } },
                 { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
                 { method: 'GET', path: '/forward', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
-                { method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } }
+                { method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
+                { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } }
             ]);
 
             server.start(function () {
@@ -187,6 +189,18 @@ describe('Proxy', function () {
             expect(rawRes.body).to.equal('{\"status\":\"success\"}');
             expect(rawRes.headers.custom1).to.equal('custom header value 1');
             expect(rawRes.headers['x-custom2']).to.equal('custom header value 2');
+            done();
+        });
+    });
+
+    it('does not forward upstream headers without passThrough', function (done) {
+
+        makeRequest({ path: '/noHeaders' }, function (rawRes) {
+
+            expect(rawRes.statusCode).to.equal(200);
+            expect(rawRes.body).to.equal('{\"status\":\"success\"}');
+            expect(rawRes.headers.custom1).to.not.exist;
+            expect(rawRes.headers['x-custom2']).to.not.exist;
             done();
         });
     });
