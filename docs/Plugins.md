@@ -1,5 +1,6 @@
 # Hapi Plugins
 
+***Create a [pull request](http://help.github.com/send-pull-requests/) to add a plugin to the list.***
 
 ## Security
 
