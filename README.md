@@ -19,6 +19,8 @@ Current version: **0.16.0**
 
 ### [Tutorials](/docs/Tutorials.md)
 
+### [Plugins](/docs/Plugins.md)
+
 ### [Breaking Changes](https://github.com/spumko/hapi/issues?labels=breaking+changes&state=closed)
 
 ## Getting started
