@@ -85,6 +85,14 @@ describe('Proxy', function () {
             this.reply('Success');
         };
 
+        var headers = function () {
+
+            this.reply.payload({ status: 'success' })
+                      .header('Custom1', 'custom header value 1')
+                      .header('X-Custom2', 'custom header value 2')
+                      .send();
+        };
+
         var backendServer = new Hapi.Server(0);
         backendServer.route([
             { method: 'GET', path: '/profile', handler: profile },
@@ -94,6 +102,7 @@ describe('Proxy', function () {
             { method: 'GET', path: '/unauthorized', handler: unauthorized },
             { method: 'POST', path: '/file', handler: streamHandler, config: { payload: 'stream' } },
             { method: 'POST', path: '/echo', handler: echoPostBody },
+            { method: 'GET', path: '/headers', handler: headers },
             { method: 'GET', path: '/forward', handler: forward }
         ]);
 
@@ -120,7 +129,8 @@ describe('Proxy', function () {
                 { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
                 { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: 'stream' } },
                 { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
-                { method: 'GET', path: '/forward', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } }
+                { method: 'GET', path: '/forward', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
+                { method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } }
             ]);
 
             server.start(function () {
@@ -130,7 +140,7 @@ describe('Proxy', function () {
         });
     });
 
-    function makeRequest (options, callback) {
+    function makeRequest(options, callback) {
 
         var next = function (err, res) {
 
@@ -164,7 +174,19 @@ describe('Proxy', function () {
         makeRequest({ path: '/forward', headers: { 'x-forwarded-for': 'xforwardfor', 'x-forwarded-port': '9000', 'x-forwarded-proto': 'xforwardproto' } }, function (rawRes) {
 
             expect(rawRes.statusCode).to.equal(200);
-            expect(rawRes.body).to.contain('Success');
+            expect(rawRes.body).to.equal('Success');
+            done();
+        });
+    });
+
+    it('forwards upstream headers', function (done) {
+
+        makeRequest({ path: '/headers' }, function (rawRes) {
+
+            expect(rawRes.statusCode).to.equal(200);
+            expect(rawRes.body).to.equal('{\"status\":\"success\"}');
+            expect(rawRes.headers.custom1).to.equal('custom header value 1');
+            expect(rawRes.headers['x-custom2']).to.equal('custom header value 2');
             done();
         });
     });
