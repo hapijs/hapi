@@ -94,7 +94,7 @@ exports.register = function (pack, options, next) {
 
 ### Plugging into a Subset of Servers
 
-The _'register'_ method for a plugin is passed a _'pack'_ object.  This object has a _'select'_ method that returns servers that match the provided criteria.  In the following, all of the servers that support TLS will be selected and an api method will be exposed to them.
+The _'register'_ method for a plugin is passed a _'pack'_ object.  This object has a _'select'_ method that returns a pack of servers that match the provided criteria.  In the following, all of the servers that support TLS will be selected and a route will be added to them.
 
 Begin by exporting the _'register'_ function within the module.
 
