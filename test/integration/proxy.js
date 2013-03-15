@@ -90,6 +90,7 @@ describe('Proxy', function () {
             this.reply.payload({ status: 'success' })
                       .header('Custom1', 'custom header value 1')
                       .header('X-Custom2', 'custom header value 2')
+                      .header('access-control-allow-headers', 'Invalid, List, Of, Values')
                       .send();
         };
 
@@ -117,7 +118,7 @@ describe('Proxy', function () {
             var backendPort = backendServer.settings.port;
             var routeCache = { expiresIn: 500 };
 
-            server = new Hapi.Server(0, { cache: { engine: 'memory' } });
+            server = new Hapi.Server(0, { cors: true, cache: { engine: 'memory' } });
             server.route([
                 { method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
                 { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
@@ -183,12 +184,13 @@ describe('Proxy', function () {
 
     it('forwards upstream headers', function (done) {
 
-        makeRequest({ path: '/headers' }, function (rawRes) {
+        server.inject({ url: '/headers', method: 'GET' }, function (res) {
 
-            expect(rawRes.statusCode).to.equal(200);
-            expect(rawRes.body).to.equal('{\"status\":\"success\"}');
-            expect(rawRes.headers.custom1).to.equal('custom header value 1');
-            expect(rawRes.headers['x-custom2']).to.equal('custom header value 2');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('{\"status\":\"success\"}');
+            expect(res.headers.custom1).to.equal('custom header value 1');
+            expect(res.headers['x-custom2']).to.equal('custom header value 2');
+            expect(res.headers['access-control-allow-headers']).to.equal('Authorization, Content-Type, If-None-Match');
             done();
         });
     });

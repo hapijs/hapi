@@ -95,7 +95,7 @@ describe('Request', function () {
 
         makeRequest('GET', '/custom', function (res) {
 
-            expect(res.headers['Content-Type']).to.equal('text/plain; charset=utf-8');
+            expect(res.headers['content-type']).to.equal('text/plain; charset=utf-8');
             done();
         });
     });
@@ -104,7 +104,7 @@ describe('Request', function () {
 
         makeRequest('OPTIONS', '/custom', function (res) {
 
-            expect(res.headers['Access-Control-Allow-Origin']).to.equal('*');
+            expect(res.headers['access-control-allow-origin']).to.equal('*');
             done();
         });
     });
