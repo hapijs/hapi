@@ -57,15 +57,7 @@ When a pack allows the _'route'_ permission then any plugin within the pack can 
 exports.register = function (pack, options, next)
 ```
 
-Next, make sure that the _'pack'_ allows for the plugin to add routes by checking that _'pack.route'_ is a function.
-
-```javascript
-if (typeof pack.route !== 'function') {
-    return next(new Error('Plugin permissions must allow route'));   
-}
-```
-
-If the _'pack'_ allows the route permission then go ahead and add a new route and then call _'next'_.
+Next call _'route'_ and then call _'next'_.
 
 ```javascript
 pack.route({ method: 'GET', path: '/', handler: function (request) {
@@ -75,14 +67,12 @@ pack.route({ method: 'GET', path: '/', handler: function (request) {
 next();
 ```
 
+In the event that a pack doesn't grant the _'route'_ permission an exception will be thrown.  Therefore, there isn't a need to check first for this function unless the plugin will work without it.
+
 Below is what the final plugin looks like:
 
 ```javascript
 exports.register = function (pack, options, next) {
-
-  if (typeof pack.route !== 'function') {
-    return next(new Error('Plugin permissions must allow route'));   
-  }
   
   pack.route({ method: 'GET', path: '/', handler: function (request) {
 
