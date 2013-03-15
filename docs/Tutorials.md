@@ -60,7 +60,9 @@ exports.register = function (pack, options, next)
 Next, make sure that the _'pack'_ allows for the plugin to add routes by checking that _'pack.route'_ is a function.
 
 ```javascript
-console.assert(typeof pack.route === 'function', 'Plugin permissions must allow route');
+if (typeof pack.route !== 'function') {
+    return next(new Error('Plugin permissions must allow route'));   
+}
 ```
 
 If the _'pack'_ allows the route permission then go ahead and add a new route and then call _'next'_.
@@ -78,11 +80,68 @@ Below is what the final plugin looks like:
 ```javascript
 exports.register = function (pack, options, next) {
 
-  console.assert(typeof pack.route === 'function', 'Plugin permissions must allow route');
+  if (typeof pack.route !== 'function') {
+    return next(new Error('Plugin permissions must allow route'));   
+  }
+  
   pack.route({ method: 'GET', path: '/', handler: function (request) {
 
     request.reply('Hello Plugins');
   }});
   next();
+};
+```
+
+### Plugging into a Subset of Servers
+
+The _'register'_ method for a plugin is passed a _'pack'_ object.  This object has a _'select'_ method that returns servers that match the provided criteria.  In the following, all of the servers that support TLS will be selected and an api method will be exposed to them.
+
+Begin by exporting the _'register'_ function within the module.
+
+```javascript
+exports.register = function (pack, options, next)
+```
+
+Now call the _'select'_ method on _'pack'_ and look for the pack of servers that have the 'secure' label.
+
+```javascript
+var securePack = pack.select({ label: 'secure' });
+```
+
+The result of calling _'select'_ will be a subset package of any server that match the criteria.  The result will have the same methods that existed on the original _'pack'_ object passed in.
+
+Before calling any of the methods on _'securePack'_ check to make sure that any servers were found that meet the criteria by checking _'length'_.
+
+```javascript
+if (!securePack.length) {
+    return next(new Error('No secure servers found'));   
+}
+```
+
+Finally add a route that is now guranteed to be applied to only servers that support TLS.
+
+```javascript
+securePack.route({ method: 'GET', path: '/', handler: function (request) {
+
+    request.reply('Hello Secure Server');
+}});
+```
+
+The complete plugin _'register'_ function is shown below, including the call of _'next'_.
+
+```javascript
+exports.register = function (pack, options, next) {
+
+    var securePack = pack.select({ label: 'secure' });
+    if (!securePack.length) {
+        return next(new Error('No secure servers found'));   
+    }
+    
+    securePack.route({ method: 'GET', path: '/', handler: function (request) {
+
+        request.reply('Hello Secure Server');
+    }});
+    
+    next();
 };
 ```
