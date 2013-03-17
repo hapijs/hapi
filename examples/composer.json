@@ -1,21 +1,20 @@
 {
-  "servers": {
-    "ren": {
+  "pack": {
+    "cache": "redis"
+  },
+  "servers": [
+    {
       "host": "localhost",
       "port": 8001,
-      "labels": ["api", "nasty"],
-      "config": {
-        "monitor": {
-          "subscribers": {
-            "console": ["ops", "request", "log"]
-          }
-        },
-        "cache": "redis"
+      "options": {
+        "labels": ["api", "nasty"],
       }
     },
-    "stimpy": {
+    {
       "port": 8002,
-      "labels": ["api", "nice"]
+      "options": {
+        "labels": ["api", "nice"]
+      }
     }
   },
   "plugins": {

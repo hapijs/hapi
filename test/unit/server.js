@@ -38,6 +38,13 @@ describe('Server', function () {
         done();
     });
 
+    it('defaults to port 443 when no port is provided with tls', function (done) {
+
+        var server = new Hapi.Server({ tls: {} });
+        expect(server.settings.port).to.be.equal(443);
+        done();
+    });
+
     it('defaults to port 80 when a null port is provided', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', null);
@@ -165,6 +172,17 @@ describe('Server', function () {
         it('calls the callback when one is used', function (done) {
 
             var server = new Hapi.Server('0.0.0.0', 0);
+            server.start(function () {
+
+                expect(server.settings.host).to.equal('0.0.0.0');
+                expect(server.settings.port).to.not.equal(0);
+                done();
+            });
+        });
+
+        it('calls the callback when one is used with tls', function (done) {
+
+            var server = new Hapi.Server('0.0.0.0', 0, { tls: {} });
             server.start(function () {
 
                 expect(server.settings.host).to.equal('0.0.0.0');

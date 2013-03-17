@@ -135,13 +135,23 @@ describe('Pack', function () {
         });
     });
 
+    it('throws when pack server contains cache configuration', function (done) {
+
+        expect(function () {
+
+            var pack = new Hapi.Pack();
+            pack.server({ cache: 'memory', labels: ['a', 'b', 'c'] });
+        }).to.throw('Cannot configure server cache in a pack member');
+        done();
+    });
+
     it('requires plugin', function (done) {
 
         var pack = new Hapi.Pack();
         pack.server({ labels: ['s1', 'a', 'b'] });
-        pack.server({ tls: {}, labels: ['s2', 'a', 'test'] });
-        pack.server({ tls: {}, cache: 'memory', labels: ['s3', 'a', 'b', 'd', 'cache'] });
-        pack.server({ cache: 'memory', labels: ['s4', 'b', 'test', 'cache'] });
+        pack.server({ labels: ['s2', 'a', 'test'] });
+        pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+        pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
 
         pack.allow({ route: true }).require('./pack/--test1', {}, function (err) {
 
@@ -267,9 +277,9 @@ describe('Pack', function () {
 
         var pack = new Hapi.Pack();
         pack.server(0, { labels: ['s1', 'a', 'b'] });
-        pack.server(0, { tls: {}, labels: ['s2', 'a', 'test'] });
-        pack.server(0, { tls: {}, cache: 'memory', labels: ['s3', 'a', 'b', 'd', 'cache'] });
-        pack.server(0, { cache: 'memory', labels: ['s4', 'b', 'test', 'cache'] });
+        pack.server(0, { labels: ['s2', 'a', 'test'] });
+        pack.server(0, { labels: ['s3', 'a', 'b', 'd', 'cache'] });
+        pack.server(0, { labels: ['s4', 'b', 'test', 'cache'] });
 
         pack.start(function () {
 

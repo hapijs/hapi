@@ -148,7 +148,7 @@ describe('Cache', function () {
 
         makeRequest('/error', function () {
 
-            _server._cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
+            _server.plugin._cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
 
                 expect(cached).to.not.exist;
                 done();
@@ -169,7 +169,7 @@ describe('Cache', function () {
 
         makeRequest('/cache', function () {
 
-            _server._cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
+            _server.plugin._cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
 
                 expect(cached).to.exist;
                 done();
@@ -207,7 +207,7 @@ describe('Cache', function () {
 
         makeRequest('/serverclient', function (res1) {
 
-            _server._cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
+            _server.plugin._cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
 
                 expect(cached1).to.exist;
                 expect(res1.headers['cache-control']).to.equal('max-age=120, must-revalidate');
@@ -215,7 +215,7 @@ describe('Cache', function () {
 
                 makeRequest('/clientserver', function (res2) {
 
-                    _server._cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
+                    _server.plugin._cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
 
                         expect(cached2).to.exist;
                         expect(res2.headers['cache-control']).to.equal('max-age=120, must-revalidate');

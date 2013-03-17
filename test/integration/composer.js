@@ -23,11 +23,13 @@ describe('Composer', function () {
     it('composes pack', function (done) {
 
         var manifest = {
+            pack: {
+                cache: 'memory'
+            },
             servers: [
                 {
                     port: 0,
                     options: {
-                        cache: 'memory',
                         labels: ['api', 'nasty', 'test']
                     }
                 },
