@@ -420,4 +420,56 @@ describe('Pack', function () {
         }).to.throw('Plugin \'--deps1\' missing dependencies: --deps2');
         done();
     });
+
+    it('uses plugin cache interface', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (pack, options, next) {
+
+                var cache = pack.cache({ expiresIn: 5 });
+                pack.api({
+                    get: function (key, callback) {
+                        cache.get(key, function (err, value) {
+
+                            callback(err, value && value.item);
+                        });
+                    },
+                    set: function (key, value, callback) {
+                        cache.set(key, value, 0, callback);
+                    }
+                });
+
+                next();
+            }
+        };
+
+        var server = new Hapi.Server(0);
+        server.plugin.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.start(function () {
+
+                server.plugins.test.set('a', '1', function (err) {
+
+                    expect(err).to.not.exist;
+                    server.plugins.test.get('a', function (err, value) {
+
+                        expect(err).to.not.exist;
+                        expect(value).to.equal('1');
+                        setTimeout(function () {
+
+                            server.plugins.test.get('a', function (err, value) {
+
+                                expect(err).to.not.exist;
+                                expect(value).to.equal(null);
+                                done();
+                            });
+                        }, 5);
+                    });
+                });
+            });
+        });
+    });
 });
