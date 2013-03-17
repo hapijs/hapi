@@ -22,30 +22,32 @@ describe('Composer', function () {
 
     it('composes pack', function (done) {
 
-        var options = {
-            servers: {
-                ren: {
+        var manifest = {
+            servers: [
+                {
                     port: 0,
-                    labels: ['api', 'nasty', 'test'],
-                    config: {
-                        cache: 'memory'
+                    options: {
+                        cache: 'memory',
+                        labels: ['api', 'nasty', 'test']
                     }
                 },
-                stimpy: {
+                {
                     host: 'localhost',
                     port: 0,
-                    labels: ['api', 'nice']
+                    options: {
+                        labels: ['api', 'nice']
+                    }
                 }
-            },
+            ],
             plugins: {
-                '../test/integration/pack/--test1': { }
+                '../test/integration/pack/--test1': {}
             },
             permissions: {
                 ext: true
             }
         };
 
-        var composer = new Hapi.Composer(options);
+        var composer = new Hapi.Composer(manifest);
         composer.compose(function (err) {
 
             expect(err).to.not.exist;
@@ -54,7 +56,7 @@ describe('Composer', function () {
                 expect(err).to.not.exist;
                 composer.stop();
 
-                composer.packs[0].servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
+                composer._packs[0]._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
 
                     expect(res.result).to.equal('testing123');
                     done();
