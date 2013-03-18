@@ -17,7 +17,6 @@
         - [Cookie Authentication](#cookie-authentication)
         - [Hawk Authentication](#hawk-authentication)
         - [Hawk Bewit Authentication](#hawk-bewit-authentication)
-        - [Multiple Authentication Strategies](#multiple-authentication-strategies)
     - [Cache](#cache)
     - [CORS](#cors)
     - [State](#state)
@@ -215,14 +214,63 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 
 ### Authentication
 
-The authentication interface is disabled by default and is still experimental.
+**hapi** supports several authentication schemes and can be configured with multiple strategies using these schemes (as well as other
+extensions). The built-in schemes provided:
 
-Hapi supports several authentication schemes and can be configured with different authentication strategies that use these schemes.  Authentication is configured for the server by either assigning a single strategy to the _'auth'_ object or by creating an object with different strategies where the strategy names are the object keys.
+- _'basic'_ - HTTP [Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
+- _'cookie'_ - simple [cookie authentication](#cookie-authentication)
+- _'hawk'_ - HTTP [Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'bewit'_ - URI [Hawk Bewit](#hawk-bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'oz'_ - experimental web authorization protocol ([Oz protocol](https://github.com/hueniverse/oz))
 
-- `scheme` - when using a single authentication strategy set this to the configuration options for that strategy
-- `implementation` - when using a custom scheme set this to the function that will perform authentication.  Scheme must start with 'ext:' when using a custom implementation.
+Authentication setup includes two steps:
+- Configure server authentication strategies using the provided schemes (or using an extension implementation). Strategies
+  are added using the `server.auth(name, options)` method where:
+    - 'name' - is the strategy name ('default' is automatically assigned if a single strategy is defined via the server config object).
+    - 'options' - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared
+      by all schemes:
+        - `scheme` - the built-in scheme name.
+        - `implementation` - cannot be used together with `scheme` and is used to provide an object with the **hapi** scheme interface.
+        - `requiredByDefault` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
+          only be assigned to a single server strategy.
+- Assign strategies to route via the route config as described in [Configuration options](#configuration-options).
 
-When the server supports multiple authentication strategies then you can set strategies on the _'auth'_ object directly where the strategy name is the object key.  Every strategy object on the _'auth'_ object should follow the same guidelines as above.
+In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
+`auth` key which can be set to a single strategy (name will default to 'default') or an object with multiple strategies where the strategy
+name is the object key.
+
+For example, configuring a single strategy:
+```javascript
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: function (username, callback) { 
+        
+            var user = { id: '', password: '' };
+            callback(null, user);
+        }
+    }
+};
+```
+
+And configuring multiple strategies:
+```javascript
+var options = {
+    auth: {
+        password1: {
+            scheme: 'basic',
+            loadUserFunc: loadUser1
+        },
+        password2: {
+            scheme: 'basic',
+            loadUserFunc: loadUser2
+        }
+    }
+};
+```
+
+The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation of a server with multiple authentication strategies.
+
 
 #### Basic Authentication
 
@@ -375,33 +423,6 @@ var cred = {
 var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
 var uri = 'http://site.com/endpoint?bewit=' + bewit;
 ```
-
-#### Multiple Authentication Strategies
-
-There may be instances where you want to support more than one authentication strategy for a server.  Below is an example of using both basic and hawk authentication strategies on the server and defaulting to basic.  The default strategy is what will be used by endpoints if they do not specify a strategy to use.
-
-```javascript
- var config = {
-    auth: {
-        'default': {
-            scheme: 'basic',
-            loadUserFunc: internals.loadUser,
-            hashPasswordFunc: internals.hashPassword
-        },
-        'hawk': {
-            scheme: 'hawk',
-            getCredentialsFunc: internals.getCredentials
-        },
-        'basic': {
-            scheme: 'basic',
-            loadUserFunc: internals.loadUser,
-            hashPasswordFunc: internals.hashPassword
-        }
-    }
-};
-```
-
-In the _'examples'_ folder is an _'auth.js'_ file that demonstrates creating a server with multiple authentication strategies.
 
 
 ### Cache
