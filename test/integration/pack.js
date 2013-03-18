@@ -472,4 +472,26 @@ describe('Pack', function () {
             });
         });
     });
+
+    it('adds auth strategy via plugin', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: function () { this.reply('authenticated!') } });
+
+        server.plugin.require('./pack/--auth', function (err) {
+
+            expect(err).to.not.exist;
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('authenticated!');
+                    done();
+                });
+            });
+        });
+    });
 });
