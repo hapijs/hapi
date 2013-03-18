@@ -22,7 +22,7 @@ var it = Lab.test;
 
 describe('Route', function () {
 
-    var server = { settings: Defaults.server };
+    var server = new Hapi.Server(Defaults.server);
 
     var _handler = function (request) {
 
@@ -161,7 +161,7 @@ describe('Route', function () {
 
                 it('process the path \'' + path + '\' as ' + fingerprint, function (done) {
 
-                    var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isCaseSensitive: true } } });
+                    var route = new Route({ path: path, method: 'get', handler: function () { } }, new Hapi.Server({ router: { isCaseSensitive: true } }));
                     expect(route.fingerprint).to.equal(fingerprint);
                     done();
                 });
@@ -249,7 +249,8 @@ describe('Route', function () {
 
                 function test(path, matches, isCaseSensitive) {
 
-                    var route = new Route({ path: path, method: 'get', handler: function () { } }, { settings: { router: { isCaseSensitive: isCaseSensitive } } });
+                    var server = new Hapi.Server({ router: { isCaseSensitive: isCaseSensitive } });
+                    var route = new Route({ path: path, method: 'get', handler: function () { } }, server);
                     var mkeys = Object.keys(matches);
                     for (var m = 0, ml = mkeys.length; m < ml; ++m) {
                         function match(route, match, result) {

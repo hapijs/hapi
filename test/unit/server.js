@@ -123,7 +123,7 @@ describe('Server', function () {
     it('assigns this.views when config enables views', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', 0, { views: { partials: { path: __dirname + '/templates' } } });
-        expect(server.views).to.exist;
+        expect(server._views).to.exist;
         done();
     });
 

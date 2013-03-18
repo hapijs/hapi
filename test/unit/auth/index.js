@@ -31,7 +31,7 @@ describe('Auth', function () {
                 var auth = Auth();
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw('Auth must be instantiated using new');
             done();
         });
 
@@ -40,10 +40,10 @@ describe('Auth', function () {
             var fn = function () {
 
                 var auth = new Auth();
-                auth.loadConfig(null);
+                auth.addBatch(null);
             };
 
-            expect(fn).to.throw(Error, 'Invalid options');
+            expect(fn).to.throw(Error, 'Invalid auth options');
             done();
         });
 
@@ -52,10 +52,10 @@ describe('Auth', function () {
             var fn = function () {
 
                 var auth = new Auth();
-                auth.loadConfig({ scheme: null });
+                auth.addBatch({ scheme: null });
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw('Cannot read property \'scheme\' of null');
             done();
         });
 
@@ -69,7 +69,7 @@ describe('Auth', function () {
                 };
 
                 var auth = new Auth(server);
-                auth.loadConfig({
+                auth.addBatch({
                     scheme: 'oz',
                     encryptionPassword: 'test',
                     loadAppFunc: function () { },
@@ -86,7 +86,7 @@ describe('Auth', function () {
             var a = function () {
 
                 var auth = new Auth();
-                auth.loadConfig({});
+                auth.addBatch({});
             };
 
             expect(a).to.not.throw;
@@ -110,7 +110,7 @@ describe('Auth', function () {
             var a = function () {
 
                 var auth = new Auth(server);
-                auth.loadConfig(scheme);
+                auth.addBatch(scheme);
             };
 
             expect(a).to.not.throw(Error);
@@ -161,7 +161,7 @@ describe('Auth', function () {
             var a = function () {
 
                 var auth = new Auth(server);
-                auth.loadConfig(scheme);
+                auth.addBatch(scheme);
                 auth.authenticate(request, function (err) {
 
                     expect(err).to.not.exist;
@@ -231,7 +231,7 @@ describe('Auth', function () {
                     server: server
                 };
 
-                server.auth.authenticate(request, function (err) {
+                server._auth.authenticate(request, function (err) {
 
                     expect(err).to.not.exist;
                     done();
@@ -259,7 +259,7 @@ describe('Auth', function () {
                     server: server
                 };
 
-                server.auth.authenticate(request, function (err) {
+                server._auth.authenticate(request, function (err) {
 
                     expect(err).to.not.exist;
                     done();
@@ -289,7 +289,7 @@ describe('Auth', function () {
                     server: server
                 };
 
-                server.auth.authenticate(request, function (err) {
+                server._auth.authenticate(request, function (err) {
 
                     expect(err).to.not.exist;
                     done();
@@ -317,7 +317,7 @@ describe('Auth', function () {
                     server: server
                 };
 
-                server.auth.authenticate(request, function (err) {
+                server._auth.authenticate(request, function (err) {
 
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
@@ -348,7 +348,7 @@ describe('Auth', function () {
                     server: server
                 };
 
-                server.auth.authenticate(request, function (err) {
+                server._auth.authenticate(request, function (err) {
 
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
@@ -379,7 +379,7 @@ describe('Auth', function () {
                     server: server
                 };
 
-                server.auth.authenticate(request, function (err) {
+                server._auth.authenticate(request, function (err) {
 
                     expect(err).to.not.exist;
                     done();
@@ -410,7 +410,7 @@ describe('Auth', function () {
                     host: 'localhost'
                 };
 
-                server.auth.authenticate(request, function (err) {
+                server._auth.authenticate(request, function (err) {
 
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
@@ -450,7 +450,7 @@ describe('Auth', function () {
                 };
 
                 var auth = new Auth(server);
-                auth.loadConfig(scheme);
+                auth.addBatch(scheme);
 
                 auth.authenticate(request, function (err) {
 
@@ -488,7 +488,6 @@ describe('Auth', function () {
 
             var server = new Hapi.Server({
                 auth: {
-                    scheme: 'ext:test',
                     implementation: {
                         authenticate: function (request, callback) {
 
@@ -507,7 +506,6 @@ describe('Auth', function () {
             server.inject({ url: '/', method: 'GET' }, function (res) {
 
                 expect(res.statusCode).to.equal(500);
-                //expect(err.message).to.equal('Authentication response missing both error and session');
                 done();
             });
         });

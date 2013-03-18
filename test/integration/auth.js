@@ -67,7 +67,8 @@ describe('Auth', function () {
             auth: {
                 scheme: 'basic',
                 loadUserFunc: loadUser,
-                hashPasswordFunc: hashPassword
+                hashPasswordFunc: hashPassword,
+                requiredByDefault: true
             }
         };
 
@@ -89,11 +90,11 @@ describe('Auth', function () {
         };
 
         server.route([
-            { method: 'POST', path: '/basic', handler: basicHandler, config: { auth: 'default' } },
+            { method: 'POST', path: '/basic', handler: basicHandler },
             { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
             { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: 200 } } },
-            { method: 'POST', path: '/double', handler: doubleHandler, config: { auth: 'default' } }
+            { method: 'POST', path: '/double', handler: doubleHandler }
         ]);
 
         it('returns a reply on successful auth', function (done) {
@@ -365,7 +366,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.route({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/basicPayload', handler: basicHandler, config: { auth: { mode: 'required', payload: false }, payload: 'raw' } });
             };
 
             expect(fn).to.not.throw(Error);
@@ -544,7 +545,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.route({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/ozPayload', handler: ozHandler, config: { auth: { mode: 'required', payload: false }, payload: 'raw' } });
             };
 
             expect(fn).to.not.throw(Error);
@@ -649,7 +650,7 @@ describe('Auth', function () {
             { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: 200 } } },
             { method: 'POST', path: '/hawkPayload', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } },
             { method: 'POST', path: '/hawkPayloadOptional', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } },
-            { method: 'POST', path: '/hawkPayloadNone', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } },
+            { method: 'POST', path: '/hawkPayloadNone', handler: hawkHandler, config: { auth: { mode: 'required', payload: false }, payload: 'raw' } },
             { method: 'POST', path: '/hawkOptionalPayload', handler: hawkHandler, config: { auth: { mode: 'optional', payload: 'required' }, payload: 'raw' } }
         ]);
 
@@ -1166,7 +1167,7 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                server.route({ method: 'POST', path: '/bewitPayload', handler: bewitHandler, config: { auth: { mode: 'required', payload: 'none' }, payload: 'raw' } });
+                server.route({ method: 'POST', path: '/bewitPayload', handler: bewitHandler, config: { auth: { mode: 'required', payload: false }, payload: 'raw' } });
             };
 
             expect(fn).to.not.throw(Error);
@@ -1180,7 +1181,6 @@ describe('Auth', function () {
 
             var config = {
                 auth: {
-                    scheme: 'ext:any',
                     implementation: {
 
                         authenticate: function (request, callback) {
