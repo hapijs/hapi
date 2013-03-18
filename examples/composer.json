@@ -7,7 +7,7 @@
       "host": "localhost",
       "port": 8001,
       "options": {
-        "labels": ["api", "nasty"],
+        "labels": ["api", "nasty"]
       }
     },
     {
@@ -16,7 +16,7 @@
         "labels": ["api", "nice"]
       }
     }
-  },
+  ],
   "plugins": {
     "furball": {
       "version": false,
