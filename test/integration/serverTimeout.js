@@ -92,7 +92,7 @@ describe('Server Timeout', function () {
         request.reply.stream(s).send();
     };
 
-    var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 }, cache: { engine: 'memory' } });
+    var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 } });
     _server.route([
         { method: 'GET', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'GET', path: '/timeoutcache', config: { handler: cachedTimeoutHandler } },
@@ -243,7 +243,7 @@ describe('Server and Client timeouts', function () {
         }, 70);
     };
 
-    var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50, client: 50 }, cache: { engine: 'memory' } });
+    var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50, client: 50 } });
     _server.route([
         { method: 'POST', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'POST', path: '/timeoutcache', config: { handler: cachedTimeoutHandler } }

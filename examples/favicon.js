@@ -15,7 +15,7 @@ internals.main = function () {
     var http = new Hapi.Server(8080);
 
     http.route([
-        { method: 'GET', path: '/favicon.ico', handler: { file: './favicon.ico' }, config: { cache: { mode: 'client', expiresIn: 86400000, privacy: 'public' } } }
+        { method: 'GET', path: '/favicon.ico', handler: { file: './favicon.ico' }, config: { cache: { expiresIn: 86400000, privacy: 'public' } } }
     ]);
 
     http.start();

@@ -46,8 +46,8 @@ describe('Response', function () {
                 this.reply('Tada');
             };
 
-            var server = new Hapi.Server({ cache: { engine: 'memory' }, cors: { origin: ['test.example.com', 'www.example.com'] } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com', 'www.example.com'] } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
             server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.state('sid', { encoding: 'base64' });
             server.ext('onPostHandler', function (request, next) {
@@ -104,7 +104,7 @@ describe('Response', function () {
 
             var handler = function () {
 
-                this.reply(new Buffer('Tada'));
+                this.reply(new Buffer('Tada1'));
             };
 
             var server = new Hapi.Server();
@@ -112,7 +112,7 @@ describe('Response', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result).to.equal('Tada');
+                expect(res.result).to.equal('Tada1');
                 done();
             });
         });
@@ -282,7 +282,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -314,7 +314,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -373,7 +373,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
             server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
@@ -407,7 +407,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -1280,10 +1280,10 @@ describe('Response', function () {
         };
 
         var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] } });
-        server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { mode: 'client', expiresIn: 9999 } } });
+        server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
         server.route({ method: 'GET', path: '/stream2', config: { handler: handler2 } });
-        server.route({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { mode: 'client', expiresIn: 9999 } } });
+        server.route({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { expiresIn: 9999 } } });
         server.route({ method: 'GET', path: '/stream4', config: { handler: handler4 } });
         server.route({ method: 'GET', path: '/stream5', config: { handler: handler5 } });
 
@@ -1459,8 +1459,8 @@ describe('Response', function () {
                 request.reply({ status: 'cached' });
             };
 
-            var server = new Hapi.Server(0, { cache: { engine: 'memory' } });
-            server.route({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { expiresIn: 5000 } } });
+            var server = new Hapi.Server(0);
+            server.route({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { mode: 'server+client', expiresIn: 5000 } } });
 
             server.start(function () {
 
@@ -1471,7 +1471,7 @@ describe('Response', function () {
 
                     server.inject({ method: 'GET', url: '/cache' }, function (res2) {
 
-                        expect(res2.result).to.equal('{"status":"cached"}');
+                        expect(res2.result).to.deep.equal('{"status":"cached"}');
                         done();
                     });
                 });
@@ -2030,7 +2030,7 @@ describe('Response', function () {
                 this.reply.close();
             };
 
-            var server = new Hapi.Server({ cache: { engine: 'memory' } });
+            var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
             server.route({ method: 'GET', path: '/null', config: { handler: handler } });
 

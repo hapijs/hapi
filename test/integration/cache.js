@@ -78,17 +78,17 @@ describe('Cache', function () {
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 0, { cache: { engine: 'memory' } });
+        _server = new Hapi.Server('0.0.0.0', 0);
 
         _server.route([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { mode: 'client', expiresIn: 120000, privacy: 'private' } } },
-            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
-            { method: 'GET', path: '/item2', config: { handler: activeItemHandler, cache: { mode: 'none' } } },
-            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { mode: 'client', expiresIn: 120000 } } },
-            { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { expiresIn: 120000 } } },
-            { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { expiresIn: 120000, strict: true } } },
-            { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { expiresIn: 120000, strict: true } } },
-            { method: 'GET', path: '/notcacheablenostrict', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: false } } },
+            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } },
+            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
+            { method: 'GET', path: '/item2', config: { handler: activeItemHandler } },
+            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
+            { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
+            { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: true } } },
+            { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: true } } },
+            { method: 'GET', path: '/notcacheablenostrict', config: { handler: notCacheableHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: false } } },
             { method: 'GET', path: '/clientserver', config: { handler: profileHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
             { method: 'GET', path: '/serverclient', config: { handler: profileHandler, cache: { mode: 'server+client', expiresIn: 120000 } } }
         ]);
@@ -148,7 +148,7 @@ describe('Cache', function () {
 
         makeRequest('/error', function () {
 
-            _server.cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
+            _server.plugin._cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
 
                 expect(cached).to.not.exist;
                 done();
@@ -169,7 +169,7 @@ describe('Cache', function () {
 
         makeRequest('/cache', function () {
 
-            _server.cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
+            _server.plugin._cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
 
                 expect(cached).to.exist;
                 done();
@@ -188,8 +188,8 @@ describe('Cache', function () {
 
     it('throws an error when requesting a strict cached route that is not cacheable', function (done) {
 
-        var server = new Hapi.Server('0.0.0.0', 18885, { cache: { engine: 'memory' } });
-        server.route({ method: 'GET', path: '/notcacheable', config: { handler: notCacheableHandler, cache: { expiresIn: 120000, strict: true } } });
+        var server = new Hapi.Server('0.0.0.0', 18885);
+        server.route({ method: 'GET', path: '/notcacheable', config: { handler: notCacheableHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: true } } });
 
         var fn = function () {
 
@@ -207,7 +207,7 @@ describe('Cache', function () {
 
         makeRequest('/serverclient', function (res1) {
 
-            _server.cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
+            _server.plugin._cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
 
                 expect(cached1).to.exist;
                 expect(res1.headers['cache-control']).to.equal('max-age=120, must-revalidate');
@@ -215,7 +215,7 @@ describe('Cache', function () {
 
                 makeRequest('/clientserver', function (res2) {
 
-                    _server.cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
+                    _server.plugin._cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
 
                         expect(cached2).to.exist;
                         expect(res2.headers['cache-control']).to.equal('max-age=120, must-revalidate');

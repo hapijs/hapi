@@ -3,24 +3,28 @@
 var Optimist = require('optimist');
 var Hapi = require('../');
 
-var argv = Optimist.usage('Usage: $0 -c config.json [-p node_modules_path]')
+var argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path]')
                     .demand(['c'])
                     .argv;
 
-var config = null;
+var manifest = null;
 try {
-    config = require(argv.c[0] !== '/' ? process.cwd() + '/' + argv.c : argv.c);
+    manifest = require(argv.c[0] !== '/' ? process.cwd() + '/' + argv.c : argv.c);
 }
 catch (err) {
     console.log('Failed loading configuration file: ' + argv.c + ' (' + err.message + ')');
     process.exit(1);
 }
 
-var packOptions = {
-    requirePath: argv.p || null
-};
+if (argv.p) {
+    var packs = [].concat(manifest);
+    packs.forEach(function (set) {
+        set.pack = set.pack || {};
+        set.pack.requirePath = argv.p;
+    });
+}
 
-var composer = new Hapi.Composer(config, packOptions);
+var composer = new Hapi.Composer(manifest);
 composer.compose(function (err) {
 
     Hapi.utils.assert(!err, 'Failed loading plugins: ' + (err && err.message));

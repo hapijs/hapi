@@ -168,18 +168,17 @@ describe('Views', function () {
 
     describe('#handler', function () {
 
-        var options = {
-            views: {
-                path: viewsPath
-            }
-        };
-
-        internals._handlerServer = new Hapi.Server(options);
-        internals._handlerServer.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
-
         it('handles routes to views', function (done) {
 
-            internals._handlerServer.inject({
+            var options = {
+                views: {
+                    path: viewsPath
+                }
+            };
+
+            var server = new Hapi.Server(options);
+            server.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
+            server.inject({
                 method: 'GET',
                 url: '/hello'
             }, function (res) {
