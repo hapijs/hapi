@@ -39,7 +39,8 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                var auth = new Auth(null);
+                var auth = new Auth();
+                auth.loadConfig(null);
             };
 
             expect(fn).to.throw(Error, 'Invalid options');
@@ -50,7 +51,8 @@ describe('Auth', function () {
 
             var fn = function () {
 
-                var auth = new Auth(null, { scheme: null });
+                var auth = new Auth();
+                auth.loadConfig({ scheme: null });
             };
 
             expect(fn).to.throw(Error);
@@ -66,7 +68,8 @@ describe('Auth', function () {
                     route: function () { }
                 };
 
-                var auth = new Auth(server, {
+                var auth = new Auth(server);
+                auth.loadConfig({
                     scheme: 'oz',
                     encryptionPassword: 'test',
                     loadAppFunc: function () { },
@@ -78,25 +81,15 @@ describe('Auth', function () {
             done();
         });
 
-        it('throws an error if no strategies are defined', function (done) {
-
-            var request = {
-                _timestamp: Date.now(),
-                route: { auth: {} },
-                log: function () { }
-            };
-
-            var server = {
-                settings: {},
-                route: function () { }
-            };
+        it('doesn\'t throws an error if no strategies are defined', function (done) {
 
             var a = function () {
 
-                var auth = new Auth(server, {});
+                var auth = new Auth();
+                auth.loadConfig({});
             };
 
-            expect(a).to.throw(Error);
+            expect(a).to.not.throw;
             done();
         });
 
@@ -116,7 +109,8 @@ describe('Auth', function () {
 
             var a = function () {
 
-                var auth = new Auth(server, scheme);
+                var auth = new Auth(server);
+                auth.loadConfig(scheme);
             };
 
             expect(a).to.not.throw(Error);
@@ -166,7 +160,8 @@ describe('Auth', function () {
 
             var a = function () {
 
-                var auth = new Auth(server, scheme);
+                var auth = new Auth(server);
+                auth.loadConfig(scheme);
                 auth.authenticate(request, function (err) {
 
                     expect(err).to.not.exist;
@@ -454,7 +449,8 @@ describe('Auth', function () {
                     server: server
                 };
 
-                var auth = new Auth(server, scheme);
+                var auth = new Auth(server);
+                auth.loadConfig(scheme);
 
                 auth.authenticate(request, function (err) {
 
@@ -490,49 +486,28 @@ describe('Auth', function () {
 
         it('returns error on bad ext scheme callback', function (done) {
 
-            var server = {
-                settings: {}
-            };
+            var server = new Hapi.Server({
+                auth: {
+                    scheme: 'ext:test',
+                    implementation: {
+                        authenticate: function (request, callback) {
 
-            var request = {
-                _timestamp: Date.now(),
-                route: {
-                    auth: {
-                        strategies: ['default']
-                    }
-                },
-                log: function () { },
-                raw: {
-                    res: {
-                        setHeader: function () { }
-                    },
-                    req: {
-                        headers: {
-                            host: 'localhost'
-                        },
-                        url: 'http://localhost/test'
-                    }
-                },
-                server: server
-            };
-
-            var scheme = {
-                scheme: 'ext:test',
-                implementation: {
-                    authenticate: function (request, callback) {
-
-                        return callback(null, null, false);
+                            return callback(null, null, false);
+                        }
                     }
                 }
+            });
+
+            var handler = function () {
+
+                this.reply('ok');
             };
 
-            var auth = new Auth(server, scheme);
+            server.route({ method: 'GET', path: '/', handler: handler, config: { auth: 'default' } });
+            server.inject({ url: '/', method: 'GET' }, function (res) {
 
-            auth.authenticate(request, function (err) {
-
-                expect(err).to.exist;
-                expect(err).to.be.instanceOf(Error);
-                expect(err.message).to.equal('Authentication response missing both error and session');
+                expect(res.statusCode).to.equal(500);
+                //expect(err.message).to.equal('Authentication response missing both error and session');
                 done();
             });
         });

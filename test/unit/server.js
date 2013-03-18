@@ -146,16 +146,6 @@ describe('Server', function () {
         done();
     });
 
-    it('throws an error when router.routeDefaults.handler is provided', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server({ router: { routeDefaults: { handler: function () { } } } });
-        };
-        expect(fn).to.throw(Error, 'Route defaults cannot include a handler');
-        done();
-    });
-
     describe('#start', function () {
 
         it('doesn\'t throw an error', function (done) {
