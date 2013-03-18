@@ -406,20 +406,24 @@ In the _'examples'_ folder is an _'auth.js'_ file that demonstrates creating a s
 
 ### Cache
 
-**hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
-(each must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to
-an object with the following options:
+**hapi** provides built-in caching capabilities for storing and reusing request responses and helpers utilities. The provided
+implementations include memory, Redis, and MongoDB support (each server must be manually installed and configured). The cache
+functionality is always enabled and if not configured otherwise, defaults to a memory store. The memory store is not suitable
+for production environments. Caching will only be utilized if routes, helpers, and plugins explicitly instruct the server to keep
+items in the cache.
+
+To change the cache properties, the `cache` option must be set to an object with the following options:
 - `engine` - the cache server implementation. Options are _redis_, _mongodb_, and _memory_.
 - `host` - the cache server hostname.
 - `port` - the cache server port.
-- `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'.
+- `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'. Used as the database name in MongoDB.
 - `username`, `password`, `poolSize` - MongoDB-specific options.
+- `maxByteSize` - sets an upper limit on the number of bytes that can be stored when using a memory cache. Defaults to no limit.
 
-For convenience, pre-configured options are provided for Redis, MongoDB, and an experimental memory store. To use them, simply set the server's `cache` option to:
+For convenience, pre-configured options are provided for Redis, MongoDB, and memory store. To use them, simply set the server's `cache` option to:
 - _'redis'_ - Connects to _127.0.0.1:6379_ using partition name 'hapi-cache'.
 - _'mongodb'_ - Connects to _127.0.0.1:27017_ using partition name 'hapi-cache', no authentication, and pool size 5.
 - _'memory'_ - This is an experimental engine and should be avoided in production environments.  The memory engine will run within the node process and supports the following option:
-    - `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine.  Once this limit is reached no more items will be added to the cache.
 
 For example:
 ```javascript
@@ -427,9 +431,6 @@ var options = {
     cache: 'redis'
 };
 ```
-
-Enabling the server cache only creates the cache interface but does not enable caching for any individual routes or helpers, which must be enabled
-and configured in the route or helper configuration.
 
 
 ### CORS
@@ -594,7 +595,7 @@ to write additional text as the configuration itself serves as a living document
         - _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
         - _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
         - _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
-    - `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
+    - `cache` - if the the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
     - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#prerequisites). 
     - `auth` - authentication configuration
         - `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
@@ -1413,13 +1414,15 @@ Response validation can only be performed on object responses and will otherwise
 
 ### Caching
 
-'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route cache config has the following options:
-- `mode` - determines if the route is cached on the server, client, or both. Defaults to _'server+client'_.
-    - `server+client` - Caches the route response on the server and client (default)
+'GET' routes may be configured to use the built-in cache. The route cache config has the following options:
+- `mode` - determines if the route is cached on the server, client, or both. Defaults to _'client'_.
+    - `server+client` - Caches the route response on the server and client
     - `client` - Sends the Cache-Control HTTP header on the response to support client caching
     - `server` - Caches the route on the server only
-    - `none` - Disable cache for the route on both the client and server
-- `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the path fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules.
+- `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the
+  '/path' fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache
+  strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules. When setting segment
+  names manually, helper function segments must begin with '##' and route segments must begin with '//'.
 - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
 - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
 - `strict` - determines if only _'Cacheable'_ responses are allowed.  If a response that is not _'Cacheable'_ is returned and strict mode is enabled then an error will be thrown.  Defaults to '_false_'.
@@ -1715,7 +1718,7 @@ To add a helper, use the server's _'addHelper(name, method, options)'_ method wh
 - _'name'_ - is a unique helper name used to call the method (e.g. 'server.helpers.name').
 - _'method'_ - is the helper function.
 - _'options'_ - optional settings where:
-    - `cache` - cache configuration as described in [Caching](#caching). `mode` can use the default or be set to 'server'.
+    - `cache` - cache configuration as described in [Caching](#caching). `mode` is not allowed.
     - `keyGenerator` - the server will automatically generate a unique key if the function's arguments (with the exception of the last 'next' argument) are all of type string, number, or boolean. However if the function uses other types of arguments, a key generation function must be provided which takes the same arguments as the function and returns a unique string (or null if no key can be generated). Note that when the keyGenerator method is invoked, the arguments list will include the next argument which must not be used in calculation of the key.
 
 For example:

@@ -38,6 +38,13 @@ describe('Server', function () {
         done();
     });
 
+    it('defaults to port 443 when no port is provided with tls', function (done) {
+
+        var server = new Hapi.Server({ tls: {} });
+        expect(server.settings.port).to.be.equal(443);
+        done();
+    });
+
     it('defaults to port 80 when a null port is provided', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', null);
@@ -113,16 +120,6 @@ describe('Server', function () {
         done();
     });
 
-    it('doesn\'t throw an error when disabling cache', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server('0.0.0.0', 0, { cache: false });
-        };
-        expect(fn).to.not.throw(Error);
-        done();
-    });
-
     it('assigns this.views when config enables views', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', 0, { views: { partials: { path: __dirname + '/templates' } } });
@@ -175,6 +172,17 @@ describe('Server', function () {
         it('calls the callback when one is used', function (done) {
 
             var server = new Hapi.Server('0.0.0.0', 0);
+            server.start(function () {
+
+                expect(server.settings.host).to.equal('0.0.0.0');
+                expect(server.settings.port).to.not.equal(0);
+                done();
+            });
+        });
+
+        it('calls the callback when one is used with tls', function (done) {
+
+            var server = new Hapi.Server('0.0.0.0', 0, { tls: {} });
             server.start(function () {
 
                 expect(server.settings.host).to.equal('0.0.0.0');
@@ -376,18 +384,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0, { cache: 'redis' });
-                server.helper('user', function () { }, { cache: { mode: 'none', expiresIn: 3000 } });
-            };
-            expect(fn).to.throw(Error);
-            done();
-        });
-
-        it('throws an error when options.cache is not enabled but server cache is not', function (done) {
-
-            var fn = function () {
-
-                var server = new Hapi.Server('0.0.0.0', 0);
-                server.helper('user', function () { }, { cache: { expiresIn: 3000 } });
+                server.helper('user', function () { }, { cache: { mode: 'server' } });
             };
             expect(fn).to.throw(Error);
             done();
@@ -406,10 +403,10 @@ describe('Server', function () {
 
         it('returns a valid result when calling a helper when using the cache', function (done) {
 
-            var server = new Hapi.Server('0.0.0.0', 0, { cache: 'memory' });
+            var server = new Hapi.Server('0.0.0.0', 0);
             server.start(function () {
 
-                server.helper('user', function (id, str, next) { return next({ id: id, str: str }); }, { cache: { expiresIn: 1000, mode: 'server' } });
+                server.helper('user', function (id, str, next) { return next({ id: id, str: str }); }, { cache: { expiresIn: 1000 } });
                 server.helpers.user(4, 'something', function (result) {
 
                     expect(result.id).to.equal(4);
@@ -453,7 +450,7 @@ describe('Server', function () {
             it('returns a valid result when calling a helper using the cache', function (done) {
 
                 var server = new Hapi.Server('0.0.0.0', 0, { cache: 'memory' });
-                server.start(function() {
+                server.start(function () {
 
                     var gen = 0;
                     server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });

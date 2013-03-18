@@ -7,7 +7,7 @@ var internals = {};
 
 exports.register = function (pack, options, next) {
 
-    pack.select({ label: 'test' }).route({ path: '/test1', method: 'GET', handler: function () { this.reply('testing123'); } });
+    pack.select('test').route({ path: '/test1', method: 'GET', handler: function () { this.reply('testing123'); } });
     pack.api(internals.math);
     pack.api(internals.text.glue, 'glue');
 
