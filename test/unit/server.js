@@ -123,7 +123,7 @@ describe('Server', function () {
     it('assigns this.views when config enables views', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', 0, { views: { partials: { path: __dirname + '/templates' } } });
-        expect(server.views).to.exist;
+        expect(server._views).to.exist;
         done();
     });
 
@@ -143,16 +143,6 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0, { auth: { scheme: 'basic', loadUserFunc: function () { } } });
         };
         expect(fn).to.not.throw(Error);
-        done();
-    });
-
-    it('throws an error when router.routeDefaults.handler is provided', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server({ router: { routeDefaults: { handler: function () { } } } });
-        };
-        expect(fn).to.throw(Error, 'Route defaults cannot include a handler');
         done();
     });
 
