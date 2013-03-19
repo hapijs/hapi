@@ -7,7 +7,7 @@ var internals = {};
 
 exports.register = function (pack, options, next) {
 
-    pack.select({ label: 'c' }).ext('onRequest', function (request, cont) {
+    pack.select('c').ext('onRequest', function (request, cont) {
         
         request.plugins.deps = request.plugins.deps || '|';
         request.plugins.deps += '3|'

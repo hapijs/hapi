@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.15.6",
+  "version": "0.16.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     "Van Nguyen <the.gol.effect@gmail.com>",
@@ -20,7 +20,7 @@
     "node": "0.8.x"
   },
   "dependencies": {
-    "hoek": "0.6.x",
+    "hoek": "0.7.x",
     "boom": "0.3.x",
     "joi": "0.2.x",
     "hawk": "0.10.x",
@@ -30,7 +30,7 @@
     "request": "2.16.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
-    "catbox": "0.2.x",
+    "catbox": "0.3.x",
     "json-stringify-safe": "3.0.x",
     "cryptiles": "0.1.x",
     "iron": "0.2.x",

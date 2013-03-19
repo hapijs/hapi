@@ -17,7 +17,6 @@
         - [Cookie Authentication](#cookie-authentication)
         - [Hawk Authentication](#hawk-authentication)
         - [Hawk Bewit Authentication](#hawk-bewit-authentication)
-        - [Multiple Authentication Strategies](#multiple-authentication-strategies)
     - [Cache](#cache)
     - [CORS](#cors)
     - [State](#state)
@@ -215,14 +214,63 @@ To enable Views support, Hapi must be given an options object with a non-null `v
 
 ### Authentication
 
-The authentication interface is disabled by default and is still experimental.
+**hapi** supports several authentication schemes and can be configured with multiple strategies using these schemes (as well as other
+extensions). The built-in schemes provided:
 
-Hapi supports several authentication schemes and can be configured with different authentication strategies that use these schemes.  Authentication is configured for the server by either assigning a single strategy to the _'auth'_ object or by creating an object with different strategies where the strategy names are the object keys.
+- _'basic'_ - HTTP [Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
+- _'cookie'_ - simple [cookie authentication](#cookie-authentication)
+- _'hawk'_ - HTTP [Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'bewit'_ - URI [Hawk Bewit](#hawk-bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'oz'_ - experimental web authorization protocol ([Oz protocol](https://github.com/hueniverse/oz))
 
-- `scheme` - when using a single authentication strategy set this to the configuration options for that strategy
-- `implementation` - when using a custom scheme set this to the function that will perform authentication.  Scheme must start with 'ext:' when using a custom implementation.
+Authentication setup includes two steps:
+- Configure server authentication strategies using the provided schemes (or using an extension implementation). Strategies
+  are added using the `server.auth(name, options)` method where:
+    - 'name' - is the strategy name ('default' is automatically assigned if a single strategy is defined via the server config object).
+    - 'options' - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared
+      by all schemes:
+        - `scheme` - the built-in scheme name.
+        - `implementation` - cannot be used together with `scheme` and is used to provide an object with the **hapi** scheme interface.
+        - `requiredByDefault` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
+          only be assigned to a single server strategy.
+- Assign strategies to route via the route config as described in [Configuration options](#configuration-options).
 
-When the server supports multiple authentication strategies then you can set strategies on the _'auth'_ object directly where the strategy name is the object key.  Every strategy object on the _'auth'_ object should follow the same guidelines as above.
+In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
+`auth` key which can be set to a single strategy (name will default to 'default') or an object with multiple strategies where the strategy
+name is the object key.
+
+For example, configuring a single strategy:
+```javascript
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: function (username, callback) { 
+        
+            var user = { id: '', password: '' };
+            callback(null, user);
+        }
+    }
+};
+```
+
+And configuring multiple strategies:
+```javascript
+var options = {
+    auth: {
+        password1: {
+            scheme: 'basic',
+            loadUserFunc: loadUser1
+        },
+        password2: {
+            scheme: 'basic',
+            loadUserFunc: loadUser2
+        }
+    }
+};
+```
+
+The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation of a server with multiple authentication strategies.
+
 
 #### Basic Authentication
 
@@ -376,50 +424,27 @@ var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           
 var uri = 'http://site.com/endpoint?bewit=' + bewit;
 ```
 
-#### Multiple Authentication Strategies
-
-There may be instances where you want to support more than one authentication strategy for a server.  Below is an example of using both basic and hawk authentication strategies on the server and defaulting to basic.  The default strategy is what will be used by endpoints if they do not specify a strategy to use.
-
-```javascript
- var config = {
-    auth: {
-        'default': {
-            scheme: 'basic',
-            loadUserFunc: internals.loadUser,
-            hashPasswordFunc: internals.hashPassword
-        },
-        'hawk': {
-            scheme: 'hawk',
-            getCredentialsFunc: internals.getCredentials
-        },
-        'basic': {
-            scheme: 'basic',
-            loadUserFunc: internals.loadUser,
-            hashPasswordFunc: internals.hashPassword
-        }
-    }
-};
-```
-
-In the _'examples'_ folder is an _'auth.js'_ file that demonstrates creating a server with multiple authentication strategies.
-
 
 ### Cache
 
-**hapi** provides a built-in caching facility for storing and reusing request responses and helpers utilities. The provided implementations include Redis and MongoDB support
-(each must be manually installed and configured). The cache functionality is _off_ by default. To enable caching, the `cache` option must be set to
-an object with the following options:
+**hapi** provides built-in caching capabilities for storing and reusing request responses and helpers utilities. The provided
+implementations include memory, Redis, and MongoDB support (each server must be manually installed and configured). The cache
+functionality is always enabled and if not configured otherwise, defaults to a memory store. The memory store is not suitable
+for production environments. Caching will only be utilized if routes, helpers, and plugins explicitly instruct the server to keep
+items in the cache.
+
+To change the cache properties, the `cache` option must be set to an object with the following options:
 - `engine` - the cache server implementation. Options are _redis_, _mongodb_, and _memory_.
 - `host` - the cache server hostname.
 - `port` - the cache server port.
-- `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'.
+- `partition` - the partition name used to isolate the cached results across different servers. Defaults to 'hapi-cache'. Used as the database name in MongoDB.
 - `username`, `password`, `poolSize` - MongoDB-specific options.
+- `maxByteSize` - sets an upper limit on the number of bytes that can be stored when using a memory cache. Defaults to no limit.
 
-For convenience, pre-configured options are provided for Redis, MongoDB, and an experimental memory store. To use them, simply set the server's `cache` option to:
+For convenience, pre-configured options are provided for Redis, MongoDB, and memory store. To use them, simply set the server's `cache` option to:
 - _'redis'_ - Connects to _127.0.0.1:6379_ using partition name 'hapi-cache'.
 - _'mongodb'_ - Connects to _127.0.0.1:27017_ using partition name 'hapi-cache', no authentication, and pool size 5.
 - _'memory'_ - This is an experimental engine and should be avoided in production environments.  The memory engine will run within the node process and supports the following option:
-    - `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine.  Once this limit is reached no more items will be added to the cache.
 
 For example:
 ```javascript
@@ -427,9 +452,6 @@ var options = {
     cache: 'redis'
 };
 ```
-
-Enabling the server cache only creates the cache interface but does not enable caching for any individual routes or helpers, which must be enabled
-and configured in the route or helper configuration.
 
 
 ### CORS
@@ -594,7 +616,7 @@ to write additional text as the configuration itself serves as a living document
         - _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
         - _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
         - _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
-    - `cache` - if the server `cache` option is enabled and the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
+    - `cache` - if the the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
     - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#prerequisites). 
     - `auth` - authentication configuration
         - `mode` - the authentication mode. Defaults to _'required'_ is the `authentication` server option is set, otherwise _'none'_. Available options include:
@@ -1413,13 +1435,15 @@ Response validation can only be performed on object responses and will otherwise
 
 ### Caching
 
-'GET' routes may be configured to use the built-in cache if enabled using the server `cache` option. The route cache config has the following options:
-- `mode` - determines if the route is cached on the server, client, or both. Defaults to _'server+client'_.
-    - `server+client` - Caches the route response on the server and client (default)
+'GET' routes may be configured to use the built-in cache. The route cache config has the following options:
+- `mode` - determines if the route is cached on the server, client, or both. Defaults to _'client'_.
+    - `server+client` - Caches the route response on the server and client
     - `client` - Sends the Cache-Control HTTP header on the response to support client caching
     - `server` - Caches the route on the server only
-    - `none` - Disable cache for the route on both the client and server
-- `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the path fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules.
+- `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the
+  '/path' fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache
+  strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules. When setting segment
+  names manually, helper function segments must begin with '##' and route segments must begin with '//'.
 - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
 - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
 - `strict` - determines if only _'Cacheable'_ responses are allowed.  If a response that is not _'Cacheable'_ is returned and strict mode is enabled then an error will be thrown.  Defaults to '_false_'.
@@ -1715,7 +1739,7 @@ To add a helper, use the server's _'addHelper(name, method, options)'_ method wh
 - _'name'_ - is a unique helper name used to call the method (e.g. 'server.helpers.name').
 - _'method'_ - is the helper function.
 - _'options'_ - optional settings where:
-    - `cache` - cache configuration as described in [Caching](#caching). `mode` can use the default or be set to 'server'.
+    - `cache` - cache configuration as described in [Caching](#caching). `mode` is not allowed.
     - `keyGenerator` - the server will automatically generate a unique key if the function's arguments (with the exception of the last 'next' argument) are all of type string, number, or boolean. However if the function uses other types of arguments, a key generation function must be provided which takes the same arguments as the function and returns a unique string (or null if no key can be generated). Note that when the keyGenerator method is invoked, the arguments list will include the next argument which must not be used in calculation of the key.
 
 For example:

@@ -129,9 +129,9 @@ describe('Proxy', function () {
         backendServer.start(function () {
 
             var backendPort = backendServer.settings.port;
-            var routeCache = { expiresIn: 500 };
+            var routeCache = { expiresIn: 500, mode: 'server+client' };
 
-            server = new Hapi.Server(0, { cors: true, cache: { engine: 'memory' } });
+            server = new Hapi.Server(0, { cors: true });
             server.route([
                 { method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
                 { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
