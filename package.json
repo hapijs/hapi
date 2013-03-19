@@ -2,13 +2,26 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.15.5",
-  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
+  "version": "0.15.6",
+  "author": {
+    "name": "Eran Hammer",
+    "email": "eran@hueniverse.com",
+    "url": "http://hueniverse.com"
+  },
   "contributors": [
-    "Van Nguyen <the.gol.effect@gmail.com>",
-    "Wyatt Preul <wpreul@gmail.com>"
+    {
+      "name": "Van Nguyen",
+      "email": "the.gol.effect@gmail.com"
+    },
+    {
+      "name": "Wyatt Preul",
+      "email": "wpreul@gmail.com"
+    }
   ],
-  "repository": "git://github.com/spumko/hapi",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/spumko/hapi"
+  },
   "main": "index",
   "keywords": [
     "framework",
@@ -55,5 +68,9 @@
       "type": "BSD",
       "url": "http://github.com/spumko/hapi/raw/master/LICENSE"
     }
-  ]
+  ],
+  "readme": "<a href=\"https://github.com/spumko\"><img src=\"https://raw.github.com/spumko/spumko/master/images/from.png\" align=\"right\" /></a>\r\n<img src=\"https://raw.github.com/spumko/hapi/master/images/hapi.png\" />\r\n\r\nA rich framework for building restful API services. **hapi** is a configuration-centric framework in which\r\nauthentication requirements, input validation, data caching and pre-fetching, developer documentation,\r\nand other essential facilities are provided out-of-the-box and enabled using simple JSON configuration\r\nobjects. **hapi** enables developers to focus on writing reusable business logic instead of spending time\r\nwith everything else.\r\n\r\nFor the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.\r\n\r\nCurrent version: **0.15.5**\r\n\r\n[![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)\r\n<img src=\"https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png\" />\r\n\r\n\r\n### [API Reference](/docs/Reference.md)\r\n\r\n### [Tutorials](/docs/Tutorials.md)\r\n\r\n### [Plugins](/docs/Plugins.md)\r\n\r\n### [Breaking Changes](https://github.com/spumko/hapi/issues?labels=breaking+changes&state=closed)\r\n\r\n## Getting started\r\n\r\nTo demonstrate a basic example we will be creating a \"hello world\" service with a single API endpoint.\r\n\r\n### Hello World Server\r\n\r\nStart by creating a _package.json_ by running\r\n```\r\nnpm init\r\n```\r\n\r\nNow install **hapi** and have it saved to your _package.json_ dependencies by running\r\n```\r\nnpm install hapi --save\r\n```\r\n\r\nNext create an _'index.js'_ file and add the following contents to it:\r\n```javascript\r\nvar Hapi = require('hapi');\r\n\r\n// Create a server with a host and port\r\nvar server = Hapi.createServer('localhost', 8000);\r\n\r\n// Define the route\r\nvar hello = {\r\n    handler: function (request) {\r\n    \r\n        request.reply({ greeting: 'hello world' });\r\n    }\r\n};\r\n\r\n// Add the route\r\nserver.route({\r\n    method: 'GET',\r\n    path: '/hello',\r\n    config: hello\r\n});\r\n\r\n// Start the server\r\nserver.start();\r\n```\r\n\r\nStart the server with `node .` and navigate to the website at 'http://localhost:8000/hello' in a browser and you will see the following output:\r\n```json\r\n{\"greeting\":\"hello world\"}\r\n```\r\n\r\n\r\n### Hello World Server + Validation\r\n\r\nTo demonstrate one of the more powerful features in **hapi** we will change the 'hello' route to only respond whenever a _'name'_ is present on the querystring.  Change the _'index.js'_ so that the _'hello'_ config object looks like the following:\r\n```javascript\r\nvar hello = {\r\n    handler: function (request) {\r\n    \r\n        request.reply({ greeting: 'hello ' + request.query.name });\r\n    },\r\n    validate: { \r\n        query: {\r\n            name: Hapi.Types.String().required()\r\n        }\r\n    }\r\n};\r\n```\r\n\r\nWhen you start the server with `node .` and navigate to 'http://localhost:8000/hello' you will get a 400 response with an error explaining that 'name' is required.  When the 'name' is omitted from the querystring the handler will not be called.  However, if you do provide a 'name' it will be echoed out in the response.  If you request 'http://localhost:8000/hello?name=John' then you will get the following response:\r\n```json\r\n{\"greeting\":\"hello John\"}\r\n```\r\n\r\nTo learn more about the various validation options you can read the [validation section](docs/Reference.md#query-validation) in the reference.\r\n\r\n\r\n### Hello Static Server\r\n\r\nThe **hapi** route handler can be used to easily serve files, directories, render templates, and even proxy requests.  In this example the _'directory'_ handler will be used to create a static site serving files in the _'public'_ folder.  Remove the `hello` variable and make the `server.route` command look like the following:\r\n```javascript\r\nserver.route({\r\n    method: 'GET',\r\n    path: '/{path*}',\r\n    handler: {\r\n        directory: { path: './public', listing: false, index: true }\r\n    }\r\n});\r\n```\r\n\r\nCreate a folder named _'public'_ and add a _'index.html'_ file in the folder with the following contents:\r\n```html\r\n<html>\r\n    <head><title>Hello Static</title></head>\r\n    <body>\r\n        Hello Static\r\n    </body>\r\n</html>\r\n```\r\n\r\nNow when you request 'http://localhost:8000' you will see the html page rendered.  You can add other files in this folder and they will be served.  This is a good solution for serving static assets like images and css files.\r\n\r\n\r\n### Hello Templates Server\r\n\r\nTo demonstrate how to use **hapi** to render templates we will be creating a template and rendering it using the [handlebars](http://handlebarsjs.com/) engine.  Begin by installing handlebars by running the following npm command:\r\n```bash\r\nnpm install handlebars\r\n```\r\n\r\nNext create a directory named _'templates'_ that will contain the template files.  In this directory create a _'index.html'_ with the following contents:\r\n```html\r\n<html>\r\n    <head><title>{{greeting}}</title></head>\r\n    <body>\r\n        {{greeting}}\r\n    </body>\r\n</html>\r\n```\r\n\r\nThe next step is going to be to tell the **hapi** server to use templates and the handlebars engine.  After this, the route handler will be updated to render the template using an object that contains a _'greeting'_ property we want displayed.  Change the _'index.js'_ file so that it looks like the following:\r\n```javascript\r\nvar Hapi = require('hapi');\r\n\r\nvar options = {\r\n    views: {\r\n        path: './templates',\r\n        engine: {\r\n            module: 'handlebars'\r\n        }\r\n    }\r\n};\r\n\r\n// Create a server with a host, port, and options\r\nvar server = Hapi.createServer('localhost', 8000, options);\r\n\r\n// Define the route\r\nvar hello = {\r\n    handler: function (request) {\r\n    \r\n      // Render the view with the custom greeting\r\n        request.reply.view('index.html', { greeting: 'hello world' }).send();\r\n    }\r\n};\r\n\r\n// Add the route\r\nserver.route({\r\n    method: 'GET',\r\n    path: '/',\r\n    config: hello\r\n});\r\n\r\n// Start the server\r\nserver.start();\r\n```\r\n\r\nWhen you run the server with `node .` and view the homepage you will see the custom greeting message rendered.  More information on using templates with **hapi** can be found in the [views](docs/Reference.md#views) section of the [API Reference](docs/Reference.md).\r\n\r\n### Community\r\n\r\nFor discussion about hapi join the [#hapi channel](http://webchat.freenode.net/?channels=hapi) on irc.freenode.net.\r\n\r\n### [Contributors](https://github.com/spumko/hapi/contributors)\r\n",
+  "readmeFilename": "README.md",
+  "_id": "hapi@0.15.6",
+  "_from": "hapi@"
 }
