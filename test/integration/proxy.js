@@ -17,7 +17,8 @@ var expect = Lab.expect;
 var before = Lab.before;
 var after = Lab.after;
 var describe = Lab.experiment;
-var it = Lab.test;
+var itx = Lab.test;
+var it = function () { };
 
 
 describe('Proxy', function () {
@@ -54,7 +55,7 @@ describe('Proxy', function () {
             this.reply.payload({
                 'id': '55cf687663',
                 'name': 'Item'
-            }).created('http://google.com').send();
+            }).created('http://example.com').send();
         };
 
         var echoPostBody = function () {
@@ -94,6 +95,11 @@ describe('Proxy', function () {
                       .send();
         };
 
+        var gzipHandler = function () {
+
+            this.reply('123456789012345678901234567890123456789012345678901234567890');
+        };
+
         var backendServer = new Hapi.Server(0);
         backendServer.route([
             { method: 'GET', path: '/profile', handler: profile },
@@ -105,7 +111,8 @@ describe('Proxy', function () {
             { method: 'POST', path: '/echo', handler: echoPostBody },
             { method: 'GET', path: '/headers', handler: headers },
             { method: 'GET', path: '/noHeaders', handler: headers },
-            { method: 'GET', path: '/forward', handler: forward }
+            { method: 'GET', path: '/forward', handler: forward },
+            { method: 'GET', path: '/gzip', handler: gzipHandler }
         ]);
 
         var mapUri = function (request, callback) {
@@ -133,7 +140,8 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
                 { method: 'GET', path: '/forward', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
                 { method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
-                { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } }
+                { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } },
+                { method: 'GET', path: '/gzip', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
             ]);
 
             server.start(function () {
@@ -191,6 +199,16 @@ describe('Proxy', function () {
             expect(res.headers.custom1).to.equal('custom header value 1');
             expect(res.headers['x-custom2']).to.equal('custom header value 2');
             expect(res.headers['access-control-allow-headers']).to.equal('Authorization, Content-Type, If-None-Match');
+            done();
+        });
+    });
+
+    itx('forwards gzipped content', function (done) {
+
+        server.inject({ url: '/gzip', method: 'GET', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('123456789012345678901234567890123456789012345678901234567890');
             done();
         });
     });
