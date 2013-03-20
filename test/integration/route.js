@@ -84,7 +84,7 @@ describe('Route', function () {
 
             request.reply(path);
         };
-    }
+    };
 
     var randomLoad = function () {
 
