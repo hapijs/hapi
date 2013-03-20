@@ -19,7 +19,8 @@ internals.get = function (request) {
 internals.onPostHandler = function (request, next) {
 
     if (request.response.isBoom) {
-        request.response.response.payload.message = 'Censored Error';
+        var error = request.response;
+        error.response.payload.message = 'Censored Error';
     }
 
     next();
