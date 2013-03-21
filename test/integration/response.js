@@ -496,6 +496,63 @@ describe('Response', function () {
             });
         });
 
+        it('returns a file in the response with the inline content-disposition header when using route config', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'inline' } }});
+
+            server.start(function () {
+
+                Request.get(server.settings.uri, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file in the response with the attachment content-disposition header when using route config', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment' } }});
+
+            server.start(function () {
+
+                Request.get(server.settings.uri, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file in the response without the content-disposition header when using route config mode false', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: false } }});
+
+            server.start(function () {
+
+                Request.get(server.settings.uri, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.not.exist;
+                    done();
+                });
+            });
+        });
+
         it('returns a file with correct headers when using attachment mode', function (done) {
 
             var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
