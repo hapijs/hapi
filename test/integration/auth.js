@@ -52,8 +52,11 @@ describe('Auth', function () {
             else if (id === 'jane') {
                 return callback(Hapi.error.internal('boom'));
             }
-            else if (id === 'invalid') {
-                return callback(null, {});
+            else if (id === 'invalid1') {
+                return callback(null, 'bad');
+            }
+            else if (id === 'invalid2') {
+                return callback(null, {}, null);
             }
             else {
                 return callback(null, null);
@@ -202,9 +205,21 @@ describe('Auth', function () {
             });
         });
 
-        it('returns an error on invalid user lookup error', function (done) {
+        it('returns an error on non-object credentials error', function (done) {
 
-            var request = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('invalid', '12345') } };
+            var request = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('invalid1', '12345') } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error on missing password error', function (done) {
+
+            var request = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('invalid2', '12345') } };
 
             server.inject(request, function (res) {
 
