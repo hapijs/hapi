@@ -81,7 +81,7 @@ describe('Auth', function () {
 
         var doubleHandler = function (request) {
 
-            var options = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('john', '12345') }, session: request.session };
+            var options = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('john', '12345') }, credentials: request.auth.credentials };
 
             server.inject(options, function (res) {
 
@@ -611,7 +611,7 @@ describe('Auth', function () {
 
         var hawkChangeHandler = function (request) {
 
-            request.session.algorithm = 'ha';
+            request.auth.credentials.algorithm = 'ha';
             request.reply.payload('Success').send();
         };
 
@@ -1464,7 +1464,7 @@ describe('Auth', function () {
         server.route({
             method: 'GET', path: '/resource', handler: function () {
 
-                expect(this.session.something).to.equal('new');
+                expect(this.auth.credentials.something).to.equal('new');
                 return this.reply('resource');
             },
             config: { auth: 'default' }
