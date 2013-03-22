@@ -1464,7 +1464,7 @@ describe('Auth', function () {
                 auth: { mode: 'try' },
                 handler: function () {
 
-                    this.setSession({ user: this.params.user });
+                    this.session.set({ user: this.params.user });
                     return this.reply(this.params.user);
                 }
             }
@@ -1482,7 +1482,7 @@ describe('Auth', function () {
         server.route({
             method: 'GET', path: '/logout', handler: function () {
 
-                this.clearSession();
+                this.session.clear();
                 return this.reply('logged-out');
             }, config: { auth: 'default' }
         });
