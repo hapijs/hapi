@@ -44,13 +44,10 @@ describe('Auth', function () {
 
             if (id === 'john') {
                 return callback(null, {
-                    id: 'john',
-                    password: hashPassword('12345'),
+                    user: 'john',
                     scope: [],
-                    ext: {
-                        tos: 100
-                    }
-                });
+                    tos: 100
+                }, hashPassword('12345'));
             }
             else if (id === 'jane') {
                 return callback(Hapi.error.internal('boom'));
@@ -1238,13 +1235,10 @@ describe('Auth', function () {
 
             if (id === 'john') {
                 return callback(null, {
-                    id: 'john',
-                    password: '12345',
+                    user: 'john',
                     scope: [],
-                    ext: {
-                        tos: 100
-                    }
-                });
+                    tos: 100
+                }, '12345');
             }
             else if (id === 'jane') {
                 return callback(Hapi.error.internal('boom'));

@@ -143,7 +143,6 @@ describe('Auth', function () {
                 }
             };
 
-
             var server = {
                 settings: {},
                 route: function () { }
@@ -154,7 +153,7 @@ describe('Auth', function () {
                     scheme: 'basic',
                     loadUserFunc: function (username, callback) {
 
-                        return callback(null, { id: 'steve', password: 'password' });
+                        return callback(null, { user: 'steve' }, 'password');
                     }
                 }
             };

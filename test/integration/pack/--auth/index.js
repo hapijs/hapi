@@ -10,7 +10,7 @@ exports.register = function (pack, options, next) {
     var loadUser = function (id, callback) {
 
         if (id === 'john') {
-            return callback(null, { id: 'john', password: '12345' });
+            return callback(null, { user: 'john' }, '12345');
         }
 
         return callback(null, null);
