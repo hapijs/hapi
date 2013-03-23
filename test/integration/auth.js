@@ -710,7 +710,7 @@ describe('Auth', function () {
                     var trailerAuth = res.raw.res._trailer.split(':')[1];
                     trailerAuth = trailerAuth.substr(1, trailerAuth.lastIndexOf('"'));
 
-                    expect(res.headers.trailer).to.contain('Authorization');
+                    expect(res.headers.trailer).to.contain('Server-Authorization');
                     expect(header).to.equal(trailerAuth);
                     done();
                 });
@@ -723,7 +723,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.headers.authorization).to.contain('Hawk');
+                expect(res.headers['server-authorization']).to.contain('Hawk');
                 expect(res.statusCode).to.equal(200);
 
                 var attributes = Hawk.utils.parseAuthorizationHeader(res.raw.req.headers.authorization);
@@ -748,7 +748,7 @@ describe('Auth', function () {
 
                     artifacts.credentials = cred;
                     var header = Hawk.server.header(artifacts, options);
-                    expect(header).to.equal(res.headers.authorization);
+                    expect(header).to.equal(res.headers['server-authorization']);
 
                     done();
                 });
