@@ -222,6 +222,32 @@ describe('Response', function () {
                 expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
+
+        it('handles a thrown error with the correct trace', function (done) {
+
+            var handler = function (request) {
+
+                request.something.something();
+            };
+
+            var server = new Hapi.Server();
+
+            server.once('internalError', function (request, err) {
+
+                expect(err).to.exist;
+                expect(err.trace[0]).to.contain('TypeError: Cannot call method \'something\' of undefined');
+                done();
+            });
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('An internal server error occurred');
+            });
+        });
     });
 
     describe('Empty', function () {
