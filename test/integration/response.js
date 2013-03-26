@@ -222,6 +222,33 @@ describe('Response', function () {
                 expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
+
+        it('emits internalError when view file for handler now found', function (done) {
+
+            var options = {
+                views: {
+                    path: __dirname
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            server.once('internalError', function (request, err) {
+
+                expect(err).to.exist;
+                expect(err.trace[0]).to.contain('test/integration/response');
+                done();
+            });
+
+            server.route({ method: 'GET', path: '/{param}', handler: { view: 'noview' } });
+
+            server.inject({ method: 'GET', url: '/hello' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('An internal server error occurred');
+            });
+        });
     });
 
     describe('Empty', function () {
