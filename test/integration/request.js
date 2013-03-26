@@ -305,13 +305,13 @@ describe('Request', function () {
         });
     });
 
-    it('handler request object has client address', function (done) {
+    it('request has client address', function (done) {
 
         var server = new Hapi.Server(0);
 
         var handler = function (request) {
 
-            expect(request.analytics.address).to.equal('127.0.0.1');
+            expect(request.address).to.equal('127.0.0.1');
             request.reply('ok');
         };
 
@@ -327,13 +327,13 @@ describe('Request', function () {
         });
     });
 
-    it('invokes handler with 1 arguments', function (done) {
+    it('request has referrer', function (done) {
 
         var server = new Hapi.Server();
 
         var handler = function (request) {
 
-            expect(request.analytics.referrer).to.equal('http://site.com');
+            expect(request.referrer).to.equal('http://site.com');
             request.reply('ok');
         };
 
