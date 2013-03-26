@@ -50,6 +50,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
             server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.state('sid', { encoding: 'base64' });
+            server.state('always', { autoValue: 'present' });
             server.ext('onPostHandler', function (request, next) {
 
                 request.setState('test', '123');
@@ -64,7 +65,7 @@ describe('Response', function () {
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com www.example.com');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
-                expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
 
                 server.inject({ method: 'GET', url: '/bound', headers: { origin: 'www.example.com' } }, function (res) {
 
