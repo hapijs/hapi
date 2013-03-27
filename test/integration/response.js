@@ -236,7 +236,7 @@ describe('Response', function () {
             server.once('internalError', function (request, err) {
 
                 expect(err).to.exist;
-                expect(err.trace[0]).to.contain('test/integration/response');
+                expect(err.message).to.contain('View file not found');
                 done();
             });
 
