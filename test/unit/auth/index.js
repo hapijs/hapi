@@ -127,6 +127,7 @@ describe('Auth', function () {
                         strategies: ['test']
                     }
                 },
+                auth: {},
                 log: function () { },
                 raw: {
                     res: {
@@ -142,7 +143,6 @@ describe('Auth', function () {
                 }
             };
 
-
             var server = {
                 settings: {},
                 route: function () { }
@@ -153,7 +153,7 @@ describe('Auth', function () {
                     scheme: 'basic',
                     loadUserFunc: function (username, callback) {
 
-                        return callback(null, { id: 'steve', password: 'password' });
+                        return callback(null, { user: 'steve' }, 'password');
                     }
                 }
             };
@@ -210,7 +210,7 @@ describe('Auth', function () {
 
         var test = function (scheme) {
 
-            it('doesn\'t throw an error when a session exists and entity is any (' + scheme.scheme + ')', function (done) {
+            it('doesn\'t throw an error when credentials exist and entity is any (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -219,12 +219,14 @@ describe('Auth', function () {
                 var server = new Hapi.Server('localhost', 0, options);
 
                 var request = {
-                    session: {},
+                    auth: {
+                        credentials: {}
+                    },
                     _timestamp: Date.now(),
                     route: {
                         auth: {
                             entity: 'any',
-                            strategies: [scheme.scheme]
+                            strategies: ['default']
                         }
                     },
                     log: function () { },
@@ -238,7 +240,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('doesn\'t throw an error when a session exists and entity defaults to any (' + scheme.scheme + ')', function (done) {
+            it('doesn\'t throw an error when credentials exist and entity defaults to any (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -247,12 +249,13 @@ describe('Auth', function () {
                 var server = new Hapi.Server('localhost', 0, options);
 
                 var request = {
-                    session: {
+                    auth: {
+                        credentials: {}
                     },
                     _timestamp: Date.now(),
                     route: {
                         auth: {
-                            strategies: [scheme.scheme]
+                            strategies: ['default']
                         }
                     },
                     log: function () { },
@@ -266,7 +269,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('doesn\'t throw an error when a session exists with a user and user entity specified (' + scheme.scheme + ')', function (done) {
+            it('doesn\'t throw an error when credentials exist with a user and user entity specified (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -275,42 +278,46 @@ describe('Auth', function () {
                 var server = new Hapi.Server('localhost', 0, options);
 
                 var request = {
-                    session: {
-                        user: 'test'
+                    auth: {
+                        credentials: {
+                            user: 'test'
+                        }
+                    },
+                    _timestamp: Date.now(),
+                    route: {
+                        auth: {
+                            entity: 'user',
+                            strategies: ['default']
+                        }
+                    },
+                    log: function () { },
+                    server: server
+                };
+
+                server._auth.authenticate(request, function (err) {
+
+                    expect(err).to.not.exist;
+                    done();
+                });
+            });
+
+            it('throws an error when credentials exist without a user and user entity is specified (' + scheme.scheme + ')', function (done) {
+
+                var options = {
+                    auth: scheme
+                };
+
+                var server = new Hapi.Server('localhost', 0, options);
+
+                var request = {
+                    auth: {
+                        credentials: {}
                     },
                     _timestamp: Date.now(),
                     route: {
                         auth: {
                             entity: 'user',
-                            strategies: [scheme.scheme]
-                        }
-                    },
-                    log: function () { },
-                    server: server
-                };
-
-                server._auth.authenticate(request, function (err) {
-
-                    expect(err).to.not.exist;
-                    done();
-                });
-            });
-
-            it('throws an error when a session exists without a user and user entity is specified (' + scheme.scheme + ')', function (done) {
-
-                var options = {
-                    auth: scheme
-                };
-
-                var server = new Hapi.Server('localhost', 0, options);
-
-                var request = {
-                    session: {},
-                    _timestamp: Date.now(),
-                    route: {
-                        auth: {
-                            entity: 'user',
-                            strategies: [scheme.scheme]
+                            strategies: ['default']
                         }
                     },
                     log: function () { },
@@ -325,7 +332,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('throws an error when a session exists without a app and app entity is specified (' + scheme.scheme + ')', function (done) {
+            it('throws an error when credentials exist without a app and app entity is specified (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -334,14 +341,16 @@ describe('Auth', function () {
                 var server = new Hapi.Server('localhost', 0, options);
 
                 var request = {
-                    session: {
-                        user: 'test'
+                    auth: {
+                        credentials: {
+                            user: 'test'
+                        }
                     },
                     _timestamp: Date.now(),
                     route: {
                         auth: {
                             entity: 'app',
-                            strategies: [scheme.scheme]
+                            strategies: ['default']
                         }
                     },
                     log: function () { },
@@ -356,7 +365,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('doesn\'t throw an error when a session exists with a app and app entity is specified (' + scheme.scheme + ')', function (done) {
+            it('doesn\'t throw an error when credentials exist with a app and app entity is specified (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -365,14 +374,16 @@ describe('Auth', function () {
                 var server = new Hapi.Server('localhost', 0, options);
 
                 var request = {
-                    session: {
-                        app: 'test'
+                    auth: {
+                        credentials: {
+                            app: 'test'
+                        }
                     },
                     _timestamp: Date.now(),
                     route: {
                         auth: {
                             entity: 'app',
-                            strategies: [scheme.scheme]
+                            strategies: ['default']
                         }
                     },
                     log: function () { },
@@ -395,14 +406,16 @@ describe('Auth', function () {
                 var server = new Hapi.Server('localhost', 0, options);
 
                 var request = {
-                    session: {
-                        user: 'test'
+                    auth: {
+                        credentials: {
+                            user: 'test'
+                        }
                     },
                     _timestamp: Date.now(),
                     route: {
                         auth: {
                             entity: 'wrongEntity',
-                            strategies: [scheme.scheme]
+                            strategies: ['default']
                         }
                     },
                     log: function () { },
@@ -418,7 +431,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('throws an error when missing session and bad request (' + scheme.scheme + ')', function (done) {
+            it('throws an error when missing credentials and bad request (' + scheme.scheme + ')', function (done) {
 
                 var server = {
                     settings: {},
@@ -433,6 +446,9 @@ describe('Auth', function () {
                             entity: 'user',
                             strategies: ['default']
                         }
+                    },
+                    auth: {
+                        credentials: {}
                     },
                     log: function () { },
                     raw: {
