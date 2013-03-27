@@ -948,6 +948,19 @@ http.route({ method: 'GET', path: '/{path}', handler: { file: filePath } });
 http.start();
 ```
 
+File handlers also support specifying if the _'Content-Disposition'_ should be sent on the response.  The default is to not send this header, however if it needs to be sent there is an optional _'mode'_ property that can be set to _'attachment'_, _'inline'_, or false.  Below is an example setting the mode to _'attachment'_.
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'cwd' } });
+
+// Serve index.html file up a directory in the public folder
+http.route({ method: 'GET', path: '/', handler: { file: { path: './public/index.html', mode: 'attachment } } });
+
+http.start();
+```
+
+Please note, that when setting _'file'_ to an object, the file path is assigned to the _'path'_ property.
 
 #### Directory
 
