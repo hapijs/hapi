@@ -1597,6 +1597,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
     - `isHttpOnly` - sets the 'HttpOnly' flag.
     - `path` - the path scope.
     - `domain` - the domain scope.
+    - `autoValue` - if present and the cookie was not received or explicitly set by the route handler, the cookie is automatically added to the response with the provided value. Used only when the state definition is registered via `server.state(name, options)`.
     - `encoding` - encoding performs on the provided value before serialization. Options are:
         - 'none' - no encoding. This is the default value. Value must be a string.
         - 'base64' - string value is encoded using Base64.
@@ -1605,7 +1606,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
 
 Cookie definitions can be registered with the server using the server's _'state(name, options)'_ method, where 'options' is the same as above.
 If a cookie definition is found, the options are used for that cookie as defaults before other options specified at the time of state() invocation
-are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value.
+are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value, and `autoSet`
 
 
 ## Server Logging
