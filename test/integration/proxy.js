@@ -157,6 +157,7 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } }
             ]);
 
+            server.state('auto', { autoValue: 'xyz' });
             server.start(function () {
 
                 done();
@@ -190,6 +191,7 @@ describe('Proxy', function () {
 
             expect(rawRes.statusCode).to.equal(200);
             expect(rawRes.body).to.contain('John Doe');
+            expect(rawRes.headers['set-cookie']).to.deep.equal(['test=123','auto=xyz']);
             
             makeRequest({ path: '/profile' }, function (rawRes) {
 
