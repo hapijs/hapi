@@ -36,10 +36,16 @@ describe('Proxy', function () {
 
         var profile = function () {
 
-            this.reply({
+            if (this.state.test) {
+                return this.reply('error');
+            }
+
+            this.reply.payload({
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
-            });
+            })
+            .state('test', '123')
+            .send();
         };
 
         var activeItem = function () {
@@ -173,7 +179,8 @@ describe('Proxy', function () {
             method: options.method,
             url: server.settings.uri + options.path,
             form: options.form,
-            headers: options.headers
+            headers: options.headers,
+            jar: false
         }, next);
     }
 
@@ -183,7 +190,13 @@ describe('Proxy', function () {
 
             expect(rawRes.statusCode).to.equal(200);
             expect(rawRes.body).to.contain('John Doe');
-            done();
+            
+            makeRequest({ path: '/profile' }, function (rawRes) {
+
+                expect(rawRes.statusCode).to.equal(200);
+                expect(rawRes.body).to.contain('John Doe');
+                done();
+            });
         });
     });
 
