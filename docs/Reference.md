@@ -948,6 +948,19 @@ http.route({ method: 'GET', path: '/{path}', handler: { file: filePath } });
 http.start();
 ```
 
+File handlers also support specifying if the _'Content-Disposition'_ should be sent on the response.  The default is to not send this header, however if it needs to be sent there is an optional _'mode'_ property that can be set to _'attachment'_, _'inline'_, or false.  Below is an example setting the mode to _'attachment'_.
+
+```javascript
+// Create Hapi server
+var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'cwd' } });
+
+// Serve index.html file up a directory in the public folder
+http.route({ method: 'GET', path: '/', handler: { file: { path: './public/index.html', mode: 'attachment } } });
+
+http.start();
+```
+
+Please note, that when setting _'file'_ to an object, the file path is assigned to the _'path'_ property.
 
 #### Directory
 
@@ -1584,6 +1597,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
     - `isHttpOnly` - sets the 'HttpOnly' flag.
     - `path` - the path scope.
     - `domain` - the domain scope.
+    - `autoValue` - if present and the cookie was not received or explicitly set by the route handler, the cookie is automatically added to the response with the provided value. Used only when the state definition is registered via `server.state(name, options)`.
     - `encoding` - encoding performs on the provided value before serialization. Options are:
         - 'none' - no encoding. This is the default value. Value must be a string.
         - 'base64' - string value is encoded using Base64.
@@ -1592,7 +1606,7 @@ Cookies can be set directly via the response _'state(name, value, options)'_ int
 
 Cookie definitions can be registered with the server using the server's _'state(name, options)'_ method, where 'options' is the same as above.
 If a cookie definition is found, the options are used for that cookie as defaults before other options specified at the time of state() invocation
-are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value.
+are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value, and `autoSet`
 
 
 ## Server Logging

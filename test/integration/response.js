@@ -50,6 +50,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
             server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.state('sid', { encoding: 'base64' });
+            server.state('always', { autoValue: 'present' });
             server.ext('onPostHandler', function (request, next) {
 
                 request.setState('test', '123');
@@ -64,7 +65,7 @@ describe('Response', function () {
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com www.example.com');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
-                expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"]);
+                expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
 
                 server.inject({ method: 'GET', url: '/bound', headers: { origin: 'www.example.com' } }, function (res) {
 
@@ -216,6 +217,33 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist;
+                expect(res.result.message).to.equal('An internal server error occurred');
+            });
+        });
+
+        it('emits internalError when view file for handler now found', function (done) {
+
+            var options = {
+                views: {
+                    path: __dirname
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            server.once('internalError', function (request, err) {
+
+                expect(err).to.exist;
+                expect(err.message).to.contain('View file not found');
+                done();
+            });
+
+            server.route({ method: 'GET', path: '/{param}', handler: { view: 'noview' } });
+
+            server.inject({ method: 'GET', url: '/hello' }, function (res) {
 
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
@@ -471,13 +499,13 @@ describe('Response', function () {
                     expect(body).to.contain('hapi');
                     expect(res.headers['content-type']).to.equal('application/json');
                     expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
+                    expect(res.headers['content-disposition']).to.not.exist;
                     done();
                 });
             });
         });
 
-        it('returns a file in the response with the correct headers using cwd relative paths', function (done) {
+        it('returns a file in the response with the correct headers using cwd relative paths without content-disposition header', function (done) {
 
             var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
             server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
@@ -485,6 +513,111 @@ describe('Response', function () {
             server.start(function () {
 
                 Request.get(server.settings.uri, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.not.exist;
+                    done();
+                });
+            });
+        });
+
+        it('returns a file in the response with the inline content-disposition header when using route config', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'inline' } }});
+
+            server.start(function () {
+
+                Request.get(server.settings.uri, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file in the response with the attachment content-disposition header when using route config', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment' } }});
+
+            server.start(function () {
+
+                Request.get(server.settings.uri, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file in the response without the content-disposition header when using route config mode false', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: false } }});
+
+            server.start(function () {
+
+                Request.get(server.settings.uri, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.not.exist;
+                    done();
+                });
+            });
+        });
+
+        it('returns a file with correct headers when using attachment mode', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json', { mode: 'attachment' }));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.start(function () {
+
+                Request.get(server.settings.uri + '/file', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.contain('hapi');
+                    expect(res.headers['content-type']).to.equal('application/json');
+                    expect(res.headers['content-length']).to.exist;
+                    expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file with correct headers when using inline mode', function (done) {
+
+            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var handler = function (request) {
+
+                request.reply(new Hapi.Response.File(__dirname + '/../../package.json', { mode: 'inline' }));
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.start(function () {
+
+                Request.get(server.settings.uri + '/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');

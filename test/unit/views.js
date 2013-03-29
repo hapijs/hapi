@@ -159,11 +159,11 @@ describe('Views', function () {
                 var html = tempView.render('testPartials', {});
                 expect(html).to.exist;
                 expect(html.length).above(1);
-            })
+            });
 
             expect(fn).to.not.throw();
             done();
-        })
+        });
     });
 
     describe('#handler', function () {

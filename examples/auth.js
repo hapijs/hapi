@@ -24,9 +24,13 @@ internals.hashPassword = function (password) {
 
 internals.users = {
     john: {
-        id: 'john',
-        password: internals.hashPassword('john')
+        user: 'john'
     }
+};
+
+
+internals.passwords = {
+    john: 'john'
 };
 
 
@@ -41,7 +45,7 @@ internals.credentials = {
 
 internals.loadUser = function (username, callback) {
 
-    callback(null, internals.users[username]);
+    callback(null, internals.users[username], internals.hashPassword(internals.passwords[username]));
 };
 
 
