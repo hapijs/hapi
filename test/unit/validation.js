@@ -155,7 +155,7 @@ describe('Validation', function () {
             request.response = Hapi.Response.generate({ wrongParam: 'test' });
             var failureCount = 0;
 
-            request.log = function () {
+            request._log = function () {
 
                 failureCount++;
             };
@@ -195,7 +195,7 @@ describe('Validation', function () {
             request.route.response.failAction = 'log';
             request.response = Hapi.Response.generate({ wrongParam: 'test' });
 
-            request.log = function (tags, data) {
+            request._log = function (tags, data) {
 
                 expect(data).to.contain('the key (wrongParam) is not allowed');
                 done();

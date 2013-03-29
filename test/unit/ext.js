@@ -50,7 +50,7 @@ describe('Ext', function () {
             });
 
             var request = {
-                log: function () { }
+                _log: function () { }
             };
 
             ext.invoke(request, 'onRequest', function (err) {
