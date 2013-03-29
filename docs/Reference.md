@@ -610,7 +610,7 @@ to write additional text as the configuration itself serves as a living document
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only include one handler per route.
     - `validate`
         - `query` - validation rules for incoming requests' query component (the key-value part of the URI between _?_ and _#_). Defaults to any query parameters being allowed. See [Query Validation](#query-validation) for more information.
-        - `schema` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to _'false'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
+        - `payload` - validation rules for incoming requests' payload (request body). Defaults to no validation (any payload allowed). Set to _'false'_ to forbid payloads. See [Payload Validation](#payload-validation) for more information.
         - `path` - validation rules for incoming requests' path parameters. Defaults to no validation (any path parameter allowed). Set to _'false'_ to forbid any path parameter. See [Path Validation](#path-validation) for more information.
     - `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
     - `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
@@ -1418,7 +1418,7 @@ The route `config.validate.query` defines the query validation rules performed b
 
 ### Payload Validation
 
-The route `config.validate.schema` defines the payload validation rules performed before the route handler is invoked. Supported values:
+The route `config.validate.payload` defines the payload validation rules performed before the route handler is invoked. Supported values:
 - _'true'_ or _'{}'_ - any payload allowed (no validation performed). This is the default.
 - _'false'_ - no payload allowed.
 - a validation rules object as described in [Data Validation](#data-validation).

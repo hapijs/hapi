@@ -47,7 +47,7 @@ internals.main = function () {
         participants: A().includes(S(), N())
     };
 
-    http.route({ method: 'POST', path: '/users/{id}', config: { handler: internals.payload, validate: { query: {}, schema: schema } } });
+    http.route({ method: 'POST', path: '/users/{id}', config: { handler: internals.payload, validate: { query: {}, payload: schema } } });
 
     http.start();
 };
