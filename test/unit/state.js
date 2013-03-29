@@ -127,7 +127,7 @@ describe('State', function () {
                                 state: settings || Defaults.server.state
                             }
                         },
-                        log: function (tags, data) {
+                        _log: function (tags, data) {
                             ignore = true;
                         },
                         clearState: function (name) {

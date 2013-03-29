@@ -16,10 +16,10 @@ internals.get = function (request) {
 };
 
 
-internals.onPostHandler = function (request, next) {
+internals.onPreResponse = function (request, next) {
 
-    if (request.response.isBoom) {
-        var error = request.response;
+    if (request.response().isBoom) {
+        var error = request.response();
         error.response.payload.message = 'Censored Error';
     }
 
@@ -31,7 +31,7 @@ internals.main = function () {
 
     var http = new Hapi.Server(8080);
 
-    http.ext('onPostHandler', internals.onPostHandler);
+    http.ext('onPreResponse', internals.onPreResponse);
 
     http.route({ method: 'GET', path: '/', handler: internals.get });
     http.start();

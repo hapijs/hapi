@@ -68,7 +68,7 @@ describe('Prerequesites', function () {
         request.reply(request.pre.m1);
     };
 
-    var server = new Hapi.Server('0.0.0.0', 0);
+    var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
 
     server.helper('user', function (id, next) {
 

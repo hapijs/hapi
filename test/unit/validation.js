@@ -82,7 +82,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request.response = Hapi.Response.generate({ username: 'test' });
+            request._response = Hapi.Response.generate({ username: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -96,7 +96,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request.response = Hapi.Response.generate(Hapi.error.unauthorized('You are not authorized'));
+            request._response = Hapi.Response.generate(Hapi.error.unauthorized('You are not authorized'));
 
             Validation.response(request, function (err) {
 
@@ -109,7 +109,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.response = Hapi.Response.generate({ wrongParam: 'test' });
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -123,7 +123,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.sample = 0;
-            request.response = Hapi.Response.generate({ wrongParam: 'test' });
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -137,7 +137,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.sample = 100;
-            request.response = Hapi.Response.generate({ wrongParam: 'test' });
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
@@ -152,10 +152,10 @@ describe('Validation', function () {
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
             request.route.response.sample = sample;
-            request.response = Hapi.Response.generate({ wrongParam: 'test' });
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
             var failureCount = 0;
 
-            request.log = function () {
+            request._log = function () {
 
                 failureCount++;
             };
@@ -193,9 +193,9 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
-            request.response = Hapi.Response.generate({ wrongParam: 'test' });
+            request._response = Hapi.Response.generate({ wrongParam: 'test' });
 
-            request.log = function (tags, data) {
+            request._log = function (tags, data) {
 
                 expect(data).to.contain('the key (wrongParam) is not allowed');
                 done();
@@ -211,7 +211,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.response = Hapi.Response.generate('test');
+            request._response = Hapi.Response.generate('test');
 
             Validation.response(request, function (err) {
 

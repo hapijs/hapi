@@ -21,6 +21,7 @@
     - [CORS](#cors)
     - [State](#state)
     - [Timeout](#timeout)
+    - [Debug](#debug)
 <p></p>
 - [**Server Events**](#server-events)
 <p></p>
@@ -100,6 +101,8 @@ var server = new Hapi.Server();
 - [`cache`](#cache)
 - [`cors`](#cors)
 - [`state`](#state)
+- [`timeout`](#timeout)
+- [`debug`](#debug)
 
 
 ### TLS
@@ -145,9 +148,14 @@ during request processing. The required extension function signature is _functio
 - _'next'_ is the callback function the method **must** call upon completion to return control over to the router.
 
 The extension points are:
-- `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)'_ methods. Calls to these methods will impact how the request is router and can be used for rewrite rules.
-- `onPreHandler` - called after request passes validation and body parsing, before the request handler.
-- `onPostHandler` - called after the request handler, before sending the response. The actual state of the response depends on the response type used (e.g. direct, stream).
+- `onRequest` - called upon new requests before any router processing. The _'request'_ object passed to the `onRequest` functions is decorated with the _'setUrl(url)'_ and _'setMethod(verb)'_ methods. Calls to these methods will impact how the request is router and can be used for rewrite rules. Should not be used by generic public plugins.
+- `onPreAuth` - called after parsing cookies, but before authentication. Used primarily for session-based authentication schemes. Skipped if failed to parse cookies.
+- `onPreHandler` - called after request passes validation and body parsing, before the request handler. Skipped on validation or authentication errors.
+- `onPostHandler` - called after the request handler, before sending the response. The actual state of the response depends on the response type used (e.g. direct, stream). Skipped if `onPreHandler` was not called.
+- `onPreResponse` - called right before the response is sent to the client. Always called.
+
+A special `request.response()` method is available in `onPostHandler` and `onPreResponse` which returns the response object. The returned object may be
+modified. To return a different response (for example, replace an error with an HTML response), return the new response via `next(response)`.
 
 For example:
 ```javascript
@@ -508,6 +516,22 @@ In order to indicate to a client that they are taking too long to send a request
 In node, server requests automatically time out after 2 minutes. To override this value set the `socket` timeout value.
 Defaults to 'null' which leaves the node default as-is. Below is an example of changing the socket timeout to :
 `{ timeout: { socket: 3 * 60 * 1000 } }`
+
+
+### Debug
+
+By default, **hapi** does not print much to the console. However, it is set to output any uncaught errors thrown in non-hapi code as those are handled
+automatically and result in a 500 error response. To change the type of events logged to the console, change the server config `debug.request` array to
+the list of request log tags you would like to see no the console. For example, also print error events:
+
+```javascript
+var server = new Hapi.Server({ debug: { request: ['error', 'uncaught'] } });
+```
+
+To turn off all console print outs:
+```javascript
+var server = new Hapi.Server({ debug: false });
+```
 
 
 ## Server Events

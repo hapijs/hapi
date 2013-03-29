@@ -128,7 +128,7 @@ describe('Auth', function () {
                     }
                 },
                 auth: {},
-                log: function () { },
+                _log: function () { },
                 raw: {
                     res: {
                         setHeader: function () { }
@@ -229,7 +229,7 @@ describe('Auth', function () {
                             strategies: ['default']
                         }
                     },
-                    log: function () { },
+                    _log: function () { },
                     server: server
                 };
 
@@ -258,7 +258,7 @@ describe('Auth', function () {
                             strategies: ['default']
                         }
                     },
-                    log: function () { },
+                    _log: function () { },
                     server: server
                 };
 
@@ -290,7 +290,7 @@ describe('Auth', function () {
                             strategies: ['default']
                         }
                     },
-                    log: function () { },
+                    _log: function () { },
                     server: server
                 };
 
@@ -320,7 +320,7 @@ describe('Auth', function () {
                             strategies: ['default']
                         }
                     },
-                    log: function () { },
+                    _log: function () { },
                     server: server
                 };
 
@@ -353,7 +353,7 @@ describe('Auth', function () {
                             strategies: ['default']
                         }
                     },
-                    log: function () { },
+                    _log: function () { },
                     server: server
                 };
 
@@ -386,7 +386,7 @@ describe('Auth', function () {
                             strategies: ['default']
                         }
                     },
-                    log: function () { },
+                    _log: function () { },
                     server: server
                 };
 
@@ -418,7 +418,7 @@ describe('Auth', function () {
                             strategies: ['default']
                         }
                     },
-                    log: function () { },
+                    _log: function () { },
                     server: server,
                     host: 'localhost'
                 };
@@ -450,7 +450,7 @@ describe('Auth', function () {
                     auth: {
                         credentials: {}
                     },
-                    log: function () { },
+                    _log: function () { },
                     raw: {
                         res: {
                             setHeader: function () { }
