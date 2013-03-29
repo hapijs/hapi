@@ -428,7 +428,7 @@ describe('Pack', function () {
             version: '1.0.0',
             register: function (pack, options, next) {
 
-                var cache = pack.cache({ expiresIn: 5 });
+                var cache = pack.cache({ expiresIn: 10 });
                 pack.api({
                     get: function (key, callback) {
                         cache.get(key, function (err, value) {
@@ -466,7 +466,7 @@ describe('Pack', function () {
                                 expect(value).to.equal(null);
                                 done();
                             });
-                        }, 5);
+                        }, 11);
                     });
                 });
             });
