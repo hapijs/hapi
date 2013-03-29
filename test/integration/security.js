@@ -229,7 +229,7 @@ describe('Security', function () {
                 request.reply('Success');
             },
                 config: {
-                    validate: { schema: { name: Hapi.Types.String().max(4).min(1).required() } }
+                    validate: { payload: { name: Hapi.Types.String().max(4).min(1).required() } }
                 }
             });
 
