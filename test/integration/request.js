@@ -1,9 +1,8 @@
 // Load modules
 
 var Lab = require('lab');
+var Request = require('request');
 var Hapi = require('../..');
-var Request = require('../../lib/request');
-
 
 // Declare internals
 
@@ -162,7 +161,7 @@ describe('Request', function () {
             done();
         });
     });
-    
+
     it('returns 500 on handler exception (same tick)', function (done) {
 
         var server = new Hapi.Server();
@@ -180,7 +179,7 @@ describe('Request', function () {
             done();
         });
     });
-    
+
     it('returns 500 on handler exception (next tick)', function (done) {
 
         var server = new Hapi.Server();
@@ -201,7 +200,7 @@ describe('Request', function () {
             done();
         });
     });
-    
+
     it('ignores second call to reply()', function (done) {
 
         var server = new Hapi.Server();
@@ -221,14 +220,14 @@ describe('Request', function () {
             done();
         });
     });
-    
-    
+
+
     it('returns 500 on ext method exception (same tick)', function (done) {
 
         var server = new Hapi.Server();
         server.ext('onRequest', function (request, next) {
-           
-           var x = a.b.c; 
+
+           var x = a.b.c;
         });
 
         var handler = function () {
@@ -251,7 +250,7 @@ describe('Request', function () {
 
         var handler = function () {
 
-            expect(this instanceof Request).to.equal(true);
+            expect(this.reply).to.exist;
             expect(arguments.length).to.equal(0);
             this.reply('ok');
         };
@@ -271,7 +270,7 @@ describe('Request', function () {
 
         var handler = function (request) {
 
-            expect(this instanceof Request).to.equal(false);
+            expect(this.reply).to.not.exist;
             expect(arguments.length).to.equal(1);
             request.reply('ok');
         };
@@ -291,7 +290,7 @@ describe('Request', function () {
 
         var handler = function (request, reply) {
 
-            expect(this instanceof Request).to.equal(false);
+            expect(this.reply).to.not.exist;
             expect(arguments.length).to.equal(2);
             expect(reply.send).to.not.exist;
             reply('ok');
@@ -300,6 +299,47 @@ describe('Request', function () {
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject({ method: 'GET', url: '/' }, function (res) {
+
+            expect(res.result).to.equal('ok');
+            done();
+        });
+    });
+
+    it('request has client address', function (done) {
+
+        var server = new Hapi.Server(0);
+
+        var handler = function (request) {
+
+            expect(request.info.address).to.equal('127.0.0.1');
+            request.reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/address', handler: handler });
+
+        server.start(function () {
+
+            Request(server.settings.uri + '/address', function (err, res, body) {
+
+                expect(body).to.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('request has referrer', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function (request) {
+
+            expect(request.info.referrer).to.equal('http://site.com');
+            request.reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ method: 'GET', url: '/', headers: { referrer: 'http://site.com' } }, function (res) {
 
             expect(res.result).to.equal('ok');
             done();
