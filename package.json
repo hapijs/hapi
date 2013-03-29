@@ -5,10 +5,19 @@
   "version": "0.16.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
-    "Van Nguyen <the.gol.effect@gmail.com>",
-    "Wyatt Preul <wpreul@gmail.com>"
+    {
+      "name": "Van Nguyen",
+      "email": "the.gol.effect@gmail.com"
+    },
+    {
+      "name": "Wyatt Preul",
+      "email": "wpreul@gmail.com"
+    }
   ],
-  "repository": "git://github.com/spumko/hapi",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/spumko/hapi"
+  },
   "main": "index",
   "keywords": [
     "framework",

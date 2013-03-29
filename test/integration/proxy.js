@@ -36,10 +36,16 @@ describe('Proxy', function () {
 
         var profile = function () {
 
-            this.reply({
+            if (this.state.test) {
+                return this.reply('error');
+            }
+
+            this.reply.payload({
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
-            });
+            })
+            .state('test', '123')
+            .send();
         };
 
         var activeItem = function () {
@@ -151,6 +157,7 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } }
             ]);
 
+            server.state('auto', { autoValue: 'xyz' });
             server.start(function () {
 
                 done();
@@ -173,7 +180,8 @@ describe('Proxy', function () {
             method: options.method,
             url: server.settings.uri + options.path,
             form: options.form,
-            headers: options.headers
+            headers: options.headers,
+            jar: false
         }, next);
     }
 
@@ -183,7 +191,14 @@ describe('Proxy', function () {
 
             expect(rawRes.statusCode).to.equal(200);
             expect(rawRes.body).to.contain('John Doe');
-            done();
+            expect(rawRes.headers['set-cookie']).to.deep.equal(['test=123','auto=xyz']);
+            
+            makeRequest({ path: '/profile' }, function (rawRes) {
+
+                expect(rawRes.statusCode).to.equal(200);
+                expect(rawRes.body).to.contain('John Doe');
+                done();
+            });
         });
     });
 
