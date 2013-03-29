@@ -323,7 +323,7 @@ describe('Validation', function () {
 
         it('doesn\'t perform validation when schema is true', function (done) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { schema: true } } };
+            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: true } } };
 
             var payload = null;
             var request = createRequestObject(null, route, payload);
@@ -337,7 +337,7 @@ describe('Validation', function () {
 
         it('should not raise an error when responding with valid param in the payload', function (done) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { schema: { username: S().min(7)  } } } };
+            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: { username: S().min(7)  } } } };
             var payload = { username: 'username' };
             var request = createRequestObject(null, route, payload);
 
@@ -350,7 +350,7 @@ describe('Validation', function () {
 
         it('should raise an error when responding with an invalid payload param', function (done) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { schema: { username: S().required() } } } };
+            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: { username: S().required() } } } };
             var payload = { username: '' };
             var request = createRequestObject(null, route, payload);
 
