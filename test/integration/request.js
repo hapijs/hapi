@@ -161,7 +161,7 @@ describe('Request', function () {
             done();
         });
     });
-    
+
     it('returns 500 on handler exception (same tick)', function (done) {
 
         var server = new Hapi.Server();
@@ -179,7 +179,7 @@ describe('Request', function () {
             done();
         });
     });
-    
+
     it('returns 500 on handler exception (next tick)', function (done) {
 
         var server = new Hapi.Server();
@@ -200,7 +200,7 @@ describe('Request', function () {
             done();
         });
     });
-    
+
     it('ignores second call to reply()', function (done) {
 
         var server = new Hapi.Server();
@@ -220,14 +220,14 @@ describe('Request', function () {
             done();
         });
     });
-    
-    
+
+
     it('returns 500 on ext method exception (same tick)', function (done) {
 
         var server = new Hapi.Server();
         server.ext('onRequest', function (request, next) {
-           
-           var x = a.b.c; 
+
+           var x = a.b.c;
         });
 
         var handler = function () {
@@ -311,7 +311,7 @@ describe('Request', function () {
 
         var handler = function (request) {
 
-            expect(request.address).to.equal('127.0.0.1');
+            expect(request.info.address).to.equal('127.0.0.1');
             request.reply('ok');
         };
 
@@ -333,7 +333,7 @@ describe('Request', function () {
 
         var handler = function (request) {
 
-            expect(request.referrer).to.equal('http://site.com');
+            expect(request.info.referrer).to.equal('http://site.com');
             request.reply('ok');
         };
 
