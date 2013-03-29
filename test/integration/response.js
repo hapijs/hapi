@@ -224,7 +224,7 @@ describe('Response', function () {
             });
         });
 
-        it('emits internalError when view file for handler now found', function (done) {
+        it('emits internalError when view file for handler not found', function (done) {
 
             var options = {
                 views: {
