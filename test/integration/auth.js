@@ -654,6 +654,7 @@ describe('Auth', function () {
 
         server.route([
             { method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: 'default' } },
+            { method: 'POST', path: '/hawkValidate', handler: hawkHandler, config: { auth: 'default', validate: { query: { } } } },
             { method: 'POST', path: '/hawkchange', handler: hawkChangeHandler, config: { auth: 'default' } },
             { method: 'POST', path: '/hawkError', handler: hawkErrorHandler, config: { auth: 'default' } },
             { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler, config: { auth: 'default' } },
@@ -737,6 +738,45 @@ describe('Auth', function () {
 
                 expect(res.headers['server-authorization']).to.contain('Hawk');
                 expect(res.statusCode).to.equal(200);
+
+                var attributes = Hawk.utils.parseAuthorizationHeader(res.raw.req.headers.authorization);
+
+                var artifacts = {
+                    method: res.raw.req.method,
+                    host: res.raw.req.headers.host.split(':')[0],
+                    port: res.raw.req.headers.host.split(':')[1],
+                    resource: res.raw.req.url,
+                    ts: attributes.ts,
+                    nonce: attributes.nonce,
+                    ext: attributes.ext,
+                    mac: attributes.mac
+                };
+
+                var options = {
+                    payload: res.payload,
+                    contentType: res.headers['content-type']
+                };
+
+                getCredentials('john', function (err, cred) {
+
+                    artifacts.credentials = cred;
+                    var header = Hawk.server.header(artifacts, options);
+                    expect(header).to.equal(res.headers['server-authorization']);
+
+                    done();
+                });
+            });
+        });
+
+        it('includes valid authorization header in response when the request fails validation', function (done) {
+
+            var request = { method: 'POST', url: '/hawkValidate?a=1', headers: { authorization: hawkHeader('john', '/hawkValidate?a=1'), host: '0.0.0.0:8080' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.headers['server-authorization']).to.exist;
+                expect(res.headers['server-authorization']).to.contain('Hawk');
+                expect(res.statusCode).to.equal(400);
 
                 var attributes = Hawk.utils.parseAuthorizationHeader(res.raw.req.headers.authorization);
 
