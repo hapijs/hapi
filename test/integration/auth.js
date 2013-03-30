@@ -718,8 +718,7 @@ describe('Auth', function () {
 
                 getCredentials('john', function (err, cred) {
 
-                    artifacts.credentials = cred;
-                    var header = Hawk.server.header(artifacts, options);
+                    var header = Hawk.server.header(cred, artifacts, options);
                     var trailerAuth = res.raw.res._trailer.split(':')[1];
                     trailerAuth = trailerAuth.substr(1, trailerAuth.lastIndexOf('"'));
 
@@ -759,8 +758,7 @@ describe('Auth', function () {
 
                 getCredentials('john', function (err, cred) {
 
-                    artifacts.credentials = cred;
-                    var header = Hawk.server.header(artifacts, options);
+                    var header = Hawk.server.header(cred, artifacts, options);
                     expect(header).to.equal(res.headers['server-authorization']);
 
                     done();
@@ -799,7 +797,7 @@ describe('Auth', function () {
                 getCredentials('john', function (err, cred) {
 
                     artifacts.credentials = cred;
-                    var header = Hawk.server.header(artifacts, options);
+                    var header = Hawk.server.header(cred, artifacts, options);
                     expect(header).to.equal(res.headers['server-authorization']);
 
                     done();
