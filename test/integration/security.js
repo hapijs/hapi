@@ -125,7 +125,7 @@ describe('Security', function () {
 
     describe('XSS', function () {
 
-        var server = new Hapi.Server('0.0.0.0', 0);
+        var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
 
         internals.postHandler = function (request) {
 

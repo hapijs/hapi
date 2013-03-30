@@ -164,7 +164,7 @@ describe('Request', function () {
 
     it('returns 500 on handler exception (same tick)', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Server({ debug: false });
 
         var handler = function (request) {
 
@@ -193,6 +193,13 @@ describe('Request', function () {
         };
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
+
+        var orig = console.error;
+        console.error = function (stack) {
+
+            expect(stack).to.contain('Cannot read property \'c\' of undefined');
+            console.error = orig;
+        };
 
         server.inject({ method: 'GET', url: '/domain' }, function (res) {
 
@@ -224,7 +231,7 @@ describe('Request', function () {
 
     it('returns 500 on ext method exception (same tick)', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Server({ debug: false });
         server.ext('onRequest', function (request, next) {
 
            var x = a.b.c;
