@@ -66,4 +66,54 @@ describe('Composer', function () {
             });
         });
     });
+
+    it('composes pack (env)', function (done) {
+
+        var manifest = {
+            pack: {
+                cache: 'memory'
+            },
+            servers: [
+                {
+                    port: '$env.hapi_port',
+                    options: {
+                        labels: ['api', 'nasty', 'test']
+                    }
+                },
+                {
+                    host: '$env.hapi_host',
+                    port: 0,
+                    options: {
+                        labels: ['api', 'nice']
+                    }
+                }
+            ],
+            plugins: {
+                '../test/integration/pack/--test1': {}
+            },
+            permissions: {
+                ext: true
+            }
+        };
+
+        process.env.hapi_port = '0';
+        process.env.hapi_host = 'localhost';
+
+        var composer = new Hapi.Composer(manifest);
+        composer.compose(function (err) {
+
+            expect(err).to.not.exist;
+            composer.start(function (err) {
+
+                expect(err).to.not.exist;
+                composer.stop();
+
+                composer._packs[0]._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
+
+                    expect(res.result).to.equal('testing123');
+                    done();
+                });
+            });
+        });
+    });
 });

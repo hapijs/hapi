@@ -251,55 +251,16 @@ describe('Request', function () {
         });
     });
 
-    it('invokes handler with no arguments', function (done) {
-
-        var server = new Hapi.Server();
-
-        var handler = function () {
-
-            expect(this.reply).to.exist;
-            expect(arguments.length).to.equal(0);
-            this.reply('ok');
-        };
-
-        server.route({ method: 'GET', path: '/', handler: handler });
-
-        server.inject({ method: 'GET', url: '/' }, function (res) {
-
-            expect(res.result).to.equal('ok');
-            done();
-        });
-    });
-
-    it('invokes handler with 1 arguments', function (done) {
-
-        var server = new Hapi.Server();
-
-        var handler = function (request) {
-
-            expect(this.reply).to.not.exist;
-            expect(arguments.length).to.equal(1);
-            request.reply('ok');
-        };
-
-        server.route({ method: 'GET', path: '/', handler: handler });
-
-        server.inject({ method: 'GET', url: '/' }, function (res) {
-
-            expect(res.result).to.equal('ok');
-            done();
-        });
-    });
-
-    it('invokes handler with 3 arguments', function (done) {
+    it('invokes handler with right arguments', function (done) {
 
         var server = new Hapi.Server();
 
         var handler = function (request, reply) {
 
-            expect(this.reply).to.not.exist;
+            expect(this).to.equal(request);
             expect(arguments.length).to.equal(2);
             expect(reply.send).to.not.exist;
+            expect(this.reply.send).to.exist;
             reply('ok');
         };
 
