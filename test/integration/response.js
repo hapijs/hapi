@@ -1957,7 +1957,7 @@ describe('Response', function () {
                         engine: {
                             module: 'handlebars',
                             extension: 'html',
-                            slashReplacement: '_',
+                            slashReplacement: '_'
                         }
                     }
                 });
