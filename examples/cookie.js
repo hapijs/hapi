@@ -45,7 +45,7 @@ internals.handler = function (request) {
 
 internals.loginHandler = function (request) {
 
-    request.setState('membership', internals.users.john);
+    request.auth.session.set(internals.users.john);
     request.reply('Success');
 };
 
@@ -57,7 +57,7 @@ internals.main = function () {
             scheme: 'cookie',
             password: 'secret',
             ttl: 60 * 1000,                 // Expire after a minute
-            cookie: 'membership',           // Cookie name
+            cookie: 'sid',                  // Cookie name
             clearInvalid: true,
             validateFunc: internals.validateCookie
         }

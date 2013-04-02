@@ -68,7 +68,7 @@ describe('Auth', function () {
                 scheme: 'basic',
                 loadUserFunc: loadUser,
                 hashPasswordFunc: hashPassword,
-                requiredByDefault: true
+                defaultMode: 'required'
             }
         };
 
@@ -90,7 +90,7 @@ describe('Auth', function () {
         };
 
         server.route([
-            { method: 'POST', path: '/basic', handler: basicHandler },
+            { method: 'POST', path: '/basic', handler: basicHandler, config: { auth: true } },
             { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
             { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: 200 } } },
@@ -1502,7 +1502,7 @@ describe('Auth', function () {
                 auth: { mode: 'try' },
                 handler: function () {
 
-                    this.session.set({ user: this.params.user });
+                    this.auth.session.set({ user: this.params.user });
                     return this.reply(this.params.user);
                 }
             }
@@ -1520,7 +1520,7 @@ describe('Auth', function () {
         server.route({
             method: 'GET', path: '/logout', handler: function () {
 
-                this.session.clear();
+                this.auth.session.clear();
                 return this.reply('logged-out');
             }, config: { auth: 'default' }
         });

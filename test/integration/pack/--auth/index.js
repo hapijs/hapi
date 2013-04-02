@@ -19,7 +19,7 @@ exports.register = function (pack, options, next) {
     pack.auth('basic', {
         scheme: 'basic',
         loadUserFunc: loadUser,
-        requiredByDefault: true
+        defaultMode: true
     });
 
     return next();
