@@ -30,7 +30,7 @@ describe('Schema', function () {
 
         it('fails when unknown properties exist', function (done) {
 
-            var settings = { unknown: true };
+            var settings = { unknown: true, something: { } };
 
             Schema.server(settings, function (err) {
 
