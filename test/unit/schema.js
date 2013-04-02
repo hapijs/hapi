@@ -110,6 +110,17 @@ describe('Schema', function () {
             });
         });
 
+        it('succeeds when cache privacy exists', function (done) {
+
+            var settings = { method: 'GET', path: '/', handler: function() {}, config: { cache: { privacy: 'required' }} };
+
+            Schema.route(settings, {}, function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
         it('succeeds when required fields are present', function (done) {
 
             var settings = { method: 'GET', path: '/', handler: function() {} };
