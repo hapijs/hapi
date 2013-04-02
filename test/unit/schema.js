@@ -51,6 +51,18 @@ describe('Schema', function () {
             });
         });
 
+        it('fails when unknown child properties exist', function (done) {
+
+            var server = new Hapi.Server();
+            server.settings.router = { unknown: true };
+
+            Schema.server(server.settings, function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+
         it('succeeds with default settings returned from server', function (done) {
 
             var server = new Hapi.Server();

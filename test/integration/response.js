@@ -1621,6 +1621,10 @@ describe('Response', function () {
 
             return request.reply.view('test', { message: msg }).send();
         };
+        var handlerDirect = function (request) {
+
+            return request.reply(request.generateView('test', { message: msg }));
+        };
         var absoluteHandler = function (request) {
 
             return request.reply.view(viewPath + '/test', { message: msg }).send();
@@ -1662,6 +1666,7 @@ describe('Response', function () {
                 }
             });
             server.route({ method: 'GET', path: '/views', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/views/direct', config: { handler: handlerDirect } });
             server.route({ method: 'GET', path: '/views/abspath', config: { handler: absoluteHandler } });
             server.route({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
             server.route({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
@@ -1670,6 +1675,17 @@ describe('Response', function () {
             it('returns a compiled Handlebars template reply', function (done) {
 
                 server.inject({ method: 'GET', url: '/views' }, function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.result).to.have.string(msg);
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+
+            it('returns a compiled Handlebars template reply (direct reply)', function (done) {
+
+                server.inject({ method: 'GET', url: '/views/direct' }, function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.result).to.have.string(msg);
