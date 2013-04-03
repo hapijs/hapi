@@ -188,7 +188,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server('0.0.0.0', 0);
+                var server = new Hapi.Server(0);
 
                 server.start(function () {
 
@@ -203,11 +203,29 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server('0.0.0.0', 0);
+                var server = new Hapi.Server(0);
                 server.stop();
             };
             expect(fn).to.not.throw(Error);
             done();
+        });
+
+        it('calls the callback when provided with one', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server(0);
+
+                server.start(function () {
+
+                    server.stop(function () {
+
+                        done();
+                    });
+
+                });
+            };
+            expect(fn).to.not.throw(Error);
         });
     });
 
