@@ -1,47 +1,104 @@
 #!/usr/bin/env node
 
+// Load modules
+
 var Optimist = require('optimist');
 var Hapi = require('../');
 
-var argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path]')
+
+// Declare internals
+
+var internals = {};
+
+
+internals.argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path]')
                     .demand(['c'])
                     .argv;
 
-var manifest = null;
-try {
-    manifest = require(argv.c[0] !== '/' ? process.cwd() + '/' + argv.c : argv.c);
+
+internals.getManifest = function () {
+
+    var manifest = null;
+    var manifestPath = internals.argv.c[0] !== '/' ? process.cwd() + '/' + internals.argv.c : internals.argv.c;
+
+    try {
+        delete require.cache[require.resolve(manifestPath)];                        // Delete manifest from cache to ensure we are loading a fresh copy
+        manifest = require(manifestPath);
+    }
+    catch (err) {
+        console.log('Failed loading configuration file: ' + internals.argv.c + ' (' + err.message + ')');
+        process.exit(1);
+    }
+
+    return manifest;
 }
-catch (err) {
-    console.log('Failed loading configuration file: ' + argv.c + ' (' + err.message + ')');
-    process.exit(1);
+
+
+internals.loadPacks = function (manifest) {
+
+    if (internals.argv.p) {
+        var packs = [].concat(manifest);
+        packs.forEach(function (set) {
+
+            set.pack = set.pack || {};
+            set.pack.requirePath = internals.argv.p;
+        });
+    }
 }
 
-if (argv.p) {
-    var packs = [].concat(manifest);
-    packs.forEach(function (set) {
-        set.pack = set.pack || {};
-        set.pack.requirePath = argv.p;
-    });
-}
 
-var composer = new Hapi.Composer(manifest);
-composer.compose(function (err) {
+internals.createComposer = function (manifest) {
 
-    Hapi.utils.assert(!err, 'Failed loading plugins: ' + (err && err.message));
-    composer.start(function (err) {
+    var attached = !!internals.composer;                                                // When composer exists events are already attached
+    internals.composer = new Hapi.Composer(manifest);
 
-        Hapi.utils.assert(!err, 'Failed starting server: ' + (err && err.message));
+    internals.composer.compose(function (err) {
 
-        process.on('SIGQUIT', function () {                                             // Use kill -s QUIT {pid} to kill the server gracefully
+        Hapi.utils.assert(!err, 'Failed loading plugins: ' + (err && err.message));
+        internals.composer.start(function (err) {
 
-            http.stop(function () {
+            Hapi.utils.assert(!err, 'Failed starting server: ' + (err && err.message));
 
-                process.exit();
-            });
+            if (!attached) {
+                internals.attachEvents();
+            }
         });
     });
-});
+};
 
 
+internals.attachEvents = function () {
+
+    process.once('SIGQUIT', internals.stop);                                             // Use kill -s QUIT {pid} to kill the servers gracefully
+    process.on('SIGUSR2', internals.restart);                                            // Use kill -s SIGUSR2 {pid} to restart the servers
+};
 
 
+internals.stop = function () {
+
+    internals.composer.stop(function () {
+
+        process.exit();
+    });
+};
+
+
+internals.restart = function () {
+
+    console.log('Stopping...');
+    internals.composer.stop(function () {
+
+        console.log('Starting...');
+        internals.start();
+    });
+};
+
+
+internals.start = function () {
+
+    var manifest = internals.getManifest();
+    internals.loadPacks(manifest);
+    internals.createComposer(manifest);
+};
+
+internals.start();

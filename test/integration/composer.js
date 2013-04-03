@@ -56,12 +56,13 @@ describe('Composer', function () {
             composer.start(function (err) {
 
                 expect(err).to.not.exist;
-                composer.stop();
+                composer.stop(function () {
 
-                composer._packs[0]._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
+                    composer._packs[0]._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
 
-                    expect(res.result).to.equal('testing123');
-                    done();
+                        expect(res.result).to.equal('testing123');
+                        done();
+                    });
                 });
             });
         });

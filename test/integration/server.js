@@ -35,7 +35,7 @@ describe('Server', function () {
 
                     expect(server.listener.connections).to.be.greaterThan(0);
 
-                    server.stop(function () {
+                    server.stop({ timeout: 10 }, function () {
 
                         expect(server.listener.connections).to.equal(0);
                         done();
