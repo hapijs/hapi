@@ -37,7 +37,7 @@ describe('Router', function () {
 
     it('matches vhost route for route with array of vhosts', function (done) {
 
-        server.inject({ method: 'GET', url: '/', headers: { host: 'special2.example.com' } }, function (res) {
+        server.inject({ method: 'GET', url: '/', headers: { host: 'special2.example.com:8080' } }, function (res) {
 
             expect(res.result).to.equal('special array');
             done();
