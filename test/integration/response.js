@@ -527,7 +527,7 @@ describe('Response', function () {
         it('returns a file in the response with the inline content-disposition header when using route config', function (done) {
 
             var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
-            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'inline' } }});
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'inline' } } });
 
             server.start(function () {
 
@@ -546,7 +546,7 @@ describe('Response', function () {
         it('returns a file in the response with the attachment content-disposition header when using route config', function (done) {
 
             var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
-            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment' } }});
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment' } } });
 
             server.start(function () {
 
@@ -565,7 +565,7 @@ describe('Response', function () {
         it('returns a file in the response without the content-disposition header when using route config mode false', function (done) {
 
             var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
-            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: false } }});
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: false } } });
 
             server.start(function () {
 
@@ -992,126 +992,107 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
         server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: ['./', '../'], listing: true } } });
 
-        it('returns a 403 when no index exists and listing is disabled', function (done) {
+        before(function (done) {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/directory/', function (err, res, body) {
+                done();
+            });
+        });
 
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(403);
-                    done();
-                });
+        it('returns a 403 when no index exists and listing is disabled', function (done) {
+
+            Request.get(server.settings.uri + '/directory/', function (err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(403);
+                done();
             });
         });
 
         it('returns a 403 when requesting a path containing \'..\'', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directory/..', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directory/..', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(403);
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(403);
+                done();
             });
         });
 
         it('returns a 404 when requesting an unknown file within a directory', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directory/xyz', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directory/xyz', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(404);
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(404);
+                done();
             });
         });
 
         it('returns a file when requesting a file from the directory', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directory/response.js', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directory/response.js', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('hapi');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('hapi');
+                done();
             });
         });
 
         it('returns a file when requesting a file from multi directory setup', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/multiple/unit/response/directory.js', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/multiple/unit/response/directory.js', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('no_such_path');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('no_such_path');
+                done();
             });
         });
 
         it('returns the correct file when requesting a file from a child directory', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directory/directory/index.html', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directory/directory/index.html', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('test');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('test');
+                done();
             });
         });
 
         it('returns the correct listing links when viewing top level path', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('href="/response.js"');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('href="/response.js"');
+                done();
             });
         });
 
         it('doesn\'t contain any double / when viewing sub path listing', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/showindex/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/showindex/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.not.contain('//');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.not.contain('//');
+                done();
             });
         });
 
         it('has the correct link to sub folders when inside of a sub folder listing', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/showindex/directory/subdir', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/showindex/directory/subdir', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('href="/showindex/directory/subdir/subsubdir"');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('href="/showindex/directory/subdir/subsubdir"');
+                done();
             });
         });
 
@@ -1119,14 +1100,11 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directoryx/{path*}', handler: { directory: { path: '../../', index: false } } });
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directoryx/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directoryx/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(403);
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(403);
+                done();
             });
         });
 
@@ -1134,29 +1112,23 @@ describe('Response', function () {
 
         it('returns a list of files when listing is enabled', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directorylist/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directorylist/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('package.json');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('package.json');
+                done();
             });
         });
 
         it('returns a list of files for subdirectory', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directorylist/test', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directorylist/test', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('integration');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('integration');
+                done();
             });
         });
 
@@ -1164,15 +1136,12 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directorylistx/{path*}', handler: { directory: { path: '../../', listing: true, index: false } } });
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directorylistx/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directorylistx/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('package.json');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('package.json');
+                done();
             });
         });
 
@@ -1180,28 +1149,22 @@ describe('Response', function () {
 
         it('returns the index when found', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directoryIndex/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directoryIndex/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('<p>test</p>');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('<p>test</p>');
+                done();
             });
         });
 
         it('returns a 500 when index.html is a directory', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directoryIndex/invalid', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directoryIndex/invalid', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(500);
+                done();
             });
         });
 
@@ -1214,146 +1177,104 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directoryfn/{path?}', handler: { directory: { path: directoryFn } } });
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/directoryfn/defaults.js', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/directoryfn/defaults.js', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(200);
-                    expect(body).to.contain('export');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(200);
+                expect(body).to.contain('export');
+                done();
             });
         });
 
         it('returns listing with hidden files when hidden files should be shown', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/showhidden/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/showhidden/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('.hidden');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(body).to.contain('.hidden');
+                done();
             });
         });
 
         it('returns listing without hidden files when hidden files should not be shown', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/noshowhidden/', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/noshowhidden/', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.not.contain('.hidden');
-                    expect(body).to.contain('response.js');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(body).to.not.contain('.hidden');
+                expect(body).to.contain('response.js');
+                done();
             });
         });
 
         it('returns a 404 response when requesting a hidden file when showHidden is disabled', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/noshowhidden/.hidden', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/noshowhidden/.hidden', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(404);
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(res.statusCode).to.equal(404);
+                done();
             });
         });
 
         it('returns a file when requesting a hidden file when showHidden is enabled', function (done) {
 
-            server.start(function () {
+            Request.get(server.settings.uri + '/showhidden/.hidden', function (err, res, body) {
 
-                Request.get(server.settings.uri + '/showhidden/.hidden', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('test');
-                    done();
-                });
+                expect(err).to.not.exist;
+                expect(body).to.contain('test');
+                done();
             });
         });
     });
 
     describe('Stream', function () {
 
-        var _streamRequest = null;
+        var TestStream = function (request, issue) {
 
-        FakeStream = function (issue) {
+            Stream.Readable.call(this);
 
-            Stream.call(this);
-            var self = this;
-            this.destroy = function () {
-
-                self.readable = false;
-            };
             this.issue = issue;
+            this.request = request;
+
             return this;
         };
 
-        Hapi.utils.inherits(FakeStream, Stream);
+        Hapi.utils.inherits(TestStream, Stream.Readable);
 
-        FakeStream.prototype.on = FakeStream.prototype.addListener = function (event, callback) {
+        TestStream.prototype._read = function (size) {
 
             switch (this.issue) {
                 case 'error':
-                    if (event === 'error') {
-                        if (!this.x) {
-                            callback();
-                            this.x = true;
-                        }
+                    if (!this.x) {
+                        this.emit('error', new Error());
+                        this.x = true;
                     }
                     break;
 
                 case 'double':
-                    if (event === 'data') {
-                        callback('x');
-                        this.x();
-                        this.y();
-                    }
-                    else if (event === 'error') {
-                        if (!this.x) {
-                            this.x = callback;
-                        }
-                    }
-                    else if (event === 'end') {
-                        if (!this.y) {
-                            this.y = callback;
-                        }
-                    }
+                    this.push('x');
+                    this.emit('readable');
+                    this.emit('error');
+                    this.push(null);
                     break;
 
                 case 'closes':
-                    if (event === 'data') {
-                        callback('here is the response');
-                    }
-                    else if (event === 'end') {
-                        _streamRequest.raw.req.emit('close');
-                        callback();
-                    }
+                    this.push('here is the response');
+                    this.request.raw.req.emit('close');
+                    this.push(null);
                     break;
 
                 default:
-                    if (event === 'data') {
-                        callback('x');
-                        this.x();
-                    }
-                    else if (event === 'end') {
-                        this.x = callback;
-                    }
+                    this.push('x');
+                    this.push(null);
                     break;
             }
         };
 
         var handler = function (request) {
 
-            _streamRequest = request;
-            request.reply.stream(new FakeStream(request.params.issue))
+            request.reply.stream(new TestStream(request, request.params.issue))
                          .bytes(request.params.issue ? 0 : 1)
                          .ttl(2000)
                          .send();
@@ -1361,26 +1282,32 @@ describe('Response', function () {
 
         var handler2 = function (request) {
 
-            var stream = new Stream();
-            stream.readable = true;
-            stream.resume = function () {
+            var HeadersStream = function () {
 
-                stream.emit('end', 'hello');
-            };
-            stream.response = {
-                headers: {
-                    custom: 'header'
-                }
+                Stream.Readable.call(this);
+                this.response = {
+                    headers: {
+                        custom: 'header'
+                    }
+                };
+
+                return this;
             };
 
-            var streamRes = new Hapi.response.Stream(stream);
-            request.reply(streamRes);
+            Hapi.utils.inherits(HeadersStream, Stream.Readable);
+
+            HeadersStream.prototype._read = function (size) {
+
+                this.push('hello');
+                this.push(null);
+            };
+
+            request.reply(new Hapi.response.Stream(new HeadersStream()));
         };
 
         var handler3 = function (request) {
 
-            _streamRequest = request;
-            request.reply.stream(new FakeStream(request.params.issue))
+            request.reply.stream(new TestStream(request, request.params.issue))
                          .created('/special')
                          .bytes(request.params.issue ? 0 : 1)
                          .ttl(3000)
@@ -1389,26 +1316,32 @@ describe('Response', function () {
 
         var handler4 = function (request) {
 
-            _streamRequest = request;
-            request.reply.stream(new FakeStream())
+            request.reply.stream(new TestStream(request))
                          .state(';sid', 'abcdefg123456')
                          .send();
         };
 
         var handler5 = function (request) {
 
-            var stream = new Stream();
-            stream.readable = true;
-            stream.resume = function () {
+            var HeadersStream = function () {
 
-                stream.emit('end', 'hello');
-            };
-            stream.response = {
-                code: 201
+                Stream.Readable.call(this);
+                this.response = {
+                    code: 201
+                };
+
+                return this;
             };
 
-            var streamRes = new Hapi.response.Stream(stream);
-            request.reply(streamRes);
+            Hapi.utils.inherits(HeadersStream, Stream.Readable);
+
+            HeadersStream.prototype._read = function (size) {
+
+                this.push('hello');
+                this.push(null);
+            };
+
+            request.reply(new Hapi.response.Stream(new HeadersStream()));
         };
 
         var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] } });
@@ -1450,21 +1383,30 @@ describe('Response', function () {
             });
         });
 
+        var TimerStream = function () {
+
+            Stream.Readable.call(this);
+            return this;
+        };
+
+        Hapi.utils.inherits(TimerStream, Stream.Readable);
+
+        TimerStream.prototype._read = function (size) {
+
+            var self = this;
+
+            setTimeout(function () {
+
+                self.push('hi');
+                self.push(null);
+            }, 5);
+        };
+
         it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', function (done) {
 
             var streamHandler = function (request) {
 
-                var stream = new Stream();
-                stream.readable = true;
-                stream.resume = function () {
-
-                    setTimeout(function () {
-
-                        stream.emit('end', 'hi');
-                    }, 5);
-                };
-
-                request.reply.stream(stream).send();
+                request.reply.stream(new TimerStream()).send();
             };
 
             var server1 = new Hapi.Server(0);
@@ -1485,17 +1427,7 @@ describe('Response', function () {
 
             var streamHandler = function (request) {
 
-                var stream = new Stream();
-                stream.readable = true;
-                stream.resume = function () {
-
-                    setTimeout(function () {
-
-                        stream.emit('end', 'hi');
-                    }, 5);
-                };
-
-                request.reply.stream(stream).send();
+                request.reply.stream(new TimerStream()).send();
             };
 
             var server1 = new Hapi.Server(0);

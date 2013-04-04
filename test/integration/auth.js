@@ -641,18 +641,18 @@ describe('Auth', function () {
 
             Hapi.utils.inherits(TestStream, Stream.Readable);
 
-            TestStream.prototype._read = function (size) {
+            var TestStream.prototype._read = function (size) {
 
                 var self = this;
 
                 setTimeout(function () {
 
-                    this.push('hi');
+                    self.push('hi');
                 }, 2);
 
                 setTimeout(function () {
 
-                    this.push(null);
+                    self.push(null);
                 }, 5);
             };
 

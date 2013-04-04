@@ -54,13 +54,11 @@ describe('Server Timeout', function () {
 
     var respondingHandler = function (request) {
 
-        var s = new Stream();
-        s.readable = true;
-        s.resume = function () { };
+        var s = new Stream.PassThrough();
         request.reply.stream(s).send();
 
         for (var i = 10000; i > 0; --i) {
-            s.emit('data', i.toString());
+            s.write(i.toString());
         }
 
         s.emit('end');
@@ -73,23 +71,29 @@ describe('Server Timeout', function () {
 
     var streamHandler = function (request) {
 
-        var s = new Stream();
-        s.readable = true;
+        var TestStream = function () {
 
-        s.resume = function () {
+            Stream.Readable.call(this);
+        };
+
+        Hapi.utils.inherits(TestStream, Stream.Readable);
+
+        TestStream.prototype._read = function (size) {
+
+            var self = this;
 
             setTimeout(function () {
 
-                s.emit('data', 'Hello');
+                self.push('Hello');
             }, 60);
 
             setTimeout(function () {
 
-                s.emit('end');
+                self.push(null);
             }, 70);
         };
 
-        request.reply.stream(s).send();
+        request.reply.stream(new TestStream()).send();
     };
 
     var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 } });

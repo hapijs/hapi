@@ -71,8 +71,8 @@ describe('Payload', function () {
             var handler = function (request) {
 
                 expect(request.payload).to.not.exist;
-                expect(request.rawBody.toString()).to.equal(payload);
-                request.reply(request.rawBody);
+                expect(request.rawPayload.toString()).to.equal(payload);
+                request.reply(request.rawPayload);
             };
 
             var server = new Hapi.Server();
@@ -94,7 +94,7 @@ describe('Payload', function () {
 
                 expect(request.payload).to.exist;
                 expect(request.payload.z).to.equal('3');
-                expect(request.rawBody.toString()).to.equal(payload);
+                expect(request.rawPayload.toString()).to.equal(payload);
                 request.reply(request.payload);
             };
 
@@ -205,8 +205,8 @@ describe('Payload', function () {
             var handler = function (request) {
 
                 expect(request.payload).to.not.exist;
-                expect(request.rawBody.toString()).to.equal(payload);
-                request.reply(request.rawBody);
+                expect(request.rawPayload.toString()).to.equal(payload);
+                request.reply(request.rawPayload);
             };
 
             var server = new Hapi.Server();
@@ -227,8 +227,8 @@ describe('Payload', function () {
             var handler = function (request) {
 
                 expect(request.payload).to.not.exist;
-                expect(request.rawBody.toString()).to.equal(payload);
-                request.reply(request.rawBody);
+                expect(request.rawPayload.toString()).to.equal(payload);
+                request.reply(request.rawPayload);
             };
 
             var server = new Hapi.Server();
