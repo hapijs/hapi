@@ -188,7 +188,7 @@ describe('Request', function () {
 
             setTimeout(function () {
 
-                var x = a.b.c;
+                var x = not.here;
             }, 1);
         };
 
@@ -197,7 +197,7 @@ describe('Request', function () {
         var orig = console.error;
         console.error = function (stack) {
 
-            expect(stack).to.contain('Cannot read property \'c\' of undefined');
+            expect(stack).to.contain('ReferenceError');
             console.error = orig;
         };
 
