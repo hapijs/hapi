@@ -66,42 +66,42 @@ describe('Payload', function () {
 
         it('returns a raw body', function (done) {
 
-            var multipartPayload = '{"x":"1","y":"2","z":"3"}';
+            var payload = '{"x":"1","y":"2","z":"3"}';
 
             var handler = function (request) {
 
                 expect(request.payload).to.not.exist;
-                expect(request.rawBody).to.equal(multipartPayload);
+                expect(request.rawBody.toString()).to.equal(payload);
                 request.reply(request.rawBody);
             };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
-            server.inject({ method: 'POST', url: '/', payload: multipartPayload }, function (res) {
+            server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result).to.equal(multipartPayload);
+                expect(res.result).to.equal(payload);
                 done();
             });
         });
 
         it('returns a parsed body and sets a raw body', function (done) {
 
-            var multipartPayload = '{"x":"1","y":"2","z":"3"}';
+            var payload = '{"x":"1","y":"2","z":"3"}';
 
             var handler = function (request) {
 
                 expect(request.payload).to.exist;
                 expect(request.payload.z).to.equal('3');
-                expect(request.rawBody).to.equal(multipartPayload);
+                expect(request.rawBody.toString()).to.equal(payload);
                 request.reply(request.payload);
             };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-            server.inject({ method: 'POST', url: '/', payload: multipartPayload }, function (res) {
+            server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.x).to.equal('1');
@@ -120,13 +120,12 @@ describe('Payload', function () {
             var server = new Hapi.Server('0.0.0.0', 0);
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
-            var s = new Stream();
-            s.readable = true;
+            var s = new Stream.PassThrough();
 
             server.start(function () {
 
                 var options = {
-                    hostname: '127.0.0.1',
+                    hostname: 'localhost',
                     port: server.settings.port,
                     path: '/',
                     method: 'POST'
@@ -134,7 +133,7 @@ describe('Payload', function () {
 
                 var iv = setInterval(function () {
 
-                    s.emit('data', 'Hello');
+                    s.write('Hello');
                 }, 5);
 
                 var req = Http.request(options, function (res) {
@@ -171,7 +170,7 @@ describe('Payload', function () {
             server.start(function () {
 
                 var options = {
-                    hostname: '127.0.0.1',
+                    hostname: 'localhost',
                     port: server.settings.port,
                     path: '/',
                     method: 'POST',
@@ -201,44 +200,44 @@ describe('Payload', function () {
 
         it('returns the correct raw body when content-length is smaller than payload', function (done) {
 
-            var multipartPayload = '{"x":"1","y":"2","z":"3"}';
+            var payload = '{"x":"1","y":"2","z":"3"}';
 
             var handler = function (request) {
 
                 expect(request.payload).to.not.exist;
-                expect(request.rawBody).to.equal(multipartPayload);
+                expect(request.rawBody.toString()).to.equal(payload);
                 request.reply(request.rawBody);
             };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
-            server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'Content-Length': '5' } }, function (res) {
+            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '5' } }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result).to.equal(multipartPayload);
+                expect(res.result).to.equal(payload);
                 done();
             });
         });
 
         it('returns the correct raw body when content-length is larger than payload', function (done) {
 
-            var multipartPayload = '{"x":"1","y":"2","z":"3"}';
+            var payload = '{"x":"1","y":"2","z":"3"}';
 
             var handler = function (request) {
 
                 expect(request.payload).to.not.exist;
-                expect(request.rawBody).to.equal(multipartPayload);
+                expect(request.rawBody.toString()).to.equal(payload);
                 request.reply(request.rawBody);
             };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
 
-            server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'Content-Length': '500' } }, function (res) {
+            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '500' } }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result).to.equal(multipartPayload);
+                expect(res.result).to.equal(payload);
                 done();
             });
         });
@@ -252,7 +251,7 @@ describe('Payload', function () {
             request.reply('Success');
         };
 
-        var server = new Hapi.Server('127.0.0.1', 0);
+        var server = new Hapi.Server('localhost', 0);
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'stream' } });
 
         before(function (done) {
@@ -263,18 +262,17 @@ describe('Payload', function () {
         it('doesn\'t set the request payload when streaming data in and the connection is interrupted', function (done) {
 
             var options = {
-                hostname: '127.0.0.1',
+                hostname: 'localhost',
                 port: server.settings.port,
                 path: '/',
                 method: 'POST'
             };
 
-            var s = new Stream();
-            s.readable = true;
+            var s = new Stream.PassThrough();
 
             var iv = setInterval(function () {
 
-                s.emit('data', 'Hello');
+                s.write('Hello');
             }, 5);
 
             var req = Http.request(options, function (res) {
@@ -301,11 +299,10 @@ describe('Payload', function () {
 
         var handler = function (request) {
 
-            expect(request.payload.key).to.equal('value');
-            request.reply('Success');
+            request.reply(request.payload.key);
         };
 
-        var server = new Hapi.Server('127.0.0.1', 0, { timeout: { client: 50 } });
+        var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
 
         before(function (done) {
@@ -313,42 +310,46 @@ describe('Payload', function () {
             server.start(done);
         });
 
+        var TestStream = function () {
+
+            Stream.Readable.call(this);
+        };
+
+        Hapi.utils.inherits(TestStream, Stream.Readable);
+
+        TestStream.prototype._read = function (size) {
+
+            this.push('{ "key": "value" }');
+            this.push(null);
+        };
+
         it('sets the request payload with the streaming data', function (done) {
 
             var options = {
-                hostname: '127.0.0.1',
-                port: server.settings.port,
-                path: '/',
+                uri: 'http://localhost:' + server.settings.port + '/?x=1',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             };
 
-            var s = new Stream();
-            s.readable = true;
-
-            var req = Http.request(options, function (res) {
+            var req = Request(options, function (err, res, body) {
 
                 expect(res.statusCode).to.equal(200);
-                res.on('data', function (data) {
-
-                    expect(data.toString()).to.equal('Success');
-                    done();
-                });
+                expect(body).to.equal('value');
+                done();
             });
 
+            var s = new TestStream();
             s.pipe(req);
-            s.emit('data', '{ "key": "value" }');
-            req.end();
         });
 
         it('times out when the request content-length is larger than payload', function (done) {
 
             var options = {
-                hostname: '127.0.0.1',
+                hostname: 'localhost',
                 port: server.settings.port,
-                path: '/',
+                path: '/?x=2',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -365,12 +366,11 @@ describe('Payload', function () {
             req.end('{ "key": "value" }');
         });
 
-        it('returns a 400 status code when the request content-length is smaller than payload', function (done) {
+        it('resets connection when the request content-length is smaller than payload', function (done) {
 
             var options = {
-                hostname: '127.0.0.1',
-                port: server.settings.port,
-                path: '/',
+                uri: 'http://localhost:' + server.settings.port + '/?x=3',
+                body: '{ "key": "value" }',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -378,21 +378,19 @@ describe('Payload', function () {
                 }
             };
 
-            var req = Http.request(options, function (res) {
+            Request(options, function (err, res, body) {
 
-                expect(res.statusCode).to.equal(400);
+                expect(err.message).to.equal('socket hang up');
                 done();
             });
-
-            req.end('{ "key": "value" }');
         });
 
         it('returns an error on unsupported mime type', function (done) {
 
             var options = {
-                hostname: '127.0.0.1',
+                hostname: 'localhost',
                 port: server.settings.port,
-                path: '/',
+                path: '/?x=4',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/unknown',
@@ -412,9 +410,9 @@ describe('Payload', function () {
         it('returns 200 on text mime type', function (done) {
 
             var options = {
-                hostname: '127.0.0.1',
+                hostname: 'localhost',
                 port: server.settings.port,
-                path: '/',
+                path: '/?x=5',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'text/plain',
@@ -430,73 +428,23 @@ describe('Payload', function () {
 
             req.end('{ "key": "value" }');
         });
-
-        it('returns a 400 status code when the request payload is streaming data with content-length being too small', function (done) {
-
-            var s = new Stream();
-            s.readable = true;
-
-            var options = {
-                uri: 'http://127.0.0.1:' + server.settings.port + '/',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': '1'
-                }
-            };
-
-            var req = Request(options, function (err, res) {
-
-                expect(res.statusCode).to.equal(400);
-                done();
-            });
-
-            s.pipe(req);
-            s.emit('data', '{ "key": "value" }');
-            req.end();
-        });
-
-        it('returns a 200 status code when the request payload is streaming data with content-length being smaller than payload but payload truncates to a valid value ', function (done) {
-
-            var s = new Stream();
-            s.readable = true;
-
-            var options = {
-                uri: 'http://127.0.0.1:' + server.settings.port + '/',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': '18'
-                }
-            };
-
-            var req = Request(options, function (err, res) {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
-
-            s.pipe(req);
-            s.emit('data', '{ "key": "value" } garbage here');
-            req.end();
-        });
     });
 
     describe('unzip', function () {
 
         it('returns an error on malformed payload', function (done) {
 
-            var multipartPayload = '7d8d78347h8347d58w347hd58w374d58w37h5d8w37hd4';
+            var payload = '7d8d78347h8347d58w347hd58w374d58w37h5d8w37hd4';
 
-            var handler = function (request) {
+            var handler = function () {
 
-                expect(request).to.not.exist;       // Must not be called
+                throw new Error('never called');
             };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-            server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'content-encoding': 'gzip' } }, function (res) {
+            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(400);
@@ -506,13 +454,13 @@ describe('Payload', function () {
 
         it('doesn\'t return an error when the payload has the correct gzip header and gzipped payload', function (done) {
 
-            var multipartPayload = '{"hi":"hello"}';
+            var payload = '{"hi":"hello"}';
 
-            Zlib.gzip(multipartPayload, function (err, result) {
+            Zlib.gzip(payload, function (err, result) {
 
-                var handler = function (request) {
+                var handler = function () {
 
-                   request.reply('Success');
+                   this.reply('Success');
                 };
 
                 var server = new Hapi.Server();

@@ -652,7 +652,7 @@ describe('Auth', function () {
 
                 setTimeout(function () {
 
-                    this.emit('end');
+                    this.push(null);
                 }, 5);
             };
 
