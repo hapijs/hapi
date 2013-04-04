@@ -1287,7 +1287,6 @@ describe('Response', function () {
         FakeStream = function (issue) {
 
             Stream.call(this);
-            this.pause = this.resume = this.setEncoding = function () { };
             var self = this;
             this.destroy = function () {
 

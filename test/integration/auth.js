@@ -634,21 +634,29 @@ describe('Auth', function () {
 
         var hawkStreamHandler = function (request) {
 
-            var stream = new Stream();
-            stream.readable = true;
-            stream.resume = function () {
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Hapi.utils.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                var self = this;
 
                 setTimeout(function () {
 
-                    stream.emit('data', 'hi');
+                    this.push('hi');
                 }, 2);
 
                 setTimeout(function () {
 
-                    stream.emit('end', '');
+                    this.emit('end');
                 }, 5);
             };
 
+            var stream = new TestStream();
             request.reply.stream(stream).send();
         };
 

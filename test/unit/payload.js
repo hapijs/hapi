@@ -44,7 +44,7 @@ describe('Payload', function () {
                 method: 'get',
                 raw: {
                     req: {
-                        resume: function () { }
+                        read: function () { }
                     }
                 }
             };
@@ -63,7 +63,7 @@ describe('Payload', function () {
                 _route: new Route({ method: 'delete', path: '/', handler: function () { } }, server),
                 raw: {
                     req: {
-                        resume: function () { }
+                        read: function () { }
                     }
                 }
             };

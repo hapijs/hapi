@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     {
@@ -26,14 +26,14 @@
     "router"
   ],
   "engines": {
-    "node": "0.8.x"
+    "node": "0.10.x"
   },
   "dependencies": {
     "hoek": "0.7.x",
     "boom": "0.3.x",
     "joi": "0.2.x",
     "hawk": "0.11.x",
-    "shot": "0.1.x",
+    "shot": "0.2.x",
     "oz": "0.1.x",
     "async": "0.1.x",
     "request": "2.16.x",
