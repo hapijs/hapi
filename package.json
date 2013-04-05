@@ -48,7 +48,7 @@
     "negotiator": "0.2.x"
   },
   "devDependencies": {
-    "lab": "0.0.x",
+    "lab": "0.1.x",
     "handlebars": "1.0.x",
     "jade": "0.28.x",
     "complexity-report": "0.x.x"
