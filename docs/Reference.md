@@ -473,6 +473,8 @@ CORS implementation that sets very liberal restrictions on cross-origin access b
 - `additionalHeaders` - an array of additional headers to `headers`. Use this to keep the default headers in place.
 - `methods` - overrides the array of allowed methods ('Access-Control-Allow-Methods'). Defaults to _'GET, HEAD, POST, PUT, DELETE, OPTIONS'_.
 - `additionalMethods` - an array of additional methods to `methods`. Use this to keep the default methods in place.
+- `exposedHeaders` - overrides the array of exposed headers ('Access-Control-Expose-Headers'). Defaults to _'WWW-Authenticate, Server-Authorization'_.
+- `additionalExposedHeaders` - an array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
 - `credentials` - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
 
 
