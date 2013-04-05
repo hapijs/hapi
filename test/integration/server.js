@@ -33,11 +33,11 @@ describe('Server', function () {
 
                 socket2.connect(server.settings.port, server.settings.host, function () {
 
-                    expect(server.listener.connections).to.be.greaterThan(0);
+                    expect(server.listener.getConnections()).to.be.greaterThan(0);
 
                     server.stop(function () {
 
-                        expect(server.listener.connections).to.equal(0);
+                        expect(server.listener.getConnections()).to.equal(0);
                         done();
                     });
 

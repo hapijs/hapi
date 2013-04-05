@@ -36,7 +36,6 @@ describe('Auth', function () {
 
             var hash = Crypto.createHash('sha1');
             hash.update(password, 'utf8');
-
             return hash.digest('base64');
         };
 
@@ -58,9 +57,8 @@ describe('Auth', function () {
             else if (id === 'invalid2') {
                 return callback(null, {}, null);
             }
-            else {
-                return callback(null, null);
-            }
+
+            return callback(null, null);
         };
 
         var config = {
@@ -641,7 +639,7 @@ describe('Auth', function () {
 
             Hapi.utils.inherits(TestStream, Stream.Readable);
 
-            var TestStream.prototype._read = function (size) {
+            TestStream.prototype._read = function (size) {
 
                 var self = this;
 
