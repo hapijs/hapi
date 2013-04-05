@@ -638,8 +638,8 @@ to write additional text as the configuration itself serves as a living document
     - `response` - validation rules for outgoing responses' payload (response body). Defaults to no validation (any payload allowed). Set to an empty object _'{}'_ to forbid payloads. See [Response Validation](#response-validation) for more information.
     - `payload` - determines how the request payload is processed. Defaults to _'parse'_ if `schema` is present or `method` is _'POST'_ or _'PUT'_, otherwise _'stream'_. Payload processing is configured using the server [`payload`](#payload) option. Options are:
         - _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via _'request.raw.req'_. Note that the request readable stream is put in a paused state and must be resumed before it will emit data events.
-        - _'raw'_ - the payload is read and stored in _'request.rawBody'_ but not parsed.
-        - _'parse'_ - the payload is read and stored in _'request.rawBody'_ and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
+        - _'raw'_ - the payload is read and stored in _'request.rawPayload'_ as a Buufer and is not parsed.
+        - _'parse'_ - the payload is read and stored in _'request.rawPayload'_ as a Buffer, and then parsed (JSON or form-encoded) and stored in _'request.payload'_.
     - `cache` - if the the route method is 'GET', the route can be configured to use the cache as described in [Caching](#caching).
     - `pre` - an array with pre-handler methods as described in [Route Prerequisites](#prerequisites). 
     - `auth` - authentication configuration
@@ -830,7 +830,7 @@ When the provided route handler method is called, it receives a _request_ object
 - _'method'_ - the request method as a _lowercase_ string. (Examples: `'get'`, `'post'`).
 - _'query'_ - an object containing the query parameters.
 - _'params'_ - an object containing the path named parameters as described in [Path Parameters](#parameters).
-- _'rawBody'_ - the raw request payload (except for requests with `config.payload` set to _'stream'_).
+- _'rawPayload'_ - the raw request payload Buffer (except for requests with `config.payload` set to _'stream'_).
 - _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
 - _'state'_ - an object containing parsed HTTP state information (cookies).
 - _'session'_ - available for authenticated requests and includes:

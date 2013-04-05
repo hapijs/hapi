@@ -49,23 +49,29 @@ describe('Client Timeout', function () {
 
     var streamHandler = function (request) {
 
-        var s = new Stream();
-        s.readable = true;
+        var TestStream = function () {
 
-        s.resume = function () {
+            Stream.Readable.call(this);
+        };
+
+        Hapi.utils.inherits(TestStream, Stream.Readable);
+
+        TestStream.prototype._read = function (size) {
+
+            var self = this;
 
             setTimeout(function () {
 
-                s.emit('data', 'Hello');
+                self.push('Hello');
             }, 60);
 
             setTimeout(function () {
 
-                s.emit('end');
+                self.push(null);
             }, 70);
         };
 
-        request.reply.stream(s).send();
+        request.reply.stream(new TestStream()).send();
     };
 
     describe('with timeout set', function () {
