@@ -221,6 +221,7 @@ describe('Proxy', function () {
             expect(res.headers.custom1).to.equal('custom header value 1');
             expect(res.headers['x-custom2']).to.equal('custom header value 2');
             expect(res.headers['access-control-allow-headers']).to.equal('Authorization, Content-Type, If-None-Match');
+            expect(res.headers['access-control-expose-headers']).to.equal('WWW-Authenticate, Server-Authorization');
             done();
         });
     });
