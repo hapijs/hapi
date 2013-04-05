@@ -1259,7 +1259,7 @@ describe('Response', function () {
 
                 case 'double':
                     this.push('x');
-                    process.nextTick(function () {
+                    setImmediate(function () {
 
                         self.emit('error');
                         self.push(null);

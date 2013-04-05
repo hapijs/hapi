@@ -33,16 +33,22 @@ describe('Server', function () {
 
                 socket2.connect(server.settings.port, server.settings.host, function () {
 
-                    expect(server.listener.getConnections()).to.be.greaterThan(0);
+                    server.listener.getConnections(function (err, count) {
 
-                    server.stop(function () {
+                        expect(count).to.be.greaterThan(0);
 
-                        expect(server.listener.getConnections()).to.equal(0);
-                        done();
+                        server.stop(function () {
+
+                            server.listener.getConnections(function (err, count) {
+
+                                expect(count).to.equal(0);
+                                done();
+                            });
+                        });
+
+                        socket1.end();
+                        socket2.end();
                     });
-
-                    socket1.end();
-                    socket2.end();
                 });
             });
         });
