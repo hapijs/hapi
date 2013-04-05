@@ -61,7 +61,10 @@ describe('Server Timeout', function () {
             s.write(i.toString());
         }
 
-        s.emit('end');
+        setTimeout(function () {
+
+            s.emit('end');
+        }, 40);
     };
 
     var fastHandler = function (request) {
