@@ -239,8 +239,8 @@ Authentication setup includes two steps:
       by all schemes:
         - `scheme` - the built-in scheme name.
         - `implementation` - cannot be used together with `scheme` and is used to provide an object with the **hapi** scheme interface.
-        - `requiredByDefault` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
-          only be assigned to a single server strategy.
+        - `defaultMode` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
+          only be assigned to a single server strategy. Value must be 'true' or a valid authentication mode ('required', 'optional', 'try').
 - Assign strategies to route via the route config as described in [Configuration options](#configuration-options).
 
 In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
