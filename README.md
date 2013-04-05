@@ -10,6 +10,7 @@ with everything else.
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
 Current version: **0.17.0**
+
 Node version: **0.10** required
 
 [![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
