@@ -36,7 +36,6 @@ describe('Auth', function () {
 
             var hash = Crypto.createHash('sha1');
             hash.update(password, 'utf8');
-
             return hash.digest('base64');
         };
 
@@ -58,9 +57,8 @@ describe('Auth', function () {
             else if (id === 'invalid2') {
                 return callback(null, {}, null);
             }
-            else {
-                return callback(null, null);
-            }
+
+            return callback(null, null);
         };
 
         var config = {
@@ -621,12 +619,6 @@ describe('Auth', function () {
             request.reply.payload('Success').send();
         };
 
-        var hawkChangeHandler = function (request) {
-
-            request.auth.credentials.algorithm = 'ha';
-            request.reply.payload('Success').send();
-        };
-
         var hawkErrorHandler = function (request) {
 
             request.reply.payload(new Error()).send();
@@ -634,28 +626,35 @@ describe('Auth', function () {
 
         var hawkStreamHandler = function (request) {
 
-            var stream = new Stream();
-            stream.readable = true;
-            stream.resume = function () {
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Hapi.utils.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                var self = this;
 
                 setTimeout(function () {
 
-                    stream.emit('data', 'hi');
+                    self.push('hi');
                 }, 2);
 
                 setTimeout(function () {
 
-                    stream.emit('end', '');
+                    self.push(null);
                 }, 5);
             };
 
-            request.reply.stream(stream).send();
+            var stream = new TestStream();
+            request.reply(stream);
         };
 
         server.route([
             { method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: 'default' } },
             { method: 'POST', path: '/hawkValidate', handler: hawkHandler, config: { auth: 'default', validate: { query: { } } } },
-            { method: 'POST', path: '/hawkchange', handler: hawkChangeHandler, config: { auth: 'default' } },
             { method: 'POST', path: '/hawkError', handler: hawkErrorHandler, config: { auth: 'default' } },
             { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler, config: { auth: 'default' } },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
@@ -802,17 +801,6 @@ describe('Auth', function () {
 
                     done();
                 });
-            });
-        });
-
-        it('returns an error when the hawk auth response header can\'t be created', function (done) {
-
-            var request = { method: 'POST', url: '/hawkchange', headers: { authorization: hawkHeader('joan', '/hawkchange'), host: '0.0.0.0:8080' } };
-
-            server.inject(request, function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                done();
             });
         });
 

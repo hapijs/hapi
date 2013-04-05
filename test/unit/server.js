@@ -21,6 +21,11 @@ var it = Lab.test;
 
 describe('Server', function () {
 
+    var tlsOptions = {
+        key: '-----BEGIN RSA PRIVATE KEY-----\nMIIBOwIBAAJBANysie374iGH54SVcmM4vb+CjN4nVVCmL6af9XOUxTqq/50CBn+Z\nZol0XDG+OK55HTOht4CsQrAXey69ZTxgUMcCAwEAAQJAX5t5XtxkiraA/hZpqsdo\nnlKHibBs7DY0KvLeuybXlKS3ar/0Uz0OSJ1oLx3d0KDSmcdAIrfnyFuBNuBzb3/J\nEQIhAPX/dh9azhztRppR+9j8CxDg4ixJ4iZbHdK0pfnY9oIFAiEA5aV8edK31dkF\nfBXoqlOvIeuNc6WBZrYjUNspH8M+BVsCIQDZF3U6/nve81bXYXqMZwGtB4kR5LH7\nf3W2OU4wS9RfsQIhAJkNB76xX3AYqX0fpOcPyuLSeH2gynNH5JWY2vmeSBGNAiAm\nLon4E3M/IrVVvpxGRFOazKlgIsQFGAaoylDrRFYgBA==\n-----END RSA PRIVATE KEY-----\n',
+        cert: '-----BEGIN CERTIFICATE-----\nMIIB0TCCAXugAwIBAgIJANGtTMK5HBUIMA0GCSqGSIb3DQEBBQUAMEQxCzAJBgNV\nBAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UECgwJaGFwaSB0ZXN0MRQwEgYDVQQD\nDAtleGFtcGxlLmNvbTAeFw0xMzA0MDQxNDQ4MDJaFw0yMzA0MDIxNDQ4MDJaMEQx\nCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UECgwJaGFwaSB0ZXN0MRQw\nEgYDVQQDDAtleGFtcGxlLmNvbTBcMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQDcrInt\n++Ihh+eElXJjOL2/gozeJ1VQpi+mn/VzlMU6qv+dAgZ/mWaJdFwxvjiueR0zobeA\nrEKwF3suvWU8YFDHAgMBAAGjUDBOMB0GA1UdDgQWBBQBOiF6iL2PI4E6PBj071Dh\nAiQOGjAfBgNVHSMEGDAWgBQBOiF6iL2PI4E6PBj071DhAiQOGjAMBgNVHRMEBTAD\nAQH/MA0GCSqGSIb3DQEBBQUAA0EAw8Y2rpM8SUQXjgaJJmFXrfEvnl/he7q83K9W\n9Sr/QLHpCFxunWVd8c0wz+b8P/F9uW2V4wUf5NWj1UdHMCd6wQ==\n-----END CERTIFICATE-----\n'
+    };
+
     it('throws an error constructed without new', function (done) {
 
         var fn = function () {
@@ -40,7 +45,7 @@ describe('Server', function () {
 
     it('defaults to port 443 when no port is provided with tls', function (done) {
 
-        var server = new Hapi.Server({ tls: {} });
+        var server = new Hapi.Server({ tls: tlsOptions });
         expect(server.settings.port).to.be.equal(443);
         done();
     });
@@ -129,9 +134,7 @@ describe('Server', function () {
 
     it('creates an https server when passed tls options', function (done) {
 
-        var tls = {};
-
-        var server = new Hapi.Server('0.0.0.0', 0, { tls: tls });
+        var server = new Hapi.Server('0.0.0.0', 0, { tls: tlsOptions });
         expect(server.listener instanceof Https.Server).to.equal(true);
         done();
     });
@@ -172,7 +175,7 @@ describe('Server', function () {
 
         it('calls the callback when one is used with tls', function (done) {
 
-            var server = new Hapi.Server('0.0.0.0', 0, { tls: {} });
+            var server = new Hapi.Server('0.0.0.0', 0, { tls: tlsOptions });
             server.start(function () {
 
                 expect(server.settings.host).to.equal('0.0.0.0');
