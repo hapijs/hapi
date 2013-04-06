@@ -100,6 +100,16 @@ describe('Server', function () {
             var socket1 = new Net.Socket();
             var socket2 = new Net.Socket();
 
+            socket1.once('error', function (err) {
+
+                expect(err.errno).to.equal('ECONNRESET');
+            });
+
+            socket2.once('error', function (err) {
+
+                expect(err.errno).to.equal('ECONNRESET');
+            });
+
             socket1.connect(server.settings.port, server.settings.host, function () {
 
                 socket2.connect(server.settings.port, server.settings.host, function () {
