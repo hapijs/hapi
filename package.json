@@ -35,7 +35,7 @@
     "hawk": "0.12.x",
     "shot": "0.2.x",
     "oz": "0.1.x",
-    "async": "0.2.x",
+    "async": "0.1.x",
     "request": "2.16.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
