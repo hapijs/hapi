@@ -21,7 +21,7 @@ var it = Lab.test;
 
 describe('Cache', function () {
 
-    var _server = null;
+    var server = null;
 
     var profileHandler = function (request) {
 
@@ -49,7 +49,7 @@ describe('Cache', function () {
 
     var badHandler = function (request) {
 
-        request.reply(new Stream);
+        request.reply(new Stream());
     };
 
     var errorHandler = function (request) {
@@ -62,93 +62,76 @@ describe('Cache', function () {
 
     var notCacheableHandler = function (request) {
 
-        var response = new Hapi.Response.Raw(request)
-            .type('text/plain')
-            .bytes(13)
-            .ttl(1000);
-
+        var response = new Hapi.Response.Raw(request);
         response.begin(function (err) {
 
-            response.write('!hola ')
-                    .write('amigos!');
-
+            response.write('hola');
             request.reply(response);
         });
     };
 
     function setupServer(done) {
 
-        _server = new Hapi.Server('0.0.0.0', 0);
+        server = new Hapi.Server('0.0.0.0', 0, { debug: false });
 
-        _server.route([
+        server.route([
             { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler } },
             { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
             { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
-            { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: true } } },
-            { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: true } } },
-            { method: 'GET', path: '/notcacheablenostrict', config: { handler: notCacheableHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: false } } },
+            { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
+            { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
             { method: 'GET', path: '/clientserver', config: { handler: profileHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
             { method: 'GET', path: '/serverclient', config: { handler: profileHandler, cache: { mode: 'server+client', expiresIn: 120000 } } }
         ]);
 
-        _server.start(done);
+        server.start(done);
     }
-
-    var makeRequest = function (path, callback) {
-
-        _server.inject({
-            method: 'get',
-            url: path
-        }, callback);
-    };
 
     before(setupServer);
 
     it('returns max-age value when route uses default cache rules', function (done) {
 
-        makeRequest('/profile', function (rawRes) {
+        server.inject('/profile', function (res) {
 
-            expect(rawRes.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+            expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
 
     it('returns max-age value when route uses client cache mode', function (done) {
 
-        makeRequest('/profile', function (rawRes) {
+        server.inject('/profile', function (res) {
 
-            expect(rawRes.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+            expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
             done();
         });
     });
 
     it('doesn\'t return max-age value when route is not cached', function (done) {
 
-        makeRequest('/item2', function (rawRes) {
+        server.inject('/item2', function (res) {
 
-            expect(rawRes.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
+            expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
             done();
         });
     });
 
-    it('throws error when returning a stream in a cached endpoint handler', function (done) {
+    it('returns 500 when returning a stream in a cached endpoint handler', function (done) {
 
-        function test() {
+        server.inject('/bad', function (res) {
 
-            makeRequest('/bad', function (rawRes) { });
-        }
-
-        expect(test).to.throw(Error);
-        done();
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
     });
 
     it('doesn\'t cache error responses', function (done) {
 
-        makeRequest('/error', function () {
+        server.inject('/error', function () {
 
-            _server.plugin._cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
+            server.plugin._cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
 
                 expect(cached).to.not.exist;
                 done();
@@ -158,7 +141,7 @@ describe('Cache', function () {
 
     it('doesn\'t send cache headers for responses with status codes other than 200', function (done) {
 
-        makeRequest('/nocache', function (res) {
+        server.inject('/nocache', function (res) {
 
             expect(res.headers['cache-control']).to.equal('no-cache');
             done();
@@ -167,9 +150,9 @@ describe('Cache', function () {
 
     it('caches responses with status codes of 200', function (done) {
 
-        makeRequest('/cache', function () {
+        server.inject('/cache', function () {
 
-            _server.plugin._cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
+            server.plugin._cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
 
                 expect(cached).to.exist;
                 done();
@@ -177,45 +160,19 @@ describe('Cache', function () {
         });
     });
 
-    it('doesn\'t throw an error when requesting a non-strict route that is not cacheable', function (done) {
-
-        makeRequest('/notcacheablenostrict', function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
-
-    it('throws an error when requesting a strict cached route that is not cacheable', function (done) {
-
-        var server = new Hapi.Server('0.0.0.0', 18885);
-        server.route({ method: 'GET', path: '/notcacheable', config: { handler: notCacheableHandler, cache: { mode: 'client+server', expiresIn: 120000, strict: true } } });
-
-        var fn = function () {
-
-            server.inject({
-                method: 'get',
-                url: 'http://127.0.0.1:18885/notcacheable'
-            });
-        };
-
-        expect(fn).to.throw(Error, 'Attempted to cache non-cacheable item');
-        done();
-    });
-
     it('caches server+client the same as client+server', function (done) {
 
-        makeRequest('/serverclient', function (res1) {
+        server.inject('/serverclient', function (res1) {
 
-            _server.plugin._cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
+            server.plugin._cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
 
                 expect(cached1).to.exist;
                 expect(res1.headers['cache-control']).to.equal('max-age=120, must-revalidate');
 
 
-                makeRequest('/clientserver', function (res2) {
+                server.inject('/clientserver', function (res2) {
 
-                    _server.plugin._cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
+                    server.plugin._cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
 
                         expect(cached2).to.exist;
                         expect(res2.headers['cache-control']).to.equal('max-age=120, must-revalidate');

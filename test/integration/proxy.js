@@ -40,12 +40,14 @@ describe('Proxy', function () {
                 return this.reply('error');
             }
 
-            this.reply.payload({
+            var profile = {
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
-            })
-            .state('test', '123')
-            .send();
+            };
+
+            this.reply.payload(profile)
+                      .state('test', '123')
+                      .send();
         };
 
         var activeItem = function () {

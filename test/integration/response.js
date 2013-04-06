@@ -744,36 +744,36 @@ describe('Response', function () {
                 });
             });
         });
-/*
-        it('returns a 304 when the request has a matching etag', function (done) {
-
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
-            var handler = function (request) {
-
-                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
-            };
-
-            server.route({ method: 'GET', path: '/file', handler: handler });
-
-            server.start(function () {
-
-                Request.get(server.settings.uri + '/file', function (err, res1) {
-
-                    expect(err).to.not.exist;
-                    expect(res1.headers.etag).to.exist;
-
-                    var headers = {
-                        'if-none-match': res1.headers.etag
+        /*
+                it('returns a 304 when the request has a matching etag', function (done) {
+        
+                    var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+                    var handler = function (request) {
+        
+                        request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
                     };
-
-                    Request.get({ url: server.settings.uri + '/file', headers: headers }, function (err, res2) {
-
-                        expect(res2.statusCode).to.equal(304);
-                        done();
+        
+                    server.route({ method: 'GET', path: '/file', handler: handler });
+        
+                    server.start(function () {
+        
+                        Request.get(server.settings.uri + '/file', function (err, res1) {
+        
+                            expect(err).to.not.exist;
+                            expect(res1.headers.etag).to.exist;
+        
+                            var headers = {
+                                'if-none-match': res1.headers.etag
+                            };
+        
+                            Request.get({ url: server.settings.uri + '/file', headers: headers }, function (err, res2) {
+        
+                                expect(res2.statusCode).to.equal(304);
+                                done();
+                            });
+                        });
                     });
-                });
-            });
-        });*/
+                });*/
 
         it('invalidates etags when file changes', function (done) {
 
@@ -1257,19 +1257,14 @@ describe('Response', function () {
                     }
                     break;
 
-                case 'double':
-                    this.push('x');
-                    setImmediate(function () {
-
-                        self.emit('error');
-                        self.push(null);
-                    });
-                    break;
-
                 case 'closes':
                     this.push('here is the response');
-                    this.request.raw.req.emit('close');
-                    this.push(null);
+                    process.nextTick(function () {
+                        self.request.raw.req.emit('close');
+                        process.nextTick(function () {
+                            self.push(null);
+                        });
+                    });
                     break;
 
                 default:
@@ -1481,16 +1476,7 @@ describe('Response', function () {
                 done();
             });
         });
-/*
-        it('returns a broken stream reply on double issue', function (done) {
 
-            server.inject({ method: 'GET', url: '/stream/double' }, function (res) {
-
-                expect(res.result).to.equal('x');
-                done();
-            });
-        });
-        */
         it('stops processing the stream when the request closes', function (done) {
 
             server.start(function () {
@@ -1500,23 +1486,6 @@ describe('Response', function () {
                     expect(res.statusCode).to.equal(200);
                     done();
                 });
-            });
-        });
-
-        it('should destroy downward stream on request stream closing', function (done) {
-
-            var tmpFile = '/tmp/test.json';
-            var output = JSON.stringify({ "x": "aaaaaaaaaaaa" });
-            Fs.writeFileSync(tmpFile, output);
-            var testStream = Fs.createReadStream(tmpFile);
-
-            server.start(function () {
-
-                testStream.pipe(Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Content-Type': 'application/json' } }, function (err, res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    done();
-                }));
             });
         });
     });
@@ -2107,7 +2076,7 @@ describe('Response', function () {
         });
     });
 
-    describe('External', function () {
+    describe('Closed', function () {
 
         it('returns a reply', function (done) {
 
@@ -2118,18 +2087,28 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/throw', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
-            server.route({ method: 'GET', path: '/null', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject({ method: 'GET', url: '/null' }, function (res) {
+            server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.result).to.equal('');
+                done();
+            });
+        });
 
-                expect(function () {
+        it('returns 500 when using close() and route is cached', function (done) {
 
-                    server.inject({ method: 'GET', url: '/throw' }, function (res) { });
-                }).to.throw();
+            var handler = function () {
 
+                this.reply.close();
+            };
+
+            var server = new Hapi.Server({ debug: false });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
