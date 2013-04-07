@@ -9,7 +9,7 @@ with everything else.
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **0.17.0**
+Current version: **1.0.0 Release Candidate**
 
 Node version: **0.10** required
 
