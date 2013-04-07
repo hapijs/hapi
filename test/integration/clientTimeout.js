@@ -27,26 +27,6 @@ describe('Client Timeout', function () {
         request.reply('Fast');
     };
 
-    var directHandler = function (request) {
-
-        var response = new Hapi.Response.Raw(request)
-            .created('me')
-            .type('text/plain')
-            .bytes(13)
-            .ttl(1000);
-
-        response.begin(function (err) {
-
-            response.write('!hola ')
-                    .write('amigos!');
-
-            setTimeout(function () {
-
-                request.reply(response);
-            }, 55);
-        });
-    };
-
     var streamHandler = function (request) {
 
         var TestStream = function () {
@@ -79,7 +59,6 @@ describe('Client Timeout', function () {
         var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { client: 50 } });
         _server.route([
             { method: 'POST', path: '/fast', config: { handler: fastHandler } },
-            { method: 'GET', path: '/direct', config: { handler: directHandler } },
             { method: 'GET', path: '/stream', config: { handler: streamHandler } }
         ]);
 
@@ -130,25 +109,6 @@ describe('Client Timeout', function () {
             var req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                done();
-            });
-
-            req.end();
-        });
-
-        it('doesn\'t return a client error message when response is direct type', function (done) {
-
-            var options = {
-                hostname: '127.0.0.1',
-                port: _server.settings.port,
-                path: '/direct',
-                method: 'GET'
-            };
-
-
-            var req = Http.request(options, function (res) {
-
-                expect(res.statusCode).to.equal(201);
                 done();
             });
 

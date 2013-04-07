@@ -60,16 +60,6 @@ describe('Cache', function () {
         request.reply(error);
     };
 
-    var notCacheableHandler = function (request) {
-
-        var response = new Hapi.Response.Raw(request);
-        response.begin(function (err) {
-
-            response.write('hola');
-            request.reply(response);
-        });
-    };
-
     function setupServer(done) {
 
         server = new Hapi.Server('0.0.0.0', 0, { debug: false });
