@@ -1,5 +1,6 @@
 // Load modules
 
+var Domain = require('domain');
 var Lab = require('lab');
 var Hapi = require('../..');
 
@@ -414,11 +415,18 @@ describe('Pack', function () {
     it('fails to require multiple plugin with dependencies', function (done) {
 
         var server = new Hapi.Server();
-        expect(function () {
+
+        var domain = Domain.create();
+        domain.on('error', function (err) {
+
+            expect(err.message).to.equal('Plugin \'--deps1\' missing dependencies: --deps2');
+            done();
+        });
+
+        domain.run(function () {
 
             server.plugin.allow({ ext: true }).require(['./pack/--deps1', './pack/--deps3'], function (err) { });
-        }).to.throw('Plugin \'--deps1\' missing dependencies: --deps2');
-        done();
+        });
     });
 
     it('uses plugin cache interface', function (done) {

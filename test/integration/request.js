@@ -1,6 +1,7 @@
 // Load modules
 
 var Lab = require('lab');
+var Stream = require('stream');
 var Request = require('request');
 var Hapi = require('../..');
 
@@ -63,7 +64,36 @@ describe('Request', function () {
     var responseErrorHandler = function (request) {
 
         request.reply('success');
-        request.raw.res.emit('error', new Error('fail'));
+        setImmediate(function () {
+
+            request.raw.res.emit('error', new Error('fail'));
+        });
+    };
+
+    var streamErrorHandler = function (request) {
+
+        var TestStream = function () {
+
+            Stream.Readable.call(this);
+        };
+
+        Hapi.utils.inherits(TestStream, Stream.Readable);
+
+        TestStream.prototype._read = function (size) {
+
+            var self = this;
+
+            self.push('success');
+            self.push(null);
+
+            setImmediate(function () {
+
+                self.emit('error', new Error());
+            });
+        };
+
+        var stream = new TestStream();
+        request.reply(stream);
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
@@ -72,27 +102,15 @@ describe('Request', function () {
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },
         { method: 'GET', path: '/ext', config: { handler: plainHandler } },
-        { method: 'GET', path: '/response', config: { handler: responseErrorHandler } }
+        { method: 'GET', path: '/response', config: { handler: responseErrorHandler } },
+        { method: 'GET', path: '/stream', config: { handler: streamErrorHandler } }
     ]);
 
     server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
 
-    var makeRequest = function (method, path, callback) {
-
-        var next = function (res) {
-
-            return callback(res);
-        };
-
-        server.inject({
-            method: method,
-            url: path
-        }, next);
-    };
-
     it('returns custom error response', function (done) {
 
-        makeRequest('GET', '/custom', function (res) {
+        server.inject('/custom', function (res) {
 
             expect(res.headers['content-type']).to.equal('text/plain; charset=utf-8');
             done();
@@ -101,7 +119,7 @@ describe('Request', function () {
 
     it('returns valid OPTIONS response', function (done) {
 
-        makeRequest('OPTIONS', '/custom', function (res) {
+        server.inject({ method: 'OPTIONS', url: '/custom' }, function (res) {
 
             expect(res.headers['access-control-allow-origin']).to.equal('*');
             done();
@@ -118,7 +136,7 @@ describe('Request', function () {
             done();
         });
 
-        makeRequest('GET', '/tail', function (res) {
+        server.inject('/tail', function (res) {
 
             result = res.result;
         });
@@ -126,7 +144,7 @@ describe('Request', function () {
 
     it('returns error response on ext error', function (done) {
 
-        makeRequest('GET', '/ext', function (res) {
+        server.inject('/ext', function (res) {
 
             expect(res.result.code).to.equal(400);
             done();
@@ -135,7 +153,7 @@ describe('Request', function () {
 
     it('returns unknown response using reply()', function (done) {
 
-        makeRequest('GET', '/unknown/reply', function (res) {
+        server.inject('/unknown/reply', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('unknown-reply');
@@ -145,7 +163,7 @@ describe('Request', function () {
 
     it('returns unknown response using close()', function (done) {
 
-        makeRequest('GET', '/unknown/close', function (res) {
+        server.inject('/unknown/close', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('unknown-close');
@@ -155,7 +173,16 @@ describe('Request', function () {
 
     it('handles errors on the response after the response has been started', function (done) {
 
-        makeRequest('GET', '/response', function (res) {
+        server.inject('/response', function (res) {
+
+            expect(res.result).to.equal('success');
+            done();
+        });
+    });
+
+    it('handles stream errors on the response after the response has been piped', function (done) {
+
+        server.inject('/stream', function (res) {
 
             expect(res.result).to.equal('success');
             done();
@@ -173,7 +200,7 @@ describe('Request', function () {
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
 
-        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+        server.inject('/domain', function (res) {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -186,25 +213,36 @@ describe('Request', function () {
 
         var handler = function (request) {
 
-            setTimeout(function () {
+            setImmediate(function () {
 
                 var x = not.here;
-            }, 1);
+            });
         };
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
+        server.on('internalError', function (request, err) {
+
+            expect(err.trace[0]).to.equal('ReferenceError: not is not defined');
+            done();
+        });
 
         var orig = console.error;
-        console.error = function (stack) {
+        var prints = 0;
+        console.error = function (msg) {
 
-            expect(stack).to.contain('ReferenceError');
-            console.error = orig;
+            ++prints;
+
+            if (prints === 1) {
+                expect(msg).to.equal('Unmonitored error: ');
+            }
+            else {
+                console.error = orig;
+            }
         };
 
-        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+        server.inject('/domain', function (res) {
 
             expect(res.statusCode).to.equal(500);
-            done();
         });
     });
 
@@ -221,7 +259,7 @@ describe('Request', function () {
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
 
-        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+        server.inject('/domain', function (res) {
 
             expect(res.result).to.equal('123');
             done();
@@ -244,7 +282,7 @@ describe('Request', function () {
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
 
-        server.inject({ method: 'GET', url: '/domain' }, function (res) {
+        server.inject('/domain', function (res) {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -266,7 +304,7 @@ describe('Request', function () {
 
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.inject({ method: 'GET', url: '/' }, function (res) {
+        server.inject('/', function (res) {
 
             expect(res.result).to.equal('ok');
             done();
@@ -307,7 +345,7 @@ describe('Request', function () {
 
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.inject({ method: 'GET', url: '/', headers: { referrer: 'http://site.com' } }, function (res) {
+        server.inject({ url: '/', headers: { referrer: 'http://site.com' } }, function (res) {
 
             expect(res.result).to.equal('ok');
             done();

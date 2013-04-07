@@ -113,8 +113,8 @@ describe('Proxy', function () {
             this.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
         };
 
-        var backendServer = new Hapi.Server(0);
-        backendServer.route([
+        var upstream = new Hapi.Server(0);
+        upstream.route([
             { method: 'GET', path: '/profile', handler: profile },
             { method: 'GET', path: '/item', handler: activeItem },
             { method: 'GET', path: '/proxyerror', handler: activeItem },
@@ -131,12 +131,12 @@ describe('Proxy', function () {
 
         var mapUri = function (request, callback) {
 
-            return callback(null, backendServer.settings.uri + request.path + (request.url.search || ''));
+            return callback(null, upstream.settings.uri + request.path + (request.url.search || ''));
         };
 
-        backendServer.start(function () {
+        upstream.start(function () {
 
-            var backendPort = backendServer.settings.port;
+            var backendPort = upstream.settings.port;
             var routeCache = { expiresIn: 500, mode: 'server+client' };
 
             server = new Hapi.Server(0, { cors: true });
@@ -169,22 +169,22 @@ describe('Proxy', function () {
 
     function makeRequest(options, callback) {
 
-        var next = function (err, res) {
-
-            return callback(res);
-        };
-
         options = options || {};
         options.path = options.path || '/';
         options.method = options.method || 'get';
 
-        Request({
+        var req = {
             method: options.method,
             url: server.settings.uri + options.path,
             form: options.form,
             headers: options.headers,
             jar: false
-        }, next);
+        };
+
+        Request(req, function (err, res) {
+
+            callback(res);
+        });
     }
 
     it('forwards on the response when making a GET request', function (done) {

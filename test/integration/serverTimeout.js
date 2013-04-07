@@ -44,14 +44,6 @@ describe('Server Timeout', function () {
         }, 30);
     };
 
-    var exactHandler = function (request) {
-
-        setTimeout(function () {
-
-            request.reply('Exact');
-        }, 50);
-    };
-
     var respondingHandler = function (request) {
 
         var s = new Stream.PassThrough();
@@ -88,41 +80,37 @@ describe('Server Timeout', function () {
             setTimeout(function () {
 
                 self.push('Hello');
-            }, 60);
+            }, 30);
 
             setTimeout(function () {
 
                 self.push(null);
-            }, 70);
+            }, 60);
         };
 
         request.reply.stream(new TestStream()).send();
     };
 
-    var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 } });
-    _server.route([
+    var server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 } });
+    server.route([
         { method: 'GET', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'GET', path: '/timeoutcache', config: { handler: cachedTimeoutHandler } },
         { method: 'GET', path: '/slow', config: { handler: slowHandler } },
         { method: 'GET', path: '/fast', config: { handler: fastHandler } },
-        { method: 'GET', path: '/exact', config: { handler: exactHandler } },
         { method: 'GET', path: '/stream', config: { handler: streamHandler } },
         { method: 'GET', path: '/responding', config: { handler: respondingHandler } }
     ]);
 
-    var _shortTimeoutServer = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 1 } });
-    _shortTimeoutServer.route({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
-
     before(function (done) {
 
-        _server.start(done);
+        server.start(done);
     });
 
     it('returns server error message when server taking too long', function (done) {
 
         var timer = new Hapi.utils.Timer();
 
-        _server.inject({ method: 'GET', url: '/timeout' }, function (res) {
+        server.inject('/timeout', function (res) {
 
             expect(res.statusCode).to.equal(503);
             expect(timer.elapsed()).to.be.at.least(49);
@@ -130,27 +118,28 @@ describe('Server Timeout', function () {
         });
     });
 
-    it('returns server error message when response takes as long as server timeout', function (done) {
+    it('returns server error message when server timeout happens during request execution (and handler yields)', function (done) {
 
-        var timer = new Hapi.utils.Timer();
+        var serverShort = new Hapi.Server({ timeout: { server: 2 } });
+        serverShort.route({ method: 'GET', path: '/', config: { handler: slowHandler } });
 
-        _server.inject({ method: 'GET', url: '/exact' }, function (res) {
+        serverShort.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(503);
-            expect(timer.elapsed()).to.be.at.least(49);
             done();
         });
     });
 
     it('returns server error message when server timeout is short and already occurs when request executes', function (done) {
 
-        _shortTimeoutServer.ext('onRequest', function (request, next) {
-            var timer = new Hapi.utils.Timer();
-            while (timer.elapsed() < 3);
-            next();
+        var serverExt = new Hapi.Server({ timeout: { server: 2 } });
+        serverExt.route({ method: 'GET', path: '/', config: { handler: function () { } } });
+        serverExt.ext('onRequest', function (request, next) {
+
+            setTimeout(next, 10);
         });
 
-        _shortTimeoutServer.inject({ method: 'GET', url: '/timeout' }, function (res) {
+        serverExt.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(503);
             done();
@@ -160,7 +149,7 @@ describe('Server Timeout', function () {
     it('doesn\'t return an error response when server is slow but faster than timeout', function (done) {
 
         var timer = new Hapi.utils.Timer();
-        _server.inject({ method: 'GET', url: '/slow' }, function (res) {
+        server.inject('/slow', function (res) {
 
             expect(timer.elapsed()).to.be.at.least(29);
             expect(res.statusCode).to.equal(200);
@@ -174,7 +163,7 @@ describe('Server Timeout', function () {
 
         var options = {
             hostname: '127.0.0.1',
-            port: _server.settings.port,
+            port: server.settings.port,
             path: '/responding',
             method: 'GET'
         };
@@ -193,15 +182,13 @@ describe('Server Timeout', function () {
 
         var options = {
             hostname: '127.0.0.1',
-            port: _server.settings.port,
+            port: server.settings.port,
             path: '/stream',
             method: 'GET'
         };
 
-        var timer = new Hapi.utils.Timer();
         var req = Http.request(options, function (res) {
 
-            expect(timer.elapsed()).to.be.at.least(59);
             expect(res.statusCode).to.equal(200);
             done();
         });
@@ -210,7 +197,7 @@ describe('Server Timeout', function () {
 
     it('doesn\'t return an error response when server takes less than timeout to respond', function (done) {
 
-        _server.inject({ method: 'GET', url: '/fast' }, function (res) {
+        server.inject('/fast', function (res) {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -220,12 +207,12 @@ describe('Server Timeout', function () {
     it('response timeouts aren\'t cached on subsequent requests', function (done) {
 
         var timer = new Hapi.utils.Timer();
-        _server.inject({ method: 'GET', url: '/timeoutcache' }, function (res1) {
+        server.inject('/timeoutcache', function (res1) {
 
             expect(timer.elapsed()).to.be.at.least(49);
             expect(res1.statusCode).to.equal(503);
 
-            _server.inject({ method: 'GET', url: '/timeoutcache' }, function (res2) {
+            server.inject('/timeoutcache', function (res2) {
 
                 expect(timer.elapsed()).to.be.at.least(98);
                 expect(res2.statusCode).to.equal(503);
@@ -250,15 +237,15 @@ describe('Server and Client timeouts', function () {
         }, 70);
     };
 
-    var _server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50, client: 50 } });
-    _server.route([
+    var server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50, client: 50 } });
+    server.route([
         { method: 'POST', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'POST', path: '/timeoutcache', config: { handler: cachedTimeoutHandler } }
     ]);
 
     before(function (done) {
 
-        _server.start(done);
+        server.start(done);
     });
 
     it('are returned when both client and server timeouts are the same and the client times out', function (done) {
@@ -266,7 +253,7 @@ describe('Server and Client timeouts', function () {
         var timer = new Hapi.utils.Timer();
         var options = {
             hostname: '127.0.0.1',
-            port: _server.settings.port,
+            port: server.settings.port,
             path: '/timeout',
             method: 'POST'
         };
@@ -294,7 +281,7 @@ describe('Server and Client timeouts', function () {
         var timer = new Hapi.utils.Timer();
         var options = {
             hostname: '127.0.0.1',
-            port: _server.settings.port,
+            port: server.settings.port,
             path: '/timeoutcache',
             method: 'POST'
         };
