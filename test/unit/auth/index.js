@@ -1,7 +1,6 @@
 // Load modules
 
 var Lab = require('lab');
-var Oz = require('oz');
 var Hapi = require('../../..');
 var Auth = require('../../../lib/auth');
 
@@ -56,28 +55,6 @@ describe('Auth', function () {
             };
 
             expect(fn).to.throw('Cannot read property \'scheme\' of null');
-            done();
-        });
-
-        it('doesn\'t throw an error when constructed with all required parameters', function (done) {
-
-            var fn = function () {
-
-                var server = {
-                    settings: {},
-                    route: function () { }
-                };
-
-                var auth = new Auth(server);
-                auth.addBatch({
-                    scheme: 'oz',
-                    encryptionPassword: 'test',
-                    loadAppFunc: function () { },
-                    loadGrantFunc: function () { }
-                });
-            };
-
-            expect(fn).to.not.throw(Error);
             done();
         });
 
@@ -476,15 +453,6 @@ describe('Auth', function () {
                 });
             });
         };
-
-        var oz = {
-            scheme: 'oz',
-            encryptionPassword: 'test',
-            loadAppFunc: function () { },
-            loadGrantFunc: function () { }
-        };
-
-        test(oz);
 
         var basic = {
             scheme: 'basic',
