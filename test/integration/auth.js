@@ -153,6 +153,19 @@ describe('Auth', function () {
             });
         });
 
+        it('returns an error on bad header format', function (done) {
+
+            var request = { method: 'POST', url: '/basic', headers: { authorization: 'basic' } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(400);
+                expect(res.result.isMissing).to.equal(undefined);
+                done();
+            });
+        });
+
         it('returns an error on bad header internal syntax', function (done) {
 
             var request = { method: 'POST', url: '/basic', headers: { authorization: 'basic 123' } };
@@ -166,14 +179,14 @@ describe('Auth', function () {
             });
         });
 
-        it('returns an error on bad scheme', function (done) {
+        it('returns an error on missing username', function (done) {
 
-            var request = { method: 'POST', url: '/basic', headers: { authorization: 'something' } };
+            var request = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('', '') } };
 
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(401);
+                expect(res.result.code).to.equal(400);
                 done();
             });
         });
