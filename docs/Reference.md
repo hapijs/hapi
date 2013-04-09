@@ -252,11 +252,7 @@ For example, configuring a single strategy:
 var options = {
     auth: {
         scheme: 'basic',
-        loadUserFunc: function (username, callback) { 
-        
-            var user = { id: '', password: '' };
-            callback(null, user);
-        }
+        loadUserFunc: loadUser
     }
 };
 ```
@@ -282,39 +278,55 @@ The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation 
 
 #### Basic Authentication
 
-Enabling and using basic authentication with hapi is straightforward.  Basic authentication requires validating a username and password combination.  Therefore, a prerequisite to using basic authentication is to have a function that will return the user information given the username.  The signature for this function is shown below:
+Basic authentication requires validating a username and password combination by looking up the user record via the username and comparing
+the provided password with the one stored in the user database. The lookup is performed by a function provided in the scheme configuration
+using the `loadUserFunc` option:
 ```javascript
-function (username, callback)  // callback is a function that expects (err, { id, password })
-```
+var loadUser = function (username, callback) {
 
-Next setup the _'auth'_ server settings to look similar to the following:
-```
-auth: {
-    scheme: 'basic',
-    loadUserFunc: function (username, callback) { 
-        
-        var user = { id: '', password: '' };
-        callback(null, user);
+    // Lookup user records using username...
+
+    if (err) {
+        return callback(err);
     }
-}
+
+    return callback(null, user, password);
+};
+
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser
+    }
+};
 ```
 
-Please note that the _'loadUserFunc'_ callback expects a user object with an _'id'_ and _'password'_ property.  The _'id'_ should match the incoming username in the request.  
+The _'loadUserFunc'_ callback expects a user object which is passed back once authenticated in `request.auth.credentials`, but is not
+used internally by **hapi**. If the user object is null or undefined, it means the user was not found and the authentication fails.
 
-After basic authentication is setup any request that has the _'Authentication'_ header using the _'Basic'_ scheme will validate the username and password.
-
-If you wish to hash the password found in the header before being compared to the one found in the database you can assign a function to the _'hashPasswordFunc'_ property.  Below is an example of a hashPassword function.
+The provided password is compared to the password received in the request. If the password is hashed, the `hashPasswordFunc` scheme option
+must be provided to hash the incoming plaintext password for comparisson. For example:
 
 ```javascript
-var hashPassword = function (password, user) {
+var hashPassword = function (password) {
     
     var hash = Crypto.createHash('sha1');
     hash.update(password, 'utf8');
     hash.update(user.salt, 'utf8');
 
     return hash.digest('base64');
-}
+};
+
+
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser,
+        hashPasswordFunc: hashPassword
+    }
+};
 ```
+
 
 #### Cookie Authentication
 
