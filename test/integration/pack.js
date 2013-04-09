@@ -353,7 +353,7 @@ describe('Pack', function () {
 
         var handler = function () {
 
-            return this.reply(this.plugins.deps);
+            return this.reply(this.app.deps);
         };
 
         pack._servers[0].route({ method: 'GET', path: '/', handler: handler });
