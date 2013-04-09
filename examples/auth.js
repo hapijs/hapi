@@ -30,7 +30,7 @@ internals.users = {
 
 
 internals.passwords = {
-    john: 'john'
+    john: 'secret'
 };
 
 
@@ -58,7 +58,7 @@ internals.getCredentials = function (id, callback) {
 internals.hawkHeader = function (id, path, server) {
 
     if (internals.credentials[id]) {
-        return Hawk.getAuthorizationHeader('http://' + server.settings.host + ':' + server.settings.port + path, 'GET', { credentials: internals.credentials[id] });
+        return Hawk.client.header('http://' + server.settings.host + ':' + server.settings.port + path, 'GET', { credentials: internals.credentials[id] }).field;
     }
     else {
         return '';
@@ -75,11 +75,6 @@ internals.main = function () {
 
     var config = {
         auth: {
-            'default': {
-                scheme: 'basic',
-                loadUserFunc: internals.loadUser,
-                hashPasswordFunc: internals.hashPassword
-            },
             'hawk': {
                 scheme: 'hawk',
                 getCredentialsFunc: internals.getCredentials
@@ -103,11 +98,11 @@ internals.main = function () {
     http.start(function () {
 
         console.log('\nBasic request to /basic:');
-        console.log('curl ' + http.settings.uri + '/basic -H "Authorization: Basic ' + (new Buffer('john:john', 'utf8')).toString('base64') + '"');
+        console.log('curl ' + http.settings.uri + '/basic -H "Authorization: Basic ' + (new Buffer('john:secret', 'utf8')).toString('base64') + '"');
         console.log('\nHawk request to /hawk:');
         console.log('curl ' + http.settings.uri + '/hawk -H \'Authorization: ' + internals.hawkHeader('john', '/hawk', http) + '\'');
         console.log('\nBasic request to /multiple:');
-        console.log('curl ' + http.settings.uri + '/multiple -H "Authorization: Basic ' + (new Buffer('john:john', 'utf8')).toString('base64') + '"');
+        console.log('curl ' + http.settings.uri + '/multiple -H "Authorization: Basic ' + (new Buffer('john:secret', 'utf8')).toString('base64') + '"');
         console.log('\nHawk request to /multiple:');
         console.log('curl ' + http.settings.uri + '/multiple -H \'Authorization: ' + internals.hawkHeader('john', '/multiple', http) + '\'');
     });
