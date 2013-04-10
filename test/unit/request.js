@@ -146,6 +146,20 @@ describe('Request', function () {
             expect(request.getLog().length).to.be.above(7);
             done();
         });
+
+        it('doesn\'t throw an error when logging without data and debug is configured', function (done) {
+
+            var debugServer = new Hapi.server({ debug: { request: ['uncaught'] }});
+            var request = new Request(debugServer, _req, _res);
+
+            var fn = function () {
+
+                request.log('uncaught', null, Date.now());
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
     });
 
     describe('path normalization', function () {
