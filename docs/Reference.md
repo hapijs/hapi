@@ -884,7 +884,7 @@ Based on the handler function declaration style, a _'reply'_ function is provide
   identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an
   instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
 - _'stream(stream)'_ - pipes the content of the stream into the response.
-- _'redirect(uri)'_ - sets a redirection response. Defaults to 302.
+- _'redirect(uri)'_ - sets a redirection response.  Uses the _'server.settings.uri'_ property when not set to a full URI. Defaults to 302.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
 - _'close()'_ - closes the response stream immediately without flushing any remaining unsent data. Used for ending the handler execution
   after manually sending a response.
@@ -907,6 +907,8 @@ The following methods are only available when using 'redirect()':
 - _'temporary()_' - sets the status code to 302 or 307 (based on the rewritable settings). Defaults to 'true'.
 - _'permanent()_' - sets the status code to 301 or 308 (based on the rewritable settings). Defaults to 'false'.
 - _'rewritable(isRewritable)_' - sets the status code to 301/302 (based on the temporary settings) for rewritable (change POST to GET) or 307/308 for non-rewritable. Defaults to 'true'.
+
+Note that when using _'redirect'_ with a relative URI that the result will be to use the servers bound host and port to form the full URI.  If the server has a different public URI then change the servers _'settings.uri'_ property to the public one.
 
 The handler must call _'reply()'_, _'reply.send()'_, or _'reply.payload/stream()...send()'_ (and only one, once) to return control over to the router. The reply methods are only available
 within the route handler and are disabled as soon as control is returned.
