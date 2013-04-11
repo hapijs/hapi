@@ -59,6 +59,19 @@ describe('Views', function () {
             done();
         });
 
+        it('should work and not throw with basePath, template name, and no path', function (done) {
+
+            var fn = (function () {
+                var views = new Views();
+                var html = views.render('test', { title: 'test', message: 'Hapi' }, { basePath: viewsPath + '/valid' });
+                expect(html).to.exist;
+                expect(html.length).above(1);
+            });
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
         it('should throw when referencing non existant partial (with layouts)', function (done) {
 
             var fn = (function () {
