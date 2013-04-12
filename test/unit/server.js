@@ -69,7 +69,17 @@ describe('Server', function () {
         var server = new Hapi.Server(0);
         server.start(function () {
 
-            expect(server.settings.host).to.be.equal('0.0.0.0');
+            expect(server.settings.host).to.equal('0.0.0.0');
+            done();
+        });
+    });
+
+    it('doesn\'t overwrite uri when server is configured with one', function (done) {
+
+        var server = new Hapi.Server(0, '0.0.0.0', { uri: 'http://mysite.com'});
+        server.start(function () {
+
+            expect(server.settings.uri).to.equal('http://mysite.com');
             done();
         });
     });
