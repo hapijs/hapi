@@ -1,52 +1,77 @@
 // Load modules
 
-var Crypto = require('crypto');
 var Hapi = require('../lib');
 
 
 // Declare internals
 
-var internals = {
-    salt: '' + Date.now()
-};
-
-
-internals.hashPassword = function (password) {
-
-    var hash = Crypto.createHash('sha256');
-    hash.update(password);
-    hash.update(internals.salt);
-
-    return hash.digest('base64');
-};
+var internals = {};
 
 
 internals.users = {
     john: {
         id: 'john',
-        password: internals.hashPassword('john')
+        password: 'password',
+        name: 'John Doe'
     }
 };
 
 
 internals.validateCookie = function (session, callback) {
 
-    var password = internals.users[session.id].password;
+    // Validate session if needed to ensure session is still valid
 
-    callback(password === session.password ? null : new Error('Invalid credentials'), null);
+    callback(null, null);
 };
 
 
-internals.handler = function (request) {
+internals.home = function (request) {
 
-    request.reply('Success');
+    request.reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + request.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
 };
 
 
-internals.loginHandler = function (request) {
+internals.login = function (request) {
 
-    request.auth.session.set(internals.users.john);
-    request.reply('Success');
+    if (request.auth.isAuthenticated) {
+        return request.reply.redirect('/').send();
+    }
+
+    var message = '';
+    var account = null;
+
+    if (request.method === 'post') {
+        
+        if (!request.payload.username ||
+            !request.payload.password) {
+
+            message = 'Missing username or password';
+        }
+        else {
+            account = internals.users[request.payload.username];
+            if (!account ||
+                account.password !== request.payload.password) {
+
+                message = 'Invalid username or password';
+            }
+        }
+    }
+
+    if (request.method === 'get' ||
+        message) {
+
+        return request.reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
+    }
+
+    request.auth.session.set(account);
+    return request.reply.redirect('/').send();
+};
+
+
+internals.logout = function (request) {
+
+    request.auth.session.clear();
+    return request.reply.redirect('/').send();
 };
 
 
@@ -59,25 +84,27 @@ internals.main = function () {
             ttl: 60 * 1000,                 // Expire after a minute
             cookie: 'sid',                  // Cookie name
             clearInvalid: true,
-            validateFunc: internals.validateCookie
+            validateFunc: internals.validateCookie,
+            redirectTo: '/login',
+            allowInsecure: true
+        },
+        state: {
+            cookies: {
+                clearInvalid: true
+            }
         }
     };
 
-    var http = new Hapi.Server(0, config);
+    var http = new Hapi.Server('localhost', 8000, config);
 
     http.route([
-        { method: 'GET', path: '/', config: { handler: internals.handler, auth: { strategies: ['default'] } } },
-        { method: 'GET', path: '/login', config: { handler: internals.loginHandler, auth: false } }
+        { method: 'GET', path: '/', config: { handler: internals.home, auth: true } },
+        { method: 'GET', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
+        { method: 'POST', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
+        { method: 'GET', path: '/logout', config: { handler: internals.logout, auth: true } }
     ]);
 
-    http.start(function () {
-
-        console.log('\nLogin with the following command');
-        console.log('curl ' + http.settings.uri + '/login -I');
-        console.log('\nCopy the Set-Cookie value up until the ;');
-        console.log('\nAuthenticate request to /:');
-        console.log('curl ' + http.settings.uri + '/ -H \"Cookie: [paste cookie value here]"');
-    });
+    http.start();
 };
 
 
