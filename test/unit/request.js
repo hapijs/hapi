@@ -149,12 +149,19 @@ describe('Request', function () {
 
         it('doesn\'t throw an error when logging without data and debug is configured', function (done) {
 
-            var debugServer = new Hapi.server({ debug: { request: ['uncaught'] }});
+            var debugServer = new Hapi.server({ debug: { request: ['uncaught'] } });
             var request = new Request(debugServer, _req, _res);
 
             var fn = function () {
 
                 request.log('uncaught', null, Date.now());
+            };
+
+            var orig = console.error;
+            console.error = function (msg) {
+
+                expect(msg).to.equal('Unmonitored error: uncaught');
+                console.error = orig;
             };
 
             expect(fn).to.not.throw(Error);
