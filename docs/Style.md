@@ -668,4 +668,11 @@
   - Any variable global to the module must be a property of `internals`, including constants
   - If a module has automatically executing code, it must be contained within a function (using the `internals` namespace) and called at the top of the module after the `internals` declaration
     
+### Variable names
 
+  - `err` is reserved for errors received via a callback. Use `error` for local function variables.
+
+### Callback
+
+  - First argument must always be `err`
+  - If a function takes a `callback` argument, it **must** be called on `process.nextTick()`. Otherwise, the argument name **must** be `next` to clearly declare that it may get called on same tick.
