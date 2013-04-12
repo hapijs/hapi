@@ -24,7 +24,10 @@ describe('Composer', function () {
 
         var manifest = {
             pack: {
-                cache: 'memory'
+                cache: 'memory',
+                app: {
+                    my: 'special-value'
+                }
             },
             servers: [
                 {
@@ -60,7 +63,7 @@ describe('Composer', function () {
 
                     composer._packs[0]._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
 
-                        expect(res.result).to.equal('testing123');
+                        expect(res.result).to.equal('testing123special-value');
                         done();
                     });
                 });
