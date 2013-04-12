@@ -33,7 +33,7 @@
     "boom": "0.4.x",
     "joi": "0.3.x",
     "catbox": "0.5.x",
-    "hawk": "0.12.x",
+    "hawk": "0.13.x",
     "shot": "0.2.x",
     "cryptiles": "0.2.x",
     "iron": "0.3.x",
