@@ -22,7 +22,7 @@ var it = Lab.test;
 
 describe('Request', function () {
 
-    var server = new Hapi.server();
+    var server = new Hapi.Server();
 
     var _req = null;
     var _res = null;
@@ -149,7 +149,7 @@ describe('Request', function () {
 
         it('doesn\'t throw an error when logging without data and debug is configured', function (done) {
 
-            var debugServer = new Hapi.server({ debug: { request: ['uncaught'] } });
+            var debugServer = new Hapi.Server({ debug: { request: ['uncaught'] } });
             var request = new Request(debugServer, _req, _res);
 
             var fn = function () {
@@ -189,7 +189,7 @@ describe('Request', function () {
 
         it('normalizes a path when normalization is enabled', function (done) {
 
-            var normServer = new Hapi.server({ router: { normalizeRequestPath: true } });
+            var normServer = new Hapi.Server({ router: { normalizeRequestPath: true } });
 
             var request = new Request(normServer, _req, _res);
             var url = 'http://localhost' + rawPath + '?param1=something';

@@ -208,7 +208,7 @@ describe('Security', function () {
                 request.reply('Success');
             },
                 config: {
-                    validate: { path: { name: Hapi.Types.Function() } }
+                    validate: { path: { name: Hapi.types.Function() } }
                 }
             });
 
@@ -229,7 +229,7 @@ describe('Security', function () {
                 request.reply('Success');
             },
                 config: {
-                    validate: { payload: { name: Hapi.Types.String().max(4).min(1).required() } }
+                    validate: { payload: { name: Hapi.types.String().max(4).min(1).required() } }
                 }
             });
 
@@ -252,7 +252,7 @@ describe('Security', function () {
                 request.reply('Success');
             },
                 config: {
-                    validate: { query: { name: Hapi.Types.String().alphanum().required() } }
+                    validate: { query: { name: Hapi.types.String().alphanum().required() } }
                 }
             });
 

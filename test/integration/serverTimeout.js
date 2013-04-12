@@ -32,7 +32,7 @@ describe('Server Timeout', function () {
         var reply = request.reply;
         setTimeout(function () {
 
-            reply.bind(request, new Hapi.Response.Text('Cached'));
+            reply.bind(request, new Hapi.response.Text('Cached'));
         }, 70);
     };
 
@@ -233,7 +233,7 @@ describe('Server and Client timeouts', function () {
         var reply = request.reply;
         setTimeout(function () {
 
-            reply.bind(request, new Hapi.Response.Text('Cached'));
+            reply.bind(request, new Hapi.response.Text('Cached'));
         }, 70);
     };
 

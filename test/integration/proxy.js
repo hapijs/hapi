@@ -110,7 +110,7 @@ describe('Proxy', function () {
 
         var gzipStreamHandler = function () {
 
-            this.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+            this.reply(new Hapi.response.File(__dirname + '/../../package.json'));
         };
 
         var upstream = new Hapi.Server(0);

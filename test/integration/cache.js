@@ -41,7 +41,7 @@ describe('Cache', function () {
 
     var cacheItemHandler = function (request) {
 
-        var cacheable = new Hapi.Response.Text('hello');
+        var cacheable = new Hapi.response.Text('hello');
         cacheable._code = 200;
 
         request.reply(cacheable);

@@ -295,7 +295,7 @@ describe('Response', function () {
             var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -395,7 +395,7 @@ describe('Response', function () {
             var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../package.json', { mode: 'attachment' }));
+                request.reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'attachment' }));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -419,7 +419,7 @@ describe('Response', function () {
             var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../package.json', { mode: 'inline' }));
+                request.reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'inline' }));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -518,7 +518,7 @@ describe('Response', function () {
             var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var relativeHandler = function (request) {
 
-                request.reply(new Hapi.Response.File('./package.json'));
+                request.reply(new Hapi.response.File('./package.json'));
             };
 
             server.route({ method: 'GET', path: '/relativefile', handler: relativeHandler });
@@ -669,7 +669,7 @@ describe('Response', function () {
             var server = new Hapi.Server(0);
             var handler = function (request) {
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -696,7 +696,7 @@ describe('Response', function () {
             var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -720,7 +720,7 @@ describe('Response', function () {
             var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
-                request.reply(new Hapi.Response.File(__dirname + '/../../package.json'));
+                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -2001,7 +2001,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                Hapi.Response._respond(null, request, function () { });
+                Hapi.response._respond(null, request, function () { });
             };
 
             var server = new Hapi.Server();
