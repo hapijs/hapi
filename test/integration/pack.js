@@ -212,10 +212,18 @@ describe('Pack', function () {
     it('requires multiple plugins using array', function (done) {
 
         var server = new Hapi.Server({ labels: 'test' });
+        var log = null;
+        server.plugin.events.once('log', function (event, tags) {
+
+            log = [event, tags];
+        });
+
         server.plugin.require(['./pack/--test1', './pack/--test2'], function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
+            expect(log[1].test).to.equal(true);
+            expect(log[0].data).to.equal('abc');
             done();
         });
     });
