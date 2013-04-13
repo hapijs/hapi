@@ -1,4 +1,4 @@
-# **hapi** module API
+# The **hapi** API
 
 ## `Server`
 
@@ -6,8 +6,8 @@
 `createServer(host, port, options)`
 
 #### `routingTable()`
-#### `start()`
-#### `stop()`
+#### `start(callback)`
+#### `stop(options, callback)`
 #### `log(tags, data, timestamp)`
 #### `route(options)`
 #### `route(routes)`
@@ -15,7 +15,7 @@
 #### `auth(name, options)`
 #### `ext(event, method)`
 #### `helper(name, method, options)`
-##### `inject(options, callback)`
+#### `inject(options, callback)`
 
 
 ## `Pack`
