@@ -5,37 +5,37 @@
 #### `new Server(host, port, options)`
 `createServer(host, port, options)`
 
-#### `routingTable()`
-#### `start(callback)`
-#### `stop(options, callback)`
-#### `log(tags, data, timestamp)`
-#### `route(options)`
-#### `route(routes)`
-#### `state(name, options)`
-#### `auth(name, options)`
-#### `ext(event, method)`
-#### `helper(name, method, options)`
-#### `inject(options, callback)`
+#### `server.routingTable()`
+#### `server.start(callback)`
+#### `server.stop(options, callback)`
+#### `server.log(tags, data, timestamp)`
+#### `server.route(options)`
+#### `server.route(routes)`
+#### `server.state(name, options)`
+#### `server.auth(name, options)`
+#### `server.ext(event, method)`
+#### `server.helper(name, method, options)`
+#### `server.inject(options, callback)`
 
 
 ## `Pack`
 
 #### `new Pack(options)`
-#### `server(host, port, options)`
-#### `start(callback)`
-#### `stop(options, callback)`
-#### `require(name, options, callback)`
-#### `require(names, callback)`
-#### `register(plugin, options, callback)`
-#### `allow(permissions)`
+#### `pack.server(host, port, options)`
+#### `pack.start(callback)`
+#### `pack.stop(options, callback)`
+#### `pack.require(name, options, callback)`
+#### `pack.require(names, callback)`
+#### `pack.register(plugin, options, callback)`
+#### `pack.allow(permissions)`
 
 
 ## `Composer`
 
 #### `new Composer(manifest)`
-#### `compose(callback)`
-#### `start(callback)`
-#### `stop(callback)`
+#### `composer.compose(callback)`
+#### `composer.start(callback)`
+#### `composer.stop(callback)`
 
 
 ## `error`
@@ -72,7 +72,7 @@ An alias of the [**boom**](https://github.com/spumko/boom) module. Can be access
 
 An alias of the [**hoek**](https://github.com/spumko/hoek) module.
 
-# `version`
+#### `version`
 
 
 ## `types`
@@ -87,27 +87,29 @@ See [**joi** Types](https://github.com/spumko/joi#type-registry).
 
 ## Plugin Interface
 
-#### `register(pack, options, next)`
+#### `exports.register(pack, options, next)`
 
-### `pack`
+### Selectable methods
 
-#### `select(labels)`
-#### `length`
-#### `api(key, value)`
-#### `api(obj)`
-#### `route(options)`
-#### `route(routes)`
-#### `state(name, options)`
-#### `auth(name, options)`
-#### `ext(event, method)`
+#### `pack.select(labels)`
+#### `pack.length`
+#### `pack.api(key, value)`
+#### `pack.api(obj)`
+#### `pack.route(options)`
+#### `pack.route(routes)`
+#### `pack.state(name, options)`
+#### `pack.auth(name, options)`
+#### `pack.ext(event, method)`
 
-#### `version`
-#### `hapi`
-#### `app`
-#### `log(tags, data, timestamp)`
-#### `dependency(deps)`
-#### `events`
-#### `views(options)`
-#### `helper(name, method, options)`
-#### `cache(options, segment)`
+### Root methods
+
+#### `pack.version`
+#### `pack.hapi`
+#### `pack.app`
+#### `pack.log(tags, data, timestamp)`
+#### `pack.dependency(deps)`
+#### `pack.events`
+#### `pack.views(options)`
+#### `pack.helper(name, method, options)`
+#### `pack.cache(options, segment)`
 
