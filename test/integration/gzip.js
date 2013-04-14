@@ -119,7 +119,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.info.uri, headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -136,7 +136,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': '*' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.info.uri, headers: { 'accept-encoding': '*' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -153,7 +153,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': 'deflate' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.info.uri, headers: { 'accept-encoding': 'deflate' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -170,7 +170,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.info.uri, headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -187,7 +187,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.info.uri, headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -204,7 +204,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Request.post({ url: server.settings.uri, headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function (err, res, body) {
+                Request.post({ url: server.info.uri, headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function (err, res, body) {
 
                     expect(body).to.equal(zippedBody.toString());
                     done();
@@ -219,7 +219,7 @@ describe('Payload', function () {
 
         server.start(function () {
 
-            Request.post({ url: server.settings.uri, headers: { }, body: rawBody }, function (err, res, body) {
+            Request.post({ url: server.info.uri, headers: { }, body: rawBody }, function (err, res, body) {
 
                 expect(body).to.equal(rawBody);
                 done();

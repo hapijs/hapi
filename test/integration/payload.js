@@ -127,7 +127,7 @@ describe('Payload', function () {
 
                 var options = {
                     hostname: 'localhost',
-                    port: server.settings.port,
+                    port: server.info.port,
                     path: '/',
                     method: 'POST'
                 };
@@ -172,7 +172,7 @@ describe('Payload', function () {
 
                 var options = {
                     hostname: 'localhost',
-                    port: server.settings.port,
+                    port: server.info.port,
                     path: '/',
                     method: 'POST',
                     headers: {
@@ -264,7 +264,7 @@ describe('Payload', function () {
 
             var options = {
                 hostname: 'localhost',
-                port: server.settings.port,
+                port: server.info.port,
                 path: '/',
                 method: 'POST'
             };
@@ -327,7 +327,7 @@ describe('Payload', function () {
         it('sets the request payload with the streaming data', function (done) {
 
             var options = {
-                uri: 'http://localhost:' + server.settings.port + '/?x=1',
+                uri: 'http://localhost:' + server.info.port + '/?x=1',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -349,7 +349,7 @@ describe('Payload', function () {
 
             var options = {
                 hostname: 'localhost',
-                port: server.settings.port,
+                port: server.info.port,
                 path: '/?x=2',
                 method: 'POST',
                 headers: {
@@ -370,7 +370,7 @@ describe('Payload', function () {
         it('resets connection when the request content-length is smaller than payload', function (done) {
 
             var options = {
-                uri: 'http://localhost:' + server.settings.port + '/?x=3',
+                uri: 'http://localhost:' + server.info.port + '/?x=3',
                 body: '{ "key": "value" }',
                 method: 'POST',
                 headers: {
@@ -390,7 +390,7 @@ describe('Payload', function () {
 
             var options = {
                 hostname: 'localhost',
-                port: server.settings.port,
+                port: server.info.port,
                 path: '/?x=4',
                 method: 'POST',
                 headers: {
@@ -412,7 +412,7 @@ describe('Payload', function () {
 
             var options = {
                 hostname: 'localhost',
-                port: server.settings.port,
+                port: server.info.port,
                 path: '/?x=5',
                 method: 'POST',
                 headers: {
@@ -563,7 +563,7 @@ describe('Payload', function () {
             server.route({ method: 'POST', path: '/file', config: { handler: fileHandler } });
             server.start(function () {
 
-                var r = Request.post(server.settings.uri + '/file');
+                var r = Request.post(server.info.uri + '/file');
                 var form = r.form();
                 form.append('my_file', fileStream);
             });

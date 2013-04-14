@@ -344,7 +344,7 @@ describe('Request', function () {
 
         server.start(function () {
 
-            Request(server.settings.uri + '/address', function (err, res, body) {
+            Request(server.info.uri + '/address', function (err, res, body) {
 
                 expect(body).to.equal('ok');
                 done();

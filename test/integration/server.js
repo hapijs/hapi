@@ -29,9 +29,9 @@ describe('Server', function () {
             var socket1 = new Net.Socket();
             var socket2 = new Net.Socket();
 
-            socket1.connect(server.settings.port, server.settings.host, function () {
+            socket1.connect(server.info.port, server.settings.host, function () {
 
-                socket2.connect(server.settings.port, server.settings.host, function () {
+                socket2.connect(server.info.port, server.settings.host, function () {
 
                     server.listener.getConnections(function (err, count) {
 
@@ -72,9 +72,9 @@ describe('Server', function () {
                 expect(err.errno).to.equal('ECONNRESET');
             });
 
-            socket1.connect(server.settings.port, server.settings.host, function () {
+            socket1.connect(server.info.port, server.settings.host, function () {
 
-                socket2.connect(server.settings.port, server.settings.host, function () {
+                socket2.connect(server.info.port, server.settings.host, function () {
 
                     server.listener.getConnections(function (err, count) {
 
@@ -110,9 +110,9 @@ describe('Server', function () {
                 expect(err.errno).to.equal('ECONNRESET');
             });
 
-            socket1.connect(server.settings.port, server.settings.host, function () {
+            socket1.connect(server.info.port, server.settings.host, function () {
 
-                socket2.connect(server.settings.port, server.settings.host, function () {
+                socket2.connect(server.info.port, server.settings.host, function () {
 
                     server.listener.getConnections(function (err, count) {
 

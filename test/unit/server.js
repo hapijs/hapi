@@ -39,28 +39,28 @@ describe('Server', function () {
     it('defaults to port 80 when no port is provided', function (done) {
 
         var server = new Hapi.Server();
-        expect(server.settings.port).to.be.equal(80);
+        expect(server.info.port).to.be.equal(80);
         done();
     });
 
     it('defaults to port 443 when no port is provided with tls', function (done) {
 
         var server = new Hapi.Server({ tls: tlsOptions });
-        expect(server.settings.port).to.be.equal(443);
+        expect(server.info.port).to.be.equal(443);
         done();
     });
 
     it('defaults to port 80 when a null port is provided', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', null);
-        expect(server.settings.port).to.be.equal(80);
+        expect(server.info.port).to.be.equal(80);
         done();
     });
 
     it('allows a ephemeral port to be set', function (done) {
 
         var server = new Hapi.Server('0.0.0.0', 0);
-        expect(server.settings.port).to.be.equal(0);
+        expect(server.info.port).to.be.equal(0);
         done();
     });
 
@@ -69,17 +69,7 @@ describe('Server', function () {
         var server = new Hapi.Server(0);
         server.start(function () {
 
-            expect(server.settings.host).to.equal('0.0.0.0');
-            done();
-        });
-    });
-
-    it('doesn\'t overwrite uri when server is configured with one', function (done) {
-
-        var server = new Hapi.Server(0, '0.0.0.0', { uri: 'http://mysite.com'});
-        server.start(function () {
-
-            expect(server.settings.uri).to.equal('http://mysite.com');
+            expect(server.info.host).to.equal('0.0.0.0');
             done();
         });
     });
@@ -181,8 +171,8 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0);
             server.start(function () {
 
-                expect(server.settings.host).to.equal('0.0.0.0');
-                expect(server.settings.port).to.not.equal(0);
+                expect(server.info.host).to.equal('0.0.0.0');
+                expect(server.info.port).to.not.equal(0);
                 done();
             });
         });
@@ -192,8 +182,8 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0, { tls: tlsOptions });
             server.start(function () {
 
-                expect(server.settings.host).to.equal('0.0.0.0');
-                expect(server.settings.port).to.not.equal(0);
+                expect(server.info.host).to.equal('0.0.0.0');
+                expect(server.info.port).to.not.equal(0);
                 done();
             });
         });

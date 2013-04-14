@@ -290,7 +290,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/file', function (err, res, body) {
+                Request.get(server.info.uri + '/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -309,7 +309,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri, function (err, res, body) {
+                Request.get(server.info.uri, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -328,7 +328,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri, function (err, res, body) {
+                Request.get(server.info.uri, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -347,7 +347,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri, function (err, res, body) {
+                Request.get(server.info.uri, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -366,7 +366,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri, function (err, res, body) {
+                Request.get(server.info.uri, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -390,7 +390,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/file', function (err, res, body) {
+                Request.get(server.info.uri + '/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -414,7 +414,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/file', function (err, res, body) {
+                Request.get(server.info.uri + '/file', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -434,7 +434,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/filenotfound', function (err, res) {
+                Request.get(server.info.uri + '/filenotfound', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(404);
@@ -451,7 +451,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/filefolder', function (err, res) {
+                Request.get(server.info.uri + '/filefolder', function (err, res) {
 
                     expect(err).to.not.exist;
                     expect(res.statusCode).to.equal(403);
@@ -472,7 +472,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/staticfile', function (err, res, body) {
+                Request.get(server.info.uri + '/staticfile', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -490,7 +490,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/filefn/index.js', function (err, res, body) {
+                Request.get(server.info.uri + '/filefn/index.js', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('./lib');
@@ -513,7 +513,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/relativefile', function (err, res, body) {
+                Request.get(server.info.uri + '/relativefile', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -531,7 +531,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get(server.settings.uri + '/relativestaticfile', function (err, res, body) {
+                Request.get(server.info.uri + '/relativestaticfile', function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body).to.contain('hapi');
@@ -664,13 +664,13 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get({ url: server.settings.uri + '/file' }, function (err, res1) {
+                Request.get({ url: server.info.uri + '/file' }, function (err, res1) {
 
                     var headers = {
                         'if-modified-since': res1.headers.date
                     };
 
-                    Request.get({ url: server.settings.uri + '/file', headers: headers }, function (err, res2) {
+                    Request.get({ url: server.info.uri + '/file', headers: headers }, function (err, res2) {
 
                         expect(res2.statusCode).to.equal(304);
                         done();
@@ -691,7 +691,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get({ url: server.settings.uri + '/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+                Request.get({ url: server.info.uri + '/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.headers['content-type']).to.equal('application/json');
@@ -715,7 +715,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Request.get({ url: server.settings.uri + '/file', headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
+                Request.get({ url: server.info.uri + '/file', headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(res.headers['content-type']).to.equal('application/json');
@@ -772,7 +772,7 @@ describe('Response', function () {
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
-            Request.get(server.settings.uri + '/directory/', function (err, res, body) {
+            Request.get(server.info.uri + '/directory/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(403);
@@ -782,7 +782,7 @@ describe('Response', function () {
 
         it('returns a 403 when requesting a path containing \'..\'', function (done) {
 
-            Request.get(server.settings.uri + '/directory/..', function (err, res, body) {
+            Request.get(server.info.uri + '/directory/..', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(403);
@@ -792,7 +792,7 @@ describe('Response', function () {
 
         it('returns a 404 when requesting an unknown file within a directory', function (done) {
 
-            Request.get(server.settings.uri + '/directory/xyz', function (err, res, body) {
+            Request.get(server.info.uri + '/directory/xyz', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(404);
@@ -802,7 +802,7 @@ describe('Response', function () {
 
         it('returns a file when requesting a file from the directory', function (done) {
 
-            Request.get(server.settings.uri + '/directory/response.js', function (err, res, body) {
+            Request.get(server.info.uri + '/directory/response.js', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -813,7 +813,7 @@ describe('Response', function () {
 
         it('returns a file when requesting a file from multi directory setup', function (done) {
 
-            Request.get(server.settings.uri + '/multiple/unit/response/directory.js', function (err, res, body) {
+            Request.get(server.info.uri + '/multiple/unit/response/directory.js', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -824,7 +824,7 @@ describe('Response', function () {
 
         it('returns the correct file when requesting a file from a child directory', function (done) {
 
-            Request.get(server.settings.uri + '/directory/directory/index.html', function (err, res, body) {
+            Request.get(server.info.uri + '/directory/directory/index.html', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -835,7 +835,7 @@ describe('Response', function () {
 
         it('returns the correct listing links when viewing top level path', function (done) {
 
-            Request.get(server.settings.uri + '/', function (err, res, body) {
+            Request.get(server.info.uri + '/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -846,7 +846,7 @@ describe('Response', function () {
 
         it('doesn\'t contain any double / when viewing sub path listing', function (done) {
 
-            Request.get(server.settings.uri + '/showindex/', function (err, res, body) {
+            Request.get(server.info.uri + '/showindex/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -857,7 +857,7 @@ describe('Response', function () {
 
         it('has the correct link to sub folders when inside of a sub folder listing', function (done) {
 
-            Request.get(server.settings.uri + '/showindex/directory/subdir', function (err, res, body) {
+            Request.get(server.info.uri + '/showindex/directory/subdir', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -870,7 +870,7 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directoryx/{path*}', handler: { directory: { path: '../../', index: false } } });
 
-            Request.get(server.settings.uri + '/directoryx/', function (err, res, body) {
+            Request.get(server.info.uri + '/directoryx/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(403);
@@ -882,7 +882,7 @@ describe('Response', function () {
 
         it('returns a list of files when listing is enabled', function (done) {
 
-            Request.get(server.settings.uri + '/directorylist/', function (err, res, body) {
+            Request.get(server.info.uri + '/directorylist/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -893,7 +893,7 @@ describe('Response', function () {
 
         it('returns a list of files for subdirectory', function (done) {
 
-            Request.get(server.settings.uri + '/directorylist/test', function (err, res, body) {
+            Request.get(server.info.uri + '/directorylist/test', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -906,7 +906,7 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directorylistx/{path*}', handler: { directory: { path: '../../', listing: true, index: false } } });
 
-            Request.get(server.settings.uri + '/directorylistx/', function (err, res, body) {
+            Request.get(server.info.uri + '/directorylistx/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -919,7 +919,7 @@ describe('Response', function () {
 
         it('returns the index when found', function (done) {
 
-            Request.get(server.settings.uri + '/directoryIndex/', function (err, res, body) {
+            Request.get(server.info.uri + '/directoryIndex/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -930,7 +930,7 @@ describe('Response', function () {
 
         it('returns a 500 when index.html is a directory', function (done) {
 
-            Request.get(server.settings.uri + '/directoryIndex/invalid', function (err, res, body) {
+            Request.get(server.info.uri + '/directoryIndex/invalid', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(500);
@@ -947,7 +947,7 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directoryfn/{path?}', handler: { directory: { path: directoryFn } } });
 
-            Request.get(server.settings.uri + '/directoryfn/defaults.js', function (err, res, body) {
+            Request.get(server.info.uri + '/directoryfn/defaults.js', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
@@ -958,7 +958,7 @@ describe('Response', function () {
 
         it('returns listing with hidden files when hidden files should be shown', function (done) {
 
-            Request.get(server.settings.uri + '/showhidden/', function (err, res, body) {
+            Request.get(server.info.uri + '/showhidden/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(body).to.contain('.hidden');
@@ -968,7 +968,7 @@ describe('Response', function () {
 
         it('returns listing without hidden files when hidden files should not be shown', function (done) {
 
-            Request.get(server.settings.uri + '/noshowhidden/', function (err, res, body) {
+            Request.get(server.info.uri + '/noshowhidden/', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(body).to.not.contain('.hidden');
@@ -979,7 +979,7 @@ describe('Response', function () {
 
         it('returns a 404 response when requesting a hidden file when showHidden is disabled', function (done) {
 
-            Request.get(server.settings.uri + '/noshowhidden/.hidden', function (err, res, body) {
+            Request.get(server.info.uri + '/noshowhidden/.hidden', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(404);
@@ -989,7 +989,7 @@ describe('Response', function () {
 
         it('returns a file when requesting a hidden file when showHidden is enabled', function (done) {
 
-            Request.get(server.settings.uri + '/showhidden/.hidden', function (err, res, body) {
+            Request.get(server.info.uri + '/showhidden/.hidden', function (err, res, body) {
 
                 expect(err).to.not.exist;
                 expect(body).to.contain('test');
@@ -1117,7 +1117,7 @@ describe('Response', function () {
             request.reply(oldMode);
         };
 
-        var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] } });
+        var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] }, location: 'http://example.com:8080' });
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
         server.route({ method: 'GET', path: '/stream2', config: { handler: handler2 } });
@@ -1198,7 +1198,7 @@ describe('Response', function () {
 
             server1.start(function () {
 
-                Request.get({ uri: server1.settings.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
+                Request.get({ uri: server1.info.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers['content-length']).to.not.exist;
@@ -1219,7 +1219,7 @@ describe('Response', function () {
 
             server1.start(function () {
 
-                Request.get({ uri: server1.settings.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (err, res) {
+                Request.get({ uri: server1.info.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (err, res) {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers['content-length']).to.not.exist;
@@ -1234,7 +1234,7 @@ describe('Response', function () {
 
                 expect(res.result).to.equal('x');
                 expect(res.statusCode).to.equal(201);
-                expect(res.headers.location).to.equal(server.settings.uri + '/special');
+                expect(res.headers.location).to.equal(server.settings.location + '/special');
                 expect(res.headers['cache-control']).to.equal('no-cache');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
@@ -1719,7 +1719,7 @@ describe('Response', function () {
             }
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Server(0, { location: 'https://localhost' });
         server.route({ method: 'GET', path: '/redirect', config: { handler: handler } });
 
         before(function (done) {
@@ -1733,7 +1733,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('You are being redirected...');
-                expect(res.headers['location']).to.equal(server.settings.uri + '/example');
+                expect(res.headers.location).to.equal(server.settings.location + '/example');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
@@ -1745,7 +1745,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('We moved!');
-                expect(res.headers['location']).to.equal(server.settings.uri + '/examplex');
+                expect(res.headers.location).to.equal(server.settings.location + '/examplex');
                 expect(res.statusCode).to.equal(302);
                 done();
             });

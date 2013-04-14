@@ -163,7 +163,7 @@ describe('Server Timeout', function () {
 
         var options = {
             hostname: '127.0.0.1',
-            port: server.settings.port,
+            port: server.info.port,
             path: '/responding',
             method: 'GET'
         };
@@ -182,7 +182,7 @@ describe('Server Timeout', function () {
 
         var options = {
             hostname: '127.0.0.1',
-            port: server.settings.port,
+            port: server.info.port,
             path: '/stream',
             method: 'GET'
         };
@@ -253,7 +253,7 @@ describe('Server and Client timeouts', function () {
         var timer = new Hapi.utils.Timer();
         var options = {
             hostname: '127.0.0.1',
-            port: server.settings.port,
+            port: server.info.port,
             path: '/timeout',
             method: 'POST'
         };
@@ -281,7 +281,7 @@ describe('Server and Client timeouts', function () {
         var timer = new Hapi.utils.Timer();
         var options = {
             hostname: '127.0.0.1',
-            port: server.settings.port,
+            port: server.info.port,
             path: '/timeoutcache',
             method: 'POST'
         };
@@ -336,7 +336,7 @@ describe('Socket timeout', function () {
 
         server.start(function () {
 
-            port = server.settings.port;
+            port = server.info.port;
             done();
         });
     });

@@ -72,7 +72,7 @@ describe('Client Timeout', function () {
             var timer = new Hapi.utils.Timer();
             var options = {
                 hostname: '127.0.0.1',
-                port: _server.settings.port,
+                port: _server.info.port,
                 path: '/fast',
                 method: 'POST'
             };
@@ -100,7 +100,7 @@ describe('Client Timeout', function () {
 
             var options = {
                 hostname: '127.0.0.1',
-                port: _server.settings.port,
+                port: _server.info.port,
                 path: '/fast',
                 method: 'POST'
             };
@@ -120,7 +120,7 @@ describe('Client Timeout', function () {
             var timer = new Hapi.utils.Timer();
             var options = {
                 hostname: '127.0.0.1',
-                port: _server.settings.port,
+                port: _server.info.port,
                 path: '/stream',
                 method: 'GET'
             };
@@ -158,7 +158,7 @@ describe('Client Timeout', function () {
             var timer = new Hapi.utils.Timer();
             var options = {
                 hostname: '127.0.0.1',
-                port: _server.settings.port,
+                port: _server.info.port,
                 path: '/fast',
                 method: 'POST'
             };

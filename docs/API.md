@@ -8,7 +8,7 @@ Creates a new server instance with the following arguments:
 - `host` - the hostname or IP address the server is bound to. Defaults to `0.0.0.0` which means any available network
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from the same machine.
 - `port` - the TPC port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
-  to use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.settings.port`.
+  to use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
 - `options` - An object with the server configuration as described in [Server configuration](#server-configuration).
 
 ```javascript
@@ -97,6 +97,9 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 <p></p>
+- `redirect` - controls redirection behavior:
+    - `baseUri` - defines a uri prefix added to any redirection response URI  
+<p></p>
 - <a name="server.config.views" />`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
     - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module name (string) used for
@@ -122,6 +125,12 @@ When creating a server instance, the following options configure the server's be
     - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
     - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
 
+### `Server` properties
+
+Each instance of the `Server` object have the following properties:
+- `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults. 
+
+
 ### `Server` methods
 
 #### `server.start([callback])`
@@ -134,7 +143,7 @@ var Hapi = require('hapi');
 var server = new Hapi();
 server.start(function () {
 
-    console.log('Server started at: ' + server.settings.uri);
+    console.log('Server started at: ' + server.info.uri);
 });
 ```
 
@@ -1128,7 +1137,7 @@ Based on the handler function declaration style, a _'reply'_ function is provide
   identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an
   instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
 - _'stream(stream)'_ - pipes the content of the stream into the response.
-- _'redirect(uri)'_ - sets a redirection response.  Uses the _'server.settings.uri'_ property when not set to a full URI. Defaults to 302.
+- _'redirect(uri)'_ - sets a redirection response.  Uses the _'server.settings.location'_ prefix when not set to an absolute URI. Defaults to 302.
 - _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
 - _'close()'_ - closes the response stream immediately without flushing any remaining unsent data. Used for ending the handler execution
   after manually sending a response.
@@ -1152,8 +1161,6 @@ The following methods are only available when using 'redirect()':
 - _'temporary()_' - sets the status code to 302 or 307 (based on the rewritable settings). Defaults to 'true'.
 - _'permanent()_' - sets the status code to 301 or 308 (based on the rewritable settings). Defaults to 'false'.
 - _'rewritable(isRewritable)_' - sets the status code to 301/302 (based on the temporary settings) for rewritable (change POST to GET) or 307/308 for non-rewritable. Defaults to 'true'.
-
-Note that when using _'redirect'_ with a relative URI that the result will be to use the servers bound host and port to form the full URI.  If the server has a different public URI then change the servers _'settings.uri'_ property to the public one.
 
 The handler must call _'reply()'_, _'reply.send()'_, or _'reply.payload/stream()...send()'_ (and only one, once) to return control over to the router. The reply methods are only available
 within the route handler and are disabled as soon as control is returned.

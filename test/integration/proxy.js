@@ -128,12 +128,12 @@ describe('Proxy', function () {
 
         var mapUri = function (request, callback) {
 
-            return callback(null, upstream.settings.uri + request.path + (request.url.search || ''));
+            return callback(null, upstream.info.uri + request.path + (request.url.search || ''));
         };
 
         upstream.start(function () {
 
-            var backendPort = upstream.settings.port;
+            var backendPort = upstream.info.port;
             var routeCache = { expiresIn: 500, mode: 'server+client' };
 
             server = new Hapi.Server(0, { cors: true });
@@ -172,7 +172,7 @@ describe('Proxy', function () {
 
         var req = {
             method: options.method,
-            url: server.settings.uri + options.path,
+            url: server.info.uri + options.path,
             form: options.form,
             headers: options.headers,
             jar: false
@@ -361,7 +361,7 @@ describe('Proxy', function () {
 
     it('works with a stream when the proxy response is streamed', function (done) {
 
-        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post(server.settings.uri + '/file', function (err, rawRes, body) {
+        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post(server.info.uri + '/file', function (err, rawRes, body) {
 
             expect(rawRes.statusCode).to.equal(200);
             done();
