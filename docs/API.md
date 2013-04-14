@@ -137,7 +137,12 @@ Each instance of the `Server` object have the following properties:
     - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
 - `plugin` - the [`Pack`](#pack) object the server belongs to (automatically assigned when creating a server instance directly).
-- `plugins` - an object where each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
+- `plugins` - an object with each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
+- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
+  Should not be used by plugins which should use `plugins[name]`.
+- `helpers` - helper functions registered with [`server.helper()`](#serverhelpername-method-options).
+- `listener` - the node HTTP server object.
+
 
 ### `Server` methods
 
@@ -847,7 +852,7 @@ http.start();
 // All requests will get routed to '/test'
 ```
 
-#### `server.helper(name, method, options)`
+#### `server.helper(name, method, [options])`
 
 Server helpers are functions registered with the server and can be used throughout the application. The advantage of using helpers is
 that they can be configured to use the built-in cache and shared across multiple request handlers. This provides a useful method for
