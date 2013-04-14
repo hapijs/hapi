@@ -30,7 +30,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply.payload('text\0!')
+                request.reply('text\0!')
                              .type('text/plain')
                              .encoding('ascii')
                              .ttl(1000)
@@ -38,8 +38,7 @@ describe('Response', function () {
                              .state('other', 'something', { isSecure: true })
                              .unstate('x')
                              .header('Content-Type', 'text/plain; something=something')
-                             .code(200)
-                             .send();
+                             .code(200);
             };
 
             var handlerBound = function () {
@@ -83,9 +82,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply.payload('text')
-                             .state(';sid', 'abcdefg123456')
-                             .send();
+                request.reply('text').state(';sid', 'abcdefg123456');
             };
 
             var server = new Hapi.Server();
@@ -107,7 +104,7 @@ describe('Response', function () {
 
             var handler = function () {
 
-                this.reply.payload(new Buffer('Tada1')).code(299).send();
+                this.reply(new Buffer('Tada1')).code(299);
             };
 
             var server = new Hapi.Server();
@@ -185,7 +182,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply.payload(new Error('boom')).send();
+                request.reply(new Error('boom'));
             };
 
             var server = new Hapi.Server();
@@ -260,10 +257,6 @@ describe('Response', function () {
 
         var handler = function (request) {
 
-            if (request.query.x) {
-                return request.reply.send();
-            }
-
             return request.reply();
         };
 
@@ -278,15 +271,6 @@ describe('Response', function () {
 
                 expect(res.result).to.equal('');
                 expect(res.headers['access-control-allow-credentials']).to.equal('true');
-                done();
-            });
-        });
-
-        it('returns an empty reply (long form)', function (done) {
-
-            server.inject('/?x=1', function (res) {
-
-                expect(res.result).to.equal('');
                 done();
             });
         });
@@ -1059,10 +1043,9 @@ describe('Response', function () {
 
         var handler = function (request) {
 
-            request.reply.stream(new TestStream(request, request.params.issue))
+            request.reply(new TestStream(request, request.params.issue))
                          .bytes(request.params.issue ? 0 : 1)
-                         .ttl(2000)
-                         .send();
+                         .ttl(2000);
         };
 
         var handler2 = function (request) {
@@ -1092,18 +1075,16 @@ describe('Response', function () {
 
         var handler3 = function (request) {
 
-            request.reply.stream(new TestStream(request, request.params.issue))
+            request.reply(new TestStream(request, request.params.issue))
                          .created('/special')
                          .bytes(request.params.issue ? 0 : 1)
-                         .ttl(3000)
-                         .send();
+                         .ttl(3000);
         };
 
         var handler4 = function (request) {
 
-            request.reply.stream(new TestStream(request))
-                         .state(';sid', 'abcdefg123456')
-                         .send();
+            request.reply(new TestStream(request))
+                         .state(';sid', 'abcdefg123456');
         };
 
         var handler5 = function (request) {
@@ -1209,7 +1190,7 @@ describe('Response', function () {
 
             var streamHandler = function (request) {
 
-                request.reply.stream(new TimerStream()).send();
+                request.reply(new TimerStream());
             };
 
             var server1 = new Hapi.Server(0);
@@ -1230,7 +1211,7 @@ describe('Response', function () {
 
             var streamHandler = function (request) {
 
-                request.reply.stream(new TimerStream()).send();
+                request.reply(new TimerStream());
             };
 
             var server1 = new Hapi.Server(0);
@@ -1327,7 +1308,7 @@ describe('Response', function () {
 
         var handler = function (request) {
 
-            return request.reply.view('test', { message: msg }).send();
+            return request.reply.view('test', { message: msg });
         };
         var handlerDirect = function (request) {
 
@@ -1335,43 +1316,43 @@ describe('Response', function () {
         };
         var absoluteHandler = function (request) {
 
-            return request.reply.view(viewPath + '/test', { message: msg }).send();
+            return request.reply.view(viewPath + '/test', { message: msg });
         };
         var insecureHandler = function (request) {
 
-            return request.reply.view('../test', { message: msg }).send();
+            return request.reply.view('../test', { message: msg });
         };
         var nonexistentHandler = function (request) {
 
-            return request.reply.view('testNope', { message: msg }).send();
+            return request.reply.view('testNope', { message: msg });
         };
         var invalidHandler = function (request) {
 
-            return request.reply.view('badmustache', { message: msg }, { path: viewPath + '/../invalid' }).send();
+            return request.reply.view('badmustache', { message: msg }, { path: viewPath + '/../invalid' });
         };
         var layoutConflictHandler = function (request) {
 
-            return request.reply.view('test', { message: msg, content: 'fail' }).send();
+            return request.reply.view('test', { message: msg, content: 'fail' });
         };
         var layoutErrHandler = function (request) {
 
-            return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' }).send();
+            return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' });
         };
         var testMultiHandlerJade = function (request) {
 
-            return request.reply.view('testMulti.jade', { message: "Hello World!" }).send();
+            return request.reply.view('testMulti.jade', { message: "Hello World!" });
         };
         var testMultiHandlerHB = function (request) {
 
-            return request.reply.view('test.html', { message: "Hello World!" }).send();
+            return request.reply.view('test.html', { message: "Hello World!" });
         };
         var testMultiHandlerUnknown = function (request) {
 
-            return request.reply.view('test', { message: "Hello World!" }).send();
+            return request.reply.view('test', { message: "Hello World!" });
         };
         var testMultiHandlerMissing = function (request) {
 
-            return request.reply.view('test.xyz', { message: "Hello World!" }).send();
+            return request.reply.view('test.xyz', { message: "Hello World!" });
         };
 
         describe('Default', function (done) {
@@ -1698,43 +1679,43 @@ describe('Response', function () {
         var handler = function (request) {
 
             if (!request.query.x) {
-                return request.reply.redirect('example').send();
+                return request.reply.redirect('example');
             }
 
             if (request.query.x === 'verbose') {
-                return request.reply.redirect().uri('examplex').message('We moved!').send();
+                return request.reply.redirect().uri('examplex').message('We moved!');
             }
 
             if (request.query.x === '302') {
-                return request.reply.redirect('example').temporary().rewritable().send();
+                return request.reply.redirect('example').temporary().rewritable();
             }
 
             if (request.query.x === '307') {
-                return request.reply.redirect('example').temporary().rewritable(false).send();
+                return request.reply.redirect('example').temporary().rewritable(false);
             }
 
             if (request.query.x === '301') {
-                return request.reply.redirect('example').permanent().rewritable().send();
+                return request.reply.redirect('example').permanent().rewritable();
             }
 
             if (request.query.x === '308') {
-                return request.reply.redirect('example').permanent().rewritable(false).send();
+                return request.reply.redirect('example').permanent().rewritable(false);
             }
 
             if (request.query.x === '302f') {
-                return request.reply.redirect('example').rewritable().temporary().send();
+                return request.reply.redirect('example').rewritable().temporary();
             }
 
             if (request.query.x === '307f') {
-                return request.reply.redirect('example').rewritable(false).temporary().send();
+                return request.reply.redirect('example').rewritable(false).temporary();
             }
 
             if (request.query.x === '301f') {
-                return request.reply.redirect('example').rewritable().permanent().send();
+                return request.reply.redirect('example').rewritable().permanent();
             }
 
             if (request.query.x === '308f') {
-                return request.reply.redirect('example').rewritable(false).permanent().send();
+                return request.reply.redirect('example').rewritable(false).permanent();
             }
         };
 

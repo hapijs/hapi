@@ -15,7 +15,7 @@ exports.register = function (pack, options, next) {
         {
             path: '/view', method: 'GET', handler: function () {
 
-                return this.reply.view('test', { message: options.message }).send();
+                return this.reply.view('test', { message: options.message });
             }
         },
         {

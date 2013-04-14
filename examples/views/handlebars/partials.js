@@ -13,7 +13,7 @@ var handler = function (request) {
     request.reply.view('withPartials/index', {
         title: 'examples/views/handlebars/partials.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
-    }).send();
+    });
 };
 
 

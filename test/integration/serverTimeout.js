@@ -47,7 +47,7 @@ describe('Server Timeout', function () {
     var respondingHandler = function (request) {
 
         var s = new Stream.PassThrough();
-        request.reply.stream(s).send();
+        request.reply(s);
 
         for (var i = 10000; i > 0; --i) {
             s.write(i.toString());
@@ -88,7 +88,7 @@ describe('Server Timeout', function () {
             }, 60);
         };
 
-        request.reply.stream(new TestStream()).send();
+        request.reply(new TestStream());
     };
 
     var server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 } });

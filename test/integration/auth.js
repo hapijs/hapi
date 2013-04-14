@@ -449,12 +449,12 @@ describe('Auth', function () {
 
         var hawkHandler = function (request) {
 
-            request.reply.payload('Success').send();
+            request.reply('Success');
         };
 
         var hawkErrorHandler = function (request) {
 
-            request.reply.payload(new Error()).send();
+            request.reply(new Error());
         };
 
         var hawkStreamHandler = function (request) {

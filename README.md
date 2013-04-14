@@ -162,7 +162,7 @@ var hello = {
     handler: function (request) {
     
       // Render the view with the custom greeting
-        request.reply.view('index.html', { greeting: 'hello world' }).send();
+        request.reply.view('index.html', { greeting: 'hello world' });
     }
 };
 

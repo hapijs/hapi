@@ -10,10 +10,7 @@ var internals = {};
 
 internals.echo = function (request) {
 
-    request.reply.stream(request.raw.req)
-                 .type(request.raw.req.headers['Content-Type'])
-                 .bytes(request.raw.req.headers['Content-Length'])
-                 .send();
+    request.reply(request.raw.req);
 };
 
 

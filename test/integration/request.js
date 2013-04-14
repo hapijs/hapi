@@ -54,7 +54,7 @@ describe('Request', function () {
             request.reply('unknown-reply');
         }
         else if (request.path === '/unknown/close') {
-            request.reply.payload('unknown-close').send();
+            request.reply('unknown-close');
         }
         else {
             request.reply('unknown-error');
@@ -246,15 +246,13 @@ describe('Request', function () {
         });
     });
 
-    it('ignores second call to reply()', function (done) {
+    it('ignores second call to onReply()', function (done) {
 
         var server = new Hapi.Server();
 
         var handler = function () {
 
-            var reply = this.reply;
-            reply('123');
-            reply('456');
+            this.reply('123').hold().send();
         };
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
@@ -266,6 +264,27 @@ describe('Request', function () {
         });
     });
 
+    it('sends reply after handler timeout', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function () {
+
+            var response = this.reply('123').hold();
+            setTimeout(function ()
+            {
+                response.send();                
+            }, 10);
+        };
+
+        server.route({ method: 'GET', path: '/domain', handler: handler });
+
+        server.inject('/domain', function (res) {
+
+            expect(res.result).to.equal('123');
+            done();
+        });
+    });
 
     it('returns 500 on ext method exception (same tick)', function (done) {
 
@@ -298,7 +317,7 @@ describe('Request', function () {
             expect(this).to.equal(request);
             expect(arguments.length).to.equal(2);
             expect(reply.send).to.not.exist;
-            expect(this.reply.send).to.exist;
+            expect(this.reply.redirect).to.exist;
             reply('ok');
         };
 

@@ -51,7 +51,7 @@ describe('Client Timeout', function () {
             }, 70);
         };
 
-        request.reply.stream(new TestStream()).send();
+        request.reply(new TestStream());
     };
 
     describe('with timeout set', function () {

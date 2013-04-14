@@ -533,9 +533,7 @@ var handler = function () {
 
     session.last = Date.now();
 
-    this.reply.payload('Success')
-              .state('session', session)
-              .send();
+    this.reply('Success').state('session', session);
 };
 ```
 
@@ -1137,7 +1135,7 @@ Based on the handler function declaration style, a _'reply'_ function is provide
 
 For convenience, the reply function can be simply invoke as _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_, depending on the result.
 
-The 'payload()', 'stream()', and 'redirect()' methods return a **hapi** Response object created based on the result item provided.
+The 'stream()', and 'redirect()' methods return a **hapi** Response object created based on the result item provided.
 Depending on the response type, additional chainable methods are available:
 - _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI). Not available with 'redirect()'.
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
@@ -1146,6 +1144,7 @@ Depending on the response type, additional chainable methods are available:
 - _'state(name, value, options)'_ - sets an HTTP state (cookie) as described in [Raw Cookies](#raw-cookies)
 - _'unstate(name)'_ - instructs the client to remove the HTTP state.
 - _'header(name, value)'_ - sets a HTTP header with the provided value.
+- `code(statusCode)` -
 
 The following methods are only available when using 'redirect()':
 - _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
@@ -1236,7 +1235,7 @@ var handler = function (request) {
     request.reply.view('index', {
         title: 'Views Example',
         message: 'Hello, World'
-    }).send();
+    });
 };
 
 http.route({ method: 'GET', path: '/', handler: handler });
@@ -1312,7 +1311,7 @@ var handler = function (request) {
     request.reply.view('withLayout/index', {
         title: 'examples/views/layout.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
-    }).send();
+    });
 };
 
 var server = new Hapi.Server(8080, options);
@@ -1385,7 +1384,7 @@ var handler = function (request) {
     request.reply.view('withPartials/index', {
         title: 'examples/views/partials.js | Hapi ' + Hapi.utils.version(),
         message: 'Hello World!\n'
-    }).send();
+    });
 };
 
 var server = new Hapi.Server(3000, options);
@@ -1473,12 +1472,12 @@ var ctx = {
     
 var oneHandler = function (request) {
         
-    request.reply.view('index', ctx).send();
+    request.reply.view('index', ctx);
 };
     
 var twoHandler = function (request) {
         
-    request.reply.view('handlebars', ctx).send();
+    request.reply.view('handlebars', ctx);
 };
     
 var options = {

@@ -26,7 +26,7 @@ describe('Security', function () {
 
         internals.createItemHandler = function (request) {
 
-            request.reply.payload('Moved').created(request.server.settings.uri + '/item/' + request.payload.name).send();
+            request.reply('Moved').created(request.server.settings.uri + '/item/' + request.payload.name);
         };
 
         before(function (done) {
@@ -129,7 +129,7 @@ describe('Security', function () {
 
         internals.postHandler = function (request) {
 
-            request.reply.payload('Success').send();
+            request.reply('Success');
         };
 
         before(function (done) {
@@ -171,7 +171,7 @@ describe('Security', function () {
 
             server.route({ method: 'GET', path: '/cookiename', handler: function (request) {
 
-                request.reply.payload('Success').setState('<script></script>', 'seomthing').send();
+                request.reply('Success').setState('<script></script>', 'seomthing');
             }});
 
             server.inject({
@@ -188,7 +188,7 @@ describe('Security', function () {
 
             server.route({ method: 'GET', path: '/cookievalue', handler: function (request) {
 
-                request.reply.payload('Success').setState('seomthing', '<script></script>').send();
+                request.reply('Success').setState('seomthing', '<script></script>');
             }});
 
             server.inject({

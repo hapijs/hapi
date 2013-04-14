@@ -13,7 +13,7 @@ var rootHandler = function (request) {
     request.reply.view('index', {
         title: 'examples/views/jade/index.js | Hapi ' + Hapi.utils.version(),
         message: 'Index - Hello World!'
-    }).send();
+    });
 };
 
 var aboutHandler = function (request) {
@@ -21,7 +21,7 @@ var aboutHandler = function (request) {
     request.reply.view('about', {
         title: 'examples/views/jade/index.js | Hapi ' + Hapi.utils.version(),
         message: 'About - Hello World!'
-    }).send();
+    });
 };
 
 

@@ -14,12 +14,12 @@ var ctx = {
 
 var oneHandler = function (request) {
 
-    request.reply.view('index', ctx).send();
+    request.reply.view('index', ctx);
 };
 
 var twoHandler = function (request) {
 
-    request.reply.view('handlebars', ctx).send();
+    request.reply.view('handlebars', ctx);
 };
 
 

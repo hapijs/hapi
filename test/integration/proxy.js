@@ -45,9 +45,7 @@ describe('Proxy', function () {
                 'name': 'John Doe'
             };
 
-            this.reply.payload(profile)
-                      .state('test', '123')
-                      .send();
+            this.reply(profile).state('test', '123');
         };
 
         var activeItem = function () {
@@ -60,10 +58,10 @@ describe('Proxy', function () {
 
         var item = function () {
 
-            this.reply.payload({
+            this.reply({
                 'id': '55cf687663',
                 'name': 'Item'
-            }).created('http://example.com').send();
+            }).created('http://example.com');
         };
 
         var echoPostBody = function () {
@@ -96,11 +94,10 @@ describe('Proxy', function () {
 
         var headers = function () {
 
-            this.reply.payload({ status: 'success' })
+            this.reply({ status: 'success' })
                       .header('Custom1', 'custom header value 1')
                       .header('X-Custom2', 'custom header value 2')
-                      .header('access-control-allow-headers', 'Invalid, List, Of, Values')
-                      .send();
+                      .header('access-control-allow-headers', 'Invalid, List, Of, Values');
         };
 
         var gzipHandler = function () {

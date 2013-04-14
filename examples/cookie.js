@@ -34,7 +34,7 @@ internals.home = function (request) {
 internals.login = function (request) {
 
     if (request.auth.isAuthenticated) {
-        return request.reply.redirect('/').send();
+        return request.reply.redirect('/');
     }
 
     var message = '';
@@ -64,14 +64,14 @@ internals.login = function (request) {
     }
 
     request.auth.session.set(account);
-    return request.reply.redirect('/').send();
+    return request.reply.redirect('/');
 };
 
 
 internals.logout = function (request) {
 
     request.auth.session.clear();
-    return request.reply.redirect('/').send();
+    return request.reply.redirect('/');
 };
 
 
