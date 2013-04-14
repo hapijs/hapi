@@ -27,7 +27,9 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 
 When creating a server instance, the following options configure the server's behaviour:
 
-- `auth` - see [Server authentication](#server-authentication).
+- `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
+  or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
+  [`server.auth()`](#serverauthnameoptions).
 <p></p>
 - `cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request responses and helper results.
   By default a simple memory-based cache is used which has very limited capacity and is not suitable for production environments. In addition to the
@@ -581,40 +583,6 @@ Registers an authentication strategy where:
     - `implementation` -  an object with the **hapi** authenticatin scheme interface (use the `'hawk'` implementation as template). Cannot be used together with `scheme`.
     - `defaultMode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be assigned to a single
       server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
-
-
-In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
-`auth` key which can be set to a single strategy (name will default to 'default') or an object with multiple strategies where the strategy
-name is the object key.
-
-For example, configuring a single strategy:
-```javascript
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser
-    }
-};
-```
-
-And configuring multiple strategies:
-```javascript
-var options = {
-    auth: {
-        password1: {
-            scheme: 'basic',
-            loadUserFunc: loadUser1
-        },
-        password2: {
-            scheme: 'basic',
-            loadUserFunc: loadUser2
-        }
-    }
-};
-```
-
-The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation of a server with multiple authentication strategies.
-
 
 ##### Basic Authentication
 
