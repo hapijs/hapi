@@ -29,7 +29,7 @@ When creating a server instance, the following options configure the server's be
 
 - `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
   or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
-  [`server.auth()`](#serverauthnameoptions).
+  [`server.auth()`](#serverauthname-options).
 <p></p>
 - `cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request responses and helper results.
   By default a simple memory-based cache is used which has very limited capacity and is not suitable for production environments. In addition to the
