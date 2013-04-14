@@ -66,6 +66,9 @@ When creating a server instance, the following options configure the server's be
 - `labels` - a string array of labels used when registering plugins to [`pack.select()`](#packselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 <p></p>
+- `location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
+  Defaults to empty string (`''`).
+<p></p>
 - <a name="server.config.payload" />`payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
@@ -128,8 +131,13 @@ When creating a server instance, the following options configure the server's be
 ### `Server` properties
 
 Each instance of the `Server` object have the following properties:
-- `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults. 
-
+- `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults.
+- `info` - server information:
+    - `port` - the port the server was configured to (before `start()`) or bound to (after `start()`).
+    - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
+    - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
+- `plugin` - the [`Pack`](#pack) object the server belongs to (automatically assigned when creating a server instance directly).
+- `plugins` - an object where each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
 
 ### `Server` methods
 
@@ -1073,31 +1081,31 @@ See [**joi** Types](https://github.com/spumko/joi#type-registry).
 
 ## Plugin Interface
 
-#### `exports.register(pack, options, next)`
+#### `exports.register(plugin, options, next)`
 
 ### Selectable methods
 
-#### `pack.select(labels)`
-#### `pack.length`
-#### `pack.api(key, value)`
-#### `pack.api(obj)`
-#### `pack.route(options)`
-#### `pack.route(routes)`
-#### `pack.state(name, options)`
-#### `pack.auth(name, options)`
-#### `pack.ext(event, method)`
+#### `plugin.select(labels)`
+#### `plugin.length`
+#### `plugin.api(key, value)`
+#### `plugin.api(obj)`
+#### `plugin.route(options)`
+#### `plugin.route(routes)`
+#### `plugin.state(name, options)`
+#### `plugin.auth(name, options)`
+#### `plugin.ext(event, method)`
 
 ### Root methods
 
-#### `pack.version`
-#### `pack.hapi`
-#### `pack.app`
-#### `pack.log(tags, data, timestamp)`
-#### `pack.dependency(deps)`
-#### `pack.events`
-#### `pack.views(options)`
-#### `pack.helper(name, method, options)`
-#### `pack.cache(options, segment)`
+#### `plugin.version`
+#### `plugin.hapi`
+#### `plugin.app`
+#### `plugin.log(tags, data, timestamp)`
+#### `plugin.dependency(deps)`
+#### `plugin.events`
+#### `plugin.views(options)`
+#### `plugin.helper(name, method, options)`
+#### `plugin.cache(options, segment)`
 
 
 ## `Request`
