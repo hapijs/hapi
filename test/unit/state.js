@@ -110,7 +110,7 @@ describe('State', function () {
 
                 it('fails parsing cookie header: ' + header, function (done) {
 
-                    var ignore = false;
+                    var logged = false;
                     var cleared = '';
 
                     var request = {
@@ -128,7 +128,8 @@ describe('State', function () {
                             }
                         },
                         _log: function (tags, data) {
-                            ignore = true;
+                            
+                            logged = true;
                         },
                         clearState: function (name) {
 
@@ -138,11 +139,13 @@ describe('State', function () {
 
                     State.parseCookies(request, function (err) {
 
-                        if (ignore) {
+                        if (request.server.settings.state.cookies.failAction !== 'error') {
                             expect(err).to.not.exist;
+                            expect(settings.failAction !== 'ignore' || logged).to.equal(true);
                         }
                         else {
                             expect(err).to.exist;
+                            expect(logged).to.equal(true);
                         }
 
                         if (request.server.settings.state.cookies.clearInvalid) {
