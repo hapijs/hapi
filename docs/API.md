@@ -1,4 +1,4 @@
-# The **hapi** API
+# API Reference
 
 ## `Server`
 
@@ -27,7 +27,7 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 ### Server configuration
 
 When creating a server instance, the following options configure the server's behaviour:
-- `tls` - options used to create an HTTPS server as described in [`tls`](#tls).
+- `tls` - options used to create an HTTPS server as described in [TLS](#tls).
 - `router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
     - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved

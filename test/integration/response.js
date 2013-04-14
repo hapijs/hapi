@@ -1441,11 +1441,10 @@ describe('Response', function () {
 
         describe('Layout', function (done) {
 
-            var layoutServer = new Hapi.Server({
-                views: {
-                    path: viewPath,
-                    layout: true
-                }
+            var layoutServer = new Hapi.Server();
+            layoutServer.views({
+                path: viewPath,
+                layout: true
             });
             layoutServer.route({ method: 'GET', path: '/layout/conflict', config: { handler: layoutConflictHandler } });
             layoutServer.route({ method: 'GET', path: '/layout/abspath', config: { handler: layoutErrHandler } });
