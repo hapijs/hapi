@@ -567,8 +567,6 @@ server.views({
 });
 ```
 
-////////////////////////////////////////////////////////////////////////////
-
 #### `server.auth(name, options)`
 
 Registers an authentication strategy where:
@@ -583,6 +581,19 @@ Registers an authentication strategy where:
     - `implementation` -  an object with the **hapi** authenticatin scheme interface (use the `'hawk'` implementation as template). Cannot be used together with `scheme`.
     - `defaultMode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be assigned to a single
       server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
+      
+```javascript
+var lookupUser = function (username, callback) {
+
+    // Validate username...
+    callback
+};
+
+server.auth('users', {
+    scheme: 'basic',
+    loadUserFunc: lookupUser
+});
+```
 
 ##### Basic Authentication
 
