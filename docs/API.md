@@ -29,13 +29,13 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 When creating a server instance, the following options configure the server's behaviour:
 
 - `auth` - see [Authentication](#authentication).
-
+<p></p>
 - `cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request responses and helper results.
   By default a simple memory-based cache is used which has very limited capacity and is not suitable for production environments. In addition to the
   memory cache, a Redis-based or a MongoDB-based cache can be configured. Actual caching is only utilized if routes, helpers, and plugins are explicitly
   configured to store their state in the cache. The server cache configuration only defines the store itself. The `cache` options are described in
   the [**catbox** module documentation](https://github.com/spumko/catbox#client).
-
+<p></p>
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web application running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
@@ -49,29 +49,29 @@ When creating a server instance, the following options configure the server's be
     - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers'). Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
     - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
     - `credentials` - if `true`, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to `false`.
-
+<p></p>
 - `debug` - controls the error types sent to the console:
     - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
       to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response.
       For example, to display all errors, change the option to `['error', 'uncaught']`. To turn off all console debug messages set it to `false`.
-
+<p></p>
 - `files` - defines the behaviour for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines how relative paths are resolved. Available values:
         - `cwd` - relative paths are resolved using the active process path (`process.cwd()`). This is the default setting.
         - `routes` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
           location of the source code determines the location of the static resources when using relative paths.
         - an absolute path (e.g. '/path') used as prefix for all relative paths.
-
+<p></p>
 - `payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
-
+<p></p>
 - `router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
     - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved
       characters, decodes unreserved characters, and capitalizes any percent encoded values. Useful when serving non-compliant HTTP clients.
       Defaults to `false`.
-
+<p></p>
 - `state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
   request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
     - `cookies` - The server automatically parses incoming cookies based on these options:
@@ -81,7 +81,7 @@ When creating a server instance, the following options configure the server's be
             - `log` - report the error but continue processing the request.
             - `ignore` - take no action.
         - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies. Defaults to `false`.
-
+<p></p>
 - `timeout` - define timeouts for processing durations:
     - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming client request before giving
       up and responding with a Service Unavailable (503) error response. Disabled by default (`false`).
@@ -89,10 +89,10 @@ When creating a server instance, the following options configure the server's be
       and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds). 
     - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to override this behaviour. Defaults to `undefined`
       which leaves the node default unchanged. Set to `false` to disable socket timeouts.
-
+<p></p>
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
-
+<p></p>
 - `views` - see [Views](#views).
 
 
