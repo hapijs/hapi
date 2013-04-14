@@ -38,6 +38,7 @@ describe('Response', function () {
                              .state('other', 'something', { isSecure: true })
                              .unstate('x')
                              .header('Content-Type', 'text/plain; something=something')
+                             .code(200)
                              .send();
             };
 
@@ -60,6 +61,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.payload).to.exist;
                 expect(res.payload).to.equal('text !');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
@@ -105,7 +107,7 @@ describe('Response', function () {
 
             var handler = function () {
 
-                this.reply(new Buffer('Tada1'));
+                this.reply.payload(new Buffer('Tada1')).code(299).send();
             };
 
             var server = new Hapi.Server();
@@ -113,6 +115,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
+                expect(res.statusCode).to.equal(299);
                 expect(res.result).to.equal('Tada1');
                 done();
             });
