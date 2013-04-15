@@ -21,13 +21,9 @@ internals.main = function () {
 
     var options = {
         views: {
+            engines: { html: 'handlebars' },
             path: __dirname + '/templates',
-            engine: {
-                module: 'handlebars'
-            },
-            partials: {
-                path: __dirname + '/templates/withPartials'
-            }
+            partialsPath: __dirname + '/templates/withPartials'
         }
     };
 

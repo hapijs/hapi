@@ -26,11 +26,13 @@ describe('Views', function () {
     describe('#render', function () {
 
         var testView = new Views({
+            engines: { 'html': 'handlebars' },
             path: viewsPath,
             layout: false
         });
 
         var testViewWithLayouts = new Views({
+            engines: { 'html': 'handlebars' },
             path: viewsPath,
             layout: true
         });
@@ -38,7 +40,7 @@ describe('Views', function () {
         it('should work and not throw with valid (no layouts)', function (done) {
 
             var fn = (function () {
-                var html = testView.render('valid/test', { title: 'test', message: 'Hapi' });
+                var html = testView.render('valid/test', { title: 'test', message: 'Hapi' }).result;
                 expect(html).to.exist;
                 expect(html.length).above(1);
             });
@@ -50,7 +52,7 @@ describe('Views', function () {
         it('should work and not throw with valid (with layouts)', function (done) {
 
             var fn = (function () {
-                var html = testViewWithLayouts.render('valid/test', { title: 'test', message: 'Hapi' });
+                var html = testViewWithLayouts.render('valid/test', { title: 'test', message: 'Hapi' }).result;
                 expect(html).to.exist;
                 expect(html.length).above(1);
             });
@@ -62,8 +64,8 @@ describe('Views', function () {
         it('should work and not throw with basePath, template name, and no path', function (done) {
 
             var fn = (function () {
-                var views = new Views();
-                var html = views.render('test', { title: 'test', message: 'Hapi' }, { basePath: viewsPath + '/valid' });
+                var views = new Views({ engines: { 'html': 'handlebars' } });
+                var html = views.render('test', { title: 'test', message: 'Hapi' }, { basePath: viewsPath + '/valid' }).result;
                 expect(html).to.exist;
                 expect(html.length).above(1);
             });
@@ -75,7 +77,7 @@ describe('Views', function () {
         it('should throw when referencing non existant partial (with layouts)', function (done) {
 
             var fn = (function () {
-                var html = testViewWithLayouts.render('invalid/test', { title: 'test', message: 'Hapi' });
+                var html = testViewWithLayouts.render('invalid/test', { title: 'test', message: 'Hapi' }).result;
                 expect(html).to.exist;
                 expect(html.length).above(1);
             });
@@ -87,7 +89,7 @@ describe('Views', function () {
         it('should throw when referencing non existant partial (no layouts)', function (done) {
 
             var fn = (function () {
-                var html = testView.render('invalid/test', { title: 'test', message: 'Hapi' });
+                var html = testView.render('invalid/test', { title: 'test', message: 'Hapi' }).result;
                 expect(html).to.exist;
                 expect(html.length).above(1);
             });
@@ -101,7 +103,7 @@ describe('Views', function () {
             var fn = (function () {
                 var opts = { title: 'test', message: 'Hapi' };
                 opts[testView.options.layoutKeyword] = 1;
-                var html = testViewWithLayouts.render('valid/test', opts);
+                testViewWithLayouts.render('valid/test', opts);
             });
 
             expect(fn).to.throw();
@@ -117,21 +119,14 @@ describe('Views', function () {
 
         it('should load partials and be able to render them', function (done) {
 
-            var fn = (function () {
-
-                var tempView = new Views({
-                    path: viewsPath + '/valid',
-                    partials: {
-                        path: viewsPath + '/valid/partials'
-                    }
-                });
-
-                var html = tempView.render('testPartials', {});
-                expect(html).to.exist;
-                expect(html.length).above(1);
+            var tempView = new Views({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath + '/valid',
+                partialsPath: viewsPath + '/valid/partials'
             });
 
-            expect(fn).to.not.throw();
+            var html = tempView.render('testPartials', {}).result;
+            expect(html).to.equal('Nav:<nav>Nav</nav>|<nav>Nested</nav>');
             done();
         });
 
@@ -140,13 +135,12 @@ describe('Views', function () {
             var fn = (function () {
 
                 var tempView = new Views({
+                    engines: { 'html': 'handlebars' },
                     path: viewsPath + '/valid',
-                    partials: {
-                        path: viewsPath + '/valid/partials/'
-                    }
+                    partialsPath: viewsPath + '/valid/partials/'
                 });
 
-                var html = tempView.render('testPartials', {});
+                var html = tempView.render('testPartials', {}).result;
                 expect(html).to.exist;
                 expect(html.length).above(1);
             });
@@ -161,15 +155,11 @@ describe('Views', function () {
 
                 var tempView = new Views({
                     path: viewsPath + '/valid',
-                    partials: {
-                        path: viewsPath + '/valid/partials'
-                    },
-                    engines: {
-                        'html': { module: 'jade' }
-                    }
+                    partialsPath: viewsPath + '/valid/partials',
+                    engines: { 'html': 'jade' }
                 });
 
-                var html = tempView.render('testPartials', {});
+                var html = tempView.render('testPartials', {}).result;
                 expect(html).to.exist;
                 expect(html.length).above(1);
             });
@@ -185,11 +175,13 @@ describe('Views', function () {
 
             var options = {
                 views: {
+                    engines: { 'html': 'handlebars' },
                     path: viewsPath
                 }
             };
 
             var server = new Hapi.Server(options);
+
             server.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
             server.inject({
                 method: 'GET',

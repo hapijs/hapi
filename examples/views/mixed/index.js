@@ -27,11 +27,11 @@ internals.main = function () {
 
     var options = {
         views: {
-            path: __dirname + '/templates',
             engines: {
-                'html': { module: 'handlebars' },
-                'jade': { module: 'jade' }
-            }
+                'html': 'handlebars',
+                'jade': 'jade'
+            },
+            path: __dirname + '/templates',
         }
     };
 

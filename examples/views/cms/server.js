@@ -53,15 +53,10 @@ internals.main = function () {
 
     var options = {
         views: {
+            engines: { html: 'handlebars' },
             path: Path.join(__dirname, 'views'),
-            engine: {
-                module: 'handlebars',
-                extension: 'html'
-            },
             layout: true,
-            partials: {
-                path: Path.join(__dirname, 'views', 'partials')
-            }
+            partialsPath: Path.join(__dirname, 'views', 'partials')
         },
         state: {
             cookies: {

@@ -228,6 +228,7 @@ describe('Response', function () {
 
             var options = {
                 views: {
+                    engines: { 'html': 'handlebars' },
                     path: __dirname
                 }
             };
@@ -1355,17 +1356,26 @@ describe('Response', function () {
         };
         var testMultiHandlerJade = function (request) {
 
-            return request.reply.view('testMulti', { message: "Hello World!" }).send();
+            return request.reply.view('testMulti.jade', { message: "Hello World!" }).send();
         };
         var testMultiHandlerHB = function (request) {
 
+            return request.reply.view('test.html', { message: "Hello World!" }).send();
+        };
+        var testMultiHandlerUnknown = function (request) {
+
             return request.reply.view('test', { message: "Hello World!" }).send();
+        };
+        var testMultiHandlerMissing = function (request) {
+
+            return request.reply.view('test.xyz', { message: "Hello World!" }).send();
         };
 
         describe('Default', function (done) {
 
             var server = new Hapi.Server({
                 views: {
+                    engines: { 'html': 'handlebars' },
                     path: viewPath
                 }
             });
@@ -1443,6 +1453,7 @@ describe('Response', function () {
 
             var layoutServer = new Hapi.Server();
             layoutServer.views({
+                engines: { 'html': 'handlebars' },
                 path: viewPath,
                 layout: true
             });
@@ -1480,13 +1491,8 @@ describe('Response', function () {
 
                         var testServer = new Hapi.Server({
                             views: {
-                                path: viewPath,
-                                engines: {
-                                    'html': {
-                                        module: 'handlebars',
-                                        cache: false
-                                    },
-                                }
+                                engines: { 'html': 'handlebars' },
+                                path: viewPath
                             }
                         });
                         testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
@@ -1510,13 +1516,9 @@ describe('Response', function () {
 
                     var testServer = new Hapi.Server({
                         views: {
+                            engines: { 'html': 'handlebars' },
                             path: viewPath,
-                            cache: {},
-                            engines: {
-                                'html': {
-                                    module: 'handlebars'
-                                }
-                            }
+                            isCached: true
                         }
                     });
                     testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
@@ -1537,13 +1539,9 @@ describe('Response', function () {
 
                     var testServer = new Hapi.Server({
                         views: {
+                            engines: { 'html': 'handlebars' },
                             path: viewPath,
-                            cache: false,
-                            engine: {
-                                module: 'handlebars',
-                                extension: 'html',
-                                slashReplacement: '_',
-                            }
+                            isCached: false
                         }
                     });
                     testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
@@ -1574,10 +1572,8 @@ describe('Response', function () {
 
                                                     return tmpl;
                                                 }
-                                            }
-                                        },
-                                        map: {
-                                            execute: (function () {
+                                            },
+                                            execute: function () {
 
                                                 return function (engine, compiled, ctx, options, partials) {
 
@@ -1586,8 +1582,8 @@ describe('Response', function () {
                                                         return compiled(ctx, options);
                                                     }
                                                 }
-                                            })
-                                        }
+                                            }
+                                        },
                                     }
                                 }
                             }
@@ -1612,13 +1608,11 @@ describe('Response', function () {
                             views: {
                                 path: viewPath,
                                 engines: {
-                                    'html': { module: 'handlebars' },
-                                    'jade': { module: 'jade' },
+                                    'html': 'handlebars',
+                                    'jade': 'jade',
                                     'hbar': {
-                                        module: 'handlebars',
-                                        map: {
-                                            compile: function (engine) { return engine.compile; }
-                                        }
+                                        module: require('handlebars'),
+                                        compile: function (engine) { return engine.compile; }
                                     },
                                     'err': {
                                         module: 'hapi-module-that-does-not-exist'
@@ -1656,11 +1650,11 @@ describe('Response', function () {
 
                 var server = new Hapi.Server({
                     views: {
-                        path: viewPath,
-                        engine: {
-                            module: 'handlebars',
-                            extension: 'html',
-                            slashReplacement: '_'
+                        engines: {
+                            html: {
+                                module: 'handlebars',
+                                path: viewPath
+                            }
                         }
                     }
                 });
@@ -1684,11 +1678,10 @@ describe('Response', function () {
                     views: {
                         path: viewPath,
                         engines: {
-                            'html': { module: 'handlebars' },
-                            'jade': { module: 'jade' },
+                            'html': 'handlebars',
+                            'jade': 'jade',
                             'hbar': {
-                                module: 'handlebars',
-                                map: {
+                                module: {
                                     compile: function (engine) { return engine.compile; }
                                 }
                             },
@@ -1697,7 +1690,8 @@ describe('Response', function () {
                 });
                 server.route({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
                 server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
-
+                server.route({ method: 'GET', path: '/unknown', config: { handler: testMultiHandlerUnknown } });
+                server.route({ method: 'GET', path: '/missing', config: { handler: testMultiHandlerMissing } });
 
                 it('should render jade template', function (done) {
 
@@ -1715,6 +1709,24 @@ describe('Response', function () {
 
                         expect(res.result).to.exist;
                         expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+
+                it('should return 500 on unknown extension', function (done) {
+
+                    server.inject('/unknown', function (res) {
+
+                        expect(res.statusCode).to.equal(500);
+                        done();
+                    });
+                });
+
+                it('should return 500 on missing extension engine', function (done) {
+
+                    server.inject('/missing', function (res) {
+
+                        expect(res.statusCode).to.equal(500);
                         done();
                     });
                 });

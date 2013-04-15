@@ -62,6 +62,9 @@ When creating a server instance, the following options configure the server's be
           location of the source code determines the location of the static resources when using relative paths.
         - an absolute path (e.g. '/path') used as prefix for all relative paths.
 <p></p>
+- `labels` - a string array of labels used when registering plugins to [`pack.select()`](#packselectlabels) matching server labels. Defaults
+  to an empty array `[]` (no labels).
+<p></p>
 - `payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
@@ -93,254 +96,22 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 <p></p>
-- `views` - see [Views](#views).
+- `views` - enables support for view rendering (using templates to generate responses). Disabled by default. To enable, set to an object with the
+  following options:
+    - `path` - (required) the root file path used to resolve and load the templates identified when calling `request.reply.view()`.
+    - `engines` - an object where each key is a file extension (e.g. 'html'), mapped to the npm module name used for rendering the templates.
+        - `module` - the npm module to require and use 
+    - `partials` - this key enables partials support if non-null.
+        - `path` - the root file path where partials are located (if different from views.path).
+    - `layout` - if set to true, layout support is enabled (default: false).
+    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go.
+    - `encoding` - the text encoding used by the templates.
+    - `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
+    - `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
+    - `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
+    - `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
 
 
-### Authentication
-
-**hapi** supports several authentication schemes and can be configured with multiple strategies using these schemes (as well as other
-extensions). The built-in schemes provided:
-
-- _'basic'_ - HTTP [Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
-- _'cookie'_ - simple [cookie authentication](#cookie-authentication)
-- _'hawk'_ - HTTP [Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
-- _'bewit'_ - URI [Hawk Bewit](#hawk-bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
-- _'oz'_ - experimental web authorization protocol ([Oz protocol](https://github.com/hueniverse/oz))
-
-Authentication setup includes two steps:
-- Configure server authentication strategies using the provided schemes (or using an extension implementation). Strategies
-  are added using the `server.auth(name, options)` method where:
-    - 'name' - is the strategy name ('default' is automatically assigned if a single strategy is defined via the server config object).
-    - 'options' - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared
-      by all schemes:
-        - `scheme` - the built-in scheme name.
-        - `implementation` - cannot be used together with `scheme` and is used to provide an object with the **hapi** scheme interface.
-        - `defaultMode` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
-          only be assigned to a single server strategy. Value must be 'true' or a valid authentication mode ('required', 'optional', 'try').
-- Assign strategies to route via the route config as described in [Configuration options](#configuration-options).
-
-In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
-`auth` key which can be set to a single strategy (name will default to 'default') or an object with multiple strategies where the strategy
-name is the object key.
-
-For example, configuring a single strategy:
-```javascript
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser
-    }
-};
-```
-
-And configuring multiple strategies:
-```javascript
-var options = {
-    auth: {
-        password1: {
-            scheme: 'basic',
-            loadUserFunc: loadUser1
-        },
-        password2: {
-            scheme: 'basic',
-            loadUserFunc: loadUser2
-        }
-    }
-};
-```
-
-The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation of a server with multiple authentication strategies.
-
-
-#### Basic Authentication
-
-Basic authentication requires validating a username and password combination by looking up the user record via the username and comparing
-the provided password with the one stored in the user database. The lookup is performed by a function provided in the scheme configuration
-using the `loadUserFunc` option:
-```javascript
-var loadUser = function (username, callback) {
-
-    // Lookup user records using username...
-
-    if (err) {
-        return callback(err);
-    }
-
-    return callback(null, user, password);
-};
-
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser
-    }
-};
-```
-
-The _'loadUserFunc'_ callback expects a user object which is passed back once authenticated in `request.auth.credentials`, but is not
-used internally by **hapi**. If the user object is null or undefined, it means the user was not found and the authentication fails.
-
-The provided password is compared to the password received in the request. If the password is hashed, the `hashPasswordFunc` scheme option
-must be provided to hash the incoming plaintext password for comparisson. For example:
-
-```javascript
-var hashPassword = function (password) {
-    
-    var hash = Crypto.createHash('sha1');
-    hash.update(password, 'utf8');
-    hash.update(user.salt, 'utf8');
-
-    return hash.digest('base64');
-};
-
-
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser,
-        hashPasswordFunc: hashPassword
-    }
-};
-```
-
-
-#### Cookie Authentication
-
-***hapi*** has built-in support for cookie authentication.  Cookie authentication can be enabled with the _'cookie'_ scheme.  Below are the options available in a strategy that is using the _'cookie'_ scheme.
-
-- `scheme` - 'cookie'
-- `password` - used for deriving a key using PBKDF2
-- `ttl` - sets the cookie expires time in milliseconds
-- `cookie` - name of cookie used to save state
-- `clearInvalid` - when _'true'_ any authentication cookie that fails to authenticate will be marked as expired on the response
-- `validateFunc` - function that has the signature _'(session, callback)'_ and determines if the session passes authentication.  The callback function has the following signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
-
-Below is an example of configuring a server to use cookie authentication.
-
-```javascript
-var Hapi = require('hapi');
-
-var validateCookie = function (session, callback) {
-    
-    return callback(session.user === 'valid' ? null : new Error('bad user'), null);
-};
-
-var config = {
-    auth: {
-        scheme: 'cookie',
-        password: 'secret',
-        ttl: 60 * 1000,                 // Expire after a minute
-        cookie: 'membership',           // Cookie name
-        clearInvalid: true,
-        validateFunc: validateCookie
-    }
-};
-
-var server = new Hapi.Server(config);
-```
-
-#### Hawk Authentication
-
-The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
-
-```javascript
-var Hapi = require('hapi');
-
-var credentials = {
-    'john': {
-        cred: {
-            id: 'john',
-            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-            algorithm: 'sha256'
-        }
-    }
-}
-
-var getCredentials = function (id, callback) {
-   
-    return callback(null, credentials[id] && credentials[id].cred);
-};
-
-var config = {
-    auth: {
-        scheme: 'hawk',
-        getCredentialsFunc: getCredentials
-    }
-};
-
-var server = new Hapi.Server(config);
-```
-
-In the above example only the user 'john' can authenticate, all other users will result in an error.
-
-#### Hawk Bewit Authentication
-
-[Hawk](https://github.com/hueniverse/hawk) allows for authentication to endpoints by constructing a specially formed URI.  To learn more about this feature in general please read the [Single URI Authorization](https://github.com/hueniverse/hawk#single-uri-authorization) section of the hawk readme.  Hapi supports this type of authentication through use of the _'bewit'_ scheme.  Only endpoints using the _'GET'_ HTTP method are allowed to support the _'bewit'_ scheme.  Below is an example of how to enable _'bewit'_ support on a server.
-
-```javascript
-var Hapi = require('hapi');
-
-var credentials = {
-    'john': {
-        cred: {
-            id: 'john',
-            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-            algorithm: 'sha256'
-        }
-    }
-}
-
-var getCredentials = function (id, callback) {
-   
-    return callback(null, credentials[id] && credentials[id].cred);
-};
-
-var config = {
-    auth: {
-        scheme: 'bewit',
-        getCredentialsFunc: getCredentials
-    }
-};
-
-var server = new Hapi.Server(config);
-```
-
-From a client perspective the URI must contain the _'bewit'_ querystring key with the bewit token value.  Below is an example of constructing a URI to a resource with the _'bewit'_ key.
-
-```javascript
-var Hawk = require('hawk');
-
-var cred = {
-    id: 'john',
-    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-    algorithm: 'sha256'
-};
-
-var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
-var uri = 'http://site.com/endpoint?bewit=' + bewit;
-```
-
-
-### Views
-
-To enable Views support, Hapi must be given an options object with a non-null `views` key. The views object
- supports the following options:
-
-- `path` - (Required) the root file path where the request.reply.view function will resolve template names.
-- `engine` - the configuration for what template rendering engine will be used (default: handlebars).
-    - `module` - the npm module to require and use to compile templates (**this is experimental and may not not work with all modules**).
-    - `extension` - the file extension used by template files.
-- `engines` - optional configuration for supporting multiple rendering engines
-    - `module` - the npm module to require and use 
-- `partials` - this key enables partials support if non-null.
-    - `path` - the root file path where partials are located (if different from views.path).
-- `layout` - if set to true, layout support is enabled (default: false).
-- `layoutKeyword` - the key used by the template engine to denote where primary template content should go.
-- `encoding` - the text encoding used by the templates.
-- `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
-- `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
-- `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
-- `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
 
 
 #### Server events
@@ -676,10 +447,229 @@ See [**joi** Types](https://github.com/spumko/joi#type-registry).
 
 
 
+## Authentication
+
+**hapi** supports several authentication schemes and can be configured with multiple strategies using these schemes (as well as other
+extensions). The built-in schemes provided:
+
+- _'basic'_ - HTTP [Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
+- _'cookie'_ - simple [cookie authentication](#cookie-authentication)
+- _'hawk'_ - HTTP [Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'bewit'_ - URI [Hawk Bewit](#hawk-bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'oz'_ - experimental web authorization protocol ([Oz protocol](https://github.com/hueniverse/oz))
+
+Authentication setup includes two steps:
+- Configure server authentication strategies using the provided schemes (or using an extension implementation). Strategies
+  are added using the `server.auth(name, options)` method where:
+    - 'name' - is the strategy name ('default' is automatically assigned if a single strategy is defined via the server config object).
+    - 'options' - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared
+      by all schemes:
+        - `scheme` - the built-in scheme name.
+        - `implementation` - cannot be used together with `scheme` and is used to provide an object with the **hapi** scheme interface.
+        - `defaultMode` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
+          only be assigned to a single server strategy. Value must be 'true' or a valid authentication mode ('required', 'optional', 'try').
+- Assign strategies to route via the route config as described in [Configuration options](#configuration-options).
+
+In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
+`auth` key which can be set to a single strategy (name will default to 'default') or an object with multiple strategies where the strategy
+name is the object key.
+
+For example, configuring a single strategy:
+```javascript
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser
+    }
+};
+```
+
+And configuring multiple strategies:
+```javascript
+var options = {
+    auth: {
+        password1: {
+            scheme: 'basic',
+            loadUserFunc: loadUser1
+        },
+        password2: {
+            scheme: 'basic',
+            loadUserFunc: loadUser2
+        }
+    }
+};
+```
+
+The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation of a server with multiple authentication strategies.
 
 
+### Basic Authentication
+
+Basic authentication requires validating a username and password combination by looking up the user record via the username and comparing
+the provided password with the one stored in the user database. The lookup is performed by a function provided in the scheme configuration
+using the `loadUserFunc` option:
+```javascript
+var loadUser = function (username, callback) {
+
+    // Lookup user records using username...
+
+    if (err) {
+        return callback(err);
+    }
+
+    return callback(null, user, password);
+};
+
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser
+    }
+};
+```
+
+The _'loadUserFunc'_ callback expects a user object which is passed back once authenticated in `request.auth.credentials`, but is not
+used internally by **hapi**. If the user object is null or undefined, it means the user was not found and the authentication fails.
+
+The provided password is compared to the password received in the request. If the password is hashed, the `hashPasswordFunc` scheme option
+must be provided to hash the incoming plaintext password for comparisson. For example:
+
+```javascript
+var hashPassword = function (password) {
+    
+    var hash = Crypto.createHash('sha1');
+    hash.update(password, 'utf8');
+    hash.update(user.salt, 'utf8');
+
+    return hash.digest('base64');
+};
 
 
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser,
+        hashPasswordFunc: hashPassword
+    }
+};
+```
+
+
+### Cookie Authentication
+
+***hapi*** has built-in support for cookie authentication.  Cookie authentication can be enabled with the _'cookie'_ scheme.  Below are the options available in a strategy that is using the _'cookie'_ scheme.
+
+- `scheme` - 'cookie'
+- `password` - used for deriving a key using PBKDF2
+- `ttl` - sets the cookie expires time in milliseconds
+- `cookie` - name of cookie used to save state
+- `clearInvalid` - when _'true'_ any authentication cookie that fails to authenticate will be marked as expired on the response
+- `validateFunc` - function that has the signature _'(session, callback)'_ and determines if the session passes authentication.  The callback function has the following signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
+
+Below is an example of configuring a server to use cookie authentication.
+
+```javascript
+var Hapi = require('hapi');
+
+var validateCookie = function (session, callback) {
+    
+    return callback(session.user === 'valid' ? null : new Error('bad user'), null);
+};
+
+var config = {
+    auth: {
+        scheme: 'cookie',
+        password: 'secret',
+        ttl: 60 * 1000,                 // Expire after a minute
+        cookie: 'membership',           // Cookie name
+        clearInvalid: true,
+        validateFunc: validateCookie
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+### Hawk Authentication
+
+The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'hawk',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+In the above example only the user 'john' can authenticate, all other users will result in an error.
+
+### Hawk Bewit Authentication
+
+[Hawk](https://github.com/hueniverse/hawk) allows for authentication to endpoints by constructing a specially formed URI.  To learn more about this feature in general please read the [Single URI Authorization](https://github.com/hueniverse/hawk#single-uri-authorization) section of the hawk readme.  Hapi supports this type of authentication through use of the _'bewit'_ scheme.  Only endpoints using the _'GET'_ HTTP method are allowed to support the _'bewit'_ scheme.  Below is an example of how to enable _'bewit'_ support on a server.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'bewit',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+From a client perspective the URI must contain the _'bewit'_ querystring key with the bewit token value.  Below is an example of constructing a URI to a resource with the _'bewit'_ key.
+
+```javascript
+var Hawk = require('hawk');
+
+var cred = {
+    id: 'john',
+    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+    algorithm: 'sha256'
+};
+
+var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
+var uri = 'http://site.com/endpoint?bewit=' + bewit;
+```
 
 
 ## Route Configuration

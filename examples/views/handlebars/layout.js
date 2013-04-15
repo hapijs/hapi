@@ -21,11 +21,8 @@ internals.main = function () {
 
     var options = {
         views: {
+            engines: { html: 'handlebars' },
             path: __dirname + '/templates',
-            engine: {
-                module: 'handlebars',
-                extension: 'html'
-            },
             layout: true
         }
     };

@@ -26,10 +26,11 @@ describe('Response', function () {
         it('returns error on invalid template path', function (done) {
 
             var manager = new Views({
+                engines: { 'html': 'handlebars' },
                 path: __dirname + '/../templates/invalid'
             });
 
-            var view = new Hapi.response.View(manager, 'test', { message: "Ohai" });
+            var view = new Hapi.response.View(manager, 'test', { message: 'Ohai' });
             view._prepare({}, function (response) {
 
                 expect(response instanceof Error).to.equal(true);

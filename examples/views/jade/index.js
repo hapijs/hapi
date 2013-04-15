@@ -29,11 +29,8 @@ internals.main = function () {
 
     var options = {
         views: {
+            engines: { html: 'jade' },
             path: __dirname + '/templates',
-            engine: {
-                module: 'jade',
-                extension: 'jade'
-            },
             compileOptions: {
                 pretty: true
             }

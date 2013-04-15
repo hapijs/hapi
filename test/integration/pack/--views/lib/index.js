@@ -7,7 +7,10 @@ var internals = {};
 
 exports.register = function (pack, options, next) {
 
-    pack.views({ path: './templates' });
+    pack.views({
+        engines: { 'html': 'handlebars' },
+        path: './templates'
+    });
     pack.route([
         {
             path: '/view', method: 'GET', handler: function () {
