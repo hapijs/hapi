@@ -98,20 +98,28 @@ When creating a server instance, the following options configure the server's be
 <p></p>
 - `views` - enables support for view rendering (using templates to generate responses). Disabled by default. To enable, set to an object with the
   following options:
-    - `path` - (required) the root file path used to resolve and load the templates identified when calling `request.reply.view()`.
-    - `engines` - an object where each key is a file extension (e.g. 'html'), mapped to the npm module name used for rendering the templates.
-        - `module` - the npm module to require and use 
-    - `partials` - this key enables partials support if non-null.
-        - `path` - the root file path where partials are located (if different from views.path).
-    - `layout` - if set to true, layout support is enabled (default: false).
-    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go.
-    - `encoding` - the text encoding used by the templates.
-    - `cache` - if set to false, templates will not be cached (thus will be read from file on every use).
-    - `allowAbsolutePaths` - the flag to set if absolute template paths passed to .view() should be allowed.
-    - `allowInsecureAccess` - the flag to set if `../` should be allowed in the template paths passed to `.view()`.
-    - `compileOptions` - the options object passed to the engine's compile function (compile(string, options)).
-
-
+    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module name (string) used for
+      rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
+        - `module` - the npm module name (string) to require or an object with:
+            - `compile(template, options)` - rendering function. Returns a function with signature `function(context, options)`. Follows the
+              convention used in [handlebars](https://github.com/wycats/handlebars.js/).
+        - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
+    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
+      explicit extension is provided for a given template. No default value.
+    - `path` - the root file path used to resolve and load the templates identified when calling `request.reply.view()`. Defaults to current working
+      directory.
+    - `partialsPath` - the root file path where partials are located. Defaults to no partials support (empty path).
+    - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
+    - `layout` - if set to `true`, layout support is enabled. The layout template name must be 'layout.ext' where 'ext' is the engine's extension.
+      Defaults to `false`.
+    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `content`.
+    - `encoding` - the text encoding used by the templates when reading the files and outputing the result. Defaults to `utf-8`.
+    - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
+    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `request.reply.view()`. Defaults to `false`.
+    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `request.reply.view()` to contain '../'. Defaults to `false`.
+    - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
+    - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
+    - `contentType` - the content type of the engine results. Defaults to `text/html`.
 
 
 #### Server events

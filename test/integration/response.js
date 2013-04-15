@@ -1556,50 +1556,6 @@ describe('Response', function () {
 
             describe('General', function () {
 
-                it('should not throw if view map has execute function defined', function (done) {
-
-                    var fn = function () {
-
-                        var testServer = new Hapi.Server({
-                            views: {
-                                path: viewPath,
-                                engines: {
-                                    'html': {
-                                        module: {
-                                            compile: function (tmpl, options) {
-
-                                                return function (ctx) {
-
-                                                    return tmpl;
-                                                }
-                                            },
-                                            execute: function () {
-
-                                                return function (engine, compiled, ctx, options, partials) {
-
-                                                    return function (ctx, options) {
-
-                                                        return compiled(ctx, options);
-                                                    }
-                                                }
-                                            }
-                                        },
-                                    }
-                                }
-                            }
-                        });
-                        testServer.route({ method: 'GET', path: '/exec', config: { handler: testMultiHandlerHB } });
-                        testServer.inject('/exec', function (res) {
-
-                            expect(res.result).to.exist;
-                            expect(res.statusCode).to.equal(200);
-                            // done();
-                        });
-                    };
-                    expect(fn).to.not.throw();
-                    done();
-                });
-
                 it('should throw if view module not found', function (done) {
 
                     var fn = function () {
