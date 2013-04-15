@@ -668,32 +668,15 @@ the following required options:
 - `clearInvalid` - if `true`, any authentication cookie that fails validation will be marked as expired in the response and cleared. Defaults to `false`.
 - `validateFunc` - an optional session validation function used to validate the content of the session cookie on each request. Used to verify that the
   internal session state is still valid (e.g. user account still exists). The function has the signature `function(session, callback)` where:
-    - `session` - 
-    - `callback` - signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
+    - `session` - is the session object set via `request.auth.session.set()`.
+    - `callback` - the callback function with signature `(err, override)` where:
+        - `err` - indicates that authentication failed.
+        - `override` - object will change any cookie properties when setting state on the response.
 
-Below is an example of configuring a server to use cookie authentication.
+When the cookie scheme is enabled on a route, the `request.auth.session` objects is decorated with two methods:
+- `set(session)` - 
+- `clear()` - 
 
-```javascript
-var Hapi = require('hapi');
-
-var validateCookie = function (session, callback) {
-    
-    return callback(session.user === 'valid' ? null : new Error('bad user'), null);
-};
-
-var config = {
-    auth: {
-        scheme: 'cookie',
-        password: 'secret',
-        ttl: 60 * 1000,                 // Expire after a minute
-        cookie: 'membership',           // Cookie name
-        clearInvalid: true,
-        validateFunc: validateCookie
-    }
-};
-
-var server = new Hapi.Server(config);
-```
 
 ##### Hawk Authentication
 
