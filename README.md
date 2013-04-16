@@ -1,7 +1,7 @@
 <a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
 <img src="https://raw.github.com/spumko/hapi/master/images/hapi.png" />
 
-A rich framework for building restful API services. **hapi** is a configuration-centric framework in which
+A rich framework for building HTTP web services. **hapi** is a configuration-centric framework in which
 authentication requirements, input validation, data caching and pre-fetching, developer documentation,
 and other essential facilities are provided out-of-the-box and enabled using simple JSON configuration
 objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
