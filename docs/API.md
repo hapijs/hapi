@@ -54,10 +54,10 @@ When creating a server instance, the following options configure the server's be
       to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response.
       For example, to display all errors, change the option to `['error', 'uncaught']`. To turn off all console debug messages set it to `false`.
 <p></p>
-- `files` - defines the behaviour for serving static resources using the built-in route handlers for files and directories:
+- <a name="server.config.files" />``files` - defines the behaviour for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines how relative paths are resolved. Available values:
-        - `cwd` - relative paths are resolved using the active process path (`process.cwd()`). This is the default setting.
-        - `routes` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
+        - `'cwd'` - relative paths are resolved using the active process path (`process.cwd()`). This is the default setting.
+        - `'routes'` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
           location of the source code determines the location of the static resources when using relative paths.
         - an absolute path (e.g. '/path') used as prefix for all relative paths.
 <p></p>
@@ -74,14 +74,14 @@ When creating a server instance, the following options configure the server's be
       characters, decodes unreserved characters, and capitalizes any percent encoded values. Useful when serving non-compliant HTTP clients.
       Defaults to `false`.
 <p></p>
-- `state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
+- <a name="server.config.state" />`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
   request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
     - `cookies` - The server automatically parses incoming cookies based on these options:
         - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the `request.cookies` object. Defaults to `true`.
         - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
-            - `error` - return a Bad Request (400) error response. This is the default value.
-            - `log` - report the error but continue processing the request.
-            - `ignore` - take no action.
+            - `'error'` - return a Bad Request (400) error response. This is the default value.
+            - `'log'` - report the error but continue processing the request.
+            - `'ignore'` - take no action.
         - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies. Defaults to `false`.
 <p></p>
 - `timeout` - define timeouts for processing durations:
@@ -95,8 +95,8 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 <p></p>
-- `views` - enables support for view rendering (using templates to generate responses). Disabled by default. To enable, set to an object with the
-  following options:
+- <a name="server.config.views" />`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
+  To enable, set to an object with the following options:
     - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module name (string) used for
       rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
         - `module` - the npm module name (string) to require or an object with:
@@ -111,14 +111,14 @@ When creating a server instance, the following options configure the server's be
     - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
     - `layout` - if set to `true`, layout support is enabled. The layout template name must be 'layout.ext' where 'ext' is the engine's extension.
       Defaults to `false`.
-    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `content`.
-    - `encoding` - the text encoding used by the templates when reading the files and outputing the result. Defaults to `utf-8`.
+    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
+    - `encoding` - the text encoding used by the templates when reading the files and outputing the result. Defaults to `'utf-8'`.
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
     - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `request.reply.view()`. Defaults to `false`.
     - `allowInsecureAccess` - if set to `true`, allows template paths passed to `request.reply.view()` to contain '../'. Defaults to `false`.
     - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
     - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
-    - `contentType` - the content type of the engine results. Defaults to `text/html`.
+    - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
 
 ### `Server` methods
 
@@ -167,10 +167,56 @@ Adds a new route to the server with the following options:
 <p></p>
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
   described in [Route handler](#route-handler). Alternatively, the `handler` option can be assigned an object with one of:
-    - `proxy` - generates a reverse proxy handler as described in (Proxy handler)[#proxy-handler].
-    - `file` - generates a static file endpoint as described in (File handler)[#file-handler].
-    - `directory` - generates a directory endpoing for service static content as described in (Directory handler)[#directory-handler].
-    - `view` - generates a template-based endpoint as described in [View handler](#view-handler).
+    - `proxy` - generates a reverse proxy handler with the following options:
+        - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
+        - `port` - the upsteram service port.
+        - `protocol` - The protocol to use when making a request to the proxied host:
+            - `'http'`
+            - `'https'`
+        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
+        - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
+          proxied upstream endpoint. Defaults to `false`.
+        - `mapUri` - a function used to map the request URI to the proxied URI. The function signature is `function(request, callback)` where:
+            - `request` - is the incoming request object
+            - `callback` - is `function(err, uri)` where `uri` is the absolute proxy URI. Cannot be used together with `host`, `port`, or `protocol`.
+        - `postResponse` - a custom function for processing the response from the upstream service before sendint to the client. Useful for
+          custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
+          `function(request, settings, res, payload)` where:
+              - `request` - is the incoming request object. It is the responsibility of the `postResponse()` function to call `request.reply()`.
+              - `settings` - the proxy handler configuration.
+              - `res` - the node response object received from the upstream service.
+              - `payload` - the response payload.
+        - `httpClient` - an alternative HTTP client function, compatible with the [`request`](https://npmjs.org/package/request) module `request()`
+          interface.
+<p></p>
+    - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
+        - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
+        - a function with the signature `function(request)` which returns the relative or absolute file path.
+        - an object with the following options:
+            - `path` - a path string or function as described above.
+            - `mode` - specifies whether to include the 'Content-Disposition' header with the response. Available values:
+                - `false` - header is not included. This is the default value.
+                - `'attachment'`
+                - `'inline'`
+<p></p>
+    - `directory` - generates a directory endpoint for serving static content from a directory. Routes using the directory handler must include a
+      single path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does not matter). The path
+      parameter can use any of the parameter options (e.g. '{param}' for one level files only, '{param?}' for one level files or the directory root,
+      '{param*}' for any level, or '{param*3}' for a specific level). The directory handler is an object with the following options:
+        - `path` - (required) the directory root path (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
+          Value can be:
+            - a single path string used as the prefix for any resources requested by appending the request path parameter to the provided string.
+            - an array of path strings. Each path will be attemped in order until a match is found (by following the same process as the single path string).
+            - a function with the signature `function(request)` which returns the path string.
+        - `index` - optional boolean, determines if 'index.html' will be served if found in the folder when requesting a directory. Defaults to `true`.
+        - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
+        - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
+<p></p>
+    - `view` - generates a template-based response. The `view` options is set to the desired template file name. The view context available to the template
+      includes:
+        - `payload` - maps to `request.payload`.
+        - `params` - maps to `request.params`.
+        - `querystring` - maps to `request.query`.
 <p></p>
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
@@ -193,15 +239,15 @@ Adds a new route to the server with the following options:
             - `schema` - the validation schema.
             - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
             - `failAction` - defines what to do when a response fails validation. Options are:
-                - `error` - return an Internal Server Error (500) error response. This is the default value.
-                - `log` - log the error but send the response.
+                - `'error'` - return an Internal Server Error (500) error response. This is the default value.
+                - `'log'` - log the error but send the response.
 <p></p>
-    - `payload` - determines how the request payload is processed. Defaults to `parse` if `validate.payload` is set or when `method` is
-      `POST` or `PUT`, otherwise `stream`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
+    - `payload` - determines how the request payload is processed. Defaults to `'parse'` if `validate.payload` is set or when `method` is
+      `'POST'` or `'PUT'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
        Options are:
-        - _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via `request.raw.req`.
-        - _'raw'_ - the payload is read and stored in `request.rawPayload` as a Buufer and is not parsed.
-        - _'parse'_ - the payload is read and stored in `request.rawPayload` as a Buffer, and then parsed (JSON or form-encoded) and stored
+        - `'stream'` - the incoming request stream is left untouched, leaving it up to the handler to process the request via `request.raw.req`.
+        - `'raw'` - the payload is read and stored in `request.rawPayload` as a Buufer and is not parsed.
+        - `'parse'` - the payload is read and stored in `request.rawPayload` as a Buffer, and then parsed (JSON or form-encoded) and stored
           in `request.payload`. Parsing is performed based on the incoming request 'Content-Type' header. If the parsing is enabled and the
           format is unknown, a Bad Request (400) error response is sent. The supported mime types are:
             - application/json
@@ -212,9 +258,9 @@ Adds a new route to the server with the following options:
     - `cache` - if the the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
         - `mode` - cache location. Available values:
-            - `client` - caching is pefromed on the client by sending the HTTP `Cache-Control` header. This is the default value.
-            - `server` - caching is performed on the server using the cache strategy configured.
-            - `client+server` - caching it performed on both the client and server.
+            - `'client'` - caching is pefromed on the client by sending the HTTP `Cache-Control` header. This is the default value.
+            - `'server'` - caching is performed on the server using the cache strategy configured.
+            - `'client+server'` - caching it performed on both the client and server.
         - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
           together with `expiresAt`.
         - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
@@ -223,11 +269,11 @@ Adds a new route to the server with the following options:
         - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
 <p></p>
     - `auth` - authentication configuration (more information is available in [Server authentication](#server-authentication)):
-        - `mode` - the authentication mode. Defaults to `required` if a server authentication strategy is configured, otherwise defaults
+        - `mode` - the authentication mode. Defaults to `'required'` if a server authentication strategy is configured, otherwise defaults
           to no authentication. Available values:
-            - `required` - authentication is required.
-            - `optional` - authentication is optional (must be valid if present).
-            - `try` - same as `optional` but allows for invalid authentication.
+            - `'required'` - authentication is required.
+            - `'optional'` - authentication is optional (must be valid if present).
+            - `'try'` - same as `'optional'` but allows for invalid authentication.
         - `tos` - minimum terms-of-service version required (uses the [semver](https://npmjs.org/package/semver) module). If defined, the
           authentication credentials object must include a `tos` key which satisfies this requirement. Defaults to `false` which means no validation.
         - `scope` - required application scope. A scope string which must be included in the authentication credentials object in `scope` which is
@@ -302,7 +348,7 @@ var paths = [
 ##### Path parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that path segment. For example,
-'/book/{id}/cover' will match '/book/123/cover' and `request.params.id` will be set to `123`. Each path segment (everything between the opening '/' and
+'/book/{id}/cover' will match '/book/123/cover' and `request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/' and
  the closing '/' unless it is the end of the path) can only include one named parameter.
  
  An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path).
@@ -340,6 +386,39 @@ server.route({
     handler: getPerson
 });
 ```
+
+##### Route Handler
+
+When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request) object.
+Route handler functions can use one of three declaration styles:
+
+No arguments (the request object is bound to `this`, decorated by the `reply` interface):
+```javascript
+var handler = function () {
+
+    this.reply('success');
+};
+```
+
+One argument (the request is passed as an argument, decorated by the `reply` interface):
+```javascript
+var handler = function (request) {
+
+    request.reply('success');
+};
+```
+
+Two arguments (the request and the `reply` interface are passed as arguments):
+```javascript
+var handler = function (request, reply) {
+
+    reply('success');
+};
+```
+
+The two-arguments style is provided for symmetry with extension functions and prerequisite functions where the function
+signature is `function(request, next)`. In order to enable interchangeable use of these functions, the two argument style does
+not provide any of the [`request.reply`](#requestreply) decorations.
 
 #### `server.route(routes)`
 
@@ -383,10 +462,10 @@ console.log(table);
 
 #### `server.log(tags, [data, [timestamp]])`
 
-The `server.log()` method is used for logging server events that cannot be associated with a specific request. When called the server emits a `log`
+The `server.log()` method is used for logging server events that cannot be associated with a specific request. When called the server emits a `'log'`
 event which can be used by other listeners or plugins to record the information or output to the console. The arguments are:
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
-  and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `hapi`
+  and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
   tag along with event-specific information.
 - `data` - an optional message string or object with the application data being logged.
 - `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
@@ -407,20 +486,90 @@ server.log(['test','error'], 'Test event');
 
 #### `server.state(name, options)`
 
-Please note that when using the _'log'_ fail action that the server will emit a _'request'_ event that has a request and event object being passed to any event handler.  For example, the following demonstrates how to check for errors from cookie parsing:
+[HTTP state management](http://tools.ietf.org/html/rfc6265) uses client cookies to persist a state across multiple requests. Cookie definitions
+can be registered with the server using the `server.state()` method, where:
+- `name` - is the cookie name.
+- `options` - are the optional cookie settings:
+    - `ttl` - time-to-live in milliseconds. Defaults to `null` (session timelife - cookies are deleted when the browser is closed).
+    - `isSecure` - sets the 'Secure' flag. Defaults to `false`.
+    - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `false`.
+    - `path` - the path scope. Defaults to `null` (no path).
+    - `domain` - the domain scope. Defaults to `null` (no domain).
+    - `autoValue` - if present and the cookie was not received from the client or explicitly set by the route handler, the cookie is automatically
+      added to the response with the provided value.
+    - `encoding` - encoding performs on the provided value before serialization. Options are:
+        - `'none'` - no encoding. When used, the cookie value must be a string. This is the default value.
+        - `'base64'` - string value is encoded using Base64.
+        - `'base64json'` - object value is JSON-stringified than encoded using Base64.
+        - `'form'` - object value is encoded using the _x-www-form-urlencoded_ method.
+        - `'iron'` - Encrypts and sign the value using [**iron**](https://github.com/hueniverse/iron).
+    - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not provide privacy, only a mean to verify that the cookie value
+      was generated by the server. Redundent when `'iron'` encoding is used. Options are:
+        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
+        - `password` - password used for HMAC key generation.
+    - `password` - password used for `'iron'` encoding.
+    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
+
+```javascript
+// Set cookie definition
+
+server.state('session', {
+    ttl: 24 * 60 * 60 * 1000,     // One day
+    isSecure: true,
+    path: '/',
+    encoding: 'base64json'
+});
+
+// Set state in route handler
+
+var handler = function () {
+
+    var session = this.state.session;
+    if (!session) {
+        session = { user: 'joe' };
+    }
+
+    session.last = Date.now();
+
+    this.reply.payload('Success')
+              .state('session', session)
+              .send();
+};
+```
+
+Registered cookies are automatically parsed when received. Parsing rules depends on the server [`state.cookies`](#server.config.state) configuration.
+When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit a `'request'` event. To capture these errors
+subscribe to the `'request'` events and filter on `'error'` and `'state'` tags:
 
 ```javascript
 server.on('request', function (request, event, tags) {
     
-   if (tags.error && tags.state) {
-       // cookie parsing error
-   } 
+    if (tags.error && tags.state) {
+        console.error(event);
+    } 
 });
 ```
 
+#### `server.views(options)`
+
+Initializes the server views manager programatically instead of via the server [`views`](#server.config.views) configuration option.
+The `options` object is the same as [`views`](#server.config.views).
+
+```javascript
+server.views({
+    engines: {
+        html: 'handlebars',
+        jade: 'jade'
+    },
+    path: '/static/templates'
+});
+```
+
+////////////////////////////////////////////////////////////////////////////
+
 #### `server.auth(name, options)`
 
-#### `server.views(options)`
+
 
 #### `server.ext(event, method)`
 
@@ -732,262 +881,7 @@ See [**joi** Types](https://github.com/spumko/joi#type-registry).
 #### `pack.cache(options, segment)`
 
 
-
-## Server Authentication
-
-**hapi** supports several authentication schemes and can be configured with multiple strategies using these schemes (as well as other
-extensions). The built-in schemes provided:
-
-- _'basic'_ - HTTP [Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
-- _'cookie'_ - simple [cookie authentication](#cookie-authentication)
-- _'hawk'_ - HTTP [Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
-- _'bewit'_ - URI [Hawk Bewit](#hawk-bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
-- _'oz'_ - experimental web authorization protocol ([Oz protocol](https://github.com/hueniverse/oz))
-
-Authentication setup includes two steps:
-- Configure server authentication strategies using the provided schemes (or using an extension implementation). Strategies
-  are added using the `server.auth(name, options)` method where:
-    - 'name' - is the strategy name ('default' is automatically assigned if a single strategy is defined via the server config object).
-    - 'options' - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared
-      by all schemes:
-        - `scheme` - the built-in scheme name.
-        - `implementation` - cannot be used together with `scheme` and is used to provide an object with the **hapi** scheme interface.
-        - `defaultMode` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
-          only be assigned to a single server strategy. Value must be 'true' or a valid authentication mode ('required', 'optional', 'try').
-- Assign strategies to route via the route config as described in [Configuration options](#configuration-options).
-
-In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
-`auth` key which can be set to a single strategy (name will default to 'default') or an object with multiple strategies where the strategy
-name is the object key.
-
-For example, configuring a single strategy:
-```javascript
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser
-    }
-};
-```
-
-And configuring multiple strategies:
-```javascript
-var options = {
-    auth: {
-        password1: {
-            scheme: 'basic',
-            loadUserFunc: loadUser1
-        },
-        password2: {
-            scheme: 'basic',
-            loadUserFunc: loadUser2
-        }
-    }
-};
-```
-
-The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation of a server with multiple authentication strategies.
-
-
-### Basic Authentication
-
-Basic authentication requires validating a username and password combination by looking up the user record via the username and comparing
-the provided password with the one stored in the user database. The lookup is performed by a function provided in the scheme configuration
-using the `loadUserFunc` option:
-```javascript
-var loadUser = function (username, callback) {
-
-    // Lookup user records using username...
-
-    if (err) {
-        return callback(err);
-    }
-
-    return callback(null, user, password);
-};
-
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser
-    }
-};
-```
-
-The _'loadUserFunc'_ callback expects a user object which is passed back once authenticated in `request.auth.credentials`, but is not
-used internally by **hapi**. If the user object is null or undefined, it means the user was not found and the authentication fails.
-
-The provided password is compared to the password received in the request. If the password is hashed, the `hashPasswordFunc` scheme option
-must be provided to hash the incoming plaintext password for comparisson. For example:
-
-```javascript
-var hashPassword = function (password) {
-    
-    var hash = Crypto.createHash('sha1');
-    hash.update(password, 'utf8');
-    hash.update(user.salt, 'utf8');
-
-    return hash.digest('base64');
-};
-
-
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser,
-        hashPasswordFunc: hashPassword
-    }
-};
-```
-
-
-### Cookie Authentication
-
-***hapi*** has built-in support for cookie authentication.  Cookie authentication can be enabled with the _'cookie'_ scheme.  Below are the options available in a strategy that is using the _'cookie'_ scheme.
-
-- `scheme` - 'cookie'
-- `password` - used for deriving a key using PBKDF2
-- `ttl` - sets the cookie expires time in milliseconds
-- `cookie` - name of cookie used to save state
-- `clearInvalid` - when _'true'_ any authentication cookie that fails to authenticate will be marked as expired on the response
-- `validateFunc` - function that has the signature _'(session, callback)'_ and determines if the session passes authentication.  The callback function has the following signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
-
-Below is an example of configuring a server to use cookie authentication.
-
-```javascript
-var Hapi = require('hapi');
-
-var validateCookie = function (session, callback) {
-    
-    return callback(session.user === 'valid' ? null : new Error('bad user'), null);
-};
-
-var config = {
-    auth: {
-        scheme: 'cookie',
-        password: 'secret',
-        ttl: 60 * 1000,                 // Expire after a minute
-        cookie: 'membership',           // Cookie name
-        clearInvalid: true,
-        validateFunc: validateCookie
-    }
-};
-
-var server = new Hapi.Server(config);
-```
-
-### Hawk Authentication
-
-The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
-
-```javascript
-var Hapi = require('hapi');
-
-var credentials = {
-    'john': {
-        cred: {
-            id: 'john',
-            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-            algorithm: 'sha256'
-        }
-    }
-}
-
-var getCredentials = function (id, callback) {
-   
-    return callback(null, credentials[id] && credentials[id].cred);
-};
-
-var config = {
-    auth: {
-        scheme: 'hawk',
-        getCredentialsFunc: getCredentials
-    }
-};
-
-var server = new Hapi.Server(config);
-```
-
-In the above example only the user 'john' can authenticate, all other users will result in an error.
-
-### Hawk Bewit Authentication
-
-[Hawk](https://github.com/hueniverse/hawk) allows for authentication to endpoints by constructing a specially formed URI.  To learn more about this feature in general please read the [Single URI Authorization](https://github.com/hueniverse/hawk#single-uri-authorization) section of the hawk readme.  Hapi supports this type of authentication through use of the _'bewit'_ scheme.  Only endpoints using the _'GET'_ HTTP method are allowed to support the _'bewit'_ scheme.  Below is an example of how to enable _'bewit'_ support on a server.
-
-```javascript
-var Hapi = require('hapi');
-
-var credentials = {
-    'john': {
-        cred: {
-            id: 'john',
-            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-            algorithm: 'sha256'
-        }
-    }
-}
-
-var getCredentials = function (id, callback) {
-   
-    return callback(null, credentials[id] && credentials[id].cred);
-};
-
-var config = {
-    auth: {
-        scheme: 'bewit',
-        getCredentialsFunc: getCredentials
-    }
-};
-
-var server = new Hapi.Server(config);
-```
-
-From a client perspective the URI must contain the _'bewit'_ querystring key with the bewit token value.  Below is an example of constructing a URI to a resource with the _'bewit'_ key.
-
-```javascript
-var Hawk = require('hawk');
-
-var cred = {
-    id: 'john',
-    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-    algorithm: 'sha256'
-};
-
-var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
-var uri = 'http://site.com/endpoint?bewit=' + bewit;
-```
-
-## Route Handler
-
-Route handlers can use one of three declaration styles:
-
-No arguments (the request object is bound to `this`, decorated by the `reply` interface):
-```javascript
-var handler = function () {
-
-    this.reply('success');
-};
-```
-
-One argument (the request is passed as an argument, decorated by the `reply` interface):
-```javascript
-var handler = function (request) {
-
-    request.reply('success');
-};
-```
-
-Two arguments (the request and the `reply` interface are passed as arguments):
-```javascript
-var handler = function (request, reply) {
-
-    reply('success');
-};
-```
-
-**Note**: The two-arguments style is provided for symmetry with extension functions and prerequisite functions where the function
-signature is _'function (request, next)'_. In order to enable interchangeable use of these functions, the two argument style does
-not provide any of the reply method decorations listed under [handler response](#response) (e.g. you must call 'reply(result);').
+## `Request`
 
 When the provided route handler method is called, it receives a _request_ object with the following properties:
 - _'url'_ - the parsed request URI.
@@ -1006,20 +900,9 @@ When the provided route handler method is called, it receives a _request_ object
     - _'ext.tos'_ - terms-of-service version (optional).
 - _'server'_ - a reference to the server object.
 - _'pre'_ - any requisites as described in [Prequisites](#prequisites).
-- _'addTail([name])'_ - adds a request tail as described in [Request Tails](#request-tails).
 - _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
 
-In addition, the handler method is bound to the request object which is also available using _this_:
-
-```javascript
-var handler = function () {
-
-    this.reply('Hello ' + this.params.user);
-};
-```
-
-
-#### Response
+#### `request.reply()`
 
 **hapi** provides native support for the following response types:
 - Empty - an empty response body (content-length of zero).
@@ -1065,142 +948,59 @@ The handler must call _'reply()'_, _'reply.send()'_, or _'reply.payload/stream()
 within the route handler and are disabled as soon as control is returned.
 
 
-#### Proxy handler
+#### `request.addTail([name])`
 
-It is possible with hapi to setup a reverse proxy for routes.  This is especially useful if you plan to stand-up hapi in front of an existing API or you need to augment the functionality of an existing API.  Additionally, this feature is powerful in that it can be combined with caching to cache the responses from external APIs.  The proxy route configuration has the following options:
-- `passThrough` - determines if the headers sent from the clients user-agent will be forwarded on to the external service being proxied to (default: false)
-- `xforward` - determines if the x-forward headers will be set when making a request to the proxied endpoint (default: false)
-- `host` - The host to proxy requests to.  The same path on the client request will be used as the path to the host.
-- `port` - The port to use when making a request to the host.
-- `protocol` - The protocol to use when making a request to the proxied host (http or https)
-- `mapUri` - A function used to map the request URI to the proxied URI. The function signature is _function (request, callback)_ where 'request' is the incoming request object, and callback is 'function (err, uri)'.  Cannot be used together with `host`, `port`, or `protocol`.
-- `postResponse` - A function that will be executed before sending the response to the client for requests that can be cached.  Use this for any custom error handling of responses from the proxied endpoint.
-- `httpClient` - A function that should make the request to the remote server and use execute the callback with a response.  By default this uses _'request'_ as the module.  The signature is (options, callback) where options will contain a url and method.
+It is often desirable to return a response as quickly as possible and perform additional (slower) actions afterwards (or in parallel). These
+actions are called request tails. For example, a request may trigger a database update tail that should not delay letting the client know the
+request has been received and will be processed shortly. However, it is still desirable to associate the tails with the request and to know
+when every single request related action has completed (in other words, when the request stopped wagging).
 
-For example, to proxy a request to the homepage to google:
+**hapi** provides a simple facility for keeping track of pending tails by providing the following request methods:
+- _'addTail([name])'_ - registers a named tail and returns a tail function. The tail function must be retained and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
+- _'removeTail(tail)'_ - removes a tail to notify the server that the associated action has been completed.
+
+Alternatively, the returned tail function can be called directly without using the _removeTail()_ method.
+
+For example:
 ```javascript
+var Hapi = require('hapi');
+
 // Create Hapi servers
 var http = new Hapi.Server('0.0.0.0', 8080);
 
-// Proxy request to / to google.com
-http.route({ method: 'GET', path: '/', handler: { proxy: { protocol: 'http', host: 'google.com', port: 80 } } });
+// Route handler
+var get = function (request) {
 
-http.start();
-```
+    var tail1 = request.addTail('tail1');
+    setTimeout(function () {
 
-Using `mapUri`:
-```javascript
-var mapper = function (request, callback) {
+        request.removeTail(tail1);              // Using removeTail() interface
+    }, 5000);
 
-    callback(null, 'https://www.google.com/?q=' + request.param.term);
+    var tail2 = request.addTail('tail2');
+    setTimeout(function () {
+
+        tail2();                                // Using tail function interface
+    }, 2000);
+
+    request.reply('Success!');
 };
 
-http.route({ method: 'GET', path: '/{term}', handler: { proxy: { mapUri: mapper } } });
-```
+// Set routes
+http.route({ method: 'GET', path: '/', handler: get });
 
+// Listen to tail events
+http.on('tail', function (request) {
 
-#### File handler
+    console.log('Wag the dog');
+});
 
-File handlers provide a simple way to serve a static file for a given route. This is done by specifying an object with the `file`
-option as the route handler. The value of the `file` option is the absolute or relative path to the static resource. Relative paths
-are resolved based on the server's `files` option as described in (Files)[#files]. The route path cannot contain parameters when
-configured with a static file path. For example:
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'cwd' } });
-
-// Serve index.html file up a directory in the public folder
-http.route({ method: 'GET', path: '/', handler: { file: './public/index.html' } });
-
+// Start Hapi servers
 http.start();
 ```
 
-The file handler also supports dynamic determination of the file being served based on the request, using a function as the value
-of the `file` option with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and
-must return a string with the relative or absolute path to the static resource. For example:
 
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
 
-// File mapping function
-var filePath = function (request) {
-
-    if (isMobileDevice(request)) {
-        return './mobile/' + request.params.path;
-    }
-
-    return './public' + request.params.path;
-};
-
-http.route({ method: 'GET', path: '/{path}', handler: { file: filePath } });
-
-http.start();
-```
-
-File handlers also support specifying if the _'Content-Disposition'_ should be sent on the response.  The default is to not send this header, however if it needs to be sent there is an optional _'mode'_ property that can be set to _'attachment'_, _'inline'_, or false.  Below is an example setting the mode to _'attachment'_.
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080, { files: { relativeTo: 'cwd' } });
-
-// Serve index.html file up a directory in the public folder
-http.route({ method: 'GET', path: '/', handler: { file: { path: './public/index.html', mode: 'attachment } } });
-
-http.start();
-```
-
-Please note, that when setting _'file'_ to an object, the file path is assigned to the _'path'_ property.
-
-#### Directory handler
-
-Directory handlers provide a flexible way to serve static content from an entire directory tree. Similar to other web servers, **hapi**
-allows mapping between a request path component to resources within a file system directory, including serving a default index.html or
-a directory content listing.
-
-Routes utilizing the directory handler must include a single path parameter at the end of the path string (e.g. _'/path/to/somewhere/{param}'_).
-The directory handler is an object with the following options:
-- `path` - a required path string, an array of strings, or function. If the `path` is a string, it is used as the prefix for any resources requested within the route by appending the required route path parameter to the provided string. An array of string will be attemped in order until a match is found. Alternatively, the `path` can be a function with the signature _'function (request) { return './path'; }'_.  The function is passed the request object and must return a string with the relative or absolute path to the static resource. Relative paths are resolved based on the server's `files` option as described in (Files)[#files].
-- `index` - optional boolean, determines if 'index.html' will be served if exists in the folder when requesting a directory. Defaults to _'true'_.
-- `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
-- `showHidden` - optional boolean, determines if hidden files will be shown and served.  Defaults to _'false'_.
-
-The required route path parameter can use any of the parameter options (e.g. '{param}', '{param?}', '{param*}'). For example, to server
-only files in the top level folder and not to any subfolder use _'{path?}'_. If it is safe to navigate to child folders and files then
-use _'{path*}'_. Similarly, if the server should only allow access to a certain level of subfolders then use _'{path*2}'_.
-
-The following example shows how to serve a directory named _'public'_ and enable a directory listing in case a 'index.html' file doesn't exist:
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-// Serve the public folder with listing enabled
-http.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './public/', listing: true } } });
-
-http.start();
-```
-
-A function `path` can be used to serve different directory trees based on the incoming request. For example:
-
-```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-var directoryPath = function (request) {
-
-    if (isMobileDevice(request)) {
-        return './mobile';
-    }
-
-    return './public';
-};
-
-http.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: directoryPath } } });
-
-http.start();
-```
 
 
 #### View
@@ -1271,42 +1071,10 @@ The Hapi.Server settings may also be overridden on a per view basis without affe
 
 Full working examples covering features such as layouts and partials can be found in the `examples/views/handlebars` folder.
 
-#### View handler
 
-The route handler can be set to an object that points to a view file in order to make it easy to render a simple view.  The view context will have the payload, params, or querystring data that are available with the request.  For example, to render an _'about'_ page a route can be added as follows:
 
-```javascript
-var http = new Hapi.Server('0.0.0.0', 8080, {
-    views: {
-        path: __dirname + '/templates'
-    }
-});
 
-http.route({ method: 'GET', path: '/{user}/about', handler: { view: 'about });
-http.start();
-```
 
-Then in the view there are properties for params, payload, and querystring.  Below is an example of rendering the _'user'_ that is passed in from the request path along with related values from the querystring.
-
-```html
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>About {{ params.user }}</title>
-    </head>
-    <body>
-        <div>
-            <h1>About {{ params.user }}</h1>
-            <div>
-                Age: {{ querystring.age }}
-            </div>
-            <div>
-                Interests: {{ querystring.interests }}
-            </div>
-        </div>
-    </body>
-</html>
-```
 
 #### Layouts
 
@@ -1774,82 +1542,6 @@ Error responses are send as JSON payload with the following keys (unless an [err
 The complete error response including any additional data is added to the request log.
 
 
-## State Management
-
-### Raw Cookies
-
-Cookies can be set directly via the response _'state(name, value, options)'_ interface where:
-- 'name' - is the cookie name,
-- 'value' - is the cookie value, and
-- 'options' - is an optional structure with the following optional keys:
-    - `ttl` - time-to-live in milliseconds.
-    - `isSecure` - sets the 'Secure' flag.
-    - `isHttpOnly` - sets the 'HttpOnly' flag.
-    - `path` - the path scope.
-    - `domain` - the domain scope.
-    - `autoValue` - if present and the cookie was not received or explicitly set by the route handler, the cookie is automatically added to the response with the provided value. Used only when the state definition is registered via `server.state(name, options)`.
-    - `encoding` - encoding performs on the provided value before serialization. Options are:
-        - 'none' - no encoding. This is the default value. Value must be a string.
-        - 'base64' - string value is encoded using Base64.
-        - 'base64json' - object value is JSON-stringified than encoded using Base64.
-        - 'form' - object value is encoded using the _x-www-form-urlencoded_ method.
-
-Cookie definitions can be registered with the server using the server's _'state(name, options)'_ method, where 'options' is the same as above.
-If a cookie definition is found, the options are used for that cookie as defaults before other options specified at the time of state() invocation
-are applied. In addition, the `encoding` option is used when receiving a cookie from the client to parse the cookie's value, and `autoSet`
-
-## Request Tails
-
-It is often desirable to return a response as quickly as possible and perform additional (slower) actions afterwards (or in parallel). These
-actions are called request tails. For example, a request may trigger a database update tail that should not delay letting the client know the
-request has been received and will be processed shortly. However, it is still desirable to associate the tails with the request and to know
-when every single request related action has completed (in other words, when the request stopped wagging).
-
-**hapi** provides a simple facility for keeping track of pending tails by providing the following request methods:
-- _'addTail([name])'_ - registers a named tail and returns a tail function. The tail function must be retained and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
-- _'removeTail(tail)'_ - removes a tail to notify the server that the associated action has been completed.
-
-Alternatively, the returned tail function can be called directly without using the _removeTail()_ method.
-
-For example:
-```javascript
-var Hapi = require('hapi');
-
-// Create Hapi servers
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-// Route handler
-var get = function (request) {
-
-    var tail1 = request.addTail('tail1');
-    setTimeout(function () {
-
-        request.removeTail(tail1);              // Using removeTail() interface
-    }, 5000);
-
-    var tail2 = request.addTail('tail2');
-    setTimeout(function () {
-
-        tail2();                                // Using tail function interface
-    }, 2000);
-
-    request.reply('Success!');
-};
-
-// Set routes
-http.route({ method: 'GET', path: '/', handler: get });
-
-// Listen to tail events
-http.on('tail', function (request) {
-
-    console.log('Wag the dog');
-});
-
-// Start Hapi servers
-http.start();
-```
-
-
 #### Server Route Not Found
 
 **hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can add a
@@ -1872,6 +1564,231 @@ function notFoundHandler() {
     this.reply(Hapi.Error.notFound('The page was not found'));
 }
 ```
+
+## Server Authentication
+
+**hapi** supports several authentication schemes and can be configured with multiple strategies using these schemes (as well as other
+extensions). The built-in schemes provided:
+
+- _'basic'_ - HTTP [Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
+- _'cookie'_ - simple [cookie authentication](#cookie-authentication)
+- _'hawk'_ - HTTP [Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'bewit'_ - URI [Hawk Bewit](#hawk-bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
+- _'oz'_ - experimental web authorization protocol ([Oz protocol](https://github.com/hueniverse/oz))
+
+Authentication setup includes two steps:
+- Configure server authentication strategies using the provided schemes (or using an extension implementation). Strategies
+  are added using the `server.auth(name, options)` method where:
+    - 'name' - is the strategy name ('default' is automatically assigned if a single strategy is defined via the server config object).
+    - 'options' - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared
+      by all schemes:
+        - `scheme` - the built-in scheme name.
+        - `implementation` - cannot be used together with `scheme` and is used to provide an object with the **hapi** scheme interface.
+        - `defaultMode` - if 'true', is automatically assigned as a required strategy to any route without an `auth` config. Can
+          only be assigned to a single server strategy. Value must be 'true' or a valid authentication mode ('required', 'optional', 'try').
+- Assign strategies to route via the route config as described in [Configuration options](#configuration-options).
+
+In addition to the `server.auth(name, options)` method, the server can be initially configured with a set of strategies using the config
+`auth` key which can be set to a single strategy (name will default to 'default') or an object with multiple strategies where the strategy
+name is the object key.
+
+For example, configuring a single strategy:
+```javascript
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser
+    }
+};
+```
+
+And configuring multiple strategies:
+```javascript
+var options = {
+    auth: {
+        password1: {
+            scheme: 'basic',
+            loadUserFunc: loadUser1
+        },
+        password2: {
+            scheme: 'basic',
+            loadUserFunc: loadUser2
+        }
+    }
+};
+```
+
+The _'examples'_ folder contains an _'auth.js'_ file demonstrating the creation of a server with multiple authentication strategies.
+
+
+### Basic Authentication
+
+Basic authentication requires validating a username and password combination by looking up the user record via the username and comparing
+the provided password with the one stored in the user database. The lookup is performed by a function provided in the scheme configuration
+using the `loadUserFunc` option:
+```javascript
+var loadUser = function (username, callback) {
+
+    // Lookup user records using username...
+
+    if (err) {
+        return callback(err);
+    }
+
+    return callback(null, user, password);
+};
+
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser
+    }
+};
+```
+
+The _'loadUserFunc'_ callback expects a user object which is passed back once authenticated in `request.auth.credentials`, but is not
+used internally by **hapi**. If the user object is null or undefined, it means the user was not found and the authentication fails.
+
+The provided password is compared to the password received in the request. If the password is hashed, the `hashPasswordFunc` scheme option
+must be provided to hash the incoming plaintext password for comparisson. For example:
+
+```javascript
+var hashPassword = function (password) {
+    
+    var hash = Crypto.createHash('sha1');
+    hash.update(password, 'utf8');
+    hash.update(user.salt, 'utf8');
+
+    return hash.digest('base64');
+};
+
+
+var options = {
+    auth: {
+        scheme: 'basic',
+        loadUserFunc: loadUser,
+        hashPasswordFunc: hashPassword
+    }
+};
+```
+
+
+### Cookie Authentication
+
+***hapi*** has built-in support for cookie authentication.  Cookie authentication can be enabled with the _'cookie'_ scheme.  Below are the options available in a strategy that is using the _'cookie'_ scheme.
+
+- `scheme` - 'cookie'
+- `password` - used for deriving a key using PBKDF2
+- `ttl` - sets the cookie expires time in milliseconds
+- `cookie` - name of cookie used to save state
+- `clearInvalid` - when _'true'_ any authentication cookie that fails to authenticate will be marked as expired on the response
+- `validateFunc` - function that has the signature _'(session, callback)'_ and determines if the session passes authentication.  The callback function has the following signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
+
+Below is an example of configuring a server to use cookie authentication.
+
+```javascript
+var Hapi = require('hapi');
+
+var validateCookie = function (session, callback) {
+    
+    return callback(session.user === 'valid' ? null : new Error('bad user'), null);
+};
+
+var config = {
+    auth: {
+        scheme: 'cookie',
+        password: 'secret',
+        ttl: 60 * 1000,                 // Expire after a minute
+        cookie: 'membership',           // Cookie name
+        clearInvalid: true,
+        validateFunc: validateCookie
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+### Hawk Authentication
+
+The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'hawk',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+In the above example only the user 'john' can authenticate, all other users will result in an error.
+
+### Hawk Bewit Authentication
+
+[Hawk](https://github.com/hueniverse/hawk) allows for authentication to endpoints by constructing a specially formed URI.  To learn more about this feature in general please read the [Single URI Authorization](https://github.com/hueniverse/hawk#single-uri-authorization) section of the hawk readme.  Hapi supports this type of authentication through use of the _'bewit'_ scheme.  Only endpoints using the _'GET'_ HTTP method are allowed to support the _'bewit'_ scheme.  Below is an example of how to enable _'bewit'_ support on a server.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    'john': {
+        cred: {
+            id: 'john',
+            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+            algorithm: 'sha256'
+        }
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id] && credentials[id].cred);
+};
+
+var config = {
+    auth: {
+        scheme: 'bewit',
+        getCredentialsFunc: getCredentials
+    }
+};
+
+var server = new Hapi.Server(config);
+```
+
+From a client perspective the URI must contain the _'bewit'_ querystring key with the bewit token value.  Below is an example of constructing a URI to a resource with the _'bewit'_ key.
+
+```javascript
+var Hawk = require('hawk');
+
+var cred = {
+    id: 'john',
+    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+    algorithm: 'sha256'
+};
+
+var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
+var uri = 'http://site.com/endpoint?bewit=' + bewit;
+```
+
 
 
 # The End
