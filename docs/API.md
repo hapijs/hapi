@@ -64,11 +64,11 @@ When creating a server instance, the following options configure the server's be
 - `labels` - a string array of labels used when registering plugins to [`pack.select()`](#packselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 <p></p>
-- `payload` - controls how incoming payloads (request body) are processed:
+- <a name="server.config.payload" />`payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
 <p></p>
-- <a id="server.config.router">`router`</a> - controls how incoming request URIs are matched against the routing table:
+- <a name="server.config.router" />`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
     - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved
       characters, decodes unreserved characters, and capitalizes any percent encoded values. Useful when serving non-compliant HTTP clients.
@@ -155,7 +155,7 @@ server.stop({ timeout: 60 * 1000 }, function () {
 #### `server.route(options)`
 
 Adds a new route to the server with the following options:
-- `path` - (required) the absolute path used to match incoming requests (must begin with `/`). Incoming requests are compared to the configured
+- `path` - (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured
   paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
   will be matched against litertal values in the request as described in [Path parameters](#path-parameters).
 <p></p>
@@ -180,7 +180,7 @@ Adds a new route to the server with the following options:
       described in [Route prerequisites](#prerequisites).
 <p></p>
     - `validate`
-        - `query` - validation rules for an incoming request query component (the key-value part of the URI between `?` and `#`). Defaults to
+        - `query` - validation rules for an incoming request query component (the key-value part of the URI between '?' and '#'). Defaults to
           all query parameters allowed. Described in [Query validation](#query-validation).
         - `payload` - validation rules for an incoming request payload (request body). Defaults to no validation (any payload allowed).
           Set to `false` to forbid payloads. Described in [Payload validation](#payload-validation) for more information.
@@ -197,11 +197,17 @@ Adds a new route to the server with the following options:
                 - `log` - log the error but send the response.
 <p></p>
     - `payload` - determines how the request payload is processed. Defaults to `parse` if `validate.payload` is set or when `method` is
-      `POST` or `PUT`, otherwise `stream`. Payload processing is configured using the server `payload` configuration. Options are:
+      `POST` or `PUT`, otherwise `stream`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
+       Options are:
         - _'stream'_ - the incoming request stream is left untouched, leaving it up to the handler to process the request via `request.raw.req`.
         - _'raw'_ - the payload is read and stored in `request.rawPayload` as a Buufer and is not parsed.
         - _'parse'_ - the payload is read and stored in `request.rawPayload` as a Buffer, and then parsed (JSON or form-encoded) and stored
-          in `request.payload`.
+          in `request.payload`. Parsing is performed based on the incoming request 'Content-Type' header. If the parsing is enabled and the
+          format is unknown, a Bad Request (400) error response is sent. The supported mime types are:
+            - application/json
+            - application/x-www-form-urlencoded
+            - multipart/form-data ([formidable](https://npmjs.org/package/formidable) is used for processing this data and is capable of
+              receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
 <p></p>
     - `cache` - if the the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
@@ -262,14 +268,12 @@ var user = {
 server.route({ method: 'GET', path: '/user', config: user });
 ```
 
-### Path processing
+##### Path processing
 
 The router iterates through the routing table on each incoming request and executes the first (and only the first) matching route. Route
-matching is done on the request path only (excluding the query and other URI components).
-
-**hapi** matches incoming requests in a deterministic order. This means the order in which routes are added does not
-matter. To achieve this, **hapi** uses a set of rules to sort the routes from the most specific to the most generic. For example, the following
-path array shows the order in which an incoming request path will be matched against the routes, regardless of the order they are added:
+matching is done on the request path only (excluding the query and other URI components). Requests are matches in a deterministic order where
+the order in which routes are added does not matter. The routes are sorted from the most specific to the most generic. For example, the following
+path array shows the order in which an incoming request path will be matched against the routes:
 
 ```javascript
 var paths = [
@@ -295,80 +299,88 @@ var paths = [
 ];
 ```
 
+##### Path parameters
 
-#### Path parameters
-
-Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that level. For example, the route:
-'/book/{id}/cover' will match: '/book/123/cover' and 'request.params.id' will be set to '123'. Each path level (everything between the opening _'/'_ and
- the closing _'/'_ unless it is the end of the path) can only include one named parameter. The _'?'_ suffix following the parameter name indicates
-an optional parameter (only allowed if the parameter is at the ends of the path). For example: the route: '/book/{id?}' will match: '/book/'.
+Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that path segment. For example,
+'/book/{id}/cover' will match '/book/123/cover' and `request.params.id` will be set to `123`. Each path segment (everything between the opening '/' and
+ the closing '/' unless it is the end of the path) can only include one named parameter.
+ 
+ An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path).
+ For example, the route '/book/{id?}' matches '/book/'.
 
 ```javascript
+var getAlbum = function () {
+
+    this.reply('You asked for ' +
+                (this.params.song ? this.params.song + ' from ' : '') +
+                this.params.album);
+};
+
 server.route({
     path: '/{album}/{song?}',
     method: 'GET',
     handler: getAlbum
 });
-
-function getAlbum() {
-
-    this.reply('You asked for ' +
-                (this.params.song ? this.params.song + ' from ' : '') +
-                this.params.album);
-}
 ```
 
-In addition to the optional _'?'_ suffix, a param can also specify an expected number of parts in the path.  To do this use the _'*'_ suffix followed by a number greater than 1.  If the number of expected parts can be anything, then use the _'*'_ without a number.
+In addition to the optional '?' suffix, a parameter name can also specify the number of matching segments using the '*' suffix, followed by a number
+greater than 1. If the number of expected parts can be anything, then use '*' without a number (matchin any number of segments can only be used in the
+last path segment).
 
 ```javascript
+var getPerson = function () {
+
+    var nameParts = this.params.name.split('/');
+    this.reply({ first: nameParts[0], last: nameParts[1] });
+};
+
 server.route({
-    path: '/person/{names*2}',
+    path: '/person/{name*2}',   // Matches '/person/john/doe'
     method: 'GET',
     handler: getPerson
 });
-
-function getPerson() {
-
-    var nameParts = this.params.names.split('/');
-    this.reply(new Person(namesParts[0], nameParts[1]));
-}
 ```
-
-In the example code above if a request for `/person/john/smith` comes in then `request.params.names` is set to 'john/smith'.  In this example a person will be returned for the john smith.
-
-Below is a similar example without a requirement on the number of name parts that can be passed.
-
-```javascript
-server.route({
-    path: '/people/{names*}',
-    method: 'GET',
-    handler: getPerson
-});
-
-function getPeople() {
-
-    var nameParts = this.params.names.split('/');
-    this.reply(loadPeople(namesParts));
-}
-```
-
-In the example people are loaded by passing in a names array.  If a request comes in for `people/john/bob/jenny` then `request.params.names` is set to 'john/bob/jenny'.  Please note that the route will be matched for a request of `/people/` as names can be 0 or more parts.  As a result of this behavior, {names*} must appear as the last parameter in the route path.  In other words, a param with 0 or more path parts must appear at the end of the end of the route path.
-
-### Request Payload Parsing
-
-Incoming requests that contain a payload and a supported 'Content-Type' header are parsed when the route _'payload'_ option is set to _'parse'_.  Currently, the following 'Content-Type' header values are parsed and assigned to the `request.payload` object.
-
-    - application/json
-    - application/x-www-form-urlencoded
-    - multipart/form-data
-    
-When parsing is enabled for a route and the request has a payload and an unsupported 'Content-Type' header an error will be returned to the client.
-
-The module [formidable](https://npmjs.org/package/formidable) is used for processing the 'multipart/form-data'.  Formidable is capable of receiving files as well as other form data.  All values are assigned to their respective form names on the _'payload'_ object.  
-
 
 #### `server.route(routes)`
+
+Same as [server.route(options)](#serverrouteoptions) where `routes` is an array of route options.
+
+```javascript
+server.route([
+    { method: 'GET', path: '/status', handler: status },
+    { method: 'GET', path: '/user', config: user }
+]);
+```
+
 #### `server.routingTable()`
+
+Returns a copy of the routing table. The return value is an array of routes where each route contains:
+- `settings` - the route config with defaults applied.
+- `method` - the HTTP method in lower case.
+- `path` - the route path.
+
+```javascript
+var table = server.routingTable()
+console.log(table);
+
+/*
+    Output:
+
+    [{
+        method: 'get',
+        path: '/test/{p}/end',
+        settings: {
+            handler: [Function],
+            method: 'get',
+            plugins: {},
+            app: {},
+            validate: {},
+            payload: 'stream',
+            auth: undefined,
+            cache: [Object] }
+    }] */
+```
+
 #### `server.log(tags, data, timestamp)`
 
 #### `server.state(name, options)`
@@ -384,9 +396,10 @@ server.on('request', function (request, event, tags) {
 });
 ```
 
-
 #### `server.auth(name, options)`
+
 #### `server.views(options)`
+
 #### `server.ext(event, method)`
 
 **hapi** does not support middleware extensibility as is commonly found in other web frameworks. Instead, **hapi** provides extension hooks for
