@@ -44,7 +44,7 @@ describe('Auth', function () {
                 return callback(null, {
                     user: 'john',
                     scope: [],
-                    tos: 100
+                    tos: '1.0.0'
                 }, hashPassword('12345'));
             }
             else if (id === 'jane') {
@@ -90,7 +90,7 @@ describe('Auth', function () {
             { method: 'POST', path: '/basic', handler: basicHandler, config: { auth: true } },
             { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
-            { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: 200 } } },
+            { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: '1.1.x' } } },
             { method: 'POST', path: '/double', handler: doubleHandler }
         ]);
 
@@ -492,7 +492,7 @@ describe('Auth', function () {
             { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler, config: { auth: 'default' } },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/hawkScope', handler: hawkHandler, config: { auth: { scope: 'x' } } },
-            { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: 200 } } },
+            { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: '2.0.0' } } },
             { method: 'POST', path: '/hawkPayload', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'required' }, payload: 'raw' } },
             { method: 'POST', path: '/hawkPayloadOptional', handler: hawkHandler, config: { auth: { mode: 'required', payload: 'optional' }, payload: 'raw' } },
             { method: 'POST', path: '/hawkPayloadNone', handler: hawkHandler, config: { auth: { mode: 'required', payload: false }, payload: 'raw' } },
@@ -914,7 +914,7 @@ describe('Auth', function () {
             { method: 'GET', path: '/bewit', handler: bewitHandler, config: { auth: 'default' } },
             { method: 'GET', path: '/bewitOptional', handler: bewitHandler, config: { auth: { mode: 'optional' } } },
             { method: 'GET', path: '/bewitScope', handler: bewitHandler, config: { auth: { scope: 'x' } } },
-            { method: 'GET', path: '/bewitTos', handler: bewitHandler, config: { auth: { tos: 200 } } }
+            { method: 'GET', path: '/bewitTos', handler: bewitHandler, config: { auth: { tos: '2.0.0' } } }
         ]);
 
         it('returns a reply on successful auth', function (done) {
@@ -1111,7 +1111,7 @@ describe('Auth', function () {
                 return callback(null, {
                     user: 'john',
                     scope: [],
-                    tos: 100
+                    tos: '1.0.0'
                 }, '12345');
             }
             else if (id === 'jane') {
@@ -1163,7 +1163,7 @@ describe('Auth', function () {
             { method: 'POST', path: '/multiple', handler: handler, config: { auth: { strategies: ['basic', 'hawk'] } } },
             { method: 'POST', path: '/multipleOptional', handler: handler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/multipleScope', handler: handler, config: { auth: { scope: 'x' } } },
-            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: 200 } } },
+            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: '2.0.0' } } },
             { method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'optional' }, payload: 'raw' } }
         ]);
 

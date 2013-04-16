@@ -75,7 +75,7 @@ describe('Validation', function () {
 
     describe('#response', function () {
 
-        var route = { method: 'GET', path: '/', config: { handler: testHandler, response: { schema: { username: S().required() } } } };
+        var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { response: { schema: { username: S().required() } } } } };
 
         it('should not raise an error when responding with valid param', function (done) {
 
@@ -122,7 +122,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.route.response.sample = 0;
+            request.route.validate.response.sample = 0;
             request._response = Hapi.response._generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
@@ -136,7 +136,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.route.response.sample = 100;
+            request.route.validate.response.sample = 100;
             request._response = Hapi.response._generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
@@ -150,8 +150,8 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.route.response.failAction = 'log';
-            request.route.response.sample = sample;
+            request.route.validate.response.failAction = 'log';
+            request.route.validate.response.sample = sample;
             request._response = Hapi.response._generate({ wrongParam: 'test' });
             var failureCount = 0;
 
@@ -192,7 +192,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.route.response.failAction = 'log';
+            request.route.validate.response.failAction = 'log';
             request._response = Hapi.response._generate({ wrongParam: 'test' });
 
             request._log = function (tags, data) {
@@ -222,7 +222,7 @@ describe('Validation', function () {
 
         it('doesn\'t perform validation when response is true', function (done) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, response: true } };
+            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { response: true } } };
 
             var query = null;
             var request = createRequestObject(query, route);

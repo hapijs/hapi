@@ -43,7 +43,8 @@
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
     "optimist": "0.3.x",
-    "negotiator": "0.2.x"
+    "negotiator": "0.2.x",
+    "semver": "1.1.x"
   },
   "devDependencies": {
     "lab": "0.1.x",
