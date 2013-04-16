@@ -68,7 +68,7 @@ When creating a server instance, the following options configure the server's be
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
 <p></p>
-- `router` - controls how incoming request URIs are matched against the routing table:
+- <a id="server.config.router">`router`</a> - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
     - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved
       characters, decodes unreserved characters, and capitalizes any percent encoded values. Useful when serving non-compliant HTTP clients.
@@ -156,8 +156,8 @@ server.stop({ timeout: 60 * 1000 }, function () {
 
 Adds a new route to the server with the following options:
 - `path` - (required) the absolute path used to match incoming requests (must begin with `/`). Incoming requests are compared to the configured
-  paths based on the server `router` configuration option. The path can include named parameters enclosed in `{}` which will be matched against
-  litertal values in the request as described in [Path parameters](#path-parameters).
+  paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
+  will be matched against litertal values in the request as described in [Path parameters](#path-parameters).
 <p></p>
 - `method` - (required) the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_.
   Use `*` to match against any HTTP method (only when an exact match was not found).
