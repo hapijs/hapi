@@ -7,6 +7,7 @@ var Http = require('http');
 var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');
+var Assert = require('assert');
 var Hapi = require('../..');
 
 
@@ -542,11 +543,19 @@ describe('Payload', function () {
 
         it('parses a file correctly', function (done) {
 
-            var file = Fs.readFileSync(Path.join(__dirname, '../../images/hapi.png'));
+            var path = Path.join(__dirname, '../../images/hapi.png');
+            var stats = Fs.statSync(path);
+            var fileStream = Fs.createReadStream(path);
+            var fileContents = Fs.readFileSync(path, { encoding: 'binary' });
+            
             var fileHandler = function (request) {
 
                 expect(request.raw.req.headers['content-type']).to.contain('multipart/form-data');
-                expect(request.payload['my_file']).to.contain('Photoshop');
+                expect(request.payload['my_file'].size).to.equal(stats.size);
+
+                var tmpContents = Fs.readFileSync(request.payload['my_file'].path, { encoding: 'binary' });
+                Assert.deepEqual(fileContents, tmpContents);
+
                 done();
             };
 
@@ -556,7 +565,7 @@ describe('Payload', function () {
 
                 var r = Request.post(server.settings.uri + '/file');
                 var form = r.form();
-                form.append('my_file', file);
+                form.append('my_file', fileStream);
             });
         });
     });
