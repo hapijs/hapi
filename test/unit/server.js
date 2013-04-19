@@ -147,7 +147,7 @@ describe('Server', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server('0.0.0.0', 0, { auth: { scheme: 'basic', loadUserFunc: function () { } } });
+            var server = new Hapi.Server('0.0.0.0', 0, { auth: { scheme: 'basic', validateFunc: function () { } } });
         };
         expect(fn).to.not.throw(Error);
         done();

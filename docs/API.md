@@ -27,6 +27,9 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 
 When creating a server instance, the following options configure the server's behaviour:
 
+- `app` - application-specific configuration. Provides a safe place to store application configuration without potential conflicts with **hapi**.
+  Should not be used by plugins which should use `plugins[name]`.
+<p></p>
 - `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
   or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
   [`server.auth()`](#serverauthname-options).
@@ -73,6 +76,9 @@ When creating a server instance, the following options configure the server's be
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
 <p></p>
+- `plugins` - plugin-specific configuration. Provides a place to store and pass plugin configuration that is at server-level. The `plugins` is
+  an object where each key is a plugin name and the value is the configuration.
+<p></p>
 - <a name="server.config.router" />`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
     - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved
@@ -99,9 +105,6 @@ When creating a server instance, the following options configure the server's be
 <p></p>
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
-<p></p>
-- `redirect` - controls redirection behavior:
-    - `baseUri` - defines a uri prefix added to any redirection response URI  
 <p></p>
 - <a name="server.config.views" />`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
@@ -131,17 +134,17 @@ When creating a server instance, the following options configure the server's be
 ### `Server` properties
 
 Each instance of the `Server` object have the following properties:
-- `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults.
+- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
+  Should not be used by plugins which should use `plugins[name]`.
+- `helpers` - helper functions registered with [`server.helper()`](#serverhelpername-method-options).
 - `info` - server information:
     - `port` - the port the server was configured to (before `start()`) or bound to (after `start()`).
     - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
-- `plugin` - the [`Pack`](#pack) object the server belongs to (automatically assigned when creating a server instance directly).
-- `plugins` - an object with each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
-- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
-  Should not be used by plugins which should use `plugins[name]`.
-- `helpers` - helper functions registered with [`server.helper()`](#serverhelpername-method-options).
 - `listener` - the node HTTP server object.
+- `pack` - the [`Pack`](#pack) object the server belongs to (automatically assigned when creating a server instance directly).
+- `plugins` - an object with each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
+- `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults.
 
 
 ### `Server` methods
@@ -191,28 +194,6 @@ Adds a new route to the server with the following options:
 <p></p>
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
   described in [Route handler](#route-handler). Alternatively, the `handler` option can be assigned an object with one of:
-    - `proxy` - generates a reverse proxy handler with the following options:
-        - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
-        - `port` - the upsteram service port.
-        - `protocol` - The protocol to use when making a request to the proxied host:
-            - `'http'`
-            - `'https'`
-        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
-        - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
-          proxied upstream endpoint. Defaults to `false`.
-        - `mapUri` - a function used to map the request URI to the proxied URI. The function signature is `function(request, callback)` where:
-            - `request` - is the incoming request object
-            - `callback` - is `function(err, uri)` where `uri` is the absolute proxy URI. Cannot be used together with `host`, `port`, or `protocol`.
-        - `postResponse` - a custom function for processing the response from the upstream service before sendint to the client. Useful for
-          custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
-          `function(request, settings, res, payload)` where:
-              - `request` - is the incoming request object. It is the responsibility of the `postResponse()` function to call `request.reply()`.
-              - `settings` - the proxy handler configuration.
-              - `res` - the node response object received from the upstream service.
-              - `payload` - the response payload.
-        - `httpClient` - an alternative HTTP client function, compatible with the [`request`](https://npmjs.org/package/request) module `request()`
-          interface.
-<p></p>
     - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute file path.
@@ -235,6 +216,28 @@ Adds a new route to the server with the following options:
         - `index` - optional boolean, determines if 'index.html' will be served if found in the folder when requesting a directory. Defaults to `true`.
         - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
+<p></p>
+    - `proxy` - generates a reverse proxy handler with the following options:
+        - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
+        - `port` - the upsteram service port.
+        - `protocol` - The protocol to use when making a request to the proxied host:
+            - `'http'`
+            - `'https'`
+        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
+        - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
+          proxied upstream endpoint. Defaults to `false`.
+        - `mapUri` - a function used to map the request URI to the proxied URI. The function signature is `function(request, callback)` where:
+            - `request` - is the incoming request object
+            - `callback` - is `function(err, uri)` where `uri` is the absolute proxy URI. Cannot be used together with `host`, `port`, or `protocol`.
+        - `postResponse` - a custom function for processing the response from the upstream service before sendint to the client. Useful for
+          custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
+          `function(request, settings, res, payload)` where:
+              - `request` - is the incoming request object. It is the responsibility of the `postResponse()` function to call `request.reply()`.
+              - `settings` - the proxy handler configuration.
+              - `res` - the node response object received from the upstream service.
+              - `payload` - the response payload.
+        - `httpClient` - an alternative HTTP client function, compatible with the [`request`](https://npmjs.org/package/request) module `request()`
+          interface.
 <p></p>
     - `view` - generates a template-based response. The `view` options is set to the desired template file name. The view context available to the template
       includes:
@@ -292,21 +295,24 @@ Adds a new route to the server with the following options:
         - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than `expiresIn`.
         - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
 <p></p>
-    - `auth` - authentication configuration (more information is available in [Server authentication](#server-authentication)):
-        - `mode` - the authentication mode. Defaults to `'required'` if a server authentication strategy is configured, otherwise defaults
-          to no authentication. Available values:
-            - `'required'` - authentication is required.
-            - `'optional'` - authentication is optional (must be valid if present).
-            - `'try'` - same as `'optional'` but allows for invalid authentication.
-        - `tos` - minimum terms-of-service version required (uses the [semver](https://npmjs.org/package/semver) module). If defined, the
-          authentication credentials object must include a `tos` key which satisfies this requirement. Defaults to `false` which means no validation.
-        - `scope` - required application scope. A scope string which must be included in the authentication credentials object in `scope` which is
-          a string array. Defaults to no scope required.
-        - `entity` - the required authenticated entity type. If set, must match the `entity` value of the authentication credentials. Available
-          values:
-            - `any` - the authentication can be on behalf of a user or application. This is the default value.
-            - `user` - the authentication must be on behalf of a user.
-            - `app` - the authentication must be on behalf of an application.
+    - `auth` - authentication configuration. Value can be:
+        - a string with the name of an authentication strategy registered with `server.auth()`.
+        - a boolean where `false` means no authentication, and `true` means used the `'default'` authentication strategy.
+        - an object with:
+            - `mode` - the authentication mode. Defaults to `'required'` if a server authentication strategy is configured, otherwise defaults
+              to no authentication. Available values:
+                - `'required'` - authentication is required.
+                - `'optional'` - authentication is optional (must be valid if present).
+                - `'try'` - same as `'optional'` but allows for invalid authentication.
+            - `tos` - minimum terms-of-service version required (uses the [semver](https://npmjs.org/package/semver) module). If defined, the
+              authentication credentials object must include a `tos` key which satisfies this requirement. Defaults to `false` which means no validation.
+            - `scope` - required application scope. A scope string which must be included in the authentication credentials object in `scope` which is
+              a string array. Defaults to no scope required.
+            - `entity` - the required authenticated entity type. If set, must match the `entity` value of the authentication credentials. Available
+              values:
+                - `any` - the authentication can be on behalf of a user or application. This is the default value.
+                - `user` - the authentication must be on behalf of a user.
+                - `app` - the authentication must be on behalf of an application.
 <p></p>
     - `description` - route description used for generating documentation (string).
     - `notes` - route notes used for generating documentation (string or array of strings).
@@ -414,6 +420,8 @@ server.route({
 ##### Route Handler
 
 When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request) object.
+The handler method must call [`request.reply()`](#requestreply) or one of its sub-methods to return control back to the router.
+
 Route handler functions can use one of three declaration styles:
 
 No arguments (the request object is bound to `this`, decorated by the `reply` interface):
@@ -602,70 +610,54 @@ Registers an authentication strategy where:
     - `defaultMode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be assigned to a single
       server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
       
-```javascript
-var lookupUser = function (username, callback) {
+##### Basic authentication
 
-    // Validate username...
-    callback
+Basic authentication requires validating a username and password combination. The username is passed to a `loadUserFunc` function and a
+matching password is expect. The password is than compared (optionally after hashing it) to determine the authenticated state. The `'basic'`
+scheme take the following required options:
+- `scheme` - set to `'basic'`.
+- `validateFunc` - a user lookup and password validation function with the signature `function(username, password, callback)` where:
+    - `username` - the username received from the client.
+    - `password` - the password received from the client.
+    - `callback` - a callback function with the signature `function(err, isValid, credentials)` where:
+        - `err` - an internal error.
+        - `isValid` - `true` if both the username was found and the password matched, otherwise `false`.
+        - `credentials` - a crendetials object passed back to the application in `request.auth.credentials`. Typically, `credentials` are only
+          included when `isValid` is `true`, but there are cases when the application needs to know who tried to authenticate even when it fails
+          (e.g. with authentication mode `'try'`).
+
+```javascript
+var Bcrypt = require('bcrypt');
+
+var users = {
+    john: {
+        username: 'john',
+        password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm',   // 'secret'
+        name: 'John Doe',
+        id: '2133d32a'
+    }
 };
 
-server.auth('users', {
+var validate = function (username, password, callback) {
+
+    var user = users[username];
+    if (!user) {
+        return callback(null, false);
+    }
+
+    Bcrypt.compare(password, user.password, function (err, isValid) {
+
+        callback(err, isValid, { id: user.id, name: user.name });
+    });
+};
+
+server.auth('simple', {
     scheme: 'basic',
-    loadUserFunc: lookupUser
+    validateFunc: validate
 });
+
+server.route({ method: 'GET', path: '/', config: { auth: 'simple' } });
 ```
-
-##### Basic Authentication
-
-Basic authentication requires validating a username and password combination by looking up the user record via the username and comparing
-the provided password with the one stored in the user database. The lookup is performed by a function provided in the scheme configuration
-using the `loadUserFunc` option:
-```javascript
-var loadUser = function (username, callback) {
-
-    // Lookup user records using username...
-
-    if (err) {
-        return callback(err);
-    }
-
-    return callback(null, user, password);
-};
-
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser
-    }
-};
-```
-
-The _'loadUserFunc'_ callback expects a user object which is passed back once authenticated in `request.auth.credentials`, but is not
-used internally by **hapi**. If the user object is null or undefined, it means the user was not found and the authentication fails.
-
-The provided password is compared to the password received in the request. If the password is hashed, the `hashPasswordFunc` scheme option
-must be provided to hash the incoming plaintext password for comparisson. For example:
-
-```javascript
-var hashPassword = function (password) {
-    
-    var hash = Crypto.createHash('sha1');
-    hash.update(password, 'utf8');
-    hash.update(user.salt, 'utf8');
-
-    return hash.digest('base64');
-};
-
-
-var options = {
-    auth: {
-        scheme: 'basic',
-        loadUserFunc: loadUser,
-        hashPasswordFunc: hashPassword
-    }
-};
-```
-
 
 ##### Cookie Authentication
 

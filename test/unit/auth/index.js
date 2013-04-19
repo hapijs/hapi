@@ -80,7 +80,7 @@ describe('Auth', function () {
             var scheme = {
                 'test': {
                     scheme: 'basic',
-                    loadUserFunc: function () { }
+                    validateFunc: function () { }
                 }
             };
 
@@ -128,9 +128,9 @@ describe('Auth', function () {
             var scheme = {
                 'test': {
                     scheme: 'basic',
-                    loadUserFunc: function (username, callback) {
+                    validateFunc: function (username, password, callback) {
 
-                        return callback(null, { user: 'steve' }, 'password');
+                        return callback(null, password === 'password', { user: 'steve' });
                     }
                 }
             };
@@ -162,9 +162,9 @@ describe('Auth', function () {
                 auth: {
                     'test': {
                         scheme: 'basic',
-                        loadUserFunc: function (username, callback) {
+                        validateFunc: function (username, password, callback) {
 
-                            return callback(null, { id: 'steve', password: 'password' });
+                            return callback(null, password === 'password', { id: 'steve', password: 'password' });
                         }
                     }
                 }
@@ -456,7 +456,7 @@ describe('Auth', function () {
 
         var basic = {
             scheme: 'basic',
-            loadUserFunc: function () { }
+            validateFunc: function () { }
         };
 
         test(basic);

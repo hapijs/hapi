@@ -31,40 +31,29 @@ describe('Auth', function () {
 
     describe('Basic', function () {
 
-        var hashPassword = function (password) {
+        var loadUser = function (username, password, callback) {
 
-            var hash = Crypto.createHash('sha1');
-            hash.update(password, 'utf8');
-            return hash.digest('base64');
-        };
-
-        var loadUser = function (id, callback) {
-
-            if (id === 'john') {
-                return callback(null, {
+            if (username === 'john') {
+                return callback(null, password === '12345', {
                     user: 'john',
                     scope: [],
                     tos: '1.0.0'
-                }, hashPassword('12345'));
+                });
             }
-            else if (id === 'jane') {
+            else if (username === 'jane') {
                 return callback(Hapi.error.internal('boom'));
             }
-            else if (id === 'invalid1') {
-                return callback(null, 'bad');
-            }
-            else if (id === 'invalid2') {
-                return callback(null, {}, null);
+            else if (username === 'invalid1') {
+                return callback(null, true, 'bad');
             }
 
-            return callback(null, null);
+            return callback(null, false);
         };
 
         var config = {
             auth: {
                 scheme: 'basic',
-                loadUserFunc: loadUser,
-                hashPasswordFunc: hashPassword,
+                validateFunc: loadUser,
                 defaultMode: 'required'
             }
         };
@@ -227,18 +216,6 @@ describe('Auth', function () {
             });
         });
 
-        it('returns an error on missing password error', function (done) {
-
-            var request = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('invalid2', '12345') } };
-
-            server.inject(request, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result.code).to.equal(500);
-                done();
-            });
-        });
-
         it('returns an error on insufficient tos', function (done) {
 
             var request = { method: 'POST', url: '/basicTos', headers: { authorization: basicHeader('john', '12345') } };
@@ -292,8 +269,7 @@ describe('Auth', function () {
             var config = {
                 auth: {
                     scheme: 'basic',
-                    loadUserFunc: loadUser,
-                    hashPasswordFunc: hashPassword
+                    validateFunc: loadUser
                 }
             };
             var server = new Hapi.Server(config);
@@ -331,11 +307,11 @@ describe('Auth', function () {
                 auth: {
                     'default': {
                         scheme: 'basic',
-                        loadUserFunc: loadUser
+                        validateFunc: loadUser
                     },
                     'b': {
                         scheme: 'basic',
-                        loadUserFunc: loadUser
+                        validateFunc: loadUser
                     }
                 }
             };
@@ -1105,24 +1081,23 @@ describe('Auth', function () {
             }
         };
 
-        var loadUser = function (id, callback) {
+        var loadUser = function (username, password, callback) {
 
-            if (id === 'john') {
-                return callback(null, {
+            if (username === 'john') {
+                return callback(null, password === '12345', {
                     user: 'john',
                     scope: [],
                     tos: '1.0.0'
-                }, '12345');
+                });
             }
-            else if (id === 'jane') {
+            else if (username === 'jane') {
                 return callback(Hapi.error.internal('boom'));
             }
-            else if (id === 'invalid') {
-                return callback(null, {});
+            else if (username === 'invalid1') {
+                return callback(null, true, 'bad');
             }
-            else {
-                return callback(null, null);
-            }
+
+            return callback(null, false);
         };
 
         var hawkHeader = function (id, path) {
@@ -1147,7 +1122,7 @@ describe('Auth', function () {
                 },
                 'basic': {
                     scheme: 'basic',
-                    loadUserFunc: loadUser
+                    validateFunc: loadUser
                 }
             }
         };

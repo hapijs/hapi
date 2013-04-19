@@ -7,18 +7,18 @@ var internals = {};
 
 exports.register = function (pack, options, next) {
 
-    var loadUser = function (id, callback) {
+    var loadUser = function (username, password, callback) {
 
-        if (id === 'john') {
-            return callback(null, { user: 'john' }, '12345');
+        if (username === 'john') {
+            return callback(null, password === '12345', { user: 'john' });
         }
 
-        return callback(null, null);
+        return callback(null, false);
     };
 
     pack.auth('basic', {
         scheme: 'basic',
-        loadUserFunc: loadUser,
+        validateFunc: loadUser,
         defaultMode: true
     });
 

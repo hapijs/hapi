@@ -1,25 +1,13 @@
 // Load modules
 
-var Crypto = require('crypto');
 var Hawk = require('hawk');
+var Bcrypt = require('bcrypt');
 var Hapi = require('../lib');
 
 
 // Declare internals
 
-var internals = {
-    salt: '' + Date.now()
-};
-
-
-internals.hashPassword = function (password) {
-
-    var hash = Crypto.createHash('sha256');
-    hash.update(password);
-    hash.update(internals.salt);
-
-    return hash.digest('base64');
-};
+var internals = {};
 
 
 internals.users = {
@@ -30,7 +18,7 @@ internals.users = {
 
 
 internals.passwords = {
-    john: 'secret'
+    john: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm'            // password: secret
 };
 
 
@@ -43,9 +31,12 @@ internals.credentials = {
 };
 
 
-internals.loadUser = function (username, callback) {
+internals.validate = function (username, password, callback) {
 
-    callback(null, internals.users[username], internals.hashPassword(internals.passwords[username]));
+    Bcrypt.compare(password, internals.passwords[username], function (err, isValid) {
+
+        callback(null, isValid , internals.users[username]);
+    });
 };
 
 
@@ -81,8 +72,7 @@ internals.main = function () {
             },
             'basic': {
                 scheme: 'basic',
-                loadUserFunc: internals.loadUser,
-                hashPasswordFunc: internals.hashPassword
+                validateFunc: internals.validate
             }
         }
     };
