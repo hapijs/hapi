@@ -417,7 +417,7 @@ server.route({
 });
 ```
 
-##### Route Handler
+##### Route handler
 
 When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request) object.
 The handler method must call [`request.reply()`](#requestreply) or one of its sub-methods to return control back to the router.
@@ -612,9 +612,7 @@ Registers an authentication strategy where:
       
 ##### Basic authentication
 
-Basic authentication requires validating a username and password combination. The username is passed to a `loadUserFunc` function and a
-matching password is expect. The password is than compared (optionally after hashing it) to determine the authenticated state. The `'basic'`
-scheme take the following required options:
+Basic authentication requires validating a username and password combination. The `'basic'` scheme take the following required options:
 - `scheme` - set to `'basic'`.
 - `validateFunc` - a user lookup and password validation function with the signature `function(username, password, callback)` where:
     - `username` - the username received from the client.
