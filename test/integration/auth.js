@@ -1379,6 +1379,56 @@ describe('Auth', function () {
             });
         });
 
+        it('authenticates a request', function (done) {
+
+            var config = {
+                scheme: 'cookie',
+                password: 'password',
+                ttl: 60 * 1000,
+                cookie: 'special',
+                clearInvalid: true
+            };
+
+            var server = new Hapi.Server({ auth: config });
+
+            server.route({
+                method: 'GET', path: '/login/{user}',
+                config: {
+                    auth: { mode: 'try' },
+                    handler: function () {
+
+                        this.auth.session.set({ user: this.params.user });
+                        return this.reply(this.params.user);
+                    }
+                }
+            });
+
+            server.route({
+                method: 'GET', path: '/resource', handler: function () {
+
+                    expect(this.auth.credentials.user).to.equal('steve');
+                    return this.reply('resource');
+                },
+                config: { auth: 'default' }
+            });
+
+            server.inject({ method: 'GET', url: '/login/steve' }, function (res) {
+
+                expect(res.result).to.equal('steve');
+                var header = res.headers['set-cookie'];
+                expect(header.length).to.equal(1);
+                expect(header[0]).to.contain('Max-Age=60');
+                var cookie = header[0].match(/(?:[^\x00-\x20\(\)<>@\,;\:\\"\/\[\]\?\=\{\}\x7F]+)\s*=\s*(?:([^\x00-\x20\"\,\;\\\x7F]*))/);
+
+                server.inject({ method: 'GET', url: '/resource', headers: { cookie: 'special=' + cookie[1] } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('resource');
+                    done();
+                });
+            });
+        });
+
         describe('redirection', function (done) {
 
             it('sends to login page (uri without query)', function (done) {
@@ -1388,11 +1438,7 @@ describe('Auth', function () {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login',
-                    appendNext: true,
-                    validateFunc: function (session, callback) {
-
-                        return callback();
-                    }
+                    appendNext: true
                 };
 
                 var server = new Hapi.Server({ auth: config });
@@ -1420,11 +1466,7 @@ describe('Auth', function () {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login?mode=1',
-                    appendNext: true,
-                    validateFunc: function (session, callback) {
-
-                        return callback();
-                    }
+                    appendNext: true
                 };
 
                 var server = new Hapi.Server({ auth: config });
@@ -1452,11 +1494,7 @@ describe('Auth', function () {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login?mode=1',
-                    appendNext: false,
-                    validateFunc: function (session, callback) {
-
-                        return callback();
-                    }
+                    appendNext: false
                 };
 
                 var server = new Hapi.Server({ auth: config });
@@ -1484,11 +1522,7 @@ describe('Auth', function () {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login',
-                    appendNext: true,
-                    validateFunc: function (session, callback) {
-
-                        return callback();
-                    }
+                    appendNext: true
                 };
 
                 var server = new Hapi.Server({ auth: config });

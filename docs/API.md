@@ -659,14 +659,16 @@ server.route({ method: 'GET', path: '/', config: { auth: 'simple' } });
 ##### Cookie Authentication
 
 Cookie authentication provides a simple cookie-based session management. The user has to be authenticated via other means, typically a web
-form, and upon successful authentication, receive a reply with a session cookie. Subsequent requests containing the session cookie are validated
-via the provided `validateFunc` in case the cookie's encrypted content requires validation on each request. The `'cookie`' scheme takes
-the following required options:
+form, and upon successful authentication, receive a reply with a session cookie. Subsequent requests containing the session cookie are authenticated
+(the cookie uses [Iron](https://github.com/hueniverse/iron) to encrypt and sign the session content) and validated via the provided `validateFunc`
+in case the cookie's encrypted content requires validation on each request. Note that cookie operates as a plain text secret with the property that
+anyone in possession of the cookie content can use it to imperssonate its true owner.  The `'cookie`' scheme takes the following required options:
 - `scheme` - set to `'cookie'`.
 - `cookie` - the cookie name. Defaults to `'sid'`.
-- `password` - used for [Iron](https://github.com/hueniverse/iron) cookie encoding.
+- `password` - used for Iron cookie encoding.
 - `ttl` - sets the cookie expires time in milliseconds. Defaults to single browser session (ends when browser closes).
 - `clearInvalid` - if `true`, any authentication cookie that fails validation will be marked as expired in the response and cleared. Defaults to `false`.
+- `isSecure` - if `false`, the cookie is allowed to be transmitted over insecure connections which exposes it to attacts. Defaults to `false`.
 - `validateFunc` - an optional session validation function used to validate the content of the session cookie on each request. Used to verify that the
   internal session state is still valid (e.g. user account still exists). The function has the signature `function(session, callback)` where:
     - `session` - is the session object set via `request.auth.session.set()`.
