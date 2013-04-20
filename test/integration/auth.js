@@ -1286,7 +1286,7 @@ describe('Auth', function () {
                 var override = Hapi.utils.clone(session);
                 override.something = 'new';
 
-                return callback(session.user === 'valid' ? null : new Error('bad user'), override);
+                return callback(null, session.user === 'valid', override);
             }
         };
 

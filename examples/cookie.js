@@ -17,14 +17,6 @@ internals.users = {
 };
 
 
-internals.validateCookie = function (session, callback) {
-
-    // Validate session if needed to ensure session is still valid
-
-    callback(null, null);
-};
-
-
 internals.home = function (request) {
 
     request.reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + request.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
@@ -81,17 +73,9 @@ internals.main = function () {
         auth: {
             scheme: 'cookie',
             password: 'secret',
-            ttl: 60 * 1000,                 // Expire after a minute
-            cookie: 'sid',                  // Cookie name
-            clearInvalid: true,
-            validateFunc: internals.validateCookie,
+            cookie: 'sid-example',
             redirectTo: '/login',
-            allowInsecure: true
-        },
-        state: {
-            cookies: {
-                clearInvalid: true
-            }
+            isSecure: false
         }
     };
 

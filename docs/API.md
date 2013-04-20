@@ -669,17 +669,111 @@ anyone in possession of the cookie content can use it to imperssonate its true o
 - `ttl` - sets the cookie expires time in milliseconds. Defaults to single browser session (ends when browser closes).
 - `clearInvalid` - if `true`, any authentication cookie that fails validation will be marked as expired in the response and cleared. Defaults to `false`.
 - `isSecure` - if `false`, the cookie is allowed to be transmitted over insecure connections which exposes it to attacts. Defaults to `false`.
+- `redirectTo` - optional login URI to redirect unauthenticated requests to. Defaults to no redirection.
+- `appendNext` - if `true` and `redirectTo` is `true`, appends the current request path to the query component of the `redirectTo` URI using the
+  parameter name `'next'`. Set to a string to use a different parameter name. Defaults to `false`.
 - `validateFunc` - an optional session validation function used to validate the content of the session cookie on each request. Used to verify that the
   internal session state is still valid (e.g. user account still exists). The function has the signature `function(session, callback)` where:
     - `session` - is the session object set via `request.auth.session.set()`.
-    - `callback` - the callback function with signature `(err, override)` where:
-        - `err` - indicates that authentication failed.
-        - `override` - object will change any cookie properties when setting state on the response.
+    - `callback` - a callback function with the signature `function(err, isValid, credentials)` where:
+        - `err` - an internal error.
+        - `isValid` - `true` if the content of the session is valid, otherwise `false`.
+        - `credentials` - a crendetials object passed back to the application in `request.auth.credentials`. If value is `null` or `undefined`,
+          defaults to `session`. If set, will override the current cookie as if `request.auth.session.set()` was called.
 
 When the cookie scheme is enabled on a route, the `request.auth.session` objects is decorated with two methods:
-- `set(session)` - 
-- `clear()` - 
+- `set(session)` - sets the current session. Must be called after a successful login to begin the session. `session` must be a non-null object,
+  which is set on successful subsequent authentications in `request.auth.credentials`.
+- `clear()` - clears the current session. Used to logout a user.
 
+```javascript
+var Hapi = require('../lib');
+
+var users = {
+    john: {
+        id: 'john',
+        password: 'password',
+        name: 'John Doe'
+    }
+};
+
+var home = function () {
+
+    this.reply('<html><head><title>Login page</title></head><body><h3>Welcome '
+      + this.auth.credentials.name
+      + '!</h3><br/><form method="get" action="/logout">'
+      + '<input type="submit" value="Logout">'
+      + '</form></body></html>');
+};
+
+
+var login = function () {
+
+    if (this.auth.isAuthenticated) {
+        return this.reply.redirect('/');
+    }
+
+    var message = '';
+    var account = null;
+
+    if (this.method === 'post') {
+        
+        if (!this.payload.username ||
+            !this.payload.password) {
+
+            message = 'Missing username or password';
+        }
+        else {
+            account = users[this.payload.username];
+            if (!account ||
+                account.password !== this.payload.password) {
+
+                message = 'Invalid username or password';
+            }
+        }
+    }
+
+    if (this.method === 'get' ||
+        message) {
+
+        return this.reply('<html><head><title>Login page</title></head><body>'
+            + (message ? '<h3>' + message + '</h3><br/>' : '')
+            + '<form method="post" action="/login">'
+            + 'Username: <input type="text" name="username"><br>'
+            + 'Password: <input type="password" name="password"><br/>'
+            + '<input type="submit" value="Login"></form></body></html>');
+    }
+
+    this.auth.session.set(account);
+    return this.reply.redirect('/');
+};
+
+
+var logout = function () {
+
+    this.auth.session.clear();
+    return this.reply.redirect('/');
+};
+
+
+var http = new Hapi.Server('localhost', 8000, config);
+
+server.auth('session', {
+    scheme: 'cookie',
+    password: 'secret',
+    cookie: 'sid-example',
+    redirectTo: '/login'
+});
+
+http.route([
+    { method: 'GET', path: '/', config: { handler: home, auth: true } },
+    { method: 'GET', path: '/login', config: { handler: login, auth: { mode: 'try' } } },
+    { method: 'POST', path: '/login', config: { handler: login, auth: { mode: 'try' } } },
+    { method: 'GET', path: '/logout', config: { handler: logout, auth: true } }
+]);
+
+http.start();
+```
 
 ##### Hawk Authentication
 
