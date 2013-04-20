@@ -303,6 +303,14 @@ Adds a new route to the server with the following options:
                 - `'required'` - authentication is required.
                 - `'optional'` - authentication is optional (must be valid if present).
                 - `'try'` - same as `'optional'` but allows for invalid authentication.
+            - `strategies` - a string array of strategy names in order they should be attempted. If only one strategy is used, `strategy` can
+              be used instead. Defaults to `'default'`.
+            - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is authenticated after it is processed. Requires a strategy
+              with payload authentication support (e.g. [Hawk](Hawk authentication)). Available values:
+                - `false` - no payload authentication. This is the default value.
+                - `'required'` - payload authentication required.
+                - `'optional'` - payload authentication performed only when the client includes payload authentication information (e.g.
+                  `hash` attribute in Hawk).
             - `tos` - minimum terms-of-service version required (uses the [semver](https://npmjs.org/package/semver) module). If defined, the
               authentication credentials object must include a `tos` key which satisfies this requirement. Defaults to `false` which means no validation.
             - `scope` - required application scope. A scope string which must be included in the authentication credentials object in `scope` which is
@@ -604,7 +612,7 @@ Registers an authentication strategy where:
         - `'basic'` - [HTTP Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
         - `'cookie'` - [cookie authentication](#cookie-authentication)
         - `'hawk'` - [HTTP Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
-        - `'bewit'` - [URI Hawk Bewit](#hawk-bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
+        - `'bewit'` - [URI Bewit (Hawk)](#bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
     - `implementation` -  an object with the **hapi** authenticatin scheme interface (use the `'hawk'` implementation as template). Cannot be used together with `scheme`.
     - `defaultMode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be assigned to a single
       server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
@@ -656,7 +664,7 @@ server.auth('simple', {
 server.route({ method: 'GET', path: '/', config: { auth: 'simple' } });
 ```
 
-##### Cookie Authentication
+##### Cookie authentication
 
 Cookie authentication provides a simple cookie-based session management. The user has to be authenticated via other means, typically a web
 form, and upon successful authentication, receive a reply with a session cookie. Subsequent requests containing the session cookie are authenticated
@@ -774,85 +782,90 @@ http.route([
 http.start();
 ```
 
-##### Hawk Authentication
+##### Hawk authentication
 
-The [hawk authentication](https://github.com/hueniverse/hawk) scheme can be enabled similarly to basic authentication.  Hawk requires a function that takes an _'id'_ and passes credentials to the callback.  Below is an example of a function like this and using it with hapi.
-
-```javascript
-var Hapi = require('hapi');
-
-var credentials = {
-    'john': {
-        cred: {
-            id: 'john',
-            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-            algorithm: 'sha256'
-        }
-    }
-}
-
-var getCredentials = function (id, callback) {
-   
-    return callback(null, credentials[id] && credentials[id].cred);
-};
-
-var config = {
-    auth: {
-        scheme: 'hawk',
-        getCredentialsFunc: getCredentials
-    }
-};
-
-var server = new Hapi.Server(config);
-```
-
-In the above example only the user 'john' can authenticate, all other users will result in an error.
-
-##### Hawk Bewit Authentication
-
-[Hawk](https://github.com/hueniverse/hawk) allows for authentication to endpoints by constructing a specially formed URI.  To learn more about this feature in general please read the [Single URI Authorization](https://github.com/hueniverse/hawk#single-uri-authorization) section of the hawk readme.  Hapi supports this type of authentication through use of the _'bewit'_ scheme.  Only endpoints using the _'GET'_ HTTP method are allowed to support the _'bewit'_ scheme.  Below is an example of how to enable _'bewit'_ support on a server.
+[Hawk authentication](https://github.com/hueniverse/hawk) provides a holder-of-key authentication scheme. The scheme supports payload
+authentication. The scheme requires the following options:
+- `scheme` - set to `'hawk'`.
+- `getCredentialsFunc` - credential lookup function with the signature `function(id, callback)` where:
+    - `id` - the Hawk credentials identifier.
+    - `callback` - the callback function with signature `function(err, credentials)` where:
+        - `err` - an internal error.
+        - `credentials` - a crendetials object passed back to the application in `request.auth.credentials`. Return `null` or `undefined` to
+          indicate unknown credentials (which is not considered an error state).
+- `hostHeaderName` - optional name of the HTTP request header used to transmit host information. Defaults to ''host''.
 
 ```javascript
 var Hapi = require('hapi');
 
 var credentials = {
-    'john': {
-        cred: {
-            id: 'john',
-            key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-            algorithm: 'sha256'
-        }
+    d74s3nz2873n: {
+        key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+        algorithm: 'sha256'
     }
 }
 
 var getCredentials = function (id, callback) {
    
-    return callback(null, credentials[id] && credentials[id].cred);
-};
-
-var config = {
-    auth: {
-        scheme: 'bewit',
-        getCredentialsFunc: getCredentials
-    }
+    return callback(null, credentials[id]);
 };
 
 var server = new Hapi.Server(config);
+server.auth('hawk', {
+    scheme: 'hawk',
+    getCredentialsFunc: getCredentials
+});
 ```
 
-From a client perspective the URI must contain the _'bewit'_ querystring key with the bewit token value.  Below is an example of constructing a URI to a resource with the _'bewit'_ key.
+##### Bewit authentication
 
+[Bewit authentication](https://github.com/hueniverse/hawk#single-uri-authorization) provides a short-term access to a protected resource by
+including a token (bewit) in the request query, issued by an authorized party. Bewit is a subset of the Hawk protocol. The scheme can only
+be used with 'GET' requests and requires the following options:
+- `scheme` - set to `'bewit'`.
+- `getCredentialsFunc` - credential lookup function with the signature `function(id, callback)` where:
+    - `id` - the Hawk credentials identifier.
+    - `callback` - the callback function with signature `function(err, credentials)` where:
+        - `err` - an internal error.
+        - `credentials` - a crendetials object passed back to the application in `request.auth.credentials`. Return `null` or `undefined` to
+          indicate unknown credentials (which is not considered an error state).
+- `hostHeaderName` - optional name of the HTTP request header used to transmit host information. Defaults to ''host''.
+
+```javascript
+var Hapi = require('hapi');
+
+var credentials = {
+    d74s3nz2873n: {
+        key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
+        algorithm: 'sha256'
+    }
+}
+
+var getCredentials = function (id, callback) {
+   
+    return callback(null, credentials[id]);
+};
+
+var server = new Hapi.Server(config);
+server.auth('bewit', {
+    scheme: 'bewit',
+    getCredentialsFunc: getCredentials
+});
+```
+
+To send an authenticated Bewit request, the URI must contain the `'bewit'` query parameter which can be generated using the Hawk module:
 ```javascript
 var Hawk = require('hawk');
 
-var cred = {
-    id: 'john',
+var credentials = {
+    id: 'd74s3nz2873n',
     key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
     algorithm: 'sha256'
 };
 
-var bewit = Hawk.uri.getBewit(cred, '/endpoint', 'site.com', 80, 60);           // Valid for 1 minute
-var uri = 'http://site.com/endpoint?bewit=' + bewit;
+var uri = 'http://example.com:8080/endpoint';
+var bewit = Hawk.client.getBewit(uri, { credentials: credentials, ttlSec: 60 });
+uri += '?bewit=' + bewit;
 ```
 
 #### `server.ext(event, method, [options])`
