@@ -106,7 +106,7 @@ describe('State', function () {
             pass('key=Fe26.1**0c68b200eb53406edefb402bb84e265d056bd11eb6bdebf3627a4fd7d1db6d79*XL-d8bUCuSwIwIYtmjXZ3g*4yVxLHFllbJWLSve93se4w*34771b9abd1cadeb0118e2a337c066f32cb44c223e3610533fc56ef3bbc53d56*HEfokc825mlBi-9jm1I94DWeZJ5uifVRD0kx_o-jKp8', { key: { a: 1 } }, null, { key: { encoding: 'iron', password: 'password' } });
             pass('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', { sid: { a: '1', b: '2', c: '3 x' } }, null, { sid: { encoding: 'form', sign: { password: 'password' } } });
 
-            var fail = function (header, settings, definitions) {
+            var fail = function (header, settings, definitions, result) {
 
                 it('fails parsing cookie header: ' + header, function (done) {
 
@@ -152,6 +152,7 @@ describe('State', function () {
                             expect(cleared).to.equal('sid');
                         }
 
+                        expect(request.state).to.deep.equal(result || {});
                         done();
                     });
                 });
@@ -161,7 +162,7 @@ describe('State', function () {
             fail('a@="1"; b="2"; c=3');
             fail('a=1; b=2; c=3;;');
             fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9', null, { key: { encoding: 'base64json' } });
-            fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9; key=XeyJ0ZXN0aW5dnIjoianNvbiJ9', null, { key: { encoding: 'base64json' } });
+            fail('x=XeyJ0ZXN0aW5nIjoianNvbiJ9; x=XeyJ0ZXN0aW5dnIjoianNvbiJ9', null, { x: { encoding: 'base64json' } });
             fail('key=Fe26.2**0c68b200eb53406edefb402bb84e265d056bd11eb6bdebf3627a4fd7d1db6d79*XL-d8bUCuSwIwIYtmjXZ3g*4yVxLHFllbJWLSve93se4w*34771b9abd1cadeb0118e2a337c066f32cb44c223e3610533fc56ef3bbc53d56*HEfokc825mlBi-9jm1I94DWeZJ5uifVRD0kx_o-jKp8', null, { key: { encoding: 'iron', password: 'password' } });
             fail('key=Fe26.1**0c68b200eb53406edefb402bb84e265d056bd11eb6bdebf3627a4fd7d1db6d79*XL-d8bUCuSwIwIYtmjXZ3g*4yVxLHFllbJWLSve93se4w*34771b9abd1cadeb0118e2a337c066f32cb44c223e3610533fc56ef3bbc53d56*HEfokc825mlBi-9jm1I94DWeZJ5uifVRD0kx_o-jKp8', null, { key: { encoding: 'iron', password: 'passwordx' } });
             fail('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*khsb8lmkNJS-iljqDKZDMmd__2PcHBz7Ksrc-48gZ-0', null, { sid: { encoding: 'form', sign: {} } });
@@ -175,9 +176,10 @@ describe('State', function () {
             setLog.cookies.failAction = 'log';
             fail('abc="xyz', setLog);
             fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } });
-            fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9; key=XeyJ0ZXN0aW5dnIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } });
+            fail('y=XeyJ0ZXN0aW5nIjoianNvbiJ9; y=XeyJ0ZXN0aW5dnIjoianNvbiJ9', setLog, { y: { encoding: 'base64json' } });
             fail('sid=a=1&b=2&c=3%20x', setLog, { sid: { encoding: 'form', sign: { password: 'password' } } });
             fail('sid=a=1&b=2&c=3%20x; sid=a=1&b=2&c=3%20x', setLog, { sid: { encoding: 'form', sign: { password: 'password' } } });
+            fail('a=1; b=2; key=XeyJ0ZXN0aW5nIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } }, { a: '1', b: '2' });
 
             var clearInvalid = Hapi.utils.clone(Defaults.server.state);
             clearInvalid.cookies.clearInvalid = true;

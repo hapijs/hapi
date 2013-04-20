@@ -566,6 +566,7 @@ var handler = function () {
 ```
 
 Registered cookies are automatically parsed when received. Parsing rules depends on the server [`state.cookies`](#server.config.state) configuration.
+If an incoming registered cookie fails parsing, it is not included in `request.state`, regardless of the `state.cookies.failAction` setting.
 When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit a `'request'` event. To capture these errors
 subscribe to the `'request'` events and filter on `'error'` and `'state'` tags:
 
