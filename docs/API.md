@@ -146,7 +146,6 @@ Each instance of the `Server` object have the following properties:
 - `plugins` - an object with each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
 - `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults.
 
-
 ### `Server` methods
 
 #### `server.start([callback])`
@@ -474,8 +473,7 @@ Returns a copy of the routing table. The return value is an array of routes wher
 var table = server.routingTable()
 console.log(table);
 
-/*
-    Output:
+/*  Output:
 
     [{
         method: 'get',
@@ -612,7 +610,7 @@ Registers an authentication strategy where:
       
 ##### Basic authentication
 
-Basic authentication requires validating a username and password combination. The `'basic'` scheme take the following required options:
+Basic authentication requires validating a username and password combination. The `'basic'` scheme takes the following required options:
 - `scheme` - set to `'basic'`.
 - `validateFunc` - a user lookup and password validation function with the signature `function(username, password, callback)` where:
     - `username` - the username received from the client.
@@ -659,14 +657,19 @@ server.route({ method: 'GET', path: '/', config: { auth: 'simple' } });
 
 ##### Cookie Authentication
 
-***hapi*** has built-in support for cookie authentication.  Cookie authentication can be enabled with the _'cookie'_ scheme.  Below are the options available in a strategy that is using the _'cookie'_ scheme.
-
-- `scheme` - 'cookie'
-- `password` - used for deriving a key using PBKDF2
-- `ttl` - sets the cookie expires time in milliseconds
-- `cookie` - name of cookie used to save state
-- `clearInvalid` - when _'true'_ any authentication cookie that fails to authenticate will be marked as expired on the response
-- `validateFunc` - function that has the signature _'(session, callback)'_ and determines if the session passes authentication.  The callback function has the following signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
+Cookie authentication provides a simple cookie-based session management. The user has to be authenticated via other means, typically a web
+form, and upon successful authentication, receive a reply with a session cookie. Subsequent requests containing the session cookie are validated
+via the provided `validateFunc` in case the cookie's encrypted content requires validation on each request. The `'cookie`' scheme takes
+the following required options:
+- `scheme` - set to `'cookie'`.
+- `cookie` - the cookie name. Defaults to `'sid'`.
+- `password` - used for [Iron](https://github.com/hueniverse/iron) cookie encoding.
+- `ttl` - sets the cookie expires time in milliseconds. Defaults to single browser session (ends when browser closes).
+- `clearInvalid` - if `true`, any authentication cookie that fails validation will be marked as expired in the response and cleared. Defaults to `false`.
+- `validateFunc` - an optional session validation function used to validate the content of the session cookie on each request. Used to verify that the
+  internal session state is still valid (e.g. user account still exists). The function has the signature `function(session, callback)` where:
+    - `session` - 
+    - `callback` - signature _'(err, override)'_ where an _'err'_ indicates that authentication failed.  The _'override'_ object will change any cookie properties when setting state on the response.
 
 Below is an example of configuring a server to use cookie authentication.
 
