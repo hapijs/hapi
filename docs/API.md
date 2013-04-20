@@ -661,8 +661,8 @@ server.route({ method: 'GET', path: '/', config: { auth: 'simple' } });
 Cookie authentication provides a simple cookie-based session management. The user has to be authenticated via other means, typically a web
 form, and upon successful authentication, receive a reply with a session cookie. Subsequent requests containing the session cookie are authenticated
 (the cookie uses [Iron](https://github.com/hueniverse/iron) to encrypt and sign the session content) and validated via the provided `validateFunc`
-in case the cookie's encrypted content requires validation on each request. Note that cookie operates as a plain text secret with the property that
-anyone in possession of the cookie content can use it to imperssonate its true owner.  The `'cookie`' scheme takes the following required options:
+in case the cookie's encrypted content requires validation on each request. Note that cookie operates as a bearer token and anyone in possession
+of the cookie content can use it to imperssonate its true owner. The `'cookie`' scheme takes the following required options:
 - `scheme` - set to `'cookie'`.
 - `cookie` - the cookie name. Defaults to `'sid'`.
 - `password` - used for Iron cookie encoding.
@@ -767,8 +767,7 @@ server.auth('session', {
 
 http.route([
     { method: 'GET', path: '/', config: { handler: home, auth: true } },
-    { method: 'GET', path: '/login', config: { handler: login, auth: { mode: 'try' } } },
-    { method: 'POST', path: '/login', config: { handler: login, auth: { mode: 'try' } } },
+    { method: '*', path: '/login', config: { handler: login, auth: { mode: 'try' } } },
     { method: 'GET', path: '/logout', config: { handler: logout, auth: true } }
 ]);
 

@@ -305,6 +305,7 @@ describe('Payload', function () {
 
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
+        server.route({ method: '*', path: '/any', handler: handler });
 
         before(function (done) {
 
@@ -323,6 +324,16 @@ describe('Payload', function () {
             this.push('{ "key": "value" }');
             this.push(null);
         };
+
+        it('sets parse mode when route methos is * and request is POST or PUT', function (done) {
+
+            server.inject({ url: '/any', method: 'POST', headers: { 'Content-Type': 'application/json' }, payload: '{ "key": "09876" }' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('09876');
+                done();
+            });
+        });
 
         it('sets the request payload with the streaming data', function (done) {
 
@@ -461,7 +472,7 @@ describe('Payload', function () {
 
                 var handler = function () {
 
-                   this.reply('Success');
+                    this.reply('Success');
                 };
 
                 var server = new Hapi.Server();
@@ -547,7 +558,7 @@ describe('Payload', function () {
             var stats = Fs.statSync(path);
             var fileStream = Fs.createReadStream(path);
             var fileContents = Fs.readFileSync(path, { encoding: 'binary' });
-            
+
             var fileHandler = function (request) {
 
                 expect(request.raw.req.headers['content-type']).to.contain('multipart/form-data');

@@ -17,53 +17,53 @@ internals.users = {
 };
 
 
-internals.home = function (request) {
+internals.home = function () {
 
-    request.reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + request.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
+    this.reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + this.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
 };
 
 
-internals.login = function (request) {
+internals.login = function () {
 
-    if (request.auth.isAuthenticated) {
-        return request.reply.redirect('/');
+    if (this.auth.isAuthenticated) {
+        return this.reply.redirect('/');
     }
 
     var message = '';
     var account = null;
 
-    if (request.method === 'post') {
+    if (this.method === 'post') {
         
-        if (!request.payload.username ||
-            !request.payload.password) {
+        if (!this.payload.username ||
+            !this.payload.password) {
 
             message = 'Missing username or password';
         }
         else {
-            account = internals.users[request.payload.username];
+            account = internals.users[this.payload.username];
             if (!account ||
-                account.password !== request.payload.password) {
+                account.password !== this.payload.password) {
 
                 message = 'Invalid username or password';
             }
         }
     }
 
-    if (request.method === 'get' ||
+    if (this.method === 'get' ||
         message) {
 
-        return request.reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
+        return this.reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
     }
 
-    request.auth.session.set(account);
-    return request.reply.redirect('/');
+    this.auth.session.set(account);
+    return this.reply.redirect('/');
 };
 
 
-internals.logout = function (request) {
+internals.logout = function () {
 
-    request.auth.session.clear();
-    return request.reply.redirect('/');
+    this.auth.session.clear();
+    return this.reply.redirect('/');
 };
 
 
@@ -83,8 +83,7 @@ internals.main = function () {
 
     http.route([
         { method: 'GET', path: '/', config: { handler: internals.home, auth: true } },
-        { method: 'GET', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
-        { method: 'POST', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
+        { method: '*', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
         { method: 'GET', path: '/logout', config: { handler: internals.logout, auth: true } }
     ]);
 
