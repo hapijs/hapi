@@ -590,7 +590,7 @@ server.on('request', function (request, event, tags) {
 #### `server.views(options)`
 
 Initializes the server views manager programatically instead of via the server [`views`](#server.config.views) configuration option.
-The `options` object is the same as [`views`](#server.config.views).
+The `options` object is the same as the [server `views` config object](#server.config.views).
 
 ```javascript
 server.views({
@@ -917,9 +917,9 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 
 ```javascript
 var Hapi = require('hapi');
-var http = new Hapi.Server();
+var server = new Hapi.Server();
 
-http.ext('onRequest', function (request, next) {
+server.ext('onRequest', function (request, next) {
     
     // Change all requests to '/test'
     request.setUrl('/test');
@@ -931,73 +931,75 @@ var handler = function () {
     this.reply({ status: 'ok' });
 };
 
-http.route({ method: 'GET', path: '/test', handler: handler });
-http.start();
+server.route({ method: 'GET', path: '/test', handler: handler });
+server.start();
 
 // All requests will get routed to '/test'
 ```
 
 #### `server.helper(name, method, [options])`
 
-Server helpers are functions registered with the server and can be used throughout the application. The advantage of using helpers is
-that they can be configured to use the built-in cache and shared across multiple request handlers. This provides a useful method for
-speeding up performance by declaring functions as common utilities with a shared cache.
+Registers a server helper function. Server helpers are functions registered with the server and used throughout the application as
+a common utility. Their advantage is in the ability to configure them to use the built-in cache and shared across multiple request
+handlers without having to create a common module.
 
-The signature of helper functions is _'function (arg1, arg2, ..., arg3, next)'_ where next is a function defined as _'function (result)'_.
-'result' can be any value or an Error (which must be generated using the **hapi** Error module is the helper is used as a prerequisite method).
+Helpers are registered via `server.helper(name, method, [options])` where:
+- `name` - a unique helper name used to invoke the method via `server.helpers[name]`.
+- `method` - the helper function with the signature is `function(arg1, arg2, ..., argn, next)` where:
+    - `arg1`, `arg2`, etc. - the helper function arguments.
+    - `next` - the function called when the helper is done with the signature `function(result)` where:
+        - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#error)).
+- `options` - optional configuration:
+    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy).
+    - `generateKey` - a function used to generate a unique key (for caching) from the arguments passed to the helper function
+     (with the exception of the last 'next' argument). The server will automatically generate a unique key if the function's
+     arguments are all of types `'string'`, `'number'`, or `'boolean'`. However if the helper uses other types of arguments, a
+     key generation function must be provided which takes the same arguments as the function and returns a unique string (or
+     `null` if no key can be generated). Note that when the `generateKey` method is invoked, the arguments list will include
+     the `next` argument which must not be used in calculation of the key.
 
-To add a helper, use the server's _'addHelper(name, method, options)'_ method where:
-- _'name'_ - is a unique helper name used to call the method (e.g. 'server.helpers.name').
-- _'method'_ - is the helper function.
-- _'options'_ - optional settings where:
-    - `cache` - cache configuration as described in [Caching](#caching). `mode` is not allowed.
-    - `keyGenerator` - the server will automatically generate a unique key if the function's arguments (with the exception of the last 'next' argument) are all of type string, number, or boolean. However if the function uses other types of arguments, a key generation function must be provided which takes the same arguments as the function and returns a unique string (or null if no key can be generated). Note that when the keyGenerator method is invoked, the arguments list will include the next argument which must not be used in calculation of the key.
-
-For example:
 ```javascript
-// Create Hapi server
-var server = new Hapi.Server('0.0.0.0', 8080);
+var Hapi = require('hapi');
+var server = new Hapi.Server();
 
-var user = function (id, next) {
+// Simple arguments
 
-    next({ id: id });
+var add = function (a, b, next) {
+
+    next(a + b);
 };
 
-var options = {
-    cache: {
-        expiresIn: 2000,
-        staleIn: 1000,
-        staleTimeout: 100
-    },
-    keyGenerator: function (id) {
+server.helper('sum', add, { cache: { expiresIn: 2000 } });
 
-        return id;
-    };
-};
-
-server.addHelper('user', user, options);
-
-server.helpers.user(4, function (result) {
+server.helpers.sum(4, 5, function (result) {
 
     console.log(result);
 });
-```
 
-Or used as a prerequisites, by passing a string with the helper invocation using the helper name and passing parameters that are all
-members of the request object (without _next_):
-```javascript
-http.route({
-    method: 'GET',
-    path: '/user/{id}',
-    config: {
-        pre: [
-            'user(params.id)'
-        ],
-        handler: function (request) {
+// Object argument
 
-            request.reply(request.pre.user);
-        }
+var addArray = function (array, next) {
+
+    var sum = 0;
+    array.forEach(function (item) {
+
+        sum += item;
+    });
+
+    next(sum);
+};
+
+server.helper('sumObj', addArray, {
+    cache: { expiresIn: 2000 },
+    generateKey: function (array) {
+
+        return array.join(',');
     }
+});
+
+server.helpers.sumObj([5, 6], function (result) {
+
+    console.log(result);
 });
 ```
 
@@ -1007,7 +1009,7 @@ Request injection is the process of simulating an HTTP request without making an
 or debugging purposes, but also for invoking routing logic internally without the overhead or limitations of the network stack. For example,
 implementing a batch mechanism which calls multiple internal routes.
 
-**hapi** uses the [**shot**](https://github.com/hueniverse/shot) module for performing injections. To inject a request, use the server's
+**hapi** uses the [**shot**](https://github.com/spumko/shot) module for performing injections. To inject a request, use the server's
 _'inject(options, callback)'_ method in which:
 - _'options'_ - is an object containing the request information. Available options:
     - `method` - the request HTTP method. Required.
@@ -1104,10 +1106,10 @@ server.on('internalError', function (request, err) {
 
 ## `Pack`
 
-#### `new Pack(options)`
-#### `pack.server(host, port, options)`
-#### `pack.start(callback)`
-#### `pack.stop(options, callback)`
+#### `new Pack([options])`
+#### `pack.server([host], [port], [options])`
+#### `pack.start([callback])`
+#### `pack.stop([options], [callback])`
 #### `pack.require(name, options, callback)`
 #### `pack.require(names, callback)`
 #### `pack.register(plugin, options, callback)`
@@ -1124,7 +1126,7 @@ server.on('internalError', function (request, err) {
 
 ## `error`
 
-An alias of the [**boom**](https://github.com/spumko/boom) module. Can be accessed via `hapi.error` or `hapi.boom`.
+An alias of the [**boom**](https://github.com/spumko/boom) module. Can be accessed via `Hapi.error` or `Hapi.boom`.
 
 #### `badRequest(message)`
 #### `unauthorized(error, scheme, attributes)`
@@ -1799,6 +1801,24 @@ http.route({
 
 // Start Hapi servers
 http.start();
+```
+
+Or used as a prerequisites, by passing a string with the helper invocation using the helper name and passing parameters that are all
+members of the request object (without _next_):
+```javascript
+http.route({
+    method: 'GET',
+    path: '/user/{id}',
+    config: {
+        pre: [
+            'user(params.id)'
+        ],
+        handler: function (request) {
+
+            request.reply(request.pre.user);
+        }
+    }
+});
 ```
 
 
