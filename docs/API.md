@@ -219,7 +219,7 @@ Adds a new route to the server with the following options:
 <p></p>
     - `proxy` - generates a reverse proxy handler with the following options:
         - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
-        - `port` - the upsteram service port.
+        - `port` - the upstream service port.
         - `protocol` - The protocol to use when making a request to the proxied host:
             - `'http'`
             - `'https'`
