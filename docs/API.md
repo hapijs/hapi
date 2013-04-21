@@ -192,7 +192,8 @@ Adds a new route to the server with the following options:
   Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
 <p></p>
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
-  described in [Route handler](#route-handler). Alternatively, the `handler` option can be assigned an object with one of:
+  described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404) 
+  error response, or `handler` can be assigned an object with one of:
     - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute file path.
@@ -249,24 +250,37 @@ Adds a new route to the server with the following options:
       include one handler per route.
 <p></p>
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
-      described in [Route prerequisites](#prerequisites).
+      described in [Route prerequisites](#route-prerequisites).
 <p></p>
     - `validate`
-        - `query` - validation rules for an incoming request query component (the key-value part of the URI between '?' and '#'). Defaults to
-          all query parameters allowed. Described in [Query validation](#query-validation).
-        - `payload` - validation rules for an incoming request payload (request body). Defaults to no validation (any payload allowed).
-          Set to `false` to forbid payloads. Described in [Payload validation](#payload-validation) for more information.
-        - `path` - validation rules for incoming request path parameters. Defaults to no validation (all path parameter values allowed).
-          Described in [Path validation](#path-validation).
+        - `query` - validation rules for an incoming request URI query component (the key-value part of the URI between '?' and '#').
+          The query is parsed into its individual key-value pairs (see
+          [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
+          `request.query` prior to validation. Values allowed:
+            - `true` or `{}` - any query parameters allowed (no validation performed). This is the default.
+            - `false` - no query parameters allowed.
+            - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
 <p></p>
-        - `response` - validation rules for the outgoing response payload (response body). Defaults to no validation (any response allowed).
-          Set to an empty object `{}` to forbid response payloads. Described in [Response validation](#response-validation). Takes an object
-          with the following options:
-            - `schema` - the validation schema.
-            - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
-            - `failAction` - defines what to do when a response fails validation. Options are:
-                - `'error'` - return an Internal Server Error (500) error response. This is the default value.
-                - `'log'` - log the error but send the response.
+        - `payload` - validation rules for an incoming request payload (request body). Values allowed:
+            - `true` or `{}` - any payload allowed (no validation performed). This is the default.
+            - `false` - no payload allowed.
+            - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
+<p></p>
+        - `path` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
+          parameters then stored in `request.params`. Values allowed:
+            - `true` or `{}` - any path parameters allowed (no validation performed).  This is the default.
+            - `false` - no path variables allowed.
+            - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
+<p></p>
+        - `response` - validation rules for the outgoing response payload (response body). Values allowed:
+            - `null` - any payload allowed (no validation performed). This is the default.
+            - `false` or `{}` - no payload allowed.
+            - an object with the following options:
+                - `schema` - the validation schema as described in the [Joi](http://github.com/spumko/joi) module.
+                - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
+                - `failAction` - defines what to do when a response fails validation. Options are:
+                    - `'error'` - return an Internal Server Error (500) error response. This is the default value.
+                    - `'log'` - log the error but send the response.
 <p></p>
     - `payload` - determines how the request payload is processed. Defaults to `'parse'` if `validate.payload` is set or when `method` is
       `'POST'` or `'PUT'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
@@ -287,12 +301,21 @@ Adds a new route to the server with the following options:
             - `'client'` - caching is pefromed on the client by sending the HTTP `Cache-Control` header. This is the default value.
             - `'server'` - caching is performed on the server using the cache strategy configured.
             - `'client+server'` - caching it performed on both the client and server.
+        - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to the route fingerprint
+          (the route path with parameters represented by a `'?'` character). Note that when using the MongoDB cache strategy, some paths
+          will require manual override as their fingerprint will conflict with MongoDB collection naming rules. When setting segment
+          names manually, the segment must begin with `'//'`.
+        - `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control' header. Values are:
+            - `'default'` - no privacy flag. This is the default setting.
+            - `'public'` - mark the response as suitable for public caching.
+            - `'private'` - mark the response as suitalbe only for private caching.
         - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
           together with `expiresAt`.
         - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
           expire. Cannot be used together with `expiresIn`.
-        - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than `expiresIn`.
-        - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+        - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`. Available
+          only when using server-side caching.
+        - `staleTimeout` - number of milliseconds to wait before checking if an item is stale. Available only when using server-side caching.
 <p></p>
     - `auth` - authentication configuration. Value can be:
         - a string with the name of an authentication strategy registered with `server.auth()`.
@@ -458,6 +481,81 @@ var handler = function (request, reply) {
 The two-arguments style is provided for symmetry with extension functions and prerequisite functions where the function
 signature is `function(request, next)`. In order to enable interchangeable use of these functions, the two argument style does
 not provide any of the [`request.reply`](#requestreply) decorations.
+
+##### Route prerequisites
+
+It is often necessary to perform prerequisite actions before the handler is called (e.g. load required reference data from a database).
+The route `pre` option allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value
+`'parallel'` in which case, all the parallel methods are executed first, then the rest in order. `pre` can be assigned a mixed array of:
+- objects with:
+    - `method` - the function to call (or short-hand helper string as described below). The function signature is `function(request, next)` where:
+        - `request` - the incoming request object.
+        - `next` - the function called when the method is done with the signature `function(result)` where:
+            - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#error)). If an error
+              is returned, that value is sent back to the client and the handler method is not called.
+    - `assign` - key name to assign the result of the function to within `request.pre`.
+    - `mode` - set the calling order of the function. Available values:
+        - `'serial'` - serial methods are executed after all the `'parallel'` methods in the order listed. This is the default value.
+        - `'parallel'` - all parallel methods are executed first in parallel before any serial method. The first to return an error response
+          will exist the set.
+- functions - same as including an object with a single `method` key.
+- strings - special short-hand notation for [registered server helpers](#serverhelpername-method-options) using the format 'name(args)'
+  (e.g. `'user(params.id)'`) where:
+    - 'name' - the helper name. The name is also used as the default value of `assign`.
+    - 'args' - the helper arguments (excluding `next`) where each argument is a property of `request`.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+var pre1 = function (request, next) {
+
+    next('Hello');
+};
+
+var pre2 = function (request, next) {
+
+    next('World');
+};
+
+var pre3 = function (request, next) {
+
+    next(request.pre.m1 + ' ' + request.pre.m2);
+};
+
+server.route({
+    method: 'GET',
+    path: '/',
+    config: {
+        pre: [
+            { method: pre1, assign: 'm1', mode: 'parallel' },
+            { method: pre2, assign: 'm2', mode: 'parallel' },
+            { method: pre3, assign: 'm3' },
+        ],
+        handler: function () {
+
+            this.reply(this.pre.m3 + '\n');
+        }
+    }
+});
+```
+
+##### Route not found
+
+If the application needs to override the default Not Found (404) error response, it can add a catch-all route for a specific
+method or all methods. Only one catch-all route can be defined per server instance.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+var handler = function () {
+
+    this.reply('The page was not found').code(404);
+};
+
+server.route({ method: '*', path: '/{p*}', handler: handler });
+```
 
 #### `server.route(routes)`
 
@@ -874,8 +972,8 @@ Registers an extension function in one of the available extension points listed 
 - `event` - the event name.
 - `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
   is `function(request, next)` where:
-    - `request` - is the incoming request object.
-    - `next` - is the callback function the extension method must call to return control over to the router. The function takes an optional `response`
+    - `request` - the incoming request object.
+    - `next` - the callback function the extension method must call to return control over to the router. The function takes an optional `response`
       argument, which will cause the process to jump to the "send response" step, skipping all other steps in between.
 - `options` - an optional object with the following:
     - `before` - a string or array of strings of plugin names this method must executed before (on the same event). Otherwise, extension methods are executed
@@ -950,7 +1048,15 @@ Helpers are registered via `server.helper(name, method, [options])` where:
     - `next` - the function called when the helper is done with the signature `function(result)` where:
         - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#error)).
 - `options` - optional configuration:
-    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy).
+    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy):
+        - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
+          together with `expiresAt`.
+        - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
+          expire. Cannot be used together with `expiresIn`.
+        - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
+        - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+        - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' where 'name' is the
+          helper name. When setting segment manually, it must begin with '##'.
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments passed to the helper function
      (with the exception of the last 'next' argument). The server will automatically generate a unique key if the function's
      arguments are all of types `'string'`, `'number'`, or `'boolean'`. However if the helper uses other types of arguments, a
@@ -1100,103 +1206,7 @@ server.on('internalError', function (request, err) {
 });
 ```
 
-## `Pack`
-
-#### `new Pack([options])`
-#### `pack.server([host], [port], [options])`
-#### `pack.start([callback])`
-#### `pack.stop([options], [callback])`
-#### `pack.require(name, options, callback)`
-#### `pack.require(names, callback)`
-#### `pack.register(plugin, options, callback)`
-#### `pack.allow(permissions)`
-
-
-## `Composer`
-
-#### `new Composer(manifest)`
-#### `composer.compose(callback)`
-#### `composer.start(callback)`
-#### `composer.stop(callback)`
-
-
-## `error`
-
-An alias of the [**boom**](https://github.com/spumko/boom) module. Can be accessed via `Hapi.error` or `Hapi.boom`.
-
-#### `badRequest(message)`
-#### `unauthorized(error, scheme, attributes)`
-#### `unauthorized(error, wwwAuthenticate)`
-#### `clientTimeout(message)`
-#### `serverTimeout(message)`
-#### `forbidden(message)`
-#### `notFound(message)`
-#### `internal(message, data)`
-#### `passThrough(code, payload, contentType, headers)`
-
-
-## `response`
-
-#### `Generic`
-#### `Cacheable`
-#### `Empty`
-#### `Obj`
-#### `Text`
-#### `Stream`
-#### `File`
-#### `Directory`
-#### `Redirection`
-#### `View`
-#### `Buffer`
-
-
-## `utils`
-
-An alias of the [**hoek**](https://github.com/spumko/hoek) module.
-
-#### `version`
-
-
-## `types`
-
-See [**joi** Types](https://github.com/spumko/joi#type-registry).
-
-
-## `state`
-
-#### `prepareValue()`
-
-
-## Plugin Interface
-
-#### `exports.register(plugin, options, next)`
-
-### Selectable methods
-
-#### `plugin.select(labels)`
-#### `plugin.length`
-#### `plugin.api(key, value)`
-#### `plugin.api(obj)`
-#### `plugin.route(options)`
-#### `plugin.route(routes)`
-#### `plugin.state(name, options)`
-#### `plugin.auth(name, options)`
-#### `plugin.ext(event, method)`
-
-### Root methods
-
-#### `plugin.version`
-#### `plugin.hapi`
-#### `plugin.app`
-#### `plugin.log(tags, data, timestamp)`
-#### `plugin.dependency(deps)`
-#### `plugin.events`
-#### `plugin.views(options)`
-#### `plugin.helper(name, method, options)`
-#### `plugin.cache(options, segment)`
-
-
-## `Request`
+## Request object
 
 When the provided route handler method is called, it receives a _request_ object with the following properties:
 - _'url'_ - the parsed request URI.
@@ -1641,265 +1651,93 @@ http.start();
 
 The 'request.log' method is always available.
 
-
-### Not Found Handler
-
-Whenever a route needs to respond with a simple 404 message use the _'notFound'_ handler.  This can be done by simply setting the route _'handler'_ property to the string 'notFound'.  Below is an example of a route that responds with a 404.
-```javascript
-{ method: 'GET', path: '/hideme', handler: 'notFound' }
-```
-
-
-### Route Authentication
-
-To override the default authentication settings for a route use the _'auth'_ object on a routes configuration.  Below are the available options for the _'auth'_ configuration on a route.
-
-- `mode` - determines if a route requires authentication.  Options are _none_, _optional_, _try_, and _required_ (defaults to _required_ when the server has authentication configured and _none_ when it doesn't).
-    - `none` - authentication is not attempted
-    - `optional` - authentication is attempted when the client tries to authenticate.  If authentication fails then an error will be returned to the client.  If the client doesn't try to authenticate then the resource is served without a session being set.
-    - `try` - authentication is attempted when the client tries to authenticate.  If authentication fails then the reason is included on the session object but the resource is still served.
-    - `required` - the client must be authenticated for the resource to be served, otherwise an error is returned.
-- `strategy` - the authentication strategy to use, will use the default strategy if not set.
-- `strategies` - an array in priority order of what authentication strategies the route supports.
-- `scope` - required session scope in order to access the endpoint.
-- `tos` - number that represents terms of service.  Session must have an ext equal or greater than the configured tos value.
-- `entity` - the type of object that must exist on the session.  Options are _any_, _user_, and _app_.
-
-When multiple authentication strategies are configured on the server individual routes can specify which of those strategies to use in priority order.  Below is an example showing how to create a route that supports the _'hawk'_ and _'basic'_ strategies and where authentication is optional.
-
-```javascript
-{ method: 'GET', path: '/', handler: handler, config: { auth: { strategies: ['hawk', 'basic'], mode: 'optional' } } }
-```
-
-If a route doesn't specify the strategy or strategies to use then the servers _'default'_ strategy will be used.  When a single strategy is configured on the server then it will be given the strategy name _'default'_ and will be used by any route that supports authentication.
-
-In a route handler the request object has an _'isAuthenticated'_ property that indicates whether or not the request has been authenticated.
-
-### Query Validation
-
-When a request URI includes a query component (the key-value part of the URI between _?_ and _#_), the query is parsed into its individual
-key-value pairs (see [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
-'request.query'.
-
-The route `config.validate.query` defines the query validation rules performed before the route handler is invoked. Supported values:
-- _'true'_ or _'{}'_ - any query parameters allowed (no validation performed).  This is the default.
-- _'false'_ - no query parameters allowed.
-- a validation rules object as described in [Data Validation](#data-validation).
-
-
-### Payload Validation
-
-The route `config.validate.payload` defines the payload validation rules performed before the route handler is invoked. Supported values:
-- _'true'_ or _'{}'_ - any payload allowed (no validation performed). This is the default.
-- _'false'_ - no payload allowed.
-- a validation rules object as described in [Data Validation](#data-validation).
-
-
-### Path Validation
-
-When a request comes in for a route that allows for path parameters the request is path parameters are parsed into request.params.
-
-The route `config.validate.path` defines the path validation rules performed before the route handler is invoked. Supported values:
-- _'true'_ or _'{}'_ - any path parameters allowed (no validation performed).  This is the default.
-- _'false'_ - no path variables allowed.
-- a validation rules object as described in [Data Validation](#data-validation).
-
-
-### Response Validation
-
-The route `config.response` defines the payload validation rules performed after the route handler is invoked. Supported values:
-- _'null'_ - any payload allowed (no validation performed). This is the default.
-- _'false'_ or _'{}'_ - no payload allowed.
-- an object with the following options
-    - _'schema'_ - a validation rules object as described in [Data Validation](#data-validation).
-    - _'sample'_ - the percentage of responses to validate.  By default 100% of responses will be validated, to turn this off set the value to 0.  To validate half of the responses set this value to 50.
-    - _'failAction'_ - _'error'_ (return 500), _'log'_ (report error but send reply as-is), or _'ignore'_ (send reply as-is) when a response is invalid. Defaults to _'error'_.
-
-Response validation can only be performed on object responses and will otherwise result in an error.
-
-
-### Caching
-
-'GET' routes may be configured to use the built-in cache. The route cache config has the following options:
-- `mode` - determines if the route is cached on the server, client, or both. Defaults to _'client'_.
-    - `server+client` - Caches the route response on the server and client
-    - `client` - Sends the Cache-Control HTTP header on the response to support client caching
-    - `server` - Caches the route on the server only
-- `segment` - Optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' for server helpers and the
-  '/path' fingerprint (the route path with parameters represented by a '?' character) for routes. Note that when using the MongoDB cache
-  strategy, some paths will require manual override as their name will conflict with MongoDB collection naming rules. When setting segment
-  names manually, helper function segments must begin with '##' and route segments must begin with '//'.
-- `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-- `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
-
-For example, to configure a route to be cached on the client and to expire after 2 minutes the configuration would look like the following:
-```
-{
-    mode: 'client',
-    expiresIn: 120000
-}
-```
-
-The server-side cache also supports these advanced options:
-- `staleIn` - number of milliseconds from the time the item was saved in the cache after which it is considered stale. Value must be less than 86400000 milliseconds (one day) if using `expiresAt` or less than the value of `expiresIn`. Used together with `staleTimeout`.
-- `staleTimeout` - if a cached response is stale (but not expired), the route will call the handler to generate a new response and will wait this number of milliseconds before giving up and using the stale response. When the handler finally completes, the cache is updated with the more recent update. Value must be less than `expiresIn` if used (after adjustment for units).
-
-
-### Prerequisites
-
-Before the handler is called, it is often necessary to perform other actions such as loading required reference data from a database. The `pre` option
-allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value 'parallel' in which case, all the parallel methods
-are executed first, then the rest in order. The `pre` is a mixed array of functions and objects. If a function is included, it is the same as including an
-object with a single `method` key. The object options are:
-- `method` - the function to call. The function signature is _'function (request, next)'_. _'next([result])'_ must be called when the operation concludes. If the result is an Error, execution of other prerequisites stops and the error is handled in the same way as when an error is returned from the route handler. The method can be a string invoking a [server helper](#server-helpers).
-- `assign` - key name to assign the result of the function to within 'request.pre'.
-- `mode` - set the calling order of the function to 'serial' or 'parallel'. Defaults to 'serial'.
-
-For example:
-```javascript
-// Create Hapi servers
-var http = new Hapi.Server('0.0.0.0', 8080);
-
-var fetch1 = function (request, next) {
-
-    next('Hello');
-};
-
-var fetch2 = function (request, next) {
-
-    next('World');
-};
-
-var fetch3 = function (request, next) {
-
-    next(request.pre.m1 + ' ' + request.pre.m2);
-};
-
-var get = function (request) {
-
-    request.reply(request.pre.m3 + '\n');
-};
-
-// Set routes
-http.route({
-    method: 'GET',
-    path: '/',
-    config: {
-        pre: [
-            { method: fetch1, assign: 'm1', mode: 'parallel' },
-            { method: fetch2, assign: 'm2', mode: 'parallel' },
-            { method: fetch3, assign: 'm3' },
-        ],
-        handler: get
-    }
-});
-
-// Start Hapi servers
-http.start();
-```
-
-Or used as a prerequisites, by passing a string with the helper invocation using the helper name and passing parameters that are all
-members of the request object (without _next_):
-```javascript
-http.route({
-    method: 'GET',
-    path: '/user/{id}',
-    config: {
-        pre: [
-            'user(params.id)'
-        ],
-        handler: function (request) {
-
-            request.reply(request.pre.user);
-        }
-    }
-});
-```
-
-
-## Data Validation
-
-**hapi** supports a rich set of data types and validation rules which are described in detail in the [**joi** module documentation](http://github.com/spumko/joi).
-For example:
-
-```javascript
-var Hapi = require('hapi');
-
-var S = Hapi.Types.String;
-var I = Hapi.Types.Number;
-
-var rules = {
-    username: S().required().alphanum().min(3).max(30).with('email'),
-    password: S().regex(/[a-zA-Z0-9]{3,30}/).without('token'),
-    token: S(),
-    birthyear: I().min(1850).max(2012),
-    email: S().email(),
-    type: S().valid('admin', 'limited', 'normal')
-};
-```
-
-In which:
-- 'username' is a required alphanumeric string, 3 to 30 characters long, and must appear together with 'email'.
-- 'password' is an optional string matching a regular expression, and must not appear together with 'token'.
-- 'token' is an optional string.
-- 'birthyear' is an optional integer between 1980 and 2012.
-- 'email' is an optional string with valid email address.
-- 'type' is an optional string which must be set to one of three available values.
-
-
-## Response Errors
-
-The 'Hapi.Error' module provides helper methods to generate error responses:
-- _'badRequest([message])'_ - HTTP 400 (Bad Request).
-- _'unauthorized([message])'_ - HTTP 401 (Unauthorized).
-- _'forbidden([message])'_ - HTTP 403 (Not Allowed).
-- _'notFound([message])'_ - HTTP 404 (Not Found).
-- _'internal([message, data])'_ - HTTP 500 (Internal Error). The optional _message_ and _data_ values are not returned to the client but are logged internally.
-
-The _message_ value is optional and will be returned to the client in the response unless noted otherwise. For example:
-
-```javascript
-function onUnknownRoute(request) {
-
-    request.reply(Hapi.Error.unknown('Sorry, nobody home'));
-}
-```
-
-Error responses are send as JSON payload with the following keys (unless an [error response override](#errors) is configured):
-- _code_ - the HTTP status code (e.g. 400).
-- _error_ - the HTTP status message (e.g. 'Bad Request').
-- _message_ - the returned message if provided.
-
-The complete error response including any additional data is added to the request log.
-
-
-#### Server Route Not Found
-
-**hapi** provides a default handler for unknown routes (HTTP 404). If the application needs to override the default handler, it can add a
-new catch-all route for a specific method or all methods:
-```javascript
-var Hapi = require('hapi');
-
-// Create server
-var http = new Hapi.Server(8000);
-
-// Override the default 404 handler
-http.route({ method: '*', path: '/{p*}', handler: notFoundHandler });
-
-// Start server
-http.start();
-
-// 404 handler
-function notFoundHandler() {
-
-    this.reply(Hapi.Error.notFound('The page was not found'));
-}
-```
-
-## Server Authentication
-
-
-
+## `error`
+
+An alias of the [**boom**](https://github.com/spumko/boom) module. Can be accessed via `Hapi.error` or `Hapi.boom`.
+
+#### `badRequest(message)`
+#### `unauthorized(error, scheme, attributes)`
+#### `unauthorized(error, wwwAuthenticate)`
+#### `clientTimeout(message)`
+#### `serverTimeout(message)`
+#### `forbidden(message)`
+#### `notFound(message)`
+#### `internal(message, data)`
+#### `passThrough(code, payload, contentType, headers)`
+
+## `Pack`
+
+#### `new Pack([options])`
+#### `pack.server([host], [port], [options])`
+#### `pack.start([callback])`
+#### `pack.stop([options], [callback])`
+#### `pack.require(name, options, callback)`
+#### `pack.require(names, callback)`
+#### `pack.register(plugin, options, callback)`
+#### `pack.allow(permissions)`
+
+## Plugin Interface
+
+#### `exports.register(plugin, options, next)`
+
+### Root methods
+
+#### `plugin.version`
+#### `plugin.hapi`
+#### `plugin.app`
+#### `plugin.log(tags, data, timestamp)`
+#### `plugin.dependency(deps)`
+#### `plugin.events`
+#### `plugin.views(options)`
+#### `plugin.helper(name, method, options)`
+#### `plugin.cache(options, segment)`
+
+### Selectable methods
+
+#### `plugin.select(labels)`
+#### `plugin.length`
+#### `plugin.api(key, value)`
+#### `plugin.api(obj)`
+#### `plugin.route(options)`
+#### `plugin.route(routes)`
+#### `plugin.state(name, options)`
+#### `plugin.auth(name, options)`
+#### `plugin.ext(event, method)`
+
+## `Composer`
+
+#### `new Composer(manifest)`
+#### `composer.compose(callback)`
+#### `composer.start(callback)`
+#### `composer.stop(callback)`
+
+## `response`
+
+#### `Generic`
+#### `Cacheable`
+#### `Empty`
+#### `Obj`
+#### `Text`
+#### `Stream`
+#### `File`
+#### `Directory`
+#### `Redirection`
+#### `View`
+#### `Buffer`
+
+## `utils`
+
+An alias of the [**hoek**](https://github.com/spumko/hoek) module.
+
+#### `version`
+
+## `types`
+
+See [**joi** Types](https://github.com/spumko/joi#type-registry).
+
+## `state`
+
+#### `prepareValue()`
 
 # The End
 
