@@ -1005,79 +1005,76 @@ server.helpers.sumObj([5, 6], function (result) {
 
 #### `server.inject(options, callback)`
 
-Request injection is the process of simulating an HTTP request without making an actual socket request. Injection is useful for testing
-or debugging purposes, but also for invoking routing logic internally without the overhead or limitations of the network stack. For example,
-implementing a batch mechanism which calls multiple internal routes.
-
-**hapi** uses the [**shot**](https://github.com/spumko/shot) module for performing injections. To inject a request, use the server's
-_'inject(options, callback)'_ method in which:
-- _'options'_ - is an object containing the request information. Available options:
-    - `method` - the request HTTP method. Required.
-    - `url` - the request URL (as it would appear in an incoming node request object). Required.
-    - `headers` - any request headers. Optional.
-    - `payload` - a string or Buffer containing the request payload. Optional.
-    - `session` - a session object containing authentication information as described in [Route Handler](#route-handler). The `session` option is used to bypass the default authentication validation and use a pre-authenticated session. Optional.
-- _'callback'_ - a callback function with the signature _'function (res)'_ where 'res' is the injection response object. The response object properties include:
-    - _'headers'_ - an array containing the headers set.
-    - _'statusCode'_ - the HTTP status code.
-    - _'readPayload()'_ - the payload converted to a string.
-    - _'result'_ - if present, the original route handler reply object.
-    - _'raw'_ - the injection request and response objects.
-
-For example:
+Injects a request into the server simulating an incoming HTTP request without making an actual socket connection. Injection is useful for
+testing purposes as well as for invoking routing logic internally without the overhead or limitations of the network stack. Utilizes the
+[**shot**](https://github.com/spumko/shot) module for performing injections, with some additional options and response properties:
+- `options` - can be assign a string with the requested URI, or an object with:
+    - `method` - the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
+    - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host'
+      header, unless one was specified in `headers`.
+    - `headers` - an object with optional request headers where each key is the header name and the value is the header content. Defaults
+      to no additions to the default Shot headers.
+    - `payload` - an optional string or buffer containing the request payload. Defaults to no payload.
+    - `credentials` - an optional credentials object containing authentication information. The `credentials` are used to bypass the default
+      authentication strategies, and are validated directly as if they were recieved via an authentication scheme. Defaults to no credentials.
+    - `simulate` - an object with options used to simulate client request stream conditions for testing:
+        - `error` - if `true`, emits an `'error'` event after payload transmission (if any). Defaults to `false`.
+        - `close` - if `true`, emits a `'close'` event after payload transmission (if any). Defaults to `false`.
+        - `end` - if `false`, does not end the stream. Defaults to `true`.
+- `callback` - the callback function with signature `function(res)` where:
+    - `res` - the response object where:
+        - `statusCode` - the HTTP status code.
+        - `headers` - an array containing the headers set.
+        - `payload` - the response payload string.
+        - `raw` - an object with the injection request and response objects:
+            - `req` - the request object.
+            - `res` - the response object.
+        - `result` - the raw handler response (e.g. when not a stream) before it is serialized for transmission. If not available, set to
+          `payload`. Useful for inspection and reuse of the internal objects returned (instead of parsting the response string).
 
 ```javascript
-// Create Hapi server
-var http = new Hapi.Server('0.0.0.0', 8080);
+var Hapi = require('hapi');
+var server = new Hapi.Server();
 
-// Handler
-var get = function (request) {
+var get = function () {
 
-    request.reply('Success!');
+    this.reply('Success!');
 };
 
-// Set routes
-http.route({ method: 'GET', path: '/', handler: get });
+server.route({ method: 'GET', path: '/', handler: get });
 
-// Injection options
-var req = {
-    method: 'get',
-    url: '/'
-};
+server.inject('/', function (res) {
 
-http.inject(req, function (res) {
-
-    console.log(res.result || res.readPayload());
+    console.log(res.result);
 });
 ```
 
+### `Server` events
 
-### Server events
+The server object inherits from `Events.EventEmitter` and emits the following events:
+- `'log'` - events logged with [server.log()](#serverlogtags-data-timestamp).
+- `'request'` - events generated by [request.log()](#requestlogtags-data-timestamp) or internally (multiple events per request).
+- `'response'` - emitted after a response to a client reuqest is sent back. Single event per request.
+- `'tail'` - emitted when a request finished processing, including any registered [tails](#requesttailname). Single event per request.
+- `'internalError'` - emitted whenever an Internal Server Error (500) error response is sent. Single event per request.
 
-The server object emits the following events:
-- _'log'_ - [general server events](#server-logging).
-- _'request'_ - events generated by the [request logging method](#request-logging). Multiple events per request.
-- _'response'_ - emitted after a response is sent back. Includes the request object as value. Single event per request.
-- _'tail'_ - emitted when a request finished processing, including any registered tails as described in [Request Tails](#request-tails). Single event per request.
-- _'internalError'_ - emitted whenever a 500 response is sent. Single event per request.
+When provided (as listed below) the `event` object include:
+- `timestamp` - the event timestamp.
+- `id` - if the event relates to a request, the request id.
+- `tags` - an array of tags (e.g. `['error', 'http']`). Includes the `'hapi'` tag is the event was generated internally.
+- `data` - optional event-specific information.
 
-When provided, event objects include:
-- `timestamp` - the event timestamp
-- `id` - if the event relates to a request, the request id
-- `tags` - an array of tags (e.g. 'error', 'http')
-- `data` - optional event-specific data
-
-The _'log'_ event includes the event object and a tags object (where each tag is a key with the value `true`):
+The `'log'` event includes the `event` object and a `tags` object (where each tag is a key with the value `true`):
 ```javascript
 server.on('log', function (event, tags) {
 
     if (tags.error) {
-        console.log('Server error: ' + event.data);
+        console.log('Server error: ' + (event.data || 'unspecified'));
     }
 });
 ```
 
-The _'request'_ event includes the request object, the event object, and a tags object (where each tag is a key with the value `true`):
+The `'request'` event includes the `request` object, the `event` object, and a `tags` object (where each tag is a key with the value `true`):
 ```javascript
 server.on('request', function (request, event, tags) {
 
@@ -1087,7 +1084,7 @@ server.on('request', function (request, event, tags) {
 });
 ```
 
-The _'response'_ and _'tail'_ events include the request object:
+The `'response'` and `'tail'` events include the `request` object:
 ```javascript
 server.on('response', function (request) {
 
@@ -1095,14 +1092,13 @@ server.on('response', function (request) {
 });
 ```
 
-The _'internalError'_ event includes the request object and the causing Error object:
+The `'internalError'` event includes the `request` object and the causing error `err` object:
 ```javascript
 server.on('internalError', function (request, err) {
 
     console.log('Error response (500) sent for request: ' + request.id + ' because: ' + err.message);
 });
 ```
-
 
 ## `Pack`
 
@@ -1266,7 +1262,7 @@ The handler must call _'reply()'_, _'reply.send()'_, or _'reply.payload/stream()
 within the route handler and are disabled as soon as control is returned.
 
 
-#### `request.addTail([name])`
+#### `request.tail([name])`
 
 It is often desirable to return a response as quickly as possible and perform additional (slower) actions afterwards (or in parallel). These
 actions are called request tails. For example, a request may trigger a database update tail that should not delay letting the client know the
@@ -1274,8 +1270,7 @@ request has been received and will be processed shortly. However, it is still de
 when every single request related action has completed (in other words, when the request stopped wagging).
 
 **hapi** provides a simple facility for keeping track of pending tails by providing the following request methods:
-- _'addTail([name])'_ - registers a named tail and returns a tail function. The tail function must be retained and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
-- _'removeTail(tail)'_ - removes a tail to notify the server that the associated action has been completed.
+- _'tail([name])'_ - registers a named tail and returns a tail function. The tail function must be retained and used to remove the tail when completed. The method is available on every event or extension hook prior to the 'tail' event.
 
 Alternatively, the returned tail function can be called directly without using the _removeTail()_ method.
 
@@ -1292,7 +1287,7 @@ var get = function (request) {
     var tail1 = request.addTail('tail1');
     setTimeout(function () {
 
-        request.removeTail(tail1);              // Using removeTail() interface
+        tail1();
     }, 5000);
 
     var tail2 = request.addTail('tail2');

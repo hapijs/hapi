@@ -14,14 +14,14 @@ internals.get = function (request) {
     setTimeout(function () {
 
         console.log(1);
-        request.removeTail(tail1);              // Using removeTail() interface
+        tail1();
     }, 5000);
 
     var tail2 = request.addTail('tail2');
     setTimeout(function () {
 
         console.log(2);
-        tail2();                                // Using tail() function interface
+        tail2();
     }, 2000);
 
     request.reply('Success!\n');

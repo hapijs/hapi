@@ -33,7 +33,7 @@ describe('Request', function () {
 
         request.reply('Done');
 
-        request.removeTail(t1);
+        t1();
         t1();                           // Ignored
         setTimeout(t2, 10);
     };
