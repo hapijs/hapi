@@ -148,8 +148,8 @@ var Hapi = require('hapi');
 var options = {
     views: {
         path: './templates',
-        engine: {
-            module: 'handlebars'
+        engines: {
+            html: 'handlebars'
         }
     }
 };
