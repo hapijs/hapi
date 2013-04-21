@@ -147,9 +147,9 @@ var Hapi = require('hapi');
 
 var options = {
     views: {
-        path: './templates',
-        engine: {
-            module: 'handlebars'
+        path: __dirname + '/templates',
+        engines: {
+            html: 'handlebars'
         }
     }
 };
@@ -162,7 +162,7 @@ var hello = {
     handler: function (request) {
     
       // Render the view with the custom greeting
-        request.reply.view('index.html', { greeting: 'hello world' });
+        request.reply.view('index.html', { greeting: 'hello world :)' });
     }
 };
 
