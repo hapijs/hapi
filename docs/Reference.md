@@ -143,7 +143,7 @@ Each instance of the `Server` object have the following properties:
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
 - `listener` - the node HTTP server object.
 - `pack` - the [`Pack`](#pack) object the server belongs to (automatically assigned when creating a server instance directly).
-- `plugins` - an object with each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
+- `plugins` - an object where each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
 - `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults.
 
 ### `Server` methods
@@ -449,7 +449,7 @@ server.route({
 
 ##### Route handler
 
-When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request) object.
+When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request-object) object.
 The handler method must call [`request.reply()`](#requestreply) or one of its sub-methods to return control back to the router.
 
 Route handler functions can use one of three declaration styles:
@@ -968,7 +968,7 @@ uri += '?bewit=' + bewit;
 
 #### `server.ext(event, method, [options])`
 
-Registers an extension function in one of the available extension points listed below where:
+Registers an extension function in one of the available [extension points](#request-lifecycle) where:
 - `event` - the event name.
 - `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
   is `function(request, next)` where:
@@ -980,6 +980,30 @@ Registers an extension function in one of the available extension points listed 
       in the order added.
     - `after` - a string or array of strings of plugin names this method must executed before (on the same event). Otherwise, extension methods are executed
       in the order added.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+server.ext('onRequest', function (request, next) {
+    
+    // Change all requests to '/test'
+    request.setUrl('/test');
+    next();
+});
+
+var handler = function () {
+
+    this.reply({ status: 'ok' });
+};
+
+server.route({ method: 'GET', path: '/test', handler: handler });
+server.start();
+
+// All requests will get routed to '/test'
+```
+
+##### Request lifecycle
 
 Each incoming request passes through a pre-defined set of steps, along with optional extensions:
 - **`'onRequest'`** extension point
@@ -1012,28 +1036,6 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Emits `'response'` event
 - Wait for tails
 - Emits `'tail'` event
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-
-server.ext('onRequest', function (request, next) {
-    
-    // Change all requests to '/test'
-    request.setUrl('/test');
-    next();
-});
-
-var handler = function () {
-
-    this.reply({ status: 'ok' });
-};
-
-server.route({ method: 'GET', path: '/test', handler: handler });
-server.start();
-
-// All requests will get routed to '/test'
-```
 
 #### `server.helper(name, method, [options])`
 
@@ -1208,24 +1210,47 @@ server.on('internalError', function (request, err) {
 
 ## Request object
 
-When the provided route handler method is called, it receives a _request_ object with the following properties:
-- _'url'_ - the parsed request URI.
-- _'path'_ - the request URI's path component.
-- _'method'_ - the request method as a _lowercase_ string. (Examples: `'get'`, `'post'`).
-- _'query'_ - an object containing the query parameters.
-- _'params'_ - an object containing the path named parameters as described in [Path Parameters](#parameters).
-- _'rawPayload'_ - the raw request payload Buffer (except for requests with `config.payload` set to _'stream'_).
-- _'payload'_ - an object containing the parsed request payload (for requests with `config.payload` set to _'parse'_).
-- _'state'_ - an object containing parsed HTTP state information (cookies).
-- _'session'_ - available for authenticated requests and includes:
-    - _'id'_ - session identifier.
-    - _'user'_ - user id (optional).
-    - _'app'_ - application id (optional).
-    - _'scope'_ - approved application scopes (optional).
-    - _'ext.tos'_ - terms-of-service version (optional).
-- _'server'_ - a reference to the server object.
-- _'pre'_ - any requisites as described in [Prequisites](#prequisites).
-- _'raw'_ - an object containing the Node HTTP server 'req' and 'req' objects. **Direct interaction with these raw objects is not recommended.**
+The request object is created internally for each incoming request. It is **not** the node request object received from the HTTP
+server callback (which is available in `request.raw.req`). The request object methods and properties change through the
+[request lifecycle](#request-lifecycle).
+
+### `request` properties
+
+Each requst object have the following properties:
+- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
+  Should not be used by plugins which should use `plugins[name]`.
+- `auth` - authentication information:
+    - `isAuthenticated` - `true` is the request has been successfully authenticated, otherwise `false`.
+    - `credentials` - the `credential` object received during the authentication process. The presence of an object does not mean
+      successful authentication.
+    - `artifacts` - an artifact object received from the authentication strategy and used in authentication-related actions.
+    - `session` - an object used by the [`'cookie'` authentication scheme](#cookie-authentication).
+- `id` - a unique request identifier.
+- `info` - request information:
+    - `received` - request reception timestamp.
+    - `address` - remote client IP address.
+    - `referrer` - content of the 'Referrer' (or 'Referer') header.
+- `method` - the request method in lower case (e.g. `'get'`, `'post'`).
+- `params` - an object where each key is a path parameter name with matching value as described in [Path parameters](#path-parameters).
+- `path` - the request URI's path component.
+- `payload` - an object containing the parsed request payload (when the route `payload` option is set to `'parse'`).
+- `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
+  key is a plugin name and the value is the state.
+- `pre` - an object where each key is the name assigned by a [route prerequisites](#route-prerequisites) function.
+- `query` - an object containing the query parameters.
+- `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
+    - `req` - the request object.
+    - `res` - the response object.
+- `rawPayload` - the raw request payload `Buffer` (except when the route `payload` option is set to `'stream'`).
+- `route` - the route configuration object after defaults are applied.
+- `server` - the server object.
+- `session` - Special key reserved for plugins implementing session support. Plugins utilizing this key must check for `null` value
+  to ensure there is no conflict with another similar plugin.
+- `state` - an object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching
+  cookie content after processing using any registered cookie definition.
+- `url` - the parsed request URI.
+
+### `request` methods
 
 #### `request.reply()`
 
