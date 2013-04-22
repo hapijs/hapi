@@ -181,7 +181,7 @@ When creating a server instance, the following options configure the server's be
 - `labels` - a string array of labels used when registering plugins to [`pack.select()`](#packselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 <p></p>
-- `location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
+- <a name="server.config.location" />`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
   Defaults to empty string (`''`).
 <p></p>
 - <a name="server.config.payload" />`payload` - controls how incoming payloads (request body) are processed:
@@ -341,12 +341,12 @@ Adds a new route to the server with the following options:
         - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
           proxied upstream endpoint. Defaults to `false`.
         - `mapUri` - a function used to map the request URI to the proxied URI. The function signature is `function(request, callback)` where:
-            - `request` - is the incoming request object
+            - `request` - is the incoming `request` object
             - `callback` - is `function(err, uri)` where `uri` is the absolute proxy URI. Cannot be used together with `host`, `port`, or `protocol`.
         - `postResponse` - a custom function for processing the response from the upstream service before sendint to the client. Useful for
           custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
           `function(request, settings, res, payload)` where:
-              - `request` - is the incoming request object. It is the responsibility of the `postResponse()` function to call `request.reply()`.
+              - `request` - is the incoming `request` object. It is the responsibility of the `postResponse()` function to call `request.reply()`.
               - `settings` - the proxy handler configuration.
               - `res` - the node response object received from the upstream service.
               - `payload` - the response payload.
@@ -568,7 +568,7 @@ The handler method must call [`request.reply()`](#requestreply) or one of its su
 
 Route handler functions can use one of three declaration styles:
 
-No arguments (the request object is bound to `this`, decorated by the `reply` interface):
+No arguments (the `request` object is bound to `this`, decorated by the `reply` interface):
 ```javascript
 var handler = function () {
 
@@ -603,7 +603,7 @@ The route `pre` option allows defining such pre-handler methods. The methods are
 `'parallel'` in which case, all the parallel methods are executed first, then the rest in order. `pre` can be assigned a mixed array of:
 - objects with:
     - `method` - the function to call (or short-hand helper string as described below). The function signature is `function(request, next)` where:
-        - `request` - the incoming request object.
+        - `request` - the incoming `request` object.
         - `next` - the function called when the method is done with the signature `function(result)` where:
             - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#error)). If an error
               is returned, that value is sent back to the client and the handler method is not called.
@@ -1086,7 +1086,7 @@ Registers an extension function in one of the available [extension points](#requ
 - `event` - the event name.
 - `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
   is `function(request, next)` where:
-    - `request` - the incoming request object.
+    - `request` - the incoming `request` object.
     - `next` - the callback function the extension method must call to return control over to the router. The function takes an optional `response`
       argument, which will cause the process to jump to the "send response" step, skipping all other steps in between.
 - `options` - an optional object with the following:
@@ -1249,7 +1249,7 @@ testing purposes as well as for invoking routing logic internally without the ov
         - `headers` - an array containing the headers set.
         - `payload` - the response payload string.
         - `raw` - an object with the injection request and response objects:
-            - `req` - the request object.
+            - `req` - the `request` object.
             - `res` - the response object.
         - `result` - the raw handler response (e.g. when not a stream) before it is serialized for transmission. If not available, set to
           `payload`. Useful for inspection and reuse of the internal objects returned (instead of parsting the response string).
@@ -1324,8 +1324,8 @@ server.on('internalError', function (request, err) {
 
 ## Request object
 
-The request object is created internally for each incoming request. It is **not** the node request object received from the HTTP
-server callback (which is available in `request.raw.req`). The request object methods and properties change through the
+The `request` object is created internally for each incoming request. It is **not** the node `request` object received from the HTTP
+server callback (which is available in `request.raw.req`). The `request` object methods and properties change through the
 [request lifecycle](#request-lifecycle).
 
 ### `request` properties
@@ -1353,7 +1353,7 @@ Each requst object have the following properties:
 - `pre` - an object where each key is the name assigned by a [route prerequisites](#route-prerequisites) function.
 - `query` - an object containing the query parameters.
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
-    - `req` - the request object.
+    - `req` - the `request` object.
     - `res` - the response object.
 - `rawPayload` - the raw request payload `Buffer` (except when the route `payload` option is set to `'stream'`).
 - `route` - the route configuration object after defaults are applied.
@@ -1368,7 +1368,10 @@ Each requst object have the following properties:
 
 #### `request.setUrl(url)`
 
-Avilable only in `'onRequest'` extension methods. Allows changing the request URI before the router begins processing the request.
+_Avilable only in `'onRequest'` extension methods._
+
+ Changes the request URI before the router begins processing the request where:
+ - `url` - the new request path value.
 
 ```javascript
 var Hapi = require('hapi');
@@ -1384,7 +1387,10 @@ server.ext('onRequest', function (request, next) {
 
 #### `request.setMethod(method)`
 
-Avilable only in `'onRequest'` extension methods. Allows changing the request method before the router begins processing the request.
+_Avilable only in `'onRequest'` extension methods._
+
+Changes the request method before the router begins processing the request where:
+- `method` - is the request HTTP method (e.g. `'GET'`).
 
 ```javascript
 var Hapi = require('hapi');
@@ -1400,7 +1406,9 @@ server.ext('onRequest', function (request, next) {
 
 #### `request.log(tags, [data, [timestamp]])`
 
-Used for logging request-specific events. When called, the server emits a `'request'` event which can be used by other listeners or plugins. The
+_Always available._
+
+Logs request-specific events. When called, the server emits a `'request'` event which can be used by other listeners or plugins. The
 arguments are:
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
   and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
@@ -1427,6 +1435,8 @@ var handler = function () {
 
 #### `request.getLog([tags])`
 
+_Always available._
+
 Returns an array containing the events matching any of the tags specified (logical OR) where:
 - `tags` - is a single tag string or array of tag strings. If no `tags` specified, returns all events.
 
@@ -1437,6 +1447,8 @@ request.getLog(['hapi', 'error']);
 ```
 
 #### `request.tail([name])`
+
+_Available until immediately after the `'response'` event is emitted._
 
 Adds a request tail which has to complete before the request lifecycle is complete where:
 - `name` - an optional tail name used for logging purposes.
@@ -1473,26 +1485,236 @@ server.on('tail', function (request) {
 });
 ```
 
-#### `request.setState(name, value, options)`
+#### `request.setState(name, value, [options])`
+
+_Available until immediately after the `'onPreResponse'` extension point methods are called._
+
+Sets a cookie which is sent with the response, where:
+- `name` - the cookie name.
+- `value` - the cookie value. If no `encoding` is defined, must be a string.
+- `options` - optional configuration. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
+  the specified keys in `options` override those same keys in the server definition (but not others).
+
+```javascript
+request.setState('preferences', { color: 'blue' }, { encoding: 'base64json' });
+```
 
 #### `request.clearState(name)`
 
+_Available until immediately after the `'onPreResponse'` extension point methods are called._
+
+Clears a cookie which sets an expired cookie and sent with the response, where:
+- `name` - the cookie name.
+
+```javascript
+request.clearState('preferences');
+```
+
 #### `request.reply([result])`
 
-Based on the handler function declaration style, a _'reply'_ function is provided which includes the following properties:
-- _'payload(result)'_ - sets the provided _'result'_ as the response payload. _'result'_ cannot be a Stream. The method will automatically
-  identify the result type and cast it into one of the supported response types (Empty, Text, Obj, or Error). _'result'_ can all be an
-  instance of any other response type provided by the 'Hapi.response' module (e.g. File, Direct).
-- _'stream(stream)'_ - pipes the content of the stream into the response.
-- _'redirect(uri)'_ - sets a redirection response.  Uses the _'server.settings.location'_ prefix when not set to an absolute URI. Defaults to 302.
-- _'send()'_ - finalizes the response and return control back to the router. Must be called after _'payload()'_ or _'stream()'_ to send the response.
-- _'close()'_ - closes the response stream immediately without flushing any remaining unsent data. Used for ending the handler execution
-  after manually sending a response.
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
+`request.reply.close()` is called._
 
-For convenience, the reply function can be simply invoke as _'reply([result])'_ which is identical to calling _'reply.payload([result]).send()'_ or _'reply.stream(stream).send()'_, depending on the result.
+Concludes the handler activity by returning control over to the router where:
+- `result` - an optional response payload.
 
-The 'stream()', and 'redirect()' methods return a **hapi** Response object created based on the result item provided.
-Depending on the response type, additional chainable methods are available:
+Returns a [`response`](#response) object based on the value of `result`:
+- `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
+- string - [`Text`](#text) response.
+- `Buffer` object - [`Buffer`](#buffer) response.
+- `Error` object (generated via [`error`](#error) or `new Error()`) - [`Boom`](#error) object.
+- `Stream` object - [`Stream`](#stream) response.
+- any other object - [`Obj`](#obj) response.
+
+```javascript
+var handler = function () {
+
+    this.reply('success');
+};
+```
+
+The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
+are response-type-specific and listed in [`response`](#response).
+
+```javascript
+var handler = function () {
+
+    this.reply('success')
+        .type('text/plain)
+        .header('X-Custom', 'some-value');
+};
+```
+
+The [response flow control rules](#flow-control) apply.
+
+##### `request.reply.redirect(uri)`
+
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
+`request.reply.close()` is called._
+
+Concludes the handler activity by returning control over to the router with a redirection response where:
+- `uri` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is returned, the value of
+  the server [`location`](#server.config.location) configuration option is used as prefix.
+
+Returns a [`Redirection`](#redirection) response.
+
+```javascript
+var handler = function () {
+
+    this.reply.redirection('http://example.com/elsewhere')
+              .message('You are being redirected...')
+              .permanent();
+};
+```
+
+The [response flow control rules](#flow-control) apply.
+
+##### `request.reply.view(template, [context, [options]])`
+
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
+`request.reply.close()` is called._
+
+Concludes the handler activity by returning control over to the router with a templatized view response where:
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
+
+Returns a [`View`](#view) response.
+
+**index.js**
+```javascript
+var server = new Hapi.Server({
+    views: {
+        engines: { html: 'handlebars' },
+        path: __dirname + '/templates'
+    }
+});
+        
+var handler = function () {
+
+    var context = {
+        title: 'Views Example',
+        message: 'Hello, World'
+    };
+
+    this.reply.view('hello', context);
+};
+
+http.route({ method: 'GET', path: '/', handler: handler });
+```
+
+**templates/hello.html**
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <div>
+            <h1>{{message}}</h1>
+        </div>
+    </body>
+</html>
+```
+
+The [response flow control rules](#flow-control) apply.
+
+##### `request.reply.close()`
+
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
+`request.reply.close()` is called._
+
+Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
+directly via `request.raw.res` and that no further response action is needed (the router will ensure the `request.raw.res` was ended).
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+#### `request.generateView(template, contect, [options])`
+
+_Always available._
+
+Returns a [`View`](#view) response object using the request environment where:
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
+
+Useful when a view response is required outside of the handler (e.g. used in an extension point method to return an override response).
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+server.ext('onPreResponse', function (request, next) {
+
+    var response = request.response();
+    if (!response.isBoom) {
+        return next();
+    }
+
+    // Replace error with friendly HTML
+
+      var error = response;
+      var context = {
+          message: (error.response.code === 404 ? 'the page you were looking for was not found' : 'something went wrong...')
+      };
+
+      next(request.generateView('error', context));
+});
+```
+
+#### `request.response()`
+
+_Available after the handler method concludes and immediately after the `'onPreResponse'` extension point methods._
+
+Returns the response object. The object can be modified but cannot be assigned another object. To replace the response with another
+from within an extension point, use `next(response)` to return a different response.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+server.ext('onPostHandler', function (request, next) {
+
+    var response = request.response();
+    if (response.variety === 'obj') {
+        delete response.raw._id;        // Remove internal key
+        response.update();
+    }
+    next();
+});
+```
+
+## `response`
+
+### Flow control
+
+When calling `request.reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
+This enables making changes to the returned response object before the response is sent. This means the router will resume as soon as the handler
+method exists. To suspend this behaviour, the returned `response` object includes:
+- `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `request.reply()` is called and until
+  `response.hold()` is invoked once.
+- `response.send()` - resume the response which will be transmitted in the next tick. Available only after `response.hold()` is called and until
+  `response.send()` is invoked once.
+
+```javascript
+var handler = function () {
+
+    var response = this.reply('success').hold();
+
+    onTimeout(function () {
+
+        response.send();
+    }, 1000);  
+};
+```
+
+### Response types
+
+#### `Generic`
+
 - _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI). Not available with 'redirect()'.
 - _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
 - _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
@@ -1502,47 +1724,23 @@ Depending on the response type, additional chainable methods are available:
 - _'header(name, value)'_ - sets a HTTP header with the provided value.
 - `code(statusCode)` -
 
-The following methods are only available when using 'redirect()':
-- _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
-- _'uri(dest)'_ - the destination URI.
-- _'temporary()_' - sets the status code to 302 or 307 (based on the rewritable settings). Defaults to 'true'.
-- _'permanent()_' - sets the status code to 301 or 308 (based on the rewritable settings). Defaults to 'false'.
-- _'rewritable(isRewritable)_' - sets the status code to 301/302 (based on the temporary settings) for rewritable (change POST to GET) or 307/308 for non-rewritable. Defaults to 'true'.
-
-The handler must call _'reply()'_, _'reply.send()'_, or _'reply.payload/stream()...send()'_ (and only one, once) to return control over to the router. The reply methods are only available
-within the route handler and are disabled as soon as control is returned.
-
-##### `request.reply.redirect(uri)`
-
-##### `request.reply.view(template, context, [options])`
-
-##### `request.reply.hold()`
-
-##### `request.reply.send()`
-
-##### `request.reply.close()`
-
-#### `request.generateView(template, contect, [options])`
-
-#### `request.response()`
-
-## `response`
-
 #### `Empty`
 
 An empty response body (content-length of zero bytes).
-
-#### `Obj`
-
-JavaScript object, converted to string. Defaults to 'application/json' content-type.
 
 #### `Text`
 
 Plain text. Defaults to 'text/html' content-type.
 
+#### `Buffer`
+
 #### `Stream`
 
 A stream object, directly piped into the HTTP response.
+
+#### `Obj`
+
+JavaScript object, converted to string. Defaults to 'application/json' content-type.
 
 #### `File`
 
@@ -1550,9 +1748,14 @@ Transmits a static file. Defaults to the matching mime type based on filename ex
 
 #### `Directory`
 #### `Redirection`
+
+- _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
+- _'uri(dest)'_ - the destination URI.
+- _'temporary()_' - sets the status code to 302 or 307 (based on the rewritable settings). Defaults to 'true'.
+- _'permanent()_' - sets the status code to 301 or 308 (based on the rewritable settings). Defaults to 'false'.
+- _'rewritable(isRewritable)_' - sets the status code to 301/302 (based on the temporary settings) for rewritable (change POST to GET) or 307/308 for non-rewritable. Defaults to 'true'.
+
 #### `View`
-#### `Buffer`
-#### `Generic`
 #### `Cacheable`
 
 ## `error`

@@ -257,7 +257,7 @@ describe('Response', function () {
 
         var handler = function (request) {
 
-            return request.reply();
+            return request.reply().code(299);
         };
 
         var server = new Hapi.Server({ cors: { credentials: true } });
@@ -269,6 +269,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
+                expect(res.statusCode).to.equal(299);
                 expect(res.result).to.equal('');
                 expect(res.headers['access-control-allow-credentials']).to.equal('true');
                 done();
