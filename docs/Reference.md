@@ -1658,7 +1658,7 @@ server.ext('onPreResponse', function (request, next) {
 
       var error = response;
       var context = {
-          message: (error.response.code === 404 ? 'the page you were looking for was not found' : 'something went wrong...')
+          message: (error.response.code === 404 ? 'page not found' : 'something went wrong')
       };
 
       next(request.generateView('error', context));
