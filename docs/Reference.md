@@ -1553,7 +1553,7 @@ _Available only within the handler method and only before one of `request.reply(
 `request.reply.close()` is called._
 
 Concludes the handler activity by returning control over to the router with a redirection response where:
-- `uri` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is returned, the value of
+- `uri` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
   the server [`location`](#server.config.location) configuration option is used as prefix.
 
 Returns a [`Redirection`](#redirection) response.
@@ -1713,40 +1713,71 @@ var handler = function () {
 
 ### Response types
 
+Every response type must include the following properties:
+- `variety` - the response type name in lower case (e.g. `'text'`).
+- `varieties` - an object where each key has a `true` value and represents a response type name (in lower case) whose functionality is made
+  available via the response object (e.g. the `File` response type `varieties` object is `{ generic: true, stream: true, file: true }`).
+
 #### `Generic`
 
-- _'created(location)`_ - a URI value which sets the HTTP response code to 201 (Created) and adds the HTTP _Location_ header with the provided value (normalized to absolute URI). Not available with 'redirect()'.
-- _'bytes(length)'_ - a pre-calculated Content-Length header value. Only available when using _'pipe(stream)'_.
-- _'type(mimeType)'_ - a pre-determined Content-Type header value. Should only be used to override the built-in defaults.
-- _'ttl(msec)'_ - a milliseconds value which overrides the default route cache expiration rule for this individual response.
-- _'state(name, value, options)'_ - sets an HTTP state (cookie) as described in [Raw Cookies](#raw-cookies)
-- _'unstate(name)'_ - instructs the client to remove the HTTP state.
-- _'header(name, value)'_ - sets a HTTP header with the provided value.
-- `code(statusCode)` -
+The `Generic` response type is used a the parent prototype for all other response types. It cannot be instantiated directly and is only made available
+for deriving other response types. It provides the following methods: 
+- `code(statusCode)` - sets the HTTP status code where:
+    - `statusCode` - the HTTP status code.
+- `header(name, value)` - sets an HTTP header where:
+    - `name` - the header name.
+    - `value` - the header value.
+- `type(mimeType)` - sets the HTTP 'Content-Type' header where:
+    - `value` - is the mime type. Should only be used to override the built-in default for each response type.
+- `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Locaiton' header where:
+    `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
+      the server [`location`](#server.config.location) configuration option is used as prefix. Not available in the `Redirection`
+      response object.
+- `encoding(encoding)` - sets the 'Content-Type' HTTP header encoding property where:
+    `encoding` - the encoding property value.
+- `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
+    - `msec` - the time-to-live value in milliseconds.
+- `getTtl()` - returns the time-to-live value if an override has been set, and the request method is 'GET'.
+- `state(name, value, [options])` - sets an HTTP cookie as described in [`request.setState()`](#requestsetStatename-value-options).
+- `unstate(name)` - clears the HTTP cookie by setting an expired value as described in [`request.clearState()`](#requestclearStatename).
 
 #### `Empty`
 
-An empty response body (content-length of zero bytes).
+An empty response body (content-length of zero bytes). Supports all the methods provided by [`Generic`](#generic).
 
 #### `Text`
 
-Plain text. Defaults to 'text/html' content-type.
+Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all the methods provided by [`Generic`](#generic) as well as:
+- `message(text, [type, [encoding]])` - sets or replace the response text where:
+    - `text` - the text content.
+    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+    - `encoding` - the 'Content-Type' HTTP header encoding propertyg. Defaults to `'utf-8'`.
 
 #### `Buffer`
 
+Buffer response. Supports all the methods provided by [`Generic`](#generic).
+
 #### `Stream`
 
-A stream object, directly piped into the HTTP response.
+Replies with a stream object, directly piped into the HTTP response. Supports all the methods provided by [`Generic`](#generic) as well as:
+- `bytes(length)` - sets the HTTP 'Content-Length' header where:
+    - `length` - the header value.
 
 #### `Obj`
 
-JavaScript object, converted to string. Defaults to 'application/json' content-type.
+JavaScript object, sent stringified. The 'Content-Type' header defaults to 'application/json'. Supports all the methods provided by
+[`Generic`](#generic) as well as:
+- `raw` - the unmodified, unstringified object. Any direct manipulation must be followed with `update()`.
+- `update(type, encoding)` - updates the string representation of the object response after changes to `raw` where:
+    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+    - `encoding` - the 'Content-Type' HTTP header encoding propertyg. Defaults to `'utf-8'`.
 
 #### `File`
 
 Transmits a static file. Defaults to the matching mime type based on filename extension.
 
 #### `Directory`
+
 #### `Redirection`
 
 - _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
@@ -1756,6 +1787,7 @@ Transmits a static file. Defaults to the matching mime type based on filename ex
 - _'rewritable(isRewritable)_' - sets the status code to 301/302 (based on the temporary settings) for rewritable (change POST to GET) or 307/308 for non-rewritable. Defaults to 'true'.
 
 #### `View`
+
 #### `Cacheable`
 
 ## `error`
