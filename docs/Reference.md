@@ -111,7 +111,7 @@
 - [`state`](#state)
     - [`prepareValue()`](#preparevalue)
 
-## `Server`
+## `Hapi.Server`
 
 #### `new Server([host], [port], [options])`
 
@@ -1684,7 +1684,7 @@ server.ext('onPostHandler', function (request, next) {
 });
 ```
 
-## `response`
+## `Hapi.response`
 
 ### Flow control
 
@@ -2051,21 +2051,156 @@ server.route({ method: 'GET', path: '/3/{user}', handler: { view: 'hello' } });
 The `Cacheable` response type is used as the parent prototype for all cacheable response types. It cannot be instantiated directly and
 is only made available for deriving other response types.
 
-## `error`
+## `Hapi.error`
 
-An alias of the [**boom**](https://github.com/spumko/boom) module. Can be accessed via `Hapi.error` or `Hapi.boom`.
+Provides a set of utilities for returning HTTP errors. An alias of the [**boom**](https://github.com/spumko/boom) module (can be also accessed
+`Hapi.boom`). Each utility returns an `Boom` error response object (instance of `Error`) which includes the following properties:
+- `isBoom` - if `true`, indicates this is a `Boom` object instance.
+- `message` - the error message.
+- `response` - the formatted response. Can be directly manipulated after object construction to return a custom error response. Allowed root keys:
+    - `code` - the HTTP status code (typically 4xx or 5xx).
+    - `headers` - an object containing any HTTP headers where each key is a header name and value is the header content.
+    - `type` - a mime-type used as the content of the HTTP 'Content-Type' header (overrides `headers['Content-Type']` if present in both).
+    - `payload` - the formatted object used as the response payload (stringified). Can be directly manipulated but any changes will be lost
+      if `reformat()` is called. Any content allowed and by default includes the following content:
+        - `code` - the HTTP status code, derived from `error.response.code`.
+        - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived from `code`.
+        - `message` - the error message derived from `error.message`. 
+- inherited `Error` properties.
 
-#### `badRequest(message)`
-#### `unauthorized(error, scheme, attributes)`
-#### `unauthorized(error, wwwAuthenticate)`
-#### `clientTimeout(message)`
-#### `serverTimeout(message)`
-#### `forbidden(message)`
-#### `notFound(message)`
-#### `internal(message, data)`
+It also supports the following method:
+- `reformat()` - rebuilds `error.response` using the other object properties.
+
+```javascript
+var Hapi = require('hapi');
+
+var handler = function () {
+
+    var error = Hapi.error.badRequest('Cannot feed after midnight');
+    error.response.code = 499;    // Assign a custom error code
+    error.reformat();
+
+    this.reply(error);
+});
+```
+
+#### `badRequest([message])`
+
+Returns an HTTP Bad Request (400) error response object with the provided `message`.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.badRequest('Invalid parameter value');
+```
+
+#### `unauthorized(message, [scheme, [attributes]])`
+
+Returns an HTTP Unauthorized (401) error response object where:
+- `message` - the error message.
+- `scheme` - optional HTTP authentication scheme name (e.g. `'Basic'`, `'Hawk'`). If provided, includes the HTTP 'WWW-Authenticate'
+  response header with the scheme and any provided `attributes`.
+- `attributes` - an object where each key is an HTTP header attribute and value is the attribute content.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.unauthorized('Stale timestamp', 'Hawk', { ts: fresh, tsm: tsm });
+```
+
+#### `unauthorized(message, wwwAuthenticate)`
+
+Returns an HTTP Unauthorized (401) error response object where:
+- `message` - the error message.
+- `wwwAuthenticate` - an array of HTTP 'WWW-Authenticate' header responses for multiple challenges.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.unauthorized('Missing authentication', ['Hawk', 'Basic']);
+```
+
+#### `clientTimeout([message])`
+
+Returns an HTTP Request Timeout (408) error response object with the provided `message`.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.clientTimeout('This is taking too long');
+```
+
+#### `serverTimeout([message])`
+
+Returns an HTTP Service Unavailable (503) error response object with the provided `message`.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.serverTimeout('Too busy, come back later');
+```
+
+#### `forbidden([message])`
+
+Returns an HTTP Forbidden (403) error response object with the provided `message`.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.forbidden('Missing permissions');
+```
+
+#### `notFound([message])`
+
+Returns an HTTP Not Found (404) error response object with the provided `message`.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.notFound('Wrong number');
+```
+
+#### `internal([message, [data]])`
+
+Returns an HTTP Internal Server Error (500) error response object where:
+- `message` - the error message.
+- `data` - optional data used for error logging. Typically set to the `Error` object causing the failure.
+
+The returned error object includes the following additional properties:
+- `data` - the `data` object provided.
+- `trace` - the call stack leading to this error. If `data` is an `Error` object, `trace` is set to `data.trace`.
+- `outterTrace` - If `data` is an `Error` object, set to the call stack leading to this error, otherwise `null`.
+
+Note that the `error.response.payload.message` is overridden with `'An internal server error occurred'` to hide any internal details from
+the client. `error.message` remains unchanged.
+
+```javascript
+var Hapi = require('hapi');
+
+var handler = function () {
+
+    var result;
+    try {
+        result = JSON.parse(request.query.value);
+    }
+    catch (err) {
+        result = Hapi.error.internal('Failed parsing JSON input', err);
+    }
+
+    this.reply(result);
+};
+```
+
 #### `passThrough(code, payload, contentType, headers)`
 
-## `Pack`
+Returns a custom HTTP error response object where:
+- `code` - the HTTP status code (typically 4xx or 5xx).
+- `payload` - the error payload string or `Buffer`.
+- `contentType` - a mime-type used as the content of the HTTP 'Content-Type' header (overrides `headers['Content-Type']` if present in both).
+- `headers` - an object containing any HTTP headers where each key is a header name and value is the header content.
+
+Used to pass-through errors recieved from upstream services (proxied) when a response should be treated internall as an error but contain
+custom properties.
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.passThrough(404, '<h1>Not Found</h1>', 'text/html', { 'Cache-Control': 'no-cache' });
+```
+
+## `Hapi.Pack`
 
 #### `new Pack([options])`
 #### `pack.server([host], [port], [options])`
@@ -2104,26 +2239,74 @@ An alias of the [**boom**](https://github.com/spumko/boom) module. Can be access
 #### `plugin.auth(name, options)`
 #### `plugin.ext(event, method)`
 
-## `Composer`
+## `Hapi.Composer`
 
 #### `new Composer(manifest)`
 #### `composer.compose(callback)`
 #### `composer.start(callback)`
 #### `composer.stop(callback)`
 
-## `utils`
+## `Hapi.utils`
 
 An alias of the [**hoek**](https://github.com/spumko/hoek) module.
 
-#### `version`
+#### `version()`
 
-## `types`
+Returns the **hapi** module version number.
+
+```javascript
+var Hapi = require('hapi');
+console.log(Hapi.version());
+```
+
+## `Hapi.types`
 
 See [**joi** Types](https://github.com/spumko/joi#type-registry).
 
-## `state`
+## `Hapi.state`
 
-#### `prepareValue()`
+#### `prepareValue(name, value, options, callback)`
+
+Prepares a cookie value manually outside of the normal outgoing cookies processing flow. Used when decisions have to be made about
+the use of cookie values when certain conditions are met (e.g. stringified object string too long). Arguments:
+- `name` - the cookie name.
+- `value` - the cookie value. If no `encoding` is defined, must be a string.
+- `options` - configuration override. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
+  the specified keys in `options` override those same keys in the server definition (but not others).
+- `callback` - the callback function with signature `function(err, value)` where:
+    - `err` - internal error condition.
+    - `value` - the prepared cookie value.
+
+Returns the cookie value via callback without making any changes to the response.
+
+```javascript
+var Hapi = require('hapi');
+
+var handler = function (request) {
+
+    var maxCookieSize = 512;
+
+    var cookieOptions = {
+        encoding: 'iron',
+        password: 'secret'
+    };
+
+    var content = request.pre.user;
+
+    Hapi.state.prepareValue('user', content, cookieOptions, function (err, value) {
+            
+        if (err) {
+            return request.reply(err);
+        }
+            
+        if (value.length < maxCookieSize) {
+            request.setState('user', value, { encoding: 'none' } );   // Already encoded
+        }
+            
+        request.reply('success');
+    });
+};
+```
 
 # The End
 
