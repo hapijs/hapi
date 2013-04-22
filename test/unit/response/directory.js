@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Hapi = require('../../..');
+var Directory = require('../../../lib/response/directory');
 
 
 // Declare internals
@@ -26,7 +27,7 @@ describe('Response', function () {
 
             it('returns an error when reading an invalid directory', function (done) {
 
-                var dir = new Hapi.response.Directory(['no_such_path'], {});
+                var dir = new Directory(['no_such_path'], {});
                 dir._generateListing('no_such_path', null, function (response) {
 
                     expect(response.response.code).to.equal(500);

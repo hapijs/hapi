@@ -54,7 +54,6 @@
     - [`Text`](#text)
     - [`Stream`](#stream)
     - [`File`](#file)
-    - [`Directory`](#directory)
     - [`Redirection`](#redirection)
     - [`View`](#view)
     - [`Buffer`](#buffer)
@@ -171,7 +170,7 @@ When creating a server instance, the following options configure the server's be
       to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response.
       For example, to display all errors, change the option to `['error', 'uncaught']`. To turn off all console debug messages set it to `false`.
 <p></p>
-- <a name="server.config.files" />``files` - defines the behaviour for serving static resources using the built-in route handlers for files and directories:
+- <a name="server.config.files" />`files` - defines the behaviour for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines how relative paths are resolved. Available values:
         - `'cwd'` - relative paths are resolved using the active process path (`process.cwd()`). This is the default setting.
         - `'routes'` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
@@ -308,7 +307,7 @@ Adds a new route to the server with the following options:
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
   described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404) 
   error response, or `handler` can be assigned an object with one of:
-    - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
+    - <a name="route.config.file" />`file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute file path.
         - an object with the following options:
@@ -328,7 +327,8 @@ Adds a new route to the server with the following options:
             - an array of path strings. Each path will be attemped in order until a match is found (by following the same process as the single path string).
             - a function with the signature `function(request)` which returns the path string.
         - `index` - optional boolean, determines if 'index.html' will be served if found in the folder when requesting a directory. Defaults to `true`.
-        - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document. Defaults to _'false'_.
+        - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document.
+          Defaults to _'false'_.
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
 <p></p>
     - `proxy` - generates a reverse proxy handler with the following options:
@@ -353,11 +353,11 @@ Adds a new route to the server with the following options:
         - `httpClient` - an alternative HTTP client function, compatible with the [`request`](https://npmjs.org/package/request) module `request()`
           interface.
 <p></p>
-    - `view` - generates a template-based response. The `view` options is set to the desired template file name. The view context available to the template
-      includes:
+    - <a name="route.config.view" />`view` - generates a template-based response. The `view` options is set to the desired template file name.
+      The view context available to the template includes:
         - `payload` - maps to `request.payload`.
         - `params` - maps to `request.params`.
-        - `querystring` - maps to `request.query`.
+        - `query` - maps to `request.query`.
 <p></p>
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
@@ -907,7 +907,7 @@ When the cookie scheme is enabled on a route, the `request.auth.session` objects
 - `clear()` - clears the current session. Used to logout a user.
 
 ```javascript
-var Hapi = require('../lib');
+var Hapi = require('hapi');
 
 var users = {
     john: {
@@ -925,7 +925,6 @@ var home = function () {
       + '<input type="submit" value="Logout">'
       + '</form></body></html>');
 };
-
 
 var login = function () {
 
@@ -968,15 +967,13 @@ var login = function () {
     return this.reply.redirect('/');
 };
 
-
 var logout = function () {
 
     this.auth.session.clear();
     return this.reply.redirect('/');
 };
 
-
-var http = new Hapi.Server('localhost', 8000, config);
+var server = new Hapi.Server('localhost', 8000, config);
 
 server.auth('session', {
     scheme: 'cookie',
@@ -985,13 +982,13 @@ server.auth('session', {
     redirectTo: '/login'
 });
 
-http.route([
+server.route([
     { method: 'GET', path: '/', config: { handler: home, auth: true } },
     { method: '*', path: '/login', config: { handler: login, auth: { mode: 'try' } } },
     { method: 'GET', path: '/logout', config: { handler: logout, auth: true } }
 ]);
 
-http.start();
+server.start();
 ```
 
 ##### Hawk authentication
@@ -1009,6 +1006,7 @@ authentication. The scheme requires the following options:
 
 ```javascript
 var Hapi = require('hapi');
+var server = new Hapi.Server(config);
 
 var credentials = {
     d74s3nz2873n: {
@@ -1022,7 +1020,6 @@ var getCredentials = function (id, callback) {
     return callback(null, credentials[id]);
 };
 
-var server = new Hapi.Server(config);
 server.auth('hawk', {
     scheme: 'hawk',
     getCredentialsFunc: getCredentials
@@ -1045,6 +1042,7 @@ be used with 'GET' requests and requires the following options:
 
 ```javascript
 var Hapi = require('hapi');
+var server = new Hapi.Server(config);
 
 var credentials = {
     d74s3nz2873n: {
@@ -1058,7 +1056,6 @@ var getCredentials = function (id, callback) {
     return callback(null, credentials[id]);
 };
 
-var server = new Hapi.Server(config);
 server.auth('bewit', {
     scheme: 'bewit',
     getCredentialsFunc: getCredentials
@@ -1463,7 +1460,7 @@ When all tails completed, the server emits a `'tail'` event.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server('0.0.0.0', 8080);
+var server = new Hapi.Server();
 
 var get = function (request) {
 
@@ -1581,8 +1578,8 @@ Concludes the handler activity by returning control over to the router with a te
 
 Returns a [`View`](#view) response.
 
-**index.js**
 ```javascript
+var Hapi = require('hapi');
 var server = new Hapi.Server({
     views: {
         engines: { html: 'handlebars' },
@@ -1720,7 +1717,7 @@ Every response type must include the following properties:
 
 #### `Generic`
 
-The `Generic` response type is used a the parent prototype for all other response types. It cannot be instantiated directly and is only made available
+The `Generic` response type is used as the parent prototype for all other response types. It cannot be instantiated directly and is only made available
 for deriving other response types. It provides the following methods: 
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
@@ -1745,6 +1742,23 @@ for deriving other response types. It provides the following methods:
 
 An empty response body (content-length of zero bytes). Supports all the methods provided by [`Generic`](#generic).
 
+Generated with:
+- `request.reply()` - without any arguments.
+- `new Hapi.response.Empty()`
+
+```javascript
+var handler1 = function () {
+
+    this.reply();
+};
+
+var handler2 = function () {
+
+    var response = new Hapi.response.Empty();
+    this.reply(response);
+};
+```
+
 #### `Text`
 
 Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all the methods provided by [`Generic`](#generic) as well as:
@@ -1753,15 +1767,103 @@ Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all th
     - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
     - `encoding` - the 'Content-Type' HTTP header encoding propertyg. Defaults to `'utf-8'`.
 
+Generated with:
+- `request.reply(result)` - where:
+    - `result` - must be a non-empty string.
+- `new Hapi.response.Text(text, [type, [encoding]])` - same as `message()` above.
+
+```javascript
+var handler1 = function () {
+
+    this.reply('hello world');
+};
+
+var handler2 = function () {
+
+    var response = new Hapi.response.Text('hello world');
+    this.reply(response);
+};
+
+var handler3 = function () {
+
+    var response = new Hapi.response.Text();
+    response.message('hello world');
+    this.reply(response);
+};
+```
+
 #### `Buffer`
 
 Buffer response. Supports all the methods provided by [`Generic`](#generic).
 
+Generated with:
+- `request.reply(result)` - where:
+    - `result` - must be a `Buffer`.
+- `new Hapi.response.Buffer(buffer)` - where:
+    - `buffer` - the `Buffer` response.
+
+```javascript
+var handler1 = function () {
+
+    var buffer = new Buffer([10, 11, 12, 13]);
+    this.reply(buffer);
+};
+
+var handler2 = function () {
+
+    var buffer = new Buffer([10, 11, 12, 13]);
+    var response = new Hapi.response.Buffer(buffer);
+    this.reply(response);
+};
+```
+
 #### `Stream`
 
 Replies with a stream object, directly piped into the HTTP response. Supports all the methods provided by [`Generic`](#generic) as well as:
-- `bytes(length)` - sets the HTTP 'Content-Length' header where:
-    - `length` - the header value.
+- `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
+    - `length` - the header value. Must match the actual payload size.
+
+Generated with:
+- `request.reply(result)` - where:
+    - `result` - must be a [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable) or a node 0.8.x `Stream`.
+- `new Hapi.response.Stream(stream)` - where:
+    - `stream` - the [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable) or a node 0.8.x `Stream`.
+
+```javascript
+var Stream = require('stream');
+var Hapi = require('hapi')';
+
+var ExampleStream = function () {
+
+    Stream.Readable.call(this);
+};
+
+Hapi.utils.inherits(ExampleStream, Stream.Readable);
+
+ExampleStream.prototype._read = function (size) {
+
+    this.push('hello world');
+    this.push(null);
+};
+
+var handler1 = function () {
+
+    var stream = new ExampleStream();
+    this.reply(stream);
+};
+
+var handler2 = function () {
+
+    var response = new Hapi.response.Stream(new ExampleStream());
+    this.reply(response);
+};
+
+var handler3 = function () {
+
+    // Echo back request stream
+    this.reply(this.raw.req).bytes(this.raw.req.headers['content-length']);
+};
+```
 
 #### `Obj`
 
@@ -1772,23 +1874,182 @@ JavaScript object, sent stringified. The 'Content-Type' header defaults to 'appl
     - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
     - `encoding` - the 'Content-Type' HTTP header encoding propertyg. Defaults to `'utf-8'`.
 
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+server.ext('onPostHandler', function (request, next) {
+
+    var response = request.response();
+    if (response.variety === 'obj') {
+        delete response.raw._id;        // Remove internal key
+        response.update();
+    }
+    next();
+});
+```
+
+Generated with:
+- `request.reply(result)` - where:
+    - `result` - must be an object.
+- `new Hapi.response.Obj(object, [type, [encoding]])` - where:
+    - `object` - the response object.
+    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+    - `encoding` - the 'Content-Type' HTTP header encoding propertyg. Defaults to `'utf-8'`.
+
+```javascript
+var handler1 = function () {
+
+    this.reply({ message: 'hello world' });
+};
+
+var handler2 = function () {
+
+    var response = new Hapi.response.Obj({ message: 'hello world' });
+    this.reply(response);
+};
+
 #### `File`
 
-Transmits a static file. Defaults to the matching mime type based on filename extension.
+Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension. Supports all the methods
+provided by [`Stream`](#stream).
 
-#### `Directory`
+Generated with:
+- `new Hapi.response.File(filePath, [options])` - where:
+    - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
+    - `options` - optional configuration:
+        - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
+            - `'attachment'`
+            - `'inline'`
+- the built-in route [`file`](route.config.file) handler.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+
+var handler1 = function () {
+
+    var response = new Hapi.response.File('./hello.txt');
+    this.reply(response);
+};
+
+server.route({ method: 'GET', path: '/1', handler: handler1 });
+
+server.route({ method: 'GET', path: '/2', handler: { file: './hello.txt' } });
+```
 
 #### `Redirection`
 
-- _'message(text, type)'_ - a payload message and optional content type (defaults to 'text/html').
-- _'uri(dest)'_ - the destination URI.
-- _'temporary()_' - sets the status code to 302 or 307 (based on the rewritable settings). Defaults to 'true'.
-- _'permanent()_' - sets the status code to 301 or 308 (based on the rewritable settings). Defaults to 'false'.
-- _'rewritable(isRewritable)_' - sets the status code to 301/302 (based on the temporary settings) for rewritable (change POST to GET) or 307/308 for non-rewritable. Defaults to 'true'.
+An HTTP redirection response (3xx). Supports all the methods provided by [`Text`](#text) (except for `created()`) as well as the additional methods:
+- _'uri(dest)'_ - set the destination URI where:
+    - `uri` - overrides the destination. An absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the
+      value of the server [`location`](#server.config.location) configuration option is used as prefix.
+- `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
+    - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
+- `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()` setting) where:
+    - `isPermanent` - if `true`, sets status to temporary. Defaults to `false`.
+- `rewritable(isRewritable)` - sets the status code to `301`/`302` for rewritable (allows changing the request method from 'POST' to 'GET') or
+  `307`/`308` for non-rewritable (does not allow changing the request method from 'POST' to 'GET'). Exact code based on the `temporary()` or
+  `permanent()` setting. Arguments:
+    - `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
+
+|                |	Permanent	| Temporary |
+| -------------- | ---------- | --------- |
+| Rewritable     | 301        | **302**(1)|
+| Non-rewritable | 308(2)     | 307       |
+
+Notes:
+1. Default value.
+2. [Proposed code](http://tools.ietf.org/html/draft-reschke-http-status-308), not supported by all clients.
+
+Generated with:
+- `request.reply.redirect(uri)` - as described in [`request.reply.redirect()`](#requestreplyredirecturi).
+- `new Hapi.response.Redirection(uri, [message, [type, [encoding]]])` - where:
+    - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
+      the server [`location`](#server.config.location) configuration option is used as prefix.
+    - `message` - the payload content. Defaults to `'You are being redirected...'`.
+    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+    - `encoding` - the 'Content-Type' HTTP header encoding propertyg. Defaults to `'utf-8'`.
+
+```javascript
+var handler1 = function () {
+
+    this.reply.redirect('http://example.com/elsewhere')
+              .temporary().rewritable(false);   // 307
+};
+
+var handler2 = function () {
+
+    var response = new Hapi.response.Redirection('http://example.com/elsewhere');
+    response.permanent().rewritable();          // 301
+    this.reply(response);
+};
+```
 
 #### `View`
 
+Template-based response. Supports all the methods provided by [`Generic`](#generic).
+
+Generated with:
+- `request.reply.view(template, [context, [options]])` - as described in [`request.reply.view()`](#requestreplyviewtemplate-context-options).
+- `request.generateView(template, contect, [options])` - as described in [`request.generateView()`](#requestgenerateViewtemplate-contect-options).
+- the built-in route [`view`](route.config.view) handler.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server({
+    views: {
+        engines: { html: 'handlebars' },
+        path: __dirname + '/templates'
+    }
+});
+
+var handler1 = function () {
+
+    var context = {
+        params: {
+            user: this.params.user
+        }
+    };
+
+    this.reply.view('hello', context);
+};
+
+var handler2 = function () {
+
+    var context = {
+        params: {
+            user: this.params.user
+        }
+    };
+
+    this.reply(this.generateView('hello', context));
+};
+
+server.route({ method: 'GET', path: '/1/{user}', handler: handler1 });
+server.route({ method: 'GET', path: '/2/{user}', handler: handler2 });
+server.route({ method: 'GET', path: '/3/{user}', handler: { view: 'hello' } });
+```
+
+**templates/hello.html**
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello World</title>
+    </head>
+    <body>
+        <div>
+            <h1>About {{ params.user }}</h1>
+        </div>
+    </body>
+</html>
+```
+
 #### `Cacheable`
+
+The `Cacheable` response type is used as the parent prototype for all cacheable response types. It cannot be instantiated directly and
+is only made available for deriving other response types.
 
 ## `error`
 
