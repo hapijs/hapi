@@ -317,7 +317,7 @@ Adds a new route to the server with the following options:
                 - `'attachment'`
                 - `'inline'`
 <p></p>
-    - `directory` - generates a directory endpoint for serving static content from a directory. Routes using the directory handler must include a
+    - <a name="route.config.directory" />`directory` - generates a directory endpoint for serving static content from a directory. Routes using the directory handler must include a
       single path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does not matter). The path
       parameter can use any of the parameter options (e.g. '{param}' for one level files only, '{param?}' for one level files or the directory root,
       '{param*}' for any level, or '{param*3}' for a specific level). The directory handler is an object with the following options:
@@ -1937,6 +1937,38 @@ var handler1 = function () {
 server.route({ method: 'GET', path: '/1', handler: handler1 });
 
 server.route({ method: 'GET', path: '/2', handler: { file: './hello.txt' } });
+```
+
+#### `Directory`
+
+Transmits a file or list of files from the file system. The 'Content-Type' header defaults to the matching mime type based on filename
+extension. This is an internal response time that can only be accessed via the built-in route handler.
+
+Generated with:
+- the built-in route [`directory`](#route.config.directory) handler.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
+
+var handler1 = {
+    directory: {
+        path: ['./public1/', './public2/'],
+        listing: true
+    }
+};
+
+var handler2 = {
+    directory: {
+        path: function (request) {
+
+            return (isMobileDevice(request) ? './mobile' : './public');
+        }
+    }
+};
+
+http.route({ method: 'GET', path: '/1/{path*}', handler: handler1 });
+http.route({ method: 'GET', path: '/2/{path*}', handler: handler2 });
 ```
 
 #### `Redirection`
