@@ -255,7 +255,7 @@ Each instance of the `Server` object have the following properties:
     - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
 - `listener` - the node HTTP server object.
-- `pack` - the [`Pack`](#pack) object the server belongs to (automatically assigned when creating a server instance directly).
+- `pack` - the [`Pack`](#hapipack) object the server belongs to (automatically assigned when creating a server instance directly).
 - `plugins` - an object where each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
 - `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults.
 
@@ -350,7 +350,7 @@ Adds a new route to the server with the following options:
               - `settings` - the proxy handler configuration.
               - `res` - the node response object received from the upstream service.
               - `payload` - the response payload.
-        - `httpClient` - an alternative HTTP client function, compatible with the [`request`](https://npmjs.org/package/request) module `request()`
+        - `httpClient` - an alternative HTTP client function, compatible with the [**request**](https://npmjs.org/package/request) module `request()`
           interface.
 <p></p>
     - <a name="route.config.view" />`view` - generates a template-based response. The `view` options is set to the desired template file name.
@@ -443,7 +443,7 @@ Adds a new route to the server with the following options:
             - `strategies` - a string array of strategy names in order they should be attempted. If only one strategy is used, `strategy` can
               be used instead. Defaults to `'default'`.
             - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is authenticated after it is processed. Requires a strategy
-              with payload authentication support (e.g. [Hawk](Hawk authentication)). Available values:
+              with payload authentication support (e.g. [Hawk](#hawk-authentication)). Available values:
                 - `false` - no payload authentication. This is the default value.
                 - `'required'` - payload authentication required.
                 - `'optional'` - payload authentication performed only when the client includes payload authentication information (e.g.
@@ -564,7 +564,7 @@ server.route({
 ##### Route handler
 
 When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request-object) object.
-The handler method must call [`request.reply()`](#requestreply) or one of its sub-methods to return control back to the router.
+The handler method must call [`request.reply()`](#requestreplyresult) or one of its sub-methods to return control back to the router.
 
 Route handler functions can use one of three declaration styles:
 
@@ -594,7 +594,7 @@ var handler = function (request, reply) {
 
 The two-arguments style is provided for symmetry with extension functions and prerequisite functions where the function
 signature is `function(request, next)`. In order to enable interchangeable use of these functions, the two argument style does
-not provide any of the [`request.reply`](#requestreply) decorations.
+not provide any of the [`request.reply`](#requestreplyresult) decorations.
 
 ##### Route prerequisites
 
