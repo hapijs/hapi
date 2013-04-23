@@ -1961,7 +1961,7 @@ An HTTP redirection response (3xx). Supports all the methods provided by [`Text`
 
 Notes:
 1. Default value.
-2. [Proposed code](http://tools.ietf.org/html/draft-reschke-http-status-308), not supported by all clients.
+2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
 
 Generated with:
 - `request.reply.redirect(uri)` - as described in [`request.reply.redirect()`](#requestreplyredirecturi).
@@ -1993,8 +1993,8 @@ Template-based response. Supports all the methods provided by [`Generic`](#gener
 
 Generated with:
 - `request.reply.view(template, [context, [options]])` - as described in [`request.reply.view()`](#requestreplyviewtemplate-context-options).
-- `request.generateView(template, context, [options])` - as described in [`request.generateView()`](#requestgenerateViewtemplate-context-options).
-- the built-in route [`view`](route.config.view) handler.
+- `request.generateView(template, context, [options])` - as described in [`request.generateView()`](#requestgenerateviewtemplate-context-options).
+- the built-in route [`view`](#route.config.view) handler.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2215,7 +2215,7 @@ The servers in a pack share the same cache. Every server belongs to a pack, even
 Creates a new `Pack` object instance where:
 - `options` - optional configuration:
     - `app` - an object used to initialize the application-specific data stored in `pack.app`.
-    - `cache` - cache configuration as described in the [server `cache` option](#server.config.cache).
+    - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
     - `requirePath` - sets the path from which plugins are loaded. Defaults to current working directory.
 
 ```javascript
