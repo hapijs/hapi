@@ -802,7 +802,7 @@ server.on('request', function (request, event, tags) {
 #### `server.views(options)`
 
 Initializes the server views manager programmatically instead of via the server [`views`](#server.config.views) configuration option.
-The `options` object is the same as the [server `views` config object](#server.config.views).
+The `options` object is the same as the server [`views`](#server.config.views) config object.
 
 ```javascript
 server.views({
@@ -1515,7 +1515,7 @@ _Available only within the handler method and only before one of `request.reply(
 Concludes the handler activity by returning control over to the router where:
 - `result` - an optional response payload.
 
-Returns a [`response`](#response) object based on the value of `result`:
+Returns a [`response`](#response-types) object based on the value of `result`:
 - `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
 - string - [`Text`](#text) response.
 - `Buffer` object - [`Buffer`](#buffer) response.
@@ -1531,7 +1531,7 @@ var handler = function () {
 ```
 
 The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
-are response-type-specific and listed in [`response`](#response).
+are response-type-specific and listed in [`response`](#response-types).
 
 ```javascript
 var handler = function () {
