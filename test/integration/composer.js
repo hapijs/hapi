@@ -45,10 +45,7 @@ describe('Composer', function () {
                 }
             ],
             plugins: {
-                '../test/integration/pack/--test1': {}
-            },
-            permissions: {
-                ext: true
+                '../test/integration/pack/--test1': [ { ext: true }, {} ]
             }
         };
 

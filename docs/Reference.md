@@ -2393,6 +2393,9 @@ server.pack.register(plugin, { message: 'hello' }, function (err) {
 
 ## `Hapi.Composer`
 
+The `Composer` provides a simple way to construct a [`Pack`](#hapipack) from a JSON configuration file, including configuring servers
+and registering plugins.
+
 #### `new Composer(manifest)`
 #### `composer.compose(callback)`
 #### `composer.start(callback)`

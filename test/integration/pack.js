@@ -136,6 +136,26 @@ describe('Pack', function () {
         });
     });
 
+    it('registers plugin via server plugin interface (inline permission)', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '2.0.0',
+            register: function (pack, options, next) {
+
+                expect(options.something).to.be.true;
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, [{ route: true }, { something: true }], function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
     it('throws when pack server contains cache configuration', function (done) {
 
         expect(function () {
@@ -154,7 +174,7 @@ describe('Pack', function () {
         pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
         pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
 
-        pack.allow({ route: true }).require('./pack/--test1', {}, function (err) {
+        pack.require('./pack/--test1', [{ route: true }, {}], function (err) {
 
             expect(err).to.not.exist;
 
@@ -231,7 +251,7 @@ describe('Pack', function () {
     it('requires multiple plugins using object', function (done) {
 
         var server = new Hapi.Server({ labels: 'test' });
-        server.pack.require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
+        server.pack.require({ './pack/--test1': [{ route: true }, {}], './pack/--test2': {} }, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
@@ -339,7 +359,7 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        server.pack.allow({ ext: true }).register(plugin, function (err) {
+        server.pack.allow({ route: true }).register(plugin, [{ ext: true }], function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/b']);
@@ -395,7 +415,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         expect(function () {
 
-            server.pack.allow({ ext: true }).require('./pack/--deps1', function (err) { });
+            server.pack.allow({ ext: true }).require('./pack/--deps1', [{ ext: true }], function (err) { });
         }).to.throw('Plugin \'--deps1\' missing dependencies: --deps2');
         done();
     });
