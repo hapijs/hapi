@@ -2870,7 +2870,7 @@ exports.register = function (plugin, options, next) {
 
 _Requires the `state` plugin permission._
 
-Adds a state definition to the selected pack's servers as described in [`server.state()`](##serverstatename-options).
+Adds a state definition to the selected pack's servers as described in [`server.state()`](#serverstatename-options).
 
 ```javascript
 exports.register = function (plugin, options, next) {
