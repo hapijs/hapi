@@ -1922,7 +1922,7 @@ Generated with:
         - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
             - `'attachment'`
             - `'inline'`
-- the built-in route [`file`](route.config.file) handler.
+- the built-in route [`file`](#route.config.file) handler.
 
 ```javascript
 var Hapi = require('hapi');
