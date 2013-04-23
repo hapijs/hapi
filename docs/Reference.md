@@ -1735,8 +1735,8 @@ for deriving other response types. It provides the following methods:
 - `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
     - `msec` - the time-to-live value in milliseconds.
 - `getTtl()` - returns the time-to-live value if an override has been set, and the request method is 'GET'.
-- `state(name, value, [options])` - sets an HTTP cookie as described in [`request.setState()`](#requestsetStatename-value-options).
-- `unstate(name)` - clears the HTTP cookie by setting an expired value as described in [`request.clearState()`](#requestclearStatename).
+- `state(name, value, [options])` - sets an HTTP cookie as described in [`request.setState()`](#requestsetstatename-value-options).
+- `unstate(name)` - clears the HTTP cookie by setting an expired value as described in [`request.clearState()`](#requestclearstatename).
 
 #### `Empty`
 
