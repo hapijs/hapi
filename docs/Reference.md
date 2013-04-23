@@ -1831,7 +1831,7 @@ Generated with:
 
 ```javascript
 var Stream = require('stream');
-var Hapi = require('hapi')';
+var Hapi = require('hapi');
 
 var ExampleStream = function () {
 
