@@ -2316,8 +2316,9 @@ pack.allow({ ext: true }).require('yar', function (err) {
 Registers a plugin where:
 - `name` - the node module name as expected by node's [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id). If `name` is a relative
   path, prefixed with the value of the pack `requirePath` configuration option.
-- `options` - optional configuration option which is passed to the plugin via the `options` argument in
-  [`plugin.register()`](#pluginregisterplugin-options-next).
+- `options` - optional configuration object which is passed to the plugin via the `options` argument in
+  [`plugin.register()`](#pluginregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
+  and the second item is used as `options`.
 - `callback` - the callback function with signature `function(err)` where:
       - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
         (e.g. among routes, helpers, state) will throw an error and will not return a callback.
@@ -2335,7 +2336,8 @@ pack.require('furball', { version: '/v' }, function (err) {
 
 Registers a list of plugins where:
 - `names` - an array of plugins names as described in [`pack.require()`](#packrequirename-options-callback), or an object in which
-  each key is a plugin name, and each value is the `options` object used to register that plugin.
+  each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options` value is an array,
+  the first array item is used as [`permissions`](#packallowpermissions), and the second item is used as `options`.
 - `callback` - the callback function with signature `function(err)` where:
       - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
         (e.g. among routes, helpers, state) will throw an error and will not return a callback.
@@ -2366,11 +2368,12 @@ Registers a plugin object (without using `require()`) where:
     - `name` - plugin name.
     - `version` - plugin version.
     - `register()` - the [`plugin.register()`](#pluginregisterplugin-options-next) function.
-- `options` - optional configuration option which is passed to the plugin via the `options` argument in
-  [`plugin.register()`](#pluginregisterplugin-options-next).
+- `options` - optional configuration object which is passed to the plugin via the `options` argument in
+  [`plugin.register()`](#pluginregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
+  and the second item is used as `options`.
 - `callback` - the callback function with signature `function(err)` where:
-      - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
-        (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+    - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+      (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
 var plugin = {
@@ -2393,13 +2396,98 @@ server.pack.register(plugin, { message: 'hello' }, function (err) {
 
 ## `Hapi.Composer`
 
-The `Composer` provides a simple way to construct a [`Pack`](#hapipack) from a JSON configuration file, including configuring servers
+The `Composer` provides a simple way to construct a [`Pack`](#hapipack) from a single configuration object, including configuring servers
 and registering plugins.
 
 #### `new Composer(manifest)`
+
+Creates a `Composer` object instance where:
+- `manifest` - an object or array or objects where:
+    - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options).
+    - `server` - an array of server configuration object where:
+        - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
+          `cache` option is not allowed and must be configured via the pack `cache` option.
+    - `plugin` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options`
+      value is an array, the first array item is used as [`permissions`](#packallowpermissions), and the second item is used as `options`.
+
+```javascript
+var Hapi = require('hapi');
+
+var manifest = {
+    pack: {
+        cache: 'memory'
+    },
+    servers: [
+        {
+            port: 8000,
+            options: {
+                labels: ['web']
+            }
+        },
+        {
+            host: 'localhost',
+            port: 8001,
+            options: {
+                labels: ['admin']
+            }
+        }
+    ],
+    plugins: {
+        'yar': [
+            {
+                ext: true
+            },
+            {
+                cookieOptions: {
+                    password: 'secret'
+                }
+            }
+        ]
+    }
+};
+
+var composer = new Hapi.Composer(manifest);
+```
+
 #### `composer.compose(callback)`
-#### `composer.start(callback)`
-#### `composer.stop(callback)`
+
+Creates the packs described in the manifest construction where:
+- `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
+  `function(err)` where:
+    - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+      (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+
+```javascript
+composer.compose(function (err) {
+
+    if (err) {
+        console.log('Failed composing');
+    }
+});
+```
+
+#### `composer.start([callback])`
+
+Starts all the servers in all the pack composed where:
+- `callback` - the callback method called when all the servers have been started.
+
+```javascrip
+composer.start(function () {
+
+    console.log('All servers started');
+});
+```
+
+#### `composer.stop([options], [callback])`
+
+Stops all the servers in all the packs and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
+
+```javascrip
+pack.stop({ timeout: 60 * 1000 }, function () {
+
+    console.log('All servers stopped');
+});
+```
 
 ## Plugin interface
 
