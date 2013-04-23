@@ -69,15 +69,22 @@
       - [`passThrough(code, payload, contentType, headers)`](#passthroughcode-payload-contenttype-headers)
 - [`Hapi.Pack`](#hapipack)
       - [`new Pack([options])`](#new-packoptions)
-      - [`pack.server([host], [port], [options])`](#packserverhost-port-options)
-      - [`pack.start([callback])`](#packstartcallback)
-      - [`pack.stop([options], [callback])`](#packstopoptions-callback)
-      - [`pack.require(name, options, callback)`](#packrequirename-options-callback)
-      - [`pack.require(names, callback)`](#packrequirenames-callback)
-      - [`pack.register(plugin, options, callback)`](#packregisterplugin-options-callback)
-      - [`pack.allow(permissions)`](#packallowpermissions)
-- [Plugin Interface](#plugin-interface)
-    - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
+      - [`Pack` properties](#pack-properties)
+      - [`Pack` methods](#pack-methods)
+          - [`pack.server([host], [port], [options])`](#packserverhost-port-options)
+          - [`pack.start([callback])`](#packstartcallback)
+          - [`pack.stop([options], [callback])`](#packstopoptions-callback)
+          - [`pack.allow(permissions)`](#packallowpermissions)
+          - [`pack.require(name, options, callback)`](#packrequirename-options-callback)
+          - [`pack.require(names, callback)`](#packrequirenames-callback)
+          - [`pack.register(plugin, options, callback)`](#packregisterplugin-options-callback)
+- [`Hapi.Composer`](#hapicomposer)
+      - [`new Composer(manifest)`](#new-composermanifest)
+      - [`composer.compose(callback)`](#composercomposecallback)
+      - [`composer.start(callback)`](#composerstartcallback)
+      - [`composer.stop(callback)`](#composerstopcallback)
+- [Plugin interface](#plugin-interface)
+    - [`plugin.register(plugin, options, next)`](#exportsregisterplugin-options-next)
     - [Root methods](#root-methods)
         - [`plugin.version`](#pluginversion)
         - [`plugin.hapi`](#pluginhapi)
@@ -98,11 +105,6 @@
         - [`plugin.state(name, options)`](#pluginstatename-options)
         - [`plugin.auth(name, options)`](#pluginauthname-options)
         - [`plugin.ext(event, method)`](#pluginextevent-method)
-- [`Hapi.Composer`](#hapicomposer)
-      - [`new Composer(manifest)`](#new-composermanifest)
-      - [`composer.compose(callback)`](#composercomposecallback)
-      - [`composer.start(callback)`](#composerstartcallback)
-      - [`composer.stop(callback)`](#composerstopcallback)
 - [`Hapi.utils`](#hapiutils)
       - [`version()`](#version)
 - [`Hapi.types`](#hapitypes)
@@ -143,11 +145,11 @@ When creating a server instance, the following options configure the server's be
   or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
   [`server.auth()`](#serverauthname-options).
 <p></p>
-- `cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request responses and helper results.
-  By default a simple memory-based cache is used which has very limited capacity and is not suitable for production environments. In addition to the
-  memory cache, a Redis-based or a MongoDB-based cache can be configured. Actual caching is only utilized if routes, helpers, and plugins are explicitly
-  configured to store their state in the cache. The server cache configuration only defines the store itself. The `cache` options are described in
-  the [**catbox** module documentation](https://github.com/spumko/catbox#client).
+- <a name="server.config.cache" />`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
+  responses and helper results. By default a simple memory-based cache is used which has very limited capacity and is not suitable for production
+  environments. In addition to the memory cache, a Redis-based or a MongoDB-based cache can be configured. Actual caching is only utilized if routes,
+  helpers, and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The
+  `cache` options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
 <p></p>
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web application running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
@@ -296,7 +298,7 @@ Adds a new route to the server with the following options:
   paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
   will be matched against litertal values in the request as described in [Path parameters](#path-parameters).
 <p></p>
-- `method` - (required) the HTTP method. Typically one of _'GET, POST, PUT, DELETE, OPTIONS'_. Any HTTP method is allowed, except for _'HEAD'_.
+- `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'.
   Use `*` to match against any HTTP method (only when an exact match was not found).
 <p></p>
 - `vhost` - an optional domain string or an array of domain strings for limiting the route to only requests with a matching host header field.
@@ -326,7 +328,7 @@ Adds a new route to the server with the following options:
             - a function with the signature `function(request)` which returns the path string.
         - `index` - optional boolean, determines if 'index.html' will be served if found in the folder when requesting a directory. Defaults to `true`.
         - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document.
-          Defaults to _'false'_.
+          Defaults to `false`.
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
 <p></p>
     - `proxy` - generates a reverse proxy handler with the following options:
@@ -1940,7 +1942,7 @@ server.route({ method: 'GET', path: '/2', handler: { file: './hello.txt' } });
 #### `Redirection`
 
 An HTTP redirection response (3xx). Supports all the methods provided by [`Text`](#text) (except for `created()`) as well as the additional methods:
-- _'uri(dest)'_ - set the destination URI where:
+- `uri(dest)` - set the destination URI where:
     - `uri` - overrides the destination. An absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the
       value of the server [`location`](#server.config.location) configuration option is used as prefix.
 - `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
@@ -2201,18 +2203,204 @@ Hapi.error.passThrough(404, '<h1>Not Found</h1>', 'text/html', { 'Cache-Control'
 
 ## `Hapi.Pack`
 
+`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide a unified object
+interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack enables treating them as a single
+entity which can start and stop in sync, as well as enable sharing routes and other facilities.
+
+The servers in a pack share the same cache. Every server belongs to a pack, even if created directed via
+[`new Server()`](#new-serverhost-port-options), in which case the `server.pack` object is automatically assigned a single-server pack.
+
 #### `new Pack([options])`
+
+Creates a new `Pack` object instance where:
+- `options` - optional configuration:
+    - `app` - an object used to initialize the application-specific data stored in `pack.app`.
+    - `cache` - cache configuration as described in the [server `cache` option](#server.config.cache).
+    - `requirePath` - sets the path from which plugins are loaded. Defaults to current working directory.
+
+```javascript
+var Hapi = require('hapi');
+var pack = new Hapi.Pack();
+```
+
+### `Pack` properties
+
+Each `Pack` object instance has the following properties:
+- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
+  Initialized via the pack `app` configuration option. Defaults to `{}`.
+- `events` - an `Events.EventEmitter` providing a consolided emitter of all the events emitted from all member pack servers.
+- `list` - an object listing all the registered plugins where each key is a plugin name and the value is an object with:
+    - `name` - plugin name.
+    - `version` - plugin version.
+    - `register()` - the [`plugin.register()`](#pluginregisterplugin-options-next) function.
+
+### `Pack` methods
+
 #### `pack.server([host], [port], [options])`
+
+Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in 
+[`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
+configured via the pack `cache` option.
+
+```javascrip
+var Hapi = require('hapi');
+var pack = new Hapi.Pack();
+
+pack.server(8000, { labels: ['web'] });
+pack.server(8001, { labels: ['admin'] });
+```
+
 #### `pack.start([callback])`
+
+Starts all the servers in the pack and used as described in [`server.start([callback])`](#serverstartcallback).
+
+```javascrip
+var Hapi = require('hapi');
+var pack = new Hapi.Pack();
+
+pack.server(8000, { labels: ['web'] });
+pack.server(8001, { labels: ['admin'] });
+
+pack.start(function () {
+
+    console.log('All servers started');
+});
+```
+
 #### `pack.stop([options], [callback])`
-#### `pack.require(name, options, callback)`
-#### `pack.require(names, callback)`
-#### `pack.register(plugin, options, callback)`
+
+Stops all the servers in the pack and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
+
+```javascrip
+pack.stop({ timeout: 60 * 1000 }, function () {
+
+    console.log('All servers stopped');
+});
+```
+
 #### `pack.allow(permissions)`
 
-## Plugin Interface
+Overrides the default plugin permissions when [requiring](#packrequirename-options-callback) or [registering](#packregisterplugin-options-callback)
+a plugin. Where:
+- `permissions` - an object where each key is a permission name and the value is a boolean set to `true` (allow) or `false` (deny) access.
 
-#### `exports.register(plugin, options, next)`
+Returns a plugin registration interface with the `pack.require()` and `pack.register()` methods.
+
+The default permissions are:
+- `auth` - allows registering an authentication strategy via [`plugin.auth(name, options)`](#pluginauthname-options). Defaults to `true`.
+- `cache` - allows povisioning a plugin cache segment via [`plugin.cache(options, segment)`](#plugincacheoptions-segment). Defaults to `true`.
+- `events` - allows access to events via [`plugin.events`](#pluginevents). Defaults to `true`.
+- `ext`- allows registering extension methods via [`plugin.ext(event, method)`](#pluginextevent-method). Defaults to `false`.
+- `helper` - allows addming server helper methods via [`plugin.helper(name, method, options)`](#pluginhelpername-method-options). Defaults to `true`.
+- `route` - allows adding routes via [`plugin.route(options)`](#pluginrouteoptions). Defaults to `true`.
+- `state` - allows configuring state definitions via [`plugin.state(name, options)`](#pluginstatename-options). Defaults to `true`.
+- `views` - allows configuring a plugin-specific views manager via [`plugin.views(options)`](#pluginviewsoptions). Defaults to `true`.
+
+```javascrip
+var Hapi = require('hapi');
+var pack = new Hapi.Pack();
+
+pack.server(8000, { labels: ['web'] });
+pack.server(8001, { labels: ['admin'] });
+
+pack.allow({ ext: true }).require('yar', function (err) {
+
+    if (err) {
+        console.log('Failed loading plugin: yar');
+    }
+});
+```
+
+#### `pack.require(name, [options], callback)`
+
+Registers a plugin where:
+- `name` - the node module name as expected by node's [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id). If `name` is a relative
+  path, prefixed with the value of the pack `requirePath` configuration option.
+- `options` - optional configuration option which is passed to the plugin via the `options` argument in
+  [`plugin.register()`](#pluginregisterplugin-options-next).
+- `callback` - the callback function with signature `function(err)` where:
+      - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+        (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+
+```javascript
+pack.require('furball', { version: '/v' }, function (err) {
+
+    if (err) {
+        console.log('Failed loading plugin: furball');
+    }
+});
+```
+
+#### `pack.require(names, callback)`
+
+Registers a list of plugins where:
+- `names` - an array of plugins names as described in [`pack.require()`](#packrequirename-options-callback), or an object in which
+  each key is a plugin name, and each value is the `options` object used to register that plugin.
+- `callback` - the callback function with signature `function(err)` where:
+      - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+        (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+
+Batch registration is required when plugins declare a [dependency](#plugindependencydeps), so that all the required dependencies are loaded in
+a single transaction (internal order does not matter).
+
+```javascript
+pack.require(['furball', 'lout'], function (err) {
+
+    if (err) {
+        console.log('Failed loading plugin: furball');
+    }
+});
+
+pack.require({ furball: null, lout: { endpoint: '/docs' } }, function (err) {
+
+    if (err) {
+        console.log('Failed loading plugins');
+    }
+});
+```
+
+#### `pack.register(plugin, options, callback)`
+
+Registers a plugin object (without using `require()`) where:
+- `plugin` - the plugin object which requires:
+    - `name` - plugin name.
+    - `version` - plugin version.
+    - `register()` - the [`plugin.register()`](#pluginregisterplugin-options-next) function.
+- `options` - optional configuration option which is passed to the plugin via the `options` argument in
+  [`plugin.register()`](#pluginregisterplugin-options-next).
+- `callback` - the callback function with signature `function(err)` where:
+      - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+        (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+
+```javascript
+var plugin = {
+    name: 'test',
+    version: '2.0.0',
+    register: function (pack, options, next) {
+
+        pack.route({ method: 'GET', path: '/special', handler: function () { this.reply(options.message); } } );
+        next();
+    }
+};
+
+server.pack.register(plugin, { message: 'hello' }, function (err) {
+
+    if (err) {
+        console.log('Failed loading plugin');
+    }
+});
+```
+
+## `Hapi.Composer`
+
+#### `new Composer(manifest)`
+#### `composer.compose(callback)`
+#### `composer.start(callback)`
+#### `composer.stop(callback)`
+
+## Plugin interface
+
+#### `plugin.register(plugin, options, next)`
 
 ### Root methods
 
@@ -2237,13 +2425,6 @@ Hapi.error.passThrough(404, '<h1>Not Found</h1>', 'text/html', { 'Cache-Control'
 #### `plugin.state(name, options)`
 #### `plugin.auth(name, options)`
 #### `plugin.ext(event, method)`
-
-## `Hapi.Composer`
-
-#### `new Composer(manifest)`
-#### `composer.compose(callback)`
-#### `composer.start(callback)`
-#### `composer.stop(callback)`
 
 ## `Hapi.utils`
 
