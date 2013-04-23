@@ -84,7 +84,7 @@
       - [`composer.start([callback])`](#composerstartcallback)
       - [`composer.stop([options], [callback])`](#composerstopoptions-callback)
 - [Plugin interface](#plugin-interface)
-    - [`plugin.register(plugin, options, next)`](#exportsregisterplugin-options-next)
+    - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
     - [Root methods and properties](#root-methods-and-properties)
         - [`plugin.version`](#pluginversion)
         - [`plugin.hapi`](#pluginhapi)
@@ -2232,7 +2232,7 @@ Each `Pack` object instance has the following properties:
 - `list` - an object listing all the registered plugins where each key is a plugin name and the value is an object with:
     - `name` - plugin name.
     - `version` - plugin version.
-    - `register()` - the [`plugin.register()`](#pluginregisterplugin-options-next) function.
+    - `register()` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
 
 ### `Pack` methods
 
@@ -2288,9 +2288,9 @@ Returns a plugin registration interface with the `pack.require()` and `pack.regi
 
 The default permissions are:
 - `auth` - allows registering an authentication strategy via [`plugin.auth()`](#pluginauthname-options). Defaults to `true`.
-- `cache` - allows provisioning a plugin cache segment via [`plugin.cache()`](#plugincacheoptions-segment). Defaults to `true`.
+- `cache` - allows provisioning a plugin cache segment via [`plugin.cache()`](#plugincacheoptions). Defaults to `true`.
 - `events` - allows access to events via [`plugin.events`](#pluginevents). Defaults to `true`.
-- `ext`- allows registering extension methods via [`plugin.ext()`](#pluginextevent-method). Defaults to `false`.
+- `ext`- allows registering extension methods via [`plugin.ext()`](#pluginextevent-method-options). Defaults to `false`.
 - `helper` - allows addming server helper methods via [`plugin.helper()`](#pluginhelpername-method-options). Defaults to `true`.
 - `route` - allows adding routes via [`plugin.route()`](#pluginrouteoptions). Defaults to `true`.
 - `state` - allows configuring state definitions via [`plugin.state()`](#pluginstatename-options). Defaults to `true`.
@@ -2317,10 +2317,10 @@ Registers a plugin where:
 - `name` - the node module name as expected by node's [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id). If `name` is a relative
   path, prefixed with the value of the pack `requirePath` configuration option.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`plugin.register()`](#pluginregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
+  [`exports.register()`](#exportsregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
   and the second item is used as `options`.
 - `callback` - the callback function with signature `function(err)` where:
-      - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
         (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
@@ -2339,7 +2339,7 @@ Registers a list of plugins where:
   each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options` value is an array,
   the first array item is used as [`permissions`](#packallowpermissions), and the second item is used as `options`.
 - `callback` - the callback function with signature `function(err)` where:
-      - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
         (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 Batch registration is required when plugins declare a [dependency](#plugindependencydeps), so that all the required dependencies are loaded in
@@ -2367,12 +2367,12 @@ Registers a plugin object (without using `require()`) where:
 - `plugin` - the plugin object which requires:
     - `name` - plugin name.
     - `version` - plugin version.
-    - `register()` - the [`plugin.register()`](#pluginregisterplugin-options-next) function.
+    - `register()` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`plugin.register()`](#pluginregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
+  [`exports.register()`](#exportsregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
   and the second item is used as `options`.
 - `callback` - the callback function with signature `function(err)` where:
-    - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
       (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
@@ -2454,7 +2454,7 @@ var composer = new Hapi.Composer(manifest);
 Creates the packs described in the manifest construction where:
 - `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
   `function(err)` where:
-    - `err` - an error returned from `plugin.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
       (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
@@ -2507,7 +2507,7 @@ Constructing a plugin requires the following:
   file, and are enforced by **npm**. When using the [`pack.require()`](#packrequirename-options-callback) interface, the version is obtained from
   the 'package.json' module file. When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the version is provided as
   a required key in `plugin`.
-- `plugin.register()` - the registration function described in [`plugin.register()`](#exportsregisterplugin-options-next) is the plugin's core.
+- `exports.register()` - the registration function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
   The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the single entry
   point into the plugin functionality. When using the [`pack.require()`](#packrequirename-options-callback) interface, the function is obtained by
   [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id)'ing the plugin module and invoking the exported `register()` method.
@@ -2588,7 +2588,7 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.register(plugin, options, next)`
+#### `exports.register(plugin, options, next)`
 
 Registers the plugin where:
 - `plugin` - the registration interface representing the pack the plugin is being registered into. Provides the properties and methods listed below, based
@@ -2610,7 +2610,7 @@ exports.register = function (plugin, options, next) {
 ### Root methods and properties
 
 The plugin interface root methods and properties are those available only on the `plugin` object received via the
-[`plugin.register()`](#exportsregisterplugin-options-next) interface. They are not available on the object received by calling
+[`exports.register()`](#exportsregisterplugin-options-next) interface. They are not available on the object received by calling
 [`plugin.select()`](#pluginselectlabels).
 
 #### `plugin.version`
@@ -2769,7 +2769,7 @@ exports.register = function (plugin, options, next) {
 ### Selectable methods and properties
 
 The plugin interface selectable methods and properties are those available both on the `plugin` object received via the
-[`plugin.register()`](#exportsregisterplugin-options-next) interface and the objects received by calling
+[`exports.register()`](#exportsregisterplugin-options-next) interface and the objects received by calling
 [`plugin.select()`](#pluginselectlabels). However, unlike the root methods, they operate only on the selected subset of
 servers.
 
