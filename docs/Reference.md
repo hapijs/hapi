@@ -605,7 +605,7 @@ The route `pre` option allows defining such pre-handler methods. The methods are
     - `method` - the function to call (or short-hand helper string as described below). The function signature is `function(request, next)` where:
         - `request` - the incoming `request` object.
         - `next` - the function called when the method is done with the signature `function(result)` where:
-            - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#error)). If an error
+            - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)). If an error
               is returned, that value is sent back to the client and the handler method is not called.
     - `assign` - key name to assign the result of the function to within `request.pre`.
     - `mode` - set the calling order of the function. Available values:
@@ -1159,7 +1159,7 @@ Helpers are registered via `server.helper(name, method, [options])` where:
 - `method` - the helper function with the signature is `function(arg1, arg2, ..., argn, next)` where:
     - `arg1`, `arg2`, etc. - the helper function arguments.
     - `next` - the function called when the helper is done with the signature `function(result)` where:
-        - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#error)).
+        - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)).
 - `options` - optional configuration:
     - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy):
         - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
@@ -1519,7 +1519,7 @@ Returns a [`response`](#response) object based on the value of `result`:
 - `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
 - string - [`Text`](#text) response.
 - `Buffer` object - [`Buffer`](#buffer) response.
-- `Error` object (generated via [`error`](#error) or `new Error()`) - [`Boom`](#error) object.
+- `Error` object (generated via [`error`](#hapierror) or `new Error()`) - [`Boom`](#hapierror) object.
 - `Stream` object - [`Stream`](#stream) response.
 - any other object - [`Obj`](#obj) response.
 
