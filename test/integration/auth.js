@@ -254,9 +254,8 @@ describe('Auth', function () {
                     }
                 }
             });
-            var options = { method: 'GET', url: '/noauth' };
 
-            server.inject(options, function (res) {
+            server.inject('/noauth', function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.statusCode).to.equal(200);
@@ -291,8 +290,7 @@ describe('Auth', function () {
                 expect(res.result).to.exist;
                 expect(res.statusCode).to.equal(200);
 
-                var invalidOptions = { method: 'GET', url: '/noauth' };
-                server.inject(invalidOptions, function (res) {
+                server.inject('/noauth', function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(401);
@@ -477,7 +475,7 @@ describe('Auth', function () {
 
         it('returns a reply on successful auth', function (done) {
 
-            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawk', headers: { authorization: hawkHeader('john', '/hawk') } };
 
             server.inject(request, function (res) {
 
@@ -489,7 +487,7 @@ describe('Auth', function () {
 
         it('returns a reply on failed optional auth', function (done) {
 
-            var request = { method: 'POST', url: '/hawkOptional', headers: { host: 'example.com:8080' } };
+            var request = { method: 'POST', url: 'http://example.com:8080/hawkOptional' };
 
             server.inject(request, function (res) {
 
@@ -500,7 +498,7 @@ describe('Auth', function () {
 
         it('includes authorization header in response when the response is a stream', function (done) {
 
-            var request = { method: 'POST', url: '/hawkStream', headers: { authorization: hawkHeader('john', '/hawkStream'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkStream', headers: { authorization: hawkHeader('john', '/hawkStream') } };
 
             server.inject(request, function (res) {
 
@@ -539,7 +537,7 @@ describe('Auth', function () {
 
         it('includes valid authorization header in response when the response is text', function (done) {
 
-            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawk', headers: { authorization: hawkHeader('john', '/hawk') } };
 
             server.inject(request, function (res) {
 
@@ -576,7 +574,7 @@ describe('Auth', function () {
 
         it('includes valid authorization header in response when the request fails validation', function (done) {
 
-            var request = { method: 'POST', url: '/hawkValidate?a=1', headers: { authorization: hawkHeader('john', '/hawkValidate?a=1'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkValidate?a=1', headers: { authorization: hawkHeader('john', '/hawkValidate?a=1') } };
 
             server.inject(request, function (res) {
 
@@ -615,7 +613,7 @@ describe('Auth', function () {
 
         it('doesn\'t include authorization header in response when the response is an error', function (done) {
 
-            var request = { method: 'POST', url: '/hawkError', headers: { authorization: hawkHeader('john', '/hawkError'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkError', headers: { authorization: hawkHeader('john', '/hawkError') } };
 
             server.inject(request, function (res) {
 
@@ -627,7 +625,7 @@ describe('Auth', function () {
 
         it('returns an error on bad auth header', function (done) {
 
-            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', 'abcd'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawk', headers: { authorization: hawkHeader('john', 'abcd') } };
 
             server.inject(request, function (res) {
 
@@ -639,7 +637,7 @@ describe('Auth', function () {
 
         it('returns an error on bad header format', function (done) {
 
-            var request = { method: 'POST', url: '/hawk', headers: { authorization: 'junk', host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawk', headers: { authorization: 'junk' } };
 
             server.inject(request, function (res) {
 
@@ -651,7 +649,7 @@ describe('Auth', function () {
 
         it('returns an error on bad scheme', function (done) {
 
-            var request = { method: 'POST', url: '/hawk', headers: { authorization: 'junk something', host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawk', headers: { authorization: 'junk something' } };
 
             server.inject(request, function (res) {
 
@@ -663,7 +661,7 @@ describe('Auth', function () {
 
         it('returns an error on insufficient tos', function (done) {
 
-            var request = { method: 'POST', url: '/hawkTos', headers: { authorization: hawkHeader('john', '/hawkTos'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkTos', headers: { authorization: hawkHeader('john', '/hawkTos') } };
 
             server.inject(request, function (res) {
 
@@ -674,7 +672,7 @@ describe('Auth', function () {
 
         it('returns an error on insufficient scope', function (done) {
 
-            var request = { method: 'POST', url: '/hawkScope', headers: { authorization: hawkHeader('john', '/hawkScope'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkScope', headers: { authorization: hawkHeader('john', '/hawkScope') } };
 
             server.inject(request, function (res) {
 
@@ -710,7 +708,7 @@ describe('Auth', function () {
 
             var payload = 'application text formatted payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkPayload', 'POST', { credentials: credentials.john.cred, payload: payload, contentType: 'application/text' });
-            var request = { method: 'POST', url: '/hawkPayload', headers: { authorization: authHeader.field, host: '0.0.0.0:8080', 'content-type': 'application/text' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkPayload', headers: { authorization: authHeader.field, 'content-type': 'application/text' }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -725,7 +723,7 @@ describe('Auth', function () {
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkPayload', 'POST', { credentials: credentials.john.cred, payload: payload });
             payload += 'HACKED';
-            var request = { method: 'POST', url: '/hawkPayload', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkPayload', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -740,7 +738,7 @@ describe('Auth', function () {
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkPayloadOptional', 'POST', { credentials: credentials.john.cred, payload: payload });
             payload += 'HACKED';
-            var request = { method: 'POST', url: '/hawkPayloadOptional', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkPayloadOptional', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -754,7 +752,7 @@ describe('Auth', function () {
 
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkPayloadOptional', 'POST', { credentials: credentials.john.cred, payload: payload });
-            var request = { method: 'POST', url: '/hawkPayloadOptional', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkPayloadOptional', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -768,7 +766,7 @@ describe('Auth', function () {
 
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkPayloadOptional', 'POST', { credentials: credentials.john.cred });
-            var request = { method: 'POST', url: '/hawkPayloadOptional', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkPayloadOptional', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -782,7 +780,7 @@ describe('Auth', function () {
 
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkPayloadNone', 'POST', { credentials: credentials.john.cred, payload: payload });
-            var request = { method: 'POST', url: '/hawkPayloadNone', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkPayloadNone', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -797,7 +795,7 @@ describe('Auth', function () {
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkPayloadNone', 'POST', { credentials: credentials.john.cred, payload: payload });
             payload += 'HACKED';
-            var request = { method: 'POST', url: '/hawkPayloadNone', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkPayloadNone', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -811,7 +809,7 @@ describe('Auth', function () {
 
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkOptionalPayload', 'POST', { credentials: credentials.john.cred, payload: payload });
-            var request = { method: 'POST', url: '/hawkOptionalPayload', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkOptionalPayload', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -826,7 +824,7 @@ describe('Auth', function () {
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/hawkOptionalPayload', 'POST', { credentials: credentials.john.cred, payload: payload });
             payload += 'HACKED';
-            var request = { method: 'POST', url: '/hawkOptionalPayload', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/hawkOptionalPayload', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -896,9 +894,7 @@ describe('Auth', function () {
         it('returns a reply on successful auth', function (done) {
 
             var bewit = getBewit('john', '/bewit');
-            var request = { method: 'GET', url: '/bewit?bewit=' + bewit, headers: { host: '0.0.0.0:8080' }};
-
-            server.inject(request, function (res) {
+            server.inject('http://0.0.0.0:8080/bewit?bewit=' + bewit, function (res) {
 
                 expect(res.result).to.equal('Success');
                 done();
@@ -908,9 +904,7 @@ describe('Auth', function () {
         it('returns an error reply on failed optional auth', function (done) {
 
             var bewit = getBewit('john', '/abc');
-            var request = { method: 'GET', url: '/bewitOptional?bewit=' + bewit, headers: { host: 'example.com:8080' } };
-
-            server.inject(request, function (res) {
+            server.inject('http://example.com:8080/bewitOptional?bewit=' + bewit, function (res) {
 
                 expect(res.result.code).to.equal(401);
                 done();
@@ -920,9 +914,7 @@ describe('Auth', function () {
         it('returns an error on bad bewit', function (done) {
 
             var bewit = getBewit('john', '/abc');
-            var request = { method: 'GET', url: '/bewit?bewit=' + bewit, headers: { host: '0.0.0.0:8080' } };
-
-            server.inject(request, function (res) {
+            server.inject('http://0.0.0.0:8080/bewit?bewit=' + bewit, function (res) {
 
                 expect(res.result.code).to.equal(401);
                 done();
@@ -931,9 +923,7 @@ describe('Auth', function () {
 
         it('returns an error on bad bewit format', function (done) {
 
-            var request = { method: 'GET', url: '/bewit?bewit=junk', headers: { host: '0.0.0.0:8080' } };
-
-            server.inject(request, function (res) {
+            server.inject('http://0.0.0.0:8080/bewit?bewit=junk', function (res) {
 
                 expect(res.result.code).to.equal(400);
                 done();
@@ -943,9 +933,7 @@ describe('Auth', function () {
         it('returns an error on insufficient tos', function (done) {
 
             var bewit = getBewit('john', '/bewitTos');
-            var request = { method: 'GET', url: '/bewitTos?bewit=' + bewit, headers: { host: '0.0.0.0:8080' } };
-
-            server.inject(request, function (res) {
+            server.inject('http://0.0.0.0:8080/bewitTos?bewit=' + bewit, function (res) {
 
                 expect(res.result.code).to.equal(403);
                 done();
@@ -955,9 +943,7 @@ describe('Auth', function () {
         it('returns an error on insufficient scope', function (done) {
 
             var bewit = getBewit('john', '/bewitScope');
-            var request = { method: 'GET', url: '/bewitScope?bewit=' + bewit, headers: { host: '0.0.0.0:8080' } };
-
-            server.inject(request, function (res) {
+            server.inject('http://0.0.0.0:8080/bewitScope?bewit=' + bewit, function (res) {
 
                 expect(res.result.code).to.equal(403);
                 done();
@@ -1144,7 +1130,7 @@ describe('Auth', function () {
 
         it('returns a reply on successful auth of first auth strategy', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { authorization: basicHeader('john', '12345'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple', headers: { authorization: basicHeader('john', '12345') } };
 
             server.inject(request, function (res) {
 
@@ -1155,7 +1141,7 @@ describe('Auth', function () {
 
         it('returns a reply on successful auth of second auth strategy', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { authorization: hawkHeader('john', '/multiple'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple', headers: { authorization: hawkHeader('john', '/multiple') } };
 
             server.inject(request, function (res) {
 
@@ -1166,7 +1152,7 @@ describe('Auth', function () {
 
         it('returns an error when the auth strategies fail', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail', host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple', headers: { authorization: 'Basic fail' } };
 
             server.inject(request, function (res) {
 
@@ -1177,7 +1163,7 @@ describe('Auth', function () {
 
         it('returns a 401 response when missing the authorization header', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple'};
 
             server.inject(request, function (res) {
 
@@ -1188,7 +1174,7 @@ describe('Auth', function () {
 
         it('returns a WWW-Authenticate header that has all challenge options when missing the authorization header', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple' };
 
             server.inject(request, function (res) {
 
@@ -1200,7 +1186,7 @@ describe('Auth', function () {
 
         it('returns a 400 error when the authorization header has both Basic and Hawk and both are wrong', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail; Hawk fail', host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple', headers: { authorization: 'Basic fail; Hawk fail' } };
 
             server.inject(request, function (res) {
 
@@ -1211,7 +1197,7 @@ describe('Auth', function () {
 
         it('returns a 400 response when the authorization header has both Basic and Hawk and the second one is correct', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { authorization: 'Basic fail; ' + hawkHeader('john', '/multiple'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple', headers: { authorization: 'Basic fail; ' + hawkHeader('john', '/multiple') } };
 
             server.inject(request, function (res) {
 
@@ -1222,7 +1208,7 @@ describe('Auth', function () {
 
         it('returns full error message on bad auth header', function (done) {
 
-            var request = { method: 'POST', url: '/multiple', headers: { authorization: hawkHeader('john', 'abcd'), host: '0.0.0.0:8080' } };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiple', headers: { authorization: hawkHeader('john', 'abcd') } };
 
             server.inject(request, function (res) {
 
@@ -1248,7 +1234,7 @@ describe('Auth', function () {
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/multiplePayload', 'POST', { credentials: credentials.john.cred, payload: payload });
             payload += 'HACKED';
-            var request = { method: 'POST', url: '/multiplePayload', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiplePayload', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -1262,7 +1248,7 @@ describe('Auth', function () {
 
             var payload = 'Here is my payload';
             var authHeader = Hawk.client.header('http://0.0.0.0:8080/multiplePayload', 'POST', { credentials: credentials.john.cred, payload: payload });
-            var request = { method: 'POST', url: '/multiplePayload', headers: { authorization: authHeader.field, host: '0.0.0.0:8080' }, payload: payload };
+            var request = { method: 'POST', url: 'http://0.0.0.0:8080/multiplePayload', headers: { authorization: authHeader.field }, payload: payload };
 
             server.inject(request, function (res) {
 
@@ -1323,7 +1309,7 @@ describe('Auth', function () {
 
         it('authenticates a request', function (done) {
 
-            server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
+            server.inject('/login/valid', function (res) {
 
                 expect(res.result).to.equal('valid');
                 var header = res.headers['set-cookie'];
@@ -1342,7 +1328,7 @@ describe('Auth', function () {
 
         it('ends a session', function (done) {
 
-            server.inject({ method: 'GET', url: '/login/valid' }, function (res) {
+            server.inject('/login/valid', function (res) {
 
                 expect(res.result).to.equal('valid');
                 var header = res.headers['set-cookie'];
@@ -1362,7 +1348,7 @@ describe('Auth', function () {
 
         it('fails a request with invalid session', function (done) {
 
-            server.inject({ method: 'GET', url: '/login/invalid' }, function (res) {
+            server.inject('/login/invalid', function (res) {
 
                 expect(res.result).to.equal('invalid');
                 var header = res.headers['set-cookie'];
@@ -1412,7 +1398,7 @@ describe('Auth', function () {
                 config: { auth: 'default' }
             });
 
-            server.inject({ method: 'GET', url: '/login/steve' }, function (res) {
+            server.inject('/login/steve', function (res) {
 
                 expect(res.result).to.equal('steve');
                 var header = res.headers['set-cookie'];
@@ -1450,7 +1436,7 @@ describe('Auth', function () {
                     }, config: { auth: 'default' }
                 });
 
-                server.inject({ method: 'GET', url: '/' }, function (res) {
+                server.inject('/', function (res) {
 
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
@@ -1478,7 +1464,7 @@ describe('Auth', function () {
                     }, config: { auth: 'default' }
                 });
 
-                server.inject({ method: 'GET', url: '/' }, function (res) {
+                server.inject('/', function (res) {
 
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
@@ -1506,7 +1492,7 @@ describe('Auth', function () {
                     }, config: { auth: 'default' }
                 });
 
-                server.inject({ method: 'GET', url: '/' }, function (res) {
+                server.inject('/', function (res) {
 
                     expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
@@ -1534,7 +1520,7 @@ describe('Auth', function () {
                     }
                 });
 
-                server.inject({ method: 'GET', url: '/' }, function (res) {
+                server.inject('/', function (res) {
 
                     expect(res.result).to.equal('try');
                     expect(res.statusCode).to.equal(200);

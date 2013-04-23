@@ -330,7 +330,7 @@ describe('Proxy', function () {
             callback(new Error());
         };
 
-        var route = server._router.route({ method: 'get', path: '/proxyerror', raw: { req: { headers: {} } } });
+        var route = server._router.route({ method: 'get', path: '/proxyerror', info: {}, raw: { req: { headers: {} } } });
         route.proxy.httpClient = requestStub;
 
         makeRequest({ path: '/proxyerror', method: 'get' }, function (rawRes) {

@@ -1720,7 +1720,7 @@ describe('Response', function () {
             }
         };
 
-        var server = new Hapi.Server(0, { location: 'https://localhost' });
+        var server = new Hapi.Server(0);
         server.route({ method: 'GET', path: '/redirect', config: { handler: handler } });
 
         before(function (done) {
@@ -1730,11 +1730,11 @@ describe('Response', function () {
 
         it('returns a redirection reply', function (done) {
 
-            server.inject('/redirect', function (res) {
+            server.inject('http://example.org/redirect', function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('You are being redirected...');
-                expect(res.headers.location).to.equal(server.settings.location + '/example');
+                expect(res.headers.location).to.equal('http://example.org/example');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
@@ -1746,7 +1746,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('We moved!');
-                expect(res.headers.location).to.equal(server.settings.location + '/examplex');
+                expect(res.headers.location).to.equal(server.info.uri + '/examplex');
                 expect(res.statusCode).to.equal(302);
                 done();
             });

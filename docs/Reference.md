@@ -181,7 +181,7 @@ When creating a server instance, the following options configure the server's be
   to an empty array `[]` (no labels).
 <p></p>
 - <a name="server.config.location" />`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
-  Defaults to empty string (`''`).
+  Defaults to the host received in the request HTTP 'Host' header and if missing, to `server.info.uri`.
 <p></p>
 - <a name="server.config.payload" />`payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
@@ -253,6 +253,7 @@ Each instance of the `Server` object have the following properties:
 - `info` - server information:
     - `port` - the port the server was configured to (before `start()`) or bound to (after `start()`).
     - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
+    - `protocol` - the protocol used (e.g. `'http'` or `'https'`).
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
 - `listener` - the node HTTP server object.
 - `pack` - the [`Pack`](#hapipack) object the server belongs to (automatically assigned when creating a server instance directly).
@@ -1340,7 +1341,8 @@ Each request object have the following properties:
 - `info` - request information:
     - `received` - request reception timestamp.
     - `address` - remote client IP address.
-    - `referrer` - content of the 'Referrer' (or 'Referer') header.
+    - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
+    - `host` - content of the HTTP 'Host' header.
 - `method` - the request method in lower case (e.g. `'get'`, `'post'`).
 - `params` - an object where each key is a path parameter name with matching value as described in [Path parameters](#path-parameters).
 - `path` - the request URI's path component.
