@@ -2864,6 +2864,7 @@ exports.register = function (plugin, options, next) {
 
     next();
 };
+```
 
 #### `plugin.state(name, [options])`
 
