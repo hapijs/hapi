@@ -2510,7 +2510,7 @@ Constructing a plugin requires the following:
 - `plugin.register()` - the registration function described in [`plugin.register()`](#exportsregisterplugin-options-next) is the plugin's core.
   The function is called when the plugin is registerd and it performs all the activities required by the plugin to operate. It is the single entry
   point into the plugin functionality. When using the [`pack.require()`](#packrequirename-options-callback) interface, the function is obtained by
-  [`require()`]((http://nodejs.org/api/modules.html#modules_module_require_id))'ing the plugin module and invoking the exported `register()` method.
+  [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id)'ing the plugin module and invoking the exported `register()` method.
   When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the function is provided as a required key in `plugin`.
 
 **package.json**
