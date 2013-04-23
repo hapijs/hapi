@@ -2491,6 +2491,103 @@ pack.stop({ timeout: 60 * 1000 }, function () {
 
 ## Plugin interface
 
+Plugins provide an extensiblity platform for both general purpose utilities such as [batch requests](https://github.com/spumko/bassmaster) and for
+application business logic. Instead of thinking about a web server as a single entity with a unified routing table, plugins enable developers to
+break their application into logical units, assembled together in different combinations to fit the development, testing, and deployment needs.
+
+Constructing a plugin requires the following:
+- name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive their name
+  from the registry name. This ensures uniqueness. Private plugin names should be picked carefully to avoid conflicts with both private and public
+  names. Typically, private plugin names use a prefix such as the company name or an unusual combination of characters (e.g. `'--'`). When using the
+  [`pack.require()`](#packrequirename-options-callback) interface, the name is obtained from the 'package.json' module file. When using the
+  [`pack.register()`](#packregisterplugin-options-callback) interface, the name is provided as a required key in `plugin`.
+- version - the plugin version is only used informatively within the framework but plays an important role in the plugin echo-system. The plugin
+  echo-system relies on the [npm peer dependency](http://blog.nodejs.org/2013/02/07/peer-dependencies/) functionality to ensure that plugins can
+  specify their dependency on a specific version of **hapi**, as well as on each other. Dependencies are expressed solely within the 'package.json'
+  file, and are enfored by **npm**. When using the [`pack.require()`](#packrequirename-options-callback) interface, the version is obtained from
+  the 'package.json' module file. When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the version is provided as
+  a required key in `plugin`.
+- `plugin.register()` - the registration function described in [`plugin.register()`](#exportsregisterplugin-options-next) is the plugin's core.
+  The function is called when the plugin is registerd and it performs all the activities required by the plugin to operate. It is the single entry
+  point into the plugin functionality. When using the [`pack.require()`](#packrequirename-options-callback) interface, the function is obtained by
+  [`require()`]((http://nodejs.org/api/modules.html#modules_module_require_id))'ing the plugin module and invoking the exported `register()` method.
+  When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the function is provided as a required key in `plugin`.
+
+**package.json**
+```json
+{
+  "name": "furball",
+  "description": "Plugin utilities and endpoints",
+  "version": "0.3.0",
+  "main": "index",
+  "dependencies": {
+    "hoek": "0.8.x"
+  },
+  "peerDependencies": {
+    "hapi": "1.x.x"
+  }
+}
+```
+
+**index.js**
+```javascript
+var Hoek = require('hoek');
+
+var internals = {
+    defaults: {
+        version: '/version',
+        plugins: '/plugins'
+    }
+};
+
+internals.version = Hoek.loadPackage().version;
+
+exports.register = function (plugin, options, next) {
+
+    var settings = Hoek.applyToDefaults(internals.defaults, options);
+
+    if (settings.version) {
+        plugin.route({
+            method: 'GET',
+            path: settings.version,
+            handler: function () {
+
+                this.reply(internals.version);
+            }
+        });
+    }
+
+    if (settings.plugins) {
+        plugin.route({
+            method: 'GET',
+            path: settings.plugins,
+            handler: function () {
+
+                this.reply(listPlugins(this.server));
+            }
+        });
+    }
+
+    var listPlugins = function (server) {
+
+        var plugins = [];
+        Object.keys(server.pack.list).forEach(function (name) {
+
+            var item = server.pack.list[name];
+            plugins.push({
+                name: item.name,
+                version: item.version
+            });
+        });
+
+        return plugins;
+    };
+
+    plugin.api('plugins', listPlugins);
+    next();
+};
+```
+
 #### `plugin.register(plugin, options, next)`
 
 ### Root methods
