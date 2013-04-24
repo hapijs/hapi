@@ -1646,7 +1646,7 @@ Useful when a view response is required outside of the handler (e.g. used in an 
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
 
 server.ext('onPreResponse', function (request, next) {
 
@@ -2129,7 +2129,7 @@ response object.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
 
 server.ext('onPreResponse', function (request, next) {
 
