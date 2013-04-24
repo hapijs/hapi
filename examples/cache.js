@@ -42,7 +42,6 @@ internals.main = function () {
 
     var config = {
         cache: {
-//            mode: 'client+server',
             engine: 'redis',
             host: '127.0.0.1',
             port: 6379
@@ -54,7 +53,7 @@ internals.main = function () {
     server.route([
         { method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } },
         { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
-        { method: 'GET', path: '/item/{id}', config: { handler: internals.item, cache: { expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } } }
+        { method: 'GET', path: '/item/{id}', config: { handler: internals.item, cache: { mode: 'server', expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } } }
     ]);
 
     server.start();
