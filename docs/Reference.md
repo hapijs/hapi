@@ -1087,8 +1087,10 @@ Registers an extension function in one of the available [extension points](#requ
 - `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
   is `function(request, next)` where:
     - `request` - the incoming `request` object.
-    - `next` - the callback function the extension method must call to return control over to the router. The function takes an optional `response`
-      argument, which will cause the process to jump to the "send response" step, skipping all other steps in between.
+    - `next` - the callback function the extension method must call to return control over to the router with signature `function(exit)` where:
+        - `exit` - optional request processing exit response. If set to a non-falsy value, the request lifecycle process will jump to the
+          "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
+          value accepted by [`request.reply()`](#requestreplyresult).
 - `options` - an optional object with the following:
     - `before` - a string or array of strings of plugin names this method must executed before (on the same event). Otherwise, extension methods are executed
       in the order added.
