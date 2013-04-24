@@ -15,23 +15,23 @@ var N = Hapi.Types.Number;
 var A = Hapi.Types.Array;
 
 
-internals.get = function (request) {
+internals.get = function () {
 
-    request.reply('Success!\n');
+    this.reply('Success!\n');
 };
 
 
-internals.payload = function (request) {
+internals.payload = function () {
 
-    request.reply('Success!\n');
+    this.reply('Success!\n');
 };
 
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
+    var server = new Hapi.Server(8000);
 
-    http.route([
+    server.route([
         { method: 'GET', path: '/', config: { handler: internals.get, validate: { query: { username: S() } } } },
         { method: 'GET', path: '/admin', config: { handler: internals.get, validate: { query: { username: S().required().with('password'), password: S() } } } },
         { method: 'GET', path: '/users', config: { handler: internals.get, validate: { query: { email: S().email().required().min(18) } } } },
@@ -47,9 +47,9 @@ internals.main = function () {
         participants: A().includes(S(), N())
     };
 
-    http.route({ method: 'POST', path: '/users/{id}', config: { handler: internals.payload, validate: { query: {}, payload: schema } } });
+    server.route({ method: 'POST', path: '/users/{id}', config: { handler: internals.payload, validate: { query: {}, payload: schema } } });
 
-    http.start();
+    server.start();
 };
 
 
@@ -57,13 +57,13 @@ internals.main();
 
 /*
     Try various URLs like:
-    http://localhost:8080/ // success
-    http://localhost:8080/?username=test // success
-    http://localhost:8080/admin?username=steve&password=shhhhhh // success
-    http://localhost:8080/admin?username=steve // fail
-    http://localhost:8080/users?email=steve@example.com // success
-    http://localhost:8080/users?email=@example.com // fail
-    http://localhost:8080/config?choices=1&choices=2 // success
-    http://localhost:8080/config?choices=1 // success
-    http://localhost:8080/config // fail
+    http://localhost:8000/ // success
+    http://localhost:8000/?username=test // success
+    http://localhost:8000/admin?username=steve&password=shhhhhh // success
+    http://localhost:8000/admin?username=steve // fail
+    http://localhost:8000/users?email=steve@example.com // success
+    http://localhost:8000/users?email=@example.com // fail
+    http://localhost:8000/config?choices=1&choices=2 // success
+    http://localhost:8000/config?choices=1 // success
+    http://localhost:8000/config // fail
 */

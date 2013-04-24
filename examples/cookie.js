@@ -79,15 +79,15 @@ internals.main = function () {
         }
     };
 
-    var http = new Hapi.Server('localhost', 8000, config);
+    var server = new Hapi.Server('localhost', 8000, config);
 
-    http.route([
+    server.route([
         { method: 'GET', path: '/', config: { handler: internals.home, auth: true } },
         { method: '*', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
         { method: 'GET', path: '/logout', config: { handler: internals.logout, auth: true } }
     ]);
 
-    http.start();
+    server.start();
 };
 
 

@@ -49,9 +49,9 @@ internals.get = function (request) {
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
+    var server = new Hapi.Server(8000);
 
-    http.route({
+    server.route({
         method: 'GET',
         path: '/',
         config: {
@@ -66,7 +66,7 @@ internals.main = function () {
         }
     });
 
-    http.start();
+    server.start();
 };
 
 

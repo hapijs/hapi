@@ -8,8 +8,8 @@
 
 // Load modules
 
-var SocketIO = require('socket.io');
 var Hapi = require('../');
+var SocketIO = require('socket.io');
 
 
 // Declare internals
@@ -19,22 +19,19 @@ var internals = {};
 
 internals.startServer = function () {
 
-    internals.server = new Hapi.Server(8080);
-    internals.server.route({ method: 'GET', path: '/', handler: internals.helloHandler });
+    var server = new Hapi.Server(8000);
 
-    internals.server.start(internals.startSocketIO);
-};
+    var helloHandler = function () {
 
+        this.reply('Hello');
+    };
 
-internals.startSocketIO = function () {
+    server.route({ method: 'GET', path: '/', handler: helloHandler });
 
-    var io = SocketIO.listen(internals.server.listener);
-};
+    server.start(function () {
 
-
-internals.helloHandler = function () {
-
-    this.reply('Hello');
+        var io = SocketIO.listen(server.listener);
+    });
 };
 
 

@@ -5,13 +5,13 @@
   "servers": [
     {
       "host": "localhost",
-      "port": 8001,
+      "port": 8000,
       "options": {
         "labels": ["api", "nasty"]
       }
     },
     {
-      "port": 8002,
+      "port": 8001,
       "options": {
         "labels": ["api", "nice"]
       }

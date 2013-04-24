@@ -10,20 +10,20 @@ var internals = {};
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
+    var server = new Hapi.Server(8000);
 
     var filePath = function (request) {
 
         return './' + request.params.file + '.js';
     };
 
-    http.route([
+    server.route([
         { method: 'GET', path: '/favicon.ico', handler: { file: './favicon.ico' } },
         { method: 'GET', path: '/download', handler: { file: { path: './favicon.ico', mode: 'attachment' } } },
         { method: 'GET', path: '/source/{file}', handler: { file: filePath } }
     ]);
 
-    http.start();
+    server.start();
 };
 
 

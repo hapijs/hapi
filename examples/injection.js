@@ -8,15 +8,15 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.get = function (request) {
+internals.get = function () {
 
-    request.reply('Success!');
+    this.reply('Success!');
 };
 
 
 internals.main = function () {
 
-    var server = new Hapi.Server(8080);
+    var server = new Hapi.Server(8000);
     server.route({ method: 'GET', path: '/', handler: internals.get });
 
     // Create request

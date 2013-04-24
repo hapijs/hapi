@@ -8,35 +8,35 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.get = function (request) {
+internals.get = function () {
 
-    var tail1 = request.addTail('tail1');
+    var tail1 = this.tail('tail1');
     setTimeout(function () {
 
         console.log(1);
         tail1();
     }, 5000);
 
-    var tail2 = request.addTail('tail2');
+    var tail2 = this.tail('tail2');
     setTimeout(function () {
 
         console.log(2);
         tail2();
     }, 2000);
 
-    request.reply('Success!\n');
+    this.reply('Success!\n');
 };
 
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
-    http.route({ method: 'GET', path: '/', handler: internals.get });
-    http.start();
+    var server = new Hapi.Server(8000);
+    server.route({ method: 'GET', path: '/', handler: internals.get });
+    server.start();
 
     // Listen to tail events
 
-    http.on('tail', function (request) {
+    server.on('tail', function (request) {
 
         console.log('Wag the dog');
     });

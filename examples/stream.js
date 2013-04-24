@@ -8,17 +8,17 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.echo = function (request) {
+internals.echo = function () {
 
-    request.reply(request.raw.req);
+    this.reply(this.raw.req);
 };
 
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
-    http.route({ method: 'POST', path: '/', config: { handler: internals.echo, payload: 'stream' } });
-    http.start();
+    var server = new Hapi.Server(8000);
+    server.route({ method: 'POST', path: '/', config: { handler: internals.echo, payload: 'stream' } });
+    server.start();
 };
 
 

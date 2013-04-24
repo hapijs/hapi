@@ -58,6 +58,7 @@
         - [`View`](#view)
         - [`Cacheable`](#cacheable)
 - [`Hapi.error`](#hapierror)
+      - [Error transformation](#error-transformation)
       - [`badRequest([message])`](#badrequestmessage)
       - [`unauthorized(message, [scheme, [attributes]])`](#unauthorizedmessage-scheme-attributes)
       - [`unauthorized(message, wwwAuthenticate)`](#unauthorizedmessage-wwwauthenticate)
@@ -2116,6 +2117,34 @@ var handler = function () {
     error.reformat();
 
     this.reply(error);
+});
+```
+
+### Error transformation
+
+Error responses return a JSON object with the `code`, `error`, and `message` keys. When a different error representation is desired, such
+as an HTML page or using another format, the `'onPreResponse'` extension point may be used to identify errors and replace them with a different
+response object.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+server.ext('onPreResponse', function (request, next) {
+
+    var response = request.response();
+    if (!response.isBoom) {
+        return next();
+    }
+
+    // Replace error with friendly HTML
+
+      var error = response;
+      var context = {
+          message: (error.response.code === 404 ? 'page not found' : 'something went wrong')
+      };
+
+      next(request.generateView('error', context));
 });
 ```
 

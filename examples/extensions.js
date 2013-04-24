@@ -16,42 +16,42 @@ internals.get = function (request) {
 
 internals.onRequest = function (request, next) {
 
-    Hapi.Log.event('onRequest');
+    console.log('onRequest');
     next();
 };
 
 
 internals.onPreHandler1 = function (request, next) {
 
-    Hapi.Log.event('onPreHandler1: ' + request.method);
+    console.log('onPreHandler1: ' + request.method);
     next();
 };
 
 
 internals.onPreHandler2 = function (request, next) {
 
-    Hapi.Log.event('onPreHandler2: ' + request.path);
+    console.log('onPreHandler2: ' + request.path);
     next();
 };
 
 
 internals.onPostHandler = function (request, next) {
 
-    Hapi.Log.event('onPostHandler');
+    console.log('onPostHandler');
     next();
 };
 
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
+    var server = new Hapi.Server(8000);
 
-    http.ext('onRequest', internals.onRequest);                                         // New request, before handing over to the router (allows changes to method and url)
-    http.ext('onPreHandler', [internals.onPreHandler1, internals.onPreHandler2]);       // After validation and body parsing, before route handler
-    http.ext('onPostHandler', internals.onPostHandler);                                 // After route handler returns, before setting response
+    server.ext('onRequest', internals.onRequest);                                         // New request, before handing over to the router (allows changes to method and url)
+    server.ext('onPreHandler', [internals.onPreHandler1, internals.onPreHandler2]);       // After validation and body parsing, before route handler
+    server.ext('onPostHandler', internals.onPostHandler);                                 // After route handler returns, before setting response
 
-    http.route({ method: 'GET', path: '/', handler: internals.get });
-    http.start();
+    server.route({ method: 'GET', path: '/', handler: internals.get });
+    server.start();
 };
 
 

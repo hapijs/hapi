@@ -4,6 +4,7 @@ var Path = require('path');
 var Hapi = require('../../../');
 var Pages = require('./pages');
 
+
 // Declare internals
 
 var internals = {};
@@ -65,7 +66,7 @@ internals.main = function () {
         }
     };
 
-    var server = new Hapi.Server(3000, options);
+    var server = new Hapi.Server(8000, options);
     server.route({ method: 'GET', path: '/', handler: getPages });
     server.route({ method: 'GET', path: '/pages/{page}', handler: getPage });
     server.route({ method: 'GET', path: '/create', handler: view('create') });

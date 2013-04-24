@@ -48,7 +48,7 @@ internals.main = function () {
         }
     };
 
-    var server = new Hapi.Server(8080, config);
+    var server = new Hapi.Server(8000, config);
 
     server.route([
         { method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } },

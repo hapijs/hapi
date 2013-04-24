@@ -10,21 +10,16 @@ var internals = {};
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
-
-    http.route({ method: 'GET', path: '/', handler: { proxy: { host: 'google.com', port: 80 } } });
-    http.route({ method: 'GET', path: '/images/srpr/logo3w.png', handler: { proxy: { host: 'google.com', port: 80 } } });
-    http.route({ method: 'POST', path: '/', handler: { proxy: { host: 'google.com', port: 80 } } });
+    var server = new Hapi.Server(8000);
 
     var mapper = function (request, callback) {
 
-        callback(null, 'https://www.google.com/?q=' + request.param.term);
+        callback(null, 'http://www.google.com/search?q=' + request.params.term);
     };
 
-    http.route({ method: 'GET', path: '/search/{term}', handler: { proxy: { mapUri: mapper } } });
-
-
-    http.start();
+    server.route({ method: '*', path: '/{p*}', handler: { proxy: { host: 'google.com', port: 80 } } });
+    server.route({ method: 'GET', path: '/hapi/{term}', handler: { proxy: { mapUri: mapper } } });
+    server.start();
 };
 
 
