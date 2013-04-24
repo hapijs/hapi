@@ -74,62 +74,51 @@ describe('Schema', function () {
         });
     });
 
-    describe('#route', function () {
+    describe('#routeOptions', function () {
 
         it('fails when unknown properties exist', function (done) {
 
-            var settings = { method: 'GET', path: '/', handler: function() {}, unknown: true };
-
-            expect(Schema.route(settings, {})).to.exist;
+            var options = { method: 'GET', path: '/', handler: function() {}, unknown: true };
+            expect(Schema.routeOptions(options)).to.exist;
             done();
         });
 
         it('fails when a required property is missing', function (done) {
 
-            var settings = { method: 'GET' };
-
-            expect(Schema.route(settings, null)).to.exist;
-            done();
-        });
-
-        it('fails when config payload has invalid value', function (done) {
-
-            var settings = { method: 'GET', path: '/', handler: function () { } };
-            var config = { payload: 'something' };
-
-            expect(Schema.route(settings, config)).to.exist;
+            var options = { method: 'GET' };
+            expect(Schema.routeOptions(options)).to.exist;
             done();
         });
 
         it('succeeds when required fields are present', function (done) {
 
-            var settings = { method: 'GET', path: '/', handler: function() {} };
-
-            expect(Schema.route(settings, {})).to.not.exist;
+            var options = { method: 'GET', path: '/', handler: function () { } };
+            expect(Schema.routeOptions(options)).to.not.exist;
             done();
         });
 
         it('succeeds when route config has a description', function (done) {
 
-            var settings = { method: 'GET', path: '/', handler: function() {}, config: { description: 'here is my description' } };
+            var options = { method: 'GET', path: '/', handler: function () { }, config: { description: 'here is my description' } };
 
-            expect(Schema.route(settings, {})).to.not.exist;
+            expect(Schema.routeOptions(options)).to.not.exist;
+            done();
+        });
+    });
+
+    describe('#routeConfig', function () {
+
+        it('fails when config payload has invalid value', function (done) {
+
+            var config = { payload: 'something' };
+            expect(Schema.routeConfig(config)).to.exist;
             done();
         });
 
-        it('succeeds when route config has tags', function (done) {
+        it('succeeds when route config has a description', function (done) {
 
-            var settings = { method: 'GET', path: '/', handler: function() {}, config: { tags: ['tag1', 'tag2'] } };
-
-            expect(Schema.route(settings, {})).to.not.exist;
-            done();
-        });
-
-        it('succeeds when route config has notes', function (done) {
-
-            var settings = { method: 'GET', path: '/', handler: function() {}, config: { notes: 'here is a note' } };
-
-            expect(Schema.route(settings, {})).to.not.exist;
+            var config = { description: 'here is my description' };
+            expect(Schema.routeConfig(config)).to.not.exist;
             done();
         });
     });
