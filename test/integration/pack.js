@@ -241,7 +241,7 @@ describe('Pack', function () {
         server.pack.require(['./pack/--test1', './pack/--test2'], function (err) {
 
             expect(err).to.not.exist;
-            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2', '/test2/path']);
             expect(log[1].test).to.equal(true);
             expect(log[0].data).to.equal('abc');
             done();
@@ -254,8 +254,22 @@ describe('Pack', function () {
         server.pack.require({ './pack/--test1': [{ route: true }, {}], './pack/--test2': {} }, function (err) {
 
             expect(err).to.not.exist;
-            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2', '/test2/path']);
             done();
+        });
+    });
+
+    it('exposes the plugin path', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.require('./pack/--test2', function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/test2/path', function (res) {
+
+                expect(res.result).to.equal(process.cwd() + '/test/integration/pack/--test2');
+                done();
+            });
         });
     });
 

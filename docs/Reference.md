@@ -88,6 +88,7 @@
     - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
     - [Root methods and properties](#root-methods-and-properties)
         - [`plugin.version`](#pluginversion)
+        - [`plugin.path`](#pluginpath)
         - [`plugin.hapi`](#pluginhapi)
         - [`plugin.app`](#pluginapp)
         - [`plugin.events`](#pluginevents)
@@ -2295,6 +2296,7 @@ Each `Pack` object instance has the following properties:
 - `list` - an object listing all the registered plugins where each key is a plugin name and the value is an object with:
     - `name` - plugin name.
     - `version` - plugin version.
+    - `path` - the plugin root path (where 'package.json' is located).
     - `register()` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
 
 ### `Pack` methods
@@ -2430,6 +2432,7 @@ Registers a plugin object (without using `require()`) where:
 - `plugin` - the plugin object which requires:
     - `name` - plugin name.
     - `version` - plugin version.
+    - `path` - optional plugin path for resolving relative paths used by the plugin. Defaults to current working directory.
     - `register()` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
   [`exports.register()`](#exportsregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
@@ -2684,6 +2687,20 @@ The plugin version information.
 exports.register = function (plugin, options, next) {
 
     console.log(plugin.version);
+    next();
+};
+```
+
+#### `plugin.path`
+
+The plugin root path (where 'package.json' resides).
+
+```javascript
+var Fs = require('fs');
+
+exports.register = function (plugin, options, next) {
+
+    var file = Fs.readFileSync(plugin.path + '/resources/image.png');
     next();
 };
 ```
