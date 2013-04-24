@@ -21,7 +21,7 @@ internals.user = function (id, next) {
 
 internals.main = function () {
 
-    var server = new Hapi.Server(8080, { cache: 'redis' });
+    var server = new Hapi.Server(8080);
 
     server.helper('user', internals.user, { cache: { expiresIn: 2000, staleIn: 1000, staleTimeout: 100 } });
 
