@@ -122,7 +122,7 @@ Creates a new server instance with the following arguments:
 - `host` - the hostname or IP address the server is bound to. Defaults to `0.0.0.0` which means any available network
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from the same machine.
 - `port` - the TPC port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
-  to use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
+  To use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
 - `options` - An object with the server configuration as described in [server options](#server-options).
 
 ```javascript
@@ -142,7 +142,7 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 When creating a server instance, the following options configure the server's behavior:
 
 - `app` - application-specific configuration. Provides a safe place to store application configuration without potential conflicts with **hapi**.
-  Should not be used by plugins which should use `plugins[name]`.
+  Should not be used by plugins as they should use `plugins[name]`.
 <p></p>
 - `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
   or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
@@ -150,14 +150,14 @@ When creating a server instance, the following options configure the server's be
 <p></p>
 - <a name="server.config.cache" />`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
   responses and helper results. By default a simple memory-based cache is used which has very limited capacity and is not suitable for production
-  environments. In addition to the memory cache, a Redis-based or a MongoDB-based cache can be configured. Actual caching is only utilized if routes,
+  environments. In addition to the memory cache, a Redis-based or a MongoDB-based cache can be configured. Caching is only utilized if routes,
   helpers, and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The
   `cache` options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
 <p></p>
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
-  required by web application running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
+  required by web application running inside a browser which are loaded from a different origin than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
-    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
+    - `origin` - an array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
     - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
       will take before the browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
