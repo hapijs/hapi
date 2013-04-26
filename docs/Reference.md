@@ -2,12 +2,13 @@
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
-    - [Server configuration](#server-configuration)
+    - [Server options](#server-options)
     - [`Server` properties](#server-properties)
     - [`Server` methods](#server-methods)
         - [`server.start([callback])`](#serverstartcallback)
         - [`server.stop([options], [callback])`](#serverstopoptions-callback)
         - [`server.route(options)`](#serverrouteoptions)
+            - [Route options](#route-options)
             - [Path processing](#path-processing)
             - [Path parameters](#path-parameters)
             - [Route handler](#route-handler)
@@ -122,7 +123,7 @@ Creates a new server instance with the following arguments:
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from the same machine.
 - `port` - the TPC port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
   to use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
-- `options` - An object with the server configuration as described in [Server configuration](#server-configuration).
+- `options` - An object with the server configuration as described in [server options](#server-options).
 
 ```javascript
 var Hapi = require('hapi');
@@ -136,7 +137,7 @@ var Hapi = require('hapi');
 var server = Hapi.createServer('localhost', 8000, { cors: true });
 ```
 
-### Server configuration
+### Server options
 
 When creating a server instance, the following options configure the server's behavior:
 
@@ -260,7 +261,7 @@ Each instance of the `Server` object have the following properties:
 - `listener` - the node HTTP server object.
 - `pack` - the [`Pack`](#hapipack) object the server belongs to (automatically assigned when creating a server instance directly).
 - `plugins` - an object where each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
-- `settings` - an object containing the [server configuration](#server-configuration) after applying the defaults.
+- `settings` - an object containing the [server options](#server-options) after applying the defaults.
 
 ### `Server` methods
 
@@ -296,7 +297,12 @@ server.stop({ timeout: 60 * 1000 }, function () {
 
 #### `server.route(options)`
 
-Adds a new route to the server with the following options:
+Adds a new route to the server where:
+- `options` - the route configuration as described in [route options](#route-options).
+
+##### Route options
+
+The following options are available when adding a route:
 - `path` - (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured
   paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
   will be matched against literal values in the request as described in [Path parameters](#path-parameters).
