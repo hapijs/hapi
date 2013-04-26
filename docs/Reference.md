@@ -160,7 +160,7 @@ When creating a server instance, the following options configure the server's be
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web application running inside a browser which are loaded from a different origin than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
-    - `origin` - an array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
+    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
     - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
       will take before the browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
