@@ -1017,6 +1017,11 @@ describe('Response', function () {
 
             var self = this;
 
+            if (this.isDone) {
+                return;
+            }
+            this.isDone = true;
+
             switch (this.issue) {
                 case 'error':
                     if (!this.x) {
@@ -1067,6 +1072,11 @@ describe('Response', function () {
 
             HeadersStream.prototype._read = function (size) {
 
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
                 this.push('hello');
                 this.push(null);
             };
@@ -1103,6 +1113,11 @@ describe('Response', function () {
             Hapi.utils.inherits(HeadersStream, Stream.Readable);
 
             HeadersStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
 
                 this.push('hello');
                 this.push(null);
@@ -1179,6 +1194,11 @@ describe('Response', function () {
         TimerStream.prototype._read = function (size) {
 
             var self = this;
+
+            if (this.isDone) {
+                return;
+            }
+            this.isDone = true;
 
             setTimeout(function () {
 

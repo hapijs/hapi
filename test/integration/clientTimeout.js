@@ -40,6 +40,11 @@ describe('Client Timeout', function () {
 
             var self = this;
 
+            if (this.isDone) {
+                return;
+            }
+            this.isDone = true;
+
             setTimeout(function () {
 
                 self.push('Hello');

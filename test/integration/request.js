@@ -83,6 +83,11 @@ describe('Request', function () {
 
             var self = this;
 
+            if (this.isDone) {
+                return;
+            }
+            this.isDone = true;
+
             self.push('success');
             self.push(null);
 

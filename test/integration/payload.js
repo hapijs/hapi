@@ -321,6 +321,11 @@ describe('Payload', function () {
 
         TestStream.prototype._read = function (size) {
 
+            if (this.isDone) {
+                return;
+            }
+            this.isDone = true;
+
             this.push('{ "key": "value" }');
             this.push(null);
         };
