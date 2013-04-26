@@ -1,11 +1,10 @@
 <a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
 <img src="https://raw.github.com/spumko/hapi/master/images/hapi.png" />
 
-A rich framework for building HTTP web services. **hapi** is a configuration-centric framework in which
-authentication requirements, input validation, data caching and pre-fetching, developer documentation,
-and other essential facilities are provided out-of-the-box and enabled using simple JSON configuration
-objects. **hapi** enables developers to focus on writing reusable business logic instead of spending time
-with everything else.
+A rich framework for building web applications and services. **hapi** is a simple to use configuration-centric
+framework with built-in support for input validation, caching, authentication, and other essential facilities.
+**hapi** enables developers to focus on writing reusable application logic instead of spending time building
+infrastructure. The framework supports a powerful plugin architecture for pain-free and scalable extensibility.
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
