@@ -380,24 +380,24 @@ The following options are available when adding a route:
           The query is parsed into its individual key-value pairs (see
           [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
           `request.query` prior to validation. Values allowed:
-            - `true` or `{}` - any query parameters allowed (no validation performed). This is the default.
+            - `true` - any query parameters allowed (no validation performed). This is the default.
             - `false` - no query parameters allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
 <p></p>
         - `payload` - validation rules for an incoming request payload (request body). Values allowed:
-            - `true` or `{}` - any payload allowed (no validation performed). This is the default.
+            - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
 <p></p>
         - `path` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
           parameters then stored in `request.params`. Values allowed:
-            - `true` or `{}` - any path parameters allowed (no validation performed).  This is the default.
+            - `true` - any path parameters allowed (no validation performed).  This is the default.
             - `false` - no path variables allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
 <p></p>
-        - `response` - validation rules for the outgoing response payload (response body). Values allowed:
-            - `null` - any payload allowed (no validation performed). This is the default.
-            - `false` or `{}` - no payload allowed.
+        - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response. Values allowed:
+            - `true` - any payload allowed (no validation performed). This is the default.
+            - `false` - no payload allowed.
             - an object with the following options:
                 - `schema` - the validation schema as described in the [Joi](http://github.com/spumko/joi) module.
                 - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).

@@ -49,9 +49,7 @@ describe('Validation', function () {
             payload: payload,
             path: routeClone.path,
             method: routeClone.method,
-            _timestamp: Date.now(),
-            route: routeClone.config,
-            response: { result: {} }
+            route: routeClone.config
         };
     };
 
@@ -67,9 +65,7 @@ describe('Validation', function () {
             },
             params: params,
             method: routeClone.method,
-            _timestamp: Date.now(),
-            route: routeClone.config,
-            response: { result: {} }
+            route: routeClone.config
         };
     };
 
