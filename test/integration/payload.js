@@ -7,7 +7,6 @@ var Http = require('http');
 var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');
-var Assert = require('assert');
 var Hapi = require('../..');
 
 
@@ -570,8 +569,7 @@ describe('Payload', function () {
                 expect(request.payload['my_file'].size).to.equal(stats.size);
 
                 var tmpContents = Fs.readFileSync(request.payload['my_file'].path, { encoding: 'binary' });
-                Assert.deepEqual(fileContents, tmpContents);
-
+                expect(fileContents).to.deep.equal(tmpContents);
                 done();
             };
 

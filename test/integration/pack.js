@@ -430,7 +430,7 @@ describe('Pack', function () {
         expect(function () {
 
             server.pack.allow({ ext: true }).require('./pack/--deps1', [{ ext: true }], function (err) { });
-        }).to.throw('Plugin \'--deps1\' missing dependencies: --deps2');
+        }).to.throw('Plugin --deps1 missing dependencies: --deps2');
         done();
     });
 
@@ -450,7 +450,7 @@ describe('Pack', function () {
         expect(function () {
 
             server.pack.allow({ ext: true }).register(plugin, function (err) { });
-        }).to.throw('Plugin \'test\' missing dependencies: none');
+        }).to.throw('Plugin test missing dependencies: none');
         done();
     });
 
@@ -461,7 +461,7 @@ describe('Pack', function () {
         var domain = Domain.create();
         domain.on('error', function (err) {
 
-            expect(err.message).to.equal('Plugin \'--deps1\' missing dependencies: --deps2');
+            expect(err.message).to.equal('Plugin --deps1 missing dependencies: --deps2');
             done();
         });
 
