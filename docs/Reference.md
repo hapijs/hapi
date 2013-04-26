@@ -2,7 +2,7 @@
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
-        - [`createServer([host], [port], [options])`](#createServerhost-port-options)
+    - [`createServer([host], [port], [options])`](#createServerhost-port-options)
     - [Server options](#server-options)
     - [`Server` properties](#server-properties)
     - [`Server` methods](#server-methods)
@@ -131,7 +131,7 @@ var Hapi = require('hapi');
 var server = new Hapi.Server('localhost', 8000, { cors: true });
 ```
 
-##### `createServer([host], [port], [options])`
+#### `createServer([host], [port], [options])`
 
 An alternative method for creating a server instance using the same arguments as `new Server()`.
 
