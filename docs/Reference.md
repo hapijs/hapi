@@ -231,7 +231,7 @@ When creating a server instance, the following options configure the server's be
             - `compile(template, options)` - rendering function. Returns a function with signature `function(context, options)`. Follows the
               convention used in [handlebars](https://github.com/wycats/handlebars.js/).
         - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
-    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
+    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and no
       explicit extension is provided for a given template. No default value.
     - `path` - the root file path used to resolve and load the templates identified when calling `request.reply.view()`. Defaults to current working
       directory.
@@ -285,7 +285,7 @@ server.start(function () {
 #### `server.stop([options], [callback])`
 
 Stops the server by refusing to accept any new connections. Existing connections will continue until closed or timeout (defaults to 5 seconds).
-Once the server stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
+Once the server has stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
 is already stopped, the `callback()` is called on the next tick.
 
 The optional `options` object supports:
