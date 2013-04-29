@@ -3075,7 +3075,4 @@ var handler = function (request) {
 };
 ```
 
-# The End
-
-hapi hapi, joi joi
 
