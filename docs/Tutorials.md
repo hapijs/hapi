@@ -5,7 +5,7 @@
 1. Hapi version 0.15.x or greater is installed
 2. A folder with a package.json and main entry point file exist (index.js)
 
-Please read the reference guide for an overview of creating the [plugin structure](docs/Reference.md#creating-a-plugin).
+Please read the reference guide for an overview of creating the [plugin structure](Reference.md#plugin-interface).
 
 ### Creating an API
 
