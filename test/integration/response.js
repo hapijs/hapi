@@ -728,18 +728,6 @@ describe('Response', function () {
             });
         });
 
-        it('throws an error when adding a route with a parameter and string path', function (done) {
-
-            var fn = function () {
-
-                var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
-                server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: './package.json' } });
-            };
-
-            expect(fn).to.throw(Error);
-            done();
-        });
-
         it('doesn\'t throw an error when adding a route with a parameter and function path', function (done) {
 
             var fn = function () {
