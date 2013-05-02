@@ -8,7 +8,7 @@ infrastructure. The framework supports a powerful plugin architecture for pain-f
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **1.0.0 Release Candidate**
+Current version: **1.0.0**
 
 Node version: **0.10** required
 
@@ -57,7 +57,6 @@ Launch the application (`node .`) and open 'http://localhost:8000/hello' in a br
 - For more **information, tutorials, and references** on the currently published version, visit [**hapijs.com**](http://hapijs.com)
 - Information about the **work-in-progress** in the master branch:
     - [API reference](/docs/Reference.md)
-    - [Tutorials](/docs/Tutorials.md)
     - [Upcoming breaking changes](https://github.com/spumko/hapi/issues?labels=breaking+changes)
 - For **discussions** join the [#hapi channel](http://webchat.freenode.net/?channels=hapi) on irc.freenode.net
 - Any **issues or questions** (no matter how basic), open an issue.

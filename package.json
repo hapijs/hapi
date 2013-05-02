@@ -38,18 +38,18 @@
     "cryptiles": "0.2.x",
     "iron": "0.3.x",
     "async": "0.2.x",
-    "request": "2.16.x",
+    "request": "2.21.x",
     "formidable": "1.0.x",
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
-    "optimist": "0.3.x",
+    "optimist": "0.4.x",
     "negotiator": "0.2.x",
     "semver": "1.1.x"
   },
   "devDependencies": {
     "lab": "0.1.x",
     "handlebars": "1.0.x",
-    "jade": "0.28.x",
+    "jade": "0.30.x",
     "complexity-report": "0.x.x"
   },
   "bin": {
