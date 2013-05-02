@@ -160,7 +160,7 @@ When creating a server instance, the following options configure the server's be
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web application running inside a browser which are loaded from a different origin than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
-    - `origin` - an array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
+    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
     - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
       will take before the browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
@@ -233,7 +233,7 @@ When creating a server instance, the following options configure the server's be
             - `compile(template, options)` - rendering function. Returns a function with signature `function(context, options)`. Follows the
               convention used in [handlebars](https://github.com/wycats/handlebars.js/).
         - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
-    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
+    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and no
       explicit extension is provided for a given template. No default value.
     - `path` - the root file path used to resolve and load the templates identified when calling `request.reply.view()`. Defaults to current working
       directory.
@@ -287,7 +287,7 @@ server.start(function () {
 #### `server.stop([options], [callback])`
 
 Stops the server by refusing to accept any new connections. Existing connections will continue until closed or timeout (defaults to 5 seconds).
-Once the server stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
+Once the server has stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
 is already stopped, the `callback()` is called on the next tick.
 
 The optional `options` object supports:
