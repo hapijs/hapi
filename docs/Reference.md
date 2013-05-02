@@ -278,7 +278,7 @@ ready for new connections. If the server is already started, the `callback()` is
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi();
+var server = new Hapi.Server();
 server.start(function () {
 
     console.log('Server started at: ' + server.info.uri);
