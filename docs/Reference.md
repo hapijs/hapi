@@ -212,6 +212,7 @@ When creating a server instance, the following options configure the server's be
             - `'log'` - report the error but continue processing the request.
             - `'ignore'` - take no action.
         - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies. Defaults to `false`.
+        - `strictHeader` - if `false`, allows any cookie value including values in violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
 <p></p>
 - `timeout` - define timeouts for processing durations:
     - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming client request before giving
