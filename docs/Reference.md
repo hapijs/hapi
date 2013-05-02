@@ -117,13 +117,14 @@
 
 ## `Hapi.Server`
 
-#### `new Server([host], [port], [options])`
+### `new Server([host], [port], [options])`
 
 Creates a new server instance with the following arguments:
+
 - `host` - the hostname or IP address the server is bound to. Defaults to `0.0.0.0` which means any available network
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from the same machine.
 - `port` - the TPC port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
-  To use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
+  to use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
 - `options` - An object with the server configuration as described in [server options](#server-options).
 
 ```javascript
@@ -131,7 +132,7 @@ var Hapi = require('hapi');
 var server = new Hapi.Server('localhost', 8000, { cors: true });
 ```
 
-#### `createServer([host], [port], [options])`
+### `createServer([host], [port], [options])`
 
 An alternative method for creating a server instance using the same arguments as `new Server()`.
 
@@ -145,20 +146,20 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 When creating a server instance, the following options configure the server's behavior:
 
 - `app` - application-specific configuration. Provides a safe place to store application configuration without potential conflicts with **hapi**.
-  Should not be used by plugins as they should use `plugins[name]`.
+  Should not be used by plugins which should use `plugins[name]`.
 <p></p>
 - `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
   or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
   [`server.auth()`](#serverauthname-options).
 <p></p>
-- <a name="server.config.cache" />`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
+- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
   responses and helper results. By default a simple memory-based cache is used which has very limited capacity and is not suitable for production
-  environments. In addition to the memory cache, a Redis-based or a MongoDB-based cache can be configured. Caching is only utilized if routes,
+  environments. In addition to the memory cache, a Redis-based or a MongoDB-based cache can be configured. Actual caching is only utilized if routes,
   helpers, and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The
   `cache` options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
 <p></p>
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
-  required by web application running inside a browser which are loaded from a different origin than the API server. CORS headers are disabled by
+  required by web application running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
     - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
     - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
@@ -176,7 +177,7 @@ When creating a server instance, the following options configure the server's be
       to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response.
       For example, to display all errors, change the option to `['error', 'uncaught']`. To turn off all console debug messages set it to `false`.
 <p></p>
-- <a name="server.config.files" />`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
+- <a name="server.config.files"></a>`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines how relative paths are resolved. Available values:
         - `'cwd'` - relative paths are resolved using the active process path (`process.cwd()`). This is the default setting.
         - `'routes'` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
@@ -186,23 +187,23 @@ When creating a server instance, the following options configure the server's be
 - `labels` - a string array of labels used when registering plugins to [`plugin.select()`](#pluginselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 <p></p>
-- <a name="server.config.location" />`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
+- <a name="server.config.location"></a>`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
   Defaults to the host received in the request HTTP 'Host' header and if missing, to `server.info.uri`.
 <p></p>
-- <a name="server.config.payload" />`payload` - controls how incoming payloads (request body) are processed:
+- <a name="server.config.payload"></a>`payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
 <p></p>
 - `plugins` - plugin-specific configuration. Provides a place to store and pass plugin configuration that is at server-level. The `plugins` is
   an object where each key is a plugin name and the value is the configuration.
 <p></p>
-- <a name="server.config.router" />`router` - controls how incoming request URIs are matched against the routing table:
+- <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
     - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved
       characters, decodes unreserved characters, and capitalizes any percent encoded values. Useful when serving non-compliant HTTP clients.
       Defaults to `false`.
 <p></p>
-- <a name="server.config.state" />`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
+- <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
   request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
     - `cookies` - The server automatically parses incoming cookies based on these options:
         - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the `request.cookies` object. Defaults to `true`.
@@ -211,8 +212,6 @@ When creating a server instance, the following options configure the server's be
             - `'log'` - report the error but continue processing the request.
             - `'ignore'` - take no action.
         - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies. Defaults to `false`.
-        - `strictHeader` - if `false`, allows any cookie value including values in violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults
-          to `true`.
 <p></p>
 - `timeout` - define timeouts for processing durations:
     - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming client request before giving
@@ -225,7 +224,7 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 <p></p>
-- <a name="server.config.views" />`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
+- <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
     - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module name (string) used for
       rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
@@ -233,7 +232,7 @@ When creating a server instance, the following options configure the server's be
             - `compile(template, options)` - rendering function. Returns a function with signature `function(context, options)`. Follows the
               convention used in [handlebars](https://github.com/wycats/handlebars.js/).
         - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
-    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and no
+    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
       explicit extension is provided for a given template. No default value.
     - `path` - the root file path used to resolve and load the templates identified when calling `request.reply.view()`. Defaults to current working
       directory.
@@ -255,6 +254,7 @@ When creating a server instance, the following options configure the server's be
 ### `Server` properties
 
 Each instance of the `Server` object have the following properties:
+
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
 - `helpers` - helper functions registered with [`server.helper()`](#serverhelpername-method-options).
@@ -287,10 +287,11 @@ server.start(function () {
 #### `server.stop([options], [callback])`
 
 Stops the server by refusing to accept any new connections. Existing connections will continue until closed or timeout (defaults to 5 seconds).
-Once the server has stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
+Once the server stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
 is already stopped, the `callback()` is called on the next tick.
 
 The optional `options` object supports:
+
 - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection. Defaults to `5000` (5 seconds).
 
 ```javascript
@@ -303,11 +304,13 @@ server.stop({ timeout: 60 * 1000 }, function () {
 #### `server.route(options)`
 
 Adds a new route to the server where:
+
 - `options` - the route configuration as described in [route options](#route-options).
 
 ##### Route options
 
 The following options are available when adding a route:
+
 - `path` - (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured
   paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
   will be matched against literal values in the request as described in [Path parameters](#path-parameters).
@@ -321,7 +324,7 @@ The following options are available when adding a route:
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
   described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404) 
   error response, or `handler` can be assigned an object with one of:
-    - <a name="route.config.file" />`file` - generates a static file endpoint for serving a single file. `file` can be set to:
+    - <a name="route.config.file"></a>`file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute file path.
         - an object with the following options:
@@ -331,7 +334,7 @@ The following options are available when adding a route:
                 - `'attachment'`
                 - `'inline'`
 <p></p>
-    - <a name="route.config.directory" />`directory` - generates a directory endpoint for serving static content from a directory. Routes using the directory handler must include a
+    - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the directory handler must include a
       single path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does not matter). The path
       parameter can use any of the parameter options (e.g. '{param}' for one level files only, '{param?}' for one level files or the directory root,
       '{param*}' for any level, or '{param*3}' for a specific level). The directory handler is an object with the following options:
@@ -367,7 +370,7 @@ The following options are available when adding a route:
         - `httpClient` - an alternative HTTP client function, compatible with the [**request**](https://npmjs.org/package/request) module `request()`
           interface.
 <p></p>
-    - <a name="route.config.view" />`view` - generates a template-based response. The `view` options is set to the desired template file name.
+    - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` options is set to the desired template file name.
       The view context available to the template includes:
         - `payload` - maps to `request.payload`.
         - `params` - maps to `request.params`.
@@ -407,8 +410,8 @@ The following options are available when adding a route:
                 - `schema` - the validation schema as described in the [Joi](http://github.com/spumko/joi) module.
                 - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
                 - `failAction` - defines what to do when a response fails validation. Options are:
-                    - `'error'` - return an Internal Server Error (500) error response. This is the default value.
-                    - `'log'` - log the error but send the response.
+                    - `error` - return an Internal Server Error (500) error response. This is the default value.
+                    - `log` - log the error but send the response.
 <p></p>
     - `payload` - determines how the request payload is processed. Defaults to `'parse'` if `validate.payload` is set or when `method` is
       `'POST'` or `'PUT'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
@@ -583,6 +586,7 @@ The handler method must call [`request.reply()`](#requestreplyresult) or one of 
 Route handler functions can use one of three declaration styles:
 
 No arguments (the `request` object is bound to `this`, decorated by the `reply` interface):
+
 ```javascript
 var handler = function () {
 
@@ -591,6 +595,7 @@ var handler = function () {
 ```
 
 One argument (the request is passed as an argument, decorated by the `reply` interface):
+
 ```javascript
 var handler = function (request) {
 
@@ -599,6 +604,7 @@ var handler = function (request) {
 ```
 
 Two arguments (the request and the `reply` interface are passed as arguments):
+
 ```javascript
 var handler = function (request, reply) {
 
@@ -615,6 +621,7 @@ not provide any of the [`request.reply`](#requestreplyresult) decorations.
 It is often necessary to perform prerequisite actions before the handler is called (e.g. load required reference data from a database).
 The route `pre` option allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value
 `'parallel'` in which case, all the parallel methods are executed first, then the rest in order. `pre` can be assigned a mixed array of:
+
 - objects with:
     - `method` - the function to call (or short-hand helper string as described below). The function signature is `function(request, next)` where:
         - `request` - the incoming `request` object.
@@ -699,6 +706,7 @@ server.route([
 #### `server.routingTable()`
 
 Returns a copy of the routing table. The return value is an array of routes where each route contains:
+
 - `settings` - the route config with defaults applied.
 - `method` - the HTTP method in lower case.
 - `path` - the route path.
@@ -728,6 +736,7 @@ console.log(table);
 
 The `server.log()` method is used for logging server events that cannot be associated with a specific request. When called the server emits a `'log'`
 event which can be used by other listeners or plugins to record the information or output to the console. The arguments are:
+
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
   and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
   tag along with event-specific information.
@@ -752,6 +761,7 @@ server.log(['test', 'error'], 'Test event');
 
 [HTTP state management](http://tools.ietf.org/html/rfc6265) uses client cookies to persist a state across multiple requests. Cookie definitions
 can be registered with the server using the `server.state()` method, where:
+
 - `name` - is the cookie name.
 - `options` - are the optional cookie settings:
     - `ttl` - time-to-live in milliseconds. Defaults to `null` (session time-life - cookies are deleted when the browser is closed).
@@ -831,9 +841,9 @@ server.views({
 #### `server.auth(name, options)`
 
 Registers an authentication strategy where:
+
 - `name` - is the strategy name (`'default'` is automatically assigned if a single strategy is registered via the server `auth` config).
-- `options` - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared
-  by all schemes:
+- `options` - required strategy options. Each scheme comes with its own set of required options, in addition to the options sharedby all schemes:
     - `scheme` - (required, except when `implementation` is used) the built-in scheme name. Available values:
         - `'basic'` - [HTTP Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
         - `'cookie'` - [cookie authentication](#cookie-authentication)
@@ -846,6 +856,7 @@ Registers an authentication strategy where:
 ##### Basic authentication
 
 Basic authentication requires validating a username and password combination. The `'basic'` scheme takes the following required options:
+
 - `scheme` - set to `'basic'`.
 - `validateFunc` - a user lookup and password validation function with the signature `function(username, password, callback)` where:
     - `username` - the username received from the client.
@@ -897,6 +908,7 @@ form, and upon successful authentication, receive a reply with a session cookie.
 (the cookie uses [Iron](https://github.com/hueniverse/iron) to encrypt and sign the session content) and validated via the provided `validateFunc`
 in case the cookie's encrypted content requires validation on each request. Note that cookie operates as a bearer token and anyone in possession
 of the cookie content can use it to impersonate its true owner. The `'cookie`' scheme takes the following required options:
+
 - `scheme` - set to `'cookie'`.
 - `cookie` - the cookie name. Defaults to `'sid'`.
 - `password` - used for Iron cookie encoding.
@@ -916,6 +928,7 @@ of the cookie content can use it to impersonate its true owner. The `'cookie`' s
           defaults to `session`. If set, will override the current cookie as if `request.auth.session.set()` was called.
 
 When the cookie scheme is enabled on a route, the `request.auth.session` objects is decorated with two methods:
+
 - `set(session)` - sets the current session. Must be called after a successful login to begin the session. `session` must be a non-null object,
   which is set on successful subsequent authentications in `request.auth.credentials`.
 - `clear()` - clears the current session. Used to logout a user.
@@ -1009,6 +1022,7 @@ server.start();
 
 [Hawk authentication](https://github.com/hueniverse/hawk) provides a holder-of-key authentication scheme. The scheme supports payload
 authentication. The scheme requires the following options:
+
 - `scheme` - set to `'hawk'`.
 - `getCredentialsFunc` - credential lookup function with the signature `function(id, callback)` where:
     - `id` - the Hawk credentials identifier.
@@ -1045,6 +1059,7 @@ server.auth('hawk', {
 [Bewit authentication](https://github.com/hueniverse/hawk#single-uri-authorization) provides a short-term access to a protected resource by
 including a token (bewit) in the request query, issued by an authorized party. Bewit is a subset of the Hawk protocol. The scheme can only
 be used with 'GET' requests and requires the following options:
+
 - `scheme` - set to `'bewit'`.
 - `getCredentialsFunc` - credential lookup function with the signature `function(id, callback)` where:
     - `id` - the Hawk credentials identifier.
@@ -1077,6 +1092,7 @@ server.auth('bewit', {
 ```
 
 To send an authenticated Bewit request, the URI must contain the `'bewit'` query parameter which can be generated using the Hawk module:
+
 ```javascript
 var Hawk = require('hawk');
 
@@ -1094,6 +1110,7 @@ uri += '?bewit=' + bewit;
 #### `server.ext(event, method, [options])`
 
 Registers an extension function in one of the available [extension points](#request-lifecycle) where:
+
 - `event` - the event name.
 - `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
   is `function(request, next)` where:
@@ -1133,6 +1150,7 @@ server.start();
 ##### Request lifecycle
 
 Each incoming request passes through a pre-defined set of steps, along with optional extensions:
+
 - **`'onRequest'`** extension point
     - always called
     - the `request` object passed to the extension functions is decorated with the `request.setUrl(url)` and `request.setMethod(verb)` methods. Calls to these methods
@@ -1171,6 +1189,7 @@ a common utility. Their advantage is in the ability to configure them to use the
 handlers without having to create a common module.
 
 Helpers are registered via `server.helper(name, method, [options])` where:
+
 - `name` - a unique helper name used to invoke the method via `server.helpers[name]`.
 - `method` - the helper function with the signature is `function(arg1, arg2, ..., argn, next)` where:
     - `arg1`, `arg2`, etc. - the helper function arguments.
@@ -1243,6 +1262,7 @@ server.helpers.sumObj([5, 6], function (result) {
 Injects a request into the server simulating an incoming HTTP request without making an actual socket connection. Injection is useful for
 testing purposes as well as for invoking routing logic internally without the overhead or limitations of the network stack. Utilizes the
 [**shot**](https://github.com/spumko/shot) module for performing injections, with some additional options and response properties:
+
 - `options` - can be assign a string with the requested URI, or an object with:
     - `method` - the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
     - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host'
@@ -1287,6 +1307,7 @@ server.inject('/', function (res) {
 ### `Server` events
 
 The server object inherits from `Events.EventEmitter` and emits the following events:
+
 - `'log'` - events logged with [server.log()](#serverlogtags-data-timestamp).
 - `'request'` - events generated by [request.log()](#requestlogtags-data-timestamp) or internally (multiple events per request).
 - `'response'` - emitted after a response to a client request is sent back. Single event per request.
@@ -1294,12 +1315,14 @@ The server object inherits from `Events.EventEmitter` and emits the following ev
 - `'internalError'` - emitted whenever an Internal Server Error (500) error response is sent. Single event per request.
 
 When provided (as listed below) the `event` object include:
+
 - `timestamp` - the event timestamp.
 - `id` - if the event relates to a request, the request id.
 - `tags` - an array of tags (e.g. `['error', 'http']`). Includes the `'hapi'` tag is the event was generated internally.
 - `data` - optional event-specific information.
 
 The `'log'` event includes the `event` object and a `tags` object (where each tag is a key with the value `true`):
+
 ```javascript
 server.on('log', function (event, tags) {
 
@@ -1310,6 +1333,7 @@ server.on('log', function (event, tags) {
 ```
 
 The `'request'` event includes the `request` object, the `event` object, and a `tags` object (where each tag is a key with the value `true`):
+
 ```javascript
 server.on('request', function (request, event, tags) {
 
@@ -1320,6 +1344,7 @@ server.on('request', function (request, event, tags) {
 ```
 
 The `'response'` and `'tail'` events include the `request` object:
+
 ```javascript
 server.on('response', function (request) {
 
@@ -1328,6 +1353,7 @@ server.on('response', function (request) {
 ```
 
 The `'internalError'` event includes the `request` object and the causing error `err` object:
+
 ```javascript
 server.on('internalError', function (request, err) {
 
@@ -1344,6 +1370,7 @@ server callback (which is available in `request.raw.req`). The `request` object 
 ### `request` properties
 
 Each request object have the following properties:
+
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
 - `auth` - authentication information:
@@ -1385,6 +1412,7 @@ Each request object have the following properties:
 _Available only in `'onRequest'` extension methods._
 
  Changes the request URI before the router begins processing the request where:
+
  - `url` - the new request path value.
 
 ```javascript
@@ -1404,6 +1432,7 @@ server.ext('onRequest', function (request, next) {
 _Available only in `'onRequest'` extension methods._
 
 Changes the request method before the router begins processing the request where:
+
 - `method` - is the request HTTP method (e.g. `'GET'`).
 
 ```javascript
@@ -1424,6 +1453,7 @@ _Always available._
 
 Logs request-specific events. When called, the server emits a `'request'` event which can be used by other listeners or plugins. The
 arguments are:
+
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
   and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
   tag along with event-specific information.
@@ -1465,6 +1495,7 @@ request.getLog(['hapi', 'error']);
 _Available until immediately after the `'response'` event is emitted._
 
 Adds a request tail which has to complete before the request lifecycle is complete where:
+
 - `name` - an optional tail name used for logging purposes.
 
 Returns a tail function which must be called when the tail activity is completed.
@@ -1504,6 +1535,7 @@ server.on('tail', function (request) {
 _Available until immediately after the `'onPreResponse'` extension point methods are called._
 
 Sets a cookie which is sent with the response, where:
+
 - `name` - the cookie name.
 - `value` - the cookie value. If no `encoding` is defined, must be a string.
 - `options` - optional configuration. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
@@ -1518,6 +1550,7 @@ request.setState('preferences', { color: 'blue' }, { encoding: 'base64json' });
 _Available until immediately after the `'onPreResponse'` extension point methods are called._
 
 Clears a cookie which sets an expired cookie and sent with the response, where:
+
 - `name` - the cookie name.
 
 ```javascript
@@ -1530,9 +1563,11 @@ _Available only within the handler method and only before one of `request.reply(
 `request.reply.close()` is called._
 
 Concludes the handler activity by returning control over to the router where:
+
 - `result` - an optional response payload.
 
 Returns a [`response`](#response-types) object based on the value of `result`:
+
 - `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
 - string - [`Text`](#text) response.
 - `Buffer` object - [`Buffer`](#buffer) response.
@@ -1567,6 +1602,7 @@ _Available only within the handler method and only before one of `request.reply(
 `request.reply.close()` is called._
 
 Concludes the handler activity by returning control over to the router with a redirection response where:
+
 - `uri` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
   the server [`location`](#server.config.location) configuration option is used as prefix.
 
@@ -1589,6 +1625,7 @@ _Available only within the handler method and only before one of `request.reply(
 `request.reply.close()` is called._
 
 Concludes the handler activity by returning control over to the router with a templatized view response where:
+
 - `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
 - `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
 - `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
@@ -1618,6 +1655,7 @@ http.route({ method: 'GET', path: '/', handler: handler });
 ```
 
 **templates/hello.html**
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -1651,6 +1689,7 @@ The [response flow control rules](#flow-control) **do not** apply.
 _Always available._
 
 Returns a [`View`](#view) response object using the request environment where:
+
 - `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
 - `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
 - `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
@@ -1708,6 +1747,7 @@ server.ext('onPostHandler', function (request, next) {
 When calling `request.reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
 This enables making changes to the returned response object before the response is sent. This means the router will resume as soon as the handler
 method exists. To suspend this behavior, the returned `response` object includes:
+
 - `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `request.reply()` is called and until
   `response.hold()` is invoked once.
 - `response.send()` - resume the response which will be transmitted in the next tick. Available only after `response.hold()` is called and until
@@ -1728,6 +1768,7 @@ var handler = function () {
 ### Response types
 
 Every response type must include the following properties:
+
 - `variety` - the response type name in lower case (e.g. `'text'`).
 - `varieties` - an object where each key has a `true` value and represents a response type name (in lower case) whose functionality is made
   available via the response object (e.g. the `File` response type `varieties` object is `{ generic: true, stream: true, file: true }`).
@@ -1736,6 +1777,7 @@ Every response type must include the following properties:
 
 The `Generic` response type is used as the parent prototype for all other response types. It cannot be instantiated directly and is only made available
 for deriving other response types. It provides the following methods: 
+
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
 - `header(name, value)` - sets an HTTP header where:
@@ -1760,6 +1802,7 @@ for deriving other response types. It provides the following methods:
 An empty response body (content-length of zero bytes). Supports all the methods provided by [`Generic`](#generic).
 
 Generated with:
+
 - `request.reply()` - without any arguments.
 - `new Hapi.response.Empty()`
 
@@ -1779,12 +1822,14 @@ var handler2 = function () {
 #### `Text`
 
 Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all the methods provided by [`Generic`](#generic) as well as:
+
 - `message(text, [type, [encoding]])` - sets or replace the response text where:
     - `text` - the text content.
     - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
     - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
 
 Generated with:
+
 - `request.reply(result)` - where:
     - `result` - must be a non-empty string.
 - `new Hapi.response.Text(text, [type, [encoding]])` - same as `message()` above.
@@ -1814,6 +1859,7 @@ var handler3 = function () {
 Buffer response. Supports all the methods provided by [`Generic`](#generic).
 
 Generated with:
+
 - `request.reply(result)` - where:
     - `result` - must be a `Buffer`.
 - `new Hapi.response.Buffer(buffer)` - where:
@@ -1837,10 +1883,12 @@ var handler2 = function () {
 #### `Stream`
 
 Replies with a stream object, directly piped into the HTTP response. Supports all the methods provided by [`Generic`](#generic) as well as:
+
 - `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
     - `length` - the header value. Must match the actual payload size.
 
 Generated with:
+
 - `request.reply(result)` - where:
     - `result` - must be a [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable) or a node 0.8.x `Stream`.
 - `new Hapi.response.Stream(stream)` - where:
@@ -1886,6 +1934,7 @@ var handler3 = function () {
 
 JavaScript object, sent stringified. The 'Content-Type' header defaults to 'application/json'. Supports all the methods provided by
 [`Generic`](#generic) as well as:
+
 - `raw` - the unmodified, unstringified object. Any direct manipulation must be followed with `update()`.
 - `update(type, encoding)` - updates the string representation of the object response after changes to `raw` where:
     - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
@@ -1907,6 +1956,7 @@ server.ext('onPostHandler', function (request, next) {
 ```
 
 Generated with:
+
 - `request.reply(result)` - where:
     - `result` - must be an object.
 - `new Hapi.response.Obj(object, [type, [encoding]])` - where:
@@ -1933,6 +1983,7 @@ Transmits a file from the file system. The 'Content-Type' header defaults to the
 provided by [`Stream`](#stream).
 
 Generated with:
+
 - `new Hapi.response.File(filePath, [options])` - where:
     - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
     - `options` - optional configuration:
@@ -1962,6 +2013,7 @@ Transmits a file or list of files from the file system. The 'Content-Type' heade
 extension. This is an internal response time that can only be accessed via the built-in route handler.
 
 Generated with:
+
 - the built-in route [`directory`](#route.config.directory) handler.
 
 ```javascript
@@ -1991,6 +2043,7 @@ http.route({ method: 'GET', path: '/2/{path*}', handler: handler2 });
 #### `Redirection`
 
 An HTTP redirection response (3xx). Supports all the methods provided by [`Text`](#text) (except for `created()`) as well as the additional methods:
+
 - `uri(dest)` - set the destination URI where:
     - `uri` - overrides the destination. An absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the
       value of the server [`location`](#server.config.location) configuration option is used as prefix.
@@ -2003,7 +2056,7 @@ An HTTP redirection response (3xx). Supports all the methods provided by [`Text`
   `permanent()` setting. Arguments:
     - `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
 
-|                |	Permanent	| Temporary |
+|                |  Permanent   | Temporary |
 | -------------- | ---------- | --------- |
 | Rewritable     | 301        | **302**(1)|
 | Non-rewritable | 308(2)     | 307       |
@@ -2013,6 +2066,7 @@ Notes:
 2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
 
 Generated with:
+
 - `request.reply.redirect(uri)` - as described in [`request.reply.redirect()`](#requestreplyredirecturi).
 - `new Hapi.response.Redirection(uri, [message, [type, [encoding]]])` - where:
     - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
@@ -2041,6 +2095,7 @@ var handler2 = function () {
 Template-based response. Supports all the methods provided by [`Generic`](#generic).
 
 Generated with:
+
 - `request.reply.view(template, [context, [options]])` - as described in [`request.reply.view()`](#requestreplyviewtemplate-context-options).
 - `request.generateView(template, context, [options])` - as described in [`request.generateView()`](#requestgenerateviewtemplate-context-options).
 - the built-in route [`view`](#route.config.view) handler.
@@ -2082,6 +2137,7 @@ server.route({ method: 'GET', path: '/3/{user}', handler: { view: 'hello' } });
 ```
 
 **templates/hello.html**
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -2105,6 +2161,7 @@ is only made available for deriving other response types.
 
 Provides a set of utilities for returning HTTP errors. An alias of the [**boom**](https://github.com/spumko/boom) module (can be also accessed
 `Hapi.boom`). Each utility returns a `Boom` error response object (instance of `Error`) which includes the following properties:
+
 - `isBoom` - if `true`, indicates this is a `Boom` object instance.
 - `message` - the error message.
 - `response` - the formatted response. Can be directly manipulated after object construction to return a custom error response. Allowed root keys:
@@ -2119,6 +2176,7 @@ Provides a set of utilities for returning HTTP errors. An alias of the [**boom**
 - inherited `Error` properties.
 
 It also supports the following method:
+
 - `reformat()` - rebuilds `error.response` using the other object properties.
 
 ```javascript
@@ -2174,6 +2232,7 @@ Hapi.error.badRequest('Invalid parameter value');
 #### `unauthorized(message, [scheme, [attributes]])`
 
 Returns an HTTP Unauthorized (401) error response object where:
+
 - `message` - the error message.
 - `scheme` - optional HTTP authentication scheme name (e.g. `'Basic'`, `'Hawk'`). If provided, includes the HTTP 'WWW-Authenticate'
   response header with the scheme and any provided `attributes`.
@@ -2187,6 +2246,7 @@ Hapi.error.unauthorized('Stale timestamp', 'Hawk', { ts: fresh, tsm: tsm });
 #### `unauthorized(message, wwwAuthenticate)`
 
 Returns an HTTP Unauthorized (401) error response object where:
+
 - `message` - the error message.
 - `wwwAuthenticate` - an array of HTTP 'WWW-Authenticate' header responses for multiple challenges.
 
@@ -2234,10 +2294,12 @@ Hapi.error.notFound('Wrong number');
 #### `internal([message, [data]])`
 
 Returns an HTTP Internal Server Error (500) error response object where:
+
 - `message` - the error message.
 - `data` - optional data used for error logging. Typically set to the `Error` object causing the failure.
 
 The returned error object includes the following additional properties:
+
 - `data` - the `data` object provided.
 - `trace` - the call stack leading to this error. If `data` is an `Error` object, `trace` is set to `data.trace`.
 - `outterTrace` - If `data` is an `Error` object, set to the call stack leading to this error, otherwise `null`.
@@ -2265,6 +2327,7 @@ var handler = function () {
 #### `passThrough(code, payload, contentType, headers)`
 
 Returns a custom HTTP error response object where:
+
 - `code` - the HTTP status code (typically 4xx or 5xx).
 - `payload` - the error payload string or `Buffer`.
 - `contentType` - a mime-type used as the content of the HTTP 'Content-Type' header (overrides `headers['Content-Type']` if present in both).
@@ -2290,6 +2353,7 @@ The servers in a pack share the same cache. Every server belongs to a pack, even
 #### `new Pack([options])`
 
 Creates a new `Pack` object instance where:
+
 - `options` - optional configuration:
     - `app` - an object used to initialize the application-specific data stored in `pack.app`.
     - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
@@ -2303,6 +2367,7 @@ var pack = new Hapi.Pack();
 ### `Pack` properties
 
 Each `Pack` object instance has the following properties:
+
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Initialized via the pack `app` configuration option. Defaults to `{}`.
 - `events` - an `Events.EventEmitter` providing a consolidate emitter of all the events emitted from all member pack servers.
@@ -2320,7 +2385,7 @@ Creates a `Server` instance and adds it to the pack, where `host`, `port`, `opti
 [`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
 configured via the pack `cache` option.
 
-```javascrip
+```javascript
 var Hapi = require('hapi');
 var pack = new Hapi.Pack();
 
@@ -2332,7 +2397,7 @@ pack.server(8001, { labels: ['admin'] });
 
 Starts all the servers in the pack and used as described in [`server.start([callback])`](#serverstartcallback).
 
-```javascrip
+```javascript
 var Hapi = require('hapi');
 var pack = new Hapi.Pack();
 
@@ -2349,7 +2414,7 @@ pack.start(function () {
 
 Stops all the servers in the pack and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
 
-```javascrip
+```javascript
 pack.stop({ timeout: 60 * 1000 }, function () {
 
     console.log('All servers stopped');
@@ -2360,11 +2425,13 @@ pack.stop({ timeout: 60 * 1000 }, function () {
 
 Overrides the default plugin permissions when [requiring](#packrequirename-options-callback) or [registering](#packregisterplugin-options-callback)
 a plugin. Where:
+
 - `permissions` - an object where each key is a permission name and the value is a boolean set to `true` (allow) or `false` (deny) access.
 
 Returns a plugin registration interface with the `pack.require()` and `pack.register()` methods.
 
 The default permissions are:
+
 - `auth` - allows registering an authentication strategy via [`plugin.auth()`](#pluginauthname-options). Defaults to `true`.
 - `cache` - allows provisioning a plugin cache segment via [`plugin.cache()`](#plugincacheoptions). Defaults to `true`.
 - `events` - allows access to events via [`plugin.events`](#pluginevents). Defaults to `true`.
@@ -2374,7 +2441,7 @@ The default permissions are:
 - `state` - allows configuring state definitions via [`plugin.state()`](#pluginstatename-options). Defaults to `true`.
 - `views` - allows configuring a plugin-specific views manager via [`plugin.views()`](#pluginviewsoptions). Defaults to `true`.
 
-```javascrip
+```javascript
 var Hapi = require('hapi');
 var pack = new Hapi.Pack();
 
@@ -2392,6 +2459,7 @@ pack.allow({ ext: true }).require('yar', function (err) {
 #### `pack.require(name, [options], callback)`
 
 Registers a plugin where:
+
 - `name` - the node module name as expected by node's [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id). If `name` is a relative
   path, prefixed with the value of the pack `requirePath` configuration option.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
@@ -2413,6 +2481,7 @@ pack.require('furball', { version: '/v' }, function (err) {
 #### `pack.require(names, callback)`
 
 Registers a list of plugins where:
+
 - `names` - an array of plugins names as described in [`pack.require()`](#packrequirename-options-callback), or an object in which
   each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options` value is an array,
   the first array item is used as [`permissions`](#packallowpermissions), and the second item is used as `options`.
@@ -2442,6 +2511,7 @@ pack.require({ furball: null, lout: { endpoint: '/docs' } }, function (err) {
 #### `pack.register(plugin, options, callback)`
 
 Registers a plugin object (without using `require()`) where:
+
 - `plugin` - the plugin object which requires:
     - `name` - plugin name.
     - `version` - plugin version.
@@ -2481,6 +2551,7 @@ and registering plugins.
 #### `new Composer(manifest)`
 
 Creates a `Composer` object instance where:
+
 - `manifest` - an object or array or objects where:
     - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options).
     - `server` - an array of server configuration object where:
@@ -2531,6 +2602,7 @@ var composer = new Hapi.Composer(manifest);
 #### `composer.compose(callback)`
 
 Creates the packs described in the manifest construction where:
+
 - `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
   `function(err)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
@@ -2548,9 +2620,10 @@ composer.compose(function (err) {
 #### `composer.start([callback])`
 
 Starts all the servers in all the pack composed where:
+
 - `callback` - the callback method called when all the servers have been started.
 
-```javascrip
+```javascript
 composer.start(function () {
 
     console.log('All servers started');
@@ -2561,7 +2634,7 @@ composer.start(function () {
 
 Stops all the servers in all the packs and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
 
-```javascrip
+```javascript
 pack.stop({ timeout: 60 * 1000 }, function () {
 
     console.log('All servers stopped');
@@ -2575,6 +2648,7 @@ application business logic. Instead of thinking about a web server as a single e
 break their application into logical units, assembled together in different combinations to fit the development, testing, and deployment needs.
 
 Constructing a plugin requires the following:
+
 - name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive their name
   from the registry name. This ensures uniqueness. Private plugin names should be picked carefully to avoid conflicts with both private and public
   names. Typically, private plugin names use a prefix such as the company name or an unusual combination of characters (e.g. `'--'`). When using the
@@ -2593,6 +2667,7 @@ Constructing a plugin requires the following:
   When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the function is provided as a required key in `plugin`.
 
 **package.json**
+
 ```json
 {
   "name": "furball",
@@ -2609,6 +2684,7 @@ Constructing a plugin requires the following:
 ```
 
 **index.js**
+
 ```javascript
 var Hoek = require('hoek');
 
@@ -2670,6 +2746,7 @@ exports.register = function (plugin, options, next) {
 #### `exports.register(plugin, options, next)`
 
 Registers the plugin where:
+
 - `plugin` - the registration interface representing the pack the plugin is being registered into. Provides the properties and methods listed below, based
   on the permissions granted.
 - `options` - the `options` object provided by the pack registration methods.
@@ -2782,6 +2859,7 @@ exports.register = function (plugin, options, next) {
 #### `plugin.dependency(deps)`
 
 Declares a required dependency other plugins where:
+
 - `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
   must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
   should be implemented using [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
@@ -2841,6 +2919,7 @@ exports.register = function (plugin, options, next) {
 _Requires the `cache` plugin permission._
 
 Provisions a plugin cache segment within the pack's common caching facility where:
+
 - `options` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy):
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
@@ -2869,6 +2948,7 @@ servers.
 #### `plugin.select(labels)`
 
 Selects a subset of pack servers using the servers' `labels` configuration option where:
+
 - `labels` - a single string or array of strings of labels used as a logical OR statement to select all the servers with matching
   labels in their configuration.
 
@@ -2900,6 +2980,7 @@ exports.register = function (plugin, options, next) {
 #### `plugin.api(key, value)`
 
 Adds an plugin API to the `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
+
 - `key` - the key assigned (`server.plugins[name][key]`).
 - `value` - the value assigned.
 
@@ -2915,6 +2996,7 @@ exports.register = function (plugin, options, next) {
 
 Merges a deep copy of an object into to the existing content of the `server.plugins[name]` ('name' of plugin) object of each
 selected pack server where:
+
 - `obj` - the object merged into the API container.
 
 ```javascript
@@ -3036,6 +3118,7 @@ See [**joi** Types](https://github.com/spumko/joi#type-registry).
 
 Prepares a cookie value manually outside of the normal outgoing cookies processing flow. Used when decisions have to be made about
 the use of cookie values when certain conditions are met (e.g. stringified object string too long). Arguments:
+
 - `name` - the cookie name.
 - `value` - the cookie value. If no `encoding` is defined, must be a string.
 - `options` - configuration override. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
@@ -3074,5 +3157,4 @@ var handler = function (request) {
     });
 };
 ```
-
 
