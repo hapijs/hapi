@@ -39,7 +39,7 @@
     "iron": "0.3.x",
     "async": "0.2.x",
     "request": "2.21.x",
-    "formidable": "1.0.x",
+    "formidable": "1.0.13",
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
     "optimist": "0.4.x",
