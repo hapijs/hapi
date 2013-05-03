@@ -302,8 +302,14 @@ describe('Payload', function () {
             request.reply(request.payload.key);
         };
 
+        var textHandler = function (request) {
+
+            request.reply(request.payload + '+456');
+        };
+
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
+        server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
         server.route({ method: '*', path: '/any', handler: handler });
 
         before(function (done) {
@@ -425,24 +431,12 @@ describe('Payload', function () {
 
         it('returns 200 on text mime type', function (done) {
 
-            var options = {
-                hostname: 'localhost',
-                port: server.info.port,
-                path: '/?x=5',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain',
-                    'Content-Length': '18'
-                }
-            };
-
-            var req = Http.request(options, function (res) {
+            server.inject({ method: 'POST', url: '/text', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('testing123+456');
                 done();
             });
-
-            req.end('{ "key": "value" }');
         });
     });
 
