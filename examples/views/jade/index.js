@@ -29,7 +29,7 @@ internals.main = function () {
 
     var options = {
         views: {
-            engines: { html: 'jade' },
+            engines: { jade: 'jade' },
             path: __dirname + '/templates',
             compileOptions: {
                 pretty: true
