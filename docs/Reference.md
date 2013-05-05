@@ -1270,7 +1270,7 @@ testing purposes as well as for invoking routing logic internally without the ov
       header, unless one was specified in `headers`.
     - `headers` - an object with optional request headers where each key is the header name and the value is the header content. Defaults
       to no additions to the default Shot headers.
-    - `payload` - an optional string or buffer containing the request payload. Defaults to no payload.
+    - `payload` - an optional string or buffer containing the request payload (as a JSON string). Defaults to no payload.
     - `credentials` - an optional credentials object containing authentication information. The `credentials` are used to bypass the default
       authentication strategies, and are validated directly as if they were received via an authentication scheme. Defaults to no credentials.
     - `simulate` - an object with options used to simulate client request stream conditions for testing:
