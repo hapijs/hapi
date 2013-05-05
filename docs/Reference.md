@@ -166,7 +166,7 @@ When creating a server instance, the following options configure the server's be
       will take before the browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
     - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep the default headers in place.
-    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods'). Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']`.
+    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods'). Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
     - `additionalMethods` - a strings array of additional methods to `methods`. Use this to keep the default methods in place.
     - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers'). Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
     - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
