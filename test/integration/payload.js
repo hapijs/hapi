@@ -335,7 +335,7 @@ describe('Payload', function () {
             this.push(null);
         };
 
-        it('sets parse mode when route methos is * and request is POST or PUT', function (done) {
+        it('sets parse mode when route methos is * and request is POST, PATCH or PUT', function (done) {
 
             server.inject({ url: '/any', method: 'POST', headers: { 'Content-Type': 'application/json' }, payload: '{ "key": "09876" }' }, function (res) {
 

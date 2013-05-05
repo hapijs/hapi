@@ -56,7 +56,7 @@ describe('Payload', function () {
             });
         });
 
-        it('passes null to the callback when the method is not put or post', function (done) {
+        it('passes null to the callback when the method is not put, patch or post', function (done) {
             var request = {
                 _timestamp: Date.now(),
                 method: 'delete',
