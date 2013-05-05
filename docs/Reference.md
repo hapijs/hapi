@@ -166,7 +166,7 @@ When creating a server instance, the following options configure the server's be
       will take before the browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
     - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep the default headers in place.
-    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods'). Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
+    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods'). Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']`.
     - `additionalMethods` - a strings array of additional methods to `methods`. Use this to keep the default methods in place.
     - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers'). Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
     - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
@@ -316,7 +316,7 @@ The following options are available when adding a route:
   paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
   will be matched against literal values in the request as described in [Path parameters](#path-parameters).
 <p></p>
-- `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'.
+- `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'.
   Use `*` to match against any HTTP method (only when an exact match was not found).
 <p></p>
 - `vhost` - an optional domain string or an array of domain strings for limiting the route to only requests with a matching host header field.
@@ -415,7 +415,7 @@ The following options are available when adding a route:
                     - `log` - log the error but send the response.
 <p></p>
     - `payload` - determines how the request payload is processed. Defaults to `'parse'` if `validate.payload` is set or when `method` is
-      `'POST'` or `'PUT'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
+      `'POST'`, `'PUT'` or `'PATCH'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
        Options are:
         - `'stream'` - the incoming request stream is left untouched, leaving it up to the handler to process the request via `request.raw.req`.
         - `'raw'` - the payload is read and stored in `request.rawPayload` as a `Buffer` and is not parsed.
