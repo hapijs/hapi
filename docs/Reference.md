@@ -2558,7 +2558,7 @@ Creates a `Composer` object instance where:
 
 - `manifest` - an object or array or objects where:
     - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options).
-    - `server` - an array of server configuration object where:
+    - `servers` - an array of server configuration objects where:
         - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
           `cache` option is not allowed and must be configured via the pack `cache` option.
     - `plugin` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options`
