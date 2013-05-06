@@ -1,4 +1,4 @@
-# 1.0.x API Reference
+# 1.1.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -230,8 +230,10 @@ When creating a server instance, the following options configure the server's be
     - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module name (string) used for
       rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
         - `module` - the npm module name (string) to require or an object with:
-            - `compile(template, options)` - rendering function. Returns a function with signature `function(context, options)`. Follows the
-              convention used in [handlebars](https://github.com/wycats/handlebars.js/).
+            - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
+              `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
+              and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
+              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature `function(context, options)`.
         - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
     - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
       explicit extension is provided for a given template. No default value.
@@ -251,6 +253,7 @@ When creating a server instance, the following options configure the server's be
     - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
     - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
     - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
+    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
 
 ### `Server` properties
 
