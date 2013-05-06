@@ -37,6 +37,56 @@ describe('Views', function () {
             layout: true
         });
 
+        it('renders with async compile', function (done) {
+
+            var views = new Views({
+                path: viewsPath,
+                engines: {
+                    'html': {
+                        compileMode: 'async',
+                        module: {
+                            compile: function (string, options, callback) {
+
+                                callback(null, require('handlebars').compile(string, options));
+                            }
+                        }
+                    }
+                }
+            });
+
+            views.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered.length).above(1);
+                done();
+            });
+        });
+
+        it('returns error on sync compile that throws', function (done) {
+
+            var views = new Views({
+                path: viewsPath,
+                engines: {
+                    'html': {
+                        compileMode: 'sync',
+                        module: {
+                            compile: function (string, options) {
+
+                                throw (new Error('Bad bad view'));
+                            }
+                        }
+                    }
+                }
+            });
+
+            views.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+
+                expect(err).to.exist;
+                expect(err.message).to.equal('Bad bad view');
+                done();
+            });
+        });
+
         it('should work and not throw with valid (no layouts)', function (done) {
 
             testView.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
