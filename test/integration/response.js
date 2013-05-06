@@ -3,6 +3,7 @@
 var Lab = require('lab');
 var Fs = require('fs');
 var Stream = require('stream');
+var Zlib = require('zlib');
 var Request = require('request');
 var Hapi = require('../..');
 var ResponseError = require('../../lib/response/error');
@@ -136,6 +137,37 @@ describe('Response', function () {
                 expect(res.payload).to.equal('me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(21);
                 done();
+            });
+        });
+
+        it('returns an JSONP response with compression', function (done) {
+
+            var handler = function () {
+
+                var parts = this.params.name.split('/');
+                this.reply({ first: parts[0], last: parts[1] });
+            };
+
+            var server = new Hapi.Server();
+            server.route({
+                method: 'GET',
+                path: '/user/{name*2}',
+                config: {
+                    handler: handler,
+                    jsonp: 'callback'
+                }
+            });
+
+            server.inject({ url: '/user/1/2?callback=docall', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+                expect(res.headers['content-encoding']).to.equal('gzip');
+                Zlib.unzip(res.rawPayload, function (err, result) {
+
+                    expect(err).to.not.exist;
+                    expect(result.toString()).to.equal('docall({"first":"1","last":"2"});');
+                    done();
+                });
             });
         });
 
