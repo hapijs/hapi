@@ -139,6 +139,36 @@ describe('Response', function () {
             });
         });
 
+        it('returns an JSONP response with path param', function (done) {
+
+            var handler = function () {
+
+                var parts = this.params.name.split('/');
+                this.reply({ first: parts[0], last: parts[1] });
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({
+                method: 'GET',
+                path: '/user/{name*2}',
+                config: {
+                    handler: handler,
+                    jsonp: 'callback'
+                }
+            });
+
+            server.start(function () {
+
+                Request(server.info.uri + '/user/1/2?callback=docall', function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal('docall({"first":"1","last":"2"});');
+                    expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+                    done();
+                });
+            });
+        });
+
         it('returns an JSONP response when response is a buffer', function (done) {
 
             var handler = function (request) {
