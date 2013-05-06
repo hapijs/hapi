@@ -476,6 +476,9 @@ The following options are available when adding a route:
                 - `user` - the authentication must be on behalf of a user.
                 - `app` - the authentication must be on behalf of an application.
 <p></p>
+    - `jsonp` - enables JSONP support by setting the value to the function name of the callback method. For example, if the value is `'callback'` and
+      the JSON response is `'{ "a":"b" }'`, the payload will be: `'callback({ "a":"b" });'`
+<p></p>
     - `description` - route description used for generating documentation (string).
     - `notes` - route notes used for generating documentation (string or array of strings).
     - `tags` - route tags used for generating documentation (array of strings).
