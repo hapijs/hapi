@@ -923,6 +923,7 @@ of the cookie content can use it to impersonate its true owner. The `'cookie`' s
 - `ttl` - sets the cookie expires time in milliseconds. Defaults to single browser session (ends when browser closes).
 - `clearInvalid` - if `true`, any authentication cookie that fails validation will be marked as expired in the response and cleared. Defaults to `false`.
 - `isSecure` - if `false`, the cookie is allowed to be transmitted over insecure connections which exposes it to attacks. Defaults to `true`.
+- `isHttpOnly` - if `false`, the cookie will not include the 'HttpOnly' flag. Defaults to `true`.
 - `redirectTo` - optional login URI to redirect unauthenticated requests to. Defaults to no redirection.
 - `appendNext` - if `true` and `redirectTo` is `true`, appends the current request path to the query component of the `redirectTo` URI using the
   parameter name `'next'`. Set to a string to use a different parameter name. Defaults to `false`.
