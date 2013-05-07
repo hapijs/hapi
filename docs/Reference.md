@@ -429,6 +429,7 @@ The following options are available when adding a route:
               format is unknown, a Bad Request (400) error response is sent. The supported mime types are:
                 - application/json
                 - application/x-www-form-urlencoded
+                - application/octet-stream
                 - multipart/form-data ([formidable](https://npmjs.org/package/formidable) is used for processing this data and is capable of
                   receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
             - `'try'` - same as `'parse'` but does not return an error on failed parsing. Instead, leaves `request.payload` undefined.

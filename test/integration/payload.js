@@ -454,6 +454,16 @@ describe('Payload', function () {
                 done();
             });
         });
+
+        it('returns 200 on application/octet-stream mime type', function (done) {
+
+            server.inject({ method: 'POST', url: '/try', payload: 'not ', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('not failed');
+                done();
+            });
+        });
     });
 
     describe('unzip', function () {
