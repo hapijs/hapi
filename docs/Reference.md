@@ -417,19 +417,21 @@ The following options are available when adding a route:
                     - `error` - return an Internal Server Error (500) error response. This is the default value.
                     - `log` - log the error but send the response.
 <p></p>
-    - `payload` - determines how the request payload is processed. Defaults to `'parse'` if `validate.payload` is set or when `method` is
-      `'POST'`, `'PUT'` or `'PATCH'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
-       Options are:
-        - `'stream'` - the incoming request stream is left untouched, leaving it up to the handler to process the request via `request.raw.req`.
-        - `'raw'` - the payload is read and stored in `request.rawPayload` as a `Buffer` and is not parsed.
-        - `'parse'` - the payload is read and stored in `request.rawPayload` as a `Buffer`, and then parsed (JSON or form-encoded) and stored
-          in `request.payload`. Parsing is performed based on the incoming request 'Content-Type' header. If the parsing is enabled and the
-          format is unknown, a Bad Request (400) error response is sent. The supported mime types are:
-            - application/json
-            - application/x-www-form-urlencoded
-            - multipart/form-data ([formidable](https://npmjs.org/package/formidable) is used for processing this data and is capable of
-              receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
-        - `'try'` - same as `'parse'` but does not return an error on failed parsing. Instead, leaves `request.payload` undefined.
+    - `payload` - determines how the request payload is processed. `payload` can be assigned a string with the parsing mode directly (e.g. `'parse'`)
+      which will use the default values of the other settings, or an object with the following:
+        - `mode` - the parsing mode. Defaults to `'parse'` if `validate.payload` is set or when `method` is
+          `'POST'`, `'PUT'` or `'PATCH'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
+          Options are:
+            - `'stream'` - the incoming request stream is left untouched, leaving it up to the handler to process the request via `request.raw.req`.
+            - `'raw'` - the payload is read and stored in `request.rawPayload` as a `Buffer` and is not parsed.
+            - `'parse'` - the payload is read and stored in `request.rawPayload` as a `Buffer`, and then parsed (JSON or form-encoded) and stored
+              in `request.payload`. Parsing is performed based on the incoming request 'Content-Type' header. If the parsing is enabled and the
+              format is unknown, a Bad Request (400) error response is sent. The supported mime types are:
+                - application/json
+                - application/x-www-form-urlencoded
+                - multipart/form-data ([formidable](https://npmjs.org/package/formidable) is used for processing this data and is capable of
+                  receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
+            - `'try'` - same as `'parse'` but does not return an error on failed parsing. Instead, leaves `request.payload` undefined.
 <p></p>
     - `cache` - if the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
