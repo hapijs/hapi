@@ -233,12 +233,13 @@ describe('Request', function () {
 
         var orig = console.error;
         var prints = 0;
-        console.error = function (msg) {
+        console.error = function () {
 
             ++prints;
 
             if (prints === 1) {
-                expect(msg).to.equal('Unmonitored error: hapi, uncaught, handler, error');
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('hapi, uncaught, handler, error');
             }
             else {
                 console.error = orig;
