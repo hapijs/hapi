@@ -297,20 +297,26 @@ describe('Payload', function () {
 
     describe('parse mode', function () {
 
-        var handler = function (request) {
+        var handler = function () {
 
-            request.reply(request.payload.key);
+            this.reply(this.payload.key);
         };
 
-        var textHandler = function (request) {
+        var textHandler = function () {
 
-            request.reply(request.payload + '+456');
+            this.reply(this.payload + '+456');
+        };
+
+        var tryHandler = function () {
+
+            this.reply(this.rawPayload.toString() + 'failed');
         };
 
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
         server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
         server.route({ method: '*', path: '/any', handler: handler });
+        server.route({ method: 'POST', path: '/try', config: { handler: tryHandler, payload: 'try' } });
 
         before(function (done) {
 
@@ -335,7 +341,7 @@ describe('Payload', function () {
             this.push(null);
         };
 
-        it('sets parse mode when route methos is * and request is POST, PATCH or PUT', function (done) {
+        it('sets parse mode when route methos is * and request is POST', function (done) {
 
             server.inject({ url: '/any', method: 'POST', headers: { 'Content-Type': 'application/json' }, payload: '{ "key": "09876" }' }, function (res) {
 
@@ -435,6 +441,16 @@ describe('Payload', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('testing123+456');
+                done();
+            });
+        });
+
+        it('returns 200 on invalid payload with try mode', function (done) {
+
+            server.inject({ method: 'POST', url: '/try', payload: 'tried but ' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('tried but failed');
                 done();
             });
         });

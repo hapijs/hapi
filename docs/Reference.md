@@ -429,6 +429,7 @@ The following options are available when adding a route:
             - application/x-www-form-urlencoded
             - multipart/form-data ([formidable](https://npmjs.org/package/formidable) is used for processing this data and is capable of
               receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
+        - `'try'` - same as `'parse'` but does not return an error on failed parsing. Instead, leaves `request.payload` undefined.
 <p></p>
     - `cache` - if the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
