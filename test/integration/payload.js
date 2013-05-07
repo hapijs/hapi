@@ -316,7 +316,7 @@ describe('Payload', function () {
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
         server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
         server.route({ method: '*', path: '/any', handler: handler });
-        server.route({ method: 'POST', path: '/try', config: { handler: tryHandler, payload: 'try' } });
+        server.route({ method: 'POST', path: '/try', config: { handler: tryHandler, payload: { mode: 'try' } } });
 
         before(function (done) {
 
