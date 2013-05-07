@@ -158,14 +158,15 @@ describe('Request', function () {
             };
 
             var orig = console.error;
-            console.error = function (msg) {
+            console.error = function (msg1, msg2) {
 
-                expect(msg).to.equal('Unmonitored error: uncaught');
+                expect(msg1).to.equal('Debug:');
+                expect(msg2).to.equal('uncaught');
                 console.error = orig;
+                done();
             };
 
             expect(fn).to.not.throw(Error);
-            done();
         });
     });
 
