@@ -188,11 +188,12 @@ describe('Views', function () {
             });
         });
 
-        it('should skip loading partial if engine does not have registerPartial method', function (done) {
+        it('should skip loading partials and helpers if engine does not support them', function (done) {
 
             var tempView = new Views({
                 path: viewsPath + '/valid',
                 partialsPath: viewsPath + '/valid/partials',
+                helpersPath: viewsPath + '/valid/helpers',
                 engines: { 'html': 'jade' }
             });
 
@@ -200,6 +201,21 @@ describe('Views', function () {
 
                 expect(rendered).to.exist;
                 expect(rendered.length).above(1);
+                done();
+            });
+        });
+
+        it('should load helpers and render them', function (done) {
+
+            var tempView = new Views({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath + '/valid',
+                helpersPath: viewsPath + '/valid/helpers'
+            });
+
+            tempView.render('testHelpers', { something: 'uppercase' }, function (err, rendered, config) {
+
+                expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
                 done();
             });
         });
