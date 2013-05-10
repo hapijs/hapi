@@ -2570,7 +2570,7 @@ Creates a `Composer` object instance where:
     - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options).
     - `servers` - an array of server configuration objects where:
         - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
-          `cache` option is not allowed and must be configured via the pack `cache` option.
+          `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an environment variable by prefixing the variable name with `'$env.'`.
     - `plugin` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options`
       value is an array, the first array item is used as [`permissions`](#packallowpermissions), and the second item is used as `options`.
 
