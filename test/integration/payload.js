@@ -315,6 +315,7 @@ describe('Payload', function () {
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
         server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
+        server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
         server.route({ method: '*', path: '/any', handler: handler });
         server.route({ method: 'POST', path: '/try', config: { handler: tryHandler, payload: { mode: 'try' } } });
 
@@ -428,7 +429,7 @@ describe('Payload', function () {
 
             var req = Http.request(options, function (res) {
 
-                expect(res.statusCode).to.equal(400);
+                expect(res.statusCode).to.equal(415);
                 done();
             });
 
@@ -445,12 +446,41 @@ describe('Payload', function () {
             });
         });
 
+        it('returns 200 on text mime type when allowed', function (done) {
+
+            server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('testing123+456');
+                done();
+            });
+        });
+
+        it('returns 415 on nonn text mime type when disallowed', function (done) {
+
+            server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
+
+                expect(res.statusCode).to.equal(415);
+                done();
+            });
+        });
+
         it('returns 200 on invalid payload with try mode', function (done) {
 
             server.inject({ method: 'POST', url: '/try', payload: 'tried but ' }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('tried but failed');
+                done();
+            });
+        });
+
+        it('returns 200 on application/octet-stream mime type', function (done) {
+
+            server.inject({ method: 'POST', url: '/try', payload: 'not ', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('not failed');
                 done();
             });
         });

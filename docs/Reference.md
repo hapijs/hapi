@@ -429,9 +429,13 @@ The following options are available when adding a route:
               format is unknown, a Bad Request (400) error response is sent. The supported mime types are:
                 - application/json
                 - application/x-www-form-urlencoded
+                - application/octet-stream
                 - multipart/form-data ([formidable](https://npmjs.org/package/formidable) is used for processing this data and is capable of
                   receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
             - `'try'` - same as `'parse'` but does not return an error on failed parsing. Instead, leaves `request.payload` undefined.
+        - `allow` - a string or an array of strings with the allowed mime types for the endpoint. Defaults to any of the supported mime types listed
+          above. Note that allowing other mime types not listed will not enable them to be parsed, and that if parsing mode is `'parse'`, the request
+          will result in an error response.
 <p></p>
     - `cache` - if the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
