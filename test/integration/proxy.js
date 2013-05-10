@@ -153,8 +153,9 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
                 { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } },
                 { method: 'GET', path: '/gzip', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
-                { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } }
-            ]);
+                { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
+                { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); } } } }
+        ]);
 
             server.state('auto', { autoValue: 'xyz' });
             server.start(function () {
@@ -378,5 +379,14 @@ describe('Proxy', function () {
 
         server.route({ method: 'GET', path: '/httpsport', handler: { proxy: { host: 'localhost', protocol: 'https' } } });
         done();
+    });
+
+    it('proxies to a remote site', function (done) {
+
+        makeRequest({ path: '/google' }, function (rawRes) {
+
+            expect(rawRes.statusCode).to.equal(200);
+            done();
+        });
     });
 });
