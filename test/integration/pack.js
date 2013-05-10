@@ -424,6 +424,29 @@ describe('Pack', function () {
         });
     });
 
+    it('automatically resolves the requirePath if specified', function (done) {
+
+        var pack = new Hapi.Pack({ requirePath: './pack' });
+        pack.server({ labels: 'c' });
+
+        var handler = function () {
+
+            return this.reply(this.app.deps);
+        };
+
+        pack._servers[0].route({ method: 'GET', path: '/', handler: handler });
+
+        pack.allow({ ext: true }).require(['./pack/--deps3'], function (err) {
+
+            expect(err).to.not.exist;
+            pack._servers[0].inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('|3|');
+                done();
+            });
+        });
+    });
+
     it('fails to require single plugin with dependencies', function (done) {
 
         var server = new Hapi.Server();
