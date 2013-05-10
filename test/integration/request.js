@@ -89,7 +89,6 @@ describe('Request', function () {
             this.isDone = true;
 
             self.push('success');
-            self.push(null);
 
             setImmediate(function () {
 
