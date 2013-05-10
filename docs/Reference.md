@@ -436,6 +436,7 @@ The following options are available when adding a route:
         - `allow` - a string or an array of strings with the allowed mime types for the endpoint. Defaults to any of the supported mime types listed
           above. Note that allowing other mime types not listed will not enable them to be parsed, and that if parsing mode is `'parse'`, the request
           will result in an error response.
+        - `override` - a mime type string overriding the 'Content-Type' header value received. Defaults to no override.
 <p></p>
     - `cache` - if the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:

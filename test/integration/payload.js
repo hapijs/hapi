@@ -314,6 +314,7 @@ describe('Payload', function () {
 
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
+        server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
         server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
         server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
         server.route({ method: '*', path: '/any', handler: handler });
@@ -442,6 +443,16 @@ describe('Payload', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('testing123+456');
+                done();
+            });
+        });
+
+        it('returns 200 on override mime type', function (done) {
+
+            server.inject({ method: 'POST', url: '/override', payload: '{"key":"cool"}', headers: { 'content-type': 'text/plain' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('cool');
                 done();
             });
         });
