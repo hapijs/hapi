@@ -148,7 +148,7 @@ describe('Security', function () {
                 headers: { 'content-type': '<script>alert(1)</script>;' } },
                 function (res) {
 
-                    expect(res.result.message).to.not.contain('<script>');
+                    expect(res.result.message).to.not.exist;
                     done();
             });
         });
