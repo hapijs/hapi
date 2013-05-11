@@ -64,10 +64,13 @@ describe('Request', function () {
     var responseErrorHandler = function (request) {
 
         request.reply('success');
-        setImmediate(function () {
 
+        var orig = request.raw.res.write;
+        request.raw.res.write = function (chunk, encoding) {
+
+            orig.call(request.raw.res, chunk, encoding);
             request.raw.res.emit('error', new Error('fail'));
-        });
+        };
     };
 
     var streamErrorHandler = function (request) {

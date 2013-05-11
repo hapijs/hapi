@@ -66,7 +66,7 @@ describe('Proxy', function () {
 
         var echoPostBody = function () {
 
-            this.reply(this.payload);
+            this.reply(this.payload.echo + this.raw.req.headers['x-super-special']);
         };
 
         var unauthorized = function () {
@@ -128,7 +128,7 @@ describe('Proxy', function () {
 
         var mapUri = function (request, callback) {
 
-            return callback(null, upstream.info.uri + request.path + (request.url.search || ''));
+            return callback(null, upstream.info.uri + request.path + (request.url.search || ''), { 'x-super-special': '@' });
         };
 
         upstream.start(function () {
@@ -346,7 +346,7 @@ describe('Proxy', function () {
         makeRequest({ path: '/echo', method: 'post', form: { echo: true } }, function (rawRes) {
 
             expect(rawRes.statusCode).to.equal(200);
-            expect(rawRes.body).to.contain('echo');
+            expect(rawRes.body).to.equal('true@');
             done();
         });
     });

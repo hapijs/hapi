@@ -361,9 +361,13 @@ The following options are available when adding a route:
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
         - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
           proxied upstream endpoint. Defaults to `false`.
-        - `mapUri` - a function used to map the request URI to the proxied URI. The function signature is `function(request, callback)` where:
+        - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used together with `host`, `port`, or `protocol`.
+          The function signature is `function(request, callback)` where:
             - `request` - is the incoming `request` object
-            - `callback` - is `function(err, uri)` where `uri` is the absolute proxy URI. Cannot be used together with `host`, `port`, or `protocol`.
+            - `callback` - is `function(err, uri, headers)` where:
+                - `err` - internal error condition.
+                - `uri` - the absolute proxy URI.
+                - `headers` - optional object where each key is an HTTP request header and the value is the header content.
         - `postResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
           custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
           `function(request, settings, res, payload)` where:
