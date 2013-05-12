@@ -154,8 +154,8 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } },
                 { method: 'GET', path: '/gzip', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
                 { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
-                { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); } } } }
-        ]);
+                { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://www.google.com'); } } } }
+            ]);
 
             server.state('auto', { autoValue: 'xyz' });
             server.start(function () {
@@ -320,23 +320,6 @@ describe('Proxy', function () {
         makeRequest({ path: '/postResponseNotFound', method: 'get' }, function (rawRes) {
 
             expect(rawRes.body).to.contain('error');
-            done();
-        });
-    });
-
-    it('handles an error from request safely', function (done) {
-
-        var requestStub = function (options, callback) {
-
-            callback(new Error());
-        };
-
-        var route = server._router.route({ method: 'get', path: '/proxyerror', info: {}, raw: { req: { headers: {} } } });
-        route.proxy.httpClient = requestStub;
-
-        makeRequest({ path: '/proxyerror', method: 'get' }, function (rawRes) {
-
-            expect(rawRes.statusCode).to.equal(500);
             done();
         });
     });

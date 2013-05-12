@@ -375,8 +375,6 @@ The following options are available when adding a route:
               - `settings` - the proxy handler configuration.
               - `res` - the node response object received from the upstream service.
               - `payload` - the response payload.
-        - `httpClient` - an alternative HTTP client function, compatible with the [**request**](https://npmjs.org/package/request) module `request()`
-          interface.
 <p></p>
     - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` options is set to the desired template file name.
       The view context available to the template includes:
