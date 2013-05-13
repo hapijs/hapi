@@ -238,7 +238,7 @@ describe('Proxy', function () {
 
     it('forwards gzipped stream', function (done) {
 
-        server.inject({ url: '/gzipstream', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+        Request({ uri: server.info.uri + '/gzipstream', headers: { 'accept-encoding': 'gzip' }}, function (err, res) {
 
             expect(res.statusCode).to.equal(200);
 
@@ -246,7 +246,7 @@ describe('Proxy', function () {
 
                 Zlib.gzip(file, function (err, zipped) {
 
-                    expect(zipped.toString()).to.equal(res.payload);
+                    expect(zipped.toString()).to.equal(res.body);
                     done();
                 });
             });
@@ -351,7 +351,7 @@ describe('Proxy', function () {
 
     it('proxies to a remote site', function (done) {
 
-        server.inject('/google', function (res) {
+        Request(server.info.uri + '/google', function (err, res) {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -380,7 +380,7 @@ describe('Proxy', function () {
 
     it('redirects to a post endpoint with stream', function (done) {
 
-        server.inject({ method: 'POST', url: '/post1', body: 'test', headers: { 'content-type': 'text/plain' } }, function (res) {
+        Request({ method: 'POST', uri: server.info.uri +  '/post1', body: 'test', headers: { 'content-type': 'text/plain' } }, function (err, res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('test');
