@@ -93,9 +93,9 @@ describe('Proxy', function () {
         var headers = function () {
 
             this.reply({ status: 'success' })
-                      .header('Custom1', 'custom header value 1')
-                      .header('X-Custom2', 'custom header value 2')
-                      .header('access-control-allow-headers', 'Invalid, List, Of, Values');
+                .header('Custom1', 'custom header value 1')
+                .header('X-Custom2', 'custom header value 2')
+                .header('access-control-allow-headers', 'Invalid, List, Of, Values');
         };
 
         var gzipHandler = function () {
