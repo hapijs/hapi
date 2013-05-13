@@ -261,11 +261,12 @@ describe('Proxy', function () {
 
             expect(res.statusCode).to.equal(200);
 
-            Fs.readFile(__dirname + '/../../package.json', function (err, file) {
+            Fs.readFile(__dirname + '/../../package.json', { encoding: 'utf-8' }, function (err, file) {
 
-                Zlib.gzip(file, function (err, zipped) {
+                Zlib.unzip(res.rawPayload, function (err, unzipped) {
 
-                    expect(zipped.toString()).to.equal(res.payload);
+                    expect(err).to.not.exist;
+                    expect(unzipped.toString('utf-8')).to.deep.equal();
                     done();
                 });
             });
@@ -377,16 +378,6 @@ describe('Proxy', function () {
         });
     });
 
-    it('redirects to a post endpoint with stream', function (done) {
-
-        server.inject({ method: 'POST', url: '/post1', payload: 'test', headers: { 'content-type': 'text/plain' } }, function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('test');
-            done();
-        });
-    });
-
     it('redirects to another endpoint', function (done) {
 
         server.inject('/redirect', function (res) {
@@ -394,6 +385,16 @@ describe('Proxy', function () {
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('John Doe');
             expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
+            done();
+        });
+    });
+
+    it('redirects to a post endpoint with stream', function (done) {
+
+        server.inject({ method: 'POST', url: '/post1', payload: 'test', headers: { 'content-type': 'text/plain' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('test');
             done();
         });
     });
