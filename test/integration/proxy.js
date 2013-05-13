@@ -108,6 +108,15 @@ describe('Proxy', function () {
             this.reply(new Hapi.response.File(__dirname + '/../../package.json'));
         };
 
+        var redirectHandler = function () {
+
+            switch (this.query.x) {
+                case '1': this.reply.redirect('/redirect?x=1'); break;
+                case '2': this.reply().header('Location', '//localhost:' + this.server.info.port + '/profile').code(302); break;
+                default: this.reply.redirect('/profile'); break;
+            }
+        };
+
         var upstream = new Hapi.Server(0);
         upstream.route([
             { method: 'GET', path: '/profile', handler: profile },
@@ -122,7 +131,7 @@ describe('Proxy', function () {
             { method: 'GET', path: '/forward', handler: forward },
             { method: 'GET', path: '/gzip', handler: gzipHandler },
             { method: 'GET', path: '/gzipstream', handler: gzipStreamHandler },
-            { method: 'GET', path: '/redirect', handler: function () { this.reply.redirect(this.query.x ? '/redirect?x=1' : '/profile'); } },
+            { method: 'GET', path: '/redirect', handler: redirectHandler },
             { method: 'POST', path: '/post1', handler: function () { this.reply.redirect('/post2').rewritable(false); } },
             { method: 'POST', path: '/post2', handler: function () { this.reply(this.payload); } }
         ]);
@@ -381,6 +390,17 @@ describe('Proxy', function () {
     it('redirects to another endpoint', function (done) {
 
         server.inject('/redirect', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('John Doe');
+            expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
+            done();
+        });
+    });
+
+    it('redirects to another endpoint with relative location', function (done) {
+
+        server.inject('/redirect?x=2', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('John Doe');
