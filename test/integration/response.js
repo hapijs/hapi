@@ -1079,12 +1079,7 @@ describe('Response', function () {
             var HeadersStream = function () {
 
                 Stream.Readable.call(this);
-                this.response = {
-                    headers: {
-                        custom: 'header'
-                    }
-                };
-
+                this.headers = { custom: 'header' };
                 return this;
             };
 
@@ -1123,10 +1118,7 @@ describe('Response', function () {
             var HeadersStream = function () {
 
                 Stream.Readable.call(this);
-                this.response = {
-                    statusCode: 201
-                };
-
+                this.statusCode = 201;
                 return this;
             };
 
@@ -1881,23 +1873,6 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.result).to.equal('');
-                done();
-            });
-        });
-
-        it('returns 500 when using close() and route is cached', function (done) {
-
-            var handler = function () {
-
-                this.reply.close();
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
