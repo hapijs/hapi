@@ -93,9 +93,9 @@ describe('Proxy', function () {
         var headers = function () {
 
             this.reply({ status: 'success' })
-                      .header('Custom1', 'custom header value 1')
-                      .header('X-Custom2', 'custom header value 2')
-                      .header('access-control-allow-headers', 'Invalid, List, Of, Values');
+                .header('Custom1', 'custom header value 1')
+                .header('X-Custom2', 'custom header value 2')
+                .header('access-control-allow-headers', 'Invalid, List, Of, Values');
         };
 
         var gzipHandler = function () {
@@ -238,7 +238,7 @@ describe('Proxy', function () {
 
     it('forwards gzipped stream', function (done) {
 
-        Request({ uri: server.info.uri + '/gzipstream', headers: { 'accept-encoding': 'gzip' }}, function (err, res) {
+        server.inject({ url: '/gzipstream', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
 
@@ -246,7 +246,7 @@ describe('Proxy', function () {
 
                 Zlib.gzip(file, function (err, zipped) {
 
-                    expect(zipped.toString()).to.equal(res.body);
+                    expect(zipped.toString()).to.equal(res.payload);
                     done();
                 });
             });
@@ -351,7 +351,7 @@ describe('Proxy', function () {
 
     it('proxies to a remote site', function (done) {
 
-        Request(server.info.uri + '/google', function (err, res) {
+        server.inject('/google', function (res) {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -380,7 +380,7 @@ describe('Proxy', function () {
 
     it('redirects to a post endpoint with stream', function (done) {
 
-        Request({ method: 'POST', uri: server.info.uri +  '/post1', body: 'test', headers: { 'content-type': 'text/plain' } }, function (err, res) {
+        server.inject({ method: 'POST', url: '/post1', body: 'test', headers: { 'content-type': 'text/plain' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('test');
