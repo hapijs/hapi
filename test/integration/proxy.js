@@ -156,6 +156,7 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/gzip', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
                 { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
                 { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://www.google.com'); } } } },
+                { method: 'GET', path: '/googler', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); }, redirects: 1 } } },
                 { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
                 { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 10 } }, config: { payload: 'parse' } }
             ]);
@@ -230,7 +231,7 @@ describe('Proxy', function () {
             server.inject({ url: '/gzip', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal(zipped.toString());
+                expect(res.rawPayload).to.deep.equal(zipped);
                 done();
             });
         });
@@ -352,6 +353,15 @@ describe('Proxy', function () {
     it('proxies to a remote site', function (done) {
 
         server.inject('/google', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('proxies to a remote site with redirects', function (done) {
+
+        server.inject('/googler', function (res) {
 
             expect(res.statusCode).to.equal(200);
             done();
