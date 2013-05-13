@@ -47,11 +47,6 @@ describe('Cache', function () {
         request.reply(cacheable);
     };
 
-    var badHandler = function (request) {
-
-        request.reply(new Stream());
-    };
-
     var errorHandler = function (request) {
 
         var error = new Error('myerror');
@@ -69,7 +64,6 @@ describe('Cache', function () {
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler } },
             { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
-            { method: 'GET', path: '/bad', config: { handler: badHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
             { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
             { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
             { method: 'GET', path: '/clientserver', config: { handler: profileHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
@@ -104,15 +98,6 @@ describe('Cache', function () {
         server.inject('/item2', function (res) {
 
             expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
-            done();
-        });
-    });
-
-    it('returns 500 when returning a stream in a cached endpoint handler', function (done) {
-
-        server.inject('/bad', function (res) {
-
-            expect(res.statusCode).to.equal(500);
             done();
         });
     });
