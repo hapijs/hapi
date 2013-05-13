@@ -181,6 +181,24 @@ describe('Proxy', function () {
         done();
     });
 
+    it('proxies to a remote site', function (done) {
+
+        server.inject('/google', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('proxies to a remote site with redirects', function (done) {
+
+        server.inject('/googler', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
     it('forwards on the response when making a GET request', function (done) {
 
         server.inject('/profile', function (res) {
@@ -350,35 +368,6 @@ describe('Proxy', function () {
         }));
     });
 
-    it('proxies to a remote site', function (done) {
-
-        server.inject('/google', function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
-
-    it('proxies to a remote site with redirects', function (done) {
-
-        server.inject('/googler', function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
-
-    it('redirects to another endpoint', function (done) {
-
-        server.inject('/redirect', function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.contain('John Doe');
-            expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
-            done();
-        });
-    });
-
     it('maxs out redirects to another endpoint', function (done) {
 
         server.inject('/redirect?x=1', function (res) {
@@ -394,6 +383,17 @@ describe('Proxy', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('test');
+            done();
+        });
+    });
+
+    it('redirects to another endpoint', function (done) {
+
+        server.inject('/redirect', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('John Doe');
+            expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
             done();
         });
     });
