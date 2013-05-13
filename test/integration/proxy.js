@@ -137,7 +137,7 @@ describe('Proxy', function () {
             var backendPort = upstream.info.port;
             var routeCache = { expiresIn: 500, mode: 'server+client' };
 
-            server = new Hapi.Server(0, { cors: true });
+            server = new Hapi.Server(0, { cors: true, maxSockets: 10 });
             server.route([
                 { method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
                 { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
