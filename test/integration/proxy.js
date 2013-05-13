@@ -168,7 +168,7 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://www.google.com'); } } } },
                 { method: 'GET', path: '/googler', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); }, redirects: 1 } } },
                 { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
-                { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 10 } }, config: { payload: 'parse' } }
+                { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } }
             ]);
 
             server.state('auto', { autoValue: 'xyz' });
