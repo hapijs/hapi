@@ -113,6 +113,7 @@ describe('Proxy', function () {
             switch (this.query.x) {
                 case '1': this.reply.redirect('/redirect?x=1'); break;
                 case '2': this.reply().header('Location', '//localhost:' + this.server.info.port + '/profile').code(302); break;
+                case '3': this.reply().code(302); break;
                 default: this.reply.redirect('/profile'); break;
             }
         };
@@ -381,6 +382,15 @@ describe('Proxy', function () {
     it('maxs out redirects to another endpoint', function (done) {
 
         server.inject('/redirect?x=1', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('errors on redirect missing location header', function (done) {
+
+        server.inject('/redirect?x=3', function (res) {
 
             expect(res.statusCode).to.equal(500);
             done();
