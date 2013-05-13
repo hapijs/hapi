@@ -390,7 +390,7 @@ describe('Proxy', function () {
 
     it('redirects to a post endpoint with stream', function (done) {
 
-        server.inject({ method: 'POST', url: '/post1', body: 'test', headers: { 'content-type': 'text/plain' } }, function (res) {
+        server.inject({ method: 'POST', url: '/post1', payload: 'test', headers: { 'content-type': 'text/plain' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('test');
