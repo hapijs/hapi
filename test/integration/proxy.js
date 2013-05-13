@@ -5,6 +5,7 @@ var Fs = require('fs');
 var Zlib = require('zlib');
 var Request = require('request');
 var Hapi = require('../..');
+var Client = require('../../lib/client');
 
 
 // Declare internals
@@ -39,26 +40,28 @@ describe('Proxy', function () {
             }
 
             var profile = {
-                'id': 'fa0dbda9b1b',
-                'name': 'John Doe'
+                id: 'fa0dbda9b1b',
+                name: 'John Doe'
             };
 
             this.reply(profile).state('test', '123');
         };
 
+        var activeCount = 0;
         var activeItem = function () {
 
             this.reply({
-                'id': '55cf687663',
-                'name': 'Active Item'
+                id: '55cf687663',
+                name: 'Active Item',
+                count: activeCount++
             });
         };
 
         var item = function () {
 
             this.reply({
-                'id': '55cf687663',
-                'name': 'Item'
+                id: '55cf687663',
+                name: 'Item'
             }).created('http://example.com');
         };
 
@@ -134,7 +137,8 @@ describe('Proxy', function () {
             { method: 'GET', path: '/gzipstream', handler: gzipStreamHandler },
             { method: 'GET', path: '/redirect', handler: redirectHandler },
             { method: 'POST', path: '/post1', handler: function () { this.reply.redirect('/post2').rewritable(false); } },
-            { method: 'POST', path: '/post2', handler: function () { this.reply(this.payload); } }
+            { method: 'POST', path: '/post2', handler: function () { this.reply(this.payload); } },
+            { method: 'GET', path: '/cached', handler: profile }
         ]);
 
         var mapUri = function (request, callback) {
@@ -169,7 +173,8 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/googler', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); }, redirects: 1 } } },
                 { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
                 { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } },
-                { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } }
+                { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } },
+                { method: 'GET', path: '/cached', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } }
             ]);
 
             server.state('auto', { autoValue: 'xyz' });
@@ -296,13 +301,20 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards on the response when making a GET request to a route that also accepts a POST', function (done) {
+    it('request a cached proxy route', function (done) {
 
         server.inject('/item', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('Active Item');
-            done();
+            var counter = res.result.count;
+
+            server.inject('/item', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.count).to.equal(counter);
+                done();
+            });
         });
     });
 
@@ -438,4 +450,21 @@ describe('Proxy', function () {
             done();
         });
     });
+
+    it('errors on invalid response stream', function (done) {
+
+        var orig = Client.parse;
+        Client.parse = function (res, callback) {
+
+            Client.parse = orig;
+            callback(Hapi.error.internal('Fake error'));
+        };
+
+        server.inject('/cached', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
 });
+
