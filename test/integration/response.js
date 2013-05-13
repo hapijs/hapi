@@ -1884,23 +1884,6 @@ describe('Response', function () {
                 done();
             });
         });
-
-        it('returns 500 when using close() and route is cached', function (done) {
-
-            var handler = function () {
-
-                this.reply.close();
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { mode: 'server', expiresIn: 9999 } } });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
-        });
     });
 
     describe('Extension', function () {

@@ -344,7 +344,8 @@ describe('Request', function () {
 
         var handler = function (request) {
 
-            expect(request.info.address).to.equal('127.0.0.1');
+            expect(request.info.remoteAddress).to.equal('127.0.0.1');
+            expect(request.info.remoteAddress).to.equal(request.info.address);
             request.reply('ok');
         };
 

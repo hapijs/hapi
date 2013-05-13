@@ -361,6 +361,10 @@ The following options are available when adding a route:
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
         - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
           proxied upstream endpoint. Defaults to `false`.
+        - `redirects` - the maximum number of HTTP redirections allowed, to be followed automatically by the handler. Set to `false` or `0` to
+          disable all redirections (the response will contain the redirection received from the upstream service). If redirections are enabled,
+          no redirections (301, 302, 307, 308) will be passed along to the client, and reaching the maximum allowed redirections will return an
+          error response. Defaults to `false`.
         - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used together with `host`, `port`, or `protocol`.
           The function signature is `function(request, callback)` where:
             - `request` - is the incoming `request` object
@@ -1403,7 +1407,8 @@ Each request object have the following properties:
 - `id` - a unique request identifier.
 - `info` - request information:
     - `received` - request reception timestamp.
-    - `address` - remote client IP address.
+    - `remoteAddress` - remote client IP address.
+    - `remotePort` - remote client port.
     - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
     - `host` - content of the HTTP 'Host' header.
 - `method` - the request method in lower case (e.g. `'get'`, `'post'`).

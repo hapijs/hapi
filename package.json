@@ -32,13 +32,12 @@
     "hoek": "0.8.x",
     "boom": "0.4.x",
     "joi": "0.3.x",
-    "catbox": "0.5.x",
+    "catbox": "0.6.x",
     "hawk": "0.13.x",
     "shot": "0.4.x",
     "cryptiles": "0.2.x",
     "iron": "0.3.x",
     "async": "0.2.x",
-    "request": "2.21.x",
     "formidable": "1.0.13",
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
@@ -48,6 +47,7 @@
   },
   "devDependencies": {
     "lab": "0.1.x",
+    "request": "2.21.x",
     "handlebars": "1.0.x",
     "jade": "0.30.x",
     "complexity-report": "0.x.x"
