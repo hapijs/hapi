@@ -218,12 +218,14 @@ When creating a server instance, the following options configure the server's be
     - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming client request before giving
       up and responding with a Service Unavailable (503) error response. Disabled by default (`false`).
     - `client` - request timeout in milliseconds. Sets the maximum time allowed for the client to transmit the request payload (body) before giving up
-      and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds). 
+      and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
     - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to override this behavior. Defaults to `undefined`
       which leaves the node default unchanged. Set to `false` to disable socket timeouts.
 <p></p>
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+<p></p>
+- `maxSockets` - used to set the number of sockets available per outgoing host connection.  Default is null.  This impacts all servers sharing the process.
 <p></p>
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
@@ -326,7 +328,7 @@ The following options are available when adding a route:
   Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
 <p></p>
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
-  described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404) 
+  described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404)
   error response, or `handler` can be assigned an object with one of:
     - <a name="route.config.file"></a>`file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
@@ -563,7 +565,7 @@ var paths = [
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that path segment. For example,
 '/book/{id}/cover' will match '/book/123/cover' and `request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/' and
  the closing '/' unless it is the end of the path) can only include one named parameter.
- 
+
  An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path).
  For example, the route '/book/{id?}' matches '/book/'.
 
@@ -838,10 +840,10 @@ subscribe to the `'request'` events and filter on `'error'` and `'state'` tags:
 
 ```javascript
 server.on('request', function (request, event, tags) {
-    
+
     if (tags.error && tags.state) {
         console.error(event);
-    } 
+    }
 });
 ```
 
@@ -874,7 +876,7 @@ Registers an authentication strategy where:
     - `implementation` -  an object with the **hapi** authentication scheme interface (use the `'hawk'` implementation as template). Cannot be used together with `scheme`.
     - `defaultMode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be assigned to a single
       server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
-      
+
 ##### Basic authentication
 
 Basic authentication requires validating a username and password combination. The `'basic'` scheme takes the following required options:
@@ -986,7 +988,7 @@ var login = function () {
     var account = null;
 
     if (this.method === 'post') {
-        
+
         if (!this.payload.username ||
             !this.payload.password) {
 
@@ -1067,7 +1069,7 @@ var credentials = {
 }
 
 var getCredentials = function (id, callback) {
-   
+
     return callback(null, credentials[id]);
 };
 
@@ -1104,7 +1106,7 @@ var credentials = {
 }
 
 var getCredentials = function (id, callback) {
-   
+
     return callback(null, credentials[id]);
 };
 
@@ -1153,7 +1155,7 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 
 server.ext('onRequest', function (request, next) {
-    
+
     // Change all requests to '/test'
     request.setUrl('/test');
     next();
@@ -1177,7 +1179,7 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - **`'onRequest'`** extension point
     - always called
     - the `request` object passed to the extension functions is decorated with the `request.setUrl(url)` and `request.setMethod(verb)` methods. Calls to these methods
-      will impact how the request is routed and can be used for rewrite rules. 
+      will impact how the request is routed and can be used for rewrite rules.
 - Lookup route using request path
 - Parse cookies
 - **`'onPreAuth'`** extension point
@@ -1446,7 +1448,7 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 
 server.ext('onRequest', function (request, next) {
-    
+
     // Change all requests to '/test'
     request.setUrl('/test');
     next();
@@ -1466,7 +1468,7 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 
 server.ext('onRequest', function (request, next) {
-    
+
     // Change all requests to 'GET'
     request.setMethod('GET');
     next();
@@ -1666,7 +1668,7 @@ var server = new Hapi.Server({
         path: __dirname + '/templates'
     }
 });
-        
+
 var handler = function () {
 
     var context = {
@@ -1787,7 +1789,7 @@ var handler = function () {
     onTimeout(function () {
 
         response.send();
-    }, 1000);  
+    }, 1000);
 };
 ```
 
@@ -1802,7 +1804,7 @@ Every response type must include the following properties:
 #### `Generic`
 
 The `Generic` response type is used as the parent prototype for all other response types. It cannot be instantiated directly and is only made available
-for deriving other response types. It provides the following methods: 
+for deriving other response types. It provides the following methods:
 
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
@@ -2198,7 +2200,7 @@ Provides a set of utilities for returning HTTP errors. An alias of the [**boom**
       if `reformat()` is called. Any content allowed and by default includes the following content:
         - `code` - the HTTP status code, derived from `error.response.code`.
         - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived from `code`.
-        - `message` - the error message derived from `error.message`. 
+        - `message` - the error message derived from `error.message`.
 - inherited `Error` properties.
 
 It also supports the following method:
@@ -2407,7 +2409,7 @@ Each `Pack` object instance has the following properties:
 
 #### `pack.server([host], [port], [options])`
 
-Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in 
+Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in
 [`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
 configured via the pack `cache` option.
 
@@ -2834,7 +2836,7 @@ exports.register = function (plugin, options, next) {
 
         this.reply(Hapi.error.internal('Not implemented yet'));
     };
-   
+
     plugin.route({ method: 'GET', path: '/', handler: handler });
     next();
 };
@@ -2917,7 +2919,7 @@ exports.register = function (plugin, options, next) {
         },
         path: './templates'
     });
-    
+
     next();
 };
 ```
@@ -3170,15 +3172,15 @@ var handler = function (request) {
     var content = request.pre.user;
 
     Hapi.state.prepareValue('user', content, cookieOptions, function (err, value) {
-            
+
         if (err) {
             return request.reply(err);
         }
-            
+
         if (value.length < maxCookieSize) {
             request.setState('user', value, { encoding: 'none' } );   // Already encoded
         }
-            
+
         request.reply('success');
     });
 };
