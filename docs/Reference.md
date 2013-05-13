@@ -225,7 +225,7 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 <p></p>
-- `maxSockets` - used to set the number of sockets available per outgoing host connection.  Default is 5.  This impacts all servers sharing the process.
+- `maxSockets` - used to set the number of sockets available per outgoing host connection.  Default is null.  This impacts all servers sharing the process.
 <p></p>
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
