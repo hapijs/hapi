@@ -263,10 +263,10 @@ describe('Proxy', function () {
 
             Fs.readFile(__dirname + '/../../package.json', { encoding: 'utf-8' }, function (err, file) {
 
-                Zlib.unzip(res.rawPayload, function (err, unzipped) {
+                Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, unzipped) {
 
                     expect(err).to.not.exist;
-                    expect(unzipped.toString('utf-8')).to.deep.equal();
+                    expect(unzipped.toString('utf-8')).to.deep.equal(file);
                     done();
                 });
             });
