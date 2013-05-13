@@ -1079,12 +1079,7 @@ describe('Response', function () {
             var HeadersStream = function () {
 
                 Stream.Readable.call(this);
-                this.response = {
-                    headers: {
-                        custom: 'header'
-                    }
-                };
-
+                this.headers = { custom: 'header' };
                 return this;
             };
 
@@ -1123,10 +1118,7 @@ describe('Response', function () {
             var HeadersStream = function () {
 
                 Stream.Readable.call(this);
-                this.response = {
-                    statusCode: 201
-                };
-
+                this.statusCode = 201;
                 return this;
             };
 
