@@ -168,7 +168,8 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://www.google.com'); } } } },
                 { method: 'GET', path: '/googler', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); }, redirects: 1 } } },
                 { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
-                { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } }
+                { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } },
+                { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } }
             ]);
 
             server.state('auto', { autoValue: 'xyz' });
@@ -391,6 +392,15 @@ describe('Proxy', function () {
     it('errors on redirect missing location header', function (done) {
 
         server.inject('/redirect?x=3', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('errors on redirection to bad host', function (done) {
+
+        server.inject('/nowhere', function (res) {
 
             expect(res.statusCode).to.equal(500);
             done();
