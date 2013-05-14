@@ -1062,6 +1062,7 @@ describe('Response', function () {
 
                 default:
                     this.push('x');
+                    this.push('y');
                     this.push(null);
                     break;
             }
@@ -1158,7 +1159,7 @@ describe('Response', function () {
 
             server.inject('/stream/', function (res) {
 
-                expect(res.result).to.equal('x');
+                expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
@@ -1189,7 +1190,7 @@ describe('Response', function () {
 
             server.inject('/stream6', function (res) {
 
-                expect(res.result).to.equal('x');
+                expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(200);
                 done();
             });
@@ -1265,7 +1266,7 @@ describe('Response', function () {
 
             server.inject('/stream3', function (res) {
 
-                expect(res.result).to.equal('x');
+                expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(201);
                 expect(res.headers.location).to.equal(server.settings.location + '/special');
                 expect(res.headers['cache-control']).to.equal('no-cache');
