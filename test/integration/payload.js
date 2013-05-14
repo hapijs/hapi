@@ -554,11 +554,23 @@ describe('Payload', function () {
             request.reply(request.payload);
         };
 
-        var _server = new Hapi.Server('0.0.0.0', 0);
-        _server.route({ method: 'POST', path: '/invalid', handler: invalidHandler });
-        _server.route({ method: 'POST', path: '/echo', handler: echo });
+        var server = new Hapi.Server('0.0.0.0', 0);
+        server.route({ method: 'POST', path: '/invalid', handler: invalidHandler });
+        server.route({ method: 'POST', path: '/echo', handler: echo });
 
         var multipartPayload =
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="x"\r\n' +
+                '\r\n' +
+                'First\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="x"\r\n' +
+                '\r\n' +
+                'Second\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="x"\r\n' +
+                '\r\n' +
+                'Third\r\n' +
                 '--AaB03x\r\n' +
                 'content-disposition: form-data; name="field1"\r\n' +
                 '\r\n' +
@@ -576,7 +588,7 @@ describe('Payload', function () {
 
         it('returns an error on missing boundary in content-type header', function (done) {
 
-            _server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
+            server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(400);
@@ -586,7 +598,7 @@ describe('Payload', function () {
 
         it('returns an error on empty separator in content-type header', function (done) {
 
-            _server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
+            server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(400);
@@ -596,9 +608,9 @@ describe('Payload', function () {
 
         it('returns parsed multipart data', function (done) {
 
-            _server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
 
-                expect(Object.keys(res.result).length).to.equal(2);
+                expect(Object.keys(res.result).length).to.equal(3);
                 expect(res.result.field1).to.exist;
                 expect(res.result.field1.length).to.equal(2);
                 expect(res.result.field1[1]).to.equal('Repeated name segment');
