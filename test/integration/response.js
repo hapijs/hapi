@@ -926,8 +926,6 @@ describe('Response', function () {
 
             this.issue = issue;
             this.request = request;
-
-            return this;
         };
 
         Hapi.utils.inherits(TestStream, Stream.Readable);
@@ -980,7 +978,6 @@ describe('Response', function () {
 
                 Stream.Readable.call(this);
                 this.headers = { custom: 'header' };
-                return this;
             };
 
             Hapi.utils.inherits(HeadersStream, Stream.Readable);
@@ -1019,7 +1016,6 @@ describe('Response', function () {
 
                 Stream.Readable.call(this);
                 this.statusCode = 201;
-                return this;
             };
 
             Hapi.utils.inherits(HeadersStream, Stream.Readable);
@@ -1098,7 +1094,6 @@ describe('Response', function () {
         var TimerStream = function () {
 
             Stream.Readable.call(this);
-            return this;
         };
 
         Hapi.utils.inherits(TimerStream, Stream.Readable);
