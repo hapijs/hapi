@@ -1779,7 +1779,7 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('We moved!');
-                expect(res.headers.location).to.equal(server.info.uri + '/examplex');
+                expect(res.headers.location).to.equal('http://0.0.0.0:' + server.info.port + '/examplex');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
