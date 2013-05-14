@@ -3,7 +3,6 @@
 var Lab = require('lab');
 var Fs = require('fs');
 var Zlib = require('zlib');
-var Request = require('request');
 var Hapi = require('../..');
 var Client = require('../../lib/client');
 
@@ -381,15 +380,6 @@ describe('Proxy', function () {
             expect(res.payload).to.contain('myerror');
             done();
         });
-    });
-
-    it('works with a stream when the proxy response is streamed', function (done) {
-
-        Fs.createReadStream(__dirname + '/proxy.js').pipe(Request.post(server.info.uri + '/file', function (err, res, body) {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        }));
     });
 
     it('maxs out redirects to another endpoint', function (done) {

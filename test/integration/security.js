@@ -26,7 +26,7 @@ describe('Security', function () {
 
         internals.createItemHandler = function (request) {
 
-            request.reply('Moved').created(request.server.info.uri + '/item/' + request.payload.name);
+            request.reply('Moved').created('/item/' + request.payload.name);
         };
 
         before(function (done) {
