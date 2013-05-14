@@ -4,7 +4,6 @@ var Lab = require('lab');
 var Fs = require('fs');
 var Stream = require('stream');
 var Zlib = require('zlib');
-var Request = require('request');
 var Hapi = require('../..');
 var ResponseError = require('../../lib/response/error');
 
@@ -313,7 +312,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
@@ -321,99 +320,79 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.start(function () {
+            server.inject('/file', function (res) {
 
-                Request.get(server.info.uri + '/file', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.not.exist;
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.not.exist;
+                done();
             });
         });
 
         it('returns a file in the response with the correct headers using cwd relative paths without content-disposition header', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
             server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
 
-            server.start(function () {
+            server.inject('/', function (res) {
 
-                Request.get(server.info.uri, function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.not.exist;
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.not.exist;
+                done();
             });
         });
 
         it('returns a file in the response with the inline content-disposition header when using route config', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'inline' } } });
 
-            server.start(function () {
+            server.inject('/', function (res) {
 
-                Request.get(server.info.uri, function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
+                done();
             });
         });
 
         it('returns a file in the response with the attachment content-disposition header when using route config', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment' } } });
 
-            server.start(function () {
+            server.inject('/', function (res) {
 
-                Request.get(server.info.uri, function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
+                done();
             });
         });
 
         it('returns a file in the response without the content-disposition header when using route config mode false', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: false } } });
 
-            server.start(function () {
+            server.inject('/', function (res) {
 
-                Request.get(server.info.uri, function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.not.exist;
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.not.exist;
+                done();
             });
         });
 
         it('returns a file with correct headers when using attachment mode', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'attachment' }));
@@ -421,23 +400,19 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.start(function () {
+            server.inject('/file', function (res) {
 
-                Request.get(server.info.uri + '/file', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
+                done();
             });
         });
 
         it('returns a file with correct headers when using inline mode', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'inline' }));
@@ -445,51 +420,39 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.start(function () {
+            server.inject('/file', function (res) {
 
-                Request.get(server.info.uri + '/file', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
+                done();
             });
         });
 
         it('returns a 404 when the file is not found', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: '/no/such/path/x1' } });
+            var server = new Hapi.Server({ files: { relativeTo: '/no/such/path/x1' } });
 
             server.route({ method: 'GET', path: '/filenotfound', handler: { file: 'nopes' } });
 
-            server.start(function () {
+            server.inject('/filenotfound', function (res) {
 
-                Request.get(server.info.uri + '/filenotfound', function (err, res) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(404);
-                    done();
-                });
+                expect(res.statusCode).to.equal(404);
+                done();
             });
         });
 
         it('returns a 403 when the file is a directory', function (done) {
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Server();
 
             server.route({ method: 'GET', path: '/filefolder', handler: { file: 'examples' } });
 
-            server.start(function () {
+            server.inject('/filefolder', function (res) {
 
-                Request.get(server.info.uri + '/filefolder', function (err, res) {
-
-                    expect(err).to.not.exist;
-                    expect(res.statusCode).to.equal(403);
-                    done();
-                });
+                expect(res.statusCode).to.equal(403);
+                done();
             });
         });
 
@@ -500,43 +463,35 @@ describe('Response', function () {
 
         it('returns a file using the build-in handler config', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } });
 
-            server.start(function () {
+            server.inject('/staticfile', function (res) {
 
-                Request.get(server.info.uri + '/staticfile', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                done();
             });
         });
 
         it('returns a file using the file function with the build-in handler config', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
 
-            server.start(function () {
+            server.inject('/filefn/index.js', function (res) {
 
-                Request.get(server.info.uri + '/filefn/index.js', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('./lib');
-                    expect(res.headers['content-type']).to.equal('application/javascript');
-                    expect(res.headers['content-length']).to.exist;
-                    done();
-                });
+                expect(res.payload).to.contain('./lib');
+                expect(res.headers['content-type']).to.equal('application/javascript');
+                expect(res.headers['content-length']).to.exist;
+                done();
             });
         });
 
         it('returns a file in the response with the correct headers (relative path)', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var relativeHandler = function (request) {
 
                 request.reply(new Hapi.response.File('./package.json'));
@@ -544,34 +499,26 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/relativefile', handler: relativeHandler });
 
-            server.start(function () {
+            server.inject('/relativefile', function (res) {
 
-                Request.get(server.info.uri + '/relativefile', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                done();
             });
         });
 
         it('returns a file using the built-in handler config (relative path)', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             server.route({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
 
-            server.start(function () {
+            server.inject('/relativestaticfile', function (res) {
 
-                Request.get(server.info.uri + '/relativestaticfile', function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(body).to.contain('hapi');
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-length']).to.exist;
-                    done();
-                });
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-length']).to.exist;
+                done();
             });
         });
 
@@ -687,34 +634,22 @@ describe('Response', function () {
 
         it('returns a 304 when the request has if-modified-since and the response hasn\'t been modified since', function (done) {
 
-            var server = new Hapi.Server(0);
-            var handler = function (request) {
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../../package.json' } });
 
-                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
-            };
+            server.inject('/file', function (res1) {
 
-            server.route({ method: 'GET', path: '/file', handler: handler });
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
 
-            server.start(function () {
-
-                Request.get({ url: server.info.uri + '/file' }, function (err, res1) {
-
-                    var headers = {
-                        'if-modified-since': res1.headers.date
-                    };
-
-                    Request.get({ url: server.info.uri + '/file', headers: headers }, function (err, res2) {
-
-                        expect(res2.statusCode).to.equal(304);
-                        done();
-                    });
+                    expect(res2.statusCode).to.equal(304);
+                    done();
                 });
             });
         });
 
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
@@ -722,23 +657,19 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.start(function () {
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
-                Request.get({ url: server.info.uri + '/file', headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-encoding']).to.equal('gzip');
-                    expect(res.headers['content-length']).to.not.exist;
-                    expect(body).to.exist;
-                    done();
-                });
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-encoding']).to.equal('gzip');
+                expect(res.headers['content-length']).to.not.exist;
+                expect(res.payload).to.exist;
+                done();
             });
         });
 
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
-            var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request) {
 
                 request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
@@ -746,17 +677,13 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.start(function () {
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'deflate' } }, function (res) {
 
-                Request.get({ url: server.info.uri + '/file', headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
-
-                    expect(err).to.not.exist;
-                    expect(res.headers['content-type']).to.equal('application/json');
-                    expect(res.headers['content-encoding']).to.equal('deflate');
-                    expect(res.headers['content-length']).to.not.exist;
-                    expect(body).to.exist;
-                    done();
-                });
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-encoding']).to.equal('deflate');
+                expect(res.headers['content-length']).to.not.exist;
+                expect(res.payload).to.exist;
+                done();
             });
         });
 
@@ -783,19 +710,10 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
         server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: ['./', '../'], listing: true } } });
 
-        before(function (done) {
-
-            server.start(function () {
-
-                done();
-            });
-        });
-
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
-            Request.get(server.info.uri + '/directory/', function (err, res, body) {
+            server.inject('/directory/', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(403);
                 done();
             });
@@ -803,9 +721,8 @@ describe('Response', function () {
 
         it('returns a 403 when requesting a path containing \'..\'', function (done) {
 
-            Request.get(server.info.uri + '/directory/..', function (err, res, body) {
+            server.inject('/directory/..', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(403);
                 done();
             });
@@ -813,9 +730,8 @@ describe('Response', function () {
 
         it('returns a 404 when requesting an unknown file within a directory', function (done) {
 
-            Request.get(server.info.uri + '/directory/xyz', function (err, res, body) {
+            server.inject('/directory/xyz', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(404);
                 done();
             });
@@ -823,66 +739,60 @@ describe('Response', function () {
 
         it('returns a file when requesting a file from the directory', function (done) {
 
-            Request.get(server.info.uri + '/directory/response.js', function (err, res, body) {
+            server.inject('/directory/response.js', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('hapi');
+                expect(res.payload).to.contain('hapi');
                 done();
             });
         });
 
         it('returns a file when requesting a file from multi directory setup', function (done) {
 
-            Request.get(server.info.uri + '/multiple/unit/response/directory.js', function (err, res, body) {
+            server.inject('/multiple/unit/response/directory.js', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('no_such_path');
+                expect(res.payload).to.contain('no_such_path');
                 done();
             });
         });
 
         it('returns the correct file when requesting a file from a child directory', function (done) {
 
-            Request.get(server.info.uri + '/directory/directory/index.html', function (err, res, body) {
+            server.inject('/directory/directory/index.html', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('test');
+                expect(res.payload).to.contain('test');
                 done();
             });
         });
 
         it('returns the correct listing links when viewing top level path', function (done) {
 
-            Request.get(server.info.uri + '/', function (err, res, body) {
+            server.inject('/', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('href="/response.js"');
+                expect(res.payload).to.contain('href="/response.js"');
                 done();
             });
         });
 
         it('doesn\'t contain any double / when viewing sub path listing', function (done) {
 
-            Request.get(server.info.uri + '/showindex/', function (err, res, body) {
+            server.inject('/showindex/', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.not.contain('//');
+                expect(res.payload).to.not.contain('//');
                 done();
             });
         });
 
         it('has the correct link to sub folders when inside of a sub folder listing', function (done) {
 
-            Request.get(server.info.uri + '/showindex/directory/subdir', function (err, res, body) {
+            server.inject('/showindex/directory/subdir', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('href="/showindex/directory/subdir/subsubdir"');
+                expect(res.payload).to.contain('href="/showindex/directory/subdir/subsubdir"');
                 done();
             });
         });
@@ -891,9 +801,8 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directoryx/{path*}', handler: { directory: { path: '../../', index: false } } });
 
-            Request.get(server.info.uri + '/directoryx/', function (err, res, body) {
+            server.inject('/directoryx/', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(403);
                 done();
             });
@@ -903,22 +812,20 @@ describe('Response', function () {
 
         it('returns a list of files when listing is enabled', function (done) {
 
-            Request.get(server.info.uri + '/directorylist/', function (err, res, body) {
+            server.inject('/directorylist/', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('package.json');
+                expect(res.payload).to.contain('package.json');
                 done();
             });
         });
 
         it('returns a list of files for subdirectory', function (done) {
 
-            Request.get(server.info.uri + '/directorylist/test', function (err, res, body) {
+            server.inject('/directorylist/test', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('integration');
+                expect(res.payload).to.contain('integration');
                 done();
             });
         });
@@ -927,11 +834,10 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directorylistx/{path*}', handler: { directory: { path: '../../', listing: true, index: false } } });
 
-            Request.get(server.info.uri + '/directorylistx/', function (err, res, body) {
+            server.inject('/directorylistx/', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('package.json');
+                expect(res.payload).to.contain('package.json');
                 done();
             });
         });
@@ -940,20 +846,18 @@ describe('Response', function () {
 
         it('returns the index when found', function (done) {
 
-            Request.get(server.info.uri + '/directoryIndex/', function (err, res, body) {
+            server.inject('/directoryIndex/', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('<p>test</p>');
+                expect(res.payload).to.contain('<p>test</p>');
                 done();
             });
         });
 
         it('returns a 500 when index.html is a directory', function (done) {
 
-            Request.get(server.info.uri + '/directoryIndex/invalid', function (err, res, body) {
+            server.inject('/directoryIndex/invalid', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(500);
                 done();
             });
@@ -968,41 +872,37 @@ describe('Response', function () {
 
             server.route({ method: 'GET', path: '/directoryfn/{path?}', handler: { directory: { path: directoryFn } } });
 
-            Request.get(server.info.uri + '/directoryfn/defaults.js', function (err, res, body) {
+            server.inject('/directoryfn/defaults.js', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(200);
-                expect(body).to.contain('export');
+                expect(res.payload).to.contain('export');
                 done();
             });
         });
 
         it('returns listing with hidden files when hidden files should be shown', function (done) {
 
-            Request.get(server.info.uri + '/showhidden/', function (err, res, body) {
+            server.inject('/showhidden/', function (res) {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('.hidden');
+                expect(res.payload).to.contain('.hidden');
                 done();
             });
         });
 
         it('returns listing without hidden files when hidden files should not be shown', function (done) {
 
-            Request.get(server.info.uri + '/noshowhidden/', function (err, res, body) {
+            server.inject('/noshowhidden/', function (res) {
 
-                expect(err).to.not.exist;
-                expect(body).to.not.contain('.hidden');
-                expect(body).to.contain('response.js');
+                expect(res.payload).to.not.contain('.hidden');
+                expect(res.payload).to.contain('response.js');
                 done();
             });
         });
 
         it('returns a 404 response when requesting a hidden file when showHidden is disabled', function (done) {
 
-            Request.get(server.info.uri + '/noshowhidden/.hidden', function (err, res, body) {
+            server.inject('/noshowhidden/.hidden', function (res) {
 
-                expect(err).to.not.exist;
                 expect(res.statusCode).to.equal(404);
                 done();
             });
@@ -1010,10 +910,9 @@ describe('Response', function () {
 
         it('returns a file when requesting a hidden file when showHidden is enabled', function (done) {
 
-            Request.get(server.info.uri + '/showhidden/.hidden', function (err, res, body) {
+            server.inject('/showhidden/.hidden', function (res) {
 
-                expect(err).to.not.exist;
-                expect(body).to.contain('test');
+                expect(res.payload).to.contain('test');
                 done();
             });
         });
@@ -1146,7 +1045,7 @@ describe('Response', function () {
             request.reply(oldMode);
         };
 
-        var server = new Hapi.Server('0.0.0.0', 19798, { cors: { origin: ['test.example.com'] }, location: 'http://example.com:8080' });
+        var server = new Hapi.Server({ cors: { origin: ['test.example.com'] }, location: 'http://example.com:8080' });
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
         server.route({ method: 'GET', path: '/stream2', config: { handler: handler2 } });
@@ -1227,17 +1126,14 @@ describe('Response', function () {
                 request.reply(new TimerStream());
             };
 
-            var server1 = new Hapi.Server(0);
+            var server1 = new Hapi.Server();
             server1.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server1.start(function () {
+            server1.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (res) {
 
-                Request.get({ uri: server1.info.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (err, res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.headers['content-length']).to.not.exist;
-                    done();
-                });
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.not.exist;
+                done();
             });
         });
 
@@ -1248,17 +1144,14 @@ describe('Response', function () {
                 request.reply(new TimerStream());
             };
 
-            var server1 = new Hapi.Server(0);
+            var server1 = new Hapi.Server();
             server1.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server1.start(function () {
+            server1.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (res) {
 
-                Request.get({ uri: server1.info.uri + '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (err, res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.headers['content-length']).to.not.exist;
-                    done();
-                });
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.not.exist;
+                done();
             });
         });
 
@@ -1295,13 +1188,10 @@ describe('Response', function () {
 
         it('stops processing the stream when the request closes', function (done) {
 
-            server.start(function () {
+            server.inject({ url: '/stream/closes', headers: { 'Accept-Encoding': 'gzip' } }, function (res) {
 
-                Request.get({ uri: 'http://127.0.0.1:19798/stream/closes', headers: { 'Accept-Encoding': 'gzip' } }, function (err, res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    done();
-                });
+                expect(res.statusCode).to.equal(200);
+                done();
             });
         });
     });

@@ -21,6 +21,21 @@ var it = Lab.test;
 
 describe('Server', function () {
 
+    it('calls start twice', function (done) {
+
+        var server = new Hapi.Server(0);
+        server.start(function () {
+
+            server.start(function () {
+
+                server.stop(function () {
+
+                    done();
+                });
+            });
+        });
+    });
+
     it('won\'t stop until all connections are closed', function (done) {
 
         var server = Hapi.createServer(0);
