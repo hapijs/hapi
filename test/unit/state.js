@@ -131,7 +131,7 @@ describe('State', function () {
                                 state: settings || Defaults.server.state
                             }
                         },
-                        _log: function (tags, data) {
+                        log: function (tags, data) {
                             
                             logged = true;
                         },
