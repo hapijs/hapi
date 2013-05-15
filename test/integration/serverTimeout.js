@@ -96,7 +96,7 @@ describe('Server Timeout', function () {
         request.reply(new TestStream());
     };
 
-    var server = new Hapi.Server('127.0.0.1', 0, { timeout: { server: 50 } });
+    var server = new Hapi.Server(0, { timeout: { server: 50 } });
     server.route([
         { method: 'GET', path: '/timeout', config: { handler: timeoutHandler } },
         { method: 'GET', path: '/timeoutcache', config: { handler: cachedTimeoutHandler } },

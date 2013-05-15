@@ -26,10 +26,10 @@
     "router"
   ],
   "engines": {
-    "node": ">=0.10.5"
+    "node": ">=0.10.6"
   },
   "dependencies": {
-    "hoek": "0.8.x",
+    "hoek": "0.9.x",
     "boom": "0.4.x",
     "joi": "0.3.x",
     "catbox": "0.6.x",
