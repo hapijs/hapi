@@ -50,7 +50,7 @@ describe('Hapi command line', function () {
             ]
         };
 
-        var configPath = Path.join(__dirname, 'manifest.json');
+        var configPath = Path.join(__dirname, 'manifest1.json');
         var hapiPath = Path.join(__dirname, '..', '..', 'bin', 'hapi');
         var modulePath = Path.join(__dirname, '..', '..');
 
@@ -75,6 +75,68 @@ describe('Hapi command line', function () {
             }
 
             done();
+        });
+    });
+
+    it('composes pack with absolute path', function (done) {
+
+        var manifest = {
+            pack: {
+                cache: {
+                    engine: 'memory'
+                },
+                app: {
+                    my: 'special-value'
+                }
+            },
+            servers: [
+                {
+                    port: 0,
+                    options: {
+                        labels: ['api', 'nasty', 'test']
+                    }
+                },
+                {
+                    host: 'localhost',
+                    port: 0,
+                    options: {
+                        labels: ['api', 'nice']
+                    }
+                }
+            ],
+            plugins: {
+                '--loaded': {}
+            },
+            permissions: {
+                ext: true
+            }
+        };
+
+        var configPath = Path.join(__dirname, 'manifest2.json');
+        var hapiPath = Path.join(__dirname, '..', '..', 'bin', 'hapi');
+        var modulePath = Path.join(__dirname, 'pack');
+
+        if (!Fs.existsSync(configPath)) {
+            Fs.writeFileSync(configPath, JSON.stringify(manifest));
+        }
+
+        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath]);
+
+        hapi.stdout.on('data', function (data) {
+
+            expect(data.toString()).to.equal('loaded\n');
+            hapi.kill();
+
+            if (Fs.existsSync(configPath)) {
+                Fs.unlinkSync(configPath);
+            }
+
+            done();
+        });
+
+        hapi.stderr.on('data', function (data) {
+
+            expect(data.toString()).to.not.exist;
         });
     });
 });
