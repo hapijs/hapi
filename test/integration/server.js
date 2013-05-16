@@ -44,9 +44,9 @@ describe('Server', function () {
             var socket1 = new Net.Socket();
             var socket2 = new Net.Socket();
 
-            socket1.connect(server.info.port, server.settings.host, function () {
+            socket1.connect(server.info.port, '127.0.0.1', function () {
 
-                socket2.connect(server.info.port, server.settings.host, function () {
+                socket2.connect(server.info.port, '127.0.0.1', function () {
 
                     server.listener.getConnections(function (err, count) {
 
