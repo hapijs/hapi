@@ -45,6 +45,7 @@ describe('Payload', function () {
         server.start(function () {
 
             uri = 'http://localhost:' + server.info.port;
+            done();
         });
     });
 
