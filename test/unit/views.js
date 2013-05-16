@@ -54,7 +54,7 @@ describe('Views', function () {
                 }
             });
 
-            views.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            views.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered.length).above(1);
@@ -79,7 +79,7 @@ describe('Views', function () {
                 }
             });
 
-            views.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            views.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Bad bad view');
@@ -89,7 +89,7 @@ describe('Views', function () {
 
         it('should work and not throw with valid (no layouts)', function (done) {
 
-            testView.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            testView.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered.length).above(1);
@@ -99,7 +99,7 @@ describe('Views', function () {
 
         it('should work and not throw with valid (with layouts)', function (done) {
 
-            testViewWithLayouts.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            testViewWithLayouts.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered.length).above(1);
@@ -121,7 +121,7 @@ describe('Views', function () {
 
         it('should return error when referencing non existant partial (with layouts)', function (done) {
 
-            testViewWithLayouts.render('invalid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            testViewWithLayouts.render('invalid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(err).to.exist;
                 done();
@@ -130,7 +130,7 @@ describe('Views', function () {
 
         it('should return error when referencing non existant partial (no layouts)', function (done) {
 
-            testView.render('invalid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            testView.render('invalid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(err).to.exist;
                 done();
@@ -141,7 +141,7 @@ describe('Views', function () {
         it('should return error if context uses layoutKeyword as a key', function (done) {
 
             var opts = { title: 'test', message: 'Hapi', content: 1 };
-            testViewWithLayouts.render('valid/test', opts, function (err, rendered, config) {
+            testViewWithLayouts.render('valid/test', opts, null, function (err, rendered, config) {
 
                 expect(err).to.exist;
                 done();
@@ -150,7 +150,7 @@ describe('Views', function () {
 
         it('should return error on compile error (invalid template code)', function (done) {
 
-            testView.render('invalid/badmustache', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            testView.render('invalid/badmustache', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(err instanceof Error).to.equal(true);
                 done();
@@ -165,7 +165,7 @@ describe('Views', function () {
                 partialsPath: viewsPath + '/valid/partials'
             });
 
-            tempView.render('testPartials', {}, function (err, rendered, config) {
+            tempView.render('testPartials', {}, null, function (err, rendered, config) {
 
                 expect(rendered).to.equal('Nav:<nav>Nav</nav>|<nav>Nested</nav>');
                 done();
@@ -180,7 +180,7 @@ describe('Views', function () {
                 partialsPath: viewsPath + '/valid/partials/'
             });
 
-            tempView.render('testPartials', {}, function (err, rendered, config) {
+            tempView.render('testPartials', {}, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered.length).above(1);
@@ -197,7 +197,7 @@ describe('Views', function () {
                 engines: { 'html': 'jade' }
             });
 
-            tempView.render('testPartials', {}, function (err, rendered, config) {
+            tempView.render('testPartials', {}, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered.length).above(1);
@@ -213,7 +213,7 @@ describe('Views', function () {
                 helpersPath: viewsPath + '/valid/helpers'
             });
 
-            tempView.render('testHelpers', { something: 'uppercase' }, function (err, rendered, config) {
+            tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
                 done();
