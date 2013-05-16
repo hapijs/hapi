@@ -281,7 +281,7 @@ describe('Request', function () {
             var response = this.reply('123').hold();
             setTimeout(function ()
             {
-                response.send();                
+                response.send();
             }, 10);
         };
 
@@ -353,7 +353,7 @@ describe('Request', function () {
 
         server.start(function () {
 
-            Request(server.info.uri + '/address', function (err, res, body) {
+            Request('http://localhost:' + server.info.port + '/address', function (err, res, body) {
 
                 expect(body).to.equal('ok');
                 done();
