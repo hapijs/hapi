@@ -203,17 +203,4 @@ describe('Request', function () {
             done();
         });
     });
-
-    describe('#_reply', function () {
-
-        it('returns if already replied with callback', function (done) {
-
-            var request = new Request(server, _req, _res);
-            request._isReplied = true;
-            request._reply(null, function () {
-
-                done();
-            });
-        });
-    });
 });
