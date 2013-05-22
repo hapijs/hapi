@@ -132,7 +132,7 @@ describe('Route', function () {
         }();
     });
 
-    describe('#_generateRegex', function () {
+    describe('#_parsePath', function () {
 
         var testFingerprints = function () {
 
