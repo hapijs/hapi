@@ -1,4 +1,4 @@
-# 1.2.x API Reference
+# 1.3.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -1059,7 +1059,7 @@ authentication. The scheme requires the following options:
         - `err` - an internal error.
         - `credentials` - a credentials object passed back to the application in `request.auth.credentials`. Return `null` or `undefined` to
           indicate unknown credentials (which is not considered an error state).
-- `hostHeaderName` - optional name of the HTTP request header used to transmit host information. Defaults to ''host''.
+- `hawk` - optional protocol options passed to `Hawk.server.authenticate()`.
 
 ```javascript
 var Hapi = require('hapi');
@@ -1096,7 +1096,7 @@ be used with 'GET' requests and requires the following options:
         - `err` - an internal error.
         - `credentials` - a credentials object passed back to the application in `request.auth.credentials`. Return `null` or `undefined` to
           indicate unknown credentials (which is not considered an error state).
-- `hostHeaderName` - optional name of the HTTP request header used to transmit host information. Defaults to ''host''.
+- `hawk` - optional protocol options passed to `Hawk.server.authenticateBewit()`.
 
 ```javascript
 var Hapi = require('hapi');
