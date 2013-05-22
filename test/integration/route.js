@@ -48,7 +48,7 @@ describe('Route', function () {
 
         for (var ai = 0, al = paths.length; ai < al; ++ai) {
             var a = { path: paths[ai], server: { settings: { router: { isCaseSensitive: true } } } };
-            Route.prototype._generateRegex.call(a);
+            Route.prototype._parsePath.call(a);
 
             for (var bi = 0, bl = paths.length; bi < bl; ++bi) {
                 if (ai === bi) {
@@ -56,7 +56,7 @@ describe('Route', function () {
                 }
 
                 var b = { path: paths[bi], server: { settings: { router: { isCaseSensitive: true } } } };
-                Route.prototype._generateRegex.call(b);
+                Route.prototype._parsePath.call(b);
 
                 var a2b = Route.sort(a, b);
                 var b2a = Route.sort(b, a);
