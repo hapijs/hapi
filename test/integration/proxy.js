@@ -120,6 +120,14 @@ describe('Proxy', function () {
             }
         };
 
+        var timeoutHandler = function (req) {
+
+            setTimeout(function () {
+
+                req.reply('Ok');
+            }, 10);
+        };
+
         var upstream = new Hapi.Server(0);
         upstream.route([
             { method: 'GET', path: '/profile', handler: profile },
@@ -137,7 +145,9 @@ describe('Proxy', function () {
             { method: 'GET', path: '/redirect', handler: redirectHandler },
             { method: 'POST', path: '/post1', handler: function () { this.reply.redirect('/post2').rewritable(false); } },
             { method: 'POST', path: '/post2', handler: function () { this.reply(this.payload); } },
-            { method: 'GET', path: '/cached', handler: profile }
+            { method: 'GET', path: '/cached', handler: profile },
+            { method: 'GET', path: '/timeout1', handler: timeoutHandler },
+            { method: 'GET', path: '/timeout2', handler: timeoutHandler }
         ]);
 
         var mapUri = function (request, callback) {
@@ -173,7 +183,9 @@ describe('Proxy', function () {
                 { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
                 { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } },
                 { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } },
-                { method: 'GET', path: '/cached', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } }
+                { method: 'GET', path: '/cached', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 5 } } },
+                { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort } } }
             ]);
 
             server.state('auto', { autoValue: 'xyz' });
@@ -453,6 +465,24 @@ describe('Proxy', function () {
         server.inject('/cached', function (res) {
 
             expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('errors when proxied request times out', function (done) {
+
+        server.inject('/timeout1', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('uses default timeout when nothing is set', function (done) {
+
+        server.inject('/timeout2', function (res) {
+
+            expect(res.statusCode).to.equal(200);
             done();
         });
     });
