@@ -132,7 +132,7 @@ describe('Route', function () {
         }();
     });
 
-    describe('#_generateRegex', function () {
+    describe('#_parsePath', function () {
 
         var testFingerprints = function () {
 
@@ -143,7 +143,7 @@ describe('Route', function () {
                 '/path/to/somewhere': '/path/to/somewhere',
                 '/{param}': '/?',
                 '/{param?}': '/?',
-                '/{param*}': '/*',
+                '/{param*}': '/#',
                 '/{param*5}': '/?/?/?/?/?',
                 '/path/{param}': '/path/?',
                 '/path/{param}/to': '/path/?/to',
@@ -151,7 +151,7 @@ describe('Route', function () {
                 '/path/{param}/to/{some}': '/path/?/to/?',
                 '/path/{param}/to/{some?}': '/path/?/to/?',
                 '/path/{param*2}/to': '/path/?/?/to',
-                '/path/{param*}': '/path/*',
+                '/path/{param*}': '/path/#',
                 '/path/{param*10}/to': '/path/?/?/?/?/?/?/?/?/?/?/to',
                 '/path/{param*2}': '/path/?/?',
                 '/%20path/': '/%20path/'
