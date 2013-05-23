@@ -658,6 +658,31 @@ describe('Auth', function () {
                 auth: {
                     scheme: 'hawk',
                     getCredentialsFunc: getCredentials,
+                    hawk: {
+                        hostHeaderName: 'custom'
+                    }
+                }
+            };
+
+            var server = new Hapi.Server(config);
+            server.route({ method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: 'default' } });
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Success');
+                done();
+            });
+        });
+
+        it('returns a reply on successful auth when using a custom host header key (compatibility)', function (done) {
+
+            var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk').field, custom: 'example.com:8080' } };
+
+            var config = {
+                auth: {
+                    scheme: 'hawk',
+                    getCredentialsFunc: getCredentials,
                     hostHeaderName: 'custom'
                 }
             };
