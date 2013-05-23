@@ -59,7 +59,7 @@ describe('Request', function () {
 
         var fn = function () {
 
-            var request = new Request(null, _req, _res);
+            var request = new Request(null, _req, _res, {});
         };
 
         expect(fn).throws(Error, 'server must be provided');
@@ -70,7 +70,7 @@ describe('Request', function () {
 
         var fn = function () {
 
-            var request = new Request(server, null, _res);
+            var request = new Request(server, null, _res, {});
         };
 
         expect(fn).throws(Error, 'req must be provided');
@@ -81,7 +81,7 @@ describe('Request', function () {
 
         var fn = function () {
 
-            var request = new Request(server, _req, null);
+            var request = new Request(server, _req, null, {});
         };
 
         expect(fn).throws(Error, 'res must be provided');
@@ -92,7 +92,7 @@ describe('Request', function () {
 
         var fn = function () {
 
-            var request = new Request(server, _req, _res);
+            var request = new Request(server, _req, _res, {});
         };
         expect(fn).not.to.throw(Error);
         done();
@@ -102,7 +102,7 @@ describe('Request', function () {
 
         it('changes method with a lowercase version of the value passed in', function (done) {
 
-            var request = new Request(server, _req, _res);
+            var request = new Request(server, _req, _res, {});
             request._setMethod('GET');
 
             expect(request.method).to.equal('get');
@@ -114,7 +114,7 @@ describe('Request', function () {
 
         it('sets url, path, and query', function (done) {
 
-            var request = new Request(server, _req, _res);
+            var request = new Request(server, _req, _res, {});
             var url = 'http://localhost/page?param1=something';
             request._setUrl(url);
 
@@ -130,7 +130,7 @@ describe('Request', function () {
 
         it('adds a log event to the request', function (done) {
 
-            var request = new Request(server, _req, _res);
+            var request = new Request(server, _req, _res, {});
             request.log('1', 'log event 1', Date.now());
             request.log(['2'], 'log event 2', new Date(Date.now()));
             request.log(['3', '4']);
@@ -150,7 +150,7 @@ describe('Request', function () {
         it('doesn\'t throw an error when logging without data and debug is configured', function (done) {
 
             var debugServer = new Hapi.Server({ debug: { request: ['uncaught'] } });
-            var request = new Request(debugServer, _req, _res);
+            var request = new Request(debugServer, _req, _res, {});
 
             var fn = function () {
 
@@ -177,7 +177,7 @@ describe('Request', function () {
 
         it('doesn\'t normalize a path when normalization is disabled', function (done) {
 
-            var request = new Request(server, _req, _res);
+            var request = new Request(server, _req, _res, {});
             var url = 'http://localhost' + rawPath + '?param1=something';
             request._setUrl(url);
 
@@ -192,7 +192,7 @@ describe('Request', function () {
 
             var normServer = new Hapi.Server({ router: { normalizeRequestPath: true } });
 
-            var request = new Request(normServer, _req, _res);
+            var request = new Request(normServer, _req, _res, {});
             var url = 'http://localhost' + rawPath + '?param1=something';
             request._setUrl(url);
 
@@ -201,19 +201,6 @@ describe('Request', function () {
             expect(request.path).to.equal(normPath);
             expect(request.query.param1).to.equal('something');
             done();
-        });
-    });
-
-    describe('#_reply', function () {
-
-        it('returns if already replied with callback', function (done) {
-
-            var request = new Request(server, _req, _res);
-            request._isReplied = true;
-            request._reply(null, function () {
-
-                done();
-            });
         });
     });
 });
