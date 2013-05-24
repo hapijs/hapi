@@ -220,7 +220,7 @@ describe('Views', function () {
             });
         });
 
-        it('should call the initialize function from the engine config', function (done) {
+        it('should call the initializeEngine function from the engine config', function (done) {
 
             var tempView = new Views({
                 engines: {
@@ -235,7 +235,7 @@ describe('Views', function () {
                 }
             });
 
-            tempView.render('testHelpers', { something: 'uppercase' }, function (err, rendered, config) {
+            tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
                 done();
