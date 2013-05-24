@@ -190,6 +190,30 @@ describe('Pack', function () {
         });
     });
 
+    it('requires a plugin with no path prefix', function (done) {
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['s1', 'a', 'b'] });
+        pack.server({ labels: ['s2', 'a', 'test'] });
+        pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+        pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
+
+        pack.require('--test1', [{ route: true }, {}], function (err) {
+
+            expect(err).to.not.exist;
+
+            expect(pack._servers[0]._router.table['get']).to.not.exist;
+            expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
+            expect(pack._servers[2]._router.table['get']).to.not.exist;
+            expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
+
+            expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
+            expect(pack._servers[0].plugins['--test1'].glue('1', '3')).to.equal('13');
+
+            done();
+        });
+
+        
+    });
     it('requires a plugin with options', function (done) {
 
         var pack = new Hapi.Pack();
