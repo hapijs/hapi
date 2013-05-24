@@ -1771,6 +1771,7 @@ describe('Response', function () {
             var handler = function () {
 
                 var custom = {
+                    isHapiResponse: true,
                     variety: 'x-custom',
                     varieties: { 'x-custom': true },
                     _transmit: function (request, callback) {
@@ -1798,6 +1799,7 @@ describe('Response', function () {
             var handler = function () {
 
                 var custom = {
+                    isHapiResponse: true,
                     variety: 'x-custom',
                     varieties: { 'x-custom': true },
                     _prepare: function (request, callback) {
@@ -1826,6 +1828,7 @@ describe('Response', function () {
             var handler = function () {
 
                 var custom = {
+                    isHapiResponse: true,
                     variety: 'x-custom',
                     varieties: { 'x-custom': true },
                     _prepare: function (request, callback) {
