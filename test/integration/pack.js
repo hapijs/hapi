@@ -292,6 +292,20 @@ describe('Pack', function () {
         });
     });
 
+    it('requires module', function (done) {
+
+        var server = new Hapi.Server();
+        server.pack.require('hapi-plugin-test', function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
+
+                expect(res.result).to.equal('hapi-plugin-test');
+                done();
+            });
+        });
+    });
+
     it('fails to require missing module', function (done) {
 
         var pack = new Hapi.Pack();
@@ -424,7 +438,7 @@ describe('Pack', function () {
         });
     });
 
-    it('automatically resolves the requirePath if specified', function (done) {
+    it('automatically resolves the requirePath if specified (relative)', function (done) {
 
         var pack = new Hapi.Pack({ requirePath: './pack' });
         pack.server({ labels: 'c' });
@@ -442,6 +456,21 @@ describe('Pack', function () {
             pack._servers[0].inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.result).to.equal('|3|');
+                done();
+            });
+        });
+    });
+
+    it('automatically resolves the requirePath if specified (node_modules)', function (done) {
+
+        var pack = new Hapi.Pack({ requirePath: process.cwd() + '/node_modules' });
+        pack.server();
+        pack.require('hapi-plugin-test', function (err) {
+
+            expect(err).to.not.exist;
+            pack._servers[0].inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
+
+                expect(res.result).to.equal('hapi-plugin-test');
                 done();
             });
         });

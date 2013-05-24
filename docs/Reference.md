@@ -2389,7 +2389,10 @@ Creates a new `Pack` object instance where:
 - `options` - optional configuration:
     - `app` - an object used to initialize the application-specific data stored in `pack.app`.
     - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
-    - `requirePath` - sets the path from which plugins are loaded. Defaults to current working directory.
+    - `requirePath` - sets the path from which node module plugins are loaded. Applies only when using `pack.require()`[#packrequirename-options-callback]
+      with module names that do no include a relative or absolute path (e.g. 'lout'). Defaults to the node module behaviour described in
+      [node modules](http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders). Note that if the modules
+      are located inside a 'node_modules' sub-directory, `requirePath` must end with `'/node_modules'`.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2493,7 +2496,8 @@ pack.allow({ ext: true }).require('yar', function (err) {
 Registers a plugin where:
 
 - `name` - the node module name as expected by node's [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id). If `name` is a relative
-  path, prefixed with the value of the pack `requirePath` configuration option.
+  path it is relative to the location of the file requiring it. If `name` is not a relative or absolute path (e.g. 'furball'), it is prefixed with the
+  value of the pack `requirePath` configuration option when present.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
   [`exports.register()`](#exportsregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
   and the second item is used as `options`.
