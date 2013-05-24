@@ -108,7 +108,7 @@ describe('State', function () {
 
             var loose = Hapi.utils.clone(Defaults.server.state);
             loose.cookies.strictHeader = false;
-            pass('a="1; b="2"; c=3', { a: '"1', b: '2', c:'3' }, loose);
+            pass('a="1; b="2"; c=3', { a: '"1', b: '2', c: '3' }, loose);
 
             var fail = function (header, settings, definitions, result) {
 
@@ -132,7 +132,7 @@ describe('State', function () {
                             }
                         },
                         log: function (tags, data) {
-                            
+
                             logged = true;
                         },
                         clearState: function (name) {
@@ -397,6 +397,15 @@ describe('State', function () {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Cookie domain too long: 1234567890123456789012345678901234567890123456789012345678901234567890.example.com');
+                done();
+            });
+        });
+
+        it('formats a header with cookie domain with . prefix', function (done) {
+
+            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: '.12345678901234567890.example.com' } }, null, function (err, header) {
+
+                expect(err).to.not.exist;
                 done();
             });
         });
