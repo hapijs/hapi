@@ -219,6 +219,28 @@ describe('Views', function () {
                 done();
             });
         });
+
+        it('should call the initialize function from the engine config', function (done) {
+
+            var tempView = new Views({
+                engines: {
+                    'html': {
+                        module: 'handlebars',
+                        initializeEngine: function (engine) {
+                            engine.config.path = viewsPath + '/valid';
+                            engine.config.helpersPath = viewsPath + '/valid/helpers';
+                            return engine;
+                        }
+                    }
+                }
+            });
+
+            tempView.render('testHelpers', { something: 'uppercase' }, function (err, rendered, config) {
+
+                expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
+                done();
+            });
+        });
     });
 
     describe('#handler', function () {

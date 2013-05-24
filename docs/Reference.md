@@ -259,7 +259,8 @@ When creating a server instance, the following options configure the server's be
     - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
     - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
     - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
-    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
+    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`..
+    - `initializeEngine()` - an optional function to  prepare the engine internal object. The signature is `initializeEngine(engine)`.
 
 ### `Server` properties
 
