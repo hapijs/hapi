@@ -379,4 +379,13 @@ describe('Request', function () {
             done();
         });
     });
+
+    it('returns 400 on invalid path', function (done) {
+
+        server.inject('invalid', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
 });
