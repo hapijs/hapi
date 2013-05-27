@@ -2915,7 +2915,8 @@ exports.register = function (plugin, options, next) {
 _Requires the `views` plugin permission._
 
 Generates a plugin-specific views manager for rendering templates where:
-- `options` - the views configuration as described in the server's [`views`](#server.config.views) option.
+- `options` - the views configuration as described in the server's [`views`](#server.config.views) option. Note that due to the way node
+  `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
 
 Note that relative paths are relative to the plugin root, not the working directory or the application registering the plugin. This allows
 plugin the specify their own static resources without having to require external configuration.
@@ -2925,7 +2926,7 @@ exports.register = function (plugin, options, next) {
 
     plugin.views({
         engines: {
-            jade: 'jade'
+            jade: require('jade')
         },
         path: './templates'
     });
