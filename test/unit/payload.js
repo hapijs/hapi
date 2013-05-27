@@ -42,7 +42,7 @@ describe('Payload', function () {
             var request = {
                 _timestamp: Date.now(),
                 method: 'delete',
-                _route: new Route({ method: 'delete', path: '/', handler: function () { } }, server),
+                _route: new Route({ method: '*', path: '/', handler: function () { } }, server),
                 raw: {
                     req: {
                         read: function () { }
