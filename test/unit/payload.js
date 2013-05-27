@@ -38,24 +38,6 @@ describe('Payload', function () {
 
     describe('#read', function () {
 
-        it('passes null to the callback when the request is a GET', function (done) {
-
-            var request = {
-                method: 'get',
-                raw: {
-                    req: {
-                        read: function () { }
-                    }
-                }
-            };
-
-            Payload.read(request, function (result) {
-
-                expect(result).not.to.exist;
-                done();
-            });
-        });
-
         it('passes null to the callback when the method is not put, patch or post', function (done) {
             var request = {
                 _timestamp: Date.now(),
