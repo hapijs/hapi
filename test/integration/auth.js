@@ -276,7 +276,7 @@ describe('Auth', function () {
                 path: '/noauth',
                 method: 'GET',
                 config: {
-                    auth: 'default',
+                    auth: true,
                     handler: function (req) {
 
                         req.reply('Success');
@@ -303,7 +303,7 @@ describe('Auth', function () {
 
             var config = {
                 auth: {
-                    'default': {
+                    'a': {
                         scheme: 'basic',
                         validateFunc: loadUser
                     },
@@ -465,10 +465,10 @@ describe('Auth', function () {
         };
 
         server.route([
-            { method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: 'default' } },
-            { method: 'POST', path: '/hawkValidate', handler: hawkHandler, config: { auth: 'default', validate: { query: { } } } },
-            { method: 'POST', path: '/hawkError', handler: hawkErrorHandler, config: { auth: 'default' } },
-            { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler, config: { auth: 'default' } },
+            { method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: true } },
+            { method: 'POST', path: '/hawkValidate', handler: hawkHandler, config: { auth: true, validate: { query: { } } } },
+            { method: 'POST', path: '/hawkError', handler: hawkErrorHandler, config: { auth: true } },
+            { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler, config: { auth: true } },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/hawkScope', handler: hawkHandler, config: { auth: { scope: 'x' } } },
             { method: 'POST', path: '/hawkTos', handler: hawkHandler, config: { auth: { tos: '2.0.0' } } },
@@ -665,7 +665,7 @@ describe('Auth', function () {
             };
 
             var server = new Hapi.Server(config);
-            server.route({ method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: 'default' } });
+            server.route({ method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: true } });
 
             server.inject(request, function (res) {
 
@@ -688,7 +688,7 @@ describe('Auth', function () {
             };
 
             var server = new Hapi.Server(config);
-            server.route({ method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: 'default' } });
+            server.route({ method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: true } });
 
             server.inject(request, function (res) {
 
@@ -879,7 +879,7 @@ describe('Auth', function () {
         };
 
         server.route([
-            { method: 'GET', path: '/bewit', handler: bewitHandler, config: { auth: 'default' } },
+            { method: 'GET', path: '/bewit', handler: bewitHandler, config: { auth: true } },
             { method: 'GET', path: '/bewitOptional', handler: bewitHandler, config: { auth: { mode: 'optional' } } },
             { method: 'GET', path: '/bewitScope', handler: bewitHandler, config: { auth: { scope: 'x' } } },
             { method: 'GET', path: '/bewitTos', handler: bewitHandler, config: { auth: { tos: '2.0.0' } } }
@@ -958,7 +958,7 @@ describe('Auth', function () {
             };
 
             var server = new Hapi.Server(config);
-            server.route({ method: 'GET', path: '/bewit', handler: bewitHandler, config: { auth: 'default' } });
+            server.route({ method: 'GET', path: '/bewit', handler: bewitHandler, config: { auth: true } });
 
             server.inject(request, function (res) {
 
@@ -1024,7 +1024,7 @@ describe('Auth', function () {
             };
 
             var server = new Hapi.Server(config);
-            server.route({ method: 'POST', path: '/ext', handler: handler, config: { auth: 'default' } });
+            server.route({ method: 'POST', path: '/ext', handler: handler, config: { auth: true } });
 
             var request = { method: 'POST', url: '/ext' };
             server.inject(request, function (res) {
@@ -1092,10 +1092,6 @@ describe('Auth', function () {
 
         var config = {
             auth: {
-                'default': {
-                    scheme: 'hawk',
-                    getCredentialsFunc: getCredentials
-                },
                 'hawk': {
                     scheme: 'hawk',
                     getCredentialsFunc: getCredentials
@@ -1116,9 +1112,9 @@ describe('Auth', function () {
 
         server.route([
             { method: 'POST', path: '/multiple', handler: handler, config: { auth: { strategies: ['basic', 'hawk'] } } },
-            { method: 'POST', path: '/multipleOptional', handler: handler, config: { auth: { mode: 'optional' } } },
-            { method: 'POST', path: '/multipleScope', handler: handler, config: { auth: { scope: 'x' } } },
-            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { tos: '2.0.0' } } },
+            { method: 'POST', path: '/multipleOptional', handler: handler, config: { auth: { strategy: 'hawk', mode: 'optional' } } },
+            { method: 'POST', path: '/multipleScope', handler: handler, config: { auth: { strategy: 'hawk', scope: 'x' } } },
+            { method: 'POST', path: '/multipleTos', handler: handler, config: { auth: { strategy: 'hawk', tos: '2.0.0' } } },
             { method: 'POST', path: '/multiplePayload', handler: handler, config: { auth: { strategies: ['basic', 'hawk'], payload: 'optional' }, payload: 'raw' } }
         ]);
 
@@ -1290,7 +1286,7 @@ describe('Auth', function () {
                 expect(this.auth.credentials.something).to.equal('new');
                 return this.reply('resource');
             },
-            config: { auth: 'default' }
+            config: { auth: true }
         });
 
         server.route({
@@ -1298,7 +1294,7 @@ describe('Auth', function () {
 
                 this.auth.session.clear();
                 return this.reply('logged-out');
-            }, config: { auth: 'default' }
+            }, config: { auth: true }
         });
 
         it('authenticates a request', function (done) {
@@ -1389,7 +1385,7 @@ describe('Auth', function () {
                     expect(this.auth.credentials.user).to.equal('steve');
                     return this.reply('resource');
                 },
-                config: { auth: 'default' }
+                config: { auth: true }
             });
 
             server.inject('/login/steve', function (res) {
@@ -1427,7 +1423,7 @@ describe('Auth', function () {
                     method: 'GET', path: '/', handler: function () {
 
                         return this.reply('never');
-                    }, config: { auth: 'default' }
+                    }, config: { auth: true }
                 });
 
                 server.inject('/', function (res) {
@@ -1455,7 +1451,7 @@ describe('Auth', function () {
                     method: 'GET', path: '/', handler: function () {
 
                         return this.reply('never');
-                    }, config: { auth: 'default' }
+                    }, config: { auth: true }
                 });
 
                 server.inject('/', function (res) {
@@ -1483,7 +1479,7 @@ describe('Auth', function () {
                     method: 'GET', path: '/', handler: function () {
 
                         return this.reply('never');
-                    }, config: { auth: 'default' }
+                    }, config: { auth: true }
                 });
 
                 server.inject('/', function (res) {

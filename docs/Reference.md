@@ -474,7 +474,8 @@ The following options are available when adding a route:
 <p></p>
     - `auth` - authentication configuration. Value can be:
         - a string with the name of an authentication strategy registered with `server.auth()`.
-        - a boolean where `false` means no authentication, and `true` means used the `'default'` authentication strategy.
+        - a boolean where `false` means no authentication, and `true` sets to the default authentication strategy which is available only
+          when a single strategy is configured.
         - an object with:
             - `mode` - the authentication mode. Defaults to `'required'` if a server authentication strategy is configured, otherwise defaults
               to no authentication. Available values:
@@ -482,7 +483,8 @@ The following options are available when adding a route:
                 - `'optional'` - authentication is optional (must be valid if present).
                 - `'try'` - same as `'optional'` but allows for invalid authentication.
             - `strategies` - a string array of strategy names in order they should be attempted. If only one strategy is used, `strategy` can
-              be used instead. Defaults to `'default'`.
+              be used instead with the single string value. Defaults to the default authentication strategy which is available only when a single
+              strategy is configured.
             - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is authenticated after it is processed. Requires a strategy
               with payload authentication support (e.g. [Hawk](#hawk-authentication)). Available values:
                 - `false` - no payload authentication. This is the default value.
