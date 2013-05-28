@@ -1,6 +1,7 @@
 // Load modules
 
 var Lab = require('lab');
+var Http = require('http');
 var Boom = require('boom');
 var Events = require('events');
 var Client = require('../../lib/client');
@@ -52,7 +53,79 @@ describe('Client', function () {
             res.emit('close');
         });
     });
+
+    describe('#request', function () {
+
+        it('handles request errors with a boom response', function (done) {
+
+            var server = Http.createServer(function (req, res) {
+
+                req.destroy();
+                res.end();
+            });
+
+
+            server.once('listening', function () {
+
+                Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: '' }, function (err) {
+
+                    expect(err.data.err.code).to.equal('ECONNRESET');
+                    done();
+                });
+            });
+
+            server.listen(0);
+        });
+
+        it('handles request errors with a boom response when payload is being sent', function (done) {
+
+            var server = Http.createServer(function (req, res) {
+
+                req.destroy();
+                res.end();
+            });
+
+
+            server.once('listening', function () {
+
+                Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: 'asdadqweqweqweqewqweqweqeqweqewqwe' }, function (err) {
+
+                    expect(err.data.err.code).to.equal('ECONNRESET');
+                    done();
+                });
+            });
+
+            server.listen(0);
+        });
+
+        it('handles response errors with a boom response', function (done) {
+
+            var server = Http.createServer(function (req, res) {
+
+                res.destroy();
+            });
+
+
+            server.once('listening', function () {
+
+                Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: '' }, function (err) {
+
+                    expect(err.data.err.code).to.equal('ECONNRESET');
+                    done();
+                });
+            });
+
+            server.listen(0);
+        });
+
+        it('handles errors when remote server is unavailable', function (done) {
+
+
+            Client.request('get', 'http://127.0.0.1:0', { payload: '' }, function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+    });
 });
-
-
-
