@@ -126,5 +126,63 @@ describe('Client', function () {
                 done();
             });
         });
+
+        it('handles a timeout during a socket close', function (done) {
+
+            var server = Http.createServer(function (req, res) {
+
+                req.once('error', function () { });
+                res.once('error', function () { });
+
+                setTimeout(function () {
+
+                    req.destroy();
+                }, 5);
+            });
+
+            server.once('error', function () { });
+
+            server.once('listening', function () {
+
+                Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: '', timeout: 5 }, function (err) {
+
+                    expect(err).to.exist;
+                    server.close();
+
+                    setTimeout(done, 5);
+                });
+            });
+
+            server.listen(0);
+        });
+
+        it('handles an error after a timeout', function (done) {
+
+            var server = Http.createServer(function (req, res) {
+
+                req.once('error', function () { });
+                res.once('error', function () { });
+
+                setTimeout(function () {
+
+                    res.socket.write('ERROR');
+                }, 5);
+            });
+
+            server.once('error', function () { });
+
+            server.once('listening', function () {
+
+                Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: '', timeout: 5 }, function (err) {
+
+                    expect(err).to.exist;
+                    server.close();
+
+                    setTimeout(done, 5);
+                });
+            });
+
+            server.listen(0);
+        });
     });
 });
