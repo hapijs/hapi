@@ -1031,7 +1031,7 @@ var logout = function () {
     return this.reply.redirect('/');
 };
 
-var server = new Hapi.Server('localhost', 8000, config);
+var server = new Hapi.Server('localhost', 8000);
 
 server.auth('session', {
     scheme: 'cookie',
