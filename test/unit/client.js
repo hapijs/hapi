@@ -123,7 +123,7 @@ describe('Client', function () {
 
             Client.request('get', 'http://127.0.0.1:0', { payload: '' }, function (err) {
 
-                expect(err.data.err.code).to.equal('EADDRNOTAVAIL');
+                expect(err).to.exist;
                 done();
             });
         });
