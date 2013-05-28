@@ -121,6 +121,30 @@ describe('Response', function () {
 
     describe('Obj', function () {
 
+        it('validates response', function (done) {
+
+            var i = 0;
+            var handler = function (request) {
+
+                request.reply({ some: i++ ? null : 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { validate: { response: { schema: { some: Hapi.types.String() } } }, handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('{"some":"value"}');
+
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+        });
+
         it('returns an JSONP response', function (done) {
 
             var handler = function (request) {
