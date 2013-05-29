@@ -2,6 +2,7 @@
 
 // Load modules
 
+var Fs = require('fs');
 var Optimist = require('optimist');
 var Hapi = require('../');
 
@@ -34,16 +35,27 @@ internals.getManifest = function () {
 }
 
 
-internals.loadPacks = function (manifest) {
+internals.loadPacks = function (manifest, callback) {
 
-    if (internals.argv.p) {
+    if (!internals.argv.p) {
+        return callback();
+    }
+
+    Fs.realpath(internals.argv.p, function (err, path) {
+
+        if (err) {
+            return callback(err);
+        }
+
         var packs = [].concat(manifest);
         packs.forEach(function (set) {
 
             set.pack = set.pack || {};
-            set.pack.requirePath = internals.argv.p;
+            set.pack.requirePath = path;
         });
-    }
+
+        callback();
+    });
 }
 
 
@@ -97,8 +109,15 @@ internals.restart = function () {
 internals.start = function () {
 
     var manifest = internals.getManifest();
-    internals.loadPacks(manifest);
-    internals.createComposer(manifest);
+    internals.loadPacks(manifest, function (err) {
+
+        if (err) {
+            console.error(err);
+            process.exit();
+        }
+
+        internals.createComposer(manifest);
+    });
 };
 
 internals.start();
