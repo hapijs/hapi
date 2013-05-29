@@ -88,7 +88,7 @@ describe('Client', function () {
 
             server.once('listening', function () {
 
-                Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: 'asdadqweqweqweqewqweqweqeqweqewqwe' }, function (err) {
+                Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: '' }, function (err) {
 
                     expect(err.data.err.code).to.equal('ECONNRESET');
                     done();
@@ -119,7 +119,6 @@ describe('Client', function () {
         });
 
         it('handles errors when remote server is unavailable', function (done) {
-
 
             Client.request('get', 'http://127.0.0.1:0', { payload: '' }, function (err) {
 
