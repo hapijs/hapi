@@ -24,8 +24,14 @@ var it = Lab.test;
 describe('Proxy', function () {
 
     var server = null;
+    var sslServer = null;
 
     before(function (done) {
+
+        var tlsOptions = {
+            key: '-----BEGIN RSA PRIVATE KEY-----\nMIIBOwIBAAJBANysie374iGH54SVcmM4vb+CjN4nVVCmL6af9XOUxTqq/50CBn+Z\nZol0XDG+OK55HTOht4CsQrAXey69ZTxgUMcCAwEAAQJAX5t5XtxkiraA/hZpqsdo\nnlKHibBs7DY0KvLeuybXlKS3ar/0Uz0OSJ1oLx3d0KDSmcdAIrfnyFuBNuBzb3/J\nEQIhAPX/dh9azhztRppR+9j8CxDg4ixJ4iZbHdK0pfnY9oIFAiEA5aV8edK31dkF\nfBXoqlOvIeuNc6WBZrYjUNspH8M+BVsCIQDZF3U6/nve81bXYXqMZwGtB4kR5LH7\nf3W2OU4wS9RfsQIhAJkNB76xX3AYqX0fpOcPyuLSeH2gynNH5JWY2vmeSBGNAiAm\nLon4E3M/IrVVvpxGRFOazKlgIsQFGAaoylDrRFYgBA==\n-----END RSA PRIVATE KEY-----\n',
+            cert: '-----BEGIN CERTIFICATE-----\nMIIB0TCCAXugAwIBAgIJANGtTMK5HBUIMA0GCSqGSIb3DQEBBQUAMEQxCzAJBgNV\nBAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UECgwJaGFwaSB0ZXN0MRQwEgYDVQQD\nDAtleGFtcGxlLmNvbTAeFw0xMzA0MDQxNDQ4MDJaFw0yMzA0MDIxNDQ4MDJaMEQx\nCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UECgwJaGFwaSB0ZXN0MRQw\nEgYDVQQDDAtleGFtcGxlLmNvbTBcMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQDcrInt\n++Ihh+eElXJjOL2/gozeJ1VQpi+mn/VzlMU6qv+dAgZ/mWaJdFwxvjiueR0zobeA\nrEKwF3suvWU8YFDHAgMBAAGjUDBOMB0GA1UdDgQWBBQBOiF6iL2PI4E6PBj071Dh\nAiQOGjAfBgNVHSMEGDAWgBQBOiF6iL2PI4E6PBj071DhAiQOGjAMBgNVHRMEBTAD\nAQH/MA0GCSqGSIb3DQEBBQUAA0EAw8Y2rpM8SUQXjgaJJmFXrfEvnl/he7q83K9W\n9Sr/QLHpCFxunWVd8c0wz+b8P/F9uW2V4wUf5NWj1UdHMCd6wQ==\n-----END CERTIFICATE-----\n'
+        };
 
         var mapUriWithError = function (request, callback) {
 
@@ -128,6 +134,11 @@ describe('Proxy', function () {
             }, 10);
         };
 
+        var sslHandler = function (req) {
+
+            req.reply('Ok');
+        };
+
         var upstream = new Hapi.Server(0);
         upstream.route([
             { method: 'GET', path: '/profile', handler: profile },
@@ -150,48 +161,68 @@ describe('Proxy', function () {
             { method: 'GET', path: '/timeout2', handler: timeoutHandler }
         ]);
 
+        var upstreamSsl = new Hapi.Server(0, { tls: tlsOptions });
+        upstreamSsl.route([
+            { method: 'GET', path: '/', handler: sslHandler }
+        ]);
+
         var mapUri = function (request, callback) {
 
             return callback(null, upstream.info.uri + request.path + (request.url.search || ''), { 'x-super-special': '@' });
         };
 
+        var mapSslUri = function (request, callback) {
+
+            return callback(null, 'https://127.0.0.1:' + upstreamSsl.info.port);
+        };
+
         upstream.start(function () {
 
-            var backendPort = upstream.info.port;
-            var routeCache = { expiresIn: 500, mode: 'server+client' };
+            upstreamSsl.start(function () {
 
-            server = new Hapi.Server(0, { cors: true, maxSockets: 10 });
-            server.route([
-                { method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
-                { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
-                { method: 'GET', path: '/unauthorized', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
-                { method: 'POST', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } } },
-                { method: 'POST', path: '/notfound', handler: { proxy: { host: 'localhost', port: backendPort } } },
-                { method: 'GET', path: '/proxyerror', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
-                { method: 'GET', path: '/postResponseError', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
-                { method: 'GET', path: '/errorResponse', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
-                { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
-                { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: 'stream' } },
-                { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
-                { method: 'GET', path: '/forward', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
-                { method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
-                { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } },
-                { method: 'GET', path: '/gzip', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
-                { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
-                { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://www.google.com'); } } } },
-                { method: 'GET', path: '/googler', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); }, redirects: 1 } } },
-                { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
-                { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } },
-                { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } },
-                { method: 'GET', path: '/cached', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
-                { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 5 } } },
-                { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort } } }
-            ]);
+                var backendPort = upstream.info.port;
+                var routeCache = { expiresIn: 500, mode: 'server+client' };
 
-            server.state('auto', { autoValue: 'xyz' });
-            server.start(function () {
+                server = new Hapi.Server(0, { cors: true, maxSockets: 10 });
+                server.route([
+                    { method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
+                    { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                    { method: 'GET', path: '/unauthorized', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                    { method: 'POST', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } } },
+                    { method: 'POST', path: '/notfound', handler: { proxy: { host: 'localhost', port: backendPort } } },
+                    { method: 'GET', path: '/proxyerror', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                    { method: 'GET', path: '/postResponseError', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
+                    { method: 'GET', path: '/errorResponse', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                    { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
+                    { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: 'stream' } },
+                    { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
+                    { method: 'GET', path: '/forward', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
+                    { method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
+                    { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } },
+                    { method: 'GET', path: '/gzip', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
+                    { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
+                    { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://www.google.com'); } } } },
+                    { method: 'GET', path: '/googler', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); }, redirects: 1 } } },
+                    { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
+                    { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } },
+                    { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } },
+                    { method: 'GET', path: '/cached', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                    { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 5 } } },
+                    { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort } } }
+                ]);
 
-                done();
+                sslServer = new Hapi.Server(0);
+                sslServer.route([
+                    { method: 'GET', path: '/allow', handler: { proxy: { mapUri: mapSslUri, rejectUnauthorized: false } } },
+                    { method: 'GET', path: '/reject', handler: { proxy: { mapUri: mapSslUri, rejectUnauthorized: true } } },
+                    { method: 'GET', path: '/sslDefault', handler: { proxy: { mapUri: mapSslUri } } }
+                ]);
+
+                server.state('auto', { autoValue: 'xyz' });
+                server.start(function () {
+
+                    sslServer.start(done);
+                });
             });
         });
     });
@@ -483,6 +514,34 @@ describe('Proxy', function () {
         server.inject('/timeout2', function (res) {
 
             expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('uses rejectUnauthorized to allow proxy to self signed ssl server', function (done) {
+
+        sslServer.inject('/allow', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('Ok');
+            done();
+        });
+    });
+
+    it('uses rejectUnauthorized to not allow proxy to self signed ssl server', function (done) {
+
+        sslServer.inject('/reject', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('the default rejectUnauthorized should not allow proxied server cert to be self signed', function (done) {
+
+        sslServer.inject('/sslDefault', function (res) {
+
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });
