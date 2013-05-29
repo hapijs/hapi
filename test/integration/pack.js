@@ -614,4 +614,38 @@ describe('Pack', function () {
             });
         });
     });
+
+    it('exposes a client request method to plugins', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.pack.require('./pack/--request', function (err) {
+
+            expect(err).to.not.exist;
+            expect(server.plugins['--request'].response.statusCode).to.equal(200);
+
+            done();
+        });
+    });
+
+    it('permissions can prevent exposing request', function (done) {
+
+        var server = new Hapi.Server();
+        var plugin = {
+            name: 'test',
+            version: '3.0.0',
+            register: function (pack, options, next) {
+
+                pack.request();
+                next();
+            }
+        };
+
+        expect(function () {
+
+            server.pack.allow({ request: false }).register(plugin);
+        }).to.throw()
+
+        done();
+    });
 });
