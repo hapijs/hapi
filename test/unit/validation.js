@@ -114,20 +114,6 @@ describe('Validation', function () {
             });
         });
 
-        it('should not raise an error when responding with invalid param and sample is 0', function (done) {
-
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-            request.route.validate.response.sample = 0;
-            request._response = Hapi.response._generate({ wrongParam: 'test' });
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
-
         it('should raise an error when responding with invalid param and sample is 100', function (done) {
 
             var query = { username: 'steve' };
@@ -215,20 +201,6 @@ describe('Validation', function () {
                 done();
             });
         });
-
-        it('doesn\'t perform validation when response is true', function (done) {
-
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { response: true } } };
-
-            var query = null;
-            var request = createRequestObject(query, route);
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
     });
 
     describe('#path', function () {
@@ -256,37 +228,9 @@ describe('Validation', function () {
                 done();
             });
         });
-
-        it('doesn\'t perform validation when path is true', function (done) {
-
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { path: true } } };
-
-            var query = null;
-            var request = createRequestObject(query, route);
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
     });
 
     describe('#query', function () {
-
-        it('doesn\'t perform validation when query is true', function (done) {
-
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { query: true } } };
-
-            var query = null;
-            var request = createRequestObject(query, route);
-
-            Validation.query(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
 
         it('should not raise an error when responding with valid param in the querystring', function (done) {
 
@@ -316,20 +260,6 @@ describe('Validation', function () {
     });
 
     describe('#payload', function () {
-
-        it('doesn\'t perform validation when schema is true', function (done) {
-
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: true } } };
-
-            var payload = null;
-            var request = createRequestObject(null, route, payload);
-
-            Validation.payload(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
 
         it('should not raise an error when responding with valid param in the payload', function (done) {
 
