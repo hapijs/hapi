@@ -15,4 +15,4 @@
 
 #### [Good](https://npmjs.org/package/good) - Server and process monitoring
 
-#### [Hapi-Helmet](https://npmjs.org/package/hapi-helmet) - Debug console for request monitoring  
+#### [TV](https://npmjs.org/package/tv) - Debug console for request monitoring  

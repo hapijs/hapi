@@ -2899,7 +2899,7 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.dependency(deps)`
 
-Declares a required dependency other plugins where:
+Declares a required dependency upon other plugins where:
 
 - `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
   must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
