@@ -25,36 +25,6 @@ describe('State', function () {
 
     describe('#parseCookies', function () {
 
-        it('skips cookie header parsing', function (done) {
-
-            var request = {
-                raw: {
-                    req: {
-                        headers: {
-                            cookie: 'a=b'
-                        }
-                    }
-                },
-                server: {
-                    _stateDefinitions: {},
-                    settings: {
-                        state: {
-                            cookies: {
-                                parse: false
-                            }
-                        }
-                    }
-                }
-            };
-
-            State.parseCookies(request, function (err) {
-
-                expect(err).not.to.exist;
-                expect(request.state).to.not.exist;
-                done();
-            });
-        });
-
         describe('cases', function () {
 
             var pass = function (header, values, settings, definitions) {
