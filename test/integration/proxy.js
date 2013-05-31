@@ -1,5 +1,6 @@
 // Load modules
 
+var Async = require('async');
 var Lab = require('lab');
 var Fs = require('fs');
 var Zlib = require('zlib');
@@ -25,6 +26,7 @@ describe('Proxy', function () {
 
     var server = null;
     var sslServer = null;
+    var timeoutServer = null;
 
     before(function (done) {
 
@@ -218,10 +220,20 @@ describe('Proxy', function () {
                     { method: 'GET', path: '/sslDefault', handler: { proxy: { mapUri: mapSslUri } } }
                 ]);
 
+                timeoutServer = new Hapi.Server(0, { timeout: { server: 5 }});
+                timeoutServer.route([
+                    { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 15 } } },
+                    { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 2 } } },
+                    { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } } }
+                ]);
+
                 server.state('auto', { autoValue: 'xyz' });
                 server.start(function () {
 
-                    sslServer.start(done);
+                    sslServer.start(function () {
+
+                        timeoutServer.start(done);
+                    });
                 });
             });
         });
@@ -542,6 +554,49 @@ describe('Proxy', function () {
         sslServer.inject('/sslDefault', function (res) {
 
             expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('doesn\'t consume all sockets when server times out before proxy', function (done) {
+
+        var wrappedReq = function (next) {
+
+            timeoutServer.inject('/timeout1', next);
+        };
+
+        Async.series([
+            wrappedReq,
+            wrappedReq,
+            wrappedReq,
+            wrappedReq,
+            wrappedReq,
+            wrappedReq,
+            wrappedReq
+        ], function () {
+
+            timeoutServer.inject('/item', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
+
+    it('times out when proxy timeout is less than server', function (done) {
+
+        timeoutServer.inject('/timeout2', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('times out when server timeout is less than proxy', function (done) {
+
+        timeoutServer.inject('/timeout1', function (res) {
+
+            expect(res.statusCode).to.equal(503);
             done();
         });
     });
