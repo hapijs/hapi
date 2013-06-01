@@ -103,6 +103,11 @@ describe('Request', function () {
         request.reply(stream);
     };
 
+    var forbiddenErrorHandler = function (request) {
+
+        request.reply(Hapi.error.forbidden('Unauthorized content'));
+    };
+
     var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
     server.ext('onPostHandler', postHandler);
     server.route([
@@ -110,7 +115,8 @@ describe('Request', function () {
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },
         { method: 'GET', path: '/ext', config: { handler: plainHandler } },
         { method: 'GET', path: '/response', config: { handler: responseErrorHandler } },
-        { method: 'GET', path: '/stream', config: { handler: streamErrorHandler } }
+        { method: 'GET', path: '/stream', config: { handler: streamErrorHandler } },
+        { method: 'GET', path: '/forbidden', config: { handler: forbiddenErrorHandler } }
     ]);
 
     server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
@@ -385,6 +391,15 @@ describe('Request', function () {
         server.inject('invalid', function (res) {
 
             expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
+
+    it('returns 403 on forbidden response', function (done) {
+
+        server.inject('/forbidden', function (res) {
+
+            expect(res.statusCode).to.equal(403);
             done();
         });
     });
