@@ -10,9 +10,9 @@ var internals = {};
 
 // Type shortcuts
 
-var S = Hapi.Types.String;
-var N = Hapi.Types.Number;
-var A = Hapi.Types.Array;
+var S = Hapi.types.String;
+var N = Hapi.types.Number;
+var A = Hapi.types.Array;
 
 
 internals.get = function () {
