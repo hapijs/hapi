@@ -64,7 +64,6 @@ describe('Client', function () {
                 res.end();
             });
 
-
             server.once('listening', function () {
 
                 Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: '' }, function (err) {
@@ -85,7 +84,6 @@ describe('Client', function () {
                 res.end();
             });
 
-
             server.once('listening', function () {
 
                 Client.request('get', 'http://127.0.0.1:' + server.address().port, { payload: '' }, function (err) {
@@ -104,7 +102,6 @@ describe('Client', function () {
 
                 res.destroy();
             });
-
 
             server.once('listening', function () {
 
@@ -180,6 +177,22 @@ describe('Client', function () {
 
                     setTimeout(done, 5);
                 });
+            });
+
+            server.listen(0);
+        });
+
+        it('allows request without a callback', function (done) {
+
+            var server = Http.createServer(function (req, res) {
+
+                res.end('ok');
+            });
+
+            server.once('listening', function () {
+
+                Client.request('get', 'http://127.0.0.1:' + server.address().port);
+                done();
             });
 
             server.listen(0);
