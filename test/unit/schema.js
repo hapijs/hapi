@@ -30,7 +30,7 @@ describe('Schema', function () {
 
         it('fails when unknown properties exist', function (done) {
 
-            var settings = { unknown: true, something: { } };
+            var settings = { unknown: true, something: {} };
 
             expect(Schema.server(settings)).to.exist;
             done();
@@ -72,13 +72,25 @@ describe('Schema', function () {
             expect(fn).to.not.throw(Error);
             done();
         });
+
+
+        it('succeeds with extension cache', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server({ cache: { engine: {}, partition: 'gilden-yak' } });
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
     });
 
     describe('#routeOptions', function () {
 
         it('fails when unknown properties exist', function (done) {
 
-            var options = { method: 'GET', path: '/', handler: function() {}, unknown: true };
+            var options = { method: 'GET', path: '/', handler: function () { }, unknown: true };
             expect(Schema.routeOptions(options)).to.exist;
             done();
         });
