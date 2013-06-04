@@ -73,7 +73,6 @@ describe('Schema', function () {
             done();
         });
 
-
         it('succeeds with extension cache', function (done) {
 
             var fn = function () {
