@@ -1,6 +1,7 @@
 // Load modules
 
 var Lab = require('lab');
+var Net = require('net');
 var Stream = require('stream');
 var Request = require('request');
 var Hapi = require('../..');
@@ -108,9 +109,41 @@ describe('Request', function () {
         request.reply(Hapi.error.forbidden('Unauthorized content'));
     };
 
+    var addressHandler = function (request) {
+
+        expect(request.info.remoteAddress).to.equal('127.0.0.1');
+        expect(request.info.remoteAddress).to.equal(request.info.address);
+        request.reply('ok');
+    };
+
+    var simpleHandler = function (request) {
+
+        var TestStream = function () {
+
+            Stream.Readable.call(this);
+        };
+
+        Hapi.utils.inherits(TestStream, Stream.Readable);
+
+        TestStream.prototype._read = function (size) {
+
+            if (this.isDone) {
+                return;
+            }
+            this.isDone = true;
+
+            this.push('success');
+            this.emit('data', 'success');
+        };
+
+        var stream = new TestStream();
+        request.reply(stream);
+    };
+
     var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
     server.ext('onPostHandler', postHandler);
     server.route([
+        { method: 'GET', path: '/', config: { handler: simpleHandler } },
         { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
         { method: 'GET', path: '/tail', config: { handler: tailHandler } },
         { method: 'GET', path: '/ext', config: { handler: plainHandler } },
@@ -119,7 +152,13 @@ describe('Request', function () {
         { method: 'GET', path: '/forbidden', config: { handler: forbiddenErrorHandler } }
     ]);
 
+    server.route({ method: 'GET', path: '/address', handler: addressHandler });
     server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
+
+    before(function (done) {
+
+        server.start(done);
+    });
 
     it('returns custom error response', function (done) {
 
@@ -346,24 +385,10 @@ describe('Request', function () {
 
     it('request has client address', function (done) {
 
-        var server = new Hapi.Server(0);
+        Request('http://localhost:' + server.info.port + '/address', function (err, res, body) {
 
-        var handler = function (request) {
-
-            expect(request.info.remoteAddress).to.equal('127.0.0.1');
-            expect(request.info.remoteAddress).to.equal(request.info.address);
-            request.reply('ok');
-        };
-
-        server.route({ method: 'GET', path: '/address', handler: handler });
-
-        server.start(function () {
-
-            Request('http://localhost:' + server.info.port + '/address', function (err, res, body) {
-
-                expect(body).to.equal('ok');
-                done();
-            });
+            expect(body).to.equal('ok');
+            done();
         });
     });
 
@@ -402,5 +427,37 @@ describe('Request', function () {
             expect(res.statusCode).to.equal(403);
             done();
         });
+    });
+
+    it('handles aborted requests', function (done) {
+
+        var total = 2;
+        var createConnection = function () {
+
+            var client = Net.connect(server.info.port, function () {
+
+                client.write('GET / HTTP/1.1\r\n\r\n');
+                client.write('GET / HTTP/1.1\r\n\r\n');
+            });
+
+            client.on('data', function() {
+
+                total--;
+                client.destroy();
+            });
+        };
+
+        var check = function () {
+
+           if (total) {
+               createConnection();
+               setImmediate(check);
+           }
+           else {
+               done();
+           }
+        };
+
+        check();
     });
 });
