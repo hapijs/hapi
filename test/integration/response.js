@@ -1086,6 +1086,18 @@ describe('Response', function () {
             });
         });
 
+        it('returns a stream reply when accept-encoding is malformed', function (done) {
+
+            server.inject({ url: '/stream/', headers: { 'content-encoding': '', 'accept-encoding': 't=1,' } }, function (res) {
+
+                expect(res.result).to.equal('xy');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                done();
+            });
+        });
+
         it('returns a stream reply with custom response headers', function (done) {
 
             server.inject('/stream2', function (res) {
@@ -1394,7 +1406,7 @@ describe('Response', function () {
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(500);
                     done();
-                })
+                });
             });
 
             it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
@@ -1567,7 +1579,7 @@ describe('Response', function () {
                                 module: {
                                     compile: function (engine) { return engine.compile; }
                                 }
-                            },
+                            }
                         }
                     }
                 });
