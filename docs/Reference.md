@@ -1,4 +1,4 @@
-# 1.7.x API Reference
+# 1.8.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -357,6 +357,8 @@ The following options are available when adding a route:
         - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document.
           Defaults to `false`.
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
+        - `redirectToSlash` - optional boolean, determines if requests for a directory without a trailing slash are redirected to the same path with
+          the missing slash. Useful for ensuring relative links inside the response are resolved correctly.
 <p></p>
     - `proxy` - generates a reverse proxy handler with the following options:
         - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.

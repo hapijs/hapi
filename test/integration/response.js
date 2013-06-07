@@ -733,6 +733,7 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
         server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: ['./', '../'], listing: true } } });
+        server.route({ method: 'GET', path: '/redirect/{path*}', handler: { directory: { path: './', index: true, listing: true, redirectToSlash: true } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -937,6 +938,16 @@ describe('Response', function () {
             server.inject('/showhidden/.hidden', function (res) {
 
                 expect(res.payload).to.contain('test');
+                done();
+            });
+        });
+
+        it('redirects to the same path with / appended if asking for a directory', function (done) {
+
+            server.inject('http://example.com/redirect/directory/subdir', function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                expect(res.headers.location).to.equal('http://example.com/redirect/directory/subdir/');
                 done();
             });
         });
