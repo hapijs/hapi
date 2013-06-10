@@ -154,4 +154,18 @@ describe('Server', function () {
             });
         });
     });
+    it('removes connection event listeners after it stops', function (done) {
+
+        var server = Hapi.createServer(0);
+        server.start(function () {
+            server.stop(function () {
+                server.start(function () {
+                    server.stop(function () {
+                        expect(server.listeners('connection').length).to.be.eql(0);
+                        done();
+                    });
+                });
+            });
+        });
+    });
 });
