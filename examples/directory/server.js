@@ -16,15 +16,15 @@ internals.serveImages = function (request) {
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
+    var server = new Hapi.Server(8000, { files: { relativeTo: 'routes' } });
 
-    http.route([
+    server.route([
         { method: 'GET', path: '/img/{path}', handler: { directory: { path: internals.serveImages } } },
-        { method: 'GET', path: '/files/{path*}', handler: { directory: { path: '../../', listing: true } } },
+        { method: 'GET', path: '/files/{path*}', handler: { directory: { path: '../../', listing: true, redirectToSlash: true } } },
         { method: 'GET', path: '/{path?}', handler: { directory: { path: './' } } }
     ]);
 
-    http.start();
+    server.start();
 };
 
 
