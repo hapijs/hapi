@@ -1,6 +1,7 @@
 // Load modules
 
 var Lab = require('lab');
+var Hoek = require('hoek');
 var Shot = require('shot');
 var Hapi = require('../..');
 var Request = require('../../lib/request');
@@ -123,6 +124,24 @@ describe('Request', function () {
             expect(request.path).to.equal('/page');
             expect(request.query.param1).to.equal('something');
             done();
+        });
+
+        it('doesn\'t throw when path is missing from request and execute is called', function (done) {
+
+            var brokeServer = new Hapi.Server();
+            var req = Hoek.clone(_req);
+            req.once = function () { };
+            req.removeAllListeners = function () { };
+            req.destroy = function () { };
+            req.url = 'ssh://something';
+
+            var request = new Request(brokeServer, req, _res, {});
+            request._execute();
+
+            setTimeout(function () {
+
+                done();
+            }, 10);
         });
     });
 
