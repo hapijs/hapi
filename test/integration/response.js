@@ -1,7 +1,8 @@
 // Load modules
 
-var Lab = require('lab');
 var Fs = require('fs');
+var Http = require('http');
+var Lab = require('lab');
 var Stream = require('stream');
 var Zlib = require('zlib');
 var Hapi = require('../..');
@@ -1234,6 +1235,59 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 done();
+            });
+        });
+
+        it('doesn\'t truncate the response when stream finishes before response is done', function (done) {
+
+            var chunkTimes = 10;
+            var readTimes = 0;
+            var filePath = __dirname + '/response.js';
+            var responseJs = Fs.readFileSync(filePath).toString();
+
+            var expectedBody = '';
+            for (var i = 0, il = chunkTimes; i < il; ++i) {
+                expectedBody += responseJs;
+            }
+
+            var streamServer = new Hapi.Server(0);
+            var fileHandler = function (request) {
+
+                var fileStream = new Stream.Readable();
+                fileStream._read = function (n) {
+
+                    if (readTimes++ === chunkTimes) {
+
+                        fileStream.push(null);
+                    }
+                    else {
+                        fileStream.push(responseJs);
+                    }
+                };
+
+                request.reply(fileStream);
+            };
+            streamServer.route({ method: 'GET', path: '/', handler: fileHandler });
+
+            streamServer.start(function () {
+
+                Http.get('http://127.0.0.1:' + streamServer.info.port + '/', function (res) {
+
+                    var receivedFile = '';
+                    res.on('readable', function () {
+
+                        receivedFile += res.read().toString();
+                    });
+
+                    res.once('end', function () {
+
+                        expect(receivedFile).to.equal(expectedBody);
+                        done();
+                    });
+                }).on('error', function (err) {
+
+                    expect(err).to.not.exist();
+                });
             });
         });
     });
