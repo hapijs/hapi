@@ -103,6 +103,32 @@ describe('Router', function () {
         done();
     });
 
+    it('doesn\'t allow conflicting routes different in trailing path (optional param in new)', function (done) {
+
+        server.route({ method: 'GET', path: '/conflict1', handler: function () { } });
+
+        var fn = function () {
+
+            server.route({ method: 'GET', path: '/conflict1/{p?}', handler: function () { } });
+        };
+
+        expect(fn).to.throw(Error);
+        done();
+    });
+
+    it('doesn\'t allow conflicting routes different in trailing path (optional param in existing)', function (done) {
+
+        server.route({ method: 'GET', path: '/conflict2/{p?}', handler: function () { } });
+
+        var fn = function () {
+
+            server.route({ method: 'GET', path: '/conflict2', handler: function () { } });
+        };
+
+        expect(fn).to.throw(Error);
+        done();
+    });
+
     it('does allow duplicate routes with a different vhost', function (done) {
 
         var fn = function () {
