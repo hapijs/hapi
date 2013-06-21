@@ -201,10 +201,15 @@ describe('Route', function () {
                     },
                     '/path/': {
                         param: undefined
+                    },
+                    '/path': {
+                        param: undefined
                     }
                 },
                 '/path/{param*}': {
-                    '/path': false,
+                    '/path': {
+                        param: undefined
+                    },
                     '/path/a/b/to': {
                         param: 'a/b/to'
                     },
@@ -219,7 +224,10 @@ describe('Route', function () {
                         p1: 'a',
                         p2: 'b'
                     },
-                    '/path/a': false,
+                    '/path/a': {
+                        p1: 'a',
+                        p2: undefined
+                    },
                     '/path/a/': {
                         p1: 'a',
                         p2: undefined
@@ -231,7 +239,10 @@ describe('Route', function () {
                         p1: 'a',
                         p2: 'c'
                     },
-                    '/path/a': false,
+                    '/path/a': {
+                        p1: 'a',
+                        p2: undefined
+                    },
                     '/path/a/': {
                         p1: 'a',
                         p2: undefined
