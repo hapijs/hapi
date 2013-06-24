@@ -3149,7 +3149,7 @@ Returns the **hapi** module version number.
 
 ```javascript
 var Hapi = require('hapi');
-console.log(Hapi.version());
+console.log(Hapi.utils.version());
 ```
 
 ## `Hapi.types`
