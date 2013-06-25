@@ -37,6 +37,18 @@ describe('Views', function () {
             layout: true
         });
 
+        var testViewWithJadeLayouts = new Views({
+            engines: { 'jade': 'jade' },
+            path: viewsPath + '/valid/',
+            layout: true
+        });
+
+        var testViewWithoutJadeLayouts = new Views({
+            engines: { 'jade': 'jade' },
+            path: viewsPath + '/valid/',
+            layout: false
+        });
+
         it('renders with async compile', function (done) {
 
             var views = new Views({
@@ -57,7 +69,7 @@ describe('Views', function () {
             views.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
-                expect(rendered.length).above(1);
+                expect(rendered).to.contain('Hapi');
                 done();
             });
         });
@@ -92,7 +104,7 @@ describe('Views', function () {
             testView.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
-                expect(rendered.length).above(1);
+                expect(rendered).to.contain('Hapi');
                 done();
             });
         });
@@ -102,10 +114,27 @@ describe('Views', function () {
             testViewWithLayouts.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
-                expect(rendered.length).above(1);
+                expect(rendered).to.contain('Hapi');
                 done();
             });
+        });
 
+        it('should work and not throw with valid jade layouts', function (done) {
+
+            testViewWithJadeLayouts.render('index', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
+        });
+
+        it('should work and not throw without jade layouts', function (done) {
+
+            testViewWithoutJadeLayouts.render('test', { title: 'test', message: 'Hapi Message' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.contain('Hapi Message');
+                done();
+            });
         });
 
         it('should work and not throw with basePath, template name, and no path', function (done) {
@@ -114,7 +143,7 @@ describe('Views', function () {
             views.render('test', { title: 'test', message: 'Hapi' }, { basePath: viewsPath + '/valid' }, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
-                expect(rendered.length).above(1);
+                expect(rendered).to.contain('Hapi');
                 done();
             });
         });
