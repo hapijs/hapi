@@ -3,6 +3,7 @@
 var Fs = require('fs');
 var Http = require('http');
 var Lab = require('lab');
+var Request = require('request');
 var Stream = require('stream');
 var Zlib = require('zlib');
 var Hapi = require('../..');
@@ -1287,6 +1288,51 @@ describe('Response', function () {
                 }).on('error', function (err) {
 
                     expect(err).to.not.exist();
+                });
+            });
+        });
+
+        it('doesn\'t truncate the response when stream finishes before response is done using https', function (done) {
+
+            var chunkTimes = 10;
+            var readTimes = 0;
+            var filePath = __dirname + '/response.js';
+            var responseJs = Fs.readFileSync(filePath).toString();
+            var tlsOptions = {
+                key: '-----BEGIN RSA PRIVATE KEY-----\nMIIBOwIBAAJBANysie374iGH54SVcmM4vb+CjN4nVVCmL6af9XOUxTqq/50CBn+Z\nZol0XDG+OK55HTOht4CsQrAXey69ZTxgUMcCAwEAAQJAX5t5XtxkiraA/hZpqsdo\nnlKHibBs7DY0KvLeuybXlKS3ar/0Uz0OSJ1oLx3d0KDSmcdAIrfnyFuBNuBzb3/J\nEQIhAPX/dh9azhztRppR+9j8CxDg4ixJ4iZbHdK0pfnY9oIFAiEA5aV8edK31dkF\nfBXoqlOvIeuNc6WBZrYjUNspH8M+BVsCIQDZF3U6/nve81bXYXqMZwGtB4kR5LH7\nf3W2OU4wS9RfsQIhAJkNB76xX3AYqX0fpOcPyuLSeH2gynNH5JWY2vmeSBGNAiAm\nLon4E3M/IrVVvpxGRFOazKlgIsQFGAaoylDrRFYgBA==\n-----END RSA PRIVATE KEY-----\n',
+                cert: '-----BEGIN CERTIFICATE-----\nMIIB0TCCAXugAwIBAgIJANGtTMK5HBUIMA0GCSqGSIb3DQEBBQUAMEQxCzAJBgNV\nBAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UECgwJaGFwaSB0ZXN0MRQwEgYDVQQD\nDAtleGFtcGxlLmNvbTAeFw0xMzA0MDQxNDQ4MDJaFw0yMzA0MDIxNDQ4MDJaMEQx\nCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UECgwJaGFwaSB0ZXN0MRQw\nEgYDVQQDDAtleGFtcGxlLmNvbTBcMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQDcrInt\n++Ihh+eElXJjOL2/gozeJ1VQpi+mn/VzlMU6qv+dAgZ/mWaJdFwxvjiueR0zobeA\nrEKwF3suvWU8YFDHAgMBAAGjUDBOMB0GA1UdDgQWBBQBOiF6iL2PI4E6PBj071Dh\nAiQOGjAfBgNVHSMEGDAWgBQBOiF6iL2PI4E6PBj071DhAiQOGjAMBgNVHRMEBTAD\nAQH/MA0GCSqGSIb3DQEBBQUAA0EAw8Y2rpM8SUQXjgaJJmFXrfEvnl/he7q83K9W\n9Sr/QLHpCFxunWVd8c0wz+b8P/F9uW2V4wUf5NWj1UdHMCd6wQ==\n-----END CERTIFICATE-----\n'
+            };
+
+            var expectedBody = '';
+            for (var i = 0, il = chunkTimes; i < il; ++i) {
+                expectedBody += responseJs;
+            }
+
+            var streamServer = new Hapi.Server(0, { tls: tlsOptions });
+            var fileHandler = function (request) {
+
+                var fileStream = new Stream.Readable();
+                fileStream._read = function (n) {
+
+                    if (readTimes++ === chunkTimes) {
+
+                        fileStream.push(null);
+                    }
+                    else {
+                        fileStream.push(responseJs);
+                    }
+                };
+
+                request.reply(fileStream);
+            };
+            streamServer.route({ method: 'GET', path: '/', handler: fileHandler });
+
+            streamServer.start(function () {
+
+                Request({ url: 'https://127.0.0.1:' + streamServer.info.port, rejectUnauthorized: false }, function (err, res, body) {
+
+                    expect(body).to.equal(expectedBody);
+                    done();
                 });
             });
         });
