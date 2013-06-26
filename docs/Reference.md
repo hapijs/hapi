@@ -2889,7 +2889,7 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.log(tags, [data, [timestamp]])`
 
-Emits a `'log'` event on the `pack.events' emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
+Emits a `'log'` event on the `pack.events` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
 
 ```javascript
 exports.register = function (plugin, options, next) {
@@ -2910,7 +2910,7 @@ Declares a required dependency upon other plugins where:
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.dependecy('yar');
+    plugin.dependency('yar');
     next();
 };
 ```
