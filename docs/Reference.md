@@ -1690,7 +1690,7 @@ var handler = function () {
     this.reply.view('hello', context);
 };
 
-http.route({ method: 'GET', path: '/', handler: handler });
+server.route({ method: 'GET', path: '/', handler: handler });
 ```
 
 **templates/hello.html**
@@ -2075,8 +2075,8 @@ var handler2 = {
     }
 };
 
-http.route({ method: 'GET', path: '/1/{path*}', handler: handler1 });
-http.route({ method: 'GET', path: '/2/{path*}', handler: handler2 });
+server.route({ method: 'GET', path: '/1/{path*}', handler: handler1 });
+server.route({ method: 'GET', path: '/2/{path*}', handler: handler2 });
 ```
 
 #### `Redirection`
