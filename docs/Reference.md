@@ -447,7 +447,7 @@ The following options are available when adding a route:
                 - application/json
                 - application/x-www-form-urlencoded
                 - application/octet-stream
-                - multipart/form-data ([formidable](https://npmjs.org/package/formidable) is used for processing this data and is capable of
+                - multipart/form-data ([multiparty](https://npmjs.org/package/multiparty) is used for processing this data and is capable of
                   receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
             - `'try'` - same as `'parse'` but does not return an error on failed parsing. Instead, leaves `request.payload` undefined.
         - `allow` - a string or an array of strings with the allowed mime types for the endpoint. Defaults to any of the supported mime types listed
