@@ -827,6 +827,21 @@ describe('Auth', function () {
                 done();
             });
         });
+
+        it('returns an error with payload validation when the payload hash is not included and payload validation is required', function (done) {
+
+            var payload = 'Here is my payload';
+            var authHeader = Hawk.client.header('http://example.com:8080/hawkPayload', 'POST', { credentials: credentials.john.cred });
+
+            var request = { method: 'POST', url: 'http://example.com:8080/hawkPayload', headers: { authorization: authHeader.field }, payload: payload };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                expect(res.result.message).to.equal('Payload is invalid');
+                done();
+            });
+        });
     });
 
     describe('Bewit', function () {
