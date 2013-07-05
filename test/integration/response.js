@@ -1078,6 +1078,12 @@ describe('Response', function () {
             request.reply(oldMode);
         };
 
+        var handler7 = function (request) {
+
+            var reqStream = Request('http://google.com');
+            reqStream.once('response', request.reply);
+        };
+
         var server = new Hapi.Server({ cors: { origin: ['test.example.com'] }, location: 'http://example.com:8080' });
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
@@ -1086,6 +1092,7 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/stream4', config: { handler: handler4 } });
         server.route({ method: 'GET', path: '/stream5', config: { handler: handler5 } });
         server.route({ method: 'GET', path: '/stream6', config: { handler: handler6 } });
+        server.route({ method: 'GET', path: '/request', config: { handler: handler7 } });
 
         it('returns a stream reply', function (done) {
 
@@ -1136,6 +1143,16 @@ describe('Response', function () {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('returns a stream reply with the Request module', function (done) {
+
+            server.inject('/request', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.contain('google')
                 done();
             });
         });
