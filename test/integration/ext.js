@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Hapi = require('../..');
+var Ext = require('../../lib/ext');
 
 
 // Declare internals
@@ -20,7 +21,7 @@ var it = Lab.test;
 
 describe('Ext', function () {
 
-    describe('#onRequest', function (done) {
+    describe('#onRequest', function () {
 
         it('replies with custom response', function (done) {
 
@@ -40,7 +41,7 @@ describe('Ext', function () {
         });
     });
 
-    describe('#onPreResponse', function (done) {
+    describe('#onPreResponse', function () {
 
         it('replies with custom response', function (done) {
 
@@ -89,6 +90,54 @@ describe('Ext', function () {
 
                 expect(res.result).to.equal('12');
                 done();
+            });
+        });
+    });
+
+    describe('#runProtected', function () {
+
+        it('traps exceptions', function (done) {
+
+            var log = function (tags) {
+
+                expect(tags).to.contain('uncaught');
+            };
+
+            var run = function () {
+
+                throw new Error();
+            };
+
+            Ext.runProtected(log, null, done, function (enter, exit) {
+
+                enter(run);
+            });
+        });
+
+        it('traps exceptions after run', function (done) {
+
+            var log = function (tags) {
+
+                expect(tags).to.contain('uncaught');
+            };
+
+            var run = function () {
+
+                setTimeout(function () {
+
+                    throw new Error('My Error');
+                }, 5);
+            };
+
+            var finish = function (err) {
+
+                expect(err.data.message).to.equal('My Error');
+                done();
+            };
+
+            Ext.runProtected(log, null, finish, function (enter, exit) {
+
+                enter(run);
             });
         });
     });
