@@ -1503,7 +1503,7 @@ arguments are:
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-server.on('request', function (event, tags) {
+server.on('request', function (request, event, tags) {
 
     if (tags.error) {
         console.log(event);
