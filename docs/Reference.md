@@ -3015,7 +3015,7 @@ The number of selected servers.
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    var count = plugin.lenght;
+    var count = plugin.length;
     var selectedCount = plugin.select('web').length;
     next();
 };
