@@ -41,9 +41,10 @@
     "multiparty": "2.1.x",
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
-    "optimist": "0.4.x",
+    "optimist": "0.6.x",
     "negotiator": "0.2.x",
-    "semver": "1.1.x"
+    "semver": "1.1.x",
+    "dtrace-provider": "0.2.x"
   },
   "devDependencies": {
     "lab": "0.1.x",
