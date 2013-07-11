@@ -329,6 +329,32 @@ describe('Server', function () {
             done();
         });
 
+        it('throws an error when route params differ in case and case is sensitive', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server({ router: { isCaseSensitive: true } });
+                server.route({ path: '/test/{P}/end', method: 'put', handler: function () { } });
+                server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
+            };
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('doesn\'t lowercase params when case is insensitive', function (done) {
+
+            var server = new Hapi.Server({ router: { isCaseSensitive: false } });
+            server.route({ path: '/test/{userId}/end', method: 'put', handler: function (request) {
+
+                expect(request.params.userId).to.exist;
+                done();
+            } });
+
+            server.inject({ url: '/test/2100/end', method: 'PUT' }, function () {
+
+            });
+        });
+
         it('adds to routes object with the passed in routes values', function (done) {
 
             var routes = [{
