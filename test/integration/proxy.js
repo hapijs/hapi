@@ -177,7 +177,7 @@ describe('Proxy', function () {
 
         var mapUri = function (request, callback) {
 
-            return callback(null, upstream.info.uri + request.path + (request.url.search || ''), { 'x-super-special': '@' });
+            return callback(null, 'http://127.0.0.1:' + upstream.info.port + request.path + (request.url.search || ''), { 'x-super-special': '@' });
         };
 
         var mapSslUri = function (request, callback) {
