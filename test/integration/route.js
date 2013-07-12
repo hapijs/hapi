@@ -47,16 +47,16 @@ describe('Route', function () {
     it('compares every combination both ways', function (done) {
 
         for (var ai = 0, al = paths.length; ai < al; ++ai) {
-            var a = { server: { settings: { router: { isCaseSensitive: true } } } };
-            Route.prototype._parsePath.call(a, paths[ai]);
+            var a = { settings: { path: paths[ai] }, server: { settings: { router: { isCaseSensitive: true } } } };
+            Route.prototype._parsePath.call(a);
 
             for (var bi = 0, bl = paths.length; bi < bl; ++bi) {
                 if (ai === bi) {
                     continue;
                 }
 
-                var b = { server: { settings: { router: { isCaseSensitive: true } } } };
-                Route.prototype._parsePath.call(b, paths[bi]);
+                var b = { settings: { path: paths[bi] }, server: { settings: { router: { isCaseSensitive: true } } } };
+                Route.prototype._parsePath.call(b);
 
                 var a2b = Route.sort(a, b);
                 var b2a = Route.sort(b, a);
