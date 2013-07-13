@@ -26,7 +26,7 @@
     "router"
   ],
   "engines": {
-    "node": ">=0.10.6"
+    "node": "0.10.x"
   },
   "dependencies": {
     "hoek": "0.9.x",
@@ -41,15 +41,15 @@
     "multiparty": "2.1.x",
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
-    "optimist": "0.4.x",
+    "optimist": "0.6.x",
     "negotiator": "0.2.x",
-    "semver": "1.1.x"
+    "semver": "2.0.x"
   },
   "devDependencies": {
     "lab": "0.1.x",
-    "request": "2.21.x",
+    "request": "2.22.x",
     "handlebars": "1.0.x",
-    "jade": "0.30.x",
+    "jade": "0.33.x",
     "complexity-report": "0.x.x",
     "hapi-plugin-test": "1.x.x"
   },
