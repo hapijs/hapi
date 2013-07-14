@@ -46,27 +46,27 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '5.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
-                var a = pack.select('a');
+                var a = plugin.select('a');
                 var ab = a.select('b');
-                var memoryx = pack.select('x', 's4');
-                var sodd = pack.select(['s2', 's4']);
+                var memoryx = plugin.select('x', 's4');
+                var sodd = plugin.select(['s2', 's4']);
 
-                expect(pack.length).to.equal(4);
+                expect(plugin.length).to.equal(4);
                 expect(a.length).to.equal(3);
                 expect(ab.length).to.equal(2);
                 expect(memoryx.length).to.equal(1);
                 expect(sodd.length).to.equal(2);
 
-                pack.route({ method: 'GET', path: '/all', handler: function () { this.reply('all'); } });
+                plugin.route({ method: 'GET', path: '/all', handler: function () { this.reply('all'); } });
                 a.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
                 ab.route([{ method: 'GET', path: '/ab', handler: function () { this.reply('ab'); } }]);
                 memoryx.route({ method: 'GET', path: '/memoryx', handler: function () { this.reply('memoryx'); } });
                 sodd.route({ method: 'GET', path: '/sodd', handler: function () { this.reply('sodd'); } });
 
                 memoryx.state('sid', { encoding: 'base64' });
-                pack.helper('test', function (next) {
+                plugin.helper('test', function (next) {
 
                     next('123');
                 });
@@ -102,7 +102,7 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '5.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
                 next();
@@ -121,7 +121,7 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '2.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
                 next();
@@ -141,7 +141,7 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '2.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
                 next();
@@ -207,9 +207,9 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '2.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
-                pack.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
+                plugin.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
                 next();
             }
         };
@@ -363,7 +363,7 @@ describe('Pack', function () {
         var pack = new Hapi.Pack();
         expect(function () {
 
-            pack.register({ version: '0.0.0', register: function (pack, options, next) { next(); } }, function (err) { });
+            pack.register({ version: '0.0.0', register: function (plugin, options, next) { next(); } }, function (err) { });
         }).to.throw('Plugin missing name');
 
         done();
@@ -374,10 +374,10 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '3.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
-                pack.route({ method: 'GET', path: '/b', handler: function () { this.reply('b'); } });
-                pack.ext('onRequest', function (request, cont) {
+                plugin.route({ method: 'GET', path: '/b', handler: function () { this.reply('b'); } });
+                plugin.ext('onRequest', function (request, cont) {
 
                     request.setUrl('/b');
                     cont();
@@ -509,9 +509,9 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '3.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
-                pack.dependency('none');
+                plugin.dependency('none');
                 next();
             }
         };
@@ -546,10 +546,10 @@ describe('Pack', function () {
         var plugin = {
             name: 'test',
             version: '1.0.0',
-            register: function (pack, options, next) {
+            register: function (plugin, options, next) {
 
-                var cache = pack.cache({ expiresIn: 10 });
-                pack.api({
+                var cache = plugin.cache({ expiresIn: 10 });
+                plugin.api({
                     get: function (key, callback) {
                         cache.get(key, function (err, value) {
 
