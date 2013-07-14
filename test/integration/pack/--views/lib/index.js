@@ -5,13 +5,13 @@ var internals = {};
 
 // Plugin registration
 
-exports.register = function (pack, options, next) {
+exports.register = function (plugin, options, next) {
 
-    pack.views({
+    plugin.views({
         engines: { 'html': 'handlebars' },
         path: './templates'
     });
-    pack.route([
+    plugin.route([
         {
             path: '/view', method: 'GET', handler: function () {
 
