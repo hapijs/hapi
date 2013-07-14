@@ -5,11 +5,11 @@ var internals = {};
 
 // Plugin registration
 
-exports.register = function (pack, options, next) {
+exports.register = function (plugin, options, next) {
 
-    pack.dependency('--deps2');
+    plugin.dependency('--deps2');
 
-    pack.select('a').ext('onRequest', function (request, cont) {
+    plugin.select('a').ext('onRequest', function (request, cont) {
         
         request.app.deps = request.app.deps || '|';
         request.app.deps += '1|'
