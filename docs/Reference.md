@@ -2568,17 +2568,17 @@ Registers a plugin object (without using `require()`) where:
       (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
-var plugin = {
+var plug = {
     name: 'test',
     version: '2.0.0',
-    register: function (pack, options, next) {
+    register: function (plugin, options, next) {
 
-        pack.route({ method: 'GET', path: '/special', handler: function () { this.reply(options.message); } } );
+        plugin.route({ method: 'GET', path: '/special', handler: function () { this.reply(options.message); } } );
         next();
     }
 };
 
-server.pack.register(plugin, { message: 'hello' }, function (err) {
+server.pack.register(plug, { message: 'hello' }, function (err) {
 
     if (err) {
         console.log('Failed loading plugin');

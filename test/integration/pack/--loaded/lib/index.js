@@ -5,7 +5,7 @@ var internals = {};
 
 // Plugin registration
 
-exports.register = function (pack, options, next) {
+exports.register = function (plugin, options, next) {
 
     console.log('loaded');
 
