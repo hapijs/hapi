@@ -50,7 +50,7 @@ describe('Prerequesites', function () {
 
     var fetch6 = function (request, next) {
 
-        next(Hapi.error.internal('boom'));
+        next(request.server.pack.hapi.error.internal('boom'));
     };
 
     var fetchException = function (request, next) {
