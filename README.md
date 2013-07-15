@@ -15,7 +15,7 @@ Node version: **0.10** required
 [![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
 <img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
 
-[![NPM](http://nodei.co/npm/hapi.png)](http://nodei.co/npm/hapi/)
+[![NPM](https://nodei.co/npm/hapi.png?downloads=true&stars=true)](https://nodei.co/npm/hapi/)
 
 ## Getting started
 
