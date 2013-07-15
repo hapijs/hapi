@@ -969,7 +969,7 @@ When the cookie scheme is enabled on a route, the `request.auth.session` objects
   which is set on successful subsequent authentications in `request.auth.credentials`.
 - `clear()` - clears the current session. Used to logout a user.
 
-Because this scheme decorates the `request` object with session-specific methods, it cannot be registered more than once per pack.
+Because this scheme decorates the `request` object with session-specific methods, it cannot be registered more than once.
 
 ```javascript
 var Hapi = require('hapi');
