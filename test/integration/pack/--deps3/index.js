@@ -5,9 +5,9 @@ var internals = {};
 
 // Plugin registration
 
-exports.register = function (pack, options, next) {
+exports.register = function (plugin, options, next) {
 
-    pack.select('c').ext('onRequest', function (request, cont) {
+    plugin.select('c').ext('onRequest', function (request, cont) {
         
         request.app.deps = request.app.deps || '|';
         request.app.deps += '3|'

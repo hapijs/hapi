@@ -5,7 +5,7 @@ var internals = {};
 
 // Plugin registration
 
-exports.register = function (pack, options, next) {
+exports.register = function (plugin, options, next) {
 
     var loadUser = function (username, password, callback) {
 
@@ -16,7 +16,7 @@ exports.register = function (pack, options, next) {
         return callback(null, false);
     };
 
-    pack.auth('basic', {
+    plugin.auth('basic', {
         scheme: 'basic',
         validateFunc: loadUser,
         defaultMode: true

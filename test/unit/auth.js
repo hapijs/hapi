@@ -1,8 +1,8 @@
 // Load modules
 
 var Lab = require('lab');
-var Hapi = require('../../..');
-var Auth = require('../../../lib/auth');
+var Hapi = require('../..');
+var Auth = require('../../lib/auth');
 
 
 // Declare internals

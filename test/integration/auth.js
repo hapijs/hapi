@@ -19,10 +19,22 @@ var before = Lab.before;
 var after = Lab.after;
 var describe = Lab.experiment;
 var it = Lab.test;
-var itx = function () { };
 
 
 describe('Auth', function () {
+
+    it('throws when setting defaultMode to invalid value', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+            server.auth('password', {
+                scheme: 'basic',
+                validateFunc: function () { },
+                defaultMode: 'boom'
+            });
+        }).to.throw('Unknown default authentication mode: boom');
+        done();
+    });
 
     var basicHeader = function (username, password) {
 
@@ -240,7 +252,7 @@ describe('Auth', function () {
             });
         });
 
-        itx('should not ask for credentials if no server auth configured', function (done) {
+        it('should not ask for credentials if no server auth configured', function (done) {
 
             var config = {};
             var server = new Hapi.Server(config);
@@ -263,7 +275,7 @@ describe('Auth', function () {
             });
         });
 
-        itx('should ask for credentials if server has one default strategy', function (done) {
+        it('should ask for credentials if server has one default strategy', function (done) {
 
             var config = {
                 auth: {
@@ -299,7 +311,7 @@ describe('Auth', function () {
             });
         });
 
-        itx('should throw if server has strategies route refers to nonexistent strategy', function (done) {
+        it('should throw if server has strategies route refers to nonexistent strategy', function (done) {
 
             var config = {
                 auth: {
