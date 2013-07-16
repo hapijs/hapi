@@ -322,6 +322,16 @@ describe('Pack', function () {
         });
     });
 
+    it('throws when requiring a child plugin with override permissions', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.require('./pack/--child-perm', function (err) { });
+        }).to.throw('Cannot override root permissions');
+        done();
+    });
+
     it('fails to require missing module', function (done) {
 
         var pack = new Hapi.Pack();

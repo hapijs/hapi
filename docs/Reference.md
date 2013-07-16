@@ -3009,7 +3009,7 @@ exports.register = function (plugin, options, next) {
 
 _Requires the `require` plugin permission._
 
-Registers a plugin using the same pack and permissions granted to the current plugin following the syntax of
+Registers a list of plugins using the same pack and permissions granted to the current plugin following the syntax of
 [`pack.require()`](#packrequirename-callback).
 
 ```javascript
