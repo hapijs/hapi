@@ -450,7 +450,7 @@ describe('Pack', function () {
         pack._servers[1].route({ method: 'GET', path: '/', handler: handler });
         pack._servers[2].route({ method: 'GET', path: '/', handler: handler });
 
-        pack.allow({ ext: true }).require(['./pack/--deps1', './pack/--deps2', './pack/--deps3'], function (err) {
+        pack.require(['./pack/--deps1', './pack/--deps2', './pack/--deps3'], function (err) {
 
             expect(err).to.not.exist;
 
@@ -484,7 +484,7 @@ describe('Pack', function () {
 
         pack._servers[0].route({ method: 'GET', path: '/', handler: handler });
 
-        pack.allow({ ext: true }).require(['./pack/--deps3'], function (err) {
+        pack.require(['./pack/--deps3'], function (err) {
 
             expect(err).to.not.exist;
             pack._servers[0].inject({ method: 'GET', url: '/' }, function (res) {
@@ -532,7 +532,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         expect(function () {
 
-            server.pack.allow({ ext: true }).require('./pack/--deps1', [{ ext: true }], function (err) { });
+            server.pack.require('./pack/--deps1', [{ ext: true }], function (err) { });
         }).to.throw('Plugin --deps1 missing dependencies: --deps2');
         done();
     });
@@ -552,7 +552,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         expect(function () {
 
-            server.pack.allow({ ext: true }).register(plugin, function (err) { });
+            server.pack.register(plugin, function (err) { });
         }).to.throw('Plugin test missing dependencies: none');
         done();
     });
@@ -570,7 +570,7 @@ describe('Pack', function () {
 
         domain.run(function () {
 
-            server.pack.allow({ ext: true }).require(['./pack/--deps1', './pack/--deps3'], function (err) { });
+            server.pack.require(['./pack/--deps1', './pack/--deps3'], function (err) { });
         });
     });
 
@@ -646,5 +646,16 @@ describe('Pack', function () {
                 });
             });
         });
+    });
+
+    it('fails to register a plugin with insufficient permissions', function (done) {
+
+        var server = new Hapi.Server({ labels: 'c' });
+
+        expect(function () {
+
+            server.pack.allow({}).require('./pack/--deps3', [{ ext: false }, null], function (err) { });
+        }).to.throw('Object #<Object> has no method \'ext\'');
+        done();
     });
 });

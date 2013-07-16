@@ -2482,7 +2482,7 @@ The default permissions are:
 - `auth` - allows registering an authentication strategy via [`plugin.auth()`](#pluginauthname-options). Defaults to `true`.
 - `cache` - allows provisioning a plugin cache segment via [`plugin.cache()`](#plugincacheoptions). Defaults to `true`.
 - `events` - allows access to events via [`plugin.events`](#pluginevents). Defaults to `true`.
-- `ext`- allows registering extension methods via [`plugin.ext()`](#pluginextevent-method-options). Defaults to `false`.
+- `ext`- allows registering extension methods via [`plugin.ext()`](#pluginextevent-method-options). Defaults to `true`.
 - `helper` - allows addming server helper methods via [`plugin.helper()`](#pluginhelpername-method-options). Defaults to `true`.
 - `route` - allows adding routes via [`plugin.route()`](#pluginrouteoptions). Defaults to `true`.
 - `state` - allows configuring state definitions via [`plugin.state()`](#pluginstatename-options). Defaults to `true`.
