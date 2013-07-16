@@ -307,6 +307,31 @@ describe('Pack', function () {
         });
     });
 
+    it('requires a child plugin', function (done) {
+
+        var server = new Hapi.Server();
+        server.pack.require('./pack/--child', function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
+
+                expect(res.result).to.equal('hapi-plugin-test');
+                expect(server.plugins['hapi-plugin-test'].path).to.equal(process.cwd() + '/node_modules/hapi-plugin-test');
+                done();
+            });
+        });
+    });
+
+    it('throws when requiring a child plugin with override permissions', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.require('./pack/--child-perm', function (err) { });
+        }).to.throw('Cannot override root permissions');
+        done();
+    });
+
     it('fails to require missing module', function (done) {
 
         var pack = new Hapi.Pack();

@@ -1,4 +1,4 @@
-# 1.8.x API Reference
+# 1.9.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -99,6 +99,8 @@
         - [`plugin.views(options)`](#pluginviewsoptions)
         - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
         - [`plugin.cache(options)`](#plugincacheoptions)
+        - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
+        - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -2485,6 +2487,8 @@ The default permissions are:
 - `route` - allows adding routes via [`plugin.route()`](#pluginrouteoptions). Defaults to `true`.
 - `state` - allows configuring state definitions via [`plugin.state()`](#pluginstatename-options). Defaults to `true`.
 - `views` - allows configuring a plugin-specific views manager via [`plugin.views()`](#pluginviewsoptions). Defaults to `true`.
+- `require` - allows one plugin to require another (using the same pack and permissions granted to the plugin) via
+  [`plugin.require()`](#pluginrequirename-options-callback). Defaults to `true`.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2982,6 +2986,40 @@ exports.register = function (plugin, options, next) {
 
     var cache = plugin.cache({ expiresIn: 60 * 60 * 1000 });
     next();
+};
+```
+
+#### `plugin.require(name, [options], callback)`
+
+_Requires the `require` plugin permission._
+
+Registers a plugin using the same pack and permissions granted to the current plugin following the syntax of
+[`pack.require()`](#packrequirename-options-callback). The `options` argument cannot be an array.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.require('furball', { version: '/v' }, function (err) {
+
+        next(err);
+    });
+};
+```
+
+#### `plugin.require(names, callback)`
+
+_Requires the `require` plugin permission._
+
+Registers a list of plugins using the same pack and permissions granted to the current plugin following the syntax of
+[`pack.require()`](#packrequirename-callback).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.require(['furball', 'lout'], function (err) {
+
+        next(err);
+    });
 };
 ```
 
