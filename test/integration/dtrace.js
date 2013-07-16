@@ -1,8 +1,8 @@
 // Load modules
 
 var Lab = require('lab');
-var DTraceProvider = require('dtrace-provider');
 var Hapi = require('../..');
+var DTrace = require('../../lib/dtrace');
 
 
 // Declare internals
@@ -23,28 +23,27 @@ describe('DTrace', function () {
 
     it('fires pre start and end probes when a request is made with prerequisites', function (done) {
 
-        var provider = DTraceProvider.DTraceProvider;
-        var probe = {
-            fire: function (fn) {
-
-                expect(fn()).to.contain('m1');
-                DTraceProvider.DTraceProvider = provider;
-                done();
-            }
-        };
-
-        DTraceProvider.DTraceProvider = function () {
+        var provider = DTrace.Provider;
+        DTrace.Provider = function () {
 
             return {
-                addProbe: function (key) {
+                enable: function () {},
+                addProbe: function () {
 
-                    return probe;
-                },
-                enable: function () {}
+                    return {
+                        fire: function (fn) {
+
+                            DTrace.Provider = provider;
+                            expect(fn()).to.contain('m1');
+                            done();
+                        }
+                    };
+                }
             };
         };
 
         var server = new Hapi.Server();
+
 
         var pre1 = function (request, next) {
 
