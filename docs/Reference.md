@@ -2414,7 +2414,8 @@ Each `Pack` object instance has the following properties:
 
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Initialized via the pack `app` configuration option. Defaults to `{}`.
-- `events` - an `Events.EventEmitter` providing a consolidate emitter of all the events emitted from all member pack servers.
+- `events` - an `Events.EventEmitter` providing a consolidate emitter of all the events emitted from all member pack servers as well as
+  the `'start'` and `'stop'` pack events.
 - `list` - an object listing all the registered plugins where each key is a plugin name and the value is an object with:
     - `name` - plugin name.
     - `version` - plugin version.

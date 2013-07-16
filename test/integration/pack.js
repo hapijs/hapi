@@ -339,6 +339,12 @@ describe('Pack', function () {
         pack.server(0, { labels: ['s3', 'a', 'b', 'd', 'cache'] });
         pack.server(0, { labels: ['s4', 'b', 'test', 'cache'] });
 
+        var started = 0;
+        var stopped = 0;
+
+        pack.events.on('start', function () { ++started; });
+        pack.events.on('stop', function () { ++stopped; });
+
         pack.start(function () {
 
             pack._servers.forEach(function (server) {
@@ -353,6 +359,8 @@ describe('Pack', function () {
                     expect(server._started).to.equal(false);
                 });
 
+                expect(started).to.equal(1);
+                expect(stopped).to.equal(1);
                 done();
             });
         });
