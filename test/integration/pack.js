@@ -658,4 +658,15 @@ describe('Pack', function () {
         }).to.throw('Object #<Object> has no method \'ext\'');
         done();
     });
+
+    it('requires a plugin using loader', function (done) {
+
+        var server = new Hapi.Server();
+        server.pack.require('./pack/--loader', function (err) {
+
+            expect(err).to.not.exist;
+            expect(server.plugins['--inner']['way-down']).to.equal(42);
+            done();
+        });
+    });
 });
