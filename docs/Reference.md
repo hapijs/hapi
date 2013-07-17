@@ -1047,7 +1047,8 @@ server.auth('session', {
     scheme: 'cookie',
     password: 'secret',
     cookie: 'sid-example',
-    redirectTo: '/login'
+    redirectTo: '/login',
+    isSecure: false
 });
 
 server.route([
