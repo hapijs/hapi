@@ -101,6 +101,7 @@
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
+        - [`plugin.loader(require)`](#pluginloader-require)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -1046,7 +1047,8 @@ server.auth('session', {
     scheme: 'cookie',
     password: 'secret',
     cookie: 'sid-example',
-    redirectTo: '/login'
+    redirectTo: '/login',
+    isSecure: false
 });
 
 server.route([
@@ -2482,7 +2484,7 @@ The default permissions are:
 - `auth` - allows registering an authentication strategy via [`plugin.auth()`](#pluginauthname-options). Defaults to `true`.
 - `cache` - allows provisioning a plugin cache segment via [`plugin.cache()`](#plugincacheoptions). Defaults to `true`.
 - `events` - allows access to events via [`plugin.events`](#pluginevents). Defaults to `true`.
-- `ext`- allows registering extension methods via [`plugin.ext()`](#pluginextevent-method-options). Defaults to `false`.
+- `ext`- allows registering extension methods via [`plugin.ext()`](#pluginextevent-method-options). Defaults to `true`.
 - `helper` - allows addming server helper methods via [`plugin.helper()`](#pluginhelpername-method-options). Defaults to `true`.
 - `route` - allows adding routes via [`plugin.route()`](#pluginrouteoptions). Defaults to `true`.
 - `state` - allows configuring state definitions via [`plugin.state()`](#pluginstatename-options). Defaults to `true`.
@@ -3017,6 +3019,23 @@ Registers a list of plugins using the same pack and permissions granted to the c
 exports.register = function (plugin, options, next) {
 
     plugin.require(['furball', 'lout'], function (err) {
+
+        next(err);
+    });
+};
+```
+
+#### `plugin.loader(require)`
+
+Forces using the local `require()` method provided by node when calling `plugin.require()`. This sets the module path relative
+to the plugin instead of relative to the hapi framework module location. This is needed to work around the limitations in node's
+`require()`.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.loader(require);
+    plugin.require('furball', { version: '/v' }, function (err) {
 
         next(err);
     });
