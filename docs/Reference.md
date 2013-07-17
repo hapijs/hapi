@@ -101,6 +101,7 @@
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
+        - [`plugin.loader(require)`](#pluginloader-require)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -3017,6 +3018,23 @@ Registers a list of plugins using the same pack and permissions granted to the c
 exports.register = function (plugin, options, next) {
 
     plugin.require(['furball', 'lout'], function (err) {
+
+        next(err);
+    });
+};
+```
+
+#### `plugin.loader(require)`
+
+Forces using the local `require()` method provided by node when calling `plugin.require()`. This sets the module path relative
+to the plugin instead of relative to the hapi framework module location. This is needed to work around the limitations in node's
+`require()`.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.loader(require);
+    plugin.require('furball', { version: '/v' }, function (err) {
 
         next(err);
     });
