@@ -50,7 +50,8 @@
     "request": "2.22.x",
     "handlebars": "1.0.x",
     "jade": "0.33.x",
-    "hapi-plugin-test": "1.x.x"
+    "hapi-plugin-test": "1.x.x",
+    "dtrace-provider": "0.2.x"
   },
   "bin": {
     "hapi": "./bin/hapi"
