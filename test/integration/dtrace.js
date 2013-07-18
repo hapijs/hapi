@@ -29,6 +29,7 @@ describe('DTrace', function () {
 
             return {
                 enable: function () {},
+                disable: function () {},
                 addProbe: function () {
 
                     return {
@@ -79,6 +80,7 @@ describe('DTrace', function () {
 
             return {
                 enable: function () {},
+                disable: function () {},
                 addProbe: function () {
 
                     return {
@@ -125,6 +127,7 @@ describe('DTrace', function () {
 
             return {
                 enable: function () {},
+                disable: function () {},
                 addProbe: function () {
 
                     return {
@@ -167,6 +170,7 @@ describe('DTrace', function () {
 
             return {
                 enable: function () {},
+                disable: function () {},
                 addProbe: function (key, val1, val2, val3) {
 
                     expect(key).to.equal('my.probe');
