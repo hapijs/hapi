@@ -116,4 +116,93 @@ describe('DTrace', function () {
 
         server.inject({ url: '/' }, function () {});
     });
+
+    it('allows probes to be added dynamically', function (done) {
+
+        var runNum = 0;
+        var provider = DTrace.Provider;
+        DTrace.Provider = function () {
+
+            return {
+                enable: function () {},
+                addProbe: function () {
+
+                    return {
+                        fire: function (fn) {
+
+                            if (runNum++ === 0) {
+                                expect(fn()).to.contain(20);
+                                expect(fn()).to.contain('some value');
+                            }
+                            else {
+                                expect(fn()).to.contain(1);
+                                expect(fn()).to.contain('3');
+                            }
+                        }
+                    };
+                }
+            };
+        };
+        var server = new Hapi.Server();
+
+        server.route({ method: '*', path: '/', config: {
+            handler: function () {
+
+                this.server._dtrace.report('my.handler.start', 20, 'some value');
+                this.reply('OK');
+                this.server._dtrace.report('my.handler.end', 1, '3');
+            }
+        }});
+
+        server.inject({ url: '/' }, function () {
+            DTrace.Provider = provider;
+            done();
+        });
+    });
+
+    it('probes add the correct data types', function (done) {
+
+        var provider = DTrace.Provider;
+        DTrace.Provider = function () {
+
+            return {
+                enable: function () {},
+                addProbe: function (key, val1, val2, val3) {
+
+                    expect(key).to.equal('my.probe');
+                    expect(val1).to.equal('int');
+                    expect(val2).to.equal('char *');
+                    expect(val3).to.equal('json');
+                    DTrace.Provider = provider;
+                    done();
+
+                    return {
+                        fire: function () {}
+                    };
+                }
+            };
+        };
+        var server = new Hapi.Server();
+        server._dtrace.report('my.probe', 20, 'some value', { some: 'obj' });
+    });
+
+    it('allows probes to be added dynamically with the dtrace-provider installed', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.route({ method: '*', path: '/', config: {
+            handler: function () {
+
+                this.server._dtrace.report('my.handler.start', 20, ['some value', 1]);
+                this.reply('OK');
+                this.server._dtrace.report('my.handler.end', 1, '3');
+            }
+        }});
+
+        server.inject({ url: '/' }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
 });
