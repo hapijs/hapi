@@ -23,9 +23,8 @@ describe('DTrace', function () {
 
     it('doesn\'t fire probes when dtrace provider isn\'t installed', function (done) {
 
-        var provider = DTrace.Provider;
         var isInstalled = DTrace.isInstalled;
-        DTrace.Provider = function () {
+        var provider = function () {
 
             return {
                 enable: function () {},
@@ -47,7 +46,7 @@ describe('DTrace', function () {
         };
 
         var server = new Hapi.Server();
-
+        server._dtrace._provider = provider;
 
         var pre1 = function (request, next) {
 
@@ -66,7 +65,6 @@ describe('DTrace', function () {
 
         server.inject({ url: '/' }, function () {
 
-            DTrace.Provider = provider;
             DTrace.isInstalled = isInstalled;
             done();
         });
@@ -74,33 +72,22 @@ describe('DTrace', function () {
 
     it('fires correct probe on prerequisites when dtrace-provider is installed', function (done) {
 
-        var provider = DTrace.Provider;
-        var isInstalled = DTrace.isInstalled;
-        DTrace.Provider = function () {
+        var provider = {
+            enable: function () {},
+            disable: function () {},
+            addProbe: function () {
 
-            return {
-                enable: function () {},
-                disable: function () {},
-                addProbe: function () {
+                return {
+                    fire: function (fn) {
 
-                    return {
-                        fire: function (fn) {
-
-                            expect(fn()).to.contain('m1');
-                            DTrace.Provider = provider;
-                            DTrace.isInstalled = isInstalled;
-                            done();
-                        }
-                    };
-                }
-            };
-        };
-        DTrace.isInstalled = function () {
-
-            return true;
+                        expect(fn()).to.contain('m1');
+                    }
+                };
+            }
         };
 
         var server = new Hapi.Server();
+        server._dtrace._provider = provider;
         var pre1 = function (request, next) {
 
             next('Hello');
@@ -116,37 +103,37 @@ describe('DTrace', function () {
             ]
         }});
 
-        server.inject({ url: '/' }, function () {});
+        server.inject({ url: '/' }, function () {
+
+            done();
+        });
     });
 
     it('allows probes to be added dynamically', function (done) {
 
         var runNum = 0;
-        var provider = DTrace.Provider;
-        DTrace.Provider = function () {
+        var provider =  {
+            enable: function () {},
+            disable: function () {},
+            addProbe: function () {
 
-            return {
-                enable: function () {},
-                disable: function () {},
-                addProbe: function () {
+                return {
+                    fire: function (fn) {
 
-                    return {
-                        fire: function (fn) {
-
-                            if (runNum++ === 0) {
-                                expect(fn()).to.contain(20);
-                                expect(fn()).to.contain('some value');
-                            }
-                            else {
-                                expect(fn()).to.contain(1);
-                                expect(fn()).to.contain('3');
-                            }
+                        if (runNum++ === 0) {
+                            expect(fn()).to.contain(20);
+                            expect(fn()).to.contain('some value');
                         }
-                    };
-                }
-            };
+                        else {
+                            expect(fn()).to.contain(1);
+                            expect(fn()).to.contain('3');
+                        }
+                    }
+                };
+            }
         };
         var server = new Hapi.Server();
+        server._dtrace._provider = provider;
 
         server.route({ method: '*', path: '/', config: {
             handler: function () {
@@ -158,35 +145,30 @@ describe('DTrace', function () {
         }});
 
         server.inject({ url: '/' }, function () {
-            DTrace.Provider = provider;
             done();
         });
     });
 
     it('probes add the correct data types', function (done) {
 
-        var provider = DTrace.Provider;
-        DTrace.Provider = function () {
+        var provider =  {
+            enable: function () {},
+            disable: function () {},
+            addProbe: function (key, val1, val2, val3) {
 
-            return {
-                enable: function () {},
-                disable: function () {},
-                addProbe: function (key, val1, val2, val3) {
+                expect(key).to.equal('my.probe');
+                expect(val1).to.equal('int');
+                expect(val2).to.equal('char *');
+                expect(val3).to.equal('json');
+                done();
 
-                    expect(key).to.equal('my.probe');
-                    expect(val1).to.equal('int');
-                    expect(val2).to.equal('char *');
-                    expect(val3).to.equal('json');
-                    DTrace.Provider = provider;
-                    done();
-
-                    return {
-                        fire: function () {}
-                    };
-                }
-            };
+                return {
+                    fire: function () {}
+                };
+            }
         };
         var server = new Hapi.Server();
+        server._dtrace._provider = provider;
         server._dtrace.report('my.probe', 20, 'some value', { some: 'obj' });
     });
 

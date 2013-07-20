@@ -38,12 +38,13 @@ describe('Server', function () {
 
     it('won\'t stop until all connections are closed', function (done) {
 
-        var isDone = false;
         var server = Hapi.createServer(0);
         server.start(function () {
 
             var socket1 = new Net.Socket();
             var socket2 = new Net.Socket();
+            socket1.on('error', function () {});
+            socket2.on('error', function () {});
 
             socket1.connect(server.info.port, '127.0.0.1', function () {
 
@@ -58,8 +59,7 @@ describe('Server', function () {
                             server.listener.getConnections(function (err, count) {
 
                                 expect(count).to.equal(0);
-                                !isDone && done();
-                                isDone = true;
+                                done();
                             });
                         });
 
