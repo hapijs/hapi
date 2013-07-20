@@ -43,8 +43,8 @@ describe('Server', function () {
 
             var socket1 = new Net.Socket();
             var socket2 = new Net.Socket();
-            socket1.on('error', function () {});
-            socket2.on('error', function () {});
+            socket1.on('error', function () { });
+            socket2.on('error', function () { });
 
             socket1.connect(server.info.port, '127.0.0.1', function () {
 
@@ -175,4 +175,26 @@ describe('Server', function () {
             });
         });
     });
+
+    it('provisions a server cache', function (done) {
+
+        var server = new Hapi.Server(0);
+        var cache = server.cache('test', { expiresIn: 1000 });
+        server.start(function () {
+
+            cache.set('a', 'going in', 0, function (err) {
+
+                cache.get('a', function (err, value) {
+
+                    expect(value.item).to.equal('going in');
+
+                    server.stop(function () {
+
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
 });
