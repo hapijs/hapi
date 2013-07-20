@@ -12,11 +12,11 @@ exports.register = function (plugin, options, next) {
         suffix: ' throughout'
     };
 
-    plugin.context(context);
-
     plugin.route({ method: 'GET', path: '/', handler: internals.handler });
 
     plugin.ext('onPreResponse', internals.ext);
+
+    plugin.context(context);        // Call last to test late binding
 
     next();
 };

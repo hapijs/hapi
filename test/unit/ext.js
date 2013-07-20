@@ -46,7 +46,7 @@ describe('Ext', function () {
             var ext = new Ext();
             scenario.forEach(function (record, i) {
 
-                ext._add('onRequest', generateExt(record.id), { before: record.before, after: record.after }, record.group);
+                ext._add('onRequest', generateExt(record.id), { before: record.before, after: record.after }, { name: record.group });
             });
 
             var request = {
@@ -129,7 +129,7 @@ describe('Ext', function () {
             expect(function () {
 
                 testDeps(scenario, function (result) { });
-            }).to.throw('onRequest extension add by c created a dependencies error');
+            }).to.throw('onRequest extension added by c created a dependencies error');
 
             done();
         });
