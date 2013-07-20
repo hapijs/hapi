@@ -669,4 +669,18 @@ describe('Pack', function () {
             done();
         });
     });
+
+    it('sets plugin context', function (done) {
+
+        var server = new Hapi.Server();
+        server.pack.require('./pack/--context', function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('in context throughout');
+                done();
+            });
+        });
+    });
 });

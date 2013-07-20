@@ -102,6 +102,7 @@
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
         - [`plugin.loader(require)`](#pluginloader-require)
+        - [`plugin.context(context)`](#plugincontext-context)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -403,6 +404,8 @@ The following options are available when adding a route:
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
+    - `context` - any value passed back to the provided handler (via the `request.context` variable) when called. Can only be used with
+      `handler` function values.
 <p></p>
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
@@ -1166,6 +1169,7 @@ Registers an extension function in one of the available [extension points](#requ
       in the order added.
     - `after` - a string or array of strings of plugin names this method must executed before (on the same event). Otherwise, extension methods are executed
       in the order added.
+    - `context` - any value passed back to the provided method (via the `request.context` variable) when called.
 
 ```javascript
 var Hapi = require('hapi');
@@ -3039,6 +3043,29 @@ exports.register = function (plugin, options, next) {
 
         next(err);
     });
+};
+```
+
+#### `plugin.context(context)`
+
+Sets a global plugin context used as the default context when adding a route or an extension using the plugin interface (if no
+explitic context is provided as an option).
+
+```javascript
+var handler = function () {
+
+    this.reply(this.context.message);
+};
+
+exports.register = function (plugin, options, next) {
+
+    var context = {
+        message: 'hello'
+    };
+
+    plugin.context(context);
+    plugin.route({ method: 'GET', path: '/', handler: internals.handler });
+    next();
 };
 ```
 
