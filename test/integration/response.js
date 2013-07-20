@@ -1421,6 +1421,12 @@ describe('Response', function () {
             return request.reply.view('test.xyz', { message: "Hello World!" });
         };
 
+        var cached = 1;
+        var cachedHandler = function (request) {
+
+            request.reply.view('test', { message: cached++ });
+        };
+
         describe('Default', function (done) {
 
             var server = new Hapi.Server({
@@ -1435,6 +1441,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
             server.route({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
             server.route({ method: 'GET', path: '/views/invalid', config: { handler: invalidHandler } });
+            server.route({ method: 'GET', path: '/views/cache', config: { handler: cachedHandler, cache: { mode: 'server', expiresIn: 2000 } } });
 
             it('returns a compiled Handlebars template reply', function (done) {
 
@@ -1495,6 +1502,24 @@ describe('Response', function () {
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(500);
                     done();
+                });
+            });
+
+            it('returns a cached reply on second request', function (done) {
+
+                server.inject('/views/cache', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.result).to.equal('<div>\n    <h1>1</h1>\n</div>\n');
+                    expect(res.statusCode).to.equal(200);
+
+                    server.inject('/views/cache', function (res) {
+
+                        expect(res.result).to.exist;
+                        expect(res.result).to.equal('<div>\n    <h1>1</h1>\n</div>\n');
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
                 });
             });
         });
