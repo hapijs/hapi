@@ -1505,7 +1505,7 @@ describe('Response', function () {
                 });
             });
 
-            it('returns a cached reply on second request', function (done) {
+            it('returns a fresh reply on second request when caching enabled', function (done) {
 
                 server.inject('/views/cache', function (res) {
 
@@ -1516,7 +1516,7 @@ describe('Response', function () {
                     server.inject('/views/cache', function (res) {
 
                         expect(res.result).to.exist;
-                        expect(res.result).to.equal('<div>\n    <h1>1</h1>\n</div>\n');
+                        expect(res.result).to.equal('<div>\n    <h1>2</h1>\n</div>\n');
                         expect(res.statusCode).to.equal(200);
                         done();
                     });
