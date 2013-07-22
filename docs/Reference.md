@@ -20,6 +20,7 @@
         - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
         - [`server.state(name, [options])`](#serverstatename-options)
         - [`server.views(options)`](#serverviewsoptions)
+        - [`server.cache(name, options)`](#servercachename-options)
         - [`server.auth(name, options)`](#serverauthname-options)
             - [Basic authentication](#basic-authentication)
             - [Cookie authentication](#cookie-authentication)
@@ -874,6 +875,22 @@ server.views({
     },
     path: '/static/templates'
 });
+```
+
+#### `server.cache(name, options)`
+
+Provisions a server cache segment within the common caching facility where:
+
+- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy):
+    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
+      together with `expiresAt`.
+    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
+      expire. Cannot be used together with `expiresIn`.
+    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
+    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+
+```javascript
+var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 ```
 
 #### `server.auth(name, options)`
