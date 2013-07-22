@@ -35,6 +35,7 @@ describe('Response', function () {
                 request.reply('text\0!')
                              .type('text/plain')
                              .encoding('ascii')
+                             .charset('ISO-8859-1')
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
                              .state('other', 'something', { isSecure: true })
@@ -66,6 +67,7 @@ describe('Response', function () {
                 expect(res.payload).to.exist;
                 expect(res.payload).to.equal('text !');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com www.example.com');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
