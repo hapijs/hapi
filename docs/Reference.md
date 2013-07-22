@@ -3049,7 +3049,7 @@ exports.register = function (plugin, options, next) {
 #### `plugin.context(context)`
 
 Sets a global plugin context used as the default context when adding a route or an extension using the plugin interface (if no
-explitic context is provided as an option).
+explicit context is provided as an option).
 
 ```javascript
 var handler = function () {
