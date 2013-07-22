@@ -1855,8 +1855,10 @@ for deriving other response types. It provides the following methods:
     `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
       the server [`location`](#server.config.location) configuration option is used as prefix. Not available in the `Redirection`
       response object.
-- `encoding(encoding)` - sets the 'Content-Type' HTTP header encoding property where:
-    `encoding` - the encoding property value.
+- `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload where:
+    `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
+- `charset(charset)` - sets the 'Content-Type' HTTP header 'charset' property where:
+    `charset` - the charset property value.
 - `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
     - `msec` - the time-to-live value in milliseconds.
 - `getTtl()` - returns the time-to-live value if an override has been set, and the request method is 'GET'.
