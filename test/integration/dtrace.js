@@ -72,6 +72,7 @@ describe('DTrace', function () {
 
     it('fires correct probe on prerequisites when dtrace-provider is installed', function (done) {
 
+        var results = [];
         var provider = {
             enable: function () {},
             disable: function () {},
@@ -80,7 +81,7 @@ describe('DTrace', function () {
                 return {
                     fire: function (fn) {
 
-                        expect(fn()).to.contain('m1');
+                        results = results.concat(fn());
                     }
                 };
             }
@@ -105,13 +106,14 @@ describe('DTrace', function () {
 
         server.inject({ url: '/' }, function () {
 
+            expect(results).to.contain('m1');
             done();
         });
     });
 
     it('allows probes to be added dynamically', function (done) {
 
-        var runNum = 0;
+        var results = [];
         var provider =  {
             enable: function () {},
             disable: function () {},
@@ -120,14 +122,7 @@ describe('DTrace', function () {
                 return {
                     fire: function (fn) {
 
-                        if (runNum++ === 0) {
-                            expect(fn()).to.contain(20);
-                            expect(fn()).to.contain('some value');
-                        }
-                        else {
-                            expect(fn()).to.contain(1);
-                            expect(fn()).to.contain('3');
-                        }
+                        results = results.concat(fn());
                     }
                 };
             }
@@ -145,6 +140,11 @@ describe('DTrace', function () {
         }});
 
         server.inject({ url: '/' }, function () {
+
+            expect(results).to.contain(20);
+            expect(results).to.contain('some value');
+            expect(results).to.contain(1);
+            expect(results).to.contain('3');
             done();
         });
     });
