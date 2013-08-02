@@ -683,4 +683,29 @@ describe('Pack', function () {
             });
         });
     });
+
+    it('plugin event handlers receive more than 2 arguments when they exist', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '2.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.events.once('request', function (request, event, tags) {
+
+                    expect(tags).to.exist;
+                    done();
+                });
+
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ url: '/' }, function () {});
+        });
+    });
 });
