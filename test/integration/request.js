@@ -460,4 +460,15 @@ describe('Request', function () {
 
         check();
     });
+
+    it('response event includes response function on request', function (done) {
+
+        server.once('response', function (request) {
+
+            expect(typeof request.response).to.equal('function');
+            done();
+        });
+
+        server.inject('invalid', function (res) {});
+    });
 });
