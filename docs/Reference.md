@@ -129,7 +129,7 @@ Creates a new server instance with the following arguments:
 - `host` - the hostname or IP address the server is bound to. Defaults to `0.0.0.0` which means any available network
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from the same machine.
 - `port` - the TPC port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
-  to use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
+  To use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
 - `options` - An object with the server configuration as described in [server options](#server-options).
 
 ```javascript
@@ -164,7 +164,7 @@ When creating a server instance, the following options configure the server's be
   `cache` options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
 <p></p>
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
-  required by web application running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
+  required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
     - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
     - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
@@ -1182,9 +1182,9 @@ Registers an extension function in one of the available [extension points](#requ
           "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
           value accepted by [`request.reply()`](#requestreplyresult).
 - `options` - an optional object with the following:
-    - `before` - a string or array of strings of plugin names this method must executed before (on the same event). Otherwise, extension methods are executed
+    - `before` - a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed
       in the order added.
-    - `after` - a string or array of strings of plugin names this method must executed before (on the same event). Otherwise, extension methods are executed
+    - `after` - a string or array of strings of plugin names this method must execute after (on the same event). Otherwise, extension methods are executed
       in the order added.
     - `context` - any value passed back to the provided method (via the `request.context` variable) when called.
 
