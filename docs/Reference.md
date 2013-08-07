@@ -1434,7 +1434,7 @@ server callback (which is available in `request.raw.req`). The `request` object 
 
 ### `request` properties
 
-Each request object have the following properties:
+Each request object has the following properties:
 
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
@@ -2425,7 +2425,7 @@ Creates a new `Pack` object instance where:
 - `options` - optional configuration:
     - `app` - an object used to initialize the application-specific data stored in `pack.app`.
     - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
-    - `requirePath` - sets the path from which node module plugins are loaded. Applies only when using `pack.require()`[#packrequirename-options-callback]
+    - `requirePath` - sets the path from which node module plugins are loaded. Applies only when using [`pack.require()`](#packrequirename-options-callback)
       with module names that do no include a relative or absolute path (e.g. 'lout'). Defaults to the node module behaviour described in
       [node modules](http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders). Note that if the modules
       are located inside a 'node_modules' sub-directory, `requirePath` must end with `'/node_modules'`.
