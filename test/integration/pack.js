@@ -69,7 +69,7 @@ describe('Pack', function () {
                 plugin.helper('test', function (next) {
 
                     next('123');
-                });
+                }, { cache: { expiresIn: 1000 } });
 
                 server2.helpers.test(function (result) {
 
