@@ -98,6 +98,7 @@
         - [`plugin.log(tags, [data, [timestamp]])`](#pluginlogtags-data-timestamp)
         - [`plugin.dependency(deps)`](#plugindependencydeps)
         - [`plugin.views(options)`](#pluginviewsoptions)
+        - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
@@ -113,7 +114,6 @@
         - [`plugin.state(name, [options])`](#pluginstatename-options)
         - [`plugin.auth(name, options)`](#pluginauthname-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
-        - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
 - [`Hapi.utils`](#hapiutils)
       - [`version()`](#version)
 - [`Hapi.types`](#hapitypes)
@@ -2972,6 +2972,24 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
+#### `plugin.helper(name, method, [options])`
+
+_Requires the `helper` plugin permission._
+
+Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelpername-method-options)
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.helper('user', function (id, next) {
+
+        next({ id: id });
+    });
+
+    next();
+};
+```
+
 #### `plugin.cache(options)`
 
 _Requires the `cache` plugin permission._
@@ -3221,24 +3239,6 @@ exports.register = function (plugin, options, next) {
 
         console.log('Received request: ' + request.path);
         extNext();
-    });
-
-    next();
-};
-```
-
-#### `plugin.helper(name, method, [options])`
-
-_Requires the `helper` plugin permission._
-
-Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelpername-method-options)
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.helper('user', function (id, next) {
-
-        next({ id: id });
     });
 
     next();
