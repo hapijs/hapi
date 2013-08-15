@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     {
@@ -31,8 +31,8 @@
   "dependencies": {
     "hoek": "0.9.x",
     "boom": "0.4.x",
-    "joi": "0.3.x",
-    "catbox": "0.6.x",
+    "joi": "0.4.x",
+    "catbox": "1.0.x",
     "hawk": "1.x.x",
     "shot": "0.4.x",
     "cryptiles": "0.2.x",
@@ -46,7 +46,7 @@
     "semver": "2.0.x"
   },
   "devDependencies": {
-    "lab": "0.1.x",
+    "lab": "0.2.x",
     "request": "2.22.x",
     "handlebars": "1.0.x",
     "jade": "0.33.x",
