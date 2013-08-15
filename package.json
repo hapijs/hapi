@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     {
