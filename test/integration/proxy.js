@@ -145,7 +145,7 @@ describe('Proxy', function () {
 
         var upstream = new Hapi.Server(0);
         upstream.route([
-            { method: 'GET', path: '/profile', handler: profile },
+            { method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } },
             { method: 'GET', path: '/item', handler: activeItem },
             { method: 'GET', path: '/proxyerror', handler: activeItem },
             { method: 'POST', path: '/item', handler: item },
@@ -235,7 +235,7 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/sslDefault', handler: { proxy: { mapUri: mapSslUri } } }
                     ]);
 
-                    timeoutServer = new Hapi.Server(0, { timeout: { server: 5 }});
+                    timeoutServer = new Hapi.Server(0, { timeout: { server: 5 } });
                     timeoutServer.route([
                         { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 15 } } },
                         { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 2 } } },
@@ -292,6 +292,7 @@ describe('Proxy', function () {
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('John Doe');
             expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
+            expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
 
             server.inject('/profile', function (res) {
 
@@ -621,7 +622,7 @@ describe('Proxy', function () {
 
         var client = Http.get('http://127.0.0.1:' + server.info.port + '/profile', function (res) {
 
-            res.on('data', function () {});
+            res.on('data', function () { });
         });
 
         client.once('socket', function () {
