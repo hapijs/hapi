@@ -58,6 +58,11 @@ describe('Prerequesites', function () {
         a.b.c;
     };
 
+    var fetchResponse = function (request, next) {
+
+        next(new Hapi.response.Text('Greetings'));
+    };
+
     var getFetch1 = function (request) {
 
         request.reply(request.pre.m5);
@@ -123,6 +128,17 @@ describe('Prerequesites', function () {
                 pre: [
                     { method: fetch1, assign: 'm1', mode: 'parallel' },
                     { method: fetchException, assign: 'm6' }
+                ],
+                handler: getFetch2
+            }
+        },
+        {
+            method: 'GET',
+            path: '/fetchResponse',
+            config: {
+                pre: [
+                    { method: fetch1, assign: 'm1', mode: 'parallel' },
+                    { method: fetchResponse, assign: 'm6' }
                 ],
                 handler: getFetch2
             }
@@ -201,6 +217,15 @@ describe('Prerequesites', function () {
         makeRequest('/fetchException', function (res) {
 
             expect(res.code).to.equal(500);
+            done();
+        });
+    });
+
+    it('allows prerequisites to pass a response', function (done) {
+
+        makeRequest('/fetchResponse', function (res) {
+
+            expect(res).to.equal('Greetings');
             done();
         });
     });
