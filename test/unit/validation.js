@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Querystring = require('querystring');
+var Path = require('path');
 var Hapi = require('../..');
 var Validation = require('../../lib/validation');
 
@@ -283,6 +284,33 @@ describe('Validation', function () {
             Validation.payload(request, function (err) {
 
                 expect(err).to.exist;
+                done();
+            });
+        });
+
+        it('can raise custom validation errors', function (done) {
+
+            var route = {
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: testHandler,
+                    validate: {
+                        payload: {
+                            username: S().required(),
+                            languagePath: Path.join(__dirname, 'validation', 'messages.json')
+                        }
+                    }
+                }
+            };
+
+            var payload = { username: '' };
+            var request = createRequestObject(null, route, payload);
+
+            Validation.payload(request, function (err) {
+
+                expect(err).to.exist;
+                expect(err.message).to.contain('Invalid value for `username`: `empty`.');
                 done();
             });
         });
