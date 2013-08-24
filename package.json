@@ -31,7 +31,7 @@
   "dependencies": {
     "hoek": "0.9.x",
     "boom": "0.4.x",
-    "joi": "0.4.x",
+    "joi": "1.1.x",
     "catbox": "1.0.x",
     "hawk": "1.x.x",
     "shot": "0.4.x",
