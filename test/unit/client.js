@@ -117,7 +117,7 @@ describe('Client', function () {
 
         it('handles errors when remote server is unavailable', function (done) {
 
-            Client.request('get', 'http://127.0.0.1:0', { payload: '' }, function (err) {
+            Client.request('get', 'http://127.0.0.1:10', { payload: '' }, function (err) {
 
                 expect(err).to.exist;
                 done();
