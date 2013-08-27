@@ -3,17 +3,6 @@
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
   "version": "1.9.4",
-  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
-  "contributors": [
-    {
-      "name": "Van Nguyen",
-      "email": "the.gol.effect@gmail.com"
-    },
-    {
-      "name": "Wyatt Preul",
-      "email": "wpreul@gmail.com"
-    }
-  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/spumko/hapi"
@@ -29,7 +18,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "hoek": "0.9.x",
+    "hoek": "1.0.x",
     "boom": "0.4.x",
     "joi": "1.1.x",
     "catbox": "1.0.x",
