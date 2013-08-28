@@ -82,7 +82,6 @@ describe('Client Timeout', function () {
                 method: 'POST'
             };
 
-
             var req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(408);
@@ -90,11 +89,10 @@ describe('Client Timeout', function () {
                 done();
             });
 
-            req.on('error', function (err) {                    // Will error out, so don't allow error to escape test
+            req.on('error', function (err) { });                    // Will error out, so don't allow error to escape test
 
-            });
-
-            req.write('\n');
+            req.write('{}\n');
+            var now = Date.now();
             setTimeout(function () {
 
                 req.end();
