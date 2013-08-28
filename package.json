@@ -23,7 +23,7 @@
     "joi": "1.1.x",
     "catbox": "1.0.x",
     "hawk": "1.x.x",
-    "shot": "0.4.x",
+    "shot": "1.0.x",
     "cryptiles": "0.2.x",
     "iron": "0.3.x",
     "async": "0.2.x",
