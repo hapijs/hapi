@@ -32,9 +32,9 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply('text\0!')
+                request.reply('text')
                              .type('text/plain')
-                             .encoding('ascii')
+                             .encoding('hex')
                              .charset('ISO-8859-1')
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
@@ -65,7 +65,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.payload).to.exist;
-                expect(res.payload).to.equal('text !');
+                expect(res.payload).to.equal('');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com www.example.com');
@@ -1260,7 +1260,6 @@ describe('Response', function () {
                 fileStream._read = function (n) {
 
                     if (readTimes++ === chunkTimes) {
-
                         fileStream.push(null);
                     }
                     else {
@@ -1274,7 +1273,7 @@ describe('Response', function () {
 
             streamServer.start(function () {
 
-                Http.get('http://127.0.0.1:' + streamServer.info.port + '/', function (res) {
+                var req = Http.get('http://127.0.0.1:' + streamServer.info.port + '/', function (res) {
 
                     var receivedFile = '';
                     res.on('readable', function () {
@@ -1287,7 +1286,9 @@ describe('Response', function () {
                         expect(receivedFile).to.equal(expectedBody);
                         done();
                     });
-                }).on('error', function (err) {
+                });
+
+                req.on('error', function (err) {
 
                     expect(err).to.not.exist();
                 });
