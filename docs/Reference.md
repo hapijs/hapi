@@ -668,8 +668,10 @@ The route `pre` option allows defining such pre-handler methods. The methods are
     - `method` - the function to call (or short-hand helper string as described below). The function signature is `function(request, next)` where:
         - `request` - the incoming `request` object.
         - `next` - the function called when the method is done with the signature `function(result)` where:
-            - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)). If an error
-              is returned, that value is sent back to the client and the handler method is not called.
+            - `result` - any return value including a response type object or `Error` (created via `new Error()` or [`Hapi.error`](#hapierror)).
+              If a response object is returned, the request lifecycle will immediately transition to the "send response" phase, skipping any
+              interim phases and using the response type as the new response. If an error is returned, it is sent back to the client immediately,
+              without calling the handler method or triggering any remaining lifecycle events.
     - `assign` - key name to assign the result of the function to within `request.pre`.
     - `mode` - set the calling order of the function. Available values:
         - `'serial'` - serial methods are executed after all the `'parallel'` methods in the order listed. This is the default value.
