@@ -1293,7 +1293,10 @@ describe('Response', function () {
                     var receivedFile = '';
                     res.on('readable', function () {
 
-                        receivedFile += res.read().toString();
+                        var buffer = res.read();
+                        if (buffer) {
+                            receivedFile += buffer.toString();
+                        }
                     });
 
                     res.once('end', function () {
