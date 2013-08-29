@@ -1101,6 +1101,21 @@ describe('Response', function () {
             });
         });
 
+        it('emits response event', function (done) {
+
+            server.once('response', function (request) {
+
+                expect(request.url.path).to.equal('/stream/');
+                done();
+            });
+
+            server.inject('/stream/', function (res) {
+
+                expect(res.result).to.equal('xy');
+                expect(res.statusCode).to.equal(200);
+            });
+        });
+
         it('returns a stream reply when accept-encoding is malformed', function (done) {
 
             server.inject({ url: '/stream/', headers: { 'content-encoding': '', 'accept-encoding': 't=1,' } }, function (res) {
