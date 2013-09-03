@@ -345,7 +345,7 @@ describe('Payload', function () {
 
         it('sets parse mode when route methos is * and request is POST', function (done) {
 
-            server.inject({ url: '/any', method: 'POST', headers: { 'Content-Type': 'application/json' }, payload: '{ "key": "09876" }' }, function (res) {
+            server.inject({ url: '/any', method: 'POST', payload: { key: '09876' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('09876');
