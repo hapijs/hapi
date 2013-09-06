@@ -177,6 +177,8 @@ When creating a server instance, the following options configure the server's be
     - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
     - `credentials` - if `true`, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to `false`.
 <p></p>
+- `validate` - configures one or more global options for the validation. The settings are described in the [Joi](http://github.com/spumko/joi) module.
+<p></p>
 - `debug` - controls the error types sent to the console:
     - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
       to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response.
