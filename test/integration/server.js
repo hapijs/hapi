@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Net = require('net');
+var Joi = require('joi');
 var Hapi = require('../..');
 
 
@@ -195,6 +196,30 @@ describe('Server', function () {
                 });
             });
         });
+    });
+
+    it('sets Joi\'s settings', function (done) {
+
+        var config = {
+            validate: {
+                saveConversions: true
+            }
+        };
+
+        expect(Joi.settings.saveConversions).to.equal(false);
+
+        var server = new Hapi.Server('0.0.0.0', 0, config);
+        server.start(function () {
+
+            expect(Joi.settings.saveConversions).to.equal(true);
+            Joi.settings.saveConversions = false;
+
+            server.stop(function () {
+
+                done();
+            });
+        });
+
     });
 
 });
