@@ -268,5 +268,47 @@ describe('Prerequesites', function () {
         expect(test).to.throw('Invalid prerequisite string method syntax');
         done();
     });
+
+    it('uses handler and pre interchangeably', function (done) {
+
+        var handler = function () {
+
+            this.reply('handler-' + (this.pre.first || '')).code(901);
+        };
+
+        var pre = function () {
+
+            this.reply('pre-' + (this.pre.first || '')).code(902);
+        };
+
+        var response = function () {
+
+            this.reply(this.pre.first);
+        };
+
+        var server = new Hapi.Server();
+        server.route([
+            { method: 'GET', path: '/handler', config: { pre: [{ method: pre, assign: 'first', type: 'handler' }], handler: handler } },
+            { method: 'GET', path: '/pre', config: { pre: [{ method: handler, assign: 'first', type: 'handler' }], handler: pre } },
+            { method: 'GET', path: '/response', config: { pre: [{ method: handler, assign: 'first', type: 'handler', output: 'response' }], handler: response } }
+        ]);
+
+        server.inject('/handler', function (res) {
+
+            expect(res.payload).to.equal('handler-pre-');
+            expect(res.statusCode).to.equal(901);
+            server.inject('/pre', function (res) {
+
+                expect(res.payload).to.equal('pre-handler-');
+                expect(res.statusCode).to.equal(902);
+                server.inject('/response', function (res) {
+
+                    expect(res.payload).to.equal('handler-');
+                    expect(res.statusCode).to.equal(901);
+                    done();
+                });
+            });
+        });
+    });
 });
 

@@ -1,4 +1,4 @@
-# 1.9.x API Reference
+# 1.10.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -665,16 +665,26 @@ The route `pre` option allows defining such pre-handler methods. The methods are
 `'parallel'` in which case, all the parallel methods are executed first, then the rest in order. `pre` can be assigned a mixed array of:
 
 - objects with:
-    - `method` - the function to call (or short-hand helper string as described below). The function signature is `function(request, next)` where:
-        - `request` - the incoming `request` object.
-        - `next` - the function called when the method is done with the signature `function(result)` where:
-            - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)). If an error
-              is returned, that value is sent back to the client and the handler method is not called.
+    - `method` - the function to call (or short-hand helper string as described below). The function signature is defined by the `type` options.
     - `assign` - key name to assign the result of the function to within `request.pre`.
-    - `mode` - set the calling order of the function. Available values:
+    - `mode` - the calling order of the function. Available values:
         - `'serial'` - serial methods are executed after all the `'parallel'` methods in the order listed. This is the default value.
         - `'parallel'` - all parallel methods are executed first in parallel before any serial method. The first to return an error response
           will exist the set.
+    - `type` - the method signature by specifying one of the following (defualts to `'pre'`):
+        - `'pre'` - the function signature is `function(request, next)` where:
+            - `request` - the incoming `request` object.
+            - `next` - the function called when the method is done with the signature `function(result)` where:
+                - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)). If an error
+                  is returned, that value is sent back to the client and the handler method is not called.
+        - `'handler'` - the function signature is identical to a route handler as describer in [Route handler](#route-handler).
+    - `output` - the value used when assigning the output where:
+        - `'raw'` - the value passed by the method to the callback, regardless of the method `type`. This is the default.
+        - `'response'` - if the method resulted in a [response object](#hapiresponse), assigns the response instead of the value used to construct it.
+    - `failAction` - determines how to handle errors returned by the method. Allowed values are:
+        - `'error'` - returns the error response back to the client. This is the default value.
+        - `'log'` - logs the error but continues processing the request. If `assign` is used, the error will be assigned.
+        - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
 - strings - special short-hand notation for [registered server helpers](#serverhelpername-method-options) using the format 'name(args)'
   (e.g. `'user(params.id)'`) where:
