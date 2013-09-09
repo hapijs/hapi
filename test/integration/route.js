@@ -41,6 +41,7 @@ describe('Route', function () {
         '/a/{p}/b/{x}',
         '/{p*5}',
         '/a/b/{p*}',
+        '/{a}/b/{p*}',
         '/{p*}'
     ];
 
@@ -111,7 +112,7 @@ describe('Route', function () {
         });
     };
 
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; ++i) {
         randomLoad();
     }
 
@@ -156,7 +157,8 @@ describe('Route', function () {
             ['/a/c/b/d', '/a/{p}/b/{x}'],
             ['/a/b/c/d/e', '/{p*5}'],
             ['/a/b/c/d/e/f', '/a/b/{p*}'],
-            ['/x/b/c/d/e/f/g', '/{p*}']
+            ['/x/b/c/d/e/f/g', '/{a}/b/{p*}'],
+            ['/x/y/c/d/e/f/g', '/{p*}']
         ];
 
         Async.forEachSeries(requests, function (request, next) {
