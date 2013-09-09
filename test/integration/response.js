@@ -738,6 +738,7 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
         server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: ['./', '../'], listing: true } } });
         server.route({ method: 'GET', path: '/redirect/{path*}', handler: { directory: { path: './', index: true, listing: true, redirectToSlash: true } } });
+        server.route({ method: 'GET', path: '/{ignore}/4/{path*}', handler: { directory: { path: '.' } } });
 
         it('returns a 403 when no index exists and listing is disabled', function (done) {
 
@@ -952,6 +953,16 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(302);
                 expect(res.headers.location).to.equal('http://example.com/redirect/directory/subdir/');
+                done();
+            });
+        });
+
+        it('ignores unused path params', function (done) {
+
+            server.inject('/crap/4/response.js', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.contain('hapi');
                 done();
             });
         });

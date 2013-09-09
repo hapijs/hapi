@@ -252,6 +252,12 @@ describe('Route', function () {
                     '/path/': {
                         p: 'path/'
                     }
+                },
+                '/{a}/b/{p*}': {
+                    '/a/b/path/': {
+                        a: 'a',
+                        p: 'path/'
+                    }
                 }
             };
 
