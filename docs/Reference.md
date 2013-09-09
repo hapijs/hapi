@@ -681,6 +681,10 @@ The route `pre` option allows defining such pre-handler methods. The methods are
     - `output` - the value used when assigning the output where:
         - `'raw'` - the value passed by the method to the callback, regardless of the method `type`. This is the default.
         - `'response'` - if the method resulted in a [response object](#hapiresponse), assigns the response instead of the value used to construct it.
+    - `failAction` - determines how to handle errors returned by the method. Allowed values are:
+        - `'error'` - returns the error response back to the client. This is the default value.
+        - `'log'` - logs the error but continues processing the request. If `assign` is used, the error will be assigned.
+        - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
 - strings - special short-hand notation for [registered server helpers](#serverhelpername-method-options) using the format 'name(args)'
   (e.g. `'user(params.id)'`) where:
