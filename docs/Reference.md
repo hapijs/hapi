@@ -349,10 +349,11 @@ The following options are available when adding a route:
                 - `'attachment'`
                 - `'inline'`
 <p></p>
-    - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the directory handler must include a
-      single path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does not matter). The path
-      parameter can use any of the parameter options (e.g. '{param}' for one level files only, '{param?}' for one level files or the directory root,
-      '{param*}' for any level, or '{param*3}' for a specific level). The directory handler is an object with the following options:
+    - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the
+      directory handler must include a path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does
+      not matter). The path parameter can use any of the parameter options (e.g. '{param}' for one level files only, '{param?}' for one level files or
+      the directory root, '{param*}' for any level, or '{param*3}' for a specific level). If additional path parameters are present, they are ignored for
+      the purpose of selecting the file system resource. The directory handler is an object with the following options:
         - `path` - (required) the directory root path (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
           Value can be:
             - a single path string used as the prefix for any resources requested by appending the request path parameter to the provided string.
