@@ -74,7 +74,11 @@ describe('Pack', function () {
                 server2.helpers.test(function (result) {
 
                     expect(result).to.equal('123');
-                    next();
+                    plugin.helpers.test(function (result) {
+
+                        expect(result).to.equal('123');
+                        next();
+                    });
                 });
             }
         };
