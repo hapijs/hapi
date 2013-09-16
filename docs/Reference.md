@@ -1264,7 +1264,8 @@ handlers without having to create a common module.
 
 Helpers are registered via `server.helper(name, method, [options])` where:
 
-- `name` - a unique helper name used to invoke the method via `server.helpers[name]`.
+- `name` - a unique helper name used to invoke the method via `server.helpers[name]`. When configured with caching enabled,
+  `server.helpers[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key.
 - `method` - the helper function with the signature is `function(arg1, arg2, ..., argn, next)` where:
     - `arg1`, `arg2`, etc. - the helper function arguments.
     - `next` - the function called when the helper is done with the signature `function(result)` where:
