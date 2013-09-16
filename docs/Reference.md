@@ -99,6 +99,7 @@
         - [`plugin.dependency(deps)`](#plugindependencydeps)
         - [`plugin.views(options)`](#pluginviewsoptions)
         - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
+        - [`plugin.helpers`](#pluginhelpers)
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
@@ -2999,6 +3000,29 @@ exports.register = function (plugin, options, next) {
     });
 
     next();
+};
+```
+
+#### `plugin.helpers`
+
+_Requires the `helper` plugin permission._
+
+Provides access to the helper methods registered with [`plugin.helper()`](#pluginhelpername-method-options)
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.helper('user', function (id, next) {
+
+        next({ id: id });
+    });
+
+    plugin.helpers.user(5, function (result) {
+
+        // Do something with result
+
+        next();
+    });
 };
 ```
 
