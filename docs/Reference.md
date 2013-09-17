@@ -2269,7 +2269,6 @@ var handler = function () {
     error.response.code = 499;    // Assign a custom error code
     error.reformat();
 
-    error.response.payload.custom = 'abc_123'; // Add custom key
     this.reply(error);
 });
 ```
