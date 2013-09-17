@@ -99,6 +99,7 @@
         - [`plugin.dependency(deps)`](#plugindependencydeps)
         - [`plugin.views(options)`](#pluginviewsoptions)
         - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
+        - [`plugin.helpers`](#pluginhelpers)
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
@@ -1264,7 +1265,8 @@ handlers without having to create a common module.
 
 Helpers are registered via `server.helper(name, method, [options])` where:
 
-- `name` - a unique helper name used to invoke the method via `server.helpers[name]`.
+- `name` - a unique helper name used to invoke the method via `server.helpers[name]`. When configured with caching enabled,
+  `server.helpers[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key.
 - `method` - the helper function with the signature is `function(arg1, arg2, ..., argn, next)` where:
     - `arg1`, `arg2`, etc. - the helper function arguments.
     - `next` - the function called when the helper is done with the signature `function(result)` where:
@@ -2267,6 +2269,7 @@ var handler = function () {
     error.response.code = 499;    // Assign a custom error code
     error.reformat();
 
+    error.response.payload.custom = 'abc_123'; // Add custom key
     this.reply(error);
 });
 ```
@@ -2998,6 +3001,29 @@ exports.register = function (plugin, options, next) {
     });
 
     next();
+};
+```
+
+#### `plugin.helpers`
+
+_Requires the `helper` plugin permission._
+
+Provides access to the helper methods registered with [`plugin.helper()`](#pluginhelpername-method-options)
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.helper('user', function (id, next) {
+
+        next({ id: id });
+    });
+
+    plugin.helpers.user(5, function (result) {
+
+        // Do something with result
+
+        next();
+    });
 };
 ```
 
