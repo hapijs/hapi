@@ -22,6 +22,12 @@ exports.register = function (plugin, options, next) {
         defaultMode: true
     });
 
+    plugin.auth('special', {
+        implementation: {
+            authenticate: function () { }
+        }
+    });
+
     return next();
 };
 
