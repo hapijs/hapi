@@ -652,6 +652,19 @@ describe('Pack', function () {
         });
     });
 
+    it('adds auth strategy via plugin to multiple servers', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server(0, { labels: 'a' });
+        pack.server(0, { labels: 'b' });
+
+        pack.require('./pack/--auth', function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
     it('fails to register a plugin with insufficient permissions', function (done) {
 
         var server = new Hapi.Server({ labels: 'c' });
@@ -709,7 +722,7 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ url: '/' }, function () {});
+            server.inject({ url: '/' }, function () { });
         });
     });
 });
