@@ -128,6 +128,27 @@ describe('Validation', function () {
                 done();
             });
         });
+        
+        it('should override error response if errorHandler.response defined', function (done) {
+
+            var response = 1;
+            var query = { username: 'steve' };
+            var request = createRequestObject(query, route);
+            request._response = Hapi.response._generate({ wrongParam: 'test' });
+            request.route.errorHandler = {
+                response: function (error, next) {
+
+                    next(response);
+                }
+            }
+
+            Validation.response(request, function (err) {
+
+                expect(err).to.exist;
+                expect(err).to.equal(1);
+                done();
+            });
+        });
 
         internals.calculateFailAverage = function (size, sample) {
 
@@ -229,6 +250,25 @@ describe('Validation', function () {
                 done();
             });
         });
+        
+        it('should override error response if errorHandler.path defined', function (done) {
+
+            var response = 1;
+            var request = createRequestObjectFromPath('/test', { id: 'test', something: true }, route);
+            request.route.errorHandler = {
+                path: function (error, next) {
+
+                    next(response);
+                }
+            };
+
+            Validation.path(request, function (err) {
+
+                expect(err).to.exist;
+                expect(err).to.equal(response);
+                done();
+            });
+        });
     });
 
     describe('#query', function () {
@@ -255,6 +295,33 @@ describe('Validation', function () {
             Validation.query(request, function (err) {
 
                 expect(err).to.exist;
+                done();
+            });
+        });
+        
+        it('should override error response if errorHandler.query defined', function(done){
+
+            var response = 1;
+            var route = {
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: testHandler,
+                    validate: { query: { username: S().min(7) } },
+                    errorHandler: {
+                        query: function (error, next) {
+                            next(response);
+                        }
+                    }
+                }
+            };
+            var query = { username: '1' };
+            var request = createRequestObject(query, route);
+
+            Validation.query(request, function (err) {
+
+                expect(err).to.exist;
+                expect(err).to.equal(response);
                 done();
             });
         });
@@ -311,6 +378,37 @@ describe('Validation', function () {
 
                 expect(err).to.exist;
                 expect(err.message).to.contain('Invalid value for `username`: `empty`.');
+                done();
+            });
+        });
+        
+        it('should override error response if errorHandler.payload defined', function(done){
+
+            var response = 1;
+            var route = {
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: testHandler,
+                    validate: {
+                        payload: {
+                            username: S().required()
+                        }
+                    },
+                    errorHandler: {
+                        payload: function (error, next) {
+                            next(response);
+                        }
+                    }
+                }
+            };
+            var payload = { username: '' };
+            var request = createRequestObject(null, route, payload);
+
+            Validation.payload(request, function (err) {
+
+                expect(err).to.exist;
+                expect(err).to.equal(response);
                 done();
             });
         });
