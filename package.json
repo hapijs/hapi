@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "1.11.1",
+  "version": "1.12.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/spumko/hapi"
@@ -18,14 +18,14 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "hoek": "1.0.x",
-    "boom": "1.0.x",
-    "joi": "1.1.x",
-    "catbox": "1.0.x",
+    "hoek": "1.x.x",
+    "boom": "1.x.x",
+    "joi": "1.x.x",
+    "catbox": "1.x.x",
     "hawk": "1.x.x",
-    "shot": "1.1.x",
-    "cryptiles": "0.2.x",
-    "iron": "0.3.x",
+    "shot": "1.x.x",
+    "cryptiles": "1.x.x",
+    "iron": "1.x.x",
     "async": "0.2.x",
     "multiparty": "2.1.x",
     "mime": "1.2.x",
@@ -35,7 +35,7 @@
     "semver": "2.0.x"
   },
   "devDependencies": {
-    "lab": "0.2.x",
+    "lab": "1.x.x",
     "request": "2.22.x",
     "handlebars": "1.0.x",
     "jade": "0.33.x",
