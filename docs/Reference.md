@@ -433,16 +433,6 @@ The following options are available when adding a route:
             - `false` - no path variables allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
 <p></p>
-        - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response. Values allowed:
-            - `true` - any payload allowed (no validation performed). This is the default.
-            - `false` - no payload allowed.
-            - an object with the following options:
-                - `schema` - the validation schema as described in the [Joi](http://github.com/spumko/joi) module.
-                - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
-                - `failAction` - defines what to do when a response fails validation. Options are:
-                    - `error` - return an Internal Server Error (500) error response. This is the default value.
-                    - `log` - log the error but send the response.
-<p></p>
     - `payload` - determines how the request payload is processed. `payload` can be assigned a string with the parsing mode directly (e.g. `'parse'`)
       which will use the default values of the other settings, or an object with the following:
         - `mode` - the parsing mode. Defaults to `'parse'` if `validate.payload` is set or when `method` is
@@ -463,6 +453,16 @@ The following options are available when adding a route:
           above. Note that allowing other mime types not listed will not enable them to be parsed, and that if parsing mode is `'parse'`, the request
           will result in an error response.
         - `override` - a mime type string overriding the 'Content-Type' header value received. Defaults to no override.
+<p></p>
+    - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response. Values allowed:
+        - `true` - any payload allowed (no validation performed). This is the default.
+        - `false` - no payload allowed.
+        - an object with the following options:
+            - `schema` - the validation schema as described in the [Joi](http://github.com/spumko/joi) module.
+            - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
+            - `failAction` - defines what to do when a response fails validation. Options are:
+                - `error` - return an Internal Server Error (500) error response. This is the default value.
+                - `log` - log the error but send the response.
 <p></p>
     - `cache` - if the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
