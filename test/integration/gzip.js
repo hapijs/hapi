@@ -40,6 +40,19 @@ describe('Payload', function () {
 
     server.route(postHandler);
 
+    var getHandler = {
+        method: 'GET',
+        path: '/',
+        config: {
+            handler: function (req) {
+
+                req.reply('{"test":"true"}');
+            }
+        }
+    };
+
+    server.route(getHandler);
+
     before(function (done) {
 
         server.start(function () {
@@ -121,7 +134,7 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a gzip response when accept-encoding: gzip is requested', function (done) {
+    it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
@@ -135,7 +148,21 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a gzip response when accept-encoding: * is requested', function (done) {
+    it('returns a gzip response on a get request when accept-encoding: gzip is requested', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Request.get({ url: uri, headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+
+            Zlib.gzip(rawBody, function (err, zippedBody) {
+
+                expect(body).to.equal(zippedBody.toString());
+                done();
+            });
+        });
+    });
+
+    it('returns a gzip response on a post request when accept-encoding: * is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
@@ -149,7 +176,21 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a deflate response when accept-encoding: deflate is requested', function (done) {
+    it('returns a gzip response on a get request when accept-encoding: * is requested', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Request.get({ url: uri, headers: { 'accept-encoding': '*' } }, function (err, res, body) {
+
+            Zlib.gzip(rawBody, function (err, zippedBody) {
+
+                expect(body).to.equal(zippedBody.toString());
+                done();
+            });
+        });
+    });
+
+    it('returns a deflate response on a post request when accept-encoding: deflate is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
@@ -163,7 +204,21 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a gzip response when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
+    it('returns a deflate response on a get request when accept-encoding: deflate is requested', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Request.get({ url: uri, headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
+
+            Zlib.deflate(rawBody, function (err, zippedBody) {
+
+                expect(body).to.equal(zippedBody.toString());
+                done();
+            });
+        });
+    });
+
+    it('returns a gzip response on a post request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
@@ -177,7 +232,21 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a deflate response when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
+    it('returns a gzip response on a get request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Request.get({ url: uri, headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' } }, function (err, res, body) {
+
+            Zlib.gzip(rawBody, function (err, zippedBody) {
+
+                expect(body).to.equal(zippedBody.toString());
+                done();
+            });
+        });
+    });
+
+    it('returns a deflate response on a post request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
@@ -191,7 +260,21 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a gzip response when accept-encoding: deflate, gzip is requested', function (done) {
+    it('returns a deflate response on a get request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Request.get({ url: uri, headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' } }, function (err, res, body) {
+
+            Zlib.deflate(rawBody, function (err, zippedBody) {
+
+                expect(body).to.equal(zippedBody.toString());
+                done();
+            });
+        });
+    });
+
+    it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', function (done) {
 
         var rawBody = '{"test":"true"}';
 
@@ -205,11 +288,36 @@ describe('Payload', function () {
         });
     });
 
-    it('returns an identity response when accept-encoding is missing', function (done) {
+    it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Request.get({ url: uri, headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
+
+            Zlib.gzip(rawBody, function (err, zippedBody) {
+
+                expect(body).to.equal(zippedBody.toString());
+                done();
+            });
+        });
+    });
+
+    it('returns an identity response on a post request when accept-encoding is missing', function (done) {
 
         var rawBody = '{"test":"true"}';
 
         Request.post({ url: uri, headers: {}, body: rawBody }, function (err, res, body) {
+
+            expect(body).to.equal(rawBody);
+            done();
+        });
+    });
+
+    it('returns an identity response on a get request when accept-encoding is missing', function (done) {
+
+        var rawBody = '{"test":"true"}';
+
+        Request.get({ url: uri, headers: {}}, function (err, res, body) {
 
             expect(body).to.equal(rawBody);
             done();
