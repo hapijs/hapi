@@ -43,6 +43,29 @@ describe('Validation', function () {
         });
     });
 
+    it('validates valid input (Object root)', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function () { this.reply('ok'); },
+            config: {
+                validate: {
+                    query: Hapi.types.Object({
+                        a: Hapi.types.String().min(2)
+                    })
+                }
+            }
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
     it('fails on invalid input', function (done) {
 
         var server = new Hapi.Server();
