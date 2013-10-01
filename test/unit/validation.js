@@ -72,7 +72,7 @@ describe('Validation', function () {
 
     describe('#response', function () {
 
-        var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { response: { schema: { username: S().required() } } } } };
+        var route = { method: 'GET', path: '/', config: { handler: testHandler, response: { schema: { username: S().required() } } } };
 
         it('should not raise an error when responding with valid param', function (done) {
 
@@ -119,33 +119,12 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.route.validate.response.sample = 100;
+            request.route.response.sample = 100;
             request._response = Hapi.response._generate({ wrongParam: 'test' });
 
             Validation.response(request, function (err) {
 
                 expect(err).to.exist;
-                done();
-            });
-        });
-        
-        it('should override error response if errorHandler.response defined', function (done) {
-
-            var response = 1;
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-            request._response = Hapi.response._generate({ wrongParam: 'test' });
-            request.route.errorHandler = {
-                response: function (error, next) {
-
-                    next(response);
-                }
-            }
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.exist;
-                expect(err).to.equal(1);
                 done();
             });
         });
@@ -154,8 +133,8 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.route.validate.response.failAction = 'log';
-            request.route.validate.response.sample = sample;
+            request.route.response.failAction = 'log';
+            request.route.response.sample = sample;
             request._response = Hapi.response._generate({ wrongParam: 'test' });
             var failureCount = 0;
 
@@ -196,7 +175,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request.route.validate.response.failAction = 'log';
+            request.route.response.failAction = 'log';
             request._response = Hapi.response._generate({ wrongParam: 'test' });
 
             request.log = function (tags, data) {
@@ -250,25 +229,6 @@ describe('Validation', function () {
                 done();
             });
         });
-        
-        it('should override error response if errorHandler.path defined', function (done) {
-
-            var response = 1;
-            var request = createRequestObjectFromPath('/test', { id: 'test', something: true }, route);
-            request.route.errorHandler = {
-                path: function (error, next) {
-
-                    next(response);
-                }
-            };
-
-            Validation.path(request, function (err) {
-
-                expect(err).to.exist;
-                expect(err).to.equal(response);
-                done();
-            });
-        });
     });
 
     describe('#query', function () {
@@ -295,33 +255,6 @@ describe('Validation', function () {
             Validation.query(request, function (err) {
 
                 expect(err).to.exist;
-                done();
-            });
-        });
-        
-        it('should override error response if errorHandler.query defined', function(done){
-
-            var response = 1;
-            var route = {
-                method: 'GET',
-                path: '/',
-                config: {
-                    handler: testHandler,
-                    validate: { query: { username: S().min(7) } },
-                    errorHandler: {
-                        query: function (error, next) {
-                            next(response);
-                        }
-                    }
-                }
-            };
-            var query = { username: '1' };
-            var request = createRequestObject(query, route);
-
-            Validation.query(request, function (err) {
-
-                expect(err).to.exist;
-                expect(err).to.equal(response);
                 done();
             });
         });
@@ -378,37 +311,6 @@ describe('Validation', function () {
 
                 expect(err).to.exist;
                 expect(err.message).to.contain('Invalid value for `username`: `empty`.');
-                done();
-            });
-        });
-        
-        it('should override error response if errorHandler.payload defined', function(done){
-
-            var response = 1;
-            var route = {
-                method: 'GET',
-                path: '/',
-                config: {
-                    handler: testHandler,
-                    validate: {
-                        payload: {
-                            username: S().required()
-                        }
-                    },
-                    errorHandler: {
-                        payload: function (error, next) {
-                            next(response);
-                        }
-                    }
-                }
-            };
-            var payload = { username: '' };
-            var request = createRequestObject(null, route, payload);
-
-            Validation.payload(request, function (err) {
-
-                expect(err).to.exist;
-                expect(err).to.equal(response);
                 done();
             });
         });
