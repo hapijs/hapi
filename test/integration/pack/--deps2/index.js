@@ -14,5 +14,7 @@ exports.register = function (plugin, options, next) {
         cont();
     }, { after: '--deps3', before: '--deps1' });
 
+    plugin.expose('breaking', 'bad');
+
     return next();
 };

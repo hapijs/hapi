@@ -441,9 +441,9 @@ describe('Pack', function () {
     it('adds multiple ext functions with dependencies', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
-        pack.server({ labels: ['a', 'c'] });
-        pack.server({ labels: ['c', 'b'] });
+        pack.server(0, { labels: ['a', 'b'] });
+        pack.server(0, { labels: ['a', 'c'] });
+        pack.server(0, { labels: ['c', 'b'] });
 
         var handler = function () {
 
@@ -458,18 +458,24 @@ describe('Pack', function () {
 
             expect(err).to.not.exist;
 
-            pack._servers[0].inject({ method: 'GET', url: '/' }, function (res) {
+            pack.start(function (err) {
 
-                expect(res.result).to.equal('|2|1|')
+                expect(err).to.not.exist;
+                expect(pack.plugins['--deps1'].breaking).to.equal('bad');
 
-                pack._servers[1].inject({ method: 'GET', url: '/' }, function (res) {
+                pack._servers[0].inject({ method: 'GET', url: '/' }, function (res) {
 
-                    expect(res.result).to.equal('|3|1|')
+                    expect(res.result).to.equal('|2|1|')
 
-                    pack._servers[2].inject({ method: 'GET', url: '/' }, function (res) {
+                    pack._servers[1].inject({ method: 'GET', url: '/' }, function (res) {
 
-                        expect(res.result).to.equal('|3|2|')
-                        done();
+                        expect(res.result).to.equal('|3|1|')
+
+                        pack._servers[2].inject({ method: 'GET', url: '/' }, function (res) {
+
+                            expect(res.result).to.equal('|3|2|')
+                            done();
+                        });
                     });
                 });
             });
@@ -578,6 +584,20 @@ describe('Pack', function () {
         });
     });
 
+    it('fails to start server when after method fails', function (done) {
+
+        var server = new Hapi.Server();
+        server.pack.require('./pack/--afterErr', function (err) {
+
+            expect(err).to.not.exist;
+            server.start(function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+    });
+
     it('uses plugin cache interface', function (done) {
 
         var plugin = {
@@ -586,7 +606,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 var cache = plugin.cache({ expiresIn: 10 });
-                plugin.api({
+                plugin.expose({
                     get: function (key, callback) {
                         cache.get(key, function (err, value) {
 

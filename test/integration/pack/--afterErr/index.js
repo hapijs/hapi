@@ -7,7 +7,10 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.expose('way-down', 42);
-    next();
-};
+    plugin.after(function (plugin, finish) {
 
+        finish(new Error('Not in the mood'));
+    });
+
+    return next();
+};

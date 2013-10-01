@@ -95,8 +95,10 @@
         - [`plugin.hapi`](#pluginhapi)
         - [`plugin.app`](#pluginapp)
         - [`plugin.events`](#pluginevents)
+        - [`plugin.plugins`](#pluginplugins)
         - [`plugin.log(tags, [data, [timestamp]])`](#pluginlogtags-data-timestamp)
-        - [`plugin.dependency(deps)`](#plugindependencydeps)
+        - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
+        - [`plugin.after(method)`](#pluginaftermethod)
         - [`plugin.views(options)`](#pluginviewsoptions)
         - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
         - [`plugin.helpers`](#pluginhelpers)
@@ -108,8 +110,8 @@
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
-        - [`plugin.api(key, value)`](#pluginapikey-value)
-        - [`plugin.api(obj)`](#pluginapiobj)
+        - [`plugin.expose(key, value)`](#pluginexposekey-value)
+        - [`plugin.expose(obj)`](#pluginexposeobj)
         - [`plugin.route(options)`](#pluginrouteoptions)
         - [`plugin.route(routes)`](#pluginrouteroutes)
         - [`plugin.state(name, [options])`](#pluginstatename-options)
@@ -281,7 +283,7 @@ Each instance of the `Server` object have the following properties:
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
 - `listener` - the node HTTP server object.
 - `pack` - the [`Pack`](#hapipack) object the server belongs to (automatically assigned when creating a server instance directly).
-- `plugins` - an object where each key is a plugin name and the value is the API registered by that plugin using [`plugin.api()`](#pluginapikey-value).
+- `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value).
 - `settings` - an object containing the [server options](#server-options) after applying the defaults.
 
 ### `Server` methods
@@ -2593,7 +2595,7 @@ Registers a list of plugins where:
       - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
         (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
-Batch registration is required when plugins declare a [dependency](#plugindependencydeps), so that all the required dependencies are loaded in
+Batch registration is required when plugins declare a [dependency](#plugindependencydeps-after), so that all the required dependencies are loaded in
 a single transaction (internal order does not matter).
 
 ```javascript
@@ -2842,7 +2844,7 @@ exports.register = function (plugin, options, next) {
         return plugins;
     };
 
-    plugin.api('plugins', listPlugins);
+    plugin.expose('plugins', listPlugins);
     next();
 };
 ```
@@ -2948,6 +2950,19 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
+#### `plugin.plugins`
+
+An object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value)
+when called at the plugin root level (without calling `plugin.select()`).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    console.log(plugin.plugins.example.key);
+    next();
+};
+```
+
 #### `plugin.log(tags, [data, [timestamp]])`
 
 Emits a `'log'` event on the `pack.events` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
@@ -2960,18 +2975,58 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.dependency(deps)`
+#### `plugin.dependency(deps, [after])`
 
 Declares a required dependency upon other plugins where:
 
 - `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
   must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
   should be implemented using [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
+- `after` - an optional function called after all the specified dependencies have been registered and before the servers start. The function is only
+  called if the pack servers are started. If a circular dependency is created, the call will assert (e.g. two plugins each has an `after` function
+  to be called after the other). The function signature is `function(plugin, next)` where:
+    - `plugin` - the [plugin interface](#plugin-interface) object.
+    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
+      signature is `function(err)` where:
+        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
+          registration error is considered an unrecoverable event which should terminate the application.
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.dependency('yar');
+    plugin.dependency('yar', after);
+    next();
+};
+
+var after = function (plugin, next) {
+
+    // Additional plugin registration logic
+    next();
+};
+```
+
+#### `plugin.after(method)`
+
+Add a method to be called after all the required plugins have been registered and before the servers start. The function is only
+called if the pack servers are started. Arguments:
+
+- `after` - the method with signature `function(plugin, next)` where:
+    - `plugin` - the [plugin interface](#plugin-interface) object.
+    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
+      signature is `function(err)` where:
+        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
+          registration error is considered an unrecoverable event which should terminate the application.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.after(after);
+    next();
+};
+
+var after = function (plugin, next) {
+
+    // Additional plugin registration logic
     next();
 };
 ```
@@ -3179,32 +3234,33 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.api(key, value)`
+#### `plugin.expose(key, value)`
 
-Adds an plugin API to the `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
+Exposes a property via `plugin.plugins[name]` (if added to the plugin root without first calling `plugin.select()`) and `server.plugins[name]`
+('name' of plugin) object of each selected pack server where:
 
-- `key` - the key assigned (`server.plugins[name][key]`).
+- `key` - the key assigned (`server.plugins[name][key]` or `plugin.plugins[name][key]`).
 - `value` - the value assigned.
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.api('util', function () { console.log('something'); });
+    plugin.expose('util', function () { console.log('something'); });
     next();
 };
 ```
 
-#### `plugin.api(obj)`
+#### `plugin.expose(obj)`
 
-Merges a deep copy of an object into to the existing content of the `server.plugins[name]` ('name' of plugin) object of each
-selected pack server where:
+Merges a deep copy of an object into to the existing content of `plugin.plugins[name]` (if added to the plugin root without first calling
+`plugin.select()`) and `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
 
-- `obj` - the object merged into the API container.
+- `obj` - the object merged into the exposed properties container.
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.api({ util: function () { console.log('something'); } });
+    plugin.expose({ util: function () { console.log('something'); } });
     next();
 };
 ```
