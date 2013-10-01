@@ -95,6 +95,7 @@
         - [`plugin.hapi`](#pluginhapi)
         - [`plugin.app`](#pluginapp)
         - [`plugin.events`](#pluginevents)
+        - [`plugin.plugins`](#pluginplugins)
         - [`plugin.log(tags, [data, [timestamp]])`](#pluginlogtags-data-timestamp)
         - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
         - [`plugin.after(method)`](#pluginaftermethod)
@@ -2949,6 +2950,19 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
+#### `plugin.plugins`
+
+An object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value)
+when called at the plugin root level (without calling `plugin.select()`).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    console.log(plugin.plugins.example.key);
+    next();
+};
+```
+
 #### `plugin.log(tags, [data, [timestamp]])`
 
 Emits a `'log'` event on the `pack.events` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
@@ -3222,9 +3236,10 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.expose(key, value)`
 
-Exposes a property via the `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
+Exposes a property via `plugin.plugins[name]` (if added to the plugin root without first calling `plugin.select()`) and `server.plugins[name]`
+('name' of plugin) object of each selected pack server where:
 
-- `key` - the key assigned (`server.plugins[name][key]`).
+- `key` - the key assigned (`server.plugins[name][key]` or `plugin.plugins[name][key]`).
 - `value` - the value assigned.
 
 ```javascript
@@ -3237,8 +3252,8 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.expose(obj)`
 
-Merges a deep copy of an object into to the existing content of the `server.plugins[name]` ('name' of plugin) object of each
-selected pack server where:
+Merges a deep copy of an object into to the existing content of `plugin.plugins[name]` (if added to the plugin root without first calling
+`plugin.select()`) and `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
 
 - `obj` - the object merged into the exposed properties container.
 
