@@ -433,6 +433,20 @@ The following options are available when adding a route:
             - `false` - no path variables allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
 <p></p>
+        - `errorFields` - an optional object with error fields copied into every validation error response.
+        - `failAction` - determines how to handle invalid requests. Allowed values are:
+            - `'error'` - return a Bad Request (400) error response. This is the default value.
+            - `'log'` - log the error but continue processing the request.
+            - `'ignore'` - take no action.
+            - a custom error handler function with the signature `functon(source, error, next)` where:
+                - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
+                - `error` - the error object prepared for the client response.
+                - `next` - the continuation method called to resume route processing or return an error response. The function signature
+                  is `function(exit)` where:
+                    - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the
+                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
+                      value accepted by [`request.reply()`](#requestreplyresult).
+<p></p>
     - `payload` - determines how the request payload is processed. `payload` can be assigned a string with the parsing mode directly (e.g. `'parse'`)
       which will use the default values of the other settings, or an object with the following:
         - `mode` - the parsing mode. Defaults to `'parse'` if `validate.payload` is set or when `method` is
