@@ -25,7 +25,7 @@ describe('Ext', function () {
 
         it('skips when no exts added', function (done) {
 
-            var ext = new Ext();
+            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse']);
             ext.sort('onRequest');
             expect(ext._events.onRequest).to.equal(null);
             done();
@@ -43,7 +43,7 @@ describe('Ext', function () {
                 };
             };
 
-            var ext = new Ext();
+            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse']);
             scenario.forEach(function (record, i) {
 
                 ext._add('onRequest', generateExt(record.id), { before: record.before, after: record.after }, { name: record.group });
