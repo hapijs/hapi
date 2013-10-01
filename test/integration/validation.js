@@ -116,6 +116,12 @@ describe('Validation', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.deep.equal({
+                response: {
+                    validation: {
+                        source: 'query',
+                        keys: ['a']
+                    }
+                },
                 message: 'the value of a must be at least 2 characters long'
             });
 
