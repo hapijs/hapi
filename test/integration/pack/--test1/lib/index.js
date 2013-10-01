@@ -8,8 +8,8 @@ var internals = {};
 exports.register = function (plugin, options, next) {
 
     plugin.select('test').route({ path: '/test1', method: 'GET', handler: function () { this.reply('testing123' + ((plugin.app && plugin.app.my) || '')); } });
-    plugin.api(internals.math);
-    plugin.api('glue', internals.text.glue);
+    plugin.expose(internals.math);
+    plugin.expose('glue', internals.text.glue);
 
     return next();
 };
