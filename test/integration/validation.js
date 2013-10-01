@@ -156,4 +156,41 @@ describe('Validation', function () {
             done();
         });
     });
+
+    it('customizes error on invalid input', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function () { this.reply('ok'); },
+            config: {
+                validate: {
+                    query: {
+                        a: Hapi.types.String().min(2)
+                    },
+                    errorFields: {
+                        walt: 'jr'
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=1', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result).to.deep.equal({
+                code: 400,
+                error: 'Bad Request',
+                message: 'the value of a must be at least 2 characters long',
+                validation: {
+                    source: 'query',
+                    keys: ['a']
+                },
+                walt: 'jr'
+            });
+            
+            done();
+        });
+    });
 });
