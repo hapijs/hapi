@@ -180,7 +180,7 @@ describe('Cache', function () {
     it('correctly builds the cache-key when vary headers are specified', function (done) {
 
         server.inject({ url: '/cacheVary', headers: { 'x-my-header': 'flarg' } }, function (res1) {
-            server.pack._cache.get({ segment: '/cacheVary', id: '/cacheVary?x-my-header=flarg&'}, function(err, cached){
+            server.pack._cache.get({ segment: '/cacheVary', id: '/cacheVary?x-my-header=flarg'}, function(err, cached){
                 expect(cached).to.exist;
                 done();
             })
@@ -190,7 +190,7 @@ describe('Cache', function () {
     it('correctly builds the cache-key when vary headers are specified and the path has a querystring', function (done) {
 
         server.inject({ url: '/cacheVary?foo=bar', headers: { 'x-my-header': 'flarg' } }, function (res1) {
-            server.pack._cache.get({ segment: '/cacheVary', id: '/cacheVary?foo=bar&x-my-header=flarg&'}, function(err, cached){
+            server.pack._cache.get({ segment: '/cacheVary', id: '/cacheVary?foo=bar&x-my-header=flarg'}, function(err, cached){
                 expect(cached).to.exist;
                 done();
             })
