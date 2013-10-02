@@ -1497,6 +1497,7 @@ Each request object has the following properties:
     - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
     - `host` - content of the HTTP 'Host' header.
 - `method` - the request method in lower case (e.g. `'get'`, `'post'`).
+- `mime` - the parsed content-type header. Only available when payload parsing enabled and no payload error occurred.
 - `params` - an object where each key is a path parameter name with matching value as described in [Path parameters](#path-parameters).
 - `path` - the request URI's path component.
 - `payload` - an object containing the parsed request payload (when the route `payload` option is set to `'parse'`).

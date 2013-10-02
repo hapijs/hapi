@@ -95,6 +95,7 @@ describe('Payload', function () {
                 expect(request.payload).to.exist;
                 expect(request.payload.z).to.equal('3');
                 expect(request.rawPayload.toString()).to.equal(payload);
+                expect(request.mime).to.equal('application/json');
                 request.reply(request.payload);
             };
 
