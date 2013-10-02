@@ -216,4 +216,27 @@ describe('Validation', function () {
             done();
         });
     });
+
+    it('fails on text input', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function () { this.reply('ok'); },
+            config: {
+                validate: {
+                    payload: {
+                        a: Hapi.types.String().min(2)
+                    }
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } }, function (res) {
+
+            expect(res.statusCode).to.equal(415);
+            done();
+        });
+    });
 });
