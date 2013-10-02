@@ -43,6 +43,7 @@ describe('Cache', function () {
         var cacheable = new Hapi.response.Text('hello');
         cacheable._code = 200;
 
+        // echo the header to prove which request was cached
         if(request.raw.req.headers['x-my-header']){
             cacheable._headers['x-my-header'] = request.raw.req.headers['x-my-header'];
         }
@@ -173,6 +174,26 @@ describe('Cache', function () {
                 expect(res2.headers['x-my-header']).to.equal('blarg');
                 done();
             });
+        });
+    });
+
+    it('correctly builds the cache-key when vary headers are specified', function (done) {
+
+        server.inject({ url: '/cacheVary', headers: { 'x-my-header': 'flarg' } }, function (res1) {
+            server.pack._cache.get({ segment: '/cacheVary', id: '/cacheVary?x-my-header=flarg&'}, function(err, cached){
+                expect(cached).to.exist;
+                done();
+            })
+        });
+    });
+
+    it('correctly builds the cache-key when vary headers are specified and the path has a querystring', function (done) {
+
+        server.inject({ url: '/cacheVary?foo=bar', headers: { 'x-my-header': 'flarg' } }, function (res1) {
+            server.pack._cache.get({ segment: '/cacheVary', id: '/cacheVary?foo=bar&x-my-header=flarg&'}, function(err, cached){
+                expect(cached).to.exist;
+                done();
+            })
         });
     });
 });
