@@ -34,6 +34,12 @@ describe('Route', function () {
         '/a/b',
         '/a/{p}',
         '/b/',
+        '/a1{p}/a',
+        '/x{p}/a',
+        '/x{p}/b',
+        '/y{p}/b',
+        '/{p}x/b',
+        '/{p}y/b',
         '/a/b/c',
         '/a/b/{p}',
         '/a/d{p}c/b',
@@ -84,7 +90,7 @@ describe('Route', function () {
 
         done();
     });
-
+/*
     var handler = function (path) {
 
         return function (request) {
@@ -179,5 +185,5 @@ describe('Route', function () {
 
             done();
         });
-    });
+    });*/
 });
