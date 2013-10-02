@@ -1,4 +1,4 @@
-# 1.12.x API Reference
+# 1.13.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -578,12 +578,26 @@ var paths = [
     '/a',
     '/b',
     '/ab',
+    '/a{p}b',
+    '/a{p}',
+    '/{p}b',
     '/{p}',
     '/a/b',
     '/a/{p}',
     '/b/',
+    '/a1{p}/a',
+    '/xx{p}/b',
+    '/x{p}/a',
+    '/x{p}/b',
+    '/y{p}/b',
+    '/{p}xx/b',
+    '/{p}x/b',
+    '/{p}y/b',
     '/a/b/c',
     '/a/b/{p}',
+    '/a/d{p}c/b',
+    '/a/d{p}/b',
+    '/a/{p}d/b',
     '/a/{p}/b',
     '/a/{p}/c',
     '/a/{p*2}',
@@ -592,6 +606,7 @@ var paths = [
     '/a/{p}/b/{x}',
     '/{p*5}',
     '/a/b/{p*}',
+    '/{a}/b/{p*}',
     '/{p*}'
 ];
 ```
@@ -600,10 +615,11 @@ var paths = [
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that path segment. For example,
 '/book/{id}/cover' will match '/book/123/cover' and `request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/' and
- the closing '/' unless it is the end of the path) can only include one named parameter.
+ the closing '/' unless it is the end of the path) can only include one named parameter. A parameter can cover the entire segment ('/{param}') or
+ part of the segment ('/file.{ext}').
 
- An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path).
- For example, the route '/book/{id?}' matches '/book/'.
+ An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path or
+ only covers part of the segment as in '/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/'.
 
 ```javascript
 var getAlbum = function () {

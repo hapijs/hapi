@@ -35,9 +35,11 @@ describe('Route', function () {
         '/a/{p}',
         '/b/',
         '/a1{p}/a',
+        '/xx{p}/b',
         '/x{p}/a',
         '/x{p}/b',
-        '/y{p}/b',
+        '/y{p?}/b',
+        '/{p}xx/b',
         '/{p}x/b',
         '/{p}y/b',
         '/a/b/c',
@@ -90,7 +92,7 @@ describe('Route', function () {
 
         done();
     });
-/*
+
     var handler = function (path) {
 
         return function (request) {
@@ -155,12 +157,26 @@ describe('Route', function () {
             ['/a', '/a'],
             ['/b', '/b'],
             ['/ab', '/ab'],
+            ['/axb', '/a{p}b'],
+            ['/axc', '/a{p}'],
+            ['/bxb', '/{p}b'],
             ['/c', '/{p}'],
             ['/a/b', '/a/b'],
             ['/a/c', '/a/{p}'],
             ['/b/', '/b/'],
+            ['/a1larry/a', '/a1{p}/a'],
+            ['/xx1/b', '/xx{p}/b'],
+            ['/xx1/a', '/x{p}/a'],
+            ['/x1/b', '/x{p}/b'],
+            ['/y/b', '/y{p?}/b'],
+            ['/0xx/b', '/{p}xx/b'],
+            ['/0x/b', '/{p}x/b'],
+            ['/ay/b', '/{p}y/b'],
             ['/a/b/c', '/a/b/c'],
             ['/a/b/d', '/a/b/{p}'],
+            ['/a/doc/b', '/a/d{p}c/b'],
+            ['/a/dl/b', '/a/d{p}/b'],
+            ['/a/ld/b', '/a/{p}d/b'],
             ['/a/a/b', '/a/{p}/b'],
             ['/a/d/c', '/a/{p}/c'],
             ['/a/d/d', '/a/{p*2}'],
@@ -185,5 +201,5 @@ describe('Route', function () {
 
             done();
         });
-    });*/
+    });
 });
