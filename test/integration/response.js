@@ -82,6 +82,23 @@ describe('Response', function () {
             });
         });
 
+        it('returns error on created with GET', function (done) {
+
+            var handler = function () {
+
+                this.reply().created('/something');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
         it('returns an error on bad cookie', function (done) {
 
             var handler = function (request) {
@@ -1119,7 +1136,7 @@ describe('Response', function () {
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
         server.route({ method: 'GET', path: '/stream2', config: { handler: handler2 } });
-        server.route({ method: 'GET', path: '/stream3', config: { handler: handler3, cache: { expiresIn: 9999 } } });
+        server.route({ method: 'POST', path: '/stream3', config: { handler: handler3 } });
         server.route({ method: 'GET', path: '/stream4', config: { handler: handler4 } });
         server.route({ method: 'GET', path: '/stream5', config: { handler: handler5 } });
         server.route({ method: 'GET', path: '/stream6', config: { handler: handler6 } });
@@ -1253,7 +1270,7 @@ describe('Response', function () {
 
         it('returns a stream reply (created)', function (done) {
 
-            server.inject('/stream3', function (res) {
+            server.inject({ method: 'POST', url: '/stream3' }, function (res) {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(201);

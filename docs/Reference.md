@@ -1899,7 +1899,7 @@ for deriving other response types. It provides the following methods:
 - `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
     `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
       the server [`location`](#server.config.location) configuration option is used as prefix. Not available in the `Redirection`
-      response object.
+      response object or for methods other than PUT and POST.
 - `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload where:
     `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
 - `charset(charset)` - sets the 'Content-Type' HTTP header 'charset' property where:
