@@ -79,7 +79,7 @@ describe('Route', function () {
         done();
     });
 
-    describe('#validatePathRegex', function () {
+    describe('#pathRegex.validatePath', function () {
 
         var testPaths = function () {
 
@@ -113,14 +113,31 @@ describe('Route', function () {
                 '/{param*03}': false,
                 '/{param*3?}': false,
                 '/{param*?}': false,
-                '/{param*}/': false
+                '/{param*}/': false,
+                '/a{p}': true,
+                '/{p}b': true,
+                '/a{p}b': true,
+                '/d/a{p}': true,
+                '/d/{p}b': true,
+                '/d/a{p}b': true,
+                '/a{p}/d': true,
+                '/{p}b/d': true,
+                '/a{p}b/d': true,
+                '/d/a{p}/e': true,
+                '/d/{p}b/e': true,
+                '/d/a{p}b/e': true,
+                '/a{p}.{x}': false,
+                '/{p}{x}': false,
+                '/a{p?}': true,
+                '/{p*}d': false,
+                '/a{p*3}': false
             };
 
             var test = function (path, isValid) {
 
                 it('validates the path \'' + path + '\' as ' + (isValid ? 'well-formed' : 'malformed'), function (done) {
 
-                    expect(!!(path.match(Route.validatePathRegex))).to.equal(isValid);
+                    expect(!!(path.match(Route.pathRegex.validatePath))).to.equal(isValid);
                     done();
                 });
             };
@@ -154,7 +171,13 @@ describe('Route', function () {
                 '/path/{param*}': '/path/#',
                 '/path/{param*10}/to': '/path/?/?/?/?/?/?/?/?/?/?/to',
                 '/path/{param*2}': '/path/?/?',
-                '/%20path/': '/%20path/'
+                '/%20path/': '/%20path/',
+                '/a{p}': '/a?',
+                '/{p}b': '/?b',
+                '/a{p}b': '/a?b',
+                '/a{p?}': '/a?',
+                '/{p?}b': '/?b',
+                '/a{p?}b': '/a?b'
             };
 
             var test = function (path, fingerprint) {
