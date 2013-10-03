@@ -223,21 +223,21 @@ describe('Route', function () {
                         param: 'a/b/to'
                     },
                     '/path/': {
-                        param: undefined
+                        param: ''
                     },
                     '/path': {
-                        param: undefined
+                        param: ''
                     }
                 },
                 '/path/{param*}': {
                     '/path': {
-                        param: undefined
+                        param: ''
                     },
                     '/path/a/b/to': {
                         param: 'a/b/to'
                     },
                     '/path/': {
-                        param: undefined
+                        param: ''
                     }
                 },
                 '/path/{p1}/{p2?}': {
@@ -249,11 +249,11 @@ describe('Route', function () {
                     },
                     '/path/a': {
                         p1: 'a',
-                        p2: undefined
+                        p2: ''
                     },
                     '/path/a/': {
                         p1: 'a',
-                        p2: undefined
+                        p2: ''
                     }
                 },
                 '/path/{p1}/{p2?}|false': {
@@ -264,11 +264,11 @@ describe('Route', function () {
                     },
                     '/path/a': {
                         p1: 'a',
-                        p2: undefined
+                        p2: ''
                     },
                     '/path/a/': {
                         p1: 'a',
-                        p2: undefined
+                        p2: ''
                     }
                 },
                 '/{p*}': {
@@ -280,6 +280,14 @@ describe('Route', function () {
                     '/a/b/path/': {
                         a: 'a',
                         p: 'path/'
+                    }
+                },
+                '/a{b?}c': {
+                    '/abc': {
+                        b: 'b'
+                    },
+                    '/ac': {
+                        b: ''
                     }
                 }
             };
@@ -303,13 +311,10 @@ describe('Route', function () {
                                 expect(isMatch).to.equal(!!result);
                                 if (typeof result === 'object') {
                                     var ps = Object.keys(result);
+                                    expect(ps.length).to.equal(request._paramsArray.length);
+
                                     for (var p = 0, pl = ps.length; p < pl; ++p) {
-                                        if (result[ps[p]]) {
-                                            expect(request.params[ps[p]]).to.equal(result[ps[p]]);
-                                        }
-                                        else {
-                                            expect(request.params[ps[p]]).to.be.undefined;
-                                        }
+                                        expect(request.params[ps[p]]).to.equal(result[ps[p]]);
                                     }
                                 }
 
