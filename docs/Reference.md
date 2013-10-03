@@ -619,7 +619,8 @@ Parameterized paths are processed by matching the named parameters to the conten
  part of the segment ('/file.{ext}').
 
  An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path or
- only covers part of the segment as in '/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/'.
+ only covers part of the segment as in '/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of `request.params.id` set
+ to an empty string `''`.
 
 ```javascript
 var getAlbum = function () {
