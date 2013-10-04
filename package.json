@@ -26,7 +26,7 @@
     "shot": "1.x.x",
     "cryptiles": "1.x.x",
     "iron": "1.x.x",
-    "confidence": "0.6.x",
+    "confidence": "0.7.x",
     "async": "0.2.x",
     "multiparty": "2.1.x",
     "mime": "1.2.x",
