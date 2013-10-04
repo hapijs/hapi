@@ -212,4 +212,73 @@ describe('Hapi command line', function () {
             done();
         });
     });
+
+    it('composes pack with criteria', function (done) {
+
+        var manifest = {
+            $filter: 'env',
+            testing: {
+                pack: {
+                    cache: {
+                        engine: 'memory'
+                    },
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    '--loaded': {}
+                },
+                permissions: {
+                    ext: true
+                }
+            }
+        };
+
+        var configPath = Path.join(__dirname, 'manifest5.json');
+        var hapiPath = Path.join(__dirname, '..', '..', 'bin', 'hapi');
+        var modulePath = Path.join(__dirname, 'pack');
+
+        if (!Fs.existsSync(configPath)) {
+            Fs.writeFileSync(configPath, JSON.stringify(manifest));
+        }
+
+        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath, '--filter.env=testing']);
+        var clean = function () {
+
+            hapi.kill();
+
+            if (Fs.existsSync(configPath)) {
+                Fs.unlinkSync(configPath);
+            }
+        };
+
+        hapi.stdout.on('data', function (data) {
+
+            clean();
+            expect(data.toString()).to.equal('loaded\n');
+            done();
+        });
+
+        hapi.stderr.on('data', function (data) {
+
+            clean();
+            expect(data.toString()).to.not.exist;
+        });
+    });
 });

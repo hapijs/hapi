@@ -12,7 +12,7 @@ var Hapi = require('../');
 var internals = {};
 
 
-internals.argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path]')
+internals.argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path] [--filter.criterion=value]')
                     .demand(['c'])
                     .argv;
 
@@ -37,8 +37,12 @@ internals.getManifest = function () {
 
 internals.loadPacks = function (manifest, callback) {
 
+    var options = {
+        criteria: internals.argv.filter
+    };
+
     if (!internals.argv.p) {
-        return callback();
+        return callback(null, options);
     }
 
     Fs.realpath(internals.argv.p, function (err, path) {
@@ -47,22 +51,16 @@ internals.loadPacks = function (manifest, callback) {
             return callback(err);
         }
 
-        var packs = [].concat(manifest);
-        packs.forEach(function (set) {
-
-            set.pack = set.pack || {};
-            set.pack.requirePath = path;
-        });
-
-        callback();
+        options.pack = { requirePath: path };
+        callback(null, options);
     });
 }
 
 
-internals.createComposer = function (manifest) {
+internals.createComposer = function (manifest, options) {
 
     var attached = !!internals.composer;                                                // When composer exists events are already attached
-    internals.composer = new Hapi.Composer(manifest);
+    internals.composer = new Hapi.Composer(manifest, options);
 
     internals.composer.compose(function (err) {
 
@@ -109,14 +107,14 @@ internals.restart = function () {
 internals.start = function () {
 
     var manifest = internals.getManifest();
-    internals.loadPacks(manifest, function (err) {
+    internals.loadPacks(manifest, function (err, options) {
 
         if (err) {
             console.error(err);
             process.exit();
         }
 
-        internals.createComposer(manifest);
+        internals.createComposer(manifest, options);
     });
 };
 
