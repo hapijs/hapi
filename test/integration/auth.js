@@ -91,6 +91,7 @@ describe('Auth', function () {
             { method: 'POST', path: '/basic', handler: basicHandler, config: { auth: true } },
             { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
+            { method: 'POST', path: '/basicArrayScope', handler: basicHandler, config: { auth: { scope: ['x', 'y'] } } },
             { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: '1.1.x' } } },
             { method: 'POST', path: '/double', handler: doubleHandler }
         ]);
@@ -243,6 +244,18 @@ describe('Auth', function () {
         it('returns an error on insufficient scope', function (done) {
 
             var request = { method: 'POST', url: '/basicScope', headers: { authorization: basicHeader('john', '12345') } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.code).to.equal(403);
+                done();
+            });
+        });
+
+        it('returns an error on insufficient scope specified as an array', function (done) {
+
+            var request = { method: 'POST', url: '/basicArrayScope', headers: { authorization: basicHeader('john', '12345') } };
 
             server.inject(request, function (res) {
 
