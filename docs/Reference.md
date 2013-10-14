@@ -523,8 +523,9 @@ The following options are available when adding a route:
                   `hash` attribute in Hawk).
             - `tos` - minimum terms-of-service version required (uses the [semver](https://npmjs.org/package/semver) module). If defined, the
               authentication credentials object must include a `tos` key which satisfies this requirement. Defaults to `false` which means no validation.
-            - `scope` - required application scope. A scope string (or array of strings) one of which must be included in the authentication credentials object in `scope` which is
-              a string array. Defaults to no scope required.
+            - `scope` - required application scope. A string which must be included in the authentication credentials object in `scope` which is
+              a string array. Can also be specified as an array of strings, in which case at least one of the strings must exist in the authentication
+              credentials object `scope` property. Defaults to no scope required.
             - `entity` - the required authenticated entity type. If set, must match the `entity` value of the authentication credentials. Available
               values:
                 - `any` - the authentication can be on behalf of a user or application. This is the default value.
