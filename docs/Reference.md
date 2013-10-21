@@ -3065,7 +3065,9 @@ exports.register = function (plugin, options, next) {
 
     plugin.views({
         engines: {
-            jade: require('jade')
+            html: { 
+              module: require('handlebars') 
+            }
         },
         path: './templates'
     });
