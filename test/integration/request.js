@@ -140,6 +140,11 @@ describe('Request', function () {
         request.reply(stream);
     };
 
+    var headersHandler = function () {
+
+        this.reply(this.headers['user-agent']);
+    };
+
     var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
     server.ext('onPostHandler', postHandler);
     server.route([
@@ -149,7 +154,8 @@ describe('Request', function () {
         { method: 'GET', path: '/ext', config: { handler: plainHandler } },
         { method: 'GET', path: '/response', config: { handler: responseErrorHandler } },
         { method: 'GET', path: '/stream', config: { handler: streamErrorHandler } },
-        { method: 'GET', path: '/forbidden', config: { handler: forbiddenErrorHandler } }
+        { method: 'GET', path: '/forbidden', config: { handler: forbiddenErrorHandler } },
+        { method: 'GET', path: '/header', handler: headersHandler }
     ]);
 
     server.route({ method: 'GET', path: '/address', handler: addressHandler });
@@ -459,5 +465,14 @@ describe('Request', function () {
         };
 
         check();
+    });
+
+    it('returns request header', function (done) {
+
+        server.inject('/header', function (res) {
+
+            expect(res.payload).to.equal('shot');
+            done();
+        });
     });
 });
