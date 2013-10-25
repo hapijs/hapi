@@ -63,6 +63,22 @@ describe('Ext', function () {
                 });
             });
         });
+
+        it('intercepts 404 responses', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onPreResponse', function (request, next) {
+
+                return next(request.response().response.code);
+            });
+
+            server.inject({ method: 'GET', url: '/missing' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(404);
+                done();
+            });
+        });
     });
 
     describe('#ext', function () {
