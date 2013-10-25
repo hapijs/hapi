@@ -78,7 +78,7 @@ describe('State', function () {
 
             var loose = Hapi.utils.clone(Defaults.server.state);
             loose.cookies.strictHeader = false;
-            pass('a="1; b="2"; c=3', { a: '"1', b: '2', c: '3' }, loose);
+            pass('a="1; b="2"; c=3; d[1]=4', { a: '"1', b: '2', c: '3', 'd[1]': '4' }, loose);
 
             var fail = function (header, settings, definitions, result) {
 
