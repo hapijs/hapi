@@ -1,4 +1,4 @@
-# 1.14.x API Reference
+# 1.15.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -1490,6 +1490,7 @@ Each request object has the following properties:
       successful authentication.
     - `artifacts` - an artifact object received from the authentication strategy and used in authentication-related actions.
     - `session` - an object used by the [`'cookie'` authentication scheme](#cookie-authentication).
+- `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier.
 - `info` - request information:
     - `received` - request reception timestamp.
