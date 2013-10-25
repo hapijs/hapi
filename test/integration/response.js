@@ -46,7 +46,8 @@ describe('Response', function () {
 
             var handlerBound = function () {
 
-                this.reply('Tada');
+                this.reply('Tada')
+                    .header('vary', 'x-test', true);
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com', 'www.example.com'] } });
@@ -77,6 +78,7 @@ describe('Response', function () {
                     expect(res.result).to.exist;
                     expect(res.result).to.equal('Tada');
                     expect(res.headers['access-control-allow-origin']).to.equal('www.example.com');
+                    expect(res.headers.vary).to.equal('x-test,origin');
                     done();
                 });
             });
