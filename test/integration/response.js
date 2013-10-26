@@ -88,6 +88,25 @@ describe('Response', function () {
             });
         });
 
+        it('hide CORS origin if no match found', function (done) {
+
+            var handler = function () {
+
+                this.reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                done();
+            });
+        });
+
         it('return matching CORS origin', function (done) {
 
             var handler = function () {
