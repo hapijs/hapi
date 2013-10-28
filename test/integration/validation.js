@@ -212,7 +212,7 @@ describe('Validation', function () {
                 },
                 walt: 'jr'
             });
-            
+
             done();
         });
     });
@@ -236,6 +236,62 @@ describe('Validation', function () {
         server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } }, function (res) {
 
             expect(res.statusCode).to.equal(415);
+            done();
+        });
+    });
+
+    it('fails on null input', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function () { this.reply('ok'); },
+            config: {
+                validate: {
+                    payload: {
+                        a: Hapi.types.String().min(2)
+                    }
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: 'null' }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.validation).to.deep.equal({
+                source: 'payload',
+                keys: ['a']
+            });
+
+            done();
+        });
+    });
+
+    it('fails on no payload', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function () { this.reply('ok'); },
+            config: {
+                validate: {
+                    payload: {
+                        a: Hapi.types.String().min(2)
+                    }
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/' }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.validation).to.deep.equal({
+                source: 'payload',
+                keys: ['a']
+            });
+
             done();
         });
     });
