@@ -44,14 +44,8 @@ describe('Response', function () {
                              .code(200);
             };
 
-            var handlerBound = function () {
-
-                this.reply('Tada');
-            };
-
-            var server = new Hapi.Server({ cors: { origin: ['test.example.com', 'www.example.com'] } });
+            var server = new Hapi.Server({ cors: true });
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
-            server.route({ method: 'GET', path: '/bound', config: { handler: handlerBound } });
             server.state('sid', { encoding: 'base64' });
             server.state('always', { autoValue: 'present' });
             server.ext('onPostHandler', function (request, next) {
@@ -64,21 +58,94 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.exist;
-                expect(res.payload).to.equal('');
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
-                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com www.example.com');
+                expect(res.headers['access-control-allow-origin']).to.equal('*');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
+                done();
+            });
+        });
 
-                server.inject({ url: '/bound', headers: { origin: 'www.example.com' } }, function (res) {
+        it('return CORS origin', function (done) {
 
-                    expect(res.result).to.exist;
-                    expect(res.result).to.equal('Tada');
-                    expect(res.headers['access-control-allow-origin']).to.equal('www.example.com');
-                    done();
-                });
+            var handler = function () {
+
+                this.reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
+                done();
+            });
+        });
+
+        it('hide CORS origin if no match found', function (done) {
+
+            var handler = function () {
+
+                this.reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                done();
+            });
+        });
+
+        it('return matching CORS origin', function (done) {
+
+            var handler = function () {
+
+                this.reply('Tada')
+                    .header('vary', 'x-test', true);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Tada');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
+                expect(res.headers.vary).to.equal('x-test,origin');
+                done();
+            });
+        });
+
+        it('return matching CORS origin wildcard', function (done) {
+
+            var handler = function () {
+
+                this.reply('Tada')
+                    .header('vary', 'x-test', true);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Tada');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
+                expect(res.headers.vary).to.equal('x-test,origin');
+                done();
             });
         });
 

@@ -169,7 +169,10 @@ When creating a server instance, the following options configure the server's be
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
-    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). Defaults to any origin `['*']`.
+    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The array can contain any combination of fully qualified origins
+      along with origin strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin `['*']`.
+    - `isOriginExposed` - optional boolean indicating if the server should return the allowed origin values if the incoming origin header does not match
+      any of the values. Defaults to `true`.
     - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
       will take before the browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
@@ -1894,9 +1897,11 @@ for deriving other response types. It provides the following methods:
 
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
-- `header(name, value)` - sets an HTTP header where:
+- `header(name, value, [isAppend, [separator]])` - sets an HTTP header where:
     - `name` - the header name.
     - `value` - the header value.
+    - `isAppend` - optional indicator if the value should be appended to any existing header value. Defaults to `false`.
+    - `separator` - optional string used as separator when appending to an exiting value. Defaults to `','`.
 - `type(mimeType)` - sets the HTTP 'Content-Type' header where:
     - `value` - is the mime type. Should only be used to override the built-in default for each response type.
 - `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
