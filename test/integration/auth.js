@@ -48,7 +48,7 @@ describe('Auth', function () {
             if (username === 'john') {
                 return callback(null, password === '12345', {
                     user: 'john',
-                    scope: [],
+                    scope: ['a'],
                     tos: '1.0.0'
                 });
             }
@@ -92,6 +92,7 @@ describe('Auth', function () {
             { method: 'POST', path: '/basicOptional', handler: basicHandler, config: { auth: { mode: 'optional' } } },
             { method: 'POST', path: '/basicScope', handler: basicHandler, config: { auth: { scope: 'x' } } },
             { method: 'POST', path: '/basicArrayScope', handler: basicHandler, config: { auth: { scope: ['x', 'y'] } } },
+            { method: 'POST', path: '/basicArrayScopeA', handler: basicHandler, config: { auth: { scope: ['x', 'y', 'a'] } } },
             { method: 'POST', path: '/basicTos', handler: basicHandler, config: { auth: { tos: '1.1.x' } } },
             { method: 'POST', path: '/double', handler: doubleHandler }
         ]);
@@ -137,7 +138,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
@@ -149,7 +150,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
+                expect(res.statusCode).to.equal(400);
                 expect(res.result.isMissing).to.equal(undefined);
                 done();
             });
@@ -162,7 +163,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
+                expect(res.statusCode).to.equal(400);
                 expect(res.result.isMissing).to.equal(undefined);
                 done();
             });
@@ -175,7 +176,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
+                expect(res.statusCode).to.equal(400);
                 expect(res.result.isMissing).to.equal(undefined);
                 done();
             });
@@ -188,7 +189,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
+                expect(res.statusCode).to.equal(400);
                 done();
             });
         });
@@ -200,7 +201,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
@@ -212,7 +213,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(500);
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
@@ -224,7 +225,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(500);
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
@@ -236,7 +237,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(403);
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
@@ -248,7 +249,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(403);
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
@@ -260,7 +261,19 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(403);
+                expect(res.statusCode).to.equal(403);
+                done();
+            });
+        });
+
+        it('authenticates scope specified as an array', function (done) {
+
+            var request = { method: 'POST', url: '/basicArrayScopeA', headers: { authorization: basicHeader('john', '12345') } };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(200);
                 done();
             });
         });
@@ -620,7 +633,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
@@ -632,7 +645,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
@@ -644,7 +657,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
@@ -655,7 +668,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result.code).to.equal(403);
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
@@ -666,7 +679,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result.code).to.equal(403);
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
@@ -936,7 +949,7 @@ describe('Auth', function () {
             var bewit = getBewit('john', '/abc');
             server.inject('http://example.com:8080/bewitOptional?bewit=' + bewit, function (res) {
 
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
@@ -946,7 +959,7 @@ describe('Auth', function () {
             var bewit = getBewit('john', '/abc');
             server.inject('http://example.com:8080/bewit?bewit=' + bewit, function (res) {
 
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
@@ -955,7 +968,7 @@ describe('Auth', function () {
 
             server.inject('http://example.com:8080/bewit?bewit=junk', function (res) {
 
-                expect(res.result.code).to.equal(400);
+                expect(res.statusCode).to.equal(400);
                 done();
             });
         });
@@ -965,7 +978,7 @@ describe('Auth', function () {
             var bewit = getBewit('john', '/bewitTos');
             server.inject('http://example.com:8080/bewitTos?bewit=' + bewit, function (res) {
 
-                expect(res.result.code).to.equal(403);
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
@@ -975,7 +988,7 @@ describe('Auth', function () {
             var bewit = getBewit('john', '/bewitScope');
             server.inject('http://example.com:8080/bewitScope?bewit=' + bewit, function (res) {
 
-                expect(res.result.code).to.equal(403);
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
@@ -1238,7 +1251,7 @@ describe('Auth', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result.code).to.equal(401);
+                expect(res.statusCode).to.equal(401);
                 expect(res.result.message).to.equal('Bad mac');
                 done();
             });
