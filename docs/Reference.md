@@ -215,10 +215,10 @@ When creating a server instance, the following options configure the server's be
             - `encoding` - sets encoding for the incoming form fields. Defaults to `'utf8'`.
             - `maxFieldBytes` - limits the amount of memory a field (not a file) can allocate in bytes. If this value is exceeded, the request fails.
               Defaults to `2097152` (2MB).
-            `maxFields` - limits the number of fields that will be parsed before an error response is returned. Files count as fields in this case.
+            - `maxFields` - limits the number of fields that will be parsed before an error response is returned. Files count as fields in this case.
               Defaults to 1000.
-            `uploadDir` - only used in `'file'` mode. The directory for writing file uploads. Defaults to `os.tmpDir()`.
-            `hash` - only used in `'file'` mode. If set, calculates checksums for incoming files with supported hash functions:
+            - `uploadDir` - only used in `'file'` mode. The directory for writing file uploads. Defaults to `os.tmpDir()`.
+            - `hash` - only used in `'file'` mode. If set, calculates checksums for incoming files with supported hash functions:
                 - `'sha1'`
                 - `'md5'`
 <p></p>
