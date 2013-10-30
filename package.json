@@ -28,7 +28,7 @@
     "iron": "1.x.x",
     "confidence": "0.8.x",
     "async": "0.2.x",
-    "multiparty": "2.1.x",
+    "multiparty": "3.0.x",
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
     "optimist": "0.6.x",
