@@ -209,6 +209,76 @@ describe('Response', function () {
 
     describe('Obj', function () {
 
+        it('returns a plain response', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ a: 1, b: 2 });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
+                done();
+            });
+        });
+
+        it('returns a formatted response', function (done) {
+
+            var handler = function (request) {
+
+                request.reply({ a: 1, b: 2 });
+            };
+
+            var server = new Hapi.Server({ json: { replacer: ['a'], space: 4 } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{\n    \"a\": 1\n}');
+                done();
+            });
+        });
+
+        it('returns a manually created response with options', function (done) {
+
+            var handler = function (request) {
+
+                request.reply(new Hapi.response.Obj({ a: 1, b: 2 }, { type: 'application/x-test' }));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
+                expect(res.headers['content-type']).to.equal('application/x-test; charset=utf-8');
+                done();
+            });
+        });
+
+        it('returns a manually created response with legacy options', function (done) {
+
+            var handler = function (request) {
+
+                request.reply(new Hapi.response.Obj({ a: 1, b: 2 }, 'application/x-test'));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
+                expect(res.headers['content-type']).to.equal('application/x-test; charset=utf-8');
+                done();
+            });
+        });
+
         it('validates response', function (done) {
 
             var i = 0;

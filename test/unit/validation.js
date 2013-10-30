@@ -50,7 +50,10 @@ describe('Validation', function () {
             payload: payload,
             path: routeClone.path,
             method: routeClone.method,
-            route: routeClone.config
+            route: routeClone.config,
+            server: {
+                settings: {}
+            }
         };
     };
 
@@ -66,7 +69,10 @@ describe('Validation', function () {
             },
             params: params,
             method: routeClone.method,
-            route: routeClone.config
+            route: routeClone.config,
+            server: {
+                settings: {}
+            }
         };
     };
 
