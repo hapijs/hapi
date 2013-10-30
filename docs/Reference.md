@@ -195,6 +195,10 @@ When creating a server instance, the following options configure the server's be
           location of the source code determines the location of the static resources when using relative paths.
         - an absolute path (e.g. '/path') used as prefix for all relative paths.
 <p></p>
+- `json` - optional arguments passed to `JSON.stringify()` when converting an object or error response to a string payload. Supports the following:
+    - `replacer` - the replacer function or array. Defaults to no action.
+    - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
+<p></p>
 - `labels` - a string array of labels used when registering plugins to [`plugin.select()`](#pluginselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 <p></p>
@@ -2057,9 +2061,9 @@ JavaScript object, sent stringified. The 'Content-Type' header defaults to 'appl
 [`Generic`](#generic) as well as:
 
 - `raw` - the unmodified, unstringified object. Any direct manipulation must be followed with `update()`.
-- `update(type, encoding)` - updates the string representation of the object response after changes to `raw` where:
-    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-    - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
+- `update(options)` - updates the string representation of the object response after changes to `raw` where `options` includes:
+    - `type` - optional 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+    - `encoding` - optional 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2080,10 +2084,11 @@ Generated with:
 
 - `request.reply(result)` - where:
     - `result` - must be an object.
-- `new Hapi.response.Obj(object, [type, [encoding]])` - where:
+- `new Hapi.response.Obj(object, [options])` - where:
     - `object` - the response object.
-    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-    - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
+    - `options` - an optional object with the following optional keys:
+        - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+        - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
 
 ```javascript
 var handler1 = function () {
