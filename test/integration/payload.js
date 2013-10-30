@@ -555,7 +555,7 @@ describe('Payload', function () {
             request.reply(request.payload);
         };
 
-        var server = new Hapi.Server('0.0.0.0', 0);
+        var server = new Hapi.Server('0.0.0.0', 0, { payload: { multipart: 'file' } });
         server.route({ method: 'POST', path: '/invalid', handler: invalidHandler });
         server.route({ method: 'POST', path: '/echo', handler: echo });
 
@@ -637,13 +637,141 @@ describe('Payload', function () {
                 done();
             };
 
-            var server = new Hapi.Server('0.0.0.0', 0);
+            var server = new Hapi.Server('0.0.0.0', 0, { payload: { multipart: 'file' } });
             server.route({ method: 'POST', path: '/file', config: { handler: fileHandler } });
             server.start(function () {
 
                 var r = Request.post(server.info.uri + '/file');
                 var form = r.form();
                 form.append('my_file', fileStream);
+            });
+        });
+
+        it('errors when multipart is disabled', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/echo', handler: echo });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.statusCode).to.equal(415);
+                done();
+            });
+        });
+
+        it('returns fields when multipart is set to stream mode', function (done) {
+
+            var server = new Hapi.Server({ payload: { multipart: 'stream' } });
+            server.route({ method: 'POST', path: '/echo', handler: echo });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(Object.keys(res.result).length).to.equal(3);
+                expect(res.result.field1).to.exist;
+                expect(res.result.field1.length).to.equal(2);
+                expect(res.result.field1[1]).to.equal('Repeated name segment');
+                expect(res.result.pics).to.exist;
+                done();
+            });
+        });
+
+        it('parses a file correctly om stream mode', function (done) {
+
+            var path = Path.join(__dirname, '../../images/hapi.png');
+            var stats = Fs.statSync(path);
+            var fileStream = Fs.createReadStream(path);
+            var fileContents = Fs.readFileSync(path);
+
+            var fileHandler = function (request) {
+
+                expect(request.headers['content-type']).to.contain('multipart/form-data');
+
+                Hapi.client.parse(request.payload['my_file'], function (err, buffer) {
+
+                    expect(err).to.not.exist;
+                    expect(fileContents.length).to.equal(buffer.length);
+                    expect(fileContents.toString()).to.equal(buffer.toString());
+                    done();
+                });
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 0, { payload: { multipart: 'stream' } });
+            server.route({ method: 'POST', path: '/file', config: { handler: fileHandler } });
+            server.start(function () {
+
+                var r = Request.post(server.info.uri + '/file');
+                var form = r.form();
+                form.append('my_file', fileStream);
+            });
+        });
+
+        it('returns fields when multipart is set to stream mode on a specific route', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/echo', config: { handler: echo, payload: { multipart: 'stream' } } });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(Object.keys(res.result).length).to.equal(3);
+                expect(res.result.field1).to.exist;
+                expect(res.result.field1.length).to.equal(2);
+                expect(res.result.field1[1]).to.equal('Repeated name segment');
+                expect(res.result.pics).to.exist;
+                done();
+            });
+        });
+
+        it('overrides server file mode with a route specific stream mode', function (done) {
+
+            var path = Path.join(__dirname, '../../images/hapi.png');
+            var stats = Fs.statSync(path);
+            var fileStream = Fs.createReadStream(path);
+            var fileContents = Fs.readFileSync(path);
+
+            var fileHandler = function (request) {
+
+                expect(request.headers['content-type']).to.contain('multipart/form-data');
+
+                Hapi.client.parse(request.payload['my_file'], function (err, buffer) {
+
+                    expect(err).to.not.exist;
+                    expect(fileContents.length).to.equal(buffer.length);
+                    expect(fileContents.toString()).to.equal(buffer.toString());
+                    done();
+                });
+            };
+
+            var server = new Hapi.Server('0.0.0.0', 0, { payload: { multipart: 'file' } });
+            server.route({ method: 'POST', path: '/file', config: { handler: fileHandler, payload: { multipart: 'stream' } } });
+            server.start(function () {
+
+                var r = Request.post(server.info.uri + '/file');
+                var form = r.form();
+                form.append('my_file', fileStream);
+            });
+        });
+
+        it('errors when receiving too many fields', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/echo', config: { handler: echo, payload: { multipart: { mode: 'stream', maxFields: 1 } } } });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+        });
+
+        it('overrides server fields limit in route', function (done) {
+
+            var server = new Hapi.Server({ payload: { multipart: { mode: 'stream', maxFields: 1 } } });
+            server.route({ method: 'POST', path: '/echo', config: { handler: echo, payload: { multipart: { maxFields: 10 } } } });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
             });
         });
     });
