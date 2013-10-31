@@ -5,7 +5,7 @@
 var Fs = require('fs');
 var Optimist = require('optimist');
 var Hapi = require('../');
-
+var Alce = require('alce');
 
 // Declare internals
 
@@ -23,8 +23,7 @@ internals.getManifest = function () {
     var manifestPath = internals.argv.c[0] !== '/' ? process.cwd() + '/' + internals.argv.c : internals.argv.c;
 
     try {
-        delete require.cache[require.resolve(manifestPath)];                        // Delete manifest from cache to ensure we are loading a fresh copy
-        manifest = require(manifestPath);
+        manifest = Alce.parse(Fs.readFileSync(manifestPath));
     }
     catch (err) {
         console.log('Failed loading configuration file: ' + internals.argv.c + ' (' + err.message + ')');
