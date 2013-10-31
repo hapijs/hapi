@@ -34,7 +34,6 @@ describe('Response', function () {
 
                 request.reply('text')
                              .type('text/plain')
-                             .encoding('hex')
                              .charset('ISO-8859-1')
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
@@ -59,7 +58,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist;
-                expect(res.result).to.equal('');
+                expect(res.result).to.equal('text');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
                 expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
                 expect(res.headers['access-control-allow-origin']).to.equal('*');
@@ -156,7 +155,7 @@ describe('Response', function () {
                 this.reply().created('/something');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
