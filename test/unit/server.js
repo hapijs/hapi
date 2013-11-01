@@ -1,9 +1,10 @@
 // Load modules
 
+var Fs = require('fs');
 var Lab = require('lab');
 var Https = require('https');
 var Hapi = require('../..');
-
+var Path = require('path');
 
 // Declare internals
 
@@ -113,6 +114,23 @@ describe('Server', function () {
         };
         expect(fn).throws(Error);
         done();
+    });
+
+    it('creates an server listening on a unix domain socket when the host contains a `/`', function (done) {
+
+        var socketPath = Path.join(__dirname, 'hapi-server.socket');
+        var server = new Hapi.Server(socketPath);
+
+        server.start(function () {
+            var absSocketPath = Path.resolve(socketPath);
+            expect(server.info.unixDomainSocket).to.equal(absSocketPath);
+            server.stop(function () {
+              if (Fs.existsSync(socketPath)) {
+                Fs.unlinkSync(socketPath);
+              }
+              done();
+            });
+        });
     });
 
     it('throws an error when unknown arg type is provided', function (done) {
