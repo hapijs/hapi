@@ -133,6 +133,19 @@ describe('Server', function () {
         });
     });
 
+    it('creates an server listening on a windows named pipe when the host contains a `\\\\.\\pipe`', function (done) {
+
+        var pipePath = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
+        var server = new Hapi.Server(pipePath);
+
+        server.start(function () {
+            expect(server.info.namedPipe).to.equal(pipePath);
+            server.stop(function () {
+              done();
+            });
+        });
+    });
+
     it('throws an error when unknown arg type is provided', function (done) {
 
         var fn = function () {
