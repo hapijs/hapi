@@ -182,11 +182,11 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
-            request._response = Hapi.response._generate({ wrongParam: 'test' }, request);
+            request._response = Hapi.response._generate({ username: 'a', wrongParam: 'test' }, request);
 
             request.log = function (tags, data) {
 
-                expect(data).to.contain('the key (wrongParam) is not allowed');
+                expect(data).to.contain('not allowed');
                 done();
             };
 
