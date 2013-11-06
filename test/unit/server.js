@@ -116,18 +116,41 @@ describe('Server', function () {
         done();
     });
 
-    it('creates an server listening on a unix domain socket when the host contains a `/`', function (done) {
+    it('creates a server listening on a unix domain socket', function (done) {
 
-        var socketPath = Path.join(__dirname, 'hapi-server.socket');
-        var server = new Hapi.Server(socketPath);
+        var host = Path.join(__dirname, 'hapi-server.socket');
+        var server = new Hapi.Server(host);
+
+        expect(server._unixDomainSocket).to.equal(true);
+        expect(server._host).to.equal(host);
 
         server.start(function () {
-            var absSocketPath = Path.resolve(socketPath);
+
+            var absSocketPath = Path.resolve(host);
             expect(server.info.host).to.equal(absSocketPath);
             server.stop(function () {
-                if (Fs.existsSync(socketPath)) {
-                    Fs.unlinkSync(socketPath);
+
+                if (Fs.existsSync(host)) {
+                    Fs.unlinkSync(host);
                 }
+                done();
+            });
+        });
+    });
+
+    it('creates a server listening on a windows named pipe', function (done) {
+
+        var host = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
+        var server = new Hapi.Server(host);
+
+        expect(server._windowsNamedPipe).to.equal(true);
+        expect(server._host).to.equal(host);
+
+        server.start(function () {
+
+            expect(server.info.host).to.equal(host);
+            server.stop(function () {
+
                 done();
             });
         });
