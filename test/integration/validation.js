@@ -20,6 +20,19 @@ var it = Lab.test;
 
 describe('Validation', function () {
 
+    it('changes between validation engines', function (done) {
+
+        var s1a = Hapi.types.String();
+        expect(s1a.noShortCircuit).to.exist;
+        Hapi.joi.version('v2');
+        var s2 = Hapi.types.string();
+        expect(s2.noShortCircuit).to.not.exist;
+        Hapi.joi.version('v1');
+        var s1b = Hapi.types.String();
+        expect(s1b.noShortCircuit).to.exist;
+        done();
+    });
+
     it('validates valid input', function (done) {
 
         var server = new Hapi.Server();
@@ -145,7 +158,7 @@ describe('Validation', function () {
                         keys: ['a']
                     }
                 },
-                message: 'the value of a must be at least 2 characters long'
+                message: 'the length of a must be at least 2 characters long'
             });
 
             done();
@@ -205,7 +218,7 @@ describe('Validation', function () {
             expect(res.result).to.deep.equal({
                 code: 400,
                 error: 'Bad Request',
-                message: 'the value of a must be at least 2 characters long',
+                message: 'the length of a must be at least 2 characters long',
                 validation: {
                     source: 'query',
                     keys: ['a']
@@ -250,20 +263,16 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.String().required()
                     }
                 }
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: 'null' }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.deep.equal({
-                source: 'payload',
-                keys: ['a']
-            });
-
+            expect(res.result.validation.source).to.equal('payload')
             done();
         });
     });
@@ -278,7 +287,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.String().required()
                     }
                 }
             }

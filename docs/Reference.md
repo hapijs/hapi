@@ -1,4 +1,4 @@
-# 1.15.x API Reference
+# 1.16.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
