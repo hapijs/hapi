@@ -149,7 +149,7 @@ describe('Validation', function () {
                 failureCount++;
             };
 
-            var validationResponse = function () {};
+            var validationResponse = function () { };
 
             for (var i = size; i > 0; i--) {
                 Validation.response(request, validationResponse);
@@ -241,7 +241,7 @@ describe('Validation', function () {
 
         it('should not raise an error when responding with valid param in the querystring', function (done) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { query: { username: S().min(7)  } } } };
+            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { query: { username: S().min(7) } } } };
             var query = { username: 'username' };
             var request = createRequestObject(query, route);
 
@@ -270,7 +270,7 @@ describe('Validation', function () {
 
         it('should not raise an error when responding with valid param in the payload', function (done) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: { username: S().min(7)  } } } };
+            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: { username: S().min(7) } } } };
             var payload = { username: 'username' };
             var request = createRequestObject(null, route, payload);
 
@@ -290,33 +290,6 @@ describe('Validation', function () {
             Validation.payload(request, function (err) {
 
                 expect(err).to.exist;
-                done();
-            });
-        });
-
-        it('can raise custom validation errors', function (done) {
-
-            var route = {
-                method: 'GET',
-                path: '/',
-                config: {
-                    handler: testHandler,
-                    validate: {
-                        payload: {
-                            username: S().required(),
-                            languagePath: Path.join(__dirname, 'validation', 'messages.json')
-                        }
-                    }
-                }
-            };
-
-            var payload = { username: '' };
-            var request = createRequestObject(null, route, payload);
-
-            Validation.payload(request, function (err) {
-
-                expect(err).to.exist;
-                expect(err.message).to.contain('Invalid value for `username`: `empty`.');
                 done();
             });
         });
