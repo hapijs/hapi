@@ -123,12 +123,12 @@ describe('Server', function () {
 
         server.start(function () {
             var absSocketPath = Path.resolve(socketPath);
-            expect(server.info.unixDomainSocket).to.equal(absSocketPath);
+            expect(server.info.host).to.equal(absSocketPath);
             server.stop(function () {
-              if (Fs.existsSync(socketPath)) {
-                Fs.unlinkSync(socketPath);
-              }
-              done();
+                if (Fs.existsSync(socketPath)) {
+                    Fs.unlinkSync(socketPath);
+                }
+                done();
             });
         });
     });
@@ -362,11 +362,13 @@ describe('Server', function () {
         it('doesn\'t lowercase params when case is insensitive', function (done) {
 
             var server = new Hapi.Server({ router: { isCaseSensitive: false } });
-            server.route({ path: '/test/{userId}/end', method: 'put', handler: function (request) {
+            server.route({
+                path: '/test/{userId}/end', method: 'put', handler: function (request) {
 
-                expect(request.params.userId).to.exist;
-                done();
-            } });
+                    expect(request.params.userId).to.exist;
+                    done();
+                }
+            });
 
             server.inject({ url: '/test/2100/end', method: 'PUT' }, function () {
 
