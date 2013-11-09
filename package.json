@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/spumko/hapi"
@@ -40,7 +40,7 @@
   "devDependencies": {
     "lab": "1.x.x",
     "request": "2.22.x",
-    "handlebars": "1.0.x",
+    "handlebars": "1.1.x",
     "jade": "0.33.x",
     "hapi-plugin-test": "1.x.x",
     "dtrace-provider": "0.2.x"
