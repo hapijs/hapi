@@ -156,17 +156,17 @@ When creating a server instance, the following options configure the server's be
 
 - `app` - application-specific configuration. Provides a safe place to store application configuration without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
-<p></p>
+
 - `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
   or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
   [`server.auth()`](#serverauthname-options).
-<p></p>
+
 - <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
   responses and helper results. By default a simple memory-based cache is used which has very limited capacity and is not suitable for production
   environments. In addition to the memory cache, a Redis-based or a MongoDB-based cache can be configured. Actual caching is only utilized if routes,
   helpers, and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The
   `cache` options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
-<p></p>
+
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
   default. To enable, set `cors` to `true`, or to an object with the following options:
@@ -183,29 +183,29 @@ When creating a server instance, the following options configure the server's be
     - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers'). Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
     - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
     - `credentials` - if `true`, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to `false`.
-<p></p>
+
 - `debug` - controls the error types sent to the console:
     - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
       to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response.
       For example, to display all errors, change the option to `['error', 'uncaught']`. To turn off all console debug messages set it to `false`.
-<p></p>
+
 - <a name="server.config.files"></a>`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines how relative paths are resolved. Available values:
         - `'cwd'` - relative paths are resolved using the active process path (`process.cwd()`). This is the default setting.
         - `'routes'` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
           location of the source code determines the location of the static resources when using relative paths.
         - an absolute path (e.g. '/path') used as prefix for all relative paths.
-<p></p>
+
 - `json` - optional arguments passed to `JSON.stringify()` when converting an object or error response to a string payload. Supports the following:
     - `replacer` - the replacer function or array. Defaults to no action.
     - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
-<p></p>
+
 - `labels` - a string array of labels used when registering plugins to [`plugin.select()`](#pluginselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
-<p></p>
+
 - <a name="server.config.location"></a>`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
   Defaults to the host received in the request HTTP 'Host' header and if missing, to `server.info.uri`.
-<p></p>
+
 - <a name="server.config.payload"></a>`payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
@@ -226,16 +226,16 @@ When creating a server instance, the following options configure the server's be
             - `hash` - only used in `'file'` mode. If set, calculates checksums for incoming files with supported hash functions:
                 - `'sha1'`
                 - `'md5'`
-<p></p>
+
 - `plugins` - plugin-specific configuration. Provides a place to store and pass plugin configuration that is at server-level. The `plugins` is
   an object where each key is a plugin name and the value is the configuration.
-<p></p>
+
 - <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
     - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved
       characters, decodes unreserved characters, and capitalizes any percent encoded values. Useful when serving non-compliant HTTP clients.
       Defaults to `false`.
-<p></p>
+
 - <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
   request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
     - `cookies` - The server automatically parses incoming cookies based on these options:
@@ -246,7 +246,7 @@ When creating a server instance, the following options configure the server's be
             - `'ignore'` - take no action.
         - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies. Defaults to `false`.
         - `strictHeader` - if `false`, allows any cookie value including values in violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
-<p></p>
+
 - `timeout` - define timeouts for processing durations:
     - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming client request before giving
       up and responding with a Service Unavailable (503) error response. Disabled by default (`false`).
@@ -254,12 +254,12 @@ When creating a server instance, the following options configure the server's be
       and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
     - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to override this behavior. Defaults to `undefined`
       which leaves the node default unchanged. Set to `false` to disable socket timeouts.
-<p></p>
+
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
-<p></p>
+
 - `maxSockets` - used to set the number of sockets available per outgoing host connection.  Default is null.  This impacts all servers sharing the process.
-<p></p>
+
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
     - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module name (string) used for
@@ -357,13 +357,13 @@ The following options are available when adding a route:
 - `path` - (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured
   paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
   will be matched against literal values in the request as described in [Path parameters](#path-parameters).
-<p></p>
+
 - `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'.
   Use `*` to match against any HTTP method (only when an exact match was not found).
-<p></p>
+
 - `vhost` - an optional domain string or an array of domain strings for limiting the route to only requests with a matching host header field.
   Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
-<p></p>
+
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
   described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404)
   error response, or `handler` can be assigned an object with one of:
@@ -376,7 +376,7 @@ The following options are available when adding a route:
                 - `false` - header is not included. This is the default value.
                 - `'attachment'`
                 - `'inline'`
-<p></p>
+
     - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the
       directory handler must include a path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does
       not matter). The path parameter can use any of the parameter options (e.g. '{param}' for one level files only, '{param?}' for one level files or
@@ -393,7 +393,7 @@ The following options are available when adding a route:
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
         - `redirectToSlash` - optional boolean, determines if requests for a directory without a trailing slash are redirected to the same path with
           the missing slash. Useful for ensuring relative links inside the response are resolved correctly.
-<p></p>
+
     - `proxy` - generates a reverse proxy handler with the following options:
         - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
         - `port` - the upstream service port.
@@ -424,22 +424,22 @@ The following options are available when adding a route:
               - `settings` - the proxy handler configuration.
               - `res` - the node response object received from the upstream service.
               - `payload` - the response payload.
-<p></p>
+
     - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` options is set to the desired template file name.
       The view context available to the template includes:
         - `payload` - maps to `request.payload`.
         - `params` - maps to `request.params`.
         - `query` - maps to `request.query`.
-<p></p>
+
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
     - `context` - any value passed back to the provided handler (via the `request.context` variable) when called. Can only be used with
       `handler` function values.
-<p></p>
+
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
-<p></p>
+
     - `validate`
         - `query` - validation rules for an incoming request URI query component (the key-value part of the URI between '?' and '#').
           The query is parsed into its individual key-value pairs (see
@@ -448,18 +448,18 @@ The following options are available when adding a route:
             - `true` - any query parameters allowed (no validation performed). This is the default.
             - `false` - no query parameters allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
-<p></p>
+
         - `payload` - validation rules for an incoming request payload (request body). Values allowed:
             - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
-<p></p>
+
         - `path` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
           parameters then stored in `request.params`. Values allowed:
             - `true` - any path parameters allowed (no validation performed).  This is the default.
             - `false` - no path variables allowed.
             - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
-<p></p>
+
         - `errorFields` - an optional object with error fields copied into every validation error response.
         - `failAction` - determines how to handle invalid requests. Allowed values are:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
@@ -473,7 +473,7 @@ The following options are available when adding a route:
                     - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the
                       "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
                       value accepted by [`request.reply()`](#requestreplyresult).
-<p></p>
+
     - `payload` - determines how the request payload is processed. `payload` can be assigned a string with the parsing mode directly (e.g. `'parse'`)
       which will use the default values of the other settings, or an object with the following:
         - `mode` - the parsing mode. Defaults to `'parse'` if `validate.payload` is set or when `method` is
@@ -496,7 +496,7 @@ The following options are available when adding a route:
         - `override` - a mime type string overriding the 'Content-Type' header value received. Defaults to no override.
         - `maxBytes` - overrides the server [default value](#server.config.payload) for this route.
         - `multipart` - overrides the server [default value](#server.config.payload) for this route.
-<p></p>
+
     - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response. Values allowed:
         - `true` - any payload allowed (no validation performed). This is the default.
         - `false` - no payload allowed.
@@ -506,7 +506,7 @@ The following options are available when adding a route:
             - `failAction` - defines what to do when a response fails validation. Options are:
                 - `error` - return an Internal Server Error (500) error response. This is the default value.
                 - `log` - log the error but send the response.
-<p></p>
+
     - `cache` - if the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
       the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
         - `mode` - cache location. Available values:
@@ -528,7 +528,7 @@ The following options are available when adding a route:
         - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`. Available
           only when using server-side caching.
         - `staleTimeout` - number of milliseconds to wait before checking if an item is stale. Available only when using server-side caching.
-<p></p>
+
     - `auth` - authentication configuration. Value can be:
         - a string with the name of an authentication strategy registered with `server.auth()`.
         - a boolean where `false` means no authentication, and `true` sets to the default authentication strategy which is available only
@@ -557,11 +557,11 @@ The following options are available when adding a route:
                 - `any` - the authentication can be on behalf of a user or application. This is the default value.
                 - `user` - the authentication must be on behalf of a user.
                 - `app` - the authentication must be on behalf of an application.
-<p></p>
+
     - `jsonp` - enables JSONP support by setting the value to the query parameter name containing the function name used to wrap the response payload.
       For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON response is `'{ "a":"b" }'`, the payload will be:
       `'me({ "a":"b" });'`.
-<p></p>
+
     - `description` - route description used for generating documentation (string).
     - `notes` - route notes used for generating documentation (string or array of strings).
     - `tags` - route tags used for generating documentation (array of strings).
