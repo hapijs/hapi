@@ -38,6 +38,29 @@ describe('Ext', function () {
                 done();
             });
         });
+
+        it('replies with a view', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates/valid'
+                }
+            });
+
+            server.ext('onRequest', function (request, next) {
+
+                return next(request.generateView('test', { message: 'hola!' }));
+            });
+
+            server.route({ method: 'GET', path: '/', handler: function () { this.reply('ok'); } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('<div>\n    <h1>hola!</h1>\n</div>\n');
+                done();
+            });
+        });
     });
 
     describe('#onPreResponse', function (done) {
