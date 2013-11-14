@@ -376,6 +376,8 @@ The following options are available when adding a route:
                 - `false` - header is not included. This is the default value.
                 - `'attachment'`
                 - `'inline'`
+            - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix for a precompressed version of the file to
+              serve if the request supports content encoding. Defaults to `false`.
 
     - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the
       directory handler must include a path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does
@@ -392,7 +394,9 @@ The following options are available when adding a route:
           Defaults to `false`.
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
         - `redirectToSlash` - optional boolean, determines if requests for a directory without a trailing slash are redirected to the same path with
-          the missing slash. Useful for ensuring relative links inside the response are resolved correctly.
+          the missing slash. Useful for ensuring relative links inside the response are resolved correctly. Defaults to `false`.
+        - `lookupCompressed` - optional boolean, instructs the file processor to look for the same filename with the '.gz' suffix for a precompressed
+          version of the file to serve if the request supports content encoding. Defaults to `false`.
 
     - `proxy` - generates a reverse proxy handler with the following options:
         - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
