@@ -376,6 +376,8 @@ The following options are available when adding a route:
                 - `false` - header is not included. This is the default value.
                 - `'attachment'`
                 - `'inline'`
+            - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix for a precompressed version of the file to
+              serve if the request supports content encoding. Defaults to `false`.
 
     - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the
       directory handler must include a path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does
@@ -392,7 +394,9 @@ The following options are available when adding a route:
           Defaults to `false`.
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
         - `redirectToSlash` - optional boolean, determines if requests for a directory without a trailing slash are redirected to the same path with
-          the missing slash. Useful for ensuring relative links inside the response are resolved correctly.
+          the missing slash. Useful for ensuring relative links inside the response are resolved correctly. Defaults to `false`.
+        - `lookupCompressed` - optional boolean, instructs the file processor to look for the same filename with the '.gz' suffix for a precompressed
+          version of the file to serve if the request supports content encoding. Defaults to `false`.
 
     - `proxy` - generates a reverse proxy handler with the following options:
         - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
@@ -401,15 +405,17 @@ The following options are available when adding a route:
             - `'http'`
             - `'https'`
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
-        - `rejectUnauthorized` - sets the _'rejectUnauthorized'_ property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback) making the request.
-        This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js _'rejectUnauthorized'_ property.  If _'false'_ then ssl errors will be ignored.
-        When _'true'_ the server certificate is verified and an 500 response will be sent when verification fails.  Defaults to the https agent default value of _'true'_.
+        - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
+          making the request. This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js `rejectUnauthorized` property.
+          If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.
+          Defaults to the https agent default value of `true`.
         - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
           proxied upstream endpoint. Defaults to `false`.
         - `redirects` - the maximum number of HTTP redirections allowed, to be followed automatically by the handler. Set to `false` or `0` to
           disable all redirections (the response will contain the redirection received from the upstream service). If redirections are enabled,
           no redirections (301, 302, 307, 308) will be passed along to the client, and reaching the maximum allowed redirections will return an
           error response. Defaults to `false`.
+        - `timeout` - number of milliseconds before aborting the upstream request. Defaults to `180000` (3 minutes).
         - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used together with `host`, `port`, or `protocol`.
           The function signature is `function(request, callback)` where:
             - `request` - is the incoming `request` object

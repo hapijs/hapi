@@ -892,6 +892,35 @@ describe('Response', function () {
             });
         });
 
+        it('returns a gzipped file using precompressed file', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/integration/file/image.png', lookupCompressed: true } } });
+
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.headers['content-type']).to.equal('image/png');
+                expect(res.headers['content-encoding']).to.equal('gzip');
+                expect(res.headers['content-length']).to.not.exist;
+                expect(res.payload).to.exist;
+                done();
+            });
+        });
+
+        it('returns a gzipped file when precompressed file not found', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/integration/file/note.txt', lookupCompressed: true } } });
+
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.headers['content-encoding']).to.equal('gzip');
+                expect(res.headers['content-length']).to.not.exist;
+                expect(res.payload).to.exist;
+                done();
+            });
+        });
+
         it('doesn\'t throw an error when adding a route with a parameter and function path', function (done) {
 
             var fn = function () {
