@@ -290,7 +290,12 @@ describe('Pack', function () {
                 server.inject({ method: 'GET', url: '/file' }, function (res) {
 
                     expect(res.result).to.equal('<h1>{{message}}</h1>');
-                    done();
+
+                    server.inject({ method: 'GET', url: '/ext' }, function (res) {
+
+                        expect(res.result).to.equal('<h1>grabbed</h1>');
+                        done();
+                    });
                 });
             });
         });

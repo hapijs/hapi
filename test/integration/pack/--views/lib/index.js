@@ -11,6 +11,7 @@ exports.register = function (plugin, options, next) {
         engines: { 'html': 'handlebars' },
         path: './templates'
     });
+
     plugin.route([
         {
             path: '/view', method: 'GET', handler: function () {
@@ -22,6 +23,15 @@ exports.register = function (plugin, options, next) {
             path: '/file', method: 'GET', handler: { file: './templates/test.html' }
         }
     ]);
+
+    plugin.ext('onRequest', function (request, next) {
+
+        if (request.path === '/ext') {
+            return next(request.generateView('test', { message: 'grabbed' }));
+        }
+
+        return next();
+    });
 
     return next();
 };
