@@ -401,15 +401,17 @@ The following options are available when adding a route:
             - `'http'`
             - `'https'`
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
-        - `rejectUnauthorized` - sets the _'rejectUnauthorized'_ property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback) making the request.
-        This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js _'rejectUnauthorized'_ property.  If _'false'_ then ssl errors will be ignored.
-        When _'true'_ the server certificate is verified and an 500 response will be sent when verification fails.  Defaults to the https agent default value of _'true'_.
+        - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
+          making the request. This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js `rejectUnauthorized` property.
+          If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.
+          Defaults to the https agent default value of `true`.
         - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
           proxied upstream endpoint. Defaults to `false`.
         - `redirects` - the maximum number of HTTP redirections allowed, to be followed automatically by the handler. Set to `false` or `0` to
           disable all redirections (the response will contain the redirection received from the upstream service). If redirections are enabled,
           no redirections (301, 302, 307, 308) will be passed along to the client, and reaching the maximum allowed redirections will return an
           error response. Defaults to `false`.
+        - `timeout` - number of milliseconds before aborting the upstream request. Defaults to `180000` (3 minutes).
         - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used together with `host`, `port`, or `protocol`.
           The function signature is `function(request, callback)` where:
             - `request` - is the incoming `request` object
