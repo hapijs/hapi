@@ -45,6 +45,7 @@
             - [`request.reply.redirect(uri)`](#requestreplyredirecturi)
             - [`request.reply.view(template, [context, [options]])`](#requestreplyviewtemplate-context-options)
             - [`request.reply.close()`](#requestreplyclose)
+            - [`request.reply.proxy(options)`](#requestreplyproxyoptions)
         - [`request.generateView(template, context, [options])`](#requestgenerateviewtemplate-context-options)
         - [`request.response()`](#requestresponse)
 - [`Hapi.response`](#hapiresponse)
@@ -399,12 +400,13 @@ The following options are available when adding a route:
         - `lookupCompressed` - optional boolean, instructs the file processor to look for the same filename with the '.gz' suffix for a precompressed
           version of the file to serve if the request supports content encoding. Defaults to `false`.
 
-    - `proxy` - generates a reverse proxy handler with the following options:
+    - <a name="route.config.proxy"></a>`proxy` - generates a reverse proxy handler with the following options:
         - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
         - `port` - the upstream service port.
         - `protocol` - The protocol to use when making a request to the proxied host:
             - `'http'`
             - `'https'`
+        - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
         - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
           making the request. This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js `rejectUnauthorized` property.
@@ -417,7 +419,7 @@ The following options are available when adding a route:
           no redirections (301, 302, 307, 308) will be passed along to the client, and reaching the maximum allowed redirections will return an
           error response. Defaults to `false`.
         - `timeout` - number of milliseconds before aborting the upstream request. Defaults to `180000` (3 minutes).
-        - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used together with `host`, `port`, or `protocol`.
+        - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used together with `host`, `port`, `protocol`, or `uri`.
           The function signature is `function(request, callback)` where:
             - `request` - is the incoming `request` object
             - `callback` - is `function(err, uri, headers)` where:
@@ -1708,8 +1710,8 @@ request.clearState('preferences');
 
 #### `request.reply([result])`
 
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
-`request.reply.close()` is called._
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
+`request.reply.close()`, or `request.reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router where:
 
@@ -1747,8 +1749,8 @@ The [response flow control rules](#flow-control) apply.
 
 ##### `request.reply.redirect(uri)`
 
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
-`request.reply.close()` is called._
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
+`request.reply.close()`, or `request.reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router with a redirection response where:
 
@@ -1770,8 +1772,8 @@ The [response flow control rules](#flow-control) apply.
 
 ##### `request.reply.view(template, [context, [options]])`
 
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
-`request.reply.close()` is called._
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
+`request.reply.close()`, or `request.reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router with a templatized view response where:
 
@@ -1823,8 +1825,8 @@ The [response flow control rules](#flow-control) apply.
 
 ##### `request.reply.close()`
 
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`, or
-`request.reply.close()` is called._
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
+`request.reply.close()`, or `request.reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
 directly via `request.raw.res` and that no further response action is needed (the router will ensure the `request.raw.res` was ended).
@@ -1832,6 +1834,25 @@ directly via `request.raw.res` and that no further response action is needed (th
 No return value.
 
 The [response flow control rules](#flow-control) **do not** apply.
+
+##### `request.reply.proxy(options)`
+
+_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
+`request.reply.close()`, or `request.reply.proxy()`  is called._
+
+Proxies the request to an upstream endpoint where:
+- `options` - an object including the same keys and restrictions defined by the [route `proxy` handler options](#route.config.proxy).
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+```javascript
+var handler = function () {
+
+    this.reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
+};
+```
 
 #### `request.generateView(template, context, [options])`
 
