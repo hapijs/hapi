@@ -162,7 +162,8 @@ describe('Proxy', function () {
             { method: 'POST', path: '/post2', handler: function () { this.reply(this.payload); } },
             { method: 'GET', path: '/cached', handler: profile },
             { method: 'GET', path: '/timeout1', handler: timeoutHandler },
-            { method: 'GET', path: '/timeout2', handler: timeoutHandler }
+            { method: 'GET', path: '/timeout2', handler: timeoutHandler },
+            { method: 'GET', path: '/handlerOldSchool', handler: activeItem }
         ]);
 
         var upstreamSsl = new Hapi.Server(0, { tls: tlsOptions });
@@ -227,7 +228,8 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'GET', path: '/single', handler: { proxy: { mapUri: mapSingleUri } } },
                         { method: 'GET', path: '/handler', handler: function () { this.reply.proxy({ uri: 'http://localhost:' + backendPort + '/item' }); } },
-                        { method: 'GET', path: '/handlerTemplate', handler: function () { this.reply.proxy({ uri: '{protocol}://localhost:' + backendPort + '/item' }); } }
+                        { method: 'GET', path: '/handlerTemplate', handler: function () { this.reply.proxy({ uri: '{protocol}://localhost:' + backendPort + '/item' }); } },
+                        { method: 'GET', path: '/handlerOldSchool', handler: function () { this.reply.proxy({ host: 'localhost', port: backendPort }); } }
                     ]);
 
                     sslServer = new Hapi.Server(0);
@@ -657,6 +659,17 @@ describe('Proxy', function () {
     it('proxies via request.reply.proxy() with uri tempalte', function (done) {
 
         server.inject('/handlerTemplate', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('Active Item');
+            var counter = res.result.count;
+            done();
+        });
+    });
+
+    it('proxies via request.reply.proxy() with individual options', function (done) {
+
+        server.inject('/handlerOldSchool', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('Active Item');
