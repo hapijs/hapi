@@ -56,6 +56,27 @@ describe('Validation', function () {
         });
     });
 
+    it('invalidates forbidden input', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function () { this.reply('ok'); },
+            config: {
+                validate: {
+                    query: false
+                }
+            }
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
+
     it('validates valid input (Object root)', function (done) {
 
         var server = new Hapi.Server();
