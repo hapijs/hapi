@@ -471,6 +471,7 @@ describe('Auth', function () {
         it('returns error on bad ext scheme callback', function (done) {
 
             var server = new Hapi.Server({
+                debug: false,
                 auth: {
                     implementation: {
                         authenticate: function (request, callback) {

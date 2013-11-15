@@ -63,6 +63,7 @@ describe('Auth', function () {
         };
 
         var config = {
+            debug: false,
             auth: {
                 scheme: 'basic',
                 validateFunc: loadUser,
