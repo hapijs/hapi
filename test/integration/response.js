@@ -1758,34 +1758,71 @@ describe('Response', function () {
 
         describe('Layout', function (done) {
 
-            var layoutServer = new Hapi.Server({ debug: false });
-            layoutServer.views({
-                engines: { 'html': 'handlebars' },
-                path: __dirname + '/../unit/templates',
-                layout: true
+            it('returns response', function (done) {
+
+                var layoutServer = new Hapi.Server({ debug: false });
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates',
+                    layout: true
+                });
+
+                var handler = function () {
+
+                    return this.reply.view('valid/test', { title: 'test', message: 'Hapi' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/', handler: handler });
+
+                layoutServer.inject('/', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('<!DOCTYPE html>\n<html>\n    <head>\n        <title>test</title>\n    </head>\n    <body>\n        <div>\n    <h1>Hapi</h1>\n</div>\n\n    </body>\n</html>\n');
+                    done();
+                });
             });
 
-            var handler = function () {
+            it('returns response without layout', function (done) {
 
-                return this.reply.view('valid/test', { title: 'test', message: 'Hapi' });
-            };
+                var layoutServer = new Hapi.Server({ debug: false });
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates',
+                    layout: true
+                });
 
-            var layoutConflictHandler = function (request) {
+                var handler = function () {
 
-                return request.reply.view('valid/test', { message: msg, content: 'fail' });
-            };
+                    return this.reply.view('valid/test', { title: 'test', message: 'Hapi' }, { layout: false });
+                };
 
-            var layoutErrHandler = function (request) {
+                layoutServer.route({ method: 'GET', path: '/', handler: handler });
 
-                return request.reply.view('valid/test', { message: msg }, { path: viewPath + '/../invalid' });
-            };
+                layoutServer.inject('/', function (res) {
 
-            layoutServer.route([
-                { method: 'GET', path: '/conflict', config: { handler: layoutConflictHandler } },
-                { method: 'GET', path: '/abspath', config: { handler: layoutErrHandler } }
-            ]);
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('<div>\n    <h1>Hapi</h1>\n</div>\n');
+                    done();
+                });
+            });
 
             it('returns error on layoutKeyword conflict', function (done) {
+
+                var layoutServer = new Hapi.Server({ debug: false });
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates/valid',
+                    layout: true
+                });
+
+                var handler = function () {
+
+                    return this.reply.view('test', { message: msg, content: 'fail' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/conflict', handler: handler });
 
                 layoutServer.inject('/conflict', function (res) {
 
@@ -1796,6 +1833,20 @@ describe('Response', function () {
             });
 
             it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
+
+                var layoutServer = new Hapi.Server({ debug: false });
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates/valid',
+                    layout: true
+                });
+
+                var handler = function () {
+
+                    return this.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/abspath', handler: handler });
 
                 layoutServer.inject('/abspath', function (res) {
 
