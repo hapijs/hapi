@@ -172,7 +172,7 @@ describe('Response', function () {
                 request.reply('text').state(';sid', 'abcdefg123456');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -286,7 +286,7 @@ describe('Response', function () {
                 request.reply({ some: i++ ? null : 'value' });
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { response: { schema: { some: Hapi.types.String() } } }, handler: handler });
 
             server.inject('/', function (res) {
@@ -310,7 +310,7 @@ describe('Response', function () {
                 request.reply({ some: i++ ? null : 'value' });
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { validate: { response: { schema: { some: Hapi.types.String() } } }, handler: handler } });
 
             server.inject('/', function (res) {
@@ -421,7 +421,7 @@ describe('Response', function () {
                 request.reply(new Error('boom'));
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -441,7 +441,7 @@ describe('Response', function () {
                 request.reply(error);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
 
             server.once('internalError', function (request, err) {
 
@@ -463,6 +463,7 @@ describe('Response', function () {
         it('emits internalError when view file for handler not found', function (done) {
 
             var options = {
+                debug: false,
                 views: {
                     engines: { 'html': 'handlebars' },
                     path: __dirname
@@ -936,7 +937,7 @@ describe('Response', function () {
 
     describe('Directory', function () {
 
-        var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+        var server = new Hapi.Server(0, { files: { relativeTo: 'routes' }, debug: false });
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
         server.route({ method: 'GET', path: '/showhidden/{path*}', handler: { directory: { path: './', showHidden: true, listing: true } } });
         server.route({ method: 'GET', path: '/noshowhidden/{path*}', handler: { directory: { path: './', listing: true } } });
@@ -1297,7 +1298,7 @@ describe('Response', function () {
             request.reply(oldMode);
         };
 
-        var server = new Hapi.Server({ cors: { origin: ['test.example.com'] }, location: 'http://example.com:8080' });
+        var server = new Hapi.Server({ cors: { origin: ['test.example.com'] }, location: 'http://example.com:8080', debug: false });
         server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
         server.route({ method: 'GET', path: '/stream2', config: { handler: handler2 } });
@@ -1660,6 +1661,7 @@ describe('Response', function () {
         describe('Default', function (done) {
 
             var server = new Hapi.Server({
+                debug: false,
                 views: {
                     engines: { 'html': 'handlebars' },
                     path: viewPath
@@ -1756,7 +1758,7 @@ describe('Response', function () {
 
         describe('Layout', function (done) {
 
-            var layoutServer = new Hapi.Server();
+            var layoutServer = new Hapi.Server({ debug: false });
             layoutServer.views({
                 engines: { 'html': 'handlebars' },
                 path: __dirname + '/../unit/templates',
@@ -1954,6 +1956,7 @@ describe('Response', function () {
             describe('Multiple', function () {
 
                 var server = new Hapi.Server({
+                    debug: false,
                     views: {
                         path: viewPath,
                         engines: {
@@ -2058,7 +2061,7 @@ describe('Response', function () {
             }
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Server(0, { debug: false });
         server.route({ method: 'GET', path: '/redirect', config: { handler: handler } });
 
         before(function (done) {
@@ -2233,7 +2236,7 @@ describe('Response', function () {
                 this.reply(custom);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2260,7 +2263,7 @@ describe('Response', function () {
                 this.reply(custom);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2280,7 +2283,7 @@ describe('Response', function () {
                 Hapi.response._respond(null, request, function () { });
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {

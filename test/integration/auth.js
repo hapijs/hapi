@@ -63,6 +63,7 @@ describe('Auth', function () {
         };
 
         var config = {
+            debug: false,
             auth: {
                 scheme: 'basic',
                 validateFunc: loadUser,
@@ -190,6 +191,26 @@ describe('Auth', function () {
 
                 expect(res.result).to.exist;
                 expect(res.statusCode).to.equal(400);
+                done();
+            });
+        });
+
+        it('allow missing username', function (done) {
+
+            var config = {
+                auth: {
+                    scheme: 'basic',
+                    validateFunc: function (username, password, callback) { callback(null, true, {}); },
+                    allowEmptyUsername: true
+                }
+            };
+
+            var server1 = new Hapi.Server(config);
+            server1.route({ method: 'GET', path: '/', handler: function () { this.reply('ok'); }, config: { auth: true } });
+
+            server1.inject({ method: 'GET', url: '/', headers: { authorization: basicHeader('', 'abcd') } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
                 done();
             });
         });
