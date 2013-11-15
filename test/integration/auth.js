@@ -195,6 +195,26 @@ describe('Auth', function () {
             });
         });
 
+        it('allow missing username', function (done) {
+
+            var config = {
+                auth: {
+                    scheme: 'basic',
+                    validateFunc: function (username, password, callback) { callback(null, true, {}); },
+                    allowEmptyUsername: true
+                }
+            };
+
+            var server1 = new Hapi.Server(config);
+            server1.route({ method: 'GET', path: '/', handler: function () { this.reply('ok'); }, config: { auth: true } });
+
+            server1.inject({ method: 'GET', url: '/', headers: { authorization: basicHeader('', 'abcd') } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
         it('returns an error on unknown user', function (done) {
 
             var request = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('doe', '12345') } };
