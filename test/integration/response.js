@@ -1634,14 +1634,6 @@ describe('Response', function () {
 
             return request.reply.view('badmustache', { message: msg }, { path: viewPath + '/../invalid' });
         };
-        var layoutConflictHandler = function (request) {
-
-            return request.reply.view('test', { message: msg, content: 'fail' });
-        };
-        var layoutErrHandler = function (request) {
-
-            return request.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' });
-        };
         var testMultiHandlerJade = function (request) {
 
             return request.reply.view('testMulti.jade', { message: "Hello World!" });
@@ -1767,15 +1759,33 @@ describe('Response', function () {
             var layoutServer = new Hapi.Server();
             layoutServer.views({
                 engines: { 'html': 'handlebars' },
-                path: viewPath,
+                path: __dirname + '/../unit/templates',
                 layout: true
             });
-            layoutServer.route({ method: 'GET', path: '/layout/conflict', config: { handler: layoutConflictHandler } });
-            layoutServer.route({ method: 'GET', path: '/layout/abspath', config: { handler: layoutErrHandler } });
+
+            var handler = function () {
+
+                return this.reply.view('valid/test', { title: 'test', message: 'Hapi' });
+            };
+
+            var layoutConflictHandler = function (request) {
+
+                return request.reply.view('valid/test', { message: msg, content: 'fail' });
+            };
+
+            var layoutErrHandler = function (request) {
+
+                return request.reply.view('valid/test', { message: msg }, { path: viewPath + '/../invalid' });
+            };
+
+            layoutServer.route([
+                { method: 'GET', path: '/conflict', config: { handler: layoutConflictHandler } },
+                { method: 'GET', path: '/abspath', config: { handler: layoutErrHandler } }
+            ]);
 
             it('returns error on layoutKeyword conflict', function (done) {
 
-                layoutServer.inject('/layout/conflict', function (res) {
+                layoutServer.inject('/conflict', function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(500);
@@ -1785,7 +1795,7 @@ describe('Response', function () {
 
             it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
 
-                layoutServer.inject('/layout/abspath', function (res) {
+                layoutServer.inject('/abspath', function (res) {
 
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(500);
