@@ -1,4 +1,4 @@
-# 1.16.x API Reference
+# 1.17.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -186,8 +186,9 @@ When creating a server instance, the following options configure the server's be
 
 - `debug` - controls the error types sent to the console:
     - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
-      to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response.
-      For example, to display all errors, change the option to `['error', 'uncaught']`. To turn off all console debug messages set it to `false`.
+      to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response) or
+      runtime errors due to incorrect implementation of the hapi API. For example, to display all errors, change the option to `['error', 'uncaught']`.
+      To turn off all console debug messages set it to `false`.
 
 - <a name="server.config.files"></a>`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines how relative paths are resolved. Available values:

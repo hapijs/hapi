@@ -458,7 +458,7 @@ describe('Proxy', function () {
 
         server.inject('/redirect?x=1', function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(502);
             done();
         });
     });
@@ -467,7 +467,7 @@ describe('Proxy', function () {
 
         server.inject('/redirect?x=3', function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(502);
             done();
         });
     });
@@ -476,7 +476,7 @@ describe('Proxy', function () {
 
         server.inject('/nowhere', function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(502);
             done();
         });
     });
@@ -533,7 +533,7 @@ describe('Proxy', function () {
 
         server.inject('/timeout1', function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(504);
             done();
         });
     });
@@ -561,7 +561,7 @@ describe('Proxy', function () {
 
         sslServer.inject('/reject', function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(502);
             done();
         });
     });
@@ -570,7 +570,7 @@ describe('Proxy', function () {
 
         sslServer.inject('/sslDefault', function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(502);
             done();
         });
     });
@@ -604,7 +604,7 @@ describe('Proxy', function () {
 
         timeoutServer.inject('/timeout2', function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(504);
             done();
         });
     });
