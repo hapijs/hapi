@@ -190,7 +190,7 @@ describe('Auth', function () {
             server.inject(request, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.statusCode).to.equal(400);
+                expect(res.statusCode).to.equal(401);
                 done();
             });
         });
