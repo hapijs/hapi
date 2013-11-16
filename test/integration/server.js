@@ -197,4 +197,31 @@ describe('Server', function () {
         });
     });
 
+    it('measures loop delay', function (done) {
+
+        var server = new Hapi.Server(0, { load: { eventLoopSampleInterval: 50, maxEventLoopDelay: 100 } });
+        var handler = function () {
+
+            var start = Date.now();
+            while (Date.now() - start < 60);
+            this.reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function (err) {
+
+            var start = Date.now();
+            server.inject('/', function (res) {
+
+                server.inject('/', function (res) {
+                    
+                    setTimeout(function () {
+
+                        expect(server.eventLoopDelay).to.be.within(60,120);
+                        done();
+                    }, 10);
+                });
+            });
+        });
+    });
 });
