@@ -1,4 +1,4 @@
-# 1.17.x API Reference
+# 1.18.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -163,10 +163,15 @@ When creating a server instance, the following options configure the server's be
   [`server.auth()`](#serverauthname-options).
 
 - <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
-  responses and helper results. By default a simple memory-based cache is used which has very limited capacity and is not suitable for production
-  environments. In addition to the memory cache, a Redis-based or a MongoDB-based cache can be configured. Actual caching is only utilized if routes,
-  helpers, and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The
-  `cache` options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
+  responses and helper results. By default a simple memory-based cache is used which has limited capacity and limited production environment suitability.
+  In addition to the memory cache, a Redis, MongoDB, or Memcache cache can be configured. Actual caching is only utilized if routes, helpers, and plugins
+  are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The value can be a string
+  with the cache engine name (using the defaults for that engine type), an object with the cache options, or an array of cache options. The cache options
+  are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client). When an array of options is provided, multiple cache
+  connections are established and each array item (except one) must include an additional option:
+    - `name` - an identifier used later when provisioning or configuring caching for routes, helpers, or plugins. Each connection name must be unique. A
+      single item may omit the `name` option which defines the default cache. If every connection includes a `name`, a default memory cache is provisions
+      as well as the default.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
@@ -526,6 +531,7 @@ The following options are available when adding a route:
           (the route path with parameters represented by a `'?'` character). Note that when using the MongoDB cache strategy, some paths
           will require manual override as their fingerprint will conflict with MongoDB collection naming rules. When setting segment
           names manually, the segment must begin with `'//'`.
+        - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
         - `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control' header. Values are:
             - `'default'` - no privacy flag. This is the default setting.
             - `'public'` - mark the response as suitable for public caching.
@@ -972,6 +978,7 @@ Provisions a server cache segment within the common caching facility where:
       expire. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
 
 ```javascript
 var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
@@ -1351,6 +1358,7 @@ Helpers are registered via `server.helper(name, method, [options])` where:
         - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
         - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' where 'name' is the
           helper name. When setting segment manually, it must begin with '##'.
+        - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments passed to the helper function
      (with the exception of the last 'next' argument). The server will automatically generate a unique key if the function's
      arguments are all of types `'string'`, `'number'`, or `'boolean'`. However if the helper uses other types of arguments, a
@@ -3192,6 +3200,7 @@ Provisions a plugin cache segment within the pack's common caching facility wher
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
     - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '!name' where 'name' is the
       plugin name. When setting segment manually, it must begin with '!!'.
+    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
 
 ```javascript
 exports.register = function (plugin, options, next) {
