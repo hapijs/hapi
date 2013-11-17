@@ -106,7 +106,7 @@ describe('Cache', function () {
 
         server.inject('/error', function () {
 
-            server.pack._cache.get({ segment: '/error', id: '/error' }, function (err, cached) {
+            server.pack._caches._default.client.get({ segment: '/error', id: '/error' }, function (err, cached) {
 
                 expect(cached).to.not.exist;
                 done();
@@ -127,7 +127,7 @@ describe('Cache', function () {
 
         server.inject('/cache', function () {
 
-            server.pack._cache.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
+            server.pack._caches._default.client.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
 
                 expect(cached).to.exist;
                 done();
@@ -139,7 +139,7 @@ describe('Cache', function () {
 
         server.inject('/serverclient', function (res1) {
 
-            server.pack._cache.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
+            server.pack._caches._default.client.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
 
                 expect(cached1).to.exist;
                 expect(res1.headers['cache-control']).to.equal('max-age=120, must-revalidate');
@@ -147,12 +147,47 @@ describe('Cache', function () {
 
                 server.inject('/clientserver', function (res2) {
 
-                    server.pack._cache.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
+                    server.pack._caches._default.client.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
 
                         expect(cached2).to.exist;
                         expect(res2.headers['cache-control']).to.equal('max-age=120, must-revalidate');
                         expect(cached1.item.payload).to.equal(cached2.item.payload);
                         done();
+                    });
+                });
+            });
+        });
+    });
+
+    it('caches using non default cache', function (done) {
+
+        var server = new Hapi.Server(0, { cache: { name: 'primary', engine: 'memory' } });
+        var _default = server.cache('a', { expiresIn: 2000 });
+        var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });
+
+        server.start(function (err) {
+
+            expect(err).to.not.exist;
+
+            _default.set('b', 1, null, function (err) {
+
+                expect(err).to.not.exist;
+
+                primary.set('b', 2, null, function (err) {
+
+                    expect(err).to.not.exist;
+
+                    _default.get('b', function (err, cached) {
+
+                        expect(err).to.not.exist;
+                        expect(cached.item).to.equal(1);
+
+                        primary.get('b', function (err, cached) {
+
+                            expect(err).to.not.exist;
+                            expect(cached.item).to.equal(2);
+                            done();
+                        });
                     });
                 });
             });
