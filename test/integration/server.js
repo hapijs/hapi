@@ -199,27 +199,32 @@ describe('Server', function () {
 
     it('measures loop delay', function (done) {
 
-        var server = new Hapi.Server(0, { load: { eventLoopSampleInterval: 50, maxEventLoopDelay: 100 } });
+        var server = new Hapi.Server(0, { load: { eventLoopSampleInterval: 5, eventLoopSampleSize: 2 } });
         var handler = function () {
 
             var start = Date.now();
-            while (Date.now() - start < 60);
+            while (Date.now() - start < 10);
             this.reply('ok');
         };
 
         server.route({ method: 'GET', path: '/', handler: handler });
         server.start(function (err) {
 
-            var start = Date.now();
             server.inject('/', function (res) {
 
-                server.inject('/', function (res) {
-                    
-                    setTimeout(function () {
+                setImmediate(function () {
 
-                        expect(server.eventLoopDelay).to.be.within(60,120);
-                        done();
-                    }, 10);
+                    server.inject('/', function (res) {
+
+                        setTimeout(function () {
+
+                            expect(server.load.eventLoopDelay).to.be.above(1);
+                            server.stop(function () {
+
+                                done();
+                            });
+                        }, 10);
+                    });
                 });
             });
         });
