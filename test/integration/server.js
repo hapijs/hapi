@@ -231,4 +231,36 @@ describe('Server', function () {
             });
         });
     });
+
+    it('rejects request due to high load', function (done) {
+
+        var server = new Hapi.Server(0, { load: { sampleInterval: 5, sampleSize: 1, maxRssBytes: 1 } });
+        var handler = function () {
+
+            var start = Date.now();
+            while (Date.now() - start < 10);
+            this.reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function (err) {
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                setImmediate(function () {
+
+                    server.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(503);
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
