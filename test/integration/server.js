@@ -199,7 +199,7 @@ describe('Server', function () {
 
     it('measures loop delay', function (done) {
 
-        var server = new Hapi.Server(0, { load: { eventLoopSampleInterval: 5, eventLoopSampleSize: 2 } });
+        var server = new Hapi.Server(0, { load: { sampleInterval: 5, sampleSize: 2 } });
         var handler = function () {
 
             var start = Date.now();
@@ -219,6 +219,8 @@ describe('Server', function () {
                         setTimeout(function () {
 
                             expect(server.load.eventLoopDelay).to.be.above(1);
+                            expect(server.load.heapUsed).to.be.above(1024 * 1024);
+                            expect(server.load.rss).to.be.above(1024 * 1024);
                             server.stop(function () {
 
                                 done();
