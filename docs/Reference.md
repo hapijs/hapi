@@ -210,6 +210,14 @@ When creating a server instance, the following options configure the server's be
 - `labels` - a string array of labels used when registering plugins to [`plugin.select()`](#pluginselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 
+- `load` - server load monitoring and limits configuration (stored under `server.load` when enabled) where:
+    - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+    - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+    - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response.
+      Defaults to `0` (no limit).
+    - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no sampling).
+    - `sampleSize` - the number of samples used to calculate an average. Defaults to `3`.
+
 - <a name="server.config.location"></a>`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
   Defaults to the host received in the request HTTP 'Host' header and if missing, to `server.info.uri`.
 
@@ -314,6 +322,13 @@ Each instance of the `Server` object have the following properties:
     - `protocol` - the protocol used (e.g. `'http'` or `'https'`).
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
 - `listener` - the node HTTP server object.
+- `load` - server load metrics (when `server.load.sampleInterval` is enabled):
+    - `eventLoopDelaySamples` - event loop delay samples array.
+    - `eventLoopDelay` - event loop delay milliseconds average over sample period.
+    - `heapUsedSamples` - V8 heap used samples array.
+    - `heapUsed` - V8 heap used average over sample period.
+    - `rssSamples` - RSS samples array.
+    - `rss` - RSS average over sample period.
 - `pack` - the [`Pack`](#hapipack) object the server belongs to (automatically assigned when creating a server instance directly).
 - `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value).
 - `settings` - an object containing the [server options](#server-options) after applying the defaults.
