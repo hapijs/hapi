@@ -172,6 +172,8 @@ When creating a server instance, the following options configure the server's be
     - `name` - an identifier used later when provisioning or configuring caching for routes, helpers, or plugins. Each connection name must be unique. A
       single item may omit the `name` option which defines the default cache. If every connection includes a `name`, a default memory cache is provisions
       as well as the default.
+    - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same route and cache.
+      Default to not shared.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
@@ -551,6 +553,8 @@ The following options are available when adding a route:
           will require manual override as their fingerprint will conflict with MongoDB collection naming rules. When setting segment
           names manually, the segment must begin with `'//'`.
         - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
+        - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same route and cache.
+          Default to not shared.
         - `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control' header. Values are:
             - `'default'` - no privacy flag. This is the default setting.
             - `'public'` - mark the response as suitable for public caching.
