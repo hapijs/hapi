@@ -198,4 +198,39 @@ describe('Client', function () {
             server.listen(0);
         });
     });
+
+    describe('#parseCacheControl', function () {
+
+        it('parses valid header', function (done) {
+
+            var header = Client.parseCacheControl('must-revalidate, max-age=3600');
+            expect(header).to.exist;
+            expect(header['must-revalidate']).to.equal(true);
+            expect(header['max-age']).to.equal(3600);
+            done();
+        });
+
+        it('parses valid header with quoted string', function (done) {
+
+            var header = Client.parseCacheControl('must-revalidate, max-age="3600"');
+            expect(header).to.exist;
+            expect(header['must-revalidate']).to.equal(true);
+            expect(header['max-age']).to.equal(3600);
+            done();
+        });
+
+        it('errors on invalid header', function (done) {
+
+            var header = Client.parseCacheControl('must-revalidate, max-age =3600');
+            expect(header).to.not.exist;
+            done();
+        });
+
+        it('errors on invalid max-age', function (done) {
+
+            var header = Client.parseCacheControl('must-revalidate, max-age=a3600');
+            expect(header).to.not.exist;
+            done();
+        });
+    });
 });

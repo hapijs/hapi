@@ -1,4 +1,4 @@
-# 1.18.x API Reference
+# 1.19.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -448,11 +448,15 @@ The following options are available when adding a route:
                 - `headers` - optional object where each key is an HTTP request header and the value is the header content.
         - `postResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
           custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
-          `function(request, settings, res, payload)` where:
+          `function(request, settings, res, payload, ttl)` where:
               - `request` - is the incoming `request` object. It is the responsibility of the `postResponse()` function to call `request.reply()`.
               - `settings` - the proxy handler configuration.
               - `res` - the node response object received from the upstream service.
               - `payload` - the response payload.
+              - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and the upstream response included a valid
+                'Cache-Control' header with 'max-age'.
+        - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the response using the `response.ttl()` method (or passed
+          as an argument to the `postResponse` method if provided).
 
     - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` options is set to the desired template file name.
       The view context available to the template includes:
