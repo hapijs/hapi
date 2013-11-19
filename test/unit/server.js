@@ -330,7 +330,7 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0);
             server.route(route);
 
-            expect(server._router.table.put[0].path).to.equal('/test');
+            expect(server._router._table.put[0].path).to.equal('/test');
             done();
         });
 
@@ -412,7 +412,7 @@ describe('Server', function () {
             var server = new Hapi.Server('0.0.0.0', 0);
             server.route(routes);
 
-            expect(server._router.table.put[0].path).to.equal('/test');
+            expect(server._router._table.put[0].path).to.equal('/test');
             done();
         });
     });
@@ -605,7 +605,7 @@ describe('Server', function () {
         });
     });
 
-    describe('#routingTable', function () {
+    describe('#table', function () {
 
         it('returns an array of the current routes', function (done) {
 
@@ -614,7 +614,7 @@ describe('Server', function () {
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
-            var routes = server.routingTable();
+            var routes = server.table();
 
             expect(routes.length).to.equal(2);
             expect(routes[0].path).to.equal('/test/');

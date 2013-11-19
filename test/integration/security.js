@@ -31,7 +31,7 @@ describe('Security', function () {
 
         before(function (done) {
 
-            server.addRoute({ method: 'POST', path: '/item', handler: internals.createItemHandler });
+            server.route({ method: 'POST', path: '/item', handler: internals.createItemHandler });
             done();
         });
 
@@ -53,7 +53,7 @@ describe('Security', function () {
 
         before(function (done) {
 
-            server.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
             done();
         });
 
@@ -109,7 +109,7 @@ describe('Security', function () {
 
         before(function (done) {
 
-            server.addRoute({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
             done();
         });
 
@@ -135,7 +135,7 @@ describe('Security', function () {
         before(function (done) {
 
             server.state('encoded', { encoding: 'iron' });
-            server.addRoute({ method: 'POST', path: '/', handler: internals.postHandler });
+            server.route({ method: 'POST', path: '/', handler: internals.postHandler });
             done();
         });
 

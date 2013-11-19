@@ -16,7 +16,7 @@
             - [Route prerequisites](#route-prerequisites)
             - [Route not found](#route-not-found)
         - [`server.route(routes)`](#serverrouteroutes)
-        - [`server.routingTable()`](#serverroutingtable)
+        - [`server.table()`](#servertable)
         - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
         - [`server.state(name, [options])`](#serverstatename-options)
         - [`server.views(options)`](#serverviewsoptions)
@@ -855,7 +855,7 @@ server.route([
 ]);
 ```
 
-#### `server.routingTable()`
+#### `server.table()`
 
 Returns a copy of the routing table. The return value is an array of routes where each route contains:
 
@@ -864,7 +864,7 @@ Returns a copy of the routing table. The return value is an array of routes wher
 - `path` - the route path.
 
 ```javascript
-var table = server.routingTable()
+var table = server.table()
 console.log(table);
 
 /*  Output:

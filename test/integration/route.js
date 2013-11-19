@@ -114,7 +114,7 @@ describe('Route', function () {
                 server.route({ path: path, method: 'GET', handler: handler(path) });
             }
 
-            var routes = server._router.table['get'];
+            var routes = server._router._table['get'];
             var list = [];
             for (var i = 0, il = routes.length; i < il; ++i) {
                 var route = routes[i];
@@ -139,7 +139,7 @@ describe('Route', function () {
 
     it('sorts routes in right order', function (done) {
 
-        var routes = server._router.table['get'];
+        var routes = server._router._table['get'];
         var list = [];
         for (var i = 0, il = routes.length; i < il; ++i) {
             var route = routes[i];
