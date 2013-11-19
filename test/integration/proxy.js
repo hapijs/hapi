@@ -147,6 +147,7 @@ describe('Proxy', function () {
         upstream.route([
             { method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } },
             { method: 'GET', path: '/item', handler: activeItem },
+            { method: 'GET', path: '/cachedItem', handler: activeItem, config: { cache: { expiresIn: 2000 } } },
             { method: 'GET', path: '/proxyerror', handler: activeItem },
             { method: 'POST', path: '/item', handler: item },
             { method: 'GET', path: '/unauthorized', handler: unauthorized },
@@ -229,7 +230,9 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/single', handler: { proxy: { mapUri: mapSingleUri } } },
                         { method: 'GET', path: '/handler', handler: function () { this.reply.proxy({ uri: 'http://localhost:' + backendPort + '/item' }); } },
                         { method: 'GET', path: '/handlerTemplate', handler: function () { this.reply.proxy({ uri: '{protocol}://localhost:' + backendPort + '/item' }); } },
-                        { method: 'GET', path: '/handlerOldSchool', handler: function () { this.reply.proxy({ host: 'localhost', port: backendPort }); } }
+                        { method: 'GET', path: '/handlerOldSchool', handler: function () { this.reply.proxy({ host: 'localhost', port: backendPort }); } },
+                        { method: 'GET', path: '/cachedItem', handler: { proxy: { host: 'localhost', port: backendPort, ttl: 'upstream' } }, config: { cache: { mode: 'server+client' } } },
+                        { method: 'GET', path: '/clientCachedItem', handler: { proxy: { uri: 'http://localhost:' + backendPort + '/cachedItem', ttl: 'upstream' } }, config: { cache: { mode: 'client' } } }
                     ]);
 
                     sslServer = new Hapi.Server(0);
@@ -583,7 +586,7 @@ describe('Proxy', function () {
 
         var wrappedReq = function (next) {
 
-            timeoutServer.inject('/timeout1', next);
+            timeoutServer.inject('/timeout1', function (err) { next() });
         };
 
         Async.series([
@@ -675,6 +678,38 @@ describe('Proxy', function () {
             expect(res.payload).to.contain('Active Item');
             var counter = res.result.count;
             done();
+        });
+    });
+
+    it('applies upstream caching headers and caches locally', function (done) {
+
+        server.inject('/cachedItem', function (res1) {
+
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+
+            server.inject('/cachedItem', function (res2) {
+
+                expect(res2.statusCode).to.equal(200);
+                expect(res2.payload).to.equal(res1.payload);
+                done();
+            });
+        });
+    });
+
+    it('applies upstream caching headers without local cache', function (done) {
+
+        server.inject('/clientCachedItem', function (res1) {
+
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+
+            server.inject('/clientCachedItem', function (res2) {
+
+                expect(res2.statusCode).to.equal(200);
+                expect(res2.payload).to.not.equal(res1.payload);
+                done();
+            });
         });
     });
 });
