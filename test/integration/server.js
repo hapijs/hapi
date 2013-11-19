@@ -263,4 +263,12 @@ describe('Server', function () {
             });
         });
     });
+
+    it('reuses the same cache segment', function (done) {
+
+        var server = new Hapi.Server({ cache: { engine: 'memory', shared: true } });
+        var a1 = server.cache('a', { expiresIn: 1000 });
+        var a2 = server.cache('a', { expiresIn: 1000 });
+        done();
+    });
 });
