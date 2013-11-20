@@ -57,10 +57,10 @@ describe('Cache', function () {
 
     function setupServer(done) {
 
-        server = new Hapi.Server('0.0.0.0', 0, { debug: false });
+        server = new Hapi.Server('0.0.0.0', 0, { debug: false, cache: [{ engine: 'memory', name: 'secondary' }] });
 
         server.route([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } },
+            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private', cache: 'secondary' } } },
             { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
             { method: 'GET', path: '/item2', config: { handler: activeItemHandler } },
             { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
