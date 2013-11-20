@@ -102,6 +102,7 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers.vary).to.equal('origin');
                 done();
             });
         });
