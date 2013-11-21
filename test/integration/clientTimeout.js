@@ -74,7 +74,7 @@ describe('Client Timeout', function () {
 
         it('returns client error message when client request taking too long', function (done) {
 
-            var timer = new Hapi.utils.Timer();
+            var timer = new Hapi.utils.Bench();
             var options = {
                 hostname: '127.0.0.1',
                 port: _server.info.port,
@@ -120,7 +120,7 @@ describe('Client Timeout', function () {
 
         it('doesn\'t return a client error message when response is taking a long time to send', function (done) {
 
-            var timer = new Hapi.utils.Timer();
+            var timer = new Hapi.utils.Bench();
             var options = {
                 hostname: '127.0.0.1',
                 port: _server.info.port,
@@ -158,7 +158,7 @@ describe('Client Timeout', function () {
 
         it('client doesn\'t return an error', function (done) {
 
-            var timer = new Hapi.utils.Timer();
+            var timer = new Hapi.utils.Bench();
             var options = {
                 hostname: '127.0.0.1',
                 port: _server.info.port,

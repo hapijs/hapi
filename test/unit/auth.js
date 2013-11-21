@@ -23,17 +23,6 @@ describe('Auth', function () {
 
     describe('#constructor', function () {
 
-        it('throws an error when constructed without new', function (done) {
-
-            var fn = function () {
-
-                var auth = Auth();
-            };
-
-            expect(fn).to.throw('Auth must be instantiated using new');
-            done();
-        });
-
         it('throws an error when constructed without options', function (done) {
 
             var fn = function () {
@@ -97,7 +86,7 @@ describe('Auth', function () {
         it('doesn\'t throw an error if strategies are defined and used', function (done) {
 
             var request = {
-                _timestamp: Date.now(),
+                _bench: new Hapi.utils.Bench(),
                 route: {
                     auth: {
                         mode: 'required',
@@ -199,7 +188,7 @@ describe('Auth', function () {
                     auth: {
                         credentials: {}
                     },
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             entity: 'any',
@@ -229,7 +218,7 @@ describe('Auth', function () {
                     auth: {
                         credentials: {}
                     },
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             strategies: ['default']
@@ -260,7 +249,7 @@ describe('Auth', function () {
                             user: 'test'
                         }
                     },
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             entity: 'user',
@@ -290,7 +279,7 @@ describe('Auth', function () {
                     auth: {
                         credentials: {}
                     },
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             entity: 'user',
@@ -323,7 +312,7 @@ describe('Auth', function () {
                             user: 'test'
                         }
                     },
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             entity: 'app',
@@ -356,7 +345,7 @@ describe('Auth', function () {
                             app: 'test'
                         }
                     },
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             entity: 'app',
@@ -388,7 +377,7 @@ describe('Auth', function () {
                             user: 'test'
                         }
                     },
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             entity: 'wrongEntity',
@@ -416,7 +405,7 @@ describe('Auth', function () {
                 };
 
                 var request = {
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     route: {
                         auth: {
                             mode: 'required',

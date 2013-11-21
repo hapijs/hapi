@@ -40,7 +40,7 @@ describe('Payload', function () {
 
         it('passes null to the callback when the method is not put, patch or post', function (done) {
             var request = {
-                _timestamp: Date.now(),
+                _bench: new Hapi.utils.Bench(),
                 method: 'delete',
                 _route: new Route({ method: '*', path: '/', handler: function () { } }, server),
                 raw: {
@@ -64,7 +64,7 @@ describe('Payload', function () {
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ "item": "test" }', function (req, res) {
 
                 var request = {
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     method: 'post',
                     _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
                     raw: {
@@ -89,7 +89,7 @@ describe('Payload', function () {
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ this is just wrong }', function (req, res) {
 
                 var request = {
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     method: 'post',
                     _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
                     raw: {
@@ -115,7 +115,7 @@ describe('Payload', function () {
             shotRequest('POST', '/', { 'content-type': 'application/x-www-form-urlencoded' }, 'item=test', function (req, res) {
 
                 var request = {
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     method: 'post',
                     _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
                     raw: {
@@ -140,7 +140,7 @@ describe('Payload', function () {
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ "key":"12345678901234567890123456789012345678901234567890" }', function (req, res) {
 
                 var request = {
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     method: 'post',
                     _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
                     raw: {
@@ -166,7 +166,7 @@ describe('Payload', function () {
             shotRequest('POST', '/', { 'content-type': 'application/json', 'content-length': 62 }, '{ "key":"12345678901234567890123456789012345678901234567890" }', function (req, res) {
 
                 var request = {
-                    _timestamp: Date.now(),
+                    _bench: new Hapi.utils.Bench(),
                     method: 'post',
                     _route: new Route({ method: 'post', path: '/', handler: function () { } }, server),
                     raw: {

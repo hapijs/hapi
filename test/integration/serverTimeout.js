@@ -113,7 +113,7 @@ describe('Server Timeout', function () {
 
     it('returns server error message when server taking too long', function (done) {
 
-        var timer = new Hapi.utils.Timer();
+        var timer = new Hapi.utils.Bench();
 
         server.inject('/timeout', function (res) {
 
@@ -153,7 +153,7 @@ describe('Server Timeout', function () {
 
     it('doesn\'t return an error response when server is slow but faster than timeout', function (done) {
 
-        var timer = new Hapi.utils.Timer();
+        var timer = new Hapi.utils.Bench();
         server.inject('/slow', function (res) {
 
             expect(timer.elapsed()).to.be.at.least(29);
@@ -164,7 +164,7 @@ describe('Server Timeout', function () {
 
     it('doesn\'t return an error when server is responding when the timeout occurs', function (done) {
 
-        var timer = new Hapi.utils.Timer();
+        var timer = new Hapi.utils.Bench();
 
         var options = {
             hostname: '127.0.0.1',
@@ -211,7 +211,7 @@ describe('Server Timeout', function () {
 
     it('response timeouts aren\'t cached on subsequent requests', function (done) {
 
-        var timer = new Hapi.utils.Timer();
+        var timer = new Hapi.utils.Bench();
         server.inject('/timeoutcache', function (res1) {
 
             expect(timer.elapsed()).to.be.at.least(49);
@@ -255,7 +255,7 @@ describe('Server and Client timeouts', function () {
 
     it('are returned when both client and server timeouts are the same and the client times out', function (done) {
 
-        var timer = new Hapi.utils.Timer();
+        var timer = new Hapi.utils.Bench();
         var options = {
             hostname: '127.0.0.1',
             port: server.info.port,
@@ -283,7 +283,7 @@ describe('Server and Client timeouts', function () {
 
     it('initial long running requests don\'t prevent server timeouts from occuring on future requests', function (done) {
 
-        var timer = new Hapi.utils.Timer();
+        var timer = new Hapi.utils.Bench();
         var options = {
             hostname: '127.0.0.1',
             port: server.info.port,

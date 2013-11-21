@@ -45,17 +45,6 @@ describe('Request', function () {
         );
     });
 
-    it('throws an error if constructed without new', function (done) {
-
-        var fn = function () {
-
-            var request = Request(server, null, null);
-        };
-
-        expect(fn).throws(Error, 'Request must be instantiated using new');
-        done();
-    });
-
     it('throws an error when no server is provided', function (done) {
 
         var fn = function () {

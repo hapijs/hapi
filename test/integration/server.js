@@ -96,7 +96,7 @@ describe('Server', function () {
                     server.listener.getConnections(function (err, count) {
 
                         expect(count).to.be.greaterThan(0);
-                        var timer = new Hapi.utils.Timer();
+                        var timer = new Hapi.utils.Bench();
 
                         server.stop({ timeout: 20 }, function () {
 
@@ -134,7 +134,7 @@ describe('Server', function () {
                     server.listener.getConnections(function (err, count) {
 
                         expect(count).to.be.greaterThan(0);
-                        var timer = new Hapi.utils.Timer();
+                        var timer = new Hapi.utils.Bench();
 
                         server.stop(function () {
 

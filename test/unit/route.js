@@ -29,16 +29,6 @@ describe('Route', function () {
         request.reply('ok');
     };
 
-    it('throws an error if constructed without new', function (done) {
-
-        var fn = function () {
-
-            Route({}, server);
-        };
-        expect(fn).throws(Error, 'Route must be instantiated using new');
-        done();
-    });
-
     it('throws an error if the method is missing', function (done) {
 
         var fn = function () {
