@@ -199,11 +199,11 @@ describe('Server', function () {
 
     it('measures loop delay', function (done) {
 
-        var server = new Hapi.Server(0, { load: { sampleInterval: 5, sampleSize: 2 } });
+        var server = new Hapi.Server(0, { load: { sampleInterval: 4 } });
         var handler = function () {
 
             var start = Date.now();
-            while (Date.now() - start < 10);
+            while (Date.now() - start < 5);
             this.reply('ok');
         };
 
@@ -212,20 +212,27 @@ describe('Server', function () {
 
             server.inject('/', function (res) {
 
+                expect(server.load.eventLoopDelay).to.equal(0);
+
                 setImmediate(function () {
 
                     server.inject('/', function (res) {
 
-                        setTimeout(function () {
+                        expect(server.load.eventLoopDelay).to.be.above(0);
 
-                            expect(server.load.eventLoopDelay).to.be.above(1);
-                            expect(server.load.heapUsed).to.be.above(1024 * 1024);
-                            expect(server.load.rss).to.be.above(1024 * 1024);
-                            server.stop(function () {
+                        setImmediate(function () {
 
-                                done();
+                            server.inject('/', function (res) {
+
+                                expect(server.load.eventLoopDelay).to.be.above(0);
+                                expect(server.load.heapUsed).to.be.above(1024 * 1024);
+                                expect(server.load.rss).to.be.above(1024 * 1024);
+                                server.stop(function () {
+
+                                    done();
+                                });
                             });
-                        }, 10);
+                        });
                     });
                 });
             });
@@ -234,7 +241,7 @@ describe('Server', function () {
 
     it('rejects request due to high load', function (done) {
 
-        var server = new Hapi.Server(0, { load: { sampleInterval: 5, sampleSize: 1, maxRssBytes: 1 } });
+        var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxRssBytes: 1 } });
         var handler = function () {
 
             var start = Date.now();
@@ -267,8 +274,11 @@ describe('Server', function () {
     it('reuses the same cache segment', function (done) {
 
         var server = new Hapi.Server({ cache: { engine: 'memory', shared: true } });
-        var a1 = server.cache('a', { expiresIn: 1000 });
-        var a2 = server.cache('a', { expiresIn: 1000 });
+        expect(function () {
+
+            var a1 = server.cache('a', { expiresIn: 1000 });
+            var a2 = server.cache('a', { expiresIn: 1000 });
+        }).to.not.throw;
         done();
     });
 });
