@@ -967,6 +967,13 @@ Provisions a server cache segment within the common caching facility where:
 var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 ```
 
+To create a cache segment accessible from other app files, assign the segment as a server.app property
+
+```javascript
+server.app.countriesCache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
+```
+
+
 #### `server.auth(name, options)`
 
 Registers an authentication strategy where:
