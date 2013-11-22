@@ -1003,6 +1003,34 @@ Provisions a server cache segment within the common caching facility where:
 var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 ```
 
+To create a cache segment accessible from other app files, assign the segment as a server.app property
+
+
+index.js
+
+```javascript
+server.app.countriesCache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
+server.app.countriesCache.set('foo', 'bar', 60 * 60 * 1000, function(err) {
+    if (err) throw err;
+});
+```
+
+pluginRoute.js
+
+```javascript
+exports.register = function (plugin, options, next) {
+    plugin.route({ method: 'GET', path: '/', handler: function () {
+        var foo = this.server.app.countriesCache.get('foo', function(err, cached) {
+            if (err) throw err;
+            // returns 'foobar'
+            this.reply('foo' + cached);
+        });
+    }});
+    next();
+};
+```
+
+
 #### `server.auth(name, options)`
 
 Registers an authentication strategy where:
@@ -2389,7 +2417,7 @@ var handler = function () {
     var error = Hapi.error.badRequest('Cannot feed after midnight');
     error.response.code = 499;    // Assign a custom error code
     error.reformat();
-    
+
     error.response.payload.custom = 'abc_123'; // Add custom key
 
     this.reply(error);
@@ -3152,8 +3180,8 @@ exports.register = function (plugin, options, next) {
 
     plugin.views({
         engines: {
-            html: { 
-              module: require('handlebars') 
+            html: {
+              module: require('handlebars')
             }
         },
         path: './templates'
