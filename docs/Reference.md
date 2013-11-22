@@ -984,11 +984,11 @@ pluginRoute.js
 ```javascript
 exports.register = function (plugin, options, next) {
     plugin.route({ method: 'GET', path: '/', handler: function () {
-    	var foo = this.server.app.countriesCache.get('foo', function(err, cached) {
-    	    if (err) throw err;
-    	    // returns 'foobar'
-    		this.reply('foo' + cached);
-    	}); 
+        var foo = this.server.app.countriesCache.get('foo', function(err, cached) {
+            if (err) throw err;
+            // returns 'foobar'
+            this.reply('foo' + cached);
+        });
     }});
     next();
 };
@@ -2360,7 +2360,7 @@ var handler = function () {
     var error = Hapi.error.badRequest('Cannot feed after midnight');
     error.response.code = 499;    // Assign a custom error code
     error.reformat();
-    
+
     error.response.payload.custom = 'abc_123'; // Add custom key
 
     this.reply(error);
@@ -3123,8 +3123,8 @@ exports.register = function (plugin, options, next) {
 
     plugin.views({
         engines: {
-            html: { 
-              module: require('handlebars') 
+            html: {
+              module: require('handlebars')
             }
         },
         path: './templates'
