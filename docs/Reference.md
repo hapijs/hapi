@@ -969,8 +969,29 @@ var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 
 To create a cache segment accessible from other app files, assign the segment as a server.app property
 
+
+index.js
+
 ```javascript
 server.app.countriesCache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
+server.app.countriesCache.set('foo', 'bar', 60 * 60 * 1000, function(err) {
+    if (err) throw err;
+});
+```
+
+pluginRoute.js
+
+```javascript
+exports.register = function (plugin, options, next) {
+    plugin.route({ method: 'GET', path: '/', handler: function () {
+    	var foo = this.server.app.countriesCache.get('foo', function(err, cached) {
+    	    if (err) throw err;
+    	    // returns 'foobar'
+    		this.reply('foo' + cached);
+    	}); 
+    }});
+    next();
+};
 ```
 
 
