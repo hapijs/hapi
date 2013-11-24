@@ -87,6 +87,25 @@ describe('Response', function () {
             });
         });
 
+        it('returns no CORS headers when route CORS disabled', function (done) {
+
+            var handler = function () {
+
+                this.reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler, config: { cors: false } });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                done();
+            });
+        });
+
         it('does not return CORS for no origin without isOriginExposed', function (done) {
 
             var handler = function () {
