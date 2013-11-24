@@ -87,6 +87,26 @@ describe('Response', function () {
             });
         });
 
+        it('not return CORS for no origin without isOriginExposed', function (done) {
+
+            var handler = function () {
+
+                this.reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers.vary).to.equal('origin');
+                done();
+            });
+        });
+
         it('hide CORS origin if no match found', function (done) {
 
             var handler = function () {
@@ -115,7 +135,28 @@ describe('Response', function () {
                     .header('vary', 'x-test', true);
             };
 
-            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Tada');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
+                expect(res.headers.vary).to.equal('x-test,origin');
+                done();
+            });
+        });
+
+        it('return matching hide CORS origin', function (done) {
+
+            var handler = function () {
+
+                this.reply('Tada')
+                    .header('vary', 'x-test', true);
+            };
+
+            var server = new Hapi.Server({ cors: {isOriginExposed: false,  origin: ['http://test.example.com', 'http://www.example.com'] } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
