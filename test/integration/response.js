@@ -367,7 +367,8 @@ describe('Response', function () {
 
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
-                Zlib.unzip(res.rawPayload, function (err, result) {
+                expect(res.headers['vary']).to.equal('accept-encoding');
+                Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, result) {
 
                     expect(err).to.not.exist;
                     expect(result.toString()).to.equal('docall({"first":"1","last":"2"});');
@@ -1178,157 +1179,71 @@ describe('Response', function () {
 
     describe('Stream', function () {
 
-        var TestStream = function (request, issue) {
+        var TestStream = function () {
 
             Stream.Readable.call(this);
-
-            this.issue = issue;
-            this.request = request;
         };
 
         Hapi.utils.inherits(TestStream, Stream.Readable);
 
         TestStream.prototype._read = function (size) {
 
-            var self = this;
-
             if (this.isDone) {
                 return;
             }
             this.isDone = true;
 
-            switch (this.issue) {
-                case 'error':
-                    if (!this.x) {
-                        this.emit('error', new Error());
-                        this.x = true;
-                    }
-                    break;
-
-                case 'closes':
-                    this.push('here is the response');
-                    process.nextTick(function () {
-                        self.request.raw.req.emit('close');
-                        process.nextTick(function () {
-                            self.push(null);
-                        });
-                    });
-                    break;
-
-                default:
-                    this.push('x');
-                    this.push('y');
-                    this.push(null);
-                    break;
-            }
+            this.push('x');
+            this.push('y');
+            this.push(null);
         };
-
-        var handler = function (request) {
-
-            request.reply(new TestStream(request, request.params.issue))
-                         .bytes(request.params.issue ? 0 : 1)
-                         .ttl(2000);
-        };
-
-        var handler2 = function (request) {
-
-            var HeadersStream = function () {
-
-                Stream.Readable.call(this);
-                this.headers = { custom: 'header' };
-            };
-
-            Hapi.utils.inherits(HeadersStream, Stream.Readable);
-
-            HeadersStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
-                }
-                this.isDone = true;
-
-                this.push('hello');
-                this.push(null);
-            };
-
-            request.reply(new Hapi.response.Stream(new HeadersStream()));
-        };
-
-        var handler3 = function (request) {
-
-            request.reply(new TestStream(request, request.params.issue))
-                         .created('/special')
-                         .bytes(request.params.issue ? 0 : 1)
-                         .ttl(3000);
-        };
-
-        var handler4 = function (request) {
-
-            request.reply(new TestStream(request))
-                         .state(';sid', 'abcdefg123456');
-        };
-
-        var handler5 = function (request) {
-
-            var HeadersStream = function () {
-
-                Stream.Readable.call(this);
-                this.statusCode = 201;
-            };
-
-            Hapi.utils.inherits(HeadersStream, Stream.Readable);
-
-            HeadersStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
-                }
-                this.isDone = true;
-
-                this.push('hello');
-                this.push(null);
-            };
-
-            request.reply(new Hapi.response.Stream(new HeadersStream()));
-        };
-
-        var handler6 = function (request) {
-
-            var oldMode = new TestStream(request);
-            oldMode.pause();
-            request.reply(oldMode);
-        };
-
-        var server = new Hapi.Server({ cors: { origin: ['test.example.com'] }, location: 'http://example.com:8080', debug: false });
-        server.route({ method: 'GET', path: '/stream/{issue?}', config: { handler: handler, cache: { expiresIn: 9999 } } });
-        server.route({ method: 'POST', path: '/stream/{issue?}', config: { handler: handler } });
-        server.route({ method: 'GET', path: '/stream2', config: { handler: handler2 } });
-        server.route({ method: 'POST', path: '/stream3', config: { handler: handler3 } });
-        server.route({ method: 'GET', path: '/stream4', config: { handler: handler4 } });
-        server.route({ method: 'GET', path: '/stream5', config: { handler: handler5 } });
-        server.route({ method: 'GET', path: '/stream6', config: { handler: handler6 } });
 
         it('returns a stream reply', function (done) {
 
-            server.inject('/stream/', function (res) {
+            var handler = function (request) {
+
+                request.reply(new TestStream())
+                             .ttl(2000);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['test.example.com'] }, debug: false });
+            server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
+
+            server.inject('/stream', function (res) {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
                 expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
-                done();
+
+                server.inject({ method: 'HEAD', url: '/stream' }, function (res) {
+
+                    expect(res.result).to.equal('');
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+                    expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                    done();
+                });
             });
         });
 
         it('emits response event', function (done) {
 
-            server.once('response', function (request) {
+            var handler = function (request) {
 
-                expect(request.url.path).to.equal('/stream/');
+                request.reply(new TestStream());
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.on('response', function (request) {
+
+                expect(request.url.path).to.equal('/stream');
                 done();
             });
 
-            server.inject('/stream/', function (res) {
+            server.inject('/stream', function (res) {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(200);
@@ -1337,19 +1252,52 @@ describe('Response', function () {
 
         it('returns a stream reply when accept-encoding is malformed', function (done) {
 
-            server.inject({ url: '/stream/', headers: { 'content-encoding': '', 'accept-encoding': 't=1,' } }, function (res) {
+            var handler = function (request) {
+
+                request.reply(new TestStream());
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.inject({ url: '/stream', headers: { 'content-encoding': '', 'accept-encoding': 't=1,' } }, function (res) {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
             });
         });
 
         it('returns a stream reply with custom response headers', function (done) {
 
-            server.inject('/stream2', function (res) {
+            var handler = function (request) {
+
+                var HeadersStream = function () {
+
+                    Stream.Readable.call(this);
+                    this.headers = { custom: 'header' };
+                };
+
+                Hapi.utils.inherits(HeadersStream, Stream.Readable);
+
+                HeadersStream.prototype._read = function (size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('hello');
+                    this.push(null);
+                };
+
+                request.reply(new Hapi.response.Stream(new HeadersStream()));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.inject('/stream', function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers.custom).to.equal('header');
@@ -1359,7 +1307,34 @@ describe('Response', function () {
 
         it('returns a stream reply with custom response status code', function (done) {
 
-            server.inject('/stream5', function (res) {
+            var handler = function (request) {
+
+                var HeadersStream = function () {
+
+                    Stream.Readable.call(this);
+                    this.statusCode = 201;
+                };
+
+                Hapi.utils.inherits(HeadersStream, Stream.Readable);
+
+                HeadersStream.prototype._read = function (size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('hello');
+                    this.push(null);
+                };
+
+                request.reply(new Hapi.response.Stream(new HeadersStream()));
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.inject('/stream', function (res) {
 
                 expect(res.statusCode).to.equal(201);
                 done();
@@ -1368,7 +1343,17 @@ describe('Response', function () {
 
         it('returns a stream reply using old style stream interface', function (done) {
 
-            server.inject('/stream6', function (res) {
+            var handler = function (request) {
+
+                var oldMode = new TestStream();
+                oldMode.pause();
+                request.reply(oldMode);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.inject('/stream', function (res) {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(200);
@@ -1406,10 +1391,10 @@ describe('Response', function () {
                 request.reply(new TimerStream());
             };
 
-            var server1 = new Hapi.Server();
-            server1.route({ method: 'GET', path: '/stream', handler: streamHandler });
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server1.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-length']).to.not.exist;
@@ -1424,10 +1409,10 @@ describe('Response', function () {
                 request.reply(new TimerStream());
             };
 
-            var server1 = new Hapi.Server();
-            server1.route({ method: 'GET', path: '/stream', handler: streamHandler });
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server1.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (res) {
+            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-length']).to.not.exist;
@@ -1437,20 +1422,37 @@ describe('Response', function () {
 
         it('returns a stream reply (created)', function (done) {
 
-            server.inject({ method: 'POST', url: '/stream3' }, function (res) {
+            var handler = function (request) {
+
+                request.reply(new TestStream())
+                             .created('/special');
+            };
+
+            var server = new Hapi.Server({ location: 'http://example.com:8080' });
+            server.route({ method: 'POST', path: '/stream', handler: handler });
+
+            server.inject({ method: 'POST', url: '/stream' }, function (res) {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(201);
                 expect(res.headers.location).to.equal(server.settings.location + '/special');
                 expect(res.headers['cache-control']).to.equal('no-cache');
-                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                 done();
             });
         });
 
         it('returns an error on bad state', function (done) {
 
-            server.inject('/stream4', function (res) {
+            var handler = function (request) {
+
+                request.reply(new TestStream())
+                             .state(';sid', 'abcdefg123456');
+            };
+
+            var server = new Hapi.Server({ debug: false });
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.inject('/stream', function (res) {
 
                 expect(res.statusCode).to.equal(500);
                 done();
@@ -1459,7 +1461,36 @@ describe('Response', function () {
 
         it('returns a broken stream reply on error issue', function (done) {
 
-            server.inject('/stream/error', function (res) {
+            var ErrStream = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Hapi.utils.inherits(ErrStream, Stream.Readable);
+
+            ErrStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                if (!this.x) {
+                    this.emit('error', new Error());
+                    this.x = true;
+                }
+            };
+
+            var handler = function (request) {
+
+                request.reply(new ErrStream())
+                             .bytes(0);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.inject('/stream', function (res) {
 
                 expect(res.result).to.equal('');
                 done();
@@ -1468,14 +1499,51 @@ describe('Response', function () {
 
         it('stops processing the stream when the request closes', function (done) {
 
-            server.inject({ url: '/stream/closes', headers: { 'Accept-Encoding': 'gzip' } }, function (res) {
+            var ErrStream = function (request) {
+
+                Stream.Readable.call(this);
+
+                this.request = request;
+            };
+
+            Hapi.utils.inherits(ErrStream, Stream.Readable);
+
+            ErrStream.prototype._read = function (size) {
+
+                var self = this;
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+                this.push('here is the response');
+                process.nextTick(function () {
+
+                    self.request.raw.req.emit('close');
+                    process.nextTick(function () {
+
+                        self.push(null);
+                    });
+                });
+            };
+
+            var handler = function (request) {
+
+                request.reply(new ErrStream(request))
+                             .bytes(0);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/stream', handler: handler });
+
+            server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 done();
             });
         });
 
-        it('doesn\'t truncate the response when stream finishes before response is done', function (done) {
+        it('does not truncate the response when stream finishes before response is done', function (done) {
 
             var chunkTimes = 10;
             var readTimes = 0;
@@ -1532,7 +1600,7 @@ describe('Response', function () {
             });
         });
 
-        it('doesn\'t truncate the response when stream finishes before response is done using https', function (done) {
+        it('does not truncate the response when stream finishes before response is done using https', function (done) {
 
             var chunkTimes = 10;
             var readTimes = 0;
