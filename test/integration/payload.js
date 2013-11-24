@@ -550,9 +550,17 @@ describe('Payload', function () {
             expect(request).to.not.exist;       // Must not be called
         };
 
-        var echo = function (request) {
+        var echo = function () {
 
-            request.reply(request.payload);
+            var result = {};
+            var keys = Object.keys(this.payload);
+            for (var i = 0, il = keys.length; i < il; ++i) {
+                var key = keys[i];
+                var value = this.payload[key]
+                result[key] = value._readableState ? true : value;
+            }
+
+            this.reply(result);
         };
 
         var server = new Hapi.Server('0.0.0.0', 0, { payload: { multipart: 'file' } });
