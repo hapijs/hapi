@@ -1,4 +1,4 @@
-# 1.19.x API Reference
+# 1.20.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -593,6 +593,8 @@ The following options are available when adding a route:
                 - `any` - the authentication can be on behalf of a user or application. This is the default value.
                 - `user` - the authentication must be on behalf of a user.
                 - `app` - the authentication must be on behalf of an application.
+
+    - `cors` - when `false`, the server's CORS headers are disabled for the route. Defaults to using the server's settings.
 
     - `jsonp` - enables JSONP support by setting the value to the query parameter name containing the function name used to wrap the response payload.
       For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON response is `'{ "a":"b" }'`, the payload will be:
