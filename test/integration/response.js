@@ -68,7 +68,7 @@ describe('Response', function () {
             });
         });
 
-        it('return CORS origin', function (done) {
+        it('returns CORS origin', function (done) {
 
             var handler = function () {
 
@@ -87,7 +87,7 @@ describe('Response', function () {
             });
         });
 
-        it('not return CORS for no origin without isOriginExposed', function (done) {
+        it('does not return CORS for no origin without isOriginExposed', function (done) {
 
             var handler = function () {
 
@@ -107,7 +107,7 @@ describe('Response', function () {
             });
         });
 
-        it('hide CORS origin if no match found', function (done) {
+        it('hides CORS origin if no match found', function (done) {
 
             var handler = function () {
 
@@ -127,7 +127,7 @@ describe('Response', function () {
             });
         });
 
-        it('return matching CORS origin', function (done) {
+        it('returns matching CORS origin', function (done) {
 
             var handler = function () {
 
@@ -148,7 +148,7 @@ describe('Response', function () {
             });
         });
 
-        it('return matching hide CORS origin', function (done) {
+        it('returns matching CORS origin without exposing full list', function (done) {
 
             var handler = function () {
 
@@ -156,7 +156,7 @@ describe('Response', function () {
                     .header('vary', 'x-test', true);
             };
 
-            var server = new Hapi.Server({ cors: {isOriginExposed: false,  origin: ['http://test.example.com', 'http://www.example.com'] } });
+            var server = new Hapi.Server({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
@@ -169,7 +169,7 @@ describe('Response', function () {
             });
         });
 
-        it('return matching CORS origin wildcard', function (done) {
+        it('returns matching CORS origin wildcard', function (done) {
 
             var handler = function () {
 
@@ -186,6 +186,27 @@ describe('Response', function () {
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
                 expect(res.headers.vary).to.equal('x-test,origin');
+                done();
+            });
+        });
+
+        it('returns all CORS origins when match is disabled', function (done) {
+
+            var handler = function () {
+
+                this.reply('Tada')
+                    .header('vary', 'x-test', true);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'], matchOrigin: false } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Tada');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
+                expect(res.headers.vary).to.equal('x-test');
                 done();
             });
         });

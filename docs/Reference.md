@@ -180,8 +180,10 @@ When creating a server instance, the following options configure the server's be
   default. To enable, set `cors` to `true`, or to an object with the following options:
     - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The array can contain any combination of fully qualified origins
       along with origin strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin `['*']`.
-    - `isOriginExposed` - optional boolean indicating if the server should return the allowed origin values if the incoming origin header does not match
-      any of the values. Defaults to `true`.
+    - `isOriginExposed` - if `false`, prevents the server from returning the full list of non-wildcard `origin` values if the incoming origin header
+      does not match any of the values. Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
+    - `matchOrigin` - if `false`, returns the list of `origin` values without attempting to match the incoming origin value. Cannot be used with
+      wildcard `origin` values. Defaults to `true`.
     - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
       will take before the browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
