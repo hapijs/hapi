@@ -572,7 +572,7 @@ describe('Pack', function () {
         done();
     });
 
-    it('fails to require multiple plugin with dependencies', function (done) {
+    it('fails to require multiple plugins with dependencies', function (done) {
 
         var server = new Hapi.Server();
 

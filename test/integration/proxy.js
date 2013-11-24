@@ -343,7 +343,7 @@ describe('Proxy', function () {
             server.inject({ url: '/gzip', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.rawPayload).to.deep.equal(zipped);
+                expect(new Buffer(res.payload, 'binary')).to.deep.equal(zipped);
                 done();
             });
         });
