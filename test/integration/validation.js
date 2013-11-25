@@ -20,19 +20,6 @@ var it = Lab.test;
 
 describe('Validation', function () {
 
-    it('changes between validation engines', function (done) {
-
-        var s1a = Hapi.types.String();
-        expect(s1a.noShortCircuit).to.exist;
-        Hapi.joi.version('v2');
-        var s2 = Hapi.types.string();
-        expect(s2.noShortCircuit).to.not.exist;
-        Hapi.joi.version('v1');
-        var s1b = Hapi.types.String();
-        expect(s1b.noShortCircuit).to.exist;
-        done();
-    });
-
     it('validates valid input', function (done) {
 
         var server = new Hapi.Server();

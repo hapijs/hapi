@@ -21,7 +21,6 @@
     "hoek": "1.x.x",
     "boom": "1.x.x",
     "joi": "2.x.x",
-    "joi-v1": "1.x.x",
     "catbox": "1.x.x",
     "hawk": "1.x.x",
     "shot": "1.x.x",
