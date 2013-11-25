@@ -112,7 +112,7 @@ describe('Request', function () {
     var addressHandler = function (request) {
 
         expect(request.info.remoteAddress).to.equal('127.0.0.1');
-        expect(request.info.remoteAddress).to.equal(request.info.address);
+        expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
         request.reply('ok');
     };
 

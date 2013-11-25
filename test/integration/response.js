@@ -342,24 +342,6 @@ describe('Response', function () {
             });
         });
 
-        it('returns a manually created response with legacy options', function (done) {
-
-            var handler = function (request) {
-
-                request.reply(new Hapi.response.Obj({ a: 1, b: 2 }, 'application/x-test'));
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: handler });
-
-            server.inject('/', function (res) {
-
-                expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
-                expect(res.headers['content-type']).to.equal('application/x-test; charset=utf-8');
-                done();
-            });
-        });
-
         it('validates response', function (done) {
 
             var i = 0;
@@ -370,30 +352,6 @@ describe('Response', function () {
 
             var server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { response: { schema: { some: Hapi.types.String() } } }, handler: handler });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('{"some":"value"}');
-
-                server.inject('/', function (res) {
-
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
-            });
-        });
-
-        it('validates response in config compatibility mode', function (done) {
-
-            var i = 0;
-            var handler = function (request) {
-
-                request.reply({ some: i++ ? null : 'value' });
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { validate: { response: { schema: { some: Hapi.types.String() } } }, handler: handler } });
 
             server.inject('/', function (res) {
 
