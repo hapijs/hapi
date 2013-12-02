@@ -142,7 +142,7 @@ describe('Request', function () {
 
     var headersHandler = function (request, reply) {
 
-        reply(this.headers['user-agent']);
+        reply(request.headers['user-agent']);
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
@@ -373,7 +373,6 @@ describe('Request', function () {
 
         var handler = function (request, reply) {
 
-            expect(this).to.equal(request);
             expect(arguments.length).to.equal(2);
             expect(reply.send).to.not.exist;
             expect(reply.redirect).to.exist;

@@ -132,17 +132,17 @@ describe('Ext', function () {
             server.ext('onPreHandler', [
                 function (request, next) {
 
-                    request.x = '1';
+                    request.app.x = '1';
                     next();
                 },
                 function (request, next) {
 
-                    request.x += '2';
+                    request.app.x += '2';
                     next();
                 }
             ]);
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(this.x); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 

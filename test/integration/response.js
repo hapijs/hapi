@@ -383,7 +383,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                var parts = this.params.name.split('/');
+                var parts = request.params.name.split('/');
                 reply({ first: parts[0], last: parts[1] });
             };
 
@@ -2323,7 +2323,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                this.raw.res.end();
+                request.raw.res.end();
                 reply.close();
             };
 
@@ -2355,7 +2355,7 @@ describe('Response', function () {
                     _transmit: function () { }
                 };
 
-                this.setState('bad', {});
+                request.setState('bad', {});
                 reply(custom);
             };
 

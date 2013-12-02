@@ -44,7 +44,7 @@ describe('Proxy', function () {
 
         var profile = function (request, reply) {
 
-            if (this.state.test) {
+            if (request.state.test) {
                 return reply('error');
             }
 
@@ -76,7 +76,7 @@ describe('Proxy', function () {
 
         var echoPostBody = function (request, reply) {
 
-            reply(this.payload.echo + this.raw.req.headers['x-super-special']);
+            reply(request.payload.echo + request.raw.req.headers['x-super-special']);
         };
 
         var unauthorized = function (request, reply) {
@@ -96,9 +96,9 @@ describe('Proxy', function () {
 
         var forward = function (request, reply) {
 
-            expect(this.raw.req.headers['x-forwarded-for']).to.contain('xforwardfor');
-            expect(this.raw.req.headers['x-forwarded-port']).to.contain('9000');
-            expect(this.raw.req.headers['x-forwarded-proto']).to.contain('xforwardproto');
+            expect(request.raw.req.headers['x-forwarded-for']).to.contain('xforwardfor');
+            expect(request.raw.req.headers['x-forwarded-port']).to.contain('9000');
+            expect(request.raw.req.headers['x-forwarded-proto']).to.contain('xforwardproto');
             reply('Success');
         };
 
@@ -122,9 +122,9 @@ describe('Proxy', function () {
 
         var redirectHandler = function (request, reply) {
 
-            switch (this.query.x) {
+            switch (request.query.x) {
                 case '1': reply.redirect('/redirect?x=1'); break;
-                case '2': reply().header('Location', '//localhost:' + this.server.info.port + '/profile').code(302); break;
+                case '2': reply().header('Location', '//localhost:' + request.server.info.port + '/profile').code(302); break;
                 case '3': reply().code(302); break;
                 default: reply.redirect('/profile'); break;
             }
@@ -160,7 +160,7 @@ describe('Proxy', function () {
             { method: 'GET', path: '/gzipstream', handler: gzipStreamHandler },
             { method: 'GET', path: '/redirect', handler: redirectHandler },
             { method: 'POST', path: '/post1', handler: function (request, reply) { reply.redirect('/post2').rewritable(false); } },
-            { method: 'POST', path: '/post2', handler: function (request, reply) { reply(this.payload); } },
+            { method: 'POST', path: '/post2', handler: function (request, reply) { reply(request.payload); } },
             { method: 'GET', path: '/cached', handler: profile },
             { method: 'GET', path: '/timeout1', handler: timeoutHandler },
             { method: 'GET', path: '/timeout2', handler: timeoutHandler },

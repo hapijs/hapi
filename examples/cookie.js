@@ -19,50 +19,50 @@ internals.users = {
 
 internals.home = function (request, reply) {
 
-    reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + this.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
+    reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + request.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
 };
 
 
 internals.login = function (request, reply) {
 
-    if (this.auth.isAuthenticated) {
+    if (request.auth.isAuthenticated) {
         return reply.redirect('/');
     }
 
     var message = '';
     var account = null;
 
-    if (this.method === 'post') {
+    if (request.method === 'post') {
         
-        if (!this.payload.username ||
-            !this.payload.password) {
+        if (!request.payload.username ||
+            !request.payload.password) {
 
             message = 'Missing username or password';
         }
         else {
-            account = internals.users[this.payload.username];
+            account = internals.users[request.payload.username];
             if (!account ||
-                account.password !== this.payload.password) {
+                account.password !== request.payload.password) {
 
                 message = 'Invalid username or password';
             }
         }
     }
 
-    if (this.method === 'get' ||
+    if (request.method === 'get' ||
         message) {
 
         return reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
     }
 
-    this.auth.session.set(account);
+    request.auth.session.set(account);
     return reply.redirect('/');
 };
 
 
 internals.logout = function (request, reply) {
 
-    this.auth.session.clear();
+    request.auth.session.clear();
     return reply.redirect('/');
 };
 

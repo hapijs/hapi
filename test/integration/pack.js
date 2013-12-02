@@ -452,7 +452,7 @@ describe('Pack', function () {
 
         var handler = function (request, reply) {
 
-            return reply(this.app.deps);
+            return reply(request.app.deps);
         };
 
         pack._servers[0].route({ method: 'GET', path: '/', handler: handler });
@@ -494,7 +494,7 @@ describe('Pack', function () {
 
         var handler = function (request, reply) {
 
-            return reply(this.app.deps);
+            return reply(request.app.deps);
         };
 
         pack._servers[0].route({ method: 'GET', path: '/', handler: handler });

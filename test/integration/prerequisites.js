@@ -27,7 +27,7 @@ describe('Prerequesites', function () {
 
     var fetch2 = function (request, reply) {
 
-        reply(this.pre.m1 + this.pre.m3 + this.pre.m4);
+        reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
     };
 
     var fetch3 = function (request, reply) {
@@ -45,12 +45,12 @@ describe('Prerequesites', function () {
 
     var fetch5 = function (request, reply) {
 
-        reply(this.pre.m2 + '!');
+        reply(request.pre.m2 + '!');
     };
 
     var fetch6 = function (request, reply) {
 
-        reply(this.server.pack.hapi.error.internal('boom'));
+        reply(request.server.pack.hapi.error.internal('boom'));
     };
 
     var fetchException = function (request, reply) {
@@ -60,12 +60,12 @@ describe('Prerequesites', function () {
 
     var getFetch1 = function (request, reply) {
 
-        reply(this.pre.m5);
+        reply(request.pre.m5);
     };
 
     var getFetch2 = function (request, reply) {
 
-        reply(this.pre.m1);
+        reply(request.pre.m1);
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
@@ -138,7 +138,7 @@ describe('Prerequesites', function () {
                 ],
                 handler: function (request, reply) {
 
-                    return reply(this.pre.user);
+                    return reply(request.pre.user);
                 }
             }
         },
@@ -152,7 +152,7 @@ describe('Prerequesites', function () {
                 ],
                 handler: function (request, reply) {
 
-                    return reply(this.pre.name);
+                    return reply(request.pre.name);
                 }
             }
         }
@@ -238,7 +238,7 @@ describe('Prerequesites', function () {
                     ],
                     handler: function (request, reply) {
 
-                        return reply(this.pre.user);
+                        return reply(request.pre.user);
                     }
                 }
             });
@@ -261,7 +261,7 @@ describe('Prerequesites', function () {
                     ],
                     handler: function (request, reply) {
 
-                        return reply(this.pre.user);
+                        return reply(request.pre.user);
                     }
                 }
             });

@@ -133,9 +133,9 @@ describe('DTrace', function () {
         server.route({ method: '*', path: '/', config: {
             handler: function (request, reply) {
 
-                this.server._dtrace.report('my.handler.start', 20, 'some value');
+                request.server._dtrace.report('my.handler.start', 20, 'some value');
                 reply('OK');
-                this.server._dtrace.report('my.handler.end', 1, '3');
+                request.server._dtrace.report('my.handler.end', 1, '3');
             }
         }});
 
@@ -179,9 +179,9 @@ describe('DTrace', function () {
         server.route({ method: '*', path: '/', config: {
             handler: function (request, reply) {
 
-                this.server._dtrace.report('my.handler.start', 20, ['some value', 1]);
+                request.server._dtrace.report('my.handler.start', 20, ['some value', 1]);
                 reply('OK');
-                this.server._dtrace.report('my.handler.end', 1, '3');
+                request.server._dtrace.report('my.handler.end', 1, '3');
             }
         }});
 

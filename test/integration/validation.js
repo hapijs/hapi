@@ -145,7 +145,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply(this.getLog('validation')[0].data); },
+            handler: function (request, reply) { reply(request.getLog('validation')[0].data); },
             config: {
                 validate: {
                     query: {

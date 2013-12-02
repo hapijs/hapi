@@ -300,17 +300,17 @@ describe('Payload', function () {
 
         var handler = function (request, reply) {
 
-            reply(this.payload.key);
+            reply(request.payload.key);
         };
 
         var textHandler = function (request, reply) {
 
-            reply(this.payload + '+456');
+            reply(request.payload + '+456');
         };
 
         var tryHandler = function (request, reply) {
 
-            reply(this.rawPayload.toString() + 'failed');
+            reply(request.rawPayload.toString() + 'failed');
         };
 
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
@@ -553,10 +553,10 @@ describe('Payload', function () {
         var echo = function (request, reply) {
 
             var result = {};
-            var keys = Object.keys(this.payload);
+            var keys = Object.keys(request.payload);
             for (var i = 0, il = keys.length; i < il; ++i) {
                 var key = keys[i];
-                var value = this.payload[key]
+                var value = request.payload[key]
                 result[key] = value._readableState ? true : value;
             }
 

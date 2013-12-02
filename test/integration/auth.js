@@ -1323,8 +1323,8 @@ describe('Auth', function () {
                 auth: { mode: 'try' },
                 handler: function (request, reply) {
 
-                    this.auth.session.set({ user: this.params.user });
-                    return reply(this.params.user);
+                    request.auth.session.set({ user: request.params.user });
+                    return reply(request.params.user);
                 }
             }
         });
@@ -1332,7 +1332,7 @@ describe('Auth', function () {
         server.route({
             method: 'GET', path: '/resource', handler: function (request, reply) {
 
-                expect(this.auth.credentials.something).to.equal('new');
+                expect(request.auth.credentials.something).to.equal('new');
                 return reply('resource');
             },
             config: { auth: true }
@@ -1341,7 +1341,7 @@ describe('Auth', function () {
         server.route({
             method: 'GET', path: '/logout', handler: function (request, reply) {
 
-                this.auth.session.clear();
+                request.auth.session.clear();
                 return reply('logged-out');
             }, config: { auth: true }
         });
@@ -1422,8 +1422,8 @@ describe('Auth', function () {
                     auth: { mode: 'try' },
                     handler: function (request, reply) {
 
-                        this.auth.session.set({ user: this.params.user });
-                        return reply(this.params.user);
+                        request.auth.session.set({ user: request.params.user });
+                        return reply(request.params.user);
                     }
                 }
             });
@@ -1431,7 +1431,7 @@ describe('Auth', function () {
             server.route({
                 method: 'GET', path: '/resource', handler: function (request, reply) {
 
-                    expect(this.auth.credentials.user).to.equal('steve');
+                    expect(request.auth.credentials.user).to.equal('steve');
                     return reply('resource');
                 },
                 config: { auth: true }

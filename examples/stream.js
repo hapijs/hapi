@@ -11,7 +11,7 @@ var internals = {};
 
 internals.echo = function (request, reply) {
 
-    reply(this.raw.req);
+    reply(request.raw.req);
 };
 
 

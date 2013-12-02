@@ -14,8 +14,8 @@ internals.main = function () {
 
     var handler = function (request, reply) {
 
-        console.log(this.raw.req.headers);
-        var parts = this.params.name.split('/');
+        console.log(request.raw.req.headers);
+        var parts = request.params.name.split('/');
         reply({ first: parts[0], last: parts[1] });
     };
 
