@@ -890,9 +890,6 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
     - `method` - the function to call (or short-hand helper string as described below). the function signature is identical to a route handler
       as describer in [Route handler](#route-handler).
     - `assign` - key name to assign the result of the function to within `request.pre`.
-    - `output` - the value used when assigning the output where:
-        - `'raw'` - the value passed by the method to the callback, regardless of the method `type`. This is the default.
-        - `'response'` - if the method resulted in a [response object](#hapiresponse), assigns the response instead of the value used to construct it.
     - `failAction` - determines how to handle errors returned by the method. Allowed values are:
         - `'error'` - returns the error response back to the client. This is the default value.
         - `'log'` - logs the error but continues processing the request. If `assign` is used, the error will be assigned.
