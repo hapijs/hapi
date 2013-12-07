@@ -93,7 +93,7 @@ describe('Cache', function () {
         });
     });
 
-    it('doesn\'t return max-age value when route is not cached', function (done) {
+    it('does not return max-age value when route is not cached', function (done) {
 
         server.inject('/item2', function (res) {
 
@@ -102,7 +102,7 @@ describe('Cache', function () {
         });
     });
 
-    it('doesn\'t cache error responses', function (done) {
+    it('does not cache error responses', function (done) {
 
         server.inject('/error', function () {
 
@@ -114,7 +114,7 @@ describe('Cache', function () {
         });
     });
 
-    it('doesn\'t send cache headers for responses with status codes other than 200', function (done) {
+    it('does not send cache headers for responses with status codes other than 200', function (done) {
 
         server.inject('/nocache', function (res) {
 

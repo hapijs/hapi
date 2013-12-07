@@ -21,7 +21,7 @@ var it = Lab.test;
 
 describe('DTrace', function () {
 
-    it('doesn\'t fire probes when dtrace provider isn\'t installed', function (done) {
+    it('does not fire probes when dtrace provider isn\'t installed', function (done) {
 
         var isInstalled = DTrace.isInstalled;
         var provider = function () {

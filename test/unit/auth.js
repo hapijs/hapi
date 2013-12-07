@@ -47,7 +47,7 @@ describe('Auth', function () {
             done();
         });
 
-        it('doesn\'t throws an error if no strategies are defined', function (done) {
+        it('does not throws an error if no strategies are defined', function (done) {
 
             var a = function () {
 
@@ -59,7 +59,7 @@ describe('Auth', function () {
             done();
         });
 
-        it('doesn\'t throw an error if strategies are defined but not used', function (done) {
+        it('does not throw an error if strategies are defined but not used', function (done) {
 
             var server = {
                 settings: {},
@@ -83,7 +83,7 @@ describe('Auth', function () {
             done();
         });
 
-        it('doesn\'t throw an error if strategies are defined and used', function (done) {
+        it('does not throw an error if strategies are defined and used', function (done) {
 
             var request = {
                 _bench: new Hapi.utils.Bench(),
@@ -176,7 +176,7 @@ describe('Auth', function () {
 
         var test = function (scheme) {
 
-            it('doesn\'t throw an error when credentials exist and entity is any (' + scheme.scheme + ')', function (done) {
+            it('does not throw an error when credentials exist and entity is any (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -206,7 +206,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('doesn\'t throw an error when credentials exist and entity defaults to any (' + scheme.scheme + ')', function (done) {
+            it('does not throw an error when credentials exist and entity defaults to any (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -235,7 +235,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('doesn\'t throw an error when credentials exist with a user and user entity specified (' + scheme.scheme + ')', function (done) {
+            it('does not throw an error when credentials exist with a user and user entity specified (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme
@@ -331,7 +331,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('doesn\'t throw an error when credentials exist with a app and app entity is specified (' + scheme.scheme + ')', function (done) {
+            it('does not throw an error when credentials exist with a app and app entity is specified (' + scheme.scheme + ')', function (done) {
 
                 var options = {
                     auth: scheme

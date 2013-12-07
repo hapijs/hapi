@@ -39,7 +39,7 @@ describe('Route', function () {
         done();
     });
 
-    it('doesn\'t throw an error when a method is present', function (done) {
+    it('does not throw an error when a method is present', function (done) {
 
         var fn = function () {
 

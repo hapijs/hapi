@@ -99,7 +99,7 @@ describe('Client Timeout', function () {
             }, 100);
         });
 
-        it('doesn\'t return a client error message when client request is fast', function (done) {
+        it('does not return a client error message when client request is fast', function (done) {
 
             var options = {
                 hostname: '127.0.0.1',
@@ -118,7 +118,7 @@ describe('Client Timeout', function () {
             req.end();
         });
 
-        it('doesn\'t return a client error message when response is taking a long time to send', function (done) {
+        it('does not return a client error message when response is taking a long time to send', function (done) {
 
             var timer = new Hapi.utils.Bench();
             var options = {
@@ -156,7 +156,7 @@ describe('Client Timeout', function () {
             _server.start(done);
         });
 
-        it('client doesn\'t return an error', function (done) {
+        it('client does not return an error', function (done) {
 
             var timer = new Hapi.utils.Bench();
             var options = {

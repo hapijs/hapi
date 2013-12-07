@@ -963,7 +963,7 @@ describe('Response', function () {
             });
         });
 
-        it('doesn\'t throw an error when adding a route with a parameter and function path', function (done) {
+        it('does not throw an error when adding a route with a parameter and function path', function (done) {
 
             var fn = function () {
 
@@ -1055,7 +1055,7 @@ describe('Response', function () {
             });
         });
 
-        it('doesn\'t contain any double / when viewing sub path listing', function (done) {
+        it('does not contain any double / when viewing sub path listing', function (done) {
 
             server.inject('/showindex/', function (res) {
 
@@ -2347,34 +2347,6 @@ describe('Response', function () {
     });
 
     describe('Extension', function () {
-
-        it('returns a reply using custom response without _prepare', function (done) {
-
-            var handler = function () {
-
-                var custom = {
-                    isHapiResponse: true,
-                    variety: 'x-custom',
-                    varieties: { 'x-custom': true },
-                    _transmit: function (request, callback) {
-
-                        request.raw.res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': 11 });
-                        request.raw.res.end('Hello World');
-                    }
-                };
-
-                this.reply(custom);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-            server.inject('/', function (res) {
-
-                expect(res.result).to.equal('Hello World');
-                done();
-            });
-        });
 
         it('returns an internal error on error response loop', function (done) {
 

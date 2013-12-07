@@ -151,7 +151,7 @@ describe('Server Timeout', function () {
         });
     });
 
-    it('doesn\'t return an error response when server is slow but faster than timeout', function (done) {
+    it('does not return an error response when server is slow but faster than timeout', function (done) {
 
         var timer = new Hapi.utils.Bench();
         server.inject('/slow', function (res) {
@@ -162,7 +162,7 @@ describe('Server Timeout', function () {
         });
     });
 
-    it('doesn\'t return an error when server is responding when the timeout occurs', function (done) {
+    it('does not return an error when server is responding when the timeout occurs', function (done) {
 
         var timer = new Hapi.utils.Bench();
 
@@ -183,7 +183,7 @@ describe('Server Timeout', function () {
         req.write('\n');
     });
 
-    it('doesn\'t return an error response when server is slower than timeout but response has started', function (done) {
+    it('does not return an error response when server is slower than timeout but response has started', function (done) {
 
         var options = {
             hostname: '127.0.0.1',
@@ -200,7 +200,7 @@ describe('Server Timeout', function () {
         req.end();
     });
 
-    it('doesn\'t return an error response when server takes less than timeout to respond', function (done) {
+    it('does not return an error response when server takes less than timeout to respond', function (done) {
 
         server.inject('/fast', function (res) {
 

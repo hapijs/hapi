@@ -110,7 +110,7 @@ describe('Payload', function () {
             });
         });
 
-        it('doesn\'t set the request payload when the request is interrupted and its streaming', function (done) {
+        it('does not set the request payload when the request is interrupted and its streaming', function (done) {
 
             var handler = function (request) {
 
@@ -157,7 +157,7 @@ describe('Payload', function () {
             });
         });
 
-        it('doesn\'t set the request payload when the request is interrupted', function (done) {
+        it('does not set the request payload when the request is interrupted', function (done) {
 
             var handler = function (request) {
 
@@ -260,7 +260,7 @@ describe('Payload', function () {
             server.start(done);
         });
 
-        it('doesn\'t set the request payload when streaming data in and the connection is interrupted', function (done) {
+        it('does not set the request payload when streaming data in and the connection is interrupted', function (done) {
 
             var options = {
                 hostname: 'localhost',
@@ -520,7 +520,7 @@ describe('Payload', function () {
             });
         });
 
-        it('doesn\'t return an error when the payload has the correct gzip header and gzipped payload', function (done) {
+        it('does not return an error when the payload has the correct gzip header and gzipped payload', function (done) {
 
             var payload = '{"hi":"hello"}';
 

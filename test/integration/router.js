@@ -92,7 +92,7 @@ describe('Router', function () {
         });
     });
 
-    it('doesn\'t allow duplicate routes with the same vhost', function (done) {
+    it('does not allow duplicate routes with the same vhost', function (done) {
 
         var fn = function () {
 
@@ -103,7 +103,7 @@ describe('Router', function () {
         done();
     });
 
-    it('doesn\'t allow conflicting routes different in trailing path (optional param in new)', function (done) {
+    it('does not allow conflicting routes different in trailing path (optional param in new)', function (done) {
 
         server.route({ method: 'GET', path: '/conflict1', handler: function () { } });
 
@@ -116,7 +116,7 @@ describe('Router', function () {
         done();
     });
 
-    it('doesn\'t allow conflicting routes different in trailing path (optional param in existing)', function (done) {
+    it('does not allow conflicting routes different in trailing path (optional param in existing)', function (done) {
 
         server.route({ method: 'GET', path: '/conflict2/{p?}', handler: function () { } });
 

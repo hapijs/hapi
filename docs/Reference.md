@@ -1968,7 +1968,7 @@ var handler = function () {
 
 ### Response types
 
-Every response type must include the following properties:
+Every response type includes the following properties:
 
 - `variety` - the response type name in lower case (e.g. `'text'`).
 - `varieties` - an object where each key has a `true` value and represents a response type name (in lower case) whose functionality is made

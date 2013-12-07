@@ -24,7 +24,7 @@ describe('NotFound', function () {
 
         var server = new Hapi.Server(0);
 
-        it('returns 404 when making a request to a route that doesn\'t exist', function (done) {
+        it('returns 404 when making a request to a route that does not exist', function (done) {
 
             server.inject({ method: 'GET', url: '/nope' }, function (res) {
 
@@ -68,7 +68,7 @@ describe('NotFound', function () {
             request.reply(Hapi.error.notFound('These these are not the pages you are looking for.'));
         }});
 
-        it('returns custom response when requesting a route that doesn\'t exist', function (done) {
+        it('returns custom response when requesting a route that does not exist', function (done) {
 
             server.inject({ method: 'GET', url: '/page' }, function (res) {
 

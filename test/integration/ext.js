@@ -102,6 +102,26 @@ describe('Ext', function () {
                 done();
             });
         });
+
+        it('intercepts 404 when using directory and file missing', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.ext('onPreResponse', function (request, next) {
+
+                var response = request.response();
+                return next({ isBoom: response.isBoom });
+            });
+
+            server.route({ method: 'GET', path: "/{path*}", handler: { directory: { path: './somewhere', listing: false, index: true } } });
+
+            server.inject({ method: 'GET', url: '/missing' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.isBoom).to.equal(true);
+                done();
+            });
+        });
     });
 
     describe('#ext', function () {

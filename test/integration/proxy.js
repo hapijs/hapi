@@ -415,7 +415,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('sends a 404 status code with a proxied route doesn\'t exist', function (done) {
+    it('sends a 404 status code with a proxied route does not exist', function (done) {
 
         server.inject('/notfound', function (res) {
 
@@ -582,7 +582,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('doesn\'t consume all sockets when server times out before proxy', function (done) {
+    it('does not consume all sockets when server times out before proxy', function (done) {
 
         var wrappedReq = function (next) {
 

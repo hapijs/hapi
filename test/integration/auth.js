@@ -635,7 +635,7 @@ describe('Auth', function () {
             });
         });
 
-        it('doesn\'t include authorization header in response when the response is an error', function (done) {
+        it('does not include authorization header in response when the response is an error', function (done) {
 
             var request = { method: 'POST', url: 'http://example.com:8080/hawkError', headers: { authorization: hawkHeader('john', '/hawkError').field } };
 
@@ -1257,7 +1257,7 @@ describe('Auth', function () {
             });
         });
 
-        it('cannot add a route that has payload validation required when one of the server strategies doesn\'t support it', function (done) {
+        it('cannot add a route that has payload validation required when one of the server strategies does not support it', function (done) {
 
             var fn = function () {
 
@@ -1512,7 +1512,7 @@ describe('Auth', function () {
                 });
             });
 
-            it('sends to login page and doesn\'t append the next query when appendNext is false', function (done) {
+            it('sends to login page and does not append the next query when appendNext is false', function (done) {
 
                 var config = {
                     scheme: 'cookie',

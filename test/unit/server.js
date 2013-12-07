@@ -75,7 +75,7 @@ describe('Server', function () {
         });
     });
 
-    it('doesn\'t throw an error when host and port are provided', function (done) {
+    it('does not throw an error when host and port are provided', function (done) {
 
         var fn = function () {
 
@@ -184,7 +184,7 @@ describe('Server', function () {
         done();
     });
 
-    it('doesn\'t throw an error when enabling auth', function (done) {
+    it('does not throw an error when enabling auth', function (done) {
 
         var fn = function () {
 
@@ -196,7 +196,7 @@ describe('Server', function () {
 
     describe('#start', function () {
 
-        it('doesn\'t throw an error', function (done) {
+        it('does not throw an error', function (done) {
 
             var fn = function () {
 
@@ -232,7 +232,7 @@ describe('Server', function () {
 
     describe('#stop', function () {
 
-        it('doesn\'t throw an error when the server is started', function (done) {
+        it('does not throw an error when the server is started', function (done) {
 
             var fn = function () {
 
@@ -346,7 +346,7 @@ describe('Server', function () {
             done();
         });
 
-        it('doesn\'t throw an error when routes differ in case and case is sensitive', function (done) {
+        it('does not throw an error when routes differ in case and case is sensitive', function (done) {
 
             var fn = function () {
 
@@ -382,7 +382,7 @@ describe('Server', function () {
             done();
         });
 
-        it('doesn\'t lowercase params when case is insensitive', function (done) {
+        it('does not lowercase params when case is insensitive', function (done) {
 
             var server = new Hapi.Server({ router: { isCaseSensitive: false } });
             server.route({

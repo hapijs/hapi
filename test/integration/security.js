@@ -139,7 +139,7 @@ describe('Security', function () {
             done();
         });
 
-        it('doesn\'t exist with invalid content types', function (done) {
+        it('does not exist with invalid content types', function (done) {
 
             server.inject({
                 method: 'POST',
@@ -153,7 +153,7 @@ describe('Security', function () {
             });
         });
 
-        it('doesn\'t exist with invalid cookie values in the request', function (done) {
+        it('does not exist with invalid cookie values in the request', function (done) {
 
             server.inject({
                     method: 'POST',
@@ -167,7 +167,7 @@ describe('Security', function () {
                 });
         });
 
-        it('doesn\'t exist when setting invalid cookie names', function (done) {
+        it('does not exist when setting invalid cookie names', function (done) {
 
             server.route({ method: 'GET', path: '/cookiename', handler: function (request) {
 
@@ -184,7 +184,7 @@ describe('Security', function () {
                 });
         });
 
-        it('doesn\'t exist when setting invalid cookie value', function (done) {
+        it('does not exist when setting invalid cookie value', function (done) {
 
             server.route({ method: 'GET', path: '/cookievalue', handler: function (request) {
 
@@ -201,7 +201,7 @@ describe('Security', function () {
                 });
         });
 
-        it('doesn\'t exist in path validation response message', function (done) {
+        it('does not exist in path validation response message', function (done) {
 
             server.route({ method: 'GET', path: '/fail/{name}', handler: function (request) {
 
@@ -222,7 +222,7 @@ describe('Security', function () {
                 });
         });
 
-        it('doesn\'t exist in payload validation response message', function (done) {
+        it('does not exist in payload validation response message', function (done) {
 
             server.route({ method: 'POST', path: '/fail/payload', handler: function (request) {
 
@@ -245,7 +245,7 @@ describe('Security', function () {
                 });
         });
 
-        it('doesn\'t exist in query validation response message', function (done) {
+        it('does not exist in query validation response message', function (done) {
 
             server.route({ method: 'GET', path: '/fail/query', handler: function (request) {
 
