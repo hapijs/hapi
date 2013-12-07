@@ -2405,23 +2405,14 @@ describe('Response', function () {
         });
     });
 
-    describe('#_respond', function () {
+    describe('#_prepare', function () {
 
-        it('returns an error reply on invalid Response._respond', function (done) {
+        it('returns an error reply on invalid response object', function (done) {
 
-            var handler = function (request) {
+            Hapi.response._prepare(null, null, function (result) {
 
-                Hapi.response._respond(null, request, function () { });
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', handler: handler });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist;
-                expect(res.result.message).to.equal('An internal server error occurred');
+                expect(result.isBoom).to.equal(true);
+                expect(result.message).to.equal('Unexpected response item');
                 done();
             });
         });
