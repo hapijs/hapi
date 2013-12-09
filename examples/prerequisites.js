@@ -56,10 +56,12 @@ internals.main = function () {
         path: '/',
         config: {
             pre: [
-                { method: internals.fetch1, assign: 'm1', mode: 'parallel' },
+                [
+                    { method: internals.fetch1, assign: 'm1' },
+                    { method: internals.fetch3, assign: 'm3' },
+                    { method: internals.fetch4, assign: 'm4' }
+                ],
                 { method: internals.fetch2, assign: 'm2' },
-                { method: internals.fetch3, assign: 'm3', mode: 'parallel' },
-                { method: internals.fetch4, assign: 'm4', mode: 'parallel' },
                 { method: internals.fetch5, assign: 'm5' }
             ],
             handler: internals.get

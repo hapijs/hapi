@@ -86,10 +86,12 @@ describe('Prerequesites', function () {
             path: '/fetch1',
             config: {
                 pre: [
-                    { method: fetch1, assign: 'm1', mode: 'parallel' },
+                    [
+                        { method: fetch1, assign: 'm1' },
+                        { method: fetch3, assign: 'm3' },
+                        { method: fetch4, assign: 'm4' }
+                    ],
                     { method: fetch2, assign: 'm2' },
-                    { method: fetch3, assign: 'm3', mode: 'parallel' },
-                    { method: fetch4, assign: 'm4', mode: 'parallel' },
                     { method: fetch5, assign: 'm5' }
                 ],
                 handler: getFetch1
@@ -100,7 +102,7 @@ describe('Prerequesites', function () {
             path: '/fetch2',
             config: {
                 pre: [
-                    { method: fetch1, assign: 'm1', mode: 'parallel' }
+                    { method: fetch1, assign: 'm1' }
                 ],
                 handler: getFetch2
             }
@@ -110,7 +112,7 @@ describe('Prerequesites', function () {
             path: '/fetch3',
             config: {
                 pre: [
-                    { method: fetch1, assign: 'm1', mode: 'parallel' },
+                    [{ method: fetch1, assign: 'm1' }],
                     { method: fetch6, assign: 'm6' }
                 ],
                 handler: getFetch2
@@ -121,7 +123,7 @@ describe('Prerequesites', function () {
             path: '/fetchException',
             config: {
                 pre: [
-                    { method: fetch1, assign: 'm1', mode: 'parallel' },
+                    [{ method: fetch1, assign: 'm1' }],
                     { method: fetchException, assign: 'm6' }
                 ],
                 handler: getFetch2

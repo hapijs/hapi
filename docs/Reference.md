@@ -762,9 +762,9 @@ not provide any of the [`request.reply`](#requestreplyresult) decorations.
 ##### Route prerequisites
 
 It is often necessary to perform prerequisite actions before the handler is called (e.g. load required reference data from a database).
-The route `pre` option allows defining such pre-handler methods. The methods are called in order, unless a `mode` is specified with value
-`'parallel'` in which case, all the parallel methods are executed first, then the rest in order. `pre` can be assigned a mixed array of:
-
+The route `pre` option allows defining such pre-handler methods. The methods are called in order. If the `pre` array contains another array,
+those methods are called in parallel. `pre` can be assigned a mixed array of:
+- arrays containing the elemets listed below, which are executed in parallel.
 - objects with:
     - `method` - the function to call (or short-hand helper string as described below). The function signature is defined by the `type` options.
     - `assign` - key name to assign the result of the function to within `request.pre`.
@@ -816,8 +816,11 @@ server.route({
     path: '/',
     config: {
         pre: [
-            { method: pre1, assign: 'm1', mode: 'parallel' },
-            { method: pre2, assign: 'm2', mode: 'parallel' },
+            [
+                // m1 and m2 executed in parallel
+                { method: pre1, assign: 'm1' },
+                { method: pre2, assign: 'm2' }
+            ],
             { method: pre3, assign: 'm3' },
         ],
         handler: function () {
