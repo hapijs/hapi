@@ -1345,13 +1345,16 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Route prerequisites
 - Route handler
 - **`'onPostHandler'`** extension point
-    - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object. The response object may be
-      modified. To return a different response (for example, replace an error with an HTML response), return the new response via `next(response)`.
+    - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object.
+      The response object may be modified. To return a different response (for example, replace an error with an HTML response), return the new
+      response via `next(response)`.
 - Validate response payload
 - **`'onPreResponse'`** extension point
-    - always called
-    - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object. The response object may be
-      modified. To return a different response (for example, replace an error with an HTML response), return the new response via `next(response)`.
+    - always called.
+    - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object.
+      The response object cannot be modified. To return a different response (for example, replace an error with an HTML response), return the new
+      response via `next(response)`. Note that any errors generated after `next(response)` is called will not be passed back to the `'onPreResponse'`
+      extention method to prevent an infinite loop.
 - Send response (may emit `'internalError'` event)
 - Emits `'response'` event
 - Wait for tails
@@ -1714,7 +1717,7 @@ server.on('tail', function (request) {
 
 #### `request.setState(name, value, [options])`
 
-_Available until immediately after the `'onPreResponse'` extension point methods are called._
+_Available until immediately after the `'onPostHandler'` extension point methods are called._
 
 Sets a cookie which is sent with the response, where:
 
@@ -1729,7 +1732,7 @@ request.setState('preferences', { color: 'blue' }, { encoding: 'base64json' });
 
 #### `request.clearState(name)`
 
-_Available until immediately after the `'onPreResponse'` extension point methods are called._
+_Available until immediately after the `'onPostHandler'` extension point methods are called._
 
 Clears a cookie which sets an expired cookie and sent with the response, where:
 
@@ -1935,7 +1938,6 @@ server.ext('onPostHandler', function (request, next) {
     var response = request.response();
     if (response.variety === 'obj') {
         delete response.raw._id;        // Remove internal key
-        response.update();
     }
     next();
 });
@@ -2140,10 +2142,13 @@ var handler3 = function () {
 JavaScript object, sent stringified. The 'Content-Type' header defaults to 'application/json'. Supports all the methods provided by
 [`Generic`](#generic) as well as:
 
-- `raw` - the unmodified, unstringified object. Any direct manipulation must be followed with `update()`.
-- `update(options)` - updates the string representation of the object response after changes to `raw` where `options` includes:
-    - `type` - optional 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-    - `encoding` - optional 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
+- `raw` - the unmodified, unstringified object. Can be directly manipulated before `onPreResponse` is called, afterwhich a new `Obj`
+  response must be created to modify the response payload.
+- `options(options)` - updates response configuration where `options` includes these optional keys:
+    - `type` - 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+    - `encoding` - 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
+    - `replacer` - the `JSON.stringify()` replacer function or array. Defaults to no action.
+    - `space` - the `JSON.stringify()` number of spaces to indent nested object keys. Defaults to no indentation.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2154,7 +2159,7 @@ server.ext('onPostHandler', function (request, next) {
     var response = request.response();
     if (response.variety === 'obj') {
         delete response.raw._id;        // Remove internal key
-        response.update();
+        response.options({ space: 4 });
     }
     next();
 });
@@ -2169,6 +2174,8 @@ Generated with:
     - `options` - an optional object with the following optional keys:
         - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
         - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
+        - `replacer` - the `JSON.stringify()` replacer function or array. Defaults to no action.
+        - `space` - the `JSON.stringify()` number of spaces to indent nested object keys. Defaults to no indentation.
 
 ```javascript
 var handler1 = function () {

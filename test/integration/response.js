@@ -328,7 +328,7 @@ describe('Response', function () {
 
             var handler = function (request) {
 
-                request.reply(new Hapi.response.Obj({ a: 1, b: 2 }, { type: 'application/x-test' }));
+                request.reply(new Hapi.response.Obj({ a: 1, b: 2 }, { type: 'application/x-test', space: 0, replacer: null }));
             };
 
             var server = new Hapi.Server();
@@ -1689,13 +1689,14 @@ describe('Response', function () {
 
         it('returns a cached reply', function (done) {
 
+            var gen = 0;
             var cacheHandler = function (request) {
 
-                request.reply({ status: 'cached' });
+                request.reply({ status: 'cached', gen: gen++ });
             };
 
             var server = new Hapi.Server(0);
-            server.route({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { mode: 'server+client', expiresIn: 5000 } } });
+            server.route({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { mode: 'server', expiresIn: 5000 } } });
 
             server.start(function () {
 
@@ -1703,10 +1704,11 @@ describe('Response', function () {
 
                     expect(res1.result).to.exist;
                     expect(res1.result.status).to.equal('cached');
+                    expect(res1.result.gen).to.equal(0);
 
                     server.inject('/cache', function (res2) {
 
-                        expect(res2.result).to.deep.equal('{"status":"cached"}');
+                        expect(res2.payload).to.deep.equal('{"status":"cached","gen":0}');
                         done();
                     });
                 });
@@ -2348,7 +2350,7 @@ describe('Response', function () {
 
     describe('Extension', function () {
 
-        it('returns an internal error on error response loop', function (done) {
+        it('returns last known error on error response loop', function (done) {
 
             var handler = function () {
 
@@ -2372,7 +2374,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
-                expect(res.result.code).to.equal(500);
+                expect(res.result.code).to.equal(400);
                 done();
             });
         });
