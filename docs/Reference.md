@@ -766,15 +766,9 @@ The route `pre` option allows defining such pre-handler methods. The methods are
 those methods are called in parallel. `pre` can be assigned a mixed array of:
 - arrays containing the elemets listed below, which are executed in parallel.
 - objects with:
-    - `method` - the function to call (or short-hand helper string as described below). The function signature is defined by the `type` options.
+    - `method` - the function to call (or short-hand helper string as described below). the function signature is identical to a route handler
+      as describer in [Route handler](#route-handler).
     - `assign` - key name to assign the result of the function to within `request.pre`.
-    - `type` - the method signature by specifying one of the following (defualts to `'pre'`):
-        - `'pre'` - the function signature is `function(request, next)` where:
-            - `request` - the incoming `request` object.
-            - `next` - the function called when the method is done with the signature `function(result)` where:
-                - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)). If an error
-                  is returned, that value is sent back to the client and the handler method is not called.
-        - `'handler'` - the function signature is identical to a route handler as describer in [Route handler](#route-handler).
     - `output` - the value used when assigning the output where:
         - `'raw'` - the value passed by the method to the callback, regardless of the method `type`. This is the default.
         - `'response'` - if the method resulted in a [response object](#hapiresponse), assigns the response instead of the value used to construct it.
@@ -792,19 +786,19 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-var pre1 = function (request, next) {
+var pre1 = function () {
 
-    next('Hello');
+    this.reply('Hello');
 };
 
-var pre2 = function (request, next) {
+var pre2 = function () {
 
-    next('World');
+    this.reply('World');
 };
 
-var pre3 = function (request, next) {
+var pre3 = function () {
 
-    next(request.pre.m1 + ' ' + request.pre.m2);
+    this.reply(this.pre.m1 + ' ' + this.pre.m2);
 };
 
 server.route({

@@ -20,52 +20,52 @@ var it = Lab.test;
 
 describe('Prerequesites', function () {
 
-    var fetch1 = function (request, next) {
+    var fetch1 = function () {
 
-        next('Hello');
+        this.reply('Hello');
     };
 
-    var fetch2 = function (request, next) {
+    var fetch2 = function () {
 
-        next(request.pre.m1 + request.pre.m3 + request.pre.m4);
+        this.reply(this.pre.m1 + this.pre.m3 + this.pre.m4);
     };
 
-    var fetch3 = function (request, next) {
+    var fetch3 = function (request) {
 
         process.nextTick(function () {
 
-            next(' ');
+            request.reply(' ');
         });
     };
 
-    var fetch4 = function (request, next) {
+    var fetch4 = function () {
 
-        next('World');
+        this.reply('World');
     };
 
-    var fetch5 = function (request, next) {
+    var fetch5 = function () {
 
-        next(request.pre.m2 + '!');
+        this.reply(this.pre.m2 + '!');
     };
 
-    var fetch6 = function (request, next) {
+    var fetch6 = function () {
 
-        next(request.server.pack.hapi.error.internal('boom'));
+        this.reply(this.server.pack.hapi.error.internal('boom'));
     };
 
-    var fetchException = function (request, next) {
+    var fetchException = function () {
 
         a.b.c;
     };
 
-    var getFetch1 = function (request) {
+    var getFetch1 = function () {
 
-        request.reply(request.pre.m5);
+        this.reply(this.pre.m5);
     };
 
-    var getFetch2 = function (request) {
+    var getFetch2 = function () {
 
-        request.reply(request.pre.m1);
+        this.reply(this.pre.m1);
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
@@ -269,48 +269,6 @@ describe('Prerequesites', function () {
 
         expect(test).to.throw('Invalid prerequisite string method syntax');
         done();
-    });
-
-    it('uses handler and pre interchangeably', function (done) {
-
-        var handler = function () {
-
-            this.reply('handler-' + (this.pre.first || '')).code(901);
-        };
-
-        var pre = function () {
-
-            this.reply('pre-' + (this.pre.first || '')).code(902);
-        };
-
-        var response = function () {
-
-            this.reply(this.pre.first);
-        };
-
-        var server = new Hapi.Server();
-        server.route([
-            { method: 'GET', path: '/handler', config: { pre: [{ method: pre, assign: 'first', type: 'handler' }], handler: handler } },
-            { method: 'GET', path: '/pre', config: { pre: [{ method: handler, assign: 'first', type: 'handler' }], handler: pre } },
-            { method: 'GET', path: '/response', config: { pre: [{ method: handler, assign: 'first', type: 'handler', output: 'response' }], handler: response } }
-        ]);
-
-        server.inject('/handler', function (res) {
-
-            expect(res.payload).to.equal('handler-pre-');
-            expect(res.statusCode).to.equal(901);
-            server.inject('/pre', function (res) {
-
-                expect(res.payload).to.equal('pre-handler-');
-                expect(res.statusCode).to.equal(902);
-                server.inject('/response', function (res) {
-
-                    expect(res.payload).to.equal('handler-');
-                    expect(res.statusCode).to.equal(901);
-                    done();
-                });
-            });
-        });
     });
 });
 
