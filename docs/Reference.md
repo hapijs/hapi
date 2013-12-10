@@ -13,6 +13,11 @@
             - [Path processing](#path-processing)
             - [Path parameters](#path-parameters)
             - [Route handler](#route-handler)
+                - [`reply([result])`](#replyresult)
+                - [`reply.redirect(uri)`](#replyredirecturi)
+                - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
+                - [`reply.close()`](#replyclose)
+                - [`reply.proxy(options)`](#replyproxyoptions)
             - [Route prerequisites](#route-prerequisites)
             - [Route not found](#route-not-found)
         - [`server.route(routes)`](#serverrouteroutes)
@@ -41,11 +46,6 @@
         - [`request.tail([name])`](#requesttailname)
         - [`request.setState(name, value, [options])`](#requestsetstatename-value-options)
         - [`request.clearState(name)`](#requestclearstatename)
-        - [`request.reply([result])`](#requestreplyresult)
-            - [`request.reply.redirect(uri)`](#requestreplyredirecturi)
-            - [`request.reply.view(template, [context, [options]])`](#requestreplyviewtemplate-context-options)
-            - [`request.reply.close()`](#requestreplyclose)
-            - [`request.reply.proxy(options)`](#requestreplyproxyoptions)
         - [`request.generateView(template, context, [options])`](#requestgenerateviewtemplate-context-options)
         - [`request.response()`](#requestresponse)
 - [`Hapi.response`](#hapiresponse)
@@ -291,7 +291,7 @@ When creating a server instance, the following options configure the server's be
         - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
     - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
       explicit extension is provided for a given template. No default value.
-    - `path` - the root file path used to resolve and load the templates identified when calling `request.reply.view()`. Defaults to current working
+    - `path` - the root file path used to resolve and load the templates identified when calling `reply.view()`. Defaults to current working
       directory.
     - `partialsPath` - the root file path where partials are located. Partials are small segments of template code that can be nested and reused
       throughout other templates. Defaults to no partials support (empty path).
@@ -306,8 +306,8 @@ When creating a server instance, the following options configure the server's be
     - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
     - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf-8'`.
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
-    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `request.reply.view()`. Defaults to `false`.
-    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `request.reply.view()` to contain '../'. Defaults to `false`.
+    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `reply.view()`. Defaults to `false`.
+    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to contain '../'. Defaults to `false`.
     - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
     - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
     - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
@@ -450,7 +450,7 @@ The following options are available when adding a route:
         - `postResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
           custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
           `function(request, settings, res, payload, ttl)` where:
-              - `request` - is the incoming `request` object. It is the responsibility of the `postResponse()` function to call `request.reply()`.
+              - `request` - is the incoming `request` object. It is the responsibility of the `postResponse()` function to call `reply()`.
               - `settings` - the proxy handler configuration.
               - `res` - the node response object received from the upstream service.
               - `payload` - the response payload.
@@ -468,7 +468,7 @@ The following options are available when adding a route:
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
-    - `context` - any value passed back to the provided handler (via the `request.reply.context` variable) when called. Can only be used with
+    - `context` - any value passed back to the provided handler (via the `reply.context` variable) when called. Can only be used with
       `handler` function values.
 
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
@@ -506,7 +506,7 @@ The following options are available when adding a route:
                   is `function(exit)` where:
                     - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the
                       "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
-                      value accepted by [`request.reply()`](#requestreplyresult).
+                      value accepted by [`reply()`](#replyresult).
 
     - `payload` - determines how the request payload is processed. `payload` can be assigned a string with the parsing mode directly (e.g. `'parse'`)
       which will use the default values of the other settings, or an object with the following:
@@ -611,9 +611,9 @@ var server = new Hapi.Server();
 
 // Handler in top level
 
-var status = function () {
+var status = function (request, reply) {
 
-    this.reply('ok');
+    reply('ok');
 };
 
 server.route({ method: 'GET', path: '/status', handler: status });
@@ -622,9 +622,9 @@ server.route({ method: 'GET', path: '/status', handler: status });
 
 var user = {
     cache: { expiresIn: 5000 },
-    handler: function () {
+    handler: function (request, reply) {
 
-        this.reply({ name: 'John' });
+        reply({ name: 'John' });
     }
 };
 
@@ -689,11 +689,11 @@ Parameterized paths are processed by matching the named parameters to the conten
  to an empty string `''`.
 
 ```javascript
-var getAlbum = function () {
+var getAlbum = function (request, reply) {
 
-    this.reply('You asked for ' +
-                (this.params.song ? this.params.song + ' from ' : '') +
-                this.params.album);
+    reply('You asked for ' +
+          (request.params.song ? request.params.song + ' from ' : '') +
+          request.params.album);
 };
 
 server.route({
@@ -708,10 +708,10 @@ greater than 1. If the number of expected parts can be anything, then use '*' wi
 last path segment).
 
 ```javascript
-var getPerson = function () {
+var getPerson = function (request, reply) {
 
     var nameParts = this.params.name.split('/');
-    this.reply({ first: nameParts[0], last: nameParts[1] });
+    reply({ first: nameParts[0], last: nameParts[1] });
 };
 
 server.route({
@@ -724,29 +724,7 @@ server.route({
 ##### Route handler
 
 When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request-object) object.
-The handler method must call [`request.reply()`](#requestreplyresult) or one of its sub-methods to return control back to the router.
-
-Route handler functions can use one of three declaration styles:
-
-No arguments (the `request` object is bound to `this`, decorated by the `reply` interface):
-
-```javascript
-var handler = function () {
-
-    this.reply('success');
-};
-```
-
-One argument (the request is passed as an argument, decorated by the `reply` interface):
-
-```javascript
-var handler = function (request) {
-
-    request.reply('success');
-};
-```
-
-Two arguments (the request and the `reply` interface are passed as arguments):
+The handler method must call [`reply()`](#replyresult) or one of its sub-methods to return control back to the router.
 
 ```javascript
 var handler = function (request, reply) {
@@ -755,9 +733,151 @@ var handler = function (request, reply) {
 };
 ```
 
-The two-arguments style is provided for symmetry with extension functions and prerequisite functions where the function
-signature is `function(request, next)`. In order to enable interchangeable use of these functions, the two argument style does
-not provide any of the [`request.reply`](#requestreplyresult) decorations.
+###### `reply([result])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Concludes the handler activity by returning control over to the router where:
+
+- `result` - an optional response payload.
+
+Returns a [`response`](#response-types) object based on the value of `result`:
+
+- `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
+- string - [`Text`](#text) response.
+- `Buffer` object - [`Buffer`](#buffer) response.
+- `Error` object (generated via [`error`](#hapierror) or `new Error()`) - [`Boom`](#hapierror) object.
+- `Stream` object - [`Stream`](#stream) response.
+- any other object - [`Obj`](#obj) response.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply('success');
+};
+```
+
+The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
+are response-type-specific and listed in [`response`](#response-types).
+
+```javascript
+var handler = function (request, reply) {
+
+    reply('success')
+        .type('text/plain)
+        .header('X-Custom', 'some-value');
+};
+```
+
+The [response flow control rules](#flow-control) apply.
+
+###### `reply.redirect(uri)`
+
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Concludes the handler activity by returning control over to the router with a redirection response where:
+
+- `uri` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
+  the server [`location`](#server.config.location) configuration option is used as prefix.
+
+Returns a [`Redirection`](#redirection) response.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply.redirection('http://example.com/elsewhere')
+        .message('You are being redirected...')
+        .permanent();
+};
+```
+
+The [response flow control rules](#flow-control) apply.
+
+###### `reply.view(template, [context, [options]])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Concludes the handler activity by returning control over to the router with a templatized view response where:
+
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
+
+Returns a [`View`](#view) response.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server({
+    views: {
+        engines: { html: 'handlebars' },
+        path: __dirname + '/templates'
+    }
+});
+
+var handler = function (request, reply) {
+
+    var context = {
+        title: 'Views Example',
+        message: 'Hello, World'
+    };
+
+    reply.view('hello', context);
+};
+
+server.route({ method: 'GET', path: '/', handler: handler });
+```
+
+**templates/hello.html**
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <div>
+            <h1>{{message}}</h1>
+        </div>
+    </body>
+</html>
+```
+
+The [response flow control rules](#flow-control) apply.
+
+###### `reply.close()`
+
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
+directly via `request.raw.res` and that no further response action is needed (the router will ensure the `request.raw.res` was ended).
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+###### `reply.proxy(options)`
+
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Proxies the request to an upstream endpoint where:
+- `options` - an object including the same keys and restrictions defined by the [route `proxy` handler options](#route.config.proxy).
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
+};
+```
 
 ##### Route prerequisites
 
@@ -786,19 +906,19 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-var pre1 = function () {
+var pre1 = function (request, reply) {
 
-    this.reply('Hello');
+    reply('Hello');
 };
 
-var pre2 = function () {
+var pre2 = function (request, reply) {
 
-    this.reply('World');
+    reply('World');
 };
 
-var pre3 = function () {
+var pre3 = function (request, reply) {
 
-    this.reply(this.pre.m1 + ' ' + this.pre.m2);
+    reply(request.pre.m1 + ' ' + request.pre.m2);
 };
 
 server.route({
@@ -813,9 +933,9 @@ server.route({
             ],
             { method: pre3, assign: 'm3' },
         ],
-        handler: function () {
+        handler: function (request, reply) {
 
-            this.reply(this.pre.m3 + '\n');
+            reply(request.pre.m3 + '\n');
         }
     }
 });
@@ -830,9 +950,9 @@ method or all methods. Only one catch-all route can be defined per server instan
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-var handler = function () {
+var handler = function (request, reply) {
 
-    this.reply('The page was not found').code(404);
+    reply('The page was not found').code(404);
 };
 
 server.route({ method: '*', path: '/{p*}', handler: handler });
@@ -942,16 +1062,16 @@ server.state('session', {
 
 // Set state in route handler
 
-var handler = function () {
+var handler = function (request, reply) {
 
-    var session = this.state.session;
+    var session = request.state.session;
     if (!session) {
         session = { user: 'joe' };
     }
 
     session.last = Date.now();
 
-    this.reply('Success').state('session', session);
+    reply('Success').state('session', session);
 };
 ```
 
@@ -1111,45 +1231,45 @@ var users = {
     }
 };
 
-var home = function () {
+var home = function (request, reply) {
 
-    this.reply('<html><head><title>Login page</title></head><body><h3>Welcome '
-      + this.auth.credentials.name
+    reply('<html><head><title>Login page</title></head><body><h3>Welcome '
+      + request.auth.credentials.name
       + '!</h3><br/><form method="get" action="/logout">'
       + '<input type="submit" value="Logout">'
       + '</form></body></html>');
 };
 
-var login = function () {
+var login = function (request, reply) {
 
-    if (this.auth.isAuthenticated) {
-        return this.reply.redirect('/');
+    if (request.auth.isAuthenticated) {
+        return reply.redirect('/');
     }
 
     var message = '';
     var account = null;
 
-    if (this.method === 'post') {
+    if (request.method === 'post') {
 
-        if (!this.payload.username ||
-            !this.payload.password) {
+        if (!request.payload.username ||
+            !request.payload.password) {
 
             message = 'Missing username or password';
         }
         else {
-            account = users[this.payload.username];
+            account = users[request.payload.username];
             if (!account ||
-                account.password !== this.payload.password) {
+                account.password !== request.payload.password) {
 
                 message = 'Invalid username or password';
             }
         }
     }
 
-    if (this.method === 'get' ||
+    if (request.method === 'get' ||
         message) {
 
-        return this.reply('<html><head><title>Login page</title></head><body>'
+        return reply('<html><head><title>Login page</title></head><body>'
             + (message ? '<h3>' + message + '</h3><br/>' : '')
             + '<form method="post" action="/login">'
             + 'Username: <input type="text" name="username"><br>'
@@ -1157,14 +1277,14 @@ var login = function () {
             + '<input type="submit" value="Login"></form></body></html>');
     }
 
-    this.auth.session.set(account);
-    return this.reply.redirect('/');
+    request.auth.session.set(account);
+    return reply.redirect('/');
 };
 
-var logout = function () {
+var logout = function (request, reply) {
 
-    this.auth.session.clear();
-    return this.reply.redirect('/');
+    request.auth.session.clear();
+    return reply.redirect('/');
 };
 
 var server = new Hapi.Server('localhost', 8000);
@@ -1286,7 +1406,7 @@ Registers an extension function in one of the available [extension points](#requ
     - `next` - the callback function the extension method must call to return control over to the router with signature `function(exit)` where:
         - `exit` - optional request processing exit response. If set to a non-falsy value, the request lifecycle process will jump to the
           "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
-          value accepted by [`request.reply()`](#requestreplyresult).
+          value accepted by [`reply()`](#replyresult).
     - `context` - the context object provided via `options.context`.
 - `options` - an optional object with the following:
     - `before` - a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed
@@ -1306,9 +1426,9 @@ server.ext('onRequest', function (request, next, context) {
     next();
 });
 
-var handler = function () {
+var handler = function (request, reply) {
 
-    this.reply({ status: 'ok' });
+    reply({ status: 'ok' });
 };
 
 server.route({ method: 'GET', path: '/test', handler: handler });
@@ -1468,9 +1588,9 @@ testing purposes as well as for invoking routing logic internally without the ov
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-var get = function () {
+var get = function (request, reply) {
 
-    this.reply('Success!');
+    reply('Success!');
 };
 
 server.route({ method: 'GET', path: '/', handler: get });
@@ -1690,7 +1810,7 @@ When all tails completed, the server emits a `'tail'` event.
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-var get = function (request) {
+var get = function (request, reply) {
 
     var dbTail = request.tail('write to database');
 
@@ -1699,7 +1819,7 @@ var get = function (request) {
         dbTail();
     });
 
-    request.reply('Success!');
+    reply('Success!');
 };
 
 server.route({ method: 'GET', path: '/', handler: get });
@@ -1735,152 +1855,6 @@ Clears a cookie which sets an expired cookie and sent with the response, where:
 
 ```javascript
 request.clearState('preferences');
-```
-
-#### `request.reply([result])`
-
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
-`request.reply.close()`, or `request.reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router where:
-
-- `result` - an optional response payload.
-
-Returns a [`response`](#response-types) object based on the value of `result`:
-
-- `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
-- string - [`Text`](#text) response.
-- `Buffer` object - [`Buffer`](#buffer) response.
-- `Error` object (generated via [`error`](#hapierror) or `new Error()`) - [`Boom`](#hapierror) object.
-- `Stream` object - [`Stream`](#stream) response.
-- any other object - [`Obj`](#obj) response.
-
-```javascript
-var handler = function () {
-
-    this.reply('success');
-};
-```
-
-The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
-are response-type-specific and listed in [`response`](#response-types).
-
-```javascript
-var handler = function () {
-
-    this.reply('success')
-        .type('text/plain)
-        .header('X-Custom', 'some-value');
-};
-```
-
-The [response flow control rules](#flow-control) apply.
-
-##### `request.reply.redirect(uri)`
-
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
-`request.reply.close()`, or `request.reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router with a redirection response where:
-
-- `uri` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
-  the server [`location`](#server.config.location) configuration option is used as prefix.
-
-Returns a [`Redirection`](#redirection) response.
-
-```javascript
-var handler = function () {
-
-    this.reply.redirection('http://example.com/elsewhere')
-              .message('You are being redirected...')
-              .permanent();
-};
-```
-
-The [response flow control rules](#flow-control) apply.
-
-##### `request.reply.view(template, [context, [options]])`
-
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
-`request.reply.close()`, or `request.reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router with a templatized view response where:
-
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
-
-Returns a [`View`](#view) response.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server({
-    views: {
-        engines: { html: 'handlebars' },
-        path: __dirname + '/templates'
-    }
-});
-
-var handler = function () {
-
-    var context = {
-        title: 'Views Example',
-        message: 'Hello, World'
-    };
-
-    this.reply.view('hello', context);
-};
-
-server.route({ method: 'GET', path: '/', handler: handler });
-```
-
-**templates/hello.html**
-
-```html
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{{title}}</title>
-    </head>
-    <body>
-        <div>
-            <h1>{{message}}</h1>
-        </div>
-    </body>
-</html>
-```
-
-The [response flow control rules](#flow-control) apply.
-
-##### `request.reply.close()`
-
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
-`request.reply.close()`, or `request.reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
-directly via `request.raw.res` and that no further response action is needed (the router will ensure the `request.raw.res` was ended).
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-##### `request.reply.proxy(options)`
-
-_Available only within the handler method and only before one of `request.reply()`, `request.reply.redirection()`, `request.reply.view()`,
-`request.reply.close()`, or `request.reply.proxy()`  is called._
-
-Proxies the request to an upstream endpoint where:
-- `options` - an object including the same keys and restrictions defined by the [route `proxy` handler options](#route.config.proxy).
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-```javascript
-var handler = function () {
-
-    this.reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
-};
 ```
 
 #### `request.generateView(template, context, [options])`
@@ -1942,19 +1916,19 @@ server.ext('onPostHandler', function (request, next, context) {
 
 ### Flow control
 
-When calling `request.reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
+When calling `reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
 This enables making changes to the returned response object before the response is sent. This means the router will resume as soon as the handler
 method exists. To suspend this behavior, the returned `response` object includes:
 
-- `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `request.reply()` is called and until
+- `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `reply()` is called and until
   `response.hold()` is invoked once.
 - `response.send()` - resume the response which will be transmitted in the next tick. Available only after `response.hold()` is called and until
   `response.send()` is invoked once.
 
 ```javascript
-var handler = function () {
+var handler = function (request, reply) {
 
-    var response = this.reply('success').hold();
+    var response = reply('success').hold();
 
     onTimeout(function () {
 
@@ -2005,19 +1979,19 @@ An empty response body (content-length of zero bytes). Supports all the methods 
 
 Generated with:
 
-- `request.reply()` - without any arguments.
+- `reply()` - without any arguments.
 - `new Hapi.response.Empty()`
 
 ```javascript
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
-    this.reply();
+    reply();
 };
 
-var handler2 = function () {
+var handler2 = function (request, reply) {
 
     var response = new Hapi.response.Empty();
-    this.reply(response);
+    reply(response);
 };
 ```
 
@@ -2032,27 +2006,27 @@ Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all th
 
 Generated with:
 
-- `request.reply(result)` - where:
+- `reply(result)` - where:
     - `result` - must be a non-empty string.
 - `new Hapi.response.Text(text, [type, [encoding]])` - same as `message()` above.
 
 ```javascript
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
-    this.reply('hello world');
+    reply('hello world');
 };
 
-var handler2 = function () {
+var handler2 = function (request, reply) {
 
     var response = new Hapi.response.Text('hello world');
-    this.reply(response);
+    reply(response);
 };
 
-var handler3 = function () {
+var handler3 = function (request, reply) {
 
     var response = new Hapi.response.Text();
     response.message('hello world');
-    this.reply(response);
+    reply(response);
 };
 ```
 
@@ -2062,23 +2036,23 @@ Buffer response. Supports all the methods provided by [`Generic`](#generic).
 
 Generated with:
 
-- `request.reply(result)` - where:
+- `reply(result)` - where:
     - `result` - must be a `Buffer`.
 - `new Hapi.response.Buffer(buffer)` - where:
     - `buffer` - the `Buffer` response.
 
 ```javascript
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
     var buffer = new Buffer([10, 11, 12, 13]);
-    this.reply(buffer);
+    reply(buffer);
 };
 
-var handler2 = function () {
+var handler2 = function (request, reply) {
 
     var buffer = new Buffer([10, 11, 12, 13]);
     var response = new Hapi.response.Buffer(buffer);
-    this.reply(response);
+    reply(response);
 };
 ```
 
@@ -2091,7 +2065,7 @@ Replies with a stream object, directly piped into the HTTP response. Supports al
 
 Generated with:
 
-- `request.reply(result)` - where:
+- `reply(result)` - where:
     - `result` - must be a [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable) or a node 0.8.x `Stream`.
 - `new Hapi.response.Stream(stream)` - where:
     - `stream` - the [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable) or a node 0.8.x `Stream`.
@@ -2113,22 +2087,22 @@ ExampleStream.prototype._read = function (size) {
     this.push(null);
 };
 
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
     var stream = new ExampleStream();
-    this.reply(stream);
+    reply(stream);
 };
 
-var handler2 = function () {
+var handler2 = function (request, reply) {
 
     var response = new Hapi.response.Stream(new ExampleStream());
-    this.reply(response);
+    reply(response);
 };
 
-var handler3 = function () {
+var handler3 = function (request, reply) {
 
     // Echo back request stream
-    this.reply(this.raw.req).bytes(this.raw.req.headers['content-length']);
+    reply(this.raw.req).bytes(this.raw.req.headers['content-length']);
 };
 ```
 
@@ -2162,7 +2136,7 @@ server.ext('onPostHandler', function (request, next, context) {
 
 Generated with:
 
-- `request.reply(result)` - where:
+- `reply(result)` - where:
     - `result` - must be an object.
 - `new Hapi.response.Obj(object, [options])` - where:
     - `object` - the response object.
@@ -2173,15 +2147,15 @@ Generated with:
         - `space` - the `JSON.stringify()` number of spaces to indent nested object keys. Defaults to no indentation.
 
 ```javascript
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
-    this.reply({ message: 'hello world' });
+    reply({ message: 'hello world' });
 };
 
-var handler2 = function () {
+var handler2 = function (request, reply) {
 
     var response = new Hapi.response.Obj({ message: 'hello world' });
-    this.reply(response);
+    reply(response);
 };
 ```
 
@@ -2204,10 +2178,10 @@ Generated with:
 var Hapi = require('hapi');
 var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
 
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
     var response = new Hapi.response.File('./hello.txt');
-    this.reply(response);
+    reply(response);
 };
 
 server.route({ method: 'GET', path: '/1', handler: handler1 });
@@ -2275,7 +2249,7 @@ Notes:
 
 Generated with:
 
-- `request.reply.redirect(uri)` - as described in [`request.reply.redirect()`](#requestreplyredirecturi).
+- `reply.redirect(uri)` - as described in [`reply.redirect()`](#replyredirecturi).
 - `new Hapi.response.Redirection(uri, [message, [type, [encoding]]])` - where:
     - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
       the server [`location`](#server.config.location) configuration option is used as prefix.
@@ -2284,17 +2258,17 @@ Generated with:
     - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
 
 ```javascript
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
-    this.reply.redirect('http://example.com/elsewhere')
-              .temporary().rewritable(false);   // 307
+    reply.redirect('http://example.com/elsewhere')
+        .temporary().rewritable(false);   // 307
 };
 
-var handler2 = function () {
+var handler2 = function (request, reply) {
 
     var response = new Hapi.response.Redirection('http://example.com/elsewhere');
     response.permanent().rewritable();          // 301
-    this.reply(response);
+    reply(response);
 };
 ```
 
@@ -2304,7 +2278,7 @@ Template-based response. Supports all the methods provided by [`Generic`](#gener
 
 Generated with:
 
-- `request.reply.view(template, [context, [options]])` - as described in [`request.reply.view()`](#requestreplyviewtemplate-context-options).
+- `reply.view(template, [context, [options]])` - as described in [`reply.view()`](#replyviewtemplate-context-options).
 - `request.generateView(template, context, [options])` - as described in [`request.generateView()`](#requestgenerateviewtemplate-context-options).
 - the built-in route [`view`](#route.config.view) handler.
 
@@ -2317,26 +2291,26 @@ var server = new Hapi.Server({
     }
 });
 
-var handler1 = function () {
+var handler1 = function (request, reply) {
 
     var context = {
         params: {
-            user: this.params.user
+            user: request.params.user
         }
     };
 
-    this.reply.view('hello', context);
+    reply.view('hello', context);
 };
 
-var handler2 = function () {
+var handler2 = function (request, reply) {
 
     var context = {
         params: {
-            user: this.params.user
+            user: request.params.user
         }
     };
 
-    this.reply(this.generateView('hello', context));
+    reply(request.generateView('hello', context));
 };
 
 server.route({ method: 'GET', path: '/1/{user}', handler: handler1 });
@@ -2390,7 +2364,7 @@ It also supports the following method:
 ```javascript
 var Hapi = require('hapi');
 
-var handler = function () {
+var handler = function (request, reply) {
 
     var error = Hapi.error.badRequest('Cannot feed after midnight');
     error.response.code = 499;    // Assign a custom error code
@@ -2398,7 +2372,7 @@ var handler = function () {
     
     error.response.payload.custom = 'abc_123'; // Add custom key
 
-    this.reply(error);
+    reply(error);
 });
 ```
 
@@ -2520,7 +2494,7 @@ the client. `error.message` remains unchanged.
 ```javascript
 var Hapi = require('hapi');
 
-var handler = function () {
+var handler = function (request, reply) {
 
     var result;
     try {
@@ -2530,7 +2504,7 @@ var handler = function () {
         result = Hapi.error.internal('Failed parsing JSON input', err);
     }
 
-    this.reply(result);
+    reply(result);
 };
 ```
 
@@ -2747,7 +2721,7 @@ var plug = {
     version: '2.0.0',
     register: function (plugin, options, next) {
 
-        plugin.route({ method: 'GET', path: '/special', handler: function () { this.reply(options.message); } } );
+        plugin.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } } );
         next();
     }
 };
@@ -2922,9 +2896,9 @@ exports.register = function (plugin, options, next) {
         plugin.route({
             method: 'GET',
             path: settings.version,
-            handler: function () {
+            handler: function (request, reply) {
 
-                this.reply(internals.version);
+                reply(internals.version);
             }
         });
     }
@@ -2933,9 +2907,9 @@ exports.register = function (plugin, options, next) {
         plugin.route({
             method: 'GET',
             path: settings.plugins,
-            handler: function () {
+            handler: function (request, reply) {
 
-                this.reply(listPlugins(this.server));
+                reply(listPlugins(request.server));
             }
         });
     }
@@ -2975,7 +2949,7 @@ Registers the plugin where:
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.route({ method: 'GET', path: '/', handler: function () { this.reply('hello world') } });
+    plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('hello world') } });
     next();
 };
 ```
@@ -3021,9 +2995,9 @@ exports.register = function (plugin, options, next) {
 
     var Hapi = plugin.hapi;
 
-    var handler = function () {
+    var handler = function (request, reply) {
 
-        this.reply(Hapi.error.internal('Not implemented yet'));
+        reply(Hapi.error.internal('Not implemented yet'));
     };
 
     plugin.route({ method: 'GET', path: '/', handler: handler });
@@ -3292,9 +3266,9 @@ Sets a global plugin context used as the default context when adding a route or 
 explicit context is provided as an option).
 
 ```javascript
-var handler = function () {
+var handler = function (request, reply) {
 
-    this.reply(this.reply.context.message);
+    this.reply(reply.context.message);
 };
 
 exports.register = function (plugin, options, next) {
@@ -3504,7 +3478,7 @@ Returns the cookie value via callback without making any changes to the response
 ```javascript
 var Hapi = require('hapi');
 
-var handler = function (request) {
+var handler = function (request, reply) {
 
     var maxCookieSize = 512;
 
@@ -3518,14 +3492,14 @@ var handler = function (request) {
     Hapi.state.prepareValue('user', content, cookieOptions, function (err, value) {
 
         if (err) {
-            return request.reply(err);
+            return reply(err);
         }
 
         if (value.length < maxCookieSize) {
             request.setState('user', value, { encoding: 'none' } );   // Already encoded
         }
 
-        request.reply('success');
+        reply('success');
     });
 };
 ```
