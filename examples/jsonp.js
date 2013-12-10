@@ -12,11 +12,11 @@ internals.main = function () {
 
     var server = new Hapi.Server(8000);
 
-    var handler = function () {
+    var handler = function (request, reply) {
 
         console.log(this.raw.req.headers);
         var parts = this.params.name.split('/');
-        this.reply({ first: parts[0], last: parts[1] });
+        reply({ first: parts[0], last: parts[1] });
     };
 
     server.route({ method: 'GET', path: '/user/{name*2}', config: { handler: handler, jsonp: 'callback' } });

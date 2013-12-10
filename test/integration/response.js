@@ -30,10 +30,9 @@ describe('Response', function () {
 
         it('returns a text reply', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply('text')
-                             .type('text/plain')
+                reply('text').type('text/plain')
                              .charset('ISO-8859-1')
                              .ttl(1000)
                              .state('sid', 'abcdefg123456')
@@ -70,9 +69,9 @@ describe('Response', function () {
 
         it('returns CORS origin', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('ok');
+                reply('ok');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
@@ -89,9 +88,9 @@ describe('Response', function () {
 
         it('returns no CORS headers when route CORS disabled', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('ok');
+                reply('ok');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
@@ -108,9 +107,9 @@ describe('Response', function () {
 
         it('does not return CORS for no origin without isOriginExposed', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('ok');
+                reply('ok');
             };
 
             var server = new Hapi.Server({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
@@ -128,9 +127,9 @@ describe('Response', function () {
 
         it('hides CORS origin if no match found', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('ok');
+                reply('ok');
             };
 
             var server = new Hapi.Server({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
@@ -148,10 +147,9 @@ describe('Response', function () {
 
         it('returns matching CORS origin', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('Tada')
-                    .header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test', true);
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
@@ -169,10 +167,9 @@ describe('Response', function () {
 
         it('returns matching CORS origin without exposing full list', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('Tada')
-                    .header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test', true);
             };
 
             var server = new Hapi.Server({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
@@ -190,10 +187,9 @@ describe('Response', function () {
 
         it('returns matching CORS origin wildcard', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('Tada')
-                    .header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test', true);
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
@@ -211,10 +207,9 @@ describe('Response', function () {
 
         it('returns all CORS origins when match is disabled', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('Tada')
-                    .header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test', true);
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'], matchOrigin: false } });
@@ -232,9 +227,9 @@ describe('Response', function () {
 
         it('returns error on created with GET', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply().created('/something');
+                reply().created('/something');
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -249,9 +244,9 @@ describe('Response', function () {
 
         it('returns an error on bad cookie', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply('text').state(';sid', 'abcdefg123456');
+                reply('text').state(';sid', 'abcdefg123456');
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -271,9 +266,9 @@ describe('Response', function () {
 
         it('returns a reply', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply(new Buffer('Tada1')).code(299);
+                reply(new Buffer('Tada1')).code(299);
             };
 
             var server = new Hapi.Server();
@@ -292,9 +287,9 @@ describe('Response', function () {
 
         it('returns a plain response', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply({ a: 1, b: 2 });
+                reply({ a: 1, b: 2 });
             };
 
             var server = new Hapi.Server();
@@ -309,9 +304,9 @@ describe('Response', function () {
 
         it('returns a formatted response', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply({ a: 1, b: 2 });
+                reply({ a: 1, b: 2 });
             };
 
             var server = new Hapi.Server({ json: { replacer: ['a'], space: 4 } });
@@ -326,9 +321,9 @@ describe('Response', function () {
 
         it('returns a manually created response with options', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Hapi.response.Obj({ a: 1, b: 2 }, { type: 'application/x-test', space: 0, replacer: null }));
+                reply(new Hapi.response.Obj({ a: 1, b: 2 }, { type: 'application/x-test', space: 0, replacer: null }));
             };
 
             var server = new Hapi.Server();
@@ -345,9 +340,9 @@ describe('Response', function () {
         it('validates response', function (done) {
 
             var i = 0;
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply({ some: i++ ? null : 'value' });
+                reply({ some: i++ ? null : 'value' });
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -368,9 +363,9 @@ describe('Response', function () {
 
         it('returns an JSONP response', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply({ some: 'value' });
+                reply({ some: 'value' });
             };
 
             var server = new Hapi.Server();
@@ -386,10 +381,10 @@ describe('Response', function () {
 
         it('returns an JSONP response with compression', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
                 var parts = this.params.name.split('/');
-                this.reply({ first: parts[0], last: parts[1] });
+                reply({ first: parts[0], last: parts[1] });
             };
 
             var server = new Hapi.Server();
@@ -418,9 +413,9 @@ describe('Response', function () {
 
         it('returns an JSONP response when response is a buffer', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Buffer('value'));
+                reply(new Buffer('value'));
             };
 
             var server = new Hapi.Server();
@@ -436,9 +431,9 @@ describe('Response', function () {
 
         it('returns response on bad JSONP parameter', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply({ some: 'value' });
+                reply({ some: 'value' });
             };
 
             var server = new Hapi.Server();
@@ -457,9 +452,9 @@ describe('Response', function () {
 
         it('returns an error reply', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Error('boom'));
+                reply(new Error('boom'));
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -476,10 +471,10 @@ describe('Response', function () {
 
         it('returns an error response reply', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 var error = new ResponseError(Hapi.error.internal('kaboom'));
-                request.reply(error);
+                reply(error);
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -533,9 +528,9 @@ describe('Response', function () {
 
     describe('Empty', function () {
 
-        var handler = function (request) {
+        var handler = function (request, reply) {
 
-            return request.reply().code(299);
+            return reply().code(299);
         };
 
         var server = new Hapi.Server({ cors: { credentials: true } });
@@ -560,9 +555,9 @@ describe('Response', function () {
         it('returns a file in the response with the correct headers', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
+                reply(new Hapi.response.File(__dirname + '/../../package.json'));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -640,9 +635,9 @@ describe('Response', function () {
         it('returns a file with correct headers when using attachment mode', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'attachment' }));
+                reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'attachment' }));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -660,9 +655,9 @@ describe('Response', function () {
         it('returns a file with correct headers when using inline mode', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'inline' }));
+                reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'inline' }));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -739,9 +734,9 @@ describe('Response', function () {
         it('returns a file in the response with the correct headers (relative path)', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
-            var relativeHandler = function (request) {
+            var relativeHandler = function (request, reply) {
 
-                request.reply(new Hapi.response.File('./package.json'));
+                reply(new Hapi.response.File('./package.json'));
             };
 
             server.route({ method: 'GET', path: '/relativefile', handler: relativeHandler });
@@ -897,9 +892,9 @@ describe('Response', function () {
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
+                reply(new Hapi.response.File(__dirname + '/../../package.json'));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -917,9 +912,9 @@ describe('Response', function () {
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new Hapi.response.File(__dirname + '/../../package.json'));
+                reply(new Hapi.response.File(__dirname + '/../../package.json'));
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -1239,10 +1234,9 @@ describe('Response', function () {
 
         it('returns a stream reply', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new TestStream())
-                             .ttl(2000);
+                reply(new TestStream()).ttl(2000);
             };
 
             var server = new Hapi.Server({ cors: { origin: ['test.example.com'] }, debug: false });
@@ -1268,9 +1262,9 @@ describe('Response', function () {
 
         it('emits response event', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new TestStream());
+                reply(new TestStream());
             };
 
             var server = new Hapi.Server();
@@ -1291,9 +1285,9 @@ describe('Response', function () {
 
         it('returns a stream reply when accept-encoding is malformed', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new TestStream());
+                reply(new TestStream());
             };
 
             var server = new Hapi.Server();
@@ -1309,7 +1303,7 @@ describe('Response', function () {
 
         it('returns a stream reply with custom response headers', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 var HeadersStream = function () {
 
@@ -1330,7 +1324,7 @@ describe('Response', function () {
                     this.push(null);
                 };
 
-                request.reply(new Hapi.response.Stream(new HeadersStream()));
+                reply(new Hapi.response.Stream(new HeadersStream()));
             };
 
             var server = new Hapi.Server();
@@ -1346,7 +1340,7 @@ describe('Response', function () {
 
         it('returns a stream reply with custom response status code', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 var HeadersStream = function () {
 
@@ -1367,7 +1361,7 @@ describe('Response', function () {
                     this.push(null);
                 };
 
-                request.reply(new Hapi.response.Stream(new HeadersStream()));
+                reply(new Hapi.response.Stream(new HeadersStream()));
             };
 
             var server = new Hapi.Server();
@@ -1382,11 +1376,11 @@ describe('Response', function () {
 
         it('returns a stream reply using old style stream interface', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 var oldMode = new TestStream();
                 oldMode.pause();
-                request.reply(oldMode);
+                reply(oldMode);
             };
 
             var server = new Hapi.Server();
@@ -1425,9 +1419,9 @@ describe('Response', function () {
 
         it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', function (done) {
 
-            var streamHandler = function (request) {
+            var streamHandler = function (request, reply) {
 
-                request.reply(new TimerStream());
+                reply(new TimerStream());
             };
 
             var server = new Hapi.Server();
@@ -1443,9 +1437,9 @@ describe('Response', function () {
 
         it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', function (done) {
 
-            var streamHandler = function (request) {
+            var streamHandler = function (request, reply) {
 
-                request.reply(new TimerStream());
+                reply(new TimerStream());
             };
 
             var server = new Hapi.Server();
@@ -1461,10 +1455,9 @@ describe('Response', function () {
 
         it('returns a stream reply (created)', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new TestStream())
-                             .created('/special');
+                reply(new TestStream()).created('/special');
             };
 
             var server = new Hapi.Server({ location: 'http://example.com:8080' });
@@ -1482,10 +1475,9 @@ describe('Response', function () {
 
         it('returns an error on bad state', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new TestStream())
-                             .state(';sid', 'abcdefg123456');
+                reply(new TestStream()).state(';sid', 'abcdefg123456');
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -1520,10 +1512,9 @@ describe('Response', function () {
                 }
             };
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new ErrStream())
-                             .bytes(0);
+                reply(new ErrStream()).bytes(0);
             };
 
             var server = new Hapi.Server();
@@ -1566,10 +1557,9 @@ describe('Response', function () {
                 });
             };
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply(new ErrStream(request))
-                             .bytes(0);
+                reply(new ErrStream(request)).bytes(0);
             };
 
             var server = new Hapi.Server();
@@ -1595,7 +1585,7 @@ describe('Response', function () {
             }
 
             var streamServer = new Hapi.Server(0);
-            var fileHandler = function (request) {
+            var fileHandler = function (request, reply) {
 
                 var fileStream = new Stream.Readable();
                 fileStream._read = function (n) {
@@ -1608,7 +1598,7 @@ describe('Response', function () {
                     }
                 };
 
-                request.reply(fileStream);
+                reply(fileStream);
             };
             streamServer.route({ method: 'GET', path: '/', handler: fileHandler });
 
@@ -1656,7 +1646,7 @@ describe('Response', function () {
             }
 
             var streamServer = new Hapi.Server(0, { tls: tlsOptions });
-            var fileHandler = function (request) {
+            var fileHandler = function (request, reply) {
 
                 var fileStream = new Stream.Readable();
                 fileStream._read = function (n) {
@@ -1670,7 +1660,7 @@ describe('Response', function () {
                     }
                 };
 
-                request.reply(fileStream);
+                reply(fileStream);
             };
             streamServer.route({ method: 'GET', path: '/', handler: fileHandler });
 
@@ -1690,9 +1680,9 @@ describe('Response', function () {
         it('returns a cached reply', function (done) {
 
             var gen = 0;
-            var cacheHandler = function (request) {
+            var cacheHandler = function (request, reply) {
 
-                request.reply({ status: 'cached', gen: gen++ });
+                reply({ status: 'cached', gen: gen++ });
             };
 
             var server = new Hapi.Server(0);
@@ -1721,51 +1711,51 @@ describe('Response', function () {
         var viewPath = __dirname + '/../unit/templates/valid';
         var msg = "Hello, World!";
 
-        var handler = function (request) {
+        var handler = function (request, reply) {
 
-            return request.reply.view('test', { message: msg });
+            return reply.view('test', { message: msg });
         };
-        var handlerDirect = function (request) {
+        var handlerDirect = function (request, reply) {
 
-            return request.reply(request.generateView('test', { message: msg }));
+            return reply(request.generateView('test', { message: msg }));
         };
-        var absoluteHandler = function (request) {
+        var absoluteHandler = function (request, reply) {
 
-            return request.reply.view(viewPath + '/test', { message: msg });
+            return reply.view(viewPath + '/test', { message: msg });
         };
-        var insecureHandler = function (request) {
+        var insecureHandler = function (request, reply) {
 
-            return request.reply.view('../test', { message: msg });
+            return reply.view('../test', { message: msg });
         };
-        var nonexistentHandler = function (request) {
+        var nonexistentHandler = function (request, reply) {
 
-            return request.reply.view('testNope', { message: msg });
+            return reply.view('testNope', { message: msg });
         };
-        var invalidHandler = function (request) {
+        var invalidHandler = function (request, reply) {
 
-            return request.reply.view('badmustache', { message: msg }, { path: viewPath + '/../invalid' });
+            return reply.view('badmustache', { message: msg }, { path: viewPath + '/../invalid' });
         };
-        var testMultiHandlerJade = function (request) {
+        var testMultiHandlerJade = function (request, reply) {
 
-            return request.reply.view('testMulti.jade', { message: "Hello World!" });
+            return reply.view('testMulti.jade', { message: "Hello World!" });
         };
-        var testMultiHandlerHB = function (request) {
+        var testMultiHandlerHB = function (request, reply) {
 
-            return request.reply.view('test.html', { message: "Hello World!" });
+            return reply.view('test.html', { message: "Hello World!" });
         };
-        var testMultiHandlerUnknown = function (request) {
+        var testMultiHandlerUnknown = function (request, reply) {
 
-            return request.reply.view('test', { message: "Hello World!" });
+            return reply.view('test', { message: "Hello World!" });
         };
-        var testMultiHandlerMissing = function (request) {
+        var testMultiHandlerMissing = function (request, reply) {
 
-            return request.reply.view('test.xyz', { message: "Hello World!" });
+            return reply.view('test.xyz', { message: "Hello World!" });
         };
 
         var cached = 1;
-        var cachedHandler = function (request) {
+        var cachedHandler = function (request, reply) {
 
-            request.reply.view('test', { message: cached++ });
+            reply.view('test', { message: cached++ });
         };
 
         describe('Default', function (done) {
@@ -1877,9 +1867,9 @@ describe('Response', function () {
                     layout: true
                 });
 
-                var handler = function () {
+                var handler = function (request, reply) {
 
-                    return this.reply.view('valid/test', { title: 'test', message: 'Hapi' });
+                    return reply.view('valid/test', { title: 'test', message: 'Hapi' });
                 };
 
                 layoutServer.route({ method: 'GET', path: '/', handler: handler });
@@ -1902,9 +1892,9 @@ describe('Response', function () {
                     layout: true
                 });
 
-                var handler = function () {
+                var handler = function (request, reply) {
 
-                    return this.reply.view('valid/test', { title: 'test', message: 'Hapi' }, { layout: false });
+                    return reply.view('valid/test', { title: 'test', message: 'Hapi' }, { layout: false });
                 };
 
                 layoutServer.route({ method: 'GET', path: '/', handler: handler });
@@ -1927,9 +1917,9 @@ describe('Response', function () {
                     layout: true
                 });
 
-                var handler = function () {
+                var handler = function (request, reply) {
 
-                    return this.reply.view('test', { message: msg, content: 'fail' });
+                    return reply.view('test', { message: msg, content: 'fail' });
                 };
 
                 layoutServer.route({ method: 'GET', path: '/conflict', handler: handler });
@@ -1951,9 +1941,9 @@ describe('Response', function () {
                     layout: true
                 });
 
-                var handler = function () {
+                var handler = function (request, reply) {
 
-                    return this.reply.view('test', { message: msg }, { path: viewPath + '/../invalid' });
+                    return reply.view('test', { message: msg }, { path: viewPath + '/../invalid' });
                 };
 
                 layoutServer.route({ method: 'GET', path: '/abspath', handler: handler });
@@ -2179,46 +2169,46 @@ describe('Response', function () {
 
     describe('Redirection', function () {
 
-        var handler = function (request) {
+        var handler = function (request, reply) {
 
             if (!request.query.x) {
-                return request.reply.redirect('example');
+                return reply.redirect('example');
             }
 
             if (request.query.x === 'verbose') {
-                return request.reply.redirect().uri('examplex').message('We moved!');
+                return reply.redirect().uri('examplex').message('We moved!');
             }
 
             if (request.query.x === '302') {
-                return request.reply.redirect('example').temporary().rewritable();
+                return reply.redirect('example').temporary().rewritable();
             }
 
             if (request.query.x === '307') {
-                return request.reply.redirect('example').temporary().rewritable(false);
+                return reply.redirect('example').temporary().rewritable(false);
             }
 
             if (request.query.x === '301') {
-                return request.reply.redirect('example').permanent().rewritable();
+                return reply.redirect('example').permanent().rewritable();
             }
 
             if (request.query.x === '308') {
-                return request.reply.redirect('example').permanent().rewritable(false);
+                return reply.redirect('example').permanent().rewritable(false);
             }
 
             if (request.query.x === '302f') {
-                return request.reply.redirect('example').rewritable().temporary();
+                return reply.redirect('example').rewritable().temporary();
             }
 
             if (request.query.x === '307f') {
-                return request.reply.redirect('example').rewritable(false).temporary();
+                return reply.redirect('example').rewritable(false).temporary();
             }
 
             if (request.query.x === '301f') {
-                return request.reply.redirect('example').rewritable().permanent();
+                return reply.redirect('example').rewritable().permanent();
             }
 
             if (request.query.x === '308f') {
-                return request.reply.redirect('example').rewritable(false).permanent();
+                return reply.redirect('example').rewritable(false).permanent();
             }
         };
 
@@ -2331,10 +2321,10 @@ describe('Response', function () {
 
         it('returns a reply', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
                 this.raw.res.end();
-                this.reply.close();
+                reply.close();
             };
 
             var server = new Hapi.Server();
@@ -2352,7 +2342,7 @@ describe('Response', function () {
 
         it('returns last known error on error response loop', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
                 var custom = {
                     isHapiResponse: true,
@@ -2366,7 +2356,7 @@ describe('Response', function () {
                 };
 
                 this.setState('bad', {});
-                this.reply(custom);
+                reply(custom);
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -2381,7 +2371,7 @@ describe('Response', function () {
 
         it('returns an error on infinite _prepare loop', function (done) {
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
                 var custom = {
                     isHapiResponse: true,
@@ -2393,7 +2383,7 @@ describe('Response', function () {
                     }
                 };
 
-                this.reply(custom);
+                reply(custom);
             };
 
             var server = new Hapi.Server({ debug: false });

@@ -59,11 +59,11 @@ describe('Pack', function () {
                 expect(memoryx.length).to.equal(1);
                 expect(sodd.length).to.equal(2);
 
-                plugin.route({ method: 'GET', path: '/all', handler: function () { this.reply('all'); } });
-                a.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
-                ab.route([{ method: 'GET', path: '/ab', handler: function () { this.reply('ab'); } }]);
-                memoryx.route({ method: 'GET', path: '/memoryx', handler: function () { this.reply('memoryx'); } });
-                sodd.route({ method: 'GET', path: '/sodd', handler: function () { this.reply('sodd'); } });
+                plugin.route({ method: 'GET', path: '/all', handler: function (request, reply) { reply('all'); } });
+                a.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('a'); } });
+                ab.route([{ method: 'GET', path: '/ab', handler: function (request, reply) { reply('ab'); } }]);
+                memoryx.route({ method: 'GET', path: '/memoryx', handler: function (request, reply) { reply('memoryx'); } });
+                sodd.route({ method: 'GET', path: '/sodd', handler: function (request, reply) { reply('sodd'); } });
 
                 memoryx.state('sid', { encoding: 'base64' });
                 plugin.helper('test', function (next) {
@@ -213,7 +213,7 @@ describe('Pack', function () {
             version: '2.0.0',
             register: function (plugin, options, next) {
 
-                plugin.route({ method: 'GET', path: '/a', handler: function () { this.reply('a'); } });
+                plugin.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('a'); } });
                 next();
             }
         };
@@ -418,7 +418,7 @@ describe('Pack', function () {
             version: '3.0.0',
             register: function (plugin, options, next) {
 
-                plugin.route({ method: 'GET', path: '/b', handler: function () { this.reply('b'); } });
+                plugin.route({ method: 'GET', path: '/b', handler: function (request, reply) { reply('b'); } });
                 plugin.ext('onRequest', function (request, cont) {
 
                     request.setUrl('/b');
@@ -450,9 +450,9 @@ describe('Pack', function () {
         pack.server(0, { labels: ['a', 'c'] });
         pack.server(0, { labels: ['c', 'b'] });
 
-        var handler = function () {
+        var handler = function (request, reply) {
 
-            return this.reply(this.app.deps);
+            return reply(this.app.deps);
         };
 
         pack._servers[0].route({ method: 'GET', path: '/', handler: handler });
@@ -492,9 +492,9 @@ describe('Pack', function () {
         var pack = new Hapi.Pack({ requirePath: './pack' });
         pack.server({ labels: 'c' });
 
-        var handler = function () {
+        var handler = function (request, reply) {
 
-            return this.reply(this.app.deps);
+            return reply(this.app.deps);
         };
 
         pack._servers[0].route({ method: 'GET', path: '/', handler: handler });
@@ -658,7 +658,7 @@ describe('Pack', function () {
     it('adds auth strategy via plugin', function (done) {
 
         var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: function () { this.reply('authenticated!') } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!') } });
 
         server.pack.require('./pack/--auth', function (err) {
 

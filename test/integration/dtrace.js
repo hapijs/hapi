@@ -54,9 +54,9 @@ describe('DTrace', function () {
         };
 
         server.route({ method: '*', path: '/', config: {
-            handler: function () {
+            handler: function (request, reply) {
 
-                this.reply('OK');
+                reply('OK');
             },
             pre: [
                 { method: pre1, assign: 'm1' }
@@ -95,9 +95,9 @@ describe('DTrace', function () {
         };
 
         server.route({ method: '*', path: '/', config: {
-            handler: function () {
+            handler: function (request, reply) {
 
-                this.reply('OK');
+                reply('OK');
             },
             pre: [
                 { method: pre1, assign: 'm1' }
@@ -131,10 +131,10 @@ describe('DTrace', function () {
         server._dtrace._provider = provider;
 
         server.route({ method: '*', path: '/', config: {
-            handler: function () {
+            handler: function (request, reply) {
 
                 this.server._dtrace.report('my.handler.start', 20, 'some value');
-                this.reply('OK');
+                reply('OK');
                 this.server._dtrace.report('my.handler.end', 1, '3');
             }
         }});
@@ -177,10 +177,10 @@ describe('DTrace', function () {
         var server = new Hapi.Server();
 
         server.route({ method: '*', path: '/', config: {
-            handler: function () {
+            handler: function (request, reply) {
 
                 this.server._dtrace.report('my.handler.start', 20, ['some value', 1]);
-                this.reply('OK');
+                reply('OK');
                 this.server._dtrace.report('my.handler.end', 1, '3');
             }
         }});

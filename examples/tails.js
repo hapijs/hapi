@@ -8,7 +8,7 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.get = function () {
+internals.get = function (request, reply) {
 
     var tail1 = this.tail('tail1');
     setTimeout(function () {
@@ -24,7 +24,7 @@ internals.get = function () {
         tail2();
     }, 2000);
 
-    this.reply('Success!\n');
+    reply('Success!\n');
 };
 
 

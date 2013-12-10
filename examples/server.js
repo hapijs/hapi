@@ -25,14 +25,13 @@ var products = [{
     }
 ];
 
-function getProducts(request) {
+function getProducts(request, reply) {
 
     if (request.query.name) {
-        request.reply(findProducts(request.query.name));
+        return reply(findProducts(request.query.name));
     }
-    else {
-        request.reply(products);
-    }
+
+    reply(products);
 }
 
 function findProducts(name) {
@@ -42,16 +41,16 @@ function findProducts(name) {
     });
 }
 
-function getProduct(request) {
+function getProduct(request, reply) {
 
     var product = products.filter(function(p) {
         return p.id === parseInt(request.params.id);
     }).pop();
 
-    request.reply(product);
+    reply(product);
 }
 
-function addProduct(request) {
+function addProduct(request, reply) {
 
     var product = {
         id: products[products.length - 1].id + 1,
@@ -60,5 +59,5 @@ function addProduct(request) {
 
     products.push(product);
 
-    request.reply(product).code(201).header('Location', '/products/' + product.id);
+    reply(product).code(201).header('Location', '/products/' + product.id);
 }

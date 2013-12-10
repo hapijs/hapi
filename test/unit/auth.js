@@ -471,9 +471,9 @@ describe('Auth', function () {
                 }
             });
 
-            var handler = function () {
+            var handler = function (request, reply) {
 
-                this.reply('ok');
+                reply('ok');
             };
 
             server.route({ method: 'GET', path: '/', handler: handler, config: { auth: 'default' } });

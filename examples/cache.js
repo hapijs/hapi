@@ -8,30 +8,30 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.profile = function () {
+internals.profile = function (request, reply) {
 
-    this.reply({
+    reply({
         'id': 'fa0dbda9b1b',
         'name': 'John Doe'
     });
 };
 
 
-internals.activeItem = function () {
+internals.activeItem = function (request, reply) {
 
-    this.reply({
+    reply({
         'id': '55cf687663',
         'name': 'Active Item'
     });
 };
 
 
-internals.item = function () {
+internals.item = function (request, reply) {
 
     setTimeout(function () {
 
-        this.reply({
-            'id': this.params.id,
+        reply({
+            'id': request.params.id,
             'name': 'Item'
         });
     }, 600);

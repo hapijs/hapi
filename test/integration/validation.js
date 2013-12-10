@@ -26,7 +26,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -49,7 +49,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     query: false
@@ -70,7 +70,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     query: Hapi.types.Object({
@@ -93,7 +93,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -121,7 +121,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -145,7 +145,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply(this.getLog('validation')[0].data); },
+            handler: function (request, reply) { reply(this.getLog('validation')[0].data); },
             config: {
                 validate: {
                     query: {
@@ -179,7 +179,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -207,7 +207,7 @@ describe('Validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -244,7 +244,7 @@ describe('Validation', function () {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     payload: {
@@ -267,7 +267,7 @@ describe('Validation', function () {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     payload: {
@@ -291,7 +291,7 @@ describe('Validation', function () {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function () { this.reply('ok'); },
+            handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
                     payload: {

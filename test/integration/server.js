@@ -200,11 +200,11 @@ describe('Server', function () {
     it('measures loop delay', function (done) {
 
         var server = new Hapi.Server(0, { load: { sampleInterval: 4 } });
-        var handler = function () {
+        var handler = function (request, reply) {
 
             var start = Date.now();
             while (Date.now() - start < 5);
-            this.reply('ok');
+            reply('ok');
         };
 
         server.route({ method: 'GET', path: '/', handler: handler });
@@ -242,11 +242,11 @@ describe('Server', function () {
     it('rejects request due to high load', function (done) {
 
         var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxRssBytes: 1 } });
-        var handler = function () {
+        var handler = function (request, reply) {
 
             var start = Date.now();
             while (Date.now() - start < 10);
-            this.reply('ok');
+            reply('ok');
         };
 
         server.route({ method: 'GET', path: '/', handler: handler });

@@ -31,9 +31,9 @@ describe('Payload', function () {
         method: 'POST',
         path: '/',
         config: {
-            handler: function (req) {
+            handler: function (request, reply) {
 
-                req.reply(req.payload);
+                reply(request.payload);
             }
         }
     };
@@ -44,9 +44,9 @@ describe('Payload', function () {
         method: 'GET',
         path: '/',
         config: {
-            handler: function (req) {
+            handler: function (request, reply) {
 
-                req.reply('{"test":"true"}');
+                reply('{"test":"true"}');
             }
         }
     };

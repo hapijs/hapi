@@ -17,16 +17,16 @@ internals.users = {
 };
 
 
-internals.home = function () {
+internals.home = function (request, reply) {
 
-    this.reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + this.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
+    reply('<html><head><title>Login page</title></head><body><h3>Welcome ' + this.auth.credentials.name + '!</h3><br/><form method="get" action="/logout"><input type="submit" value="Logout"></form></body></html>');
 };
 
 
-internals.login = function () {
+internals.login = function (request, reply) {
 
     if (this.auth.isAuthenticated) {
-        return this.reply.redirect('/');
+        return reply.redirect('/');
     }
 
     var message = '';
@@ -52,18 +52,18 @@ internals.login = function () {
     if (this.method === 'get' ||
         message) {
 
-        return this.reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
+        return reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
     }
 
     this.auth.session.set(account);
-    return this.reply.redirect('/');
+    return reply.redirect('/');
 };
 
 
-internals.logout = function () {
+internals.logout = function (request, reply) {
 
     this.auth.session.clear();
-    return this.reply.redirect('/');
+    return reply.redirect('/');
 };
 
 

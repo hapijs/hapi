@@ -68,11 +68,11 @@ describe('Payload', function () {
 
             var payload = '{"x":"1","y":"2","z":"3"}';
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 expect(request.payload).to.not.exist;
                 expect(request.rawPayload.toString()).to.equal(payload);
-                request.reply(request.rawPayload);
+                reply(request.rawPayload);
             };
 
             var server = new Hapi.Server();
@@ -90,13 +90,13 @@ describe('Payload', function () {
 
             var payload = '{"x":"1","y":"2","z":"3"}';
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 expect(request.payload).to.exist;
                 expect(request.payload.z).to.equal('3');
                 expect(request.rawPayload.toString()).to.equal(payload);
                 expect(request.mime).to.equal('application/json');
-                request.reply(request.payload);
+                reply(request.payload);
             };
 
             var server = new Hapi.Server();
@@ -112,10 +112,10 @@ describe('Payload', function () {
 
         it('does not set the request payload when the request is interrupted and its streaming', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 expect(request.payload).to.not.exist;
-                request.reply('Success');
+                reply('Success');
             };
 
             var server = new Hapi.Server('0.0.0.0', 0);
@@ -159,10 +159,10 @@ describe('Payload', function () {
 
         it('does not set the request payload when the request is interrupted', function (done) {
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 expect(request.payload).to.not.exist;
-                request.reply('Success');
+                reply('Success');
             };
 
             var server = new Hapi.Server('0.0.0.0', 0);
@@ -203,11 +203,11 @@ describe('Payload', function () {
 
             var payload = '{"x":"1","y":"2","z":"3"}';
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 expect(request.payload).to.not.exist;
                 expect(request.rawPayload.toString()).to.equal(payload);
-                request.reply(request.rawPayload);
+                reply(request.rawPayload);
             };
 
             var server = new Hapi.Server();
@@ -225,11 +225,11 @@ describe('Payload', function () {
 
             var payload = '{"x":"1","y":"2","z":"3"}';
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
                 expect(request.payload).to.not.exist;
                 expect(request.rawPayload.toString()).to.equal(payload);
-                request.reply(request.rawPayload);
+                reply(request.rawPayload);
             };
 
             var server = new Hapi.Server();
@@ -246,10 +246,10 @@ describe('Payload', function () {
 
     describe('stream mode', function () {
 
-        var handler = function (request) {
+        var handler = function (request, reply) {
 
             expect(request.payload).to.not.exist;
-            request.reply('Success');
+            reply('Success');
         };
 
         var server = new Hapi.Server('localhost', 0);
@@ -298,19 +298,19 @@ describe('Payload', function () {
 
     describe('parse mode', function () {
 
-        var handler = function () {
+        var handler = function (request, reply) {
 
-            this.reply(this.payload.key);
+            reply(this.payload.key);
         };
 
-        var textHandler = function () {
+        var textHandler = function (request, reply) {
 
-            this.reply(this.payload + '+456');
+            reply(this.payload + '+456');
         };
 
-        var tryHandler = function () {
+        var tryHandler = function (request, reply) {
 
-            this.reply(this.rawPayload.toString() + 'failed');
+            reply(this.rawPayload.toString() + 'failed');
         };
 
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
@@ -526,9 +526,9 @@ describe('Payload', function () {
 
             Zlib.gzip(payload, function (err, result) {
 
-                var handler = function () {
+                var handler = function (request, reply) {
 
-                    this.reply('Success');
+                    reply('Success');
                 };
 
                 var server = new Hapi.Server();
@@ -550,7 +550,7 @@ describe('Payload', function () {
             expect(request).to.not.exist;       // Must not be called
         };
 
-        var echo = function () {
+        var echo = function (request, reply) {
 
             var result = {};
             var keys = Object.keys(this.payload);
@@ -560,7 +560,7 @@ describe('Payload', function () {
                 result[key] = value._readableState ? true : value;
             }
 
-            this.reply(result);
+            reply(result);
         };
 
         var server = new Hapi.Server('0.0.0.0', 0, { payload: { multipart: 'file' } });

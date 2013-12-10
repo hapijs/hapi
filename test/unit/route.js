@@ -24,9 +24,9 @@ describe('Route', function () {
 
     var server = new Hapi.Server(Defaults.server);
 
-    var _handler = function (request) {
+    var _handler = function (request, reply) {
 
-        request.reply('ok');
+        reply('ok');
     };
 
     it('throws an error if the method is missing', function (done) {

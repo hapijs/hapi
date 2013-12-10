@@ -23,31 +23,30 @@ var it = Lab.test;
 
 describe('Server Timeout', function () {
 
-    var timeoutHandler = function (request) {
+    var timeoutHandler = function (request, reply) {
 
     };
 
-    var cachedTimeoutHandler = function (request) {
+    var cachedTimeoutHandler = function (request, reply) {
 
-        var reply = request.reply;
         setTimeout(function () {
 
-            reply.bind(request, new Hapi.response.Text('Cached'));
+            reply(new Hapi.response.Text('Cached'));
         }, 70);
     };
 
-    var slowHandler = function (request) {
+    var slowHandler = function (request, reply) {
 
         setTimeout(function () {
 
-            request.reply('Slow');
+            reply('Slow');
         }, 30);
     };
 
-    var respondingHandler = function (request) {
+    var respondingHandler = function (request, reply) {
 
         var s = new Stream.PassThrough();
-        request.reply(s);
+        reply(s);
 
         for (var i = 10000; i > 0; --i) {
             s.write(i.toString());
@@ -59,12 +58,12 @@ describe('Server Timeout', function () {
         }, 40);
     };
 
-    var fastHandler = function (request) {
+    var fastHandler = function (request, reply) {
 
-        request.reply('Fast');
+        reply('Fast');
     };
 
-    var streamHandler = function (request) {
+    var streamHandler = function (request, reply) {
 
         var TestStream = function () {
 
@@ -93,7 +92,7 @@ describe('Server Timeout', function () {
             }, 60);
         };
 
-        request.reply(new TestStream());
+        reply(new TestStream());
     };
 
     var server = new Hapi.Server(0, { timeout: { server: 50 } });
@@ -229,16 +228,15 @@ describe('Server Timeout', function () {
 
 describe('Server and Client timeouts', function () {
 
-    var timeoutHandler = function (request) {
+    var timeoutHandler = function (request, reply) {
 
     };
 
-    var cachedTimeoutHandler = function (request) {
+    var cachedTimeoutHandler = function (request, reply) {
 
-        var reply = request.reply;
         setTimeout(function () {
 
-            reply.bind(request, new Hapi.response.Text('Cached'));
+            reply(new Hapi.response.Text('Cached'));
         }, 70);
     };
 
@@ -326,11 +324,11 @@ describe('Socket timeout', function () {
     var server = new Hapi.Server('0.0.0.0', 0, { timeout: { client: 45, socket: 50 } });
     server.route({
         method: 'GET', path: '/', config: {
-            handler: function (request) {
+            handler: function (request, reply) {
 
                 setTimeout(function () {
 
-                    request.reply('too late');
+                    reply('too late');
                 }, 70);
             }
         }

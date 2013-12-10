@@ -42,10 +42,10 @@ describe('Proxy', function () {
             return callback(new Error('myerror'));
         };
 
-        var profile = function () {
+        var profile = function (request, reply) {
 
             if (this.state.test) {
-                return this.reply('error');
+                return reply('error');
             }
 
             var profile = {
@@ -53,94 +53,94 @@ describe('Proxy', function () {
                 name: 'John Doe'
             };
 
-            this.reply(profile).state('test', '123');
+            reply(profile).state('test', '123');
         };
 
         var activeCount = 0;
-        var activeItem = function () {
+        var activeItem = function (request, reply) {
 
-            this.reply({
+            reply({
                 id: '55cf687663',
                 name: 'Active Item',
                 count: activeCount++
             });
         };
 
-        var item = function () {
+        var item = function (request, reply) {
 
-            this.reply({
+            reply({
                 id: '55cf687663',
                 name: 'Item'
             }).created('http://example.com');
         };
 
-        var echoPostBody = function () {
+        var echoPostBody = function (request, reply) {
 
-            this.reply(this.payload.echo + this.raw.req.headers['x-super-special']);
+            reply(this.payload.echo + this.raw.req.headers['x-super-special']);
         };
 
-        var unauthorized = function () {
+        var unauthorized = function (request, reply) {
 
-            this.reply(Hapi.error.unauthorized('Not authorized'));
+            reply(Hapi.error.unauthorized('Not authorized'));
         };
 
-        var postResponseWithError = function (request) {
+        var postResponseWithError = function (request, reply, settings, res, payload, ttl) {
 
-            request.reply(Hapi.error.forbidden('Forbidden'));
+            reply(Hapi.error.forbidden('Forbidden'));
         };
 
-        var streamHandler = function () {
+        var streamHandler = function (request, reply) {
 
-            this.reply('success');
+            reply('success');
         };
 
-        var forward = function () {
+        var forward = function (request, reply) {
 
             expect(this.raw.req.headers['x-forwarded-for']).to.contain('xforwardfor');
             expect(this.raw.req.headers['x-forwarded-port']).to.contain('9000');
             expect(this.raw.req.headers['x-forwarded-proto']).to.contain('xforwardproto');
-            this.reply('Success');
+            reply('Success');
         };
 
-        var headers = function () {
+        var headers = function (request, reply) {
 
-            this.reply({ status: 'success' })
+            reply({ status: 'success' })
                 .header('Custom1', 'custom header value 1')
                 .header('X-Custom2', 'custom header value 2')
                 .header('access-control-allow-headers', 'Invalid, List, Of, Values');
         };
 
-        var gzipHandler = function () {
+        var gzipHandler = function (request, reply) {
 
-            this.reply('123456789012345678901234567890123456789012345678901234567890');
+            reply('123456789012345678901234567890123456789012345678901234567890');
         };
 
-        var gzipStreamHandler = function () {
+        var gzipStreamHandler = function (request, reply) {
 
-            this.reply(new Hapi.response.File(__dirname + '/../../package.json'));
+            reply(new Hapi.response.File(__dirname + '/../../package.json'));
         };
 
-        var redirectHandler = function () {
+        var redirectHandler = function (request, reply) {
 
             switch (this.query.x) {
-                case '1': this.reply.redirect('/redirect?x=1'); break;
-                case '2': this.reply().header('Location', '//localhost:' + this.server.info.port + '/profile').code(302); break;
-                case '3': this.reply().code(302); break;
-                default: this.reply.redirect('/profile'); break;
+                case '1': reply.redirect('/redirect?x=1'); break;
+                case '2': reply().header('Location', '//localhost:' + this.server.info.port + '/profile').code(302); break;
+                case '3': reply().code(302); break;
+                default: reply.redirect('/profile'); break;
             }
         };
 
-        var timeoutHandler = function (req) {
+        var timeoutHandler = function (request, reply) {
 
             setTimeout(function () {
 
-                req.reply('Ok');
+                reply('Ok');
             }, 10);
         };
 
-        var sslHandler = function (req) {
+        var sslHandler = function (request, reply) {
 
-            req.reply('Ok');
+            reply('Ok');
         };
 
         var upstream = new Hapi.Server(0);
@@ -159,8 +159,8 @@ describe('Proxy', function () {
             { method: 'GET', path: '/gzip', handler: gzipHandler },
             { method: 'GET', path: '/gzipstream', handler: gzipStreamHandler },
             { method: 'GET', path: '/redirect', handler: redirectHandler },
-            { method: 'POST', path: '/post1', handler: function () { this.reply.redirect('/post2').rewritable(false); } },
-            { method: 'POST', path: '/post2', handler: function () { this.reply(this.payload); } },
+            { method: 'POST', path: '/post1', handler: function (request, reply) { reply.redirect('/post2').rewritable(false); } },
+            { method: 'POST', path: '/post2', handler: function (request, reply) { reply(this.payload); } },
             { method: 'GET', path: '/cached', handler: profile },
             { method: 'GET', path: '/timeout1', handler: timeoutHandler },
             { method: 'GET', path: '/timeout2', handler: timeoutHandler },
@@ -228,9 +228,9 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 5 } } },
                         { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'GET', path: '/single', handler: { proxy: { mapUri: mapSingleUri } } },
-                        { method: 'GET', path: '/handler', handler: function () { this.reply.proxy({ uri: 'http://localhost:' + backendPort + '/item' }); } },
-                        { method: 'GET', path: '/handlerTemplate', handler: function () { this.reply.proxy({ uri: '{protocol}://localhost:' + backendPort + '/item' }); } },
-                        { method: 'GET', path: '/handlerOldSchool', handler: function () { this.reply.proxy({ host: 'localhost', port: backendPort }); } },
+                        { method: 'GET', path: '/handler', handler: function (request, reply) { reply.proxy({ uri: 'http://localhost:' + backendPort + '/item' }); } },
+                        { method: 'GET', path: '/handlerTemplate', handler: function (request, reply) { reply.proxy({ uri: '{protocol}://localhost:' + backendPort + '/item' }); } },
+                        { method: 'GET', path: '/handlerOldSchool', handler: function (request, reply) { reply.proxy({ host: 'localhost', port: backendPort }); } },
                         { method: 'GET', path: '/cachedItem', handler: { proxy: { host: 'localhost', port: backendPort, ttl: 'upstream' } }, config: { cache: { mode: 'server+client' } } },
                         { method: 'GET', path: '/clientCachedItem', handler: { proxy: { uri: 'http://localhost:' + backendPort + '/cachedItem', ttl: 'upstream' } }, config: { cache: { mode: 'client' } } }
                     ]);
@@ -648,7 +648,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('proxies via request.reply.proxy()', function (done) {
+    it('proxies via reply.proxy()', function (done) {
 
         server.inject('/handler', function (res) {
 
@@ -659,7 +659,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('proxies via request.reply.proxy() with uri tempalte', function (done) {
+    it('proxies via reply.proxy() with uri tempalte', function (done) {
 
         server.inject('/handlerTemplate', function (res) {
 
@@ -670,7 +670,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('proxies via request.reply.proxy() with individual options', function (done) {
+    it('proxies via reply.proxy() with individual options', function (done) {
 
         server.inject('/handlerOldSchool', function (res) {
 

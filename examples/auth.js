@@ -56,9 +56,9 @@ internals.hawkHeader = function (id, path, server) {
     }
 };
 
-internals.handler = function (request) {
+internals.handler = function (request, reply) {
 
-    request.reply('Success');
+    reply('Success');
 };
 
 

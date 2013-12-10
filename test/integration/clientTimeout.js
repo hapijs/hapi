@@ -22,12 +22,12 @@ var it = Lab.test;
 
 describe('Client Timeout', function () {
 
-    var fastHandler = function (request) {
+    var fastHandler = function (request, reply) {
 
-        request.reply('Fast');
+        reply('Fast');
     };
 
-    var streamHandler = function (request) {
+    var streamHandler = function (request, reply) {
 
         var TestStream = function () {
 
@@ -56,7 +56,7 @@ describe('Client Timeout', function () {
             }, 70);
         };
 
-        request.reply(new TestStream());
+        reply(new TestStream());
     };
 
     describe('with timeout set', function () {

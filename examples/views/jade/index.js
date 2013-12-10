@@ -8,17 +8,17 @@ var Hapi = require('../../../lib');
 var internals = {};
 
 
-var rootHandler = function (request) {
+var rootHandler = function (request, reply) {
 
-    request.reply.view('index', {
+    reply.view('index', {
         title: 'examples/views/jade/index.js | Hapi ' + Hapi.utils.version(),
         message: 'Index - Hello World!'
     });
 };
 
-var aboutHandler = function (request) {
+var aboutHandler = function (request, reply) {
 
-    request.reply.view('about', {
+    reply.view('about', {
         title: 'examples/views/jade/index.js | Hapi ' + Hapi.utils.version(),
         message: 'About - Hello World!'
     });

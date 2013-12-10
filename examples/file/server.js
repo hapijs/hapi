@@ -8,9 +8,9 @@ var Hapi = require('../../lib');
 var internals = {};
 
 
-internals.serveLogo = function (request) {
+internals.serveLogo = function (request, reply) {
 
-    request.reply(new Hapi.response.File('../../images/hapi.png'));
+    reply(new Hapi.response.File('../../images/hapi.png'));
 };
 
 

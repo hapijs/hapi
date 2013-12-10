@@ -21,9 +21,9 @@ internals.startServer = function () {
 
     var server = new Hapi.Server(8000);
 
-    var helloHandler = function () {
+    var helloHandler = function (request, reply) {
 
-        this.reply('Hello');
+        reply('Hello');
     };
 
     server.route({ method: 'GET', path: '/', handler: helloHandler });

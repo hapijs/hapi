@@ -95,9 +95,9 @@ describe('Route', function () {
 
     var handler = function (path) {
 
-        return function (request) {
+        return function (request, reply) {
 
-            request.reply(path);
+            reply(path);
         };
     };
 

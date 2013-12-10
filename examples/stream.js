@@ -9,16 +9,16 @@ var Request = require('request');
 var internals = {};
 
 
-internals.echo = function () {
+internals.echo = function (request, reply) {
 
-    this.reply(this.raw.req);
+    reply(this.raw.req);
 };
 
 
-internals.request = function () {
+internals.request = function (request, reply) {
 
     var reqStream = Request('http://google.com');
-    reqStream.once('response', this.reply);
+    reqStream.once('response', reply);
 };
 
 

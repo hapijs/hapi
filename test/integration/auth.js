@@ -73,18 +73,18 @@ describe('Auth', function () {
 
         var server = new Hapi.Server(config);
 
-        var basicHandler = function (request) {
+        var basicHandler = function (request, reply) {
 
-            request.reply('Success');
+            reply('Success');
         };
 
-        var doubleHandler = function (request) {
+        var doubleHandler = function (request, reply) {
 
             var options = { method: 'POST', url: '/basic', headers: { authorization: basicHeader('john', '12345') }, credentials: request.auth.credentials };
 
             server.inject(options, function (res) {
 
-                request.reply(res.result);
+                reply(res.result);
             });
         };
 
@@ -206,7 +206,7 @@ describe('Auth', function () {
             };
 
             var server1 = new Hapi.Server(config);
-            server1.route({ method: 'GET', path: '/', handler: function () { this.reply('ok'); }, config: { auth: true } });
+            server1.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); }, config: { auth: true } });
 
             server1.inject({ method: 'GET', url: '/', headers: { authorization: basicHeader('', 'abcd') } }, function (res) {
 
@@ -307,9 +307,9 @@ describe('Auth', function () {
                 path: '/noauth',
                 method: 'GET',
                 config: {
-                    handler: function (req) {
+                    handler: function (request, reply) {
 
-                        req.reply('Success');
+                        reply('Success');
                     }
                 }
             });
@@ -336,9 +336,9 @@ describe('Auth', function () {
                 method: 'GET',
                 config: {
                     auth: true,
-                    handler: function (req) {
+                    handler: function (request, reply) {
 
-                        req.reply('Success');
+                        reply('Success');
                     }
                 }
             });
@@ -383,9 +383,9 @@ describe('Auth', function () {
                         auth: {
                             strategy: 'hello'
                         },
-                        handler: function (req) {
+                        handler: function (request, reply) {
 
-                            req.reply('Success');
+                            reply('Success');
                         }
                     }
                 });
@@ -480,17 +480,17 @@ describe('Auth', function () {
 
         var server = new Hapi.Server(config);
 
-        var hawkHandler = function (request) {
+        var hawkHandler = function (request, reply) {
 
-            request.reply('Success');
+            reply('Success');
         };
 
-        var hawkErrorHandler = function (request) {
+        var hawkErrorHandler = function (request, reply) {
 
-            request.reply(new Error());
+            reply(new Error());
         };
 
-        var hawkStreamHandler = function (request) {
+        var hawkStreamHandler = function (request, reply) {
 
             var TestStream = function () {
 
@@ -520,7 +520,7 @@ describe('Auth', function () {
             };
 
             var stream = new TestStream();
-            request.reply(stream);
+            reply(stream);
         };
 
         server.route([
@@ -920,9 +920,9 @@ describe('Auth', function () {
 
         var server = new Hapi.Server(config);
 
-        var bewitHandler = function (request) {
+        var bewitHandler = function (request, reply) {
 
-            request.reply('Success');
+            reply('Success');
         };
 
         server.route([
@@ -1067,9 +1067,9 @@ describe('Auth', function () {
                 }
             };
 
-            var handler = function (request) {
+            var handler = function (request, reply) {
 
-                request.reply('Success');
+                reply('Success');
             };
 
             var server = new Hapi.Server(config);
@@ -1154,9 +1154,9 @@ describe('Auth', function () {
 
         var server = new Hapi.Server(config);
 
-        var handler = function (request) {
+        var handler = function (request, reply) {
 
-            request.reply('Success');
+            reply('Success');
         };
 
         server.route([
@@ -1321,28 +1321,28 @@ describe('Auth', function () {
             method: 'GET', path: '/login/{user}',
             config: {
                 auth: { mode: 'try' },
-                handler: function () {
+                handler: function (request, reply) {
 
                     this.auth.session.set({ user: this.params.user });
-                    return this.reply(this.params.user);
+                    return reply(this.params.user);
                 }
             }
         });
 
         server.route({
-            method: 'GET', path: '/resource', handler: function () {
+            method: 'GET', path: '/resource', handler: function (request, reply) {
 
                 expect(this.auth.credentials.something).to.equal('new');
-                return this.reply('resource');
+                return reply('resource');
             },
             config: { auth: true }
         });
 
         server.route({
-            method: 'GET', path: '/logout', handler: function () {
+            method: 'GET', path: '/logout', handler: function (request, reply) {
 
                 this.auth.session.clear();
-                return this.reply('logged-out');
+                return reply('logged-out');
             }, config: { auth: true }
         });
 
@@ -1420,19 +1420,19 @@ describe('Auth', function () {
                 method: 'GET', path: '/login/{user}',
                 config: {
                     auth: { mode: 'try' },
-                    handler: function () {
+                    handler: function (request, reply) {
 
                         this.auth.session.set({ user: this.params.user });
-                        return this.reply(this.params.user);
+                        return reply(this.params.user);
                     }
                 }
             });
 
             server.route({
-                method: 'GET', path: '/resource', handler: function () {
+                method: 'GET', path: '/resource', handler: function (request, reply) {
 
                     expect(this.auth.credentials.user).to.equal('steve');
-                    return this.reply('resource');
+                    return reply('resource');
                 },
                 config: { auth: true }
             });
@@ -1469,9 +1469,9 @@ describe('Auth', function () {
                 var server = new Hapi.Server({ auth: config });
 
                 server.route({
-                    method: 'GET', path: '/', handler: function () {
+                    method: 'GET', path: '/', handler: function (request, reply) {
 
-                        return this.reply('never');
+                        return reply('never');
                     }, config: { auth: true }
                 });
 
@@ -1497,9 +1497,9 @@ describe('Auth', function () {
                 var server = new Hapi.Server({ auth: config });
 
                 server.route({
-                    method: 'GET', path: '/', handler: function () {
+                    method: 'GET', path: '/', handler: function (request, reply) {
 
-                        return this.reply('never');
+                        return reply('never');
                     }, config: { auth: true }
                 });
 
@@ -1525,9 +1525,9 @@ describe('Auth', function () {
                 var server = new Hapi.Server({ auth: config });
 
                 server.route({
-                    method: 'GET', path: '/', handler: function () {
+                    method: 'GET', path: '/', handler: function (request, reply) {
 
-                        return this.reply('never');
+                        return reply('never');
                     }, config: { auth: true }
                 });
 
@@ -1553,9 +1553,9 @@ describe('Auth', function () {
                 var server = new Hapi.Server({ auth: config });
 
                 server.route({
-                    method: 'GET', path: '/', config: { auth: { mode: 'try' } }, handler: function () {
+                    method: 'GET', path: '/', config: { auth: { mode: 'try' } }, handler: function (request, reply) {
 
-                        return this.reply('try');
+                        return reply('try');
                     }
                 });
 

@@ -14,9 +14,9 @@ exports.register = function (plugin, options, next) {
 
     plugin.route([
         {
-            path: '/view', method: 'GET', handler: function () {
+            path: '/view', method: 'GET', handler: function (request, reply) {
 
-                return this.reply.view('test', { message: options.message });
+                return reply.view('test', { message: options.message });
             }
         },
         {

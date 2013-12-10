@@ -20,52 +20,52 @@ var it = Lab.test;
 
 describe('Prerequesites', function () {
 
-    var fetch1 = function () {
+    var fetch1 = function (request, reply) {
 
-        this.reply('Hello');
+        reply('Hello');
     };
 
-    var fetch2 = function () {
+    var fetch2 = function (request, reply) {
 
-        this.reply(this.pre.m1 + this.pre.m3 + this.pre.m4);
+        reply(this.pre.m1 + this.pre.m3 + this.pre.m4);
     };
 
-    var fetch3 = function (request) {
+    var fetch3 = function (request, reply) {
 
         process.nextTick(function () {
 
-            request.reply(' ');
+            reply(' ');
         });
     };
 
-    var fetch4 = function () {
+    var fetch4 = function (request, reply) {
 
-        this.reply('World');
+        reply('World');
     };
 
-    var fetch5 = function () {
+    var fetch5 = function (request, reply) {
 
-        this.reply(this.pre.m2 + '!');
+        reply(this.pre.m2 + '!');
     };
 
-    var fetch6 = function () {
+    var fetch6 = function (request, reply) {
 
-        this.reply(this.server.pack.hapi.error.internal('boom'));
+        reply(this.server.pack.hapi.error.internal('boom'));
     };
 
-    var fetchException = function () {
+    var fetchException = function (request, reply) {
 
         a.b.c;
     };
 
-    var getFetch1 = function () {
+    var getFetch1 = function (request, reply) {
 
-        this.reply(this.pre.m5);
+        reply(this.pre.m5);
     };
 
-    var getFetch2 = function () {
+    var getFetch2 = function (request, reply) {
 
-        this.reply(this.pre.m1);
+        reply(this.pre.m1);
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
@@ -136,9 +136,9 @@ describe('Prerequesites', function () {
                 pre: [
                     'user(params.id)'
                 ],
-                handler: function () {
+                handler: function (request, reply) {
 
-                    return this.reply(this.pre.user);
+                    return reply(this.pre.user);
                 }
             }
         },
@@ -150,9 +150,9 @@ describe('Prerequesites', function () {
                     'user(params.id)',
                     'name(pre.user)'
                 ],
-                handler: function () {
+                handler: function (request, reply) {
 
-                    return this.reply(this.pre.name);
+                    return reply(this.pre.name);
                 }
             }
         }
@@ -236,9 +236,9 @@ describe('Prerequesites', function () {
                     pre: [
                         'xuser(params.id)'
                     ],
-                    handler: function () {
+                    handler: function (request, reply) {
 
-                        return this.reply(this.pre.user);
+                        return reply(this.pre.user);
                     }
                 }
             });
@@ -259,9 +259,9 @@ describe('Prerequesites', function () {
                     pre: [
                         'userparams.id)'
                     ],
-                    handler: function () {
+                    handler: function (request, reply) {
 
-                        return this.reply(this.pre.user);
+                        return reply(this.pre.user);
                     }
                 }
             });

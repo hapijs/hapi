@@ -41,9 +41,9 @@ internals.fetch5 = function (request, next) {
 };
 
 
-internals.get = function (request) {
+internals.get = function (request, reply) {
 
-    request.reply(request.pre.m5 + '\n');
+    reply(request.pre.m5 + '\n');
 };
 
 

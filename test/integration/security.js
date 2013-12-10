@@ -24,9 +24,9 @@ describe('Security', function () {
 
         var server = new Hapi.Server('0.0.0.0', 0);
 
-        internals.createItemHandler = function (request) {
+        internals.createItemHandler = function (request, reply) {
 
-            request.reply('Moved').created('/item/' + request.payload.name);
+            reply('Moved').created('/item/' + request.payload.name);
         };
 
         before(function (done) {
@@ -37,9 +37,11 @@ describe('Security', function () {
 
         it('isn\'t allowed through the request.create method', function (done) {
 
-            server.inject({ method: 'POST', url: '/item',
+            server.inject({
+                method: 'POST', url: '/item',
                 payload: '{"name": "foobar\r\nContent-Length: \r\n\r\nHTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 19\r\n\r\n<html>Shazam</html>"}',
-                headers: { 'Content-Type': 'application/json' } }, function (res) {
+                headers: { 'Content-Type': 'application/json' }
+            }, function (res) {
 
                 expect(res.statusCode).to.equal(400);
                 done();
@@ -127,9 +129,9 @@ describe('Security', function () {
 
         var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
 
-        internals.postHandler = function (request) {
+        internals.postHandler = function (request, reply) {
 
-            request.reply('Success');
+            reply('Success');
         };
 
         before(function (done) {
@@ -145,21 +147,23 @@ describe('Security', function () {
                 method: 'POST',
                 url: '/',
                 payload: '{"something":"something"}',
-                headers: { 'content-type': '<script>alert(1)</script>;' } },
+                headers: { 'content-type': '<script>alert(1)</script>;' }
+            },
                 function (res) {
 
                     expect(res.result.message).to.not.exist;
                     done();
-            });
+                });
         });
 
         it('does not exist with invalid cookie values in the request', function (done) {
 
             server.inject({
-                    method: 'POST',
-                    url: '/',
-                    payload: '{"something":"something"}',
-                    headers: { 'cookie': 'encoded="<script></script>";' } },
+                method: 'POST',
+                url: '/',
+                payload: '{"something":"something"}',
+                headers: { 'cookie': 'encoded="<script></script>";' }
+            },
                 function (res) {
 
                     expect(res.result.message).to.not.contain('<script>');
@@ -169,14 +173,17 @@ describe('Security', function () {
 
         it('does not exist when setting invalid cookie names', function (done) {
 
-            server.route({ method: 'GET', path: '/cookiename', handler: function (request) {
+            server.route({
+                method: 'GET', path: '/cookiename', handler: function (request, reply) {
 
-                request.reply('Success').setState('<script></script>', 'seomthing');
-            }});
+                    reply('Success').setState('<script></script>', 'seomthing');
+                }
+            });
 
             server.inject({
-                    method: 'GET',
-                    url: '/cookiename' },
+                method: 'GET',
+                url: '/cookiename'
+            },
                 function (res) {
 
                     expect(res.result.message).to.not.contain('<script>');
@@ -186,14 +193,17 @@ describe('Security', function () {
 
         it('does not exist when setting invalid cookie value', function (done) {
 
-            server.route({ method: 'GET', path: '/cookievalue', handler: function (request) {
+            server.route({
+                method: 'GET', path: '/cookievalue', handler: function (request, reply) {
 
-                request.reply('Success').setState('seomthing', '<script></script>');
-            }});
+                    reply('Success').setState('seomthing', '<script></script>');
+                }
+            });
 
             server.inject({
-                    method: 'GET',
-                    url: '/cookievalue' },
+                method: 'GET',
+                url: '/cookievalue'
+            },
                 function (res) {
 
                     expect(res.result.message).to.not.contain('<script>');
@@ -203,18 +213,20 @@ describe('Security', function () {
 
         it('does not exist in path validation response message', function (done) {
 
-            server.route({ method: 'GET', path: '/fail/{name}', handler: function (request) {
+            server.route({
+                method: 'GET', path: '/fail/{name}', handler: function (request, reply) {
 
-                request.reply('Success');
-            },
+                    reply('Success');
+                },
                 config: {
                     validate: { path: { name: Hapi.types.Function() } }
                 }
             });
 
             server.inject({
-                    method: 'GET',
-                    url: '/fail/<script>' },
+                method: 'GET',
+                url: '/fail/<script>'
+            },
                 function (res) {
 
                     expect(res.result.message).to.not.contain('<script>');
@@ -224,20 +236,22 @@ describe('Security', function () {
 
         it('does not exist in payload validation response message', function (done) {
 
-            server.route({ method: 'POST', path: '/fail/payload', handler: function (request) {
+            server.route({
+                method: 'POST', path: '/fail/payload', handler: function (request, reply) {
 
-                request.reply('Success');
-            },
+                    reply('Success');
+                },
                 config: {
                     validate: { payload: { name: Hapi.types.String().max(4).min(1).required() } }
                 }
             });
 
             server.inject({
-                    method: 'POST',
-                    url: '/fail/payload',
-                    payload: '{"name":"<script></script>"}',
-                    headers: { 'content-type': 'application/json' } },
+                method: 'POST',
+                url: '/fail/payload',
+                payload: '{"name":"<script></script>"}',
+                headers: { 'content-type': 'application/json' }
+            },
                 function (res) {
 
                     expect(res.result.message).to.not.contain('<script>');
@@ -247,18 +261,20 @@ describe('Security', function () {
 
         it('does not exist in query validation response message', function (done) {
 
-            server.route({ method: 'GET', path: '/fail/query', handler: function (request) {
+            server.route({
+                method: 'GET', path: '/fail/query', handler: function (request, reply) {
 
-                request.reply('Success');
-            },
+                    reply('Success');
+                },
                 config: {
                     validate: { query: { name: Hapi.types.String().alphanum().required() } }
                 }
             });
 
             server.inject({
-                    method: 'GET',
-                    url: '/fail/query?name=<script></script>' },
+                method: 'GET',
+                url: '/fail/query?name=<script></script>'
+            },
                 function (res) {
 
                     expect(res.result.message).to.not.contain('<script>');

@@ -8,9 +8,9 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.get = function (request) {
+internals.get = function (request, reply) {
 
-    request.reply('Success!\n');
+    reply('Success!\n');
 };
 
 

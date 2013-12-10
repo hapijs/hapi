@@ -23,36 +23,36 @@ describe('Cache', function () {
 
     var server = null;
 
-    var profileHandler = function (request) {
+    var profileHandler = function (request, reply) {
 
-        request.reply({
+        reply({
             'id': 'fa0dbda9b1b',
             'name': 'John Doe'
         });
     };
 
-    var activeItemHandler = function (request) {
+    var activeItemHandler = function (request, reply) {
 
-        request.reply({
+        reply({
             'id': '55cf687663',
             'name': 'Active Item'
         });
     };
 
-    var cacheItemHandler = function (request) {
+    var cacheItemHandler = function (request, reply) {
 
         var cacheable = new Hapi.response.Text('hello');
         cacheable._code = 200;
 
-        request.reply(cacheable);
+        reply(cacheable);
     };
 
-    var errorHandler = function (request) {
+    var errorHandler = function (request, reply) {
 
         var error = new Error('myerror');
         error.code = 500;
 
-        request.reply(error);
+        reply(error);
     };
 
     function setupServer(done) {

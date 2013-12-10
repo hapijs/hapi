@@ -21,14 +21,14 @@ var it = Lab.test;
 describe('Router', function () {
 
     var server = new Hapi.Server();
-    server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function () { this.reply('special'); } });
-    server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function () { this.reply('special array'); } });
-    server.route({ method: 'GET', path: '/', handler: function () { this.reply('plain'); } });
-    server.route({ method: 'GET', path: '/common', handler: function () { this.reply('common'); } });
-    server.route({ method: 'GET', path: '/head', handler: function () { this.reply('ok-common'); } });
-    server.route({ method: 'GET', path: '/head', vhost: 'special.example.com', handler: function () { this.reply('ok-vhost'); } });
-    server.route({ method: 'HEAD', path: '/head', handler: function () { this.reply('ok').header('x1', '123'); } });
-    server.route({ method: 'HEAD', path: '/head', vhost: 'special.example.com', handler: function () { this.reply('ok').header('x1', '456'); } });
+    server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
+    server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
+    server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('plain'); } });
+    server.route({ method: 'GET', path: '/common', handler: function (request, reply) { reply('common'); } });
+    server.route({ method: 'GET', path: '/head', handler: function (request, reply) { reply('ok-common'); } });
+    server.route({ method: 'GET', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok-vhost'); } });
+    server.route({ method: 'HEAD', path: '/head', handler: function (request, reply) { reply('ok').header('x1', '123'); } });
+    server.route({ method: 'HEAD', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok').header('x1', '456'); } });
 
     it('matches HEAD routes', function (done) {
 
@@ -96,7 +96,7 @@ describe('Router', function () {
 
         var fn = function () {
 
-            server.route({ method: 'GET', path: '/', vhost: 'special1.example.com', handler: function () { this.reply('special'); } });
+            server.route({ method: 'GET', path: '/', vhost: 'special1.example.com', handler: function (request, reply) { reply('special'); } });
         };
 
         expect(fn).to.throw(Error);
@@ -133,7 +133,7 @@ describe('Router', function () {
 
         var fn = function () {
 
-            server.route({ method: 'GET', path: '/', vhost: 'new.example.com', handler: function () { this.reply('special'); } });
+            server.route({ method: 'GET', path: '/', vhost: 'new.example.com', handler: function (request, reply) { reply('special'); } });
         };
 
         expect(fn).to.not.throw(Error);

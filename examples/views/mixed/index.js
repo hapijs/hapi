@@ -12,14 +12,14 @@ var ctx = {
     message: 'Hello World!'
 }
 
-var oneHandler = function (request) {
+var oneHandler = function (request, reply) {
 
-    request.reply.view('index', ctx);
+    reply.view('index', ctx);
 };
 
-var twoHandler = function (request) {
+var twoHandler = function (request, reply) {
 
-    request.reply.view('handlebars', ctx);
+    reply.view('handlebars', ctx);
 };
 
 

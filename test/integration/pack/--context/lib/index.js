@@ -22,9 +22,9 @@ exports.register = function (plugin, options, next) {
 };
 
 
-internals.handler = function () {
+internals.handler = function (request, reply) {
 
-    this.reply(this.reply.context.value);
+    reply(reply.context.value);
 };
 
 

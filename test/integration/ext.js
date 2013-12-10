@@ -30,7 +30,7 @@ describe('Ext', function () {
                 return next(Hapi.error.badRequest('boom'));
             });
 
-            server.route({ method: 'GET', path: '/', handler: function () { this.reply('ok'); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -53,7 +53,7 @@ describe('Ext', function () {
                 return next(request.generateView('test', { message: 'hola!' }));
             });
 
-            server.route({ method: 'GET', path: '/', handler: function () { this.reply('ok'); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -73,8 +73,8 @@ describe('Ext', function () {
                 return next(request.response().variety === 'text' ? Hapi.error.badRequest('boom') : null);
             });
 
-            server.route({ method: 'GET', path: '/text', handler: function () { this.reply('ok'); } });
-            server.route({ method: 'GET', path: '/obj', handler: function () { this.reply({ status: 'ok' }); } });
+            server.route({ method: 'GET', path: '/text', handler: function (request, reply) { reply('ok'); } });
+            server.route({ method: 'GET', path: '/obj', handler: function (request, reply) { reply({ status: 'ok' }); } });
 
             server.inject({ method: 'GET', url: '/text' }, function (res) {
 
@@ -142,7 +142,7 @@ describe('Ext', function () {
                 }
             ]);
 
-            server.route({ method: 'GET', path: '/', handler: function () { this.reply(this.x); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(this.x); } });
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 

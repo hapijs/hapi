@@ -15,15 +15,15 @@ var N = Hapi.types.Number;
 var A = Hapi.types.Array;
 
 
-internals.get = function () {
+internals.get = function (request, reply) {
 
-    this.reply('Success!\n');
+    reply('Success!\n');
 };
 
 
-internals.payload = function () {
+internals.payload = function (request, reply) {
 
-    this.reply('Success!\n');
+    reply('Success!\n');
 };
 
 

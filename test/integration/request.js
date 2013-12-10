@@ -22,26 +22,26 @@ var it = Lab.test;
 
 describe('Request', function () {
 
-    var customErrorHandler = function (request) {
+    var customErrorHandler = function (request, reply) {
 
-        request.reply(Hapi.error.passThrough(599, 'heya', 'text/plain'));
+        reply(Hapi.error.passThrough(599, 'heya', 'text/plain'));
     };
 
-    var tailHandler = function (request) {
+    var tailHandler = function (request, reply) {
 
         var t1 = request.addTail('t1');
         var t2 = request.addTail('t2');
 
-        request.reply('Done');
+        reply('Done');
 
         t1();
         t1();                           // Ignored
         setTimeout(t2, 10);
     };
 
-    var plainHandler = function (request) {
+    var plainHandler = function (request, reply) {
 
-        request.reply('OK');
+        reply('OK');
     };
 
     var postHandler = function (request, next) {
@@ -49,22 +49,22 @@ describe('Request', function () {
         next(request.path === '/ext' ? Hapi.error.badRequest() : null);
     };
 
-    var unknownRouteHandler = function (request) {
+    var unknownRouteHandler = function (request, reply) {
 
         if (request.path === '/unknown/reply') {
-            request.reply('unknown-reply');
+            reply('unknown-reply');
         }
         else if (request.path === '/unknown/close') {
-            request.reply('unknown-close');
+            reply('unknown-close');
         }
         else {
-            request.reply('unknown-error');
+            reply('unknown-error');
         }
     };
 
-    var responseErrorHandler = function (request) {
+    var responseErrorHandler = function (request, reply) {
 
-        request.reply('success');
+        reply('success');
 
         var orig = request.raw.res.write;
         request.raw.res.write = function (chunk, encoding) {
@@ -74,7 +74,7 @@ describe('Request', function () {
         };
     };
 
-    var streamErrorHandler = function (request) {
+    var streamErrorHandler = function (request, reply) {
 
         var TestStream = function () {
 
@@ -101,22 +101,22 @@ describe('Request', function () {
         };
 
         var stream = new TestStream();
-        request.reply(stream);
+        reply(stream);
     };
 
-    var forbiddenErrorHandler = function (request) {
+    var forbiddenErrorHandler = function (request, reply) {
 
-        request.reply(Hapi.error.forbidden('Unauthorized content'));
+        reply(Hapi.error.forbidden('Unauthorized content'));
     };
 
-    var addressHandler = function (request) {
+    var addressHandler = function (request, reply) {
 
         expect(request.info.remoteAddress).to.equal('127.0.0.1');
         expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
-        request.reply('ok');
+        reply('ok');
     };
 
-    var simpleHandler = function (request) {
+    var simpleHandler = function (request, reply) {
 
         var TestStream = function () {
 
@@ -137,12 +137,12 @@ describe('Request', function () {
         };
 
         var stream = new TestStream();
-        request.reply(stream);
+        reply(stream);
     };
 
-    var headersHandler = function () {
+    var headersHandler = function (request, reply) {
 
-        this.reply(this.headers['user-agent']);
+        reply(this.headers['user-agent']);
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
@@ -309,9 +309,9 @@ describe('Request', function () {
 
         var server = new Hapi.Server();
 
-        var handler = function () {
+        var handler = function (request, reply) {
 
-            this.reply('123').hold().send();
+            reply('123').hold().send();
         };
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
@@ -327,9 +327,9 @@ describe('Request', function () {
 
         var server = new Hapi.Server();
 
-        var handler = function () {
+        var handler = function (request, reply) {
 
-            var response = this.reply('123').hold();
+            var response = reply('123').hold();
             setTimeout(function ()
             {
                 response.send();
@@ -353,9 +353,9 @@ describe('Request', function () {
            var x = a.b.c;
         });
 
-        var handler = function () {
+        var handler = function (request, reply) {
 
-            this.reply('neven gonna happen');
+            reply('neven gonna happen');
         };
 
         server.route({ method: 'GET', path: '/domain', handler: handler });
@@ -376,7 +376,7 @@ describe('Request', function () {
             expect(this).to.equal(request);
             expect(arguments.length).to.equal(2);
             expect(reply.send).to.not.exist;
-            expect(this.reply.redirect).to.exist;
+            expect(reply.redirect).to.exist;
             reply('ok');
         };
 
@@ -402,10 +402,10 @@ describe('Request', function () {
 
         var server = new Hapi.Server();
 
-        var handler = function (request) {
+        var handler = function (request, reply) {
 
             expect(request.info.referrer).to.equal('http://site.com');
-            request.reply('ok');
+            reply('ok');
         };
 
         server.route({ method: 'GET', path: '/', handler: handler });
