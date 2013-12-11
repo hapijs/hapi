@@ -107,7 +107,7 @@
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
         - [`plugin.loader(require)`](#pluginloader-require)
-        - [`plugin.context(context)`](#plugincontext-context)
+        - [`plugin.bind(bind)`](#pluginbind-bind)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -470,7 +470,7 @@ The following options are available when adding a route:
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
-    - `context` - an object passed back to the provided handler (via `this`) when called. Can only be used with `handler` function values.
+    - `bind` - an object passed back to the provided handler (via `this`) when called. Can only be used with `handler` function values.
 
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
@@ -1408,13 +1408,13 @@ Registers an extension function in one of the available [extension points](#requ
         - `exit` - optional request processing exit response. If set to a non-falsy value, the request lifecycle process will jump to the
           "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
           value accepted by [`reply()`](#replyresult).
-    - `this` - the context object provided via `options.context`.
+    - `this` - the object provided via `options.bind`.
 - `options` - an optional object with the following:
     - `before` - a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed
       in the order added.
     - `after` - a string or array of strings of plugin names this method must execute after (on the same event). Otherwise, extension methods are executed
       in the order added.
-    - `context` - any value passed back to the provided method (via `this`) when called.
+    - `bind` - any value passed back to the provided method (via `this`) when called.
 
 ```javascript
 var Hapi = require('hapi');
@@ -3261,10 +3261,10 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.context(context)`
+#### `plugin.bind(bind)`
 
-Sets a global plugin context used as the default context when adding a route or an extension using the plugin interface (if no
-explicit context is provided as an option). The context object is made available within the handler and extension methods via `this`.
+Sets a global plugin bind used as the default bind when adding a route or an extension using the plugin interface (if no
+explicit bind is provided as an option). The bind object is made available within the handler and extension methods via `this`.
 
 ```javascript
 var handler = function (request, reply) {
@@ -3274,11 +3274,11 @@ var handler = function (request, reply) {
 
 exports.register = function (plugin, options, next) {
 
-    var context = {
+    var bind = {
         message: 'hello'
     };
 
-    plugin.context(context);
+    plugin.bind(bind);
     plugin.route({ method: 'GET', path: '/', handler: internals.handler });
     next();
 };

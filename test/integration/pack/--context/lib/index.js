@@ -7,7 +7,7 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    var context = {
+    var bind = {
         value: 'in context',
         suffix: ' throughout'
     };
@@ -16,7 +16,7 @@ exports.register = function (plugin, options, next) {
 
     plugin.ext('onPreResponse', internals.ext);
 
-    plugin.context(context);        // Call last to test late binding
+    plugin.bind(bind);        // Call last to test late binding
 
     next();
 };
