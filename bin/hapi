@@ -5,7 +5,6 @@
 var Fs = require('fs');
 var Optimist = require('optimist');
 var Hapi = require('../');
-var Alce = require('alce');
 
 
 // Declare internals
@@ -13,7 +12,7 @@ var Alce = require('alce');
 var internals = {};
 
 
-internals.argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path] [--filter.criterion=value]')
+internals.argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path]')
                     .demand(['c'])
                     .argv;
 
@@ -24,7 +23,7 @@ internals.getManifest = function () {
     var manifestPath = internals.argv.c[0] !== '/' ? process.cwd() + '/' + internals.argv.c : internals.argv.c;
 
     try {
-        manifest = Alce.parse(Fs.readFileSync(manifestPath));
+        manifest = JSON.parse(Fs.readFileSync(manifestPath));
     }
     catch (err) {
         console.log('Failed loading configuration file: ' + internals.argv.c + ' (' + err.message + ')');
@@ -37,9 +36,7 @@ internals.getManifest = function () {
 
 internals.loadPacks = function (manifest, callback) {
 
-    var options = {
-        criteria: internals.argv.filter
-    };
+    var options = {};
 
     if (!internals.argv.p) {
         return callback(null, options);

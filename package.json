@@ -26,15 +26,13 @@
     "shot": "1.x.x",
     "cryptiles": "1.x.x",
     "iron": "1.x.x",
-    "confidence": "0.8.x",
     "async": "0.2.x",
     "multiparty": "3.0.x",
     "mime": "1.2.x",
     "lru-cache": "2.3.x",
     "optimist": "0.6.x",
     "negotiator": "0.2.x",
-    "semver": "2.0.x",
-    "alce": "1.0.x"
+    "semver": "2.0.x"
   },
   "devDependencies": {
     "lab": "1.x.x",

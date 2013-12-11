@@ -123,6 +123,7 @@
 - [`Hapi.types`](#hapitypes)
 - [`Hapi.state`](#hapistate)
       - [`prepareValue(name, value, options, callback)`](#preparevaluename-value-options-callback)
+- ['Hapi CLI'](#hapi-cli)
 
 ## `Hapi.Server`
 
@@ -3504,4 +3505,13 @@ var handler = function (request, reply) {
     });
 };
 ```
+
+## `Hapi CLI`
+
+The **hapi** command line interface allows a pack of servers to be composed and started from a configuration file only from the command line.
+When installing **hapi** with global flag the **hapi** binary script will be installed in the path.  The following arguments are available to the
+**hapi** CLI:
+
+- '-c' - the path to configuration json file (required)
+- '-p' - the path to the node_modules folder to load plugins from (optional)
 
