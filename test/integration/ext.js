@@ -150,5 +150,23 @@ describe('Ext', function () {
                 done();
             });
         });
+
+        it('sets bind via options', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onPreHandler', function (request, next) {
+
+                request.app.x = this.y;
+                next();
+            }, { bind: { y: 42 } });
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal(42);
+                done();
+            });
+        });
     });
 });
