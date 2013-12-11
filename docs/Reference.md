@@ -449,8 +449,9 @@ The following options are available when adding a route:
                 - `headers` - optional object where each key is an HTTP request header and the value is the header content.
         - `postResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
           custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
-          `function(request, settings, res, payload, ttl)` where:
-              - `request` - is the incoming `request` object. It is the responsibility of the `postResponse()` function to call `reply()`.
+          `function(request, reply, settings, res, payload, ttl)` where:
+              - `request` - is the incoming `request` object.
+              - `reply()` - the continuation function.
               - `settings` - the proxy handler configuration.
               - `res` - the node response object received from the upstream service.
               - `payload` - the response payload.
