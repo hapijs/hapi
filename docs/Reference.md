@@ -123,7 +123,7 @@
 - [`Hapi.types`](#hapitypes)
 - [`Hapi.state`](#hapistate)
       - [`prepareValue(name, value, options, callback)`](#preparevaluename-value-options-callback)
-- ['Hapi CLI'](#hapi-cli)
+- [Hapi CLI](#hapi-cli)
 
 ## `Hapi.Server`
 
@@ -3508,9 +3508,12 @@ var handler = function (request, reply) {
 ## `Hapi CLI`
 
 The **hapi** command line interface allows a pack of servers to be composed and started from a configuration file only from the command line.
-When installing **hapi** with global flag the **hapi** binary script will be installed in the path.  The following arguments are available to the
+When installing **hapi** with the global flag the **hapi** binary script will be installed in the path.  The following arguments are available to the
 **hapi** CLI:
 
 - '-c' - the path to configuration json file (required)
 - '-p' - the path to the node_modules folder to load plugins from (optional)
+
+In order to help with A/B testing there is (confidence)[https://github.com/spumko/confidence).  Confidence is a configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c). In addition, confidence defines special $-prefixed keys used to filter values for a given criteria.
+
 
