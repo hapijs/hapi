@@ -24,12 +24,12 @@ exports.register = function (plugin, options, next) {
 
 internals.handler = function (request, reply) {
 
-    reply(reply.context.value);
+    reply(this.value);
 };
 
 
-internals.ext = function (request, next, context) {
+internals.ext = function (request, next) {
 
-    request.response()._payload.push(context.suffix);
+    request.response()._payload.push(this.suffix);
     next();
 };

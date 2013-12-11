@@ -470,8 +470,7 @@ The following options are available when adding a route:
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
-    - `context` - any value passed back to the provided handler (via the `reply.context` variable) when called. Can only be used with
-      `handler` function values.
+    - `context` - an object passed back to the provided handler (via `this`) when called. Can only be used with `handler` function values.
 
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
@@ -712,7 +711,7 @@ last path segment).
 ```javascript
 var getPerson = function (request, reply) {
 
-    var nameParts = this.params.name.split('/');
+    var nameParts = request.params.name.split('/');
     reply({ first: nameParts[0], last: nameParts[1] });
 };
 
@@ -1403,25 +1402,25 @@ Registers an extension function in one of the available [extension points](#requ
 
 - `event` - the event name.
 - `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
-  is `function(request, next, context)` where:
+  is `function(request, next)` where:
     - `request` - the incoming `request` object.
     - `next` - the callback function the extension method must call to return control over to the router with signature `function(exit)` where:
         - `exit` - optional request processing exit response. If set to a non-falsy value, the request lifecycle process will jump to the
           "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
           value accepted by [`reply()`](#replyresult).
-    - `context` - the context object provided via `options.context`.
+    - `this` - the context object provided via `options.context`.
 - `options` - an optional object with the following:
     - `before` - a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed
       in the order added.
     - `after` - a string or array of strings of plugin names this method must execute after (on the same event). Otherwise, extension methods are executed
       in the order added.
-    - `context` - any value passed back to the provided method (via the `context` argument) when called.
+    - `context` - any value passed back to the provided method (via `this`) when called.
 
 ```javascript
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-server.ext('onRequest', function (request, next, context) {
+server.ext('onRequest', function (request, next) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
@@ -1721,7 +1720,7 @@ _Available only in `'onRequest'` extension methods._
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-server.ext('onRequest', function (request, next, context) {
+server.ext('onRequest', function (request, next) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
@@ -1741,7 +1740,7 @@ Changes the request method before the router begins processing the request where
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-server.ext('onRequest', function (request, next, context) {
+server.ext('onRequest', function (request, next) {
 
     // Change all requests to 'GET'
     request.setMethod('GET');
@@ -1773,9 +1772,9 @@ server.on('request', function (request, event, tags) {
     }
 });
 
-var handler = function () {
+var handler = function (request, reply) {
 
-    this.log(['test', 'error'], 'Test event');
+    request.log(['test', 'error'], 'Test event');
 };
 ```
 
@@ -1875,7 +1874,7 @@ Useful when a view response is required outside of the handler (e.g. used in an 
 var Hapi = require('hapi');
 var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
 
-server.ext('onPreResponse', function (request, next, context) {
+server.ext('onPreResponse', function (request, next) {
 
     var response = request.response();
     if (!response.isBoom) {
@@ -1904,7 +1903,7 @@ from within an extension point, use `next(response)` to return a different respo
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-server.ext('onPostHandler', function (request, next, context) {
+server.ext('onPostHandler', function (request, next) {
 
     var response = request.response();
     if (response.variety === 'obj') {
@@ -2104,7 +2103,7 @@ var handler2 = function (request, reply) {
 var handler3 = function (request, reply) {
 
     // Echo back request stream
-    reply(this.raw.req).bytes(this.raw.req.headers['content-length']);
+    reply(request.raw.req).bytes(request.raw.req.headers['content-length']);
 };
 ```
 
@@ -2125,7 +2124,7 @@ JavaScript object, sent stringified. The 'Content-Type' header defaults to 'appl
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 
-server.ext('onPostHandler', function (request, next, context) {
+server.ext('onPostHandler', function (request, next) {
 
     var response = request.response();
     if (response.variety === 'obj') {
@@ -2388,7 +2387,7 @@ response object.
 var Hapi = require('hapi');
 var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
 
-server.ext('onPreResponse', function (request, next, context) {
+server.ext('onPreResponse', function (request, next) {
 
     var response = request.response();
     if (!response.isBoom) {
@@ -3265,12 +3264,12 @@ exports.register = function (plugin, options, next) {
 #### `plugin.context(context)`
 
 Sets a global plugin context used as the default context when adding a route or an extension using the plugin interface (if no
-explicit context is provided as an option).
+explicit context is provided as an option). The context object is made available within the handler and extension methods via `this`.
 
 ```javascript
 var handler = function (request, reply) {
 
-    this.reply(reply.context.message);
+    request.reply(this.message);
 };
 
 exports.register = function (plugin, options, next) {
@@ -3433,7 +3432,7 @@ Adds an extension point method to the selected pack's servers as described in [`
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.ext('onRequest', function (request, extNext, context) {
+    plugin.ext('onRequest', function (request, extNext) {
 
         console.log('Received request: ' + request.path);
         extNext();
