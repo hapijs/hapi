@@ -18,11 +18,12 @@ var describe = Lab.experiment;
 var it = Lab.test;
 
 
-describe('Prerequesites', function () {
+describe('Handler', function () {
 
     var fetch1 = function (request, reply) {
 
         reply('Hello');
+        reply();    // Ignored
     };
 
     var fetch2 = function (request, reply) {

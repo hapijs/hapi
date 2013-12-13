@@ -60,7 +60,6 @@
         - [`File`](#file)
         - [`Redirection`](#redirection)
         - [`View`](#view)
-        - [`Cacheable`](#cacheable)
 - [`Hapi.error`](#hapierror)
       - [Error transformation](#error-transformation)
       - [`badRequest([message])`](#badrequestmessage)
@@ -2334,11 +2333,6 @@ server.route({ method: 'GET', path: '/3/{user}', handler: { view: 'hello' } });
     </body>
 </html>
 ```
-
-#### `Cacheable`
-
-The `Cacheable` response type is used as the parent prototype for all cacheable response types. It cannot be instantiated directly and
-is only made available for deriving other response types.
 
 ## `Hapi.error`
 

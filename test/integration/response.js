@@ -534,9 +534,7 @@ describe('Response', function () {
         };
 
         var server = new Hapi.Server({ cors: { credentials: true } });
-        server.route([
-            { method: 'GET', path: '/', handler: handler },
-        ]);
+        server.route({ method: 'GET', path: '/', handler: handler, config: { cache: { mode: 'server', expiresIn: 2000 } } });
 
         it('returns an empty reply', function (done) {
 
@@ -1370,26 +1368,6 @@ describe('Response', function () {
             server.inject('/stream', function (res) {
 
                 expect(res.statusCode).to.equal(201);
-                done();
-            });
-        });
-
-        it('returns a stream reply using old style stream interface', function (done) {
-
-            var handler = function (request, reply) {
-
-                var oldMode = new TestStream();
-                oldMode.pause();
-                reply(oldMode);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/stream', handler: handler });
-
-            server.inject('/stream', function (res) {
-
-                expect(res.result).to.equal('xy');
-                expect(res.statusCode).to.equal(200);
                 done();
             });
         });
