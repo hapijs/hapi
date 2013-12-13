@@ -1467,7 +1467,7 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - **`'onPreResponse'`** extension point
     - always called.
     - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object.
-      The response object cannot be modified. To return a different response (for example, replace an error with an HTML response), return the new
+      The response object cannot be modified. To return a different response (for example, replace an error with an HTML response), return a new
       response via `next(response)`. Note that any errors generated after `next(response)` is called will not be passed back to the `'onPreResponse'`
       extention method to prevent an infinite loop.
 - Send response (may emit `'internalError'` event)
@@ -2003,6 +2003,7 @@ Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all th
     - `text` - the text content.
     - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
     - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
+- `source` - the response text string value. Can be modified until `'onPreResponse'` is called.
 
 Generated with:
 
@@ -2032,7 +2033,10 @@ var handler3 = function (request, reply) {
 
 #### `Buffer`
 
-Buffer response. Supports all the methods provided by [`Generic`](#generic).
+Buffer response. Supports all the methods provided by [`Generic`](#generic) as well as:
+
+- `source` - the response buffer object. Can be modified until `'onPreResponse'` is called.
+
 
 Generated with:
 
@@ -2066,9 +2070,9 @@ Replies with a stream object, directly piped into the HTTP response. Supports al
 Generated with:
 
 - `reply(result)` - where:
-    - `result` - must be a [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable) or a node 0.8.x `Stream`.
+    - `result` - must be a [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable)
 - `new Hapi.response.Stream(stream)` - where:
-    - `stream` - the [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable) or a node 0.8.x `Stream`.
+    - `stream` - the [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable)
 
 ```javascript
 var Stream = require('stream');
@@ -2111,13 +2115,12 @@ var handler3 = function (request, reply) {
 JavaScript object, sent stringified. The 'Content-Type' header defaults to 'application/json'. Supports all the methods provided by
 [`Generic`](#generic) as well as:
 
-- `raw` - the unmodified, unstringified object. Can be directly manipulated before `onPreResponse` is called, afterwhich a new `Obj`
-  response must be created to modify the response payload.
 - `options(options)` - updates response configuration where `options` includes these optional keys:
     - `type` - 'Content-Type' HTTP header value. Defaults to `'text/html'`.
     - `encoding` - 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
     - `replacer` - the `JSON.stringify()` replacer function or array. Defaults to no action.
     - `space` - the `JSON.stringify()` number of spaces to indent nested object keys. Defaults to no indentation.
+- `source` - the response object reference. Can be modified until `'onPreResponse'` is called.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2127,7 +2130,7 @@ server.ext('onPostHandler', function (request, next) {
 
     var response = request.response();
     if (response.variety === 'obj') {
-        delete response.raw._id;        // Remove internal key
+        delete response.source._id;			// Remove internal key
         response.options({ space: 4 });
     }
     next();
@@ -2162,7 +2165,10 @@ var handler2 = function (request, reply) {
 #### `File`
 
 Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension. Supports all the methods
-provided by [`Stream`](#stream).
+provided by [`Stream`](#stream) as well as:
+
+- `path` - the file path. Can be modified until `'onPreResponse'` is called.
+- `settings` - the options provided (as described below). Can be modified until `'onPreResponse'` is called.
 
 Generated with:
 
@@ -2192,7 +2198,7 @@ server.route({ method: 'GET', path: '/2', handler: { file: './hello.txt' } });
 #### `Directory`
 
 Transmits a file or list of files from the file system. The 'Content-Type' header defaults to the matching mime type based on filename
-extension. This is an internal response time that can only be accessed via the built-in route handler.
+extension. This is an internal response type that can only be accessed via the built-in route handler.
 
 Generated with:
 
