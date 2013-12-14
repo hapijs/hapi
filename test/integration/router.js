@@ -139,4 +139,17 @@ describe('Router', function () {
         expect(fn).to.not.throw(Error);
         done();
     });
+
+    it('matched wildcard method', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.route({ method: '*', path: '/log', handler: function (request, reply) { reply('ok'); } });
+        server.inject('/log', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('ok');
+            done();
+        });
+    });
 });

@@ -2280,7 +2280,9 @@ var handler2 = function (request, reply) {
 
 #### `View`
 
-Template-based response. Supports all the methods provided by [`Generic`](#generic).
+Template-based response. Supports all the methods provided by [`Generic`](#generic) as well as:
+
+- `source` - the view settings. Can be modified until `'onPreResponse'` is called.
 
 Generated with:
 
