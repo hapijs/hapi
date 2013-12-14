@@ -600,7 +600,7 @@ The following options are available when adding a route:
 
     - `jsonp` - enables JSONP support by setting the value to the query parameter name containing the function name used to wrap the response payload.
       For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON response is `'{ "a":"b" }'`, the payload will be:
-      `'me({ "a":"b" });'`.
+      `'me({ "a":"b" });'`. Does not work with stream responses.
 
     - `description` - route description used for generating documentation (string).
     - `notes` - route notes used for generating documentation (string or array of strings).
