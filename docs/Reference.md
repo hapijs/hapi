@@ -383,7 +383,7 @@ The following options are available when adding a route:
 
 - `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'.
   Use `'*'` to match against any HTTP method (only when an exact match was not found, and any match with a specific method will be given a higher
-  priority over a wildcard match).
+  priority over a wildcard match). Can be assigned an array of methods which has the same result as adding the same route with different methods manually.
 
 - `vhost` - an optional domain string or an array of domain strings for limiting the route to only requests with a matching host header field.
   Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
@@ -1300,7 +1300,7 @@ server.auth('session', {
 
 server.route([
     { method: 'GET', path: '/', config: { handler: home, auth: true } },
-    { method: '*', path: '/login', config: { handler: login, auth: { mode: 'try' } } },
+    { method: ['GET', 'POST'], path: '/login', config: { handler: login, auth: { mode: 'try' } } },
     { method: 'GET', path: '/logout', config: { handler: logout, auth: true } }
 ]);
 
