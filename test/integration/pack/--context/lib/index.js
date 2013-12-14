@@ -12,24 +12,22 @@ exports.register = function (plugin, options, next) {
         suffix: ' throughout'
     };
 
-    plugin.route({ method: 'GET', path: '/', handler: internals.handler });
+    plugin.route({
+        method: 'GET',
+        path: '/',
+        handler: function (request, reply) {
 
-    plugin.ext('onPreResponse', internals.ext);
+            reply(this.value);
+        }
+    });
+
+    plugin.ext('onPreResponse', function (request, next) {
+
+        next(request.response().source + this.suffix);
+    });
 
     plugin.bind(bind);        // Call last to test late binding
 
     next();
 };
 
-
-internals.handler = function (request, reply) {
-
-    reply(this.value);
-};
-
-
-internals.ext = function (request, next) {
-
-    request.response()._payload.push(this.suffix);
-    next();
-};

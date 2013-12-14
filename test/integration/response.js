@@ -332,7 +332,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
-                expect(res.headers['content-type']).to.equal('application/x-test; charset=utf-8');
+                expect(res.headers['content-type']).to.equal('application/x-test');
                 done();
             });
         });
@@ -563,7 +563,7 @@ describe('Response', function () {
             server.inject('/file', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.not.exist;
                 done();
@@ -578,7 +578,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.not.exist;
                 done();
@@ -593,7 +593,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                 done();
@@ -608,7 +608,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
                 done();
@@ -623,7 +623,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.not.exist;
                 done();
@@ -643,7 +643,7 @@ describe('Response', function () {
             server.inject('/file', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
                 done();
@@ -663,7 +663,7 @@ describe('Response', function () {
             server.inject('/file', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                 done();
@@ -709,7 +709,7 @@ describe('Response', function () {
             server.inject('/staticfile', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 done();
             });
@@ -723,7 +723,7 @@ describe('Response', function () {
             server.inject('/filefn/index.js', function (res) {
 
                 expect(res.payload).to.contain('./lib');
-                expect(res.headers['content-type']).to.equal('application/javascript');
+                expect(res.headers['content-type']).to.equal('application/javascript; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 done();
             });
@@ -742,7 +742,7 @@ describe('Response', function () {
             server.inject('/relativefile', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 done();
             });
@@ -756,7 +756,7 @@ describe('Response', function () {
             server.inject('/relativestaticfile', function (res) {
 
                 expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 done();
             });
@@ -899,7 +899,7 @@ describe('Response', function () {
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
                 expect(res.headers['content-length']).to.not.exist;
                 expect(res.payload).to.exist;
@@ -919,7 +919,7 @@ describe('Response', function () {
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'deflate' } }, function (res) {
 
-                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('deflate');
                 expect(res.headers['content-length']).to.not.exist;
                 expect(res.payload).to.exist;
@@ -2329,8 +2329,7 @@ describe('Response', function () {
                     _prepare: function (request, callback) {
 
                         callback(Hapi.error.badRequest());
-                    },
-                    _transmit: function () { }
+                    }
                 };
 
                 request.setState('bad', {});

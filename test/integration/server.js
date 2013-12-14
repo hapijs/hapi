@@ -141,7 +141,7 @@ describe('Server', function () {
                             server.listener.getConnections(function (err, count) {
 
                                 expect(count).to.equal(0);
-                                expect(timer.elapsed()).to.be.at.least(10);
+                                expect(timer.elapsed()).to.be.at.least(9);
                                 done();
                             });
                         });
