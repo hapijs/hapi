@@ -140,16 +140,35 @@ describe('Router', function () {
         done();
     });
 
-    it('matched wildcard method', function (done) {
+    it('matches wildcard method', function (done) {
 
         var server = new Hapi.Server();
 
-        server.route({ method: '*', path: '/log', handler: function (request, reply) { reply('ok'); } });
-        server.inject('/log', function (res) {
+        server.route({ method: '*', path: '/', handler: function (request, reply) { reply('ok'); } });
+        server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('ok');
             done();
+        });
+    });
+
+    it('allows methods array', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.route({ method: ['GET', 'POST'], path: '/', handler: function (request, reply) { reply('ok'); } });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('ok');
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('ok');
+                done();
+            });
         });
     });
 });
