@@ -470,7 +470,7 @@ The following options are available when adding a route:
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
-    - `bind` - an object passed back to the provided handler (via `this`) when called. Can only be used with `handler` function values.
+    - `bind` - an object passed back to the provided handler (via `this`) when called.
 
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
