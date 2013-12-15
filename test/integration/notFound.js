@@ -37,7 +37,7 @@ describe('NotFound', function () {
     describe('using notFound routes', function () {
 
         var server = new Hapi.Server(0);
-        server.route({ method: 'GET', path: '/exists/not', handler: 'notFound' });
+        server.route({ method: 'GET', path: '/exists/not', handler: function (request, reply) { reply(Hapi.error.notFound()); } });
         server.route({ method: 'GET', path: '/exists/{p*}', handler: function (request, reply) { reply('OK'); } });
 
         it('returns 404 when making a request to a notFound route', function (done) {
