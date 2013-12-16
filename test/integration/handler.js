@@ -22,7 +22,7 @@ describe('Handler', function () {
 
     var fetch1 = function (request, reply) {
 
-        reply('Hello');
+        reply('Hello').code(444);
         reply();    // Ignored
     };
 
@@ -67,6 +67,11 @@ describe('Handler', function () {
     var getFetch2 = function (request, reply) {
 
         reply(request.pre.m1);
+    };
+
+    var getFetch4 = function (request, reply) {
+
+        reply(request.responses.m1);
     };
 
     var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
@@ -121,6 +126,16 @@ describe('Handler', function () {
         },
         {
             method: 'GET',
+            path: '/fetch4',
+            config: {
+                pre: [
+                    { method: fetch1, assign: 'm1' }
+                ],
+                handler: getFetch4
+            }
+        },
+        {
+            method: 'GET',
             path: '/fetchException',
             config: {
                 pre: [
@@ -159,69 +174,65 @@ describe('Handler', function () {
         }
     ]);
 
-    function makeRequest(path, callback) {
-
-        var next = function (res) {
-
-            return callback(res.result);
-        };
-
-        server.inject({
-            method: 'get',
-            url: path
-        }, next);
-    }
-
     it('shows the complete prerequisite pipeline in the response', function (done) {
 
-        makeRequest('/fetch1', function (res) {
+        server.inject('/fetch1', function (res) {
 
-            expect(res).to.equal('Hello World!');
+            expect(res.result).to.equal('Hello World!');
             done();
         });
     });
 
     it('shows a single prerequisite when only one is used', function (done) {
 
-        makeRequest('/fetch2', function (res) {
+        server.inject('/fetch2', function (res) {
 
-            expect(res).to.equal('Hello');
+            expect(res.result).to.equal('Hello');
             done();
         });
     });
 
     it('returns error if prerequisite returns error', function (done) {
 
-        makeRequest('/fetch3', function (res) {
+        server.inject('/fetch3', function (res) {
 
-            expect(res.code).to.equal(500);
+            expect(res.result.code).to.equal(500);
+            done();
+        });
+    });
+
+    it('passes wrapped object', function (done) {
+
+        server.inject('/fetch4', function (res) {
+
+            expect(res.statusCode).to.equal(444);
             done();
         });
     });
 
     it('returns 500 if prerequisite throws', function (done) {
 
-        makeRequest('/fetchException', function (res) {
+        server.inject('/fetchException', function (res) {
 
-            expect(res.code).to.equal(500);
+            expect(res.result.code).to.equal(500);
             done();
         });
     });
 
     it('returns a user record using helper', function (done) {
 
-        makeRequest('/user/5', function (res) {
+        server.inject('/user/5', function (res) {
 
-            expect(res).to.deep.equal({ id: '5', name: 'Bob' });
+            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
             done();
         });
     });
 
     it('returns a user name using multiple helpers', function (done) {
 
-        makeRequest('/user/5/name', function (res) {
+        server.inject('/user/5/name', function (res) {
 
-            expect(res).to.equal('Bob');
+            expect(res.result).to.equal('Bob');
             done();
         });
     });

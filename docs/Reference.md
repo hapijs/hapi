@@ -1689,7 +1689,9 @@ Each request object has the following properties:
 - `payload` - an object containing the parsed request payload (when the route `payload` option is set to `'parse'`).
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
   key is a plugin name and the value is the state.
-- `pre` - an object where each key is the name assigned by a [route prerequisites](#route-prerequisites) function.
+- `pre` - an object where each key is the name assigned by a [route prerequisites](#route-prerequisites) function. The values are the raw values
+  provided to the continuation function as argument. For the wrapped response object, use `request.responses`.
+- `responses` - same as `request.pre` but represented as the response object created by the pre method.
 - `query` - an object containing the query parameters.
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
     - `req` - the `request` object.
