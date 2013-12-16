@@ -2195,39 +2195,6 @@ server.route({ method: 'GET', path: '/1', handler: handler1 });
 server.route({ method: 'GET', path: '/2', handler: { file: './hello.txt' } });
 ```
 
-#### `Directory`
-
-Transmits a file or list of files from the file system. The 'Content-Type' header defaults to the matching mime type based on filename
-extension. This is an internal response type that can only be accessed via the built-in route handler.
-
-Generated with:
-
-- the built-in route [`directory`](#route.config.directory) handler.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
-
-var handler1 = {
-    directory: {
-        path: ['./public1/', './public2/'],
-        listing: true
-    }
-};
-
-var handler2 = {
-    directory: {
-        path: function (request) {
-
-            return (isMobileDevice(request) ? './mobile' : './public');
-        }
-    }
-};
-
-server.route({ method: 'GET', path: '/1/{path*}', handler: handler1 });
-server.route({ method: 'GET', path: '/2/{path*}', handler: handler2 });
-```
-
 #### `Redirection`
 
 An HTTP redirection response (3xx). Supports all the methods provided by [`Text`](#text) (except for `created()`) as well as the additional methods:
