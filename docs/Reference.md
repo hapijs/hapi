@@ -2066,6 +2066,7 @@ Replies with a stream object, directly piped into the HTTP response. Supports al
 
 - `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
     - `length` - the header value. Must match the actual payload size.
+- `source` - the response stream. Can be modified until `'onPreResponse'` is called.
 
 Generated with:
 
