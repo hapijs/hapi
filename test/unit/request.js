@@ -45,39 +45,6 @@ describe('Request', function () {
         );
     });
 
-    it('throws an error when no server is provided', function (done) {
-
-        var fn = function () {
-
-            var request = new Request(null, _req, _res, {});
-        };
-
-        expect(fn).throws(Error, 'server must be provided');
-        done();
-    });
-
-    it('throws an error when no req is provided', function (done) {
-
-        var fn = function () {
-
-            var request = new Request(server, null, _res, {});
-        };
-
-        expect(fn).throws(Error, 'req must be provided');
-        done();
-    });
-
-    it('throws an error when no res is provided', function (done) {
-
-        var fn = function () {
-
-            var request = new Request(server, _req, null, {});
-        };
-
-        expect(fn).throws(Error, 'res must be provided');
-        done();
-    });
-
     it('is created without error when correct parameters are provided', function (done) {
 
         var fn = function () {
