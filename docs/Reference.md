@@ -766,7 +766,7 @@ are response-type-specific and listed in [`response`](#response-types).
 var handler = function (request, reply) {
 
     reply('success')
-        .type('text/plain)
+        .type('text/plain')
         .header('X-Custom', 'some-value');
 };
 ```
