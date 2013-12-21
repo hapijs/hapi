@@ -468,7 +468,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var server = new Hapi.Server('0.0.0.0', 0, { cache: 'memory' });
-                server.helper('user', function () { }, { cache: { mode: 'server' } });
+                server.helper('user', function () { }, { cache: { x: 'y' } });
             };
             expect(fn).to.throw(Error);
             done();

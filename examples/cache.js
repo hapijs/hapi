@@ -17,27 +17,6 @@ internals.profile = function (request, reply) {
 };
 
 
-internals.activeItem = function (request, reply) {
-
-    reply({
-        'id': '55cf687663',
-        'name': 'Active Item'
-    });
-};
-
-
-internals.item = function (request, reply) {
-
-    setTimeout(function () {
-
-        reply({
-            'id': request.params.id,
-            'name': 'Item'
-        });
-    }, 600);
-};
-
-
 internals.main = function () {
 
     var config = {
@@ -50,11 +29,26 @@ internals.main = function () {
 
     var server = new Hapi.Server(8000, config);
 
-    server.route([
-        { method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } },
-        { method: 'GET', path: '/item', config: { handler: internals.activeItem } },
-        { method: 'GET', path: '/item/{id}', config: { handler: internals.item, cache: { mode: 'server', expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } } }
-    ]);
+    server.route({ method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } });
+
+    server.helper('user', function (id, next) {
+
+        setTimeout(function () {
+
+            next({
+                'id': id,
+                'name': 'Item'
+            });
+        }, 600);    // Used to demonstrate stale response
+    }, { cache: { expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } });
+
+
+    internals.item = function (request, reply) {
+
+        server.helpers.user(request.params.id, reply);
+    };
+
+    server.route({ method: 'GET', path: '/item/{id}', config: { handler: internals.item } });
 
     server.start();
 };

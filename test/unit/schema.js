@@ -134,7 +134,7 @@ describe('Schema', function () {
         });
 
         it('succeeds validating cache config', function (done) {
-            var config = { handler: internals.item, cache: { expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } };
+            var config = { handler: internals.item, cache: { expiresIn: 20000 } };
             expect(Schema.routeConfig(config)).to.not.exist;
             done();
         });

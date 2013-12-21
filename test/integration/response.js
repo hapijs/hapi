@@ -262,6 +262,24 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('does not modify content-type header when charset manually set', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('text').type('text/plain; charset=ISO-8859-1');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-type']).to.equal('text/plain; charset=ISO-8859-1');
+                done();
+            });
+        });
     });
 
     describe('Buffer', function () {
@@ -536,7 +554,7 @@ describe('Response', function () {
         };
 
         var server = new Hapi.Server({ cors: { credentials: true } });
-        server.route({ method: 'GET', path: '/', handler: handler, config: { cache: { mode: 'server', expiresIn: 2000 } } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         it('returns an empty reply', function (done) {
 
@@ -1415,37 +1433,6 @@ describe('Response', function () {
         });
     });
 
-    describe('Cached', function () {
-
-        it('returns a cached reply', function (done) {
-
-            var gen = 0;
-            var cacheHandler = function (request, reply) {
-
-                reply({ status: 'cached', gen: gen++ });
-            };
-
-            var server = new Hapi.Server(0);
-            server.route({ method: 'GET', path: '/cache', config: { handler: cacheHandler, cache: { mode: 'server', expiresIn: 5000 } } });
-
-            server.start(function () {
-
-                server.inject('/cache', function (res1) {
-
-                    expect(res1.result).to.exist;
-                    expect(res1.result.status).to.equal('cached');
-                    expect(res1.result.gen).to.equal(0);
-
-                    server.inject('/cache', function (res2) {
-
-                        expect(res2.payload).to.deep.equal('{"status":"cached","gen":0}');
-                        done();
-                    });
-                });
-            });
-        });
-    });
-
     describe('View', function () {
 
         var viewPath = __dirname + '/../unit/templates/valid';
@@ -1513,7 +1500,6 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
             server.route({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
             server.route({ method: 'GET', path: '/views/invalid', config: { handler: invalidHandler } });
-            server.route({ method: 'GET', path: '/views/cache', config: { handler: cachedHandler, cache: { mode: 'server', expiresIn: 2000 } } });
 
             it('returns a compiled Handlebars template reply', function (done) {
 
@@ -1574,24 +1560,6 @@ describe('Response', function () {
                     expect(res.result).to.exist;
                     expect(res.statusCode).to.equal(500);
                     done();
-                });
-            });
-
-            it('returns a fresh reply on second request when caching enabled', function (done) {
-
-                server.inject('/views/cache', function (res) {
-
-                    expect(res.result).to.exist;
-                    expect(res.result).to.equal('<div>\n    <h1>1</h1>\n</div>\n');
-                    expect(res.statusCode).to.equal(200);
-
-                    server.inject('/views/cache', function (res) {
-
-                        expect(res.result).to.exist;
-                        expect(res.result).to.equal('<div>\n    <h1>2</h1>\n</div>\n');
-                        expect(res.statusCode).to.equal(200);
-                        done();
-                    });
                 });
             });
         });

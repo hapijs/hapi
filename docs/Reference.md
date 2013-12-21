@@ -164,7 +164,7 @@ When creating a server instance, the following options configure the server's be
 
 - <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
   responses and helper results. By default a simple memory-based cache is used which has limited capacity and limited production environment suitability.
-  In addition to the memory cache, a Redis, MongoDB, or Memcache cache can be configured. Actual caching is only utilized if routes, helpers, and plugins
+  In addition to the memory cache, a Redis, MongoDB, or Memcache cache can be configured. Actual caching is only utilized if helpers and plugins
   are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The value can be a string
   with the cache engine name (using the defaults for that engine type), an object with the cache options, or an array of cache options. The cache options
   are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client). When an array of options is provided, multiple cache
@@ -542,19 +542,7 @@ The following options are available when adding a route:
                 - `error` - return an Internal Server Error (500) error response. This is the default value.
                 - `log` - log the error but send the response.
 
-    - `cache` - if the route method is 'GET', the route can be configured to use the cache. The `cache` options are described in
-      the [**catbox** module documentation](https://github.com/spumko/catbox#policy) with some additions:
-        - `mode` - cache location. Available values:
-            - `'client'` - caching is performed on the client by sending the HTTP `Cache-Control` header. This is the default value.
-            - `'server'` - caching is performed on the server using the cache strategy configured.
-            - `'client+server'` - caching it performed on both the client and server.
-        - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to the route fingerprint
-          (the route path with parameters represented by a `'?'` character). Note that when using the MongoDB cache strategy, some paths
-          will require manual override as their fingerprint will conflict with MongoDB collection naming rules. When setting segment
-          names manually, the segment must begin with `'//'`.
-        - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
-        - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same route and cache.
-          Default to not shared.
+    - `cache` - if the route method is 'GET', the route can be configured to include caching directives in the response using the following options:
         - `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control' header. Values are:
             - `'default'` - no privacy flag. This is the default setting.
             - `'public'` - mark the response as suitable for public caching.
@@ -563,9 +551,6 @@ The following options are available when adding a route:
           together with `expiresAt`.
         - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
           expire. Cannot be used together with `expiresIn`.
-        - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`. Available
-          only when using server-side caching.
-        - `staleTimeout` - number of milliseconds to wait before checking if an item is stale. Available only when using server-side caching.
 
     - `auth` - authentication configuration. Value can be:
         - a string with the name of an authentication strategy registered with `server.auth()`.
@@ -1124,7 +1109,7 @@ var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 Registers an authentication strategy where:
 
 - `name` - is the strategy name (`'default'` is automatically assigned if a single strategy is registered via the server `auth` config).
-- `options` - required strategy options. Each scheme comes with its own set of required options, in addition to the options sharedby all schemes:
+- `options` - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared by all schemes:
     - `scheme` - (required, except when `implementation` is used) the built-in scheme name. Available values:
         - `'basic'` - [HTTP Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
         - `'cookie'` - [cookie authentication](#cookie-authentication)
@@ -1488,7 +1473,7 @@ Helpers are registered via `server.helper(name, method, [options])` where:
     - `next` - the function called when the helper is done with the signature `function(result)` where:
         - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)).
 - `options` - optional configuration:
-    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy):
+    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy) with a few additions:
         - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
           together with `expiresAt`.
         - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
@@ -3110,7 +3095,7 @@ exports.register = function (plugin, options, next) {
 
 Provisions a plugin cache segment within the pack's common caching facility where:
 
-- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy):
+- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy) with a few additions:
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
@@ -3120,6 +3105,8 @@ Provisions a plugin cache segment within the pack's common caching facility wher
     - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '!name' where 'name' is the
       plugin name. When setting segment manually, it must begin with '!!'.
     - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
+    - `shared` - if true, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same cache. Default
+      to not shared.
 
 ```javascript
 exports.register = function (plugin, options, next) {

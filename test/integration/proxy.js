@@ -161,7 +161,7 @@ describe('Proxy', function () {
             { method: 'GET', path: '/redirect', handler: redirectHandler },
             { method: 'POST', path: '/post1', handler: function (request, reply) { reply.redirect('/post2').rewritable(false); } },
             { method: 'POST', path: '/post2', handler: function (request, reply) { reply(request.payload); } },
-            { method: 'GET', path: '/cached', handler: profile },
+            { method: 'GET', path: '/custom', handler: profile },
             { method: 'GET', path: '/timeout1', handler: timeoutHandler },
             { method: 'GET', path: '/timeout2', handler: timeoutHandler },
             { method: 'GET', path: '/handlerOldSchool', handler: activeItem }
@@ -191,6 +191,11 @@ describe('Proxy', function () {
 
             return callback(null, 'https://127.0.0.1:' + upstreamSingle.info.port);
         };
+        
+        var postResponse = function (request, reply, settings, res, payload, ttl) {
+
+            reply(payload);
+        };
 
         upstream.start(function () {
 
@@ -199,7 +204,7 @@ describe('Proxy', function () {
                 upstreamSingle.start(function () {
 
                     var backendPort = upstream.info.port;
-                    var routeCache = { expiresIn: 500, mode: 'server+client' };
+                    var routeCache = { expiresIn: 500 };
 
                     server = new Hapi.Server(0, { cors: true, maxSockets: 10 });
                     server.route([
@@ -219,20 +224,18 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'GET', path: '/gzip', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
                         { method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true } } },
-                        { method: 'GET', path: '/google', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://www.google.com'); } } } },
-                        { method: 'GET', path: '/googler', handler: { proxy: { mapUri: function (request, callback) { callback(null, 'http://google.com'); }, redirects: 1 } } },
                         { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
                         { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } },
                         { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } },
-                        { method: 'GET', path: '/cached', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                        { method: 'GET', path: '/custom', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponse } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 5 } } },
                         { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'GET', path: '/single', handler: { proxy: { mapUri: mapSingleUri } } },
                         { method: 'GET', path: '/handler', handler: function (request, reply) { reply.proxy({ uri: 'http://localhost:' + backendPort + '/item' }); } },
                         { method: 'GET', path: '/handlerTemplate', handler: function (request, reply) { reply.proxy({ uri: '{protocol}://localhost:' + backendPort + '/item' }); } },
                         { method: 'GET', path: '/handlerOldSchool', handler: function (request, reply) { reply.proxy({ host: 'localhost', port: backendPort }); } },
-                        { method: 'GET', path: '/cachedItem', handler: { proxy: { host: 'localhost', port: backendPort, ttl: 'upstream' } }, config: { cache: { mode: 'server+client' } } },
-                        { method: 'GET', path: '/clientCachedItem', handler: { proxy: { uri: 'http://localhost:' + backendPort + '/cachedItem', ttl: 'upstream' } }, config: { cache: { mode: 'client' } } }
+                        { method: 'GET', path: '/cachedItem', handler: { proxy: { host: 'localhost', port: backendPort, ttl: 'upstream' } }, config: { cache: {} } },
+                        { method: 'GET', path: '/clientCachedItem', handler: { proxy: { uri: 'http://localhost:' + backendPort + '/cachedItem', ttl: 'upstream' } } }
                     ]);
 
                     sslServer = new Hapi.Server(0);
@@ -511,7 +514,7 @@ describe('Proxy', function () {
             callback(Hapi.error.internal('Fake error'));
         };
 
-        server.inject('/cached', function (res) {
+        server.inject('/custom', function (res) {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -615,35 +618,13 @@ describe('Proxy', function () {
         });
     });
 
-    it('applies upstream caching headers and caches locally', function (done) {
+    it('passes upstream caching headers', function (done) {
 
-        server.inject('/cachedItem', function (res1) {
+        server.inject('/cachedItem', function (res) {
 
-            expect(res1.statusCode).to.equal(200);
-            expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-
-            server.inject('/cachedItem', function (res2) {
-
-                expect(res2.statusCode).to.equal(200);
-                expect(res2.payload).to.equal(res1.payload);
-                done();
-            });
-        });
-    });
-
-    it('applies upstream caching headers without local cache', function (done) {
-
-        server.inject('/clientCachedItem', function (res1) {
-
-            expect(res1.statusCode).to.equal(200);
-            expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-
-            server.inject('/clientCachedItem', function (res2) {
-
-                expect(res2.statusCode).to.equal(200);
-                expect(res2.payload).to.not.equal(res1.payload);
-                done();
-            });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+            done();
         });
     });
 });

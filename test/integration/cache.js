@@ -21,14 +21,19 @@ var it = Lab.test;
 
 describe('Cache', function () {
 
-    var server = null;
+    var server = new Hapi.Server(0, { debug: false, cache: [{ engine: 'memory', name: 'secondary' }] });
 
-    var profileHandler = function (request, reply) {
-
-        reply({
+    server.helper('profile', function (id, next) {
+        
+        next({
             'id': 'fa0dbda9b1b',
             'name': 'John Doe'
         });
+    }, { cache: { expiresIn: 120000 } });
+    
+    var profileHandler = function (request, reply) {
+
+        server.helpers.profile(0, reply);
     };
 
     var activeItemHandler = function (request, reply) {
@@ -55,25 +60,17 @@ describe('Cache', function () {
         reply(error);
     };
 
-    function setupServer(done) {
+    server.route([
+        { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } },
+        { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
+        { method: 'GET', path: '/item2', config: { handler: activeItemHandler } },
+        { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
+    ]);
 
-        server = new Hapi.Server('0.0.0.0', 0, { debug: false, cache: [{ engine: 'memory', name: 'secondary' }] });
-
-        server.route([
-            { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private', cache: 'secondary' } } },
-            { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
-            { method: 'GET', path: '/item2', config: { handler: activeItemHandler } },
-            { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
-            { method: 'GET', path: '/cache', config: { handler: cacheItemHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
-            { method: 'GET', path: '/error', config: { handler: errorHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
-            { method: 'GET', path: '/clientserver', config: { handler: profileHandler, cache: { mode: 'client+server', expiresIn: 120000 } } },
-            { method: 'GET', path: '/serverclient', config: { handler: profileHandler, cache: { mode: 'server+client', expiresIn: 120000 } } }
-        ]);
+    before(function (done) {
 
         server.start(done);
-    }
-
-    before(setupServer);
+    });
 
     it('returns max-age value when route uses default cache rules', function (done) {
 
@@ -102,60 +99,12 @@ describe('Cache', function () {
         });
     });
 
-    it('does not cache error responses', function (done) {
-
-        server.inject('/error', function () {
-
-            server.pack._caches._default.client.get({ segment: '/error', id: '/error' }, function (err, cached) {
-
-                expect(cached).to.not.exist;
-                done();
-            });
-        });
-    });
-
     it('does not send cache headers for responses with status codes other than 200', function (done) {
 
         server.inject('/nocache', function (res) {
 
             expect(res.headers['cache-control']).to.equal('no-cache');
             done();
-        });
-    });
-
-    it('caches responses with status codes of 200', function (done) {
-
-        server.inject('/cache', function () {
-
-            server.pack._caches._default.client.get({ segment: '/cache', id: '/cache' }, function (err, cached) {
-
-                expect(cached).to.exist;
-                done();
-            });
-        });
-    });
-
-    it('caches server+client the same as client+server', function (done) {
-
-        server.inject('/serverclient', function (res1) {
-
-            server.pack._caches._default.client.get({ segment: '/serverclient', id: '/serverclient' }, function (err1, cached1) {
-
-                expect(cached1).to.exist;
-                expect(res1.headers['cache-control']).to.equal('max-age=120, must-revalidate');
-
-
-                server.inject('/clientserver', function (res2) {
-
-                    server.pack._caches._default.client.get({ segment: '/clientserver', id: '/clientserver' }, function (err2, cached2) {
-
-                        expect(cached2).to.exist;
-                        expect(res2.headers['cache-control']).to.equal('max-age=120, must-revalidate');
-                        expect(cached1.item.payload).to.equal(cached2.item.payload);
-                        done();
-                    });
-                });
-            });
         });
     });
 
