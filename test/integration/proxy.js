@@ -274,21 +274,30 @@ describe('Proxy', function () {
         done();
     });
 
-    it('proxies to a remote site', function (done) {
+    Nipple.request('get', 'google.com', {}, function (err, res) {
+        
+        if (err) {
+            return;
+        }
+        
+        res.destroy();
+        
+        it('proxies to a remote site', function (done) {
 
-        server.inject('/google', function (res) {
+            server.inject('/google', function (res) {
 
-            expect(res.statusCode).to.equal(200);
-            done();
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
         });
-    });
 
-    it('proxies to a remote site with redirects', function (done) {
+        it('proxies to a remote site with redirects', function (done) {
 
-        server.inject('/googler', function (res) {
+            server.inject('/googler', function (res) {
 
-            expect(res.statusCode).to.equal(200);
-            done();
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
         });
     });
 
