@@ -2,7 +2,7 @@
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
-    - [`createServer([host], [port], [options])`](#createServerhost-port-options)
+    - [`createServer([host], [port], [options])`](#createserverhost-port-options)
     - [Server options](#server-options)
     - [`Server` properties](#server-properties)
     - [`Server` methods](#server-methods)
@@ -766,7 +766,7 @@ are response-type-specific and listed in [`response`](#response-types).
 var handler = function (request, reply) {
 
     reply('success')
-        .type('text/plain)
+        .type('text/plain')
         .header('X-Custom', 'some-value');
 };
 ```
