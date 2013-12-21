@@ -50,9 +50,6 @@ describe('Hapi command line', function () {
             ],
             plugins: {
                 '--loaded': {}
-            },
-            permissions: {
-                ext: true
             }
         };
 
@@ -112,9 +109,6 @@ describe('Hapi command line', function () {
             ],
             plugins: {
                 '--loaded': {}
-            },
-            permissions: {
-                ext: true
             }
         };
 
@@ -179,9 +173,6 @@ describe('Hapi command line', function () {
             ],
             plugins: {
                 '--loaded': {}
-            },
-            permissions: {
-                ext: true
             }
         };
 

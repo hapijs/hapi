@@ -133,27 +133,7 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        server.pack.allow({ route: true }).register(plugin, { something: true }, function (err) {
-
-            expect(err).to.not.exist;
-            done();
-        });
-    });
-
-    it('registers plugin via server plugin interface (inline permission)', function (done) {
-
-        var plugin = {
-            name: 'test',
-            version: '2.0.0',
-            register: function (plugin, options, next) {
-
-                expect(options.something).to.be.true;
-                next();
-            }
-        };
-
-        var server = new Hapi.Server();
-        server.pack.register(plugin, [{ route: true }, { something: true }], function (err) {
+        server.pack.register(plugin, { something: true }, function (err) {
 
             expect(err).to.not.exist;
             done();
@@ -178,7 +158,7 @@ describe('Pack', function () {
         pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
         pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
 
-        pack.require('./pack/--test1', [{ route: true }, {}], function (err) {
+        pack.require('./pack/--test1', {}, function (err) {
 
             expect(err).to.not.exist;
 
@@ -255,7 +235,7 @@ describe('Pack', function () {
     it('requires multiple plugins using object', function (done) {
 
         var server = new Hapi.Server({ labels: 'test' });
-        server.pack.require({ './pack/--test1': [{ route: true }, {}], './pack/--test2': {} }, function (err) {
+        server.pack.require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/test1', '/test2', '/test2/path']);
@@ -331,16 +311,6 @@ describe('Pack', function () {
         });
     });
 
-    it('throws when requiring a child plugin with override permissions', function (done) {
-
-        var server = new Hapi.Server();
-        expect(function () {
-
-            server.pack.require('./pack/--child-perm', function (err) { });
-        }).to.throw('Cannot override root permissions');
-        done();
-    });
-
     it('fails to require missing module', function (done) {
 
         var pack = new Hapi.Pack();
@@ -348,7 +318,7 @@ describe('Pack', function () {
 
         expect(function () {
 
-            pack.allow({}).require('./pack/none', function (err) { });
+            pack.require('./pack/none', function (err) { });
         }).to.throw('Cannot find module');
         done();
     });
@@ -430,7 +400,7 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        server.pack.allow({ route: true }).register(plugin, [{ ext: true }], function (err) {
+        server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/b']);
@@ -547,7 +517,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         expect(function () {
 
-            server.pack.require('./pack/--deps1', [{ ext: true }], function (err) { });
+            server.pack.require('./pack/--deps1', function (err) { });
         }).to.throw('Plugin --deps1 missing dependencies: --deps2');
         done();
     });
@@ -688,17 +658,6 @@ describe('Pack', function () {
             expect(err).to.not.exist;
             done();
         });
-    });
-
-    it('fails to register a plugin with insufficient permissions', function (done) {
-
-        var server = new Hapi.Server({ labels: 'c' });
-
-        expect(function () {
-
-            server.pack.allow({}).require('./pack/--deps3', [{ ext: false }, null], function (err) { });
-        }).to.throw('Object #<Object> has no method \'ext\'');
-        done();
     });
 
     it('requires a plugin using loader', function (done) {

@@ -95,9 +95,6 @@ describe('Composer', function () {
             ],
             plugins: {
                 '../test/integration/pack/--test1': {}
-            },
-            permissions: {
-                ext: true
             }
         };
 

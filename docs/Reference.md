@@ -78,7 +78,6 @@
           - [`pack.server([host], [port], [options])`](#packserverhost-port-options)
           - [`pack.start([callback])`](#packstartcallback)
           - [`pack.stop([options], [callback])`](#packstopoptions-callback)
-          - [`pack.allow(permissions)`](#packallowpermissions)
           - [`pack.require(name, options, callback)`](#packrequirename-options-callback)
           - [`pack.require(names, callback)`](#packrequirenames-callback)
           - [`pack.register(plugin, options, callback)`](#packregisterplugin-options-callback)
@@ -2580,43 +2579,6 @@ pack.stop({ timeout: 60 * 1000 }, function () {
 });
 ```
 
-#### `pack.allow(permissions)`
-
-Overrides the default plugin permissions when [requiring](#packrequirename-options-callback) or [registering](#packregisterplugin-options-callback)
-a plugin. Where:
-
-- `permissions` - an object where each key is a permission name and the value is a boolean set to `true` (allow) or `false` (deny) access.
-
-Returns a plugin registration interface with the `pack.require()` and `pack.register()` methods.
-
-The default permissions are:
-
-- `auth` - allows registering an authentication strategy via [`plugin.auth()`](#pluginauthname-options). Defaults to `true`.
-- `cache` - allows provisioning a plugin cache segment via [`plugin.cache()`](#plugincacheoptions). Defaults to `true`.
-- `events` - allows access to events via [`plugin.events`](#pluginevents). Defaults to `true`.
-- `ext`- allows registering extension methods via [`plugin.ext()`](#pluginextevent-method-options). Defaults to `true`.
-- `helper` - allows addming server helper methods via [`plugin.helper()`](#pluginhelpername-method-options). Defaults to `true`.
-- `route` - allows adding routes via [`plugin.route()`](#pluginrouteoptions). Defaults to `true`.
-- `state` - allows configuring state definitions via [`plugin.state()`](#pluginstatename-options). Defaults to `true`.
-- `views` - allows configuring a plugin-specific views manager via [`plugin.views()`](#pluginviewsoptions). Defaults to `true`.
-- `require` - allows one plugin to require another (using the same pack and permissions granted to the plugin) via
-  [`plugin.require()`](#pluginrequirename-options-callback). Defaults to `true`.
-
-```javascript
-var Hapi = require('hapi');
-var pack = new Hapi.Pack();
-
-pack.server(8000, { labels: ['web'] });
-pack.server(8001, { labels: ['admin'] });
-
-pack.allow({ ext: true }).require('yar', function (err) {
-
-    if (err) {
-        console.log('Failed loading plugin: yar');
-    }
-});
-```
-
 #### `pack.require(name, [options], callback)`
 
 Registers a plugin where:
@@ -2626,10 +2588,9 @@ Registers a plugin where:
   value of the pack `requirePath` configuration option when present. Note that node's `require()` is invoked by hapi which means, the `'node_modules'` path
   is relative to the location of the hapi module.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
-  and the second item is used as `options`.
+  [`exports.register()`](#exportsregisterplugin-options-next).
 - `callback` - the callback function with signature `function(err)` where:
-      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
         (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
@@ -2646,10 +2607,9 @@ pack.require('furball', { version: '/v' }, function (err) {
 Registers a list of plugins where:
 
 - `names` - an array of plugins names as described in [`pack.require()`](#packrequirename-options-callback), or an object in which
-  each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options` value is an array,
-  the first array item is used as [`permissions`](#packallowpermissions), and the second item is used as `options`.
+  each key is a plugin name, and each value is the `options` object used to register that plugin.
 - `callback` - the callback function with signature `function(err)` where:
-      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
         (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 Batch registration is required when plugins declare a [dependency](#plugindependencydeps-after), so that all the required dependencies are loaded in
@@ -2681,10 +2641,9 @@ Registers a plugin object (without using `require()`) where:
     - `path` - optional plugin path for resolving relative paths used by the plugin. Defaults to current working directory.
     - `register()` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
-  and the second item is used as `options`.
+  [`exports.register()`](#exportsregisterplugin-options-next).
 - `callback` - the callback function with signature `function(err)` where:
-    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
       (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
@@ -2720,8 +2679,7 @@ Creates a `Composer` object instance where:
     - `servers` - an array of server configuration objects where:
         - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
           `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an environment variable by prefixing the variable name with `'$env.'`.
-    - `plugin` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin. If the `options`
-      value is an array, the first array item is used as [`permissions`](#packallowpermissions), and the second item is used as `options`.
+    - `plugin` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2768,7 +2726,7 @@ Creates the packs described in the manifest construction where:
 
 - `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
   `function(err)` where:
-    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, missing permissions, or namespace conflicts
+    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
       (e.g. among routes, helpers, state) will throw an error and will not return a callback.
 
 ```javascript
@@ -2910,8 +2868,7 @@ exports.register = function (plugin, options, next) {
 
 Registers the plugin where:
 
-- `plugin` - the registration interface representing the pack the plugin is being registered into. Provides the properties and methods listed below, based
-  on the permissions granted.
+- `plugin` - the registration interface representing the pack the plugin is being registered into. Provides the properties and methods listed below.
 - `options` - the `options` object provided by the pack registration methods.
 - `next` - the callback function the plugin must call to return control over to the application and complete the registration process. The function
   signature is `function(err)` where:
@@ -2990,8 +2947,6 @@ exports.register = function (plugin, options, next) {
 ```
 
 #### `plugin.events`
-
-_Requires the `events` plugin permission._
 
 The `pack.events' emitter.
 
@@ -3090,8 +3045,6 @@ var after = function (plugin, next) {
 
 #### `plugin.views(options)`
 
-_Requires the `views` plugin permission._
-
 Generates a plugin-specific views manager for rendering templates where:
 - `options` - the views configuration as described in the server's [`views`](#server.config.views) option. Note that due to the way node
   `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
@@ -3117,8 +3070,6 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.helper(name, method, [options])`
 
-_Requires the `helper` plugin permission._
-
 Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelpername-method-options)
 
 ```javascript
@@ -3134,8 +3085,6 @@ exports.register = function (plugin, options, next) {
 ```
 
 #### `plugin.helpers`
-
-_Requires the `helper` plugin permission._
 
 Provides access to the helper methods registered with [`plugin.helper()`](#pluginhelpername-method-options)
 
@@ -3157,8 +3106,6 @@ exports.register = function (plugin, options, next) {
 ```
 
 #### `plugin.cache(options)`
-
-_Requires the `cache` plugin permission._
 
 Provisions a plugin cache segment within the pack's common caching facility where:
 
@@ -3183,10 +3130,7 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.require(name, [options], callback)`
 
-_Requires the `require` plugin permission._
-
-Registers a plugin using the same pack and permissions granted to the current plugin following the syntax of
-[`pack.require()`](#packrequirename-options-callback). The `options` argument cannot be an array.
+Registers a plugin with the same pack as the current plugin following the syntax of [`pack.require()`](#packrequirename-options-callback).
 
 ```javascript
 exports.register = function (plugin, options, next) {
@@ -3200,10 +3144,7 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.require(names, callback)`
 
-_Requires the `require` plugin permission._
-
-Registers a list of plugins using the same pack and permissions granted to the current plugin following the syntax of
-[`pack.require()`](#packrequirename-callback).
+Registers a list of plugins with the same pack following the syntax of [`pack.require()`](#packrequirename-callback).
 
 ```javascript
 exports.register = function (plugin, options, next) {
@@ -3327,8 +3268,6 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.route(options)`
 
-_Requires the `route` plugin permission._
-
 Adds a server route to the selected pack's servers as described in [`server.route(options)`](#serverrouteoptions).
 
 ```javascript
@@ -3341,8 +3280,6 @@ exports.register = function (plugin, options, next) {
 ```
 
 #### `plugin.route(routes)`
-
-_Requires the `route` plugin permission._
 
 Adds multiple server routes to the selected pack's servers as described in [`server.route(routes)`](#serverrouteroutes).
 
@@ -3361,8 +3298,6 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.state(name, [options])`
 
-_Requires the `state` plugin permission._
-
 Adds a state definition to the selected pack's servers as described in [`server.state()`](#serverstatename-options).
 
 ```javascript
@@ -3374,8 +3309,6 @@ exports.register = function (plugin, options, next) {
 ```
 
 #### `plugin.auth(name, options)`
-
-_Requires the `auth` plugin permission._
 
 Adds an authentication strategy to the selected pack's servers as described in [`server.auth()`](#serverauthname-options).
 
@@ -3395,8 +3328,6 @@ exports.register = function (plugin, options, next) {
 ```
 
 #### `plugin.ext(event, method, [options])`
-
-_Requires the `ext` plugin permission._
 
 Adds an extension point method to the selected pack's servers as described in [`server.ext()`](#serverextevent-method-options).
 
