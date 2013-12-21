@@ -2623,7 +2623,8 @@ Registers a plugin where:
 
 - `name` - the node module name as expected by node's [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id). If `name` is a relative
   path it is relative to the location of the file requiring it. If `name` is not a relative or absolute path (e.g. 'furball'), it is prefixed with the
-  value of the pack `requirePath` configuration option when present.
+  value of the pack `requirePath` configuration option when present. Note that node's `require()` is invoked by hapi which means, the `'node_modules'` path
+  is relative to the location of the hapi module.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
   [`exports.register()`](#exportsregisterplugin-options-next). If `options` is an array, the first array item is used as [`permissions`](#packallowpermissions),
   and the second item is used as `options`.
