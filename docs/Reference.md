@@ -109,6 +109,7 @@
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
+        - [`plugin.servers`](#pluginservers)
         - [`plugin.expose(key, value)`](#pluginexposekey-value)
         - [`plugin.expose(obj)`](#pluginexposeobj)
         - [`plugin.route(options)`](#pluginrouteoptions)
