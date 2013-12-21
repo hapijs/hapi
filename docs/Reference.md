@@ -155,8 +155,8 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 
 When creating a server instance, the following options configure the server's behavior:
 
-- `app` - application-specific configuration. Provides a safe place to store application configuration without potential conflicts with **hapi**.
-  Should not be used by plugins which should use `plugins[name]`.
+- `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which should use `plugins[name]`. Note the difference between
+  `server.settings.app` which is used to store configuration value and `server.app` which is meant for storing run-time state.
 
 - `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
   or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
@@ -245,8 +245,9 @@ When creating a server instance, the following options configure the server's be
                 - `'sha1'`
                 - `'md5'`
 
-- `plugins` - plugin-specific configuration. Provides a place to store and pass plugin configuration that is at server-level. The `plugins` is
-  an object where each key is a plugin name and the value is the configuration.
+- `plugins` - plugin-specific configuration which can later be accessed by `server.plugins`. Provides a place to store and pass plugin configuration that
+  is at server-level. The `plugins` is an object where each key is a plugin name and the value is the configuration. Note the difference between
+  `server.settings.plugins` which is used to store configuration value and `server.plugins` which is meant for storing run-time state.
 
 - <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
