@@ -1974,6 +1974,9 @@ for deriving other response types. It provides the following methods:
     - `length` - the header value. Must match the actual payload size.
 - `vary(header)` - adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
     - `header` - the HTTP request header name.
+- `location(uri)` - sets the HTTP 'Location' header where:
+    - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of the server
+      [`location`](#server.config.location) configuration option is used as prefix.
 - `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
     `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
       the server [`location`](#server.config.location) configuration option is used as prefix. Not available in the `Redirection`
@@ -1984,7 +1987,6 @@ for deriving other response types. It provides the following methods:
     `charset` - the charset property value.
 - `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
     - `msec` - the time-to-live value in milliseconds.
-- `getTtl()` - returns the time-to-live value if an override has been set, and the request method is 'GET'.
 - `state(name, value, [options])` - sets an HTTP cookie as described in [`request.setState()`](#requestsetstatename-value-options).
 - `unstate(name)` - clears the HTTP cookie by setting an expired value as described in [`request.clearState()`](#requestclearstatename).
 
@@ -2130,9 +2132,6 @@ An HTTP redirection response (3xx). Supports all the methods provided by [`Gener
     - `text` - the text content.
     - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
     - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
-- `location(uri)` - set the destination URI where:
-    - `uri` - overrides the destination. An absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the
-      value of the server [`location`](#server.config.location) configuration option is used as prefix.
 - `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
     - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
 - `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()` setting) where:
