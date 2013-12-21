@@ -39,6 +39,7 @@ describe('Payload', function () {
     describe('#read', function () {
 
         it('passes null to the callback when the method is not put, patch or post', function (done) {
+
             var request = {
                 _bench: new Hapi.utils.Bench(),
                 method: 'delete',
