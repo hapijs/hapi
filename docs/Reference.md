@@ -3235,6 +3235,23 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
+#### `plugin.servers`
+
+The selected servers array.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    var selection = plugin.select('web');
+    selection.servers.forEach(function (server) {
+
+        server.route({ method: 'GET', path: '/', handler: 'notfound' });
+    });
+
+    next();
+};
+```
+
 #### `plugin.expose(key, value)`
 
 Exposes a property via `plugin.plugins[name]` (if added to the plugin root without first calling `plugin.select()`) and `server.plugins[name]`
