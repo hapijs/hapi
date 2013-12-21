@@ -789,7 +789,7 @@ _Available only within the handler method and only before one of `reply()`, `rep
 
 Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension.:
 
-- `path` - the file path. Can be modified until `'onPreResponse'` is called.
+- `path` - the file path.
 - `options` - optional settings:
     - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
     - `options` - optional configuration:
@@ -1478,7 +1478,7 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - **`'onPreResponse'`** extension point
     - always called.
     - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object.
-      The response object cannot be modified. To return a different response (for example, replace an error with an HTML response), return a new
+      The response object may be modified. To return a different response (for example, replace an error with an HTML response), return a new
       response via `next(response)`. Note that any errors generated after `next(response)` is called will not be passed back to the `'onPreResponse'`
       extention method to prevent an infinite loop.
 - Send response (may emit `'internalError'` event)
@@ -2007,7 +2007,7 @@ var handler = function (request, reply) {
 
 Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all the methods provided by [`Generic`](#generic) as well as:
 
-- `source` - the response text string value. Can be modified until `'onPreResponse'` is called.
+- `source` - the response text string value.
 
 Generated with:
 
@@ -2025,7 +2025,7 @@ var handler = function (request, reply) {
 
 Buffer response. Supports all the methods provided by [`Generic`](#generic) as well as:
 
-- `source` - the response buffer object. Can be modified until `'onPreResponse'` is called.
+- `source` - the response buffer object.
 
 
 Generated with:
@@ -2045,7 +2045,7 @@ var handler = function (request, reply) {
 
 Replies with a stream object, directly piped into the HTTP response. Supports all the methods provided by [`Generic`](#generic) as well as:
 
-- `source` - the response stream. Can be modified until `'onPreResponse'` is called.
+- `source` - the response stream.
 
 Generated with:
 
@@ -2092,7 +2092,7 @@ JavaScript object, sent stringified. The 'Content-Type' header defaults to 'appl
     - `encoding` - 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
     - `replacer` - the `JSON.stringify()` replacer function or array. Defaults to no action.
     - `space` - the `JSON.stringify()` number of spaces to indent nested object keys. Defaults to no indentation.
-- `source` - the response object reference. Can be modified until `'onPreResponse'` is called.
+- `source` - the response object reference.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2125,12 +2125,12 @@ var handler = function (request, reply) {
 
 An HTTP redirection response (3xx). Supports all the methods provided by [`Generic`](#generic) (except for `created()`) as well as the additional methods:
 
-- `source` - the response text string value. Can be modified until `'onPreResponse'` is called.
+- `source` - the response text string value.
 - `message(text, [type, [encoding]])` - sets or replace the response text where:
     - `text` - the text content.
     - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
     - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
-- `uri(dest)` - set the destination URI where:
+- `location(uri)` - set the destination URI where:
     - `uri` - overrides the destination. An absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the
       value of the server [`location`](#server.config.location) configuration option is used as prefix.
 - `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
@@ -2167,7 +2167,7 @@ var handler = function (request, reply) {
 
 Template-based response. Supports all the methods provided by [`Generic`](#generic) as well as:
 
-- `source` - the view settings. Can be modified until `'onPreResponse'` is called.
+- `source` - the view settings.
 
 Generated with:
 
