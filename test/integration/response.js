@@ -1908,7 +1908,7 @@ describe('Response', function () {
             }
 
             if (request.query.x === 'verbose') {
-                return reply.redirect().uri('examplex').message('We moved!');
+                return reply.redirect().location('examplex').message('We moved!');
             }
 
             if (request.query.x === '302') {
