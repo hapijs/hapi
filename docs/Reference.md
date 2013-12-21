@@ -15,6 +15,7 @@
             - [Route handler](#route-handler)
                 - [`reply([result])`](#replyresult)
                 - [`reply.redirect(uri)`](#replyredirecturi)
+                - [`reply.file(path, options)`](#replyfilepath-options)
                 - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
                 - [`reply.close()`](#replyclose)
                 - [`reply.proxy(options)`](#replyproxyoptions)
@@ -57,7 +58,6 @@
         - [`Buffer`](#buffer)
         - [`Stream`](#stream)
         - [`Obj`](#obj)
-        - [`File`](#file)
         - [`Redirection`](#redirection)
         - [`View`](#view)
 - [`Hapi.error`](#hapierror)
@@ -721,7 +721,7 @@ var handler = function (request, reply) {
 
 ###### `reply([result])`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router where:
@@ -747,6 +747,8 @@ var handler = function (request, reply) {
 The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
 are response-type-specific and listed in [`response`](#response-types).
 
+The [response flow control rules](#flow-control) apply.
+
 ```javascript
 var handler = function (request, reply) {
 
@@ -756,11 +758,9 @@ var handler = function (request, reply) {
 };
 ```
 
-The [response flow control rules](#flow-control) apply.
-
 ###### `reply.redirect(uri)`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router with a redirection response where:
@@ -769,6 +769,8 @@ Concludes the handler activity by returning control over to the router with a re
   the server [`location`](#server.config.location) configuration option is used as prefix.
 
 Returns a [`Redirection`](#redirection) response.
+
+The [response flow control rules](#flow-control) apply.
 
 ```javascript
 var handler = function (request, reply) {
@@ -779,11 +781,36 @@ var handler = function (request, reply) {
 };
 ```
 
-The [response flow control rules](#flow-control) apply.
+###### `reply.file(path, [options])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension.:
+
+- `path` - the file path. Can be modified until `'onPreResponse'` is called.
+- `options` - optional settings:
+    - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
+    - `options` - optional configuration:
+        - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
+            - `'attachment'`
+            - `'inline'`
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+```javascript
+var handler = function (request, reply) {
+
+    var response = new Hapi.response.File;
+    reply.file('./hello.txt');
+};
+```
 
 ###### `reply.view(template, [context, [options]])`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router with a templatized view response where:
@@ -793,6 +820,8 @@ Concludes the handler activity by returning control over to the router with a te
 - `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
 
 Returns a [`View`](#view) response.
+
+The [response flow control rules](#flow-control) apply.
 
 ```javascript
 var Hapi = require('hapi');
@@ -832,11 +861,9 @@ server.route({ method: 'GET', path: '/', handler: handler });
 </html>
 ```
 
-The [response flow control rules](#flow-control) apply.
-
 ###### `reply.close()`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
@@ -848,7 +875,7 @@ The [response flow control rules](#flow-control) **do not** apply.
 
 ###### `reply.proxy(options)`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Proxies the request to an upstream endpoint where:
@@ -1928,7 +1955,7 @@ Every response type includes the following properties:
 
 - `variety` - the response type name in lower case (e.g. `'text'`).
 - `varieties` - an object where each key has a `true` value and represents a response type name (in lower case) whose functionality is made
-  available via the response object (e.g. the `File` response type `varieties` object is `{ generic: true, stream: true, file: true }`).
+  available via the response object (e.g. the `Redirection` response type `varieties` object is `{ generic: true, text: true, redirection: true }`).
 
 #### `Generic`
 
@@ -2146,39 +2173,6 @@ var handler2 = function (request, reply) {
     var response = new Hapi.response.Obj({ message: 'hello world' });
     reply(response);
 };
-```
-
-#### `File`
-
-Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension. Supports all the methods
-provided by [`Stream`](#stream) as well as:
-
-- `path` - the file path. Can be modified until `'onPreResponse'` is called.
-- `settings` - the options provided (as described below). Can be modified until `'onPreResponse'` is called.
-
-Generated with:
-
-- `new Hapi.response.File(filePath, [options])` - where:
-    - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
-    - `options` - optional configuration:
-        - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
-            - `'attachment'`
-            - `'inline'`
-- the built-in route [`file`](#route.config.file) handler.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
-
-var handler1 = function (request, reply) {
-
-    var response = new Hapi.response.File('./hello.txt');
-    reply(response);
-};
-
-server.route({ method: 'GET', path: '/1', handler: handler1 });
-
-server.route({ method: 'GET', path: '/2', handler: { file: './hello.txt' } });
 ```
 
 #### `Redirection`

@@ -575,7 +575,7 @@ describe('Response', function () {
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request, reply) {
 
-                reply(new Hapi.response.File(__dirname + '/../../package.json'));
+                reply.file(__dirname + '/../../package.json');
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -655,7 +655,7 @@ describe('Response', function () {
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request, reply) {
 
-                reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'attachment' }));
+                reply.file(__dirname + '/../../package.json', { mode: 'attachment' });
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -675,7 +675,7 @@ describe('Response', function () {
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request, reply) {
 
-                reply(new Hapi.response.File(__dirname + '/../../package.json', { mode: 'inline' }));
+                reply.file(__dirname + '/../../package.json', { mode: 'inline' });
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -754,7 +754,7 @@ describe('Response', function () {
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var relativeHandler = function (request, reply) {
 
-                reply(new Hapi.response.File('./package.json'));
+                reply.file('./package.json');
             };
 
             server.route({ method: 'GET', path: '/relativefile', handler: relativeHandler });
@@ -912,7 +912,7 @@ describe('Response', function () {
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request, reply) {
 
-                reply(new Hapi.response.File(__dirname + '/../../package.json'));
+                reply.file(__dirname + '/../../package.json');
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -932,7 +932,7 @@ describe('Response', function () {
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request, reply) {
 
-                reply(new Hapi.response.File(__dirname + '/../../package.json'));
+                reply.file(__dirname + '/../../package.json');
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
