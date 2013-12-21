@@ -39,6 +39,7 @@ describe('Response', function () {
                              .state('other', 'something', { isSecure: true })
                              .unstate('x')
                              .header('Content-Type', 'text/plain; something=something')
+                             .header('vary', 'x-control')
                              .code(200);
             };
 
@@ -63,6 +64,7 @@ describe('Response', function () {
                 expect(res.headers['access-control-allow-origin']).to.equal('*');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
                 expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
+                expect(res.headers.vary).to.equal('x-control');
                 done();
             });
         });
