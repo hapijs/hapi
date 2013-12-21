@@ -298,6 +298,7 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(299);
                 expect(res.result).to.equal('Tada1');
+                expect(res.headers['content-type']).to.equal('application/octet-stream');
                 done();
             });
         });
