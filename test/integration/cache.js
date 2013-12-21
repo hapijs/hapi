@@ -46,10 +46,7 @@ describe('Cache', function () {
 
     var cacheItemHandler = function (request, reply) {
 
-        var cacheable = new Hapi.response.Text('hello');
-        cacheable._code = 200;
-
-        reply(cacheable);
+        reply('hello');
     };
 
     var errorHandler = function (request, reply) {

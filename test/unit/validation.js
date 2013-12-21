@@ -4,6 +4,7 @@ var Lab = require('lab');
 var Querystring = require('querystring');
 var Path = require('path');
 var Hapi = require('../..');
+var Response = require('../../lib/response');
 var Validation = require('../../lib/validation');
 
 
@@ -85,7 +86,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request._response = Hapi.response._generate({ username: 'test' }, request);
+            request._response = Response._generate({ username: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -99,7 +100,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request._response = Hapi.response._generate(Hapi.error.unauthorized('You are not authorized'), request);
+            request._response = Response._generate(Hapi.error.unauthorized('You are not authorized'), request);
 
             Validation.response(request, function (err) {
 
@@ -112,7 +113,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request._response = Hapi.response._generate({ wrongParam: 'test' }, request);
+            request._response = Response._generate({ wrongParam: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -126,7 +127,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.sample = 100;
-            request._response = Hapi.response._generate({ wrongParam: 'test' }, request);
+            request._response = Response._generate({ wrongParam: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -141,7 +142,7 @@ describe('Validation', function () {
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
             request.route.response.sample = sample;
-            request._response = Hapi.response._generate({ wrongParam: 'test' }, request);
+            request._response = Response._generate({ wrongParam: 'test' }, request);
             var failureCount = 0;
 
             request.log = function () {
@@ -182,7 +183,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
-            request._response = Hapi.response._generate({ username: 'a', wrongParam: 'test' }, request);
+            request._response = Response._generate({ username: 'a', wrongParam: 'test' }, request);
 
             request.log = function (tags, data) {
 
@@ -200,7 +201,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request._response = Hapi.response._generate('test', request);
+            request._response = Response._generate('test', request);
 
             Validation.response(request, function (err) {
 

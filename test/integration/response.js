@@ -339,11 +339,11 @@ describe('Response', function () {
             });
         });
 
-        it('returns a manually created response with options', function (done) {
+        it('returns a response with options', function (done) {
 
             var handler = function (request, reply) {
 
-                reply(new Hapi.response.Obj({ a: 1, b: 2 }, { type: 'application/x-test', space: 0, replacer: null }));
+                reply({ a: 1, b: 2 }).options({ type: 'application/x-test', space: 0, replacer: null });
             };
 
             var server = new Hapi.Server();
@@ -1102,7 +1102,7 @@ describe('Response', function () {
                     this.push(null);
                 };
 
-                reply(new Hapi.response.Stream(new HeadersStream()));
+                reply(new HeadersStream());
             };
 
             var server = new Hapi.Server();
@@ -1139,7 +1139,7 @@ describe('Response', function () {
                     this.push(null);
                 };
 
-                reply(new Hapi.response.Stream(new HeadersStream()));
+                reply(new HeadersStream());
             };
 
             var server = new Hapi.Server();
@@ -1484,6 +1484,29 @@ describe('Response', function () {
 
             reply.view('test', { message: cached++ });
         };
+        
+        it('returns error on invalid template path', function (done) {
+
+            var server = new Hapi.Server({
+                debug: false,
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates/invalid'
+                }
+            });
+            
+            var handler = function (request, reply) {
+                
+                reply.view('test', { message: 'Ohai' });
+            };
+            
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
 
         describe('Default', function (done) {
 
@@ -2055,7 +2078,6 @@ describe('Response', function () {
                 var custom = {
                     isHapiResponse: true,
                     variety: 'x-custom',
-                    varieties: { 'x-custom': true },
                     _prepare: function (request, callback) {
 
                         callback(Hapi.error.badRequest());
@@ -2083,7 +2105,6 @@ describe('Response', function () {
                 var custom = {
                     isHapiResponse: true,
                     variety: 'x-custom',
-                    varieties: { 'x-custom': true },
                     _prepare: function (request, callback) {
 
                         callback(custom);
@@ -2099,19 +2120,6 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.result.code).to.equal(500);
-                done();
-            });
-        });
-    });
-
-    describe('#_prepare', function () {
-
-        it('returns an error reply on invalid response object', function (done) {
-
-            Hapi.response._prepare(null, null, function (result) {
-
-                expect(result.isBoom).to.equal(true);
-                expect(result.message).to.equal('Unexpected response item');
                 done();
             });
         });

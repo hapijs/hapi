@@ -1952,11 +1952,9 @@ var handler = function (request, reply) {
 
 ### Response types
 
-Every response type includes the following properties:
+Every response type includes the following property:
 
 - `variety` - the response type name in lower case (e.g. `'text'`).
-- `varieties` - an object where each key has a `true` value and represents a response type name (in lower case) whose functionality is made
-  available via the response object (e.g. the `Redirection` response type `varieties` object is `{ generic: true, text: true, redirection: true }`).
 
 #### `Generic`
 
@@ -1972,6 +1970,10 @@ for deriving other response types. It provides the following methods:
     - `separator` - optional string used as separator when appending to an exiting value. Defaults to `','`.
 - `type(mimeType)` - sets the HTTP 'Content-Type' header where:
     - `value` - is the mime type. Should only be used to override the built-in default for each response type.
+- `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
+    - `length` - the header value. Must match the actual payload size.
+- `vary(header)` - adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
+    - `header` - the HTTP request header name.
 - `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
     `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
       the server [`location`](#server.config.location) configuration option is used as prefix. Not available in the `Redirection`
@@ -1993,18 +1995,11 @@ An empty response body (content-length of zero bytes). Supports all the methods 
 Generated with:
 
 - `reply()` - without any arguments.
-- `new Hapi.response.Empty()`
 
 ```javascript
-var handler1 = function (request, reply) {
+var handler = function (request, reply) {
 
     reply();
-};
-
-var handler2 = function (request, reply) {
-
-    var response = new Hapi.response.Empty();
-    reply(response);
 };
 ```
 
@@ -2012,35 +2007,17 @@ var handler2 = function (request, reply) {
 
 Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all the methods provided by [`Generic`](#generic) as well as:
 
-- `message(text, [type, [encoding]])` - sets or replace the response text where:
-    - `text` - the text content.
-    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-    - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
 - `source` - the response text string value. Can be modified until `'onPreResponse'` is called.
 
 Generated with:
 
 - `reply(result)` - where:
     - `result` - must be a non-empty string.
-- `new Hapi.response.Text(text, [type, [encoding]])` - same as `message()` above.
 
 ```javascript
-var handler1 = function (request, reply) {
+var handler = function (request, reply) {
 
     reply('hello world');
-};
-
-var handler2 = function (request, reply) {
-
-    var response = new Hapi.response.Text('hello world');
-    reply(response);
-};
-
-var handler3 = function (request, reply) {
-
-    var response = new Hapi.response.Text();
-    response.message('hello world');
-    reply(response);
 };
 ```
 
@@ -2055,21 +2032,12 @@ Generated with:
 
 - `reply(result)` - where:
     - `result` - must be a `Buffer`.
-- `new Hapi.response.Buffer(buffer)` - where:
-    - `buffer` - the `Buffer` response.
 
 ```javascript
-var handler1 = function (request, reply) {
+var handler = function (request, reply) {
 
     var buffer = new Buffer([10, 11, 12, 13]);
     reply(buffer);
-};
-
-var handler2 = function (request, reply) {
-
-    var buffer = new Buffer([10, 11, 12, 13]);
-    var response = new Hapi.response.Buffer(buffer);
-    reply(response);
 };
 ```
 
@@ -2077,16 +2045,12 @@ var handler2 = function (request, reply) {
 
 Replies with a stream object, directly piped into the HTTP response. Supports all the methods provided by [`Generic`](#generic) as well as:
 
-- `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
-    - `length` - the header value. Must match the actual payload size.
 - `source` - the response stream. Can be modified until `'onPreResponse'` is called.
 
 Generated with:
 
 - `reply(result)` - where:
     - `result` - must be a [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable)
-- `new Hapi.response.Stream(stream)` - where:
-    - `stream` - the [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable)
 
 ```javascript
 var Stream = require('stream');
@@ -2112,12 +2076,6 @@ var handler1 = function (request, reply) {
 };
 
 var handler2 = function (request, reply) {
-
-    var response = new Hapi.response.Stream(new ExampleStream());
-    reply(response);
-};
-
-var handler3 = function (request, reply) {
 
     // Echo back request stream
     reply(request.raw.req).bytes(request.raw.req.headers['content-length']);
@@ -2155,31 +2113,23 @@ Generated with:
 
 - `reply(result)` - where:
     - `result` - must be an object.
-- `new Hapi.response.Obj(object, [options])` - where:
-    - `object` - the response object.
-    - `options` - an optional object with the following optional keys:
-        - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-        - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
-        - `replacer` - the `JSON.stringify()` replacer function or array. Defaults to no action.
-        - `space` - the `JSON.stringify()` number of spaces to indent nested object keys. Defaults to no indentation.
 
 ```javascript
-var handler1 = function (request, reply) {
+var handler = function (request, reply) {
 
     reply({ message: 'hello world' });
-};
-
-var handler2 = function (request, reply) {
-
-    var response = new Hapi.response.Obj({ message: 'hello world' });
-    reply(response);
 };
 ```
 
 #### `Redirection`
 
-An HTTP redirection response (3xx). Supports all the methods provided by [`Text`](#text) (except for `created()`) as well as the additional methods:
+An HTTP redirection response (3xx). Supports all the methods provided by [`Generic`](#generic) (except for `created()`) as well as the additional methods:
 
+- `source` - the response text string value. Can be modified until `'onPreResponse'` is called.
+- `message(text, [type, [encoding]])` - sets or replace the response text where:
+    - `text` - the text content.
+    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
+    - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
 - `uri(dest)` - set the destination URI where:
     - `uri` - overrides the destination. An absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the
       value of the server [`location`](#server.config.location) configuration option is used as prefix.
@@ -2204,25 +2154,12 @@ Notes:
 Generated with:
 
 - `reply.redirect(uri)` - as described in [`reply.redirect()`](#replyredirecturi).
-- `new Hapi.response.Redirection(uri, [message, [type, [encoding]]])` - where:
-    - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
-      the server [`location`](#server.config.location) configuration option is used as prefix.
-    - `message` - the payload content. Defaults to `'You are being redirected...'`.
-    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-    - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
 
 ```javascript
-var handler1 = function (request, reply) {
+var handler = function (request, reply) {
 
     reply.redirect('http://example.com/elsewhere')
         .temporary().rewritable(false);   // 307
-};
-
-var handler2 = function (request, reply) {
-
-    var response = new Hapi.response.Redirection('http://example.com/elsewhere');
-    response.permanent().rewritable();          // 301
-    reply(response);
 };
 ```
 
