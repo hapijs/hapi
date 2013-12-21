@@ -2,7 +2,7 @@
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
-    - [`createServer([host], [port], [options])`](#createServerhost-port-options)
+    - [`createServer([host], [port], [options])`](#createserverhost-port-options)
     - [Server options](#server-options)
     - [`Server` properties](#server-properties)
     - [`Server` methods](#server-methods)
