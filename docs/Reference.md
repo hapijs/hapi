@@ -1928,6 +1928,10 @@ var handler = function (request, reply) {
 Every response includes the following properties:
 - `source` - the value provided using the `reply()` interface.
 - `isPlain` - true if `source` is a plain response such as string, number, `null`, or object (but not a `Stream`, `Buffer`, or view).
+- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
+  Should not be used by plugins which should use `plugins[name]`.
+- `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
+  key is a plugin name and the value is the state.
 
 It provides the following methods:
 
