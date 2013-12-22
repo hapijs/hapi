@@ -1931,7 +1931,12 @@ Every response includes the following properties:
   headers to be included with the response. Additional headers will be added once the response is prepare for transmission (e.g. 'Location',
   'Cache-Control').
 - `source` - the value provided using the `reply()` interface.
-- `isPlain` - true if `source` is a plain response such as string, number, `null`, or object (but not a `Stream`, `Buffer`, or view).
+- `variety` - a string indicating the type of `source` with available values:
+    - `'plain'` - a plain response such as string, number, `null`, or simple object (e.g. not a `Stream`, `Buffer`, or view).
+    - `'buffer'` - a `Buffer`.
+    - `'view'` - a view generated with `reply.view()`.
+    - `'file'` - a file generated with `reply.file()` of via the directory handler.
+    - `'stream'` - a `Stream`.
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
@@ -1944,6 +1949,8 @@ Every response includes the following properties:
       [`location`](#server.config.location) configuration option). Defaults to no header.
     - `ttl` -  if set, overrides the route cache expiration milliseconds value set in the route config. Defaults to no override.
     - `stringify`: options used for `source` value requiring stringification. Defaults to no replacer and no space padding.
+    - `passThrough`: if `true` and `source` is a `Stream`, copies the `statusCode` and `headers` of the stream to the outbound response.
+      Defaults to `true`.
 
 It provides the following methods:
 
