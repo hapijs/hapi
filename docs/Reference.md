@@ -1923,12 +1923,13 @@ var handler = function (request, reply) {
 };
 ```
 
-### Response types
+### Response
 
-#### `Generic`
+Every response includes the following properties:
+- `source` - the value provided using the `reply()` interface.
+- `isPlain` - true if `source` is a plain response such as string, number, `null`, or object (but not a `Stream`, `Buffer`, or view).
 
-The `Generic` response type is used as the parent prototype for all other response types. It cannot be instantiated directly and is only made available
-for deriving other response types. It provides the following methods:
+It provides the following methods:
 
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
@@ -1961,6 +1962,13 @@ for deriving other response types. It provides the following methods:
 - `state(name, value, [options])` - sets an HTTP cookie as described in [`request.setState()`](#requestsetstatename-value-options).
 - `unstate(name)` - clears the HTTP cookie by setting an expired value as described in [`request.clearState()`](#requestclearstatename).
 
+When the value provided by `reply()` requires stringification before transmission, the following methods are provided:
+
+- `replacer(method)` - sets the `JSON.stringify()` `replacer` argument where:
+    - `method` - the replacer function or array. Defaults to none.
+- `spaces(count)` - sets the `JSON.stringify()` `space` argument where:
+    - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
+
 When using the `redirect()` method, the response object provides these additional methods:
 
 - `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
@@ -1981,135 +1989,6 @@ Notes:
 1. Default value.
 2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
 
-#### `Empty`
-
-An empty response body (content-length of zero bytes). Supports all the methods provided by [`Generic`](#generic).
-
-Generated with:
-
-- `reply()` - without any arguments.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply();
-};
-```
-
-#### `Text`
-
-Plain text. The 'Content-Type' header defaults to `'text/html'`. Supports all the methods provided by [`Generic`](#generic) as well as:
-
-- `source` - the response text string value.
-
-Generated with:
-
-- `reply(result)` - where:
-    - `result` - must be a non-empty string.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply('hello world');
-};
-```
-
-#### `Buffer`
-
-Buffer response. Supports all the methods provided by [`Generic`](#generic) as well as:
-
-- `source` - the response buffer object.
-
-
-Generated with:
-
-- `reply(result)` - where:
-    - `result` - must be a `Buffer`.
-
-```javascript
-var handler = function (request, reply) {
-
-    var buffer = new Buffer([10, 11, 12, 13]);
-    reply(buffer);
-};
-```
-
-#### `Stream`
-
-Replies with a stream object, directly piped into the HTTP response. Supports all the methods provided by [`Generic`](#generic) as well as:
-
-- `source` - the response stream.
-
-Generated with:
-
-- `reply(result)` - where:
-    - `result` - must be a [`Stream.Readable`](http://nodejs.org/api/stream.html#stream_class_stream_readable)
-
-```javascript
-var Stream = require('stream');
-var Hapi = require('hapi');
-
-var ExampleStream = function () {
-
-    Stream.Readable.call(this);
-};
-
-Hapi.utils.inherits(ExampleStream, Stream.Readable);
-
-ExampleStream.prototype._read = function (size) {
-
-    this.push('hello world');
-    this.push(null);
-};
-
-var handler1 = function (request, reply) {
-
-    var stream = new ExampleStream();
-    reply(stream);
-};
-
-var handler2 = function (request, reply) {
-
-    // Echo back request stream
-    reply(request.raw.req).bytes(request.raw.req.headers['content-length']);
-};
-```
-
-#### `Obj`
-
-JavaScript object, sent stringified. The 'Content-Type' header defaults to 'application/json'. Supports all the methods provided by
-[`Generic`](#generic) as well as:
-
-- `replacer(method)` - sets the `JSON.stringify()` `replacer` argument where:
-    - `method` - the replacer function or array. Defaults to none.
-- `spaces(count)` - sets the `JSON.stringify()` `space` argument where:
-    - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
-- `source` - the response object reference.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-
-server.ext('onPostHandler', function (request, next) {
-
-    var response = request.response();
-    delete response.source._id;			// Remove internal key
-    response.spaces(4);
-    next();
-});
-```
-
-Generated with:
-
-- `reply(result)` - where:
-    - `result` - must be an object.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply({ message: 'hello world' });
-};
-```
 
 #### `View`
 

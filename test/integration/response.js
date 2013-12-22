@@ -534,7 +534,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(299);
-                expect(res.result).to.equal('');
+                expect(res.result).to.equal(null);
                 expect(res.headers['access-control-allow-credentials']).to.equal('true');
                 done();
             });
@@ -1876,7 +1876,7 @@ describe('Response', function () {
         var handler = function (request, reply) {
 
             if (!request.query.x) {
-                return reply().redirect('example');
+                return reply('Please wait while we send your elsewhere').redirect('example');
             }
 
             if (request.query.x === 'verbose') {
