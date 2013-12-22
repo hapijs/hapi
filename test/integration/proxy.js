@@ -5,8 +5,8 @@ var Lab = require('lab');
 var Fs = require('fs');
 var Http = require('http');
 var Zlib = require('zlib');
+var Nipple = require('nipple');
 var Hapi = require('../..');
-var Client = require('../../lib/client');
 
 
 // Declare internals
@@ -522,10 +522,10 @@ describe('Proxy', function () {
 
     it('errors on invalid response stream', function (done) {
 
-        var orig = Client.parse;
-        Client.parse = function (res, callback) {
+        var orig = Nipple.parse;
+        Nipple.parse = function (res, callback) {
 
-            Client.parse = orig;
+            Nipple.parse = orig;
             callback(Hapi.error.internal('Fake error'));
         };
 
@@ -582,31 +582,6 @@ describe('Proxy', function () {
         });
     });
 
-    it('does not consume all sockets when server times out before proxy', function (done) {
-
-        var wrappedReq = function (next) {
-
-            timeoutServer.inject('/timeout1', function (err) { next() });
-        };
-
-        Async.series([
-            wrappedReq,
-            wrappedReq,
-            wrappedReq,
-            wrappedReq,
-            wrappedReq,
-            wrappedReq,
-            wrappedReq
-        ], function () {
-
-            timeoutServer.inject('/item', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
-        });
-    });
-
     it('times out when proxy timeout is less than server', function (done) {
 
         timeoutServer.inject('/timeout2', function (res) {
@@ -621,29 +596,6 @@ describe('Proxy', function () {
         timeoutServer.inject('/timeout1', function (res) {
 
             expect(res.statusCode).to.equal(503);
-            done();
-        });
-    });
-
-    it('handles an error from the downstream response by closing proxy request', function (done) {
-
-        var client = Http.get('http://127.0.0.1:' + server.info.port + '/profile', function (res) {
-
-            res.on('data', function () { });
-        });
-
-        client.once('socket', function () {
-
-            client.socket.write('GET /profile HTTP/1.1\r\n\r\n');
-            setImmediate(function () {
-
-                client.socket.destroySoon();
-            });
-
-        });
-
-        client.once('error', function () {
-
             done();
         });
     });

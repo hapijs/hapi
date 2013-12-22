@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Request = require('request');
+var Nipple = require('nipple');
 var Fs = require('fs');
 var Http = require('http');
 var Path = require('path');
@@ -694,7 +695,7 @@ describe('Payload', function () {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
 
-                Hapi.client.parse(request.payload['my_file'], function (err, buffer) {
+                Nipple.parse(request.payload['my_file'], function (err, buffer) {
 
                     expect(err).to.not.exist;
                     expect(fileContents.length).to.equal(buffer.length);
@@ -740,7 +741,7 @@ describe('Payload', function () {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
 
-                Hapi.client.parse(request.payload['my_file'], function (err, buffer) {
+                Nipple.parse(request.payload['my_file'], function (err, buffer) {
 
                     expect(err).to.not.exist;
                     expect(fileContents.length).to.equal(buffer.length);
