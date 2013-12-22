@@ -1923,6 +1923,21 @@ var handler = function (request, reply) {
 };
 ```
 
+When calling `reply()` in a prerequisite, it is sometimes necessary to take over the handler execution and return a non-error response back
+to the client. The response object provides the `takeover()` method to indicate the value provided via `reply()` should be used as the final
+response and skip any other prerequisites and the handler.
+
+```javascript
+var pre = function (request, reply) {
+
+    if (!request.auth.isAuthenticated) {
+        return reply('You need to login first!').takeover();
+    }
+
+    reply({ account: request.auth.credentials });   // Used in the handler later
+};
+```
+
 ### Response
 
 Every response includes the following properties:

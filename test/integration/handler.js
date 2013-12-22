@@ -20,132 +20,275 @@ var it = Lab.test;
 
 describe('Handler', function () {
 
-    var fetch1 = function (request, reply) {
+    it('shows the complete prerequisite pipeline in the response', function (done) {
 
-        reply('Hello').code(444);
-        reply();    // Ignored
-    };
+        var pre1 = function (request, reply) {
 
-    var fetch2 = function (request, reply) {
+            reply('Hello').code(444);
+            reply();    // Ignored
+        };
 
-        reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
-    };
+        var pre2 = function (request, reply) {
 
-    var fetch3 = function (request, reply) {
+            reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
+        };
 
-        process.nextTick(function () {
+        var pre3 = function (request, reply) {
 
-            reply(' ');
-        });
-    };
+            process.nextTick(function () {
 
-    var fetch4 = function (request, reply) {
+                reply(' ');
+            });
+        };
 
-        reply('World');
-    };
+        var pre4 = function (request, reply) {
 
-    var fetch5 = function (request, reply) {
+            reply('World');
+        };
 
-        reply(request.pre.m2 + '!');
-    };
+        var pre5 = function (request, reply) {
 
-    var fetch6 = function (request, reply) {
+            reply(request.pre.m2 + '!');
+        };
 
-        reply(request.server.pack.hapi.error.internal('boom'));
-    };
+        var handler = function (request, reply) {
 
-    var fetchException = function (request, reply) {
+            reply(request.pre.m5);
+        };
 
-        a.b.c;
-    };
-
-    var getFetch1 = function (request, reply) {
-
-        reply(request.pre.m5);
-    };
-
-    var getFetch2 = function (request, reply) {
-
-        reply(request.pre.m1);
-    };
-
-    var getFetch4 = function (request, reply) {
-
-        reply(request.responses.m1);
-    };
-
-    var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
-
-    server.helper('user', function (id, next) {
-
-        return next({ id: id, name: 'Bob' });
-    });
-
-    server.helper('name', function (user, next) {
-
-        return next(user.name);
-    });
-
-    server.route([
-        {
+        var server = new Hapi.Server();
+        server.route({
             method: 'GET',
-            path: '/fetch1',
+            path: '/',
             config: {
                 pre: [
                     [
-                        { method: fetch1, assign: 'm1' },
-                        { method: fetch3, assign: 'm3' },
-                        { method: fetch4, assign: 'm4' }
+                        { method: pre1, assign: 'm1' },
+                        { method: pre3, assign: 'm3' },
+                        { method: pre4, assign: 'm4' }
                     ],
-                    { method: fetch2, assign: 'm2' },
-                    { method: fetch5, assign: 'm5' }
+                    { method: pre2, assign: 'm2' },
+                    { method: pre5, assign: 'm5' }
                 ],
-                handler: getFetch1
+                handler: handler
             }
-        },
-        {
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('Hello World!');
+            done();
+        });
+    });
+
+    it('shows a single prerequisite when only one is used', function (done) {
+
+        var pre = function (request, reply) {
+
+            reply('Hello');
+        };
+
+        var handler = function (request, reply) {
+
+            reply(request.pre.p);
+        };
+
+        var server = new Hapi.Server();
+
+        server.route({
             method: 'GET',
-            path: '/fetch2',
+            path: '/',
             config: {
                 pre: [
-                    { method: fetch1, assign: 'm1' }
+                    { method: pre, assign: 'p' }
                 ],
-                handler: getFetch2
+                handler: handler
             }
-        },
-        {
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('Hello');
+            done();
+        });
+    });
+
+    it('takes over response', function (done) {
+
+        var pre1 = function (request, reply) {
+
+            reply('Hello');
+        };
+
+        var pre2 = function (request, reply) {
+
+            reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
+        };
+
+        var pre3 = function (request, reply) {
+
+            process.nextTick(function () {
+
+                reply(' ').takeover();
+            });
+        };
+
+        var pre4 = function (request, reply) {
+
+            reply('World');
+        };
+
+        var pre5 = function (request, reply) {
+
+            reply(request.pre.m2 + '!');
+        };
+
+        var handler = function (request, reply) {
+
+            reply(request.pre.m5);
+        };
+
+        var server = new Hapi.Server();
+        server.route({
             method: 'GET',
-            path: '/fetch3',
+            path: '/',
             config: {
                 pre: [
-                    [{ method: fetch1, assign: 'm1' }],
-                    { method: fetch6, assign: 'm6' }
+                    [
+                        { method: pre1, assign: 'm1' },
+                        { method: pre3, assign: 'm3' },
+                        { method: pre4, assign: 'm4' }
+                    ],
+                    { method: pre2, assign: 'm2' },
+                    { method: pre5, assign: 'm5' }
                 ],
-                handler: getFetch2
+                handler: handler
             }
-        },
-        {
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal(' ');
+            done();
+        });
+    });
+
+    it('returns error if prerequisite returns error', function (done) {
+
+        var pre1 = function (request, reply) {
+
+            reply('Hello');
+        };
+
+        var pre2 = function (request, reply) {
+
+            reply(Hapi.error.internal('boom'));
+        };
+
+        var handler = function (request, reply) {
+
+            reply(request.pre.m1);
+        };
+
+        var server = new Hapi.Server();
+        server.route({
             method: 'GET',
-            path: '/fetch4',
+            path: '/',
             config: {
                 pre: [
-                    { method: fetch1, assign: 'm1' }
+                    [{ method: pre1, assign: 'm1' }],
+                    { method: pre2, assign: 'm2' }
                 ],
-                handler: getFetch4
+                handler: handler
             }
-        },
-        {
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result.code).to.equal(500);
+            done();
+        });
+    });
+
+    it('passes wrapped object', function (done) {
+
+        var pre = function (request, reply) {
+
+            reply('Hello').code(444);
+        };
+
+        var handler = function (request, reply) {
+
+            reply(request.responses.p);
+        };
+
+        var server = new Hapi.Server();
+        server.route({
             method: 'GET',
-            path: '/fetchException',
+            path: '/',
             config: {
                 pre: [
-                    [{ method: fetch1, assign: 'm1' }],
-                    { method: fetchException, assign: 'm6' }
+                    { method: pre, assign: 'p' }
                 ],
-                handler: getFetch2
+                handler: handler
             }
-        },
-        {
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(444);
+            done();
+        });
+    });
+
+    it('returns 500 if prerequisite throws', function (done) {
+
+        var pre1 = function (request, reply) {
+
+            reply('Hello');
+        };
+
+        var pre2 = function (request, reply) {
+
+            a.b.c;
+        };
+
+        var handler = function (request, reply) {
+
+            reply(request.pre.m1);
+        };
+
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [
+                    [{ method: pre1, assign: 'm1' }],
+                    { method: pre2, assign: 'm2' }
+                ],
+                handler: handler
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result.code).to.equal(500);
+            done();
+        });
+    });
+
+    it('returns a user record using helper', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.helper('user', function (id, next) {
+
+            return next({ id: id, name: 'Bob' });
+        });
+
+        server.route({
             method: 'GET',
             path: '/user/{id}',
             config: {
@@ -157,8 +300,30 @@ describe('Handler', function () {
                     return reply(request.pre.user);
                 }
             }
-        },
-        {
+        });
+
+        server.inject('/user/5', function (res) {
+
+            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+            done();
+        });
+    });
+
+    it('returns a user name using multiple helpers', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.helper('user', function (id, next) {
+
+            return next({ id: id, name: 'Bob' });
+        });
+
+        server.helper('name', function (user, next) {
+
+            return next(user.name);
+        });
+
+        server.route({
             method: 'GET',
             path: '/user/{id}/name',
             config: {
@@ -171,64 +336,7 @@ describe('Handler', function () {
                     return reply(request.pre.name);
                 }
             }
-        }
-    ]);
-
-    it('shows the complete prerequisite pipeline in the response', function (done) {
-
-        server.inject('/fetch1', function (res) {
-
-            expect(res.result).to.equal('Hello World!');
-            done();
         });
-    });
-
-    it('shows a single prerequisite when only one is used', function (done) {
-
-        server.inject('/fetch2', function (res) {
-
-            expect(res.result).to.equal('Hello');
-            done();
-        });
-    });
-
-    it('returns error if prerequisite returns error', function (done) {
-
-        server.inject('/fetch3', function (res) {
-
-            expect(res.result.code).to.equal(500);
-            done();
-        });
-    });
-
-    it('passes wrapped object', function (done) {
-
-        server.inject('/fetch4', function (res) {
-
-            expect(res.statusCode).to.equal(444);
-            done();
-        });
-    });
-
-    it('returns 500 if prerequisite throws', function (done) {
-
-        server.inject('/fetchException', function (res) {
-
-            expect(res.result.code).to.equal(500);
-            done();
-        });
-    });
-
-    it('returns a user record using helper', function (done) {
-
-        server.inject('/user/5', function (res) {
-
-            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
-            done();
-        });
-    });
-
-    it('returns a user name using multiple helpers', function (done) {
 
         server.inject('/user/5/name', function (res) {
 
@@ -239,6 +347,7 @@ describe('Handler', function () {
 
     it('fails on bad helper name', function (done) {
 
+        var server = new Hapi.Server();
         var test = function () {
 
             server.route({
@@ -262,6 +371,7 @@ describe('Handler', function () {
 
     it('fails on bad method syntax name', function (done) {
 
+        var server = new Hapi.Server();
         var test = function () {
 
             server.route({
