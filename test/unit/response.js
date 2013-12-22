@@ -2,7 +2,8 @@
 
 var Lab = require('lab');
 var Hapi = require('../..');
-var Generic = require('../../lib/response/generic.js');
+var Response = require('../../lib/response');
+var Payload = require('../../lib/response/payload');
 
 
 // Declare internals
@@ -24,13 +25,12 @@ describe('Response', function () {
     it('returns last known error on error response loop', function (done) {
 
         var Custom = function (blow) {
-            
-            Generic.call(this);
-            this.variety = 'x-custom';
+
+            Response.Generic.call(this);
             this.blow = blow;
         };
 
-        Hapi.utils.inherits(Custom, Generic);
+        Hapi.utils.inherits(Custom, Response.Generic);
 
         Custom.prototype._prepare = function (request, callback) {
 
@@ -57,12 +57,11 @@ describe('Response', function () {
 
         var Custom = function (blow) {
         
-            Generic.call(this);
-            this.variety = 'x-custom';
+            Response.Generic.call(this);
             this.blow = blow;
         };
 
-        Hapi.utils.inherits(Custom, Generic);
+        Hapi.utils.inherits(Custom, Response.Generic);
 
         Custom.prototype._prepare = function (request, callback) {
 

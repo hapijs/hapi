@@ -70,7 +70,7 @@ describe('Ext', function () {
             var server = new Hapi.Server();
             server.ext('onPreResponse', function (request, next) {
 
-                return next(request.response().variety === 'text' ? Hapi.error.badRequest('boom') : null);
+                return next(typeof request.response().source === 'string' ? Hapi.error.badRequest('boom') : null);
             });
 
             server.route({ method: 'GET', path: '/text', handler: function (request, reply) { reply('ok'); } });

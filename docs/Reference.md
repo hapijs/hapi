@@ -1893,9 +1893,7 @@ var server = new Hapi.Server();
 server.ext('onPostHandler', function (request, next) {
 
     var response = request.response();
-    if (response.variety === 'obj') {
-        delete response.raw._id;        // Remove internal key
-    }
+    delete response.source._id;                // Remove internal key
     next();
 });
 ```
@@ -1926,10 +1924,6 @@ var handler = function (request, reply) {
 ```
 
 ### Response types
-
-Every response type includes the following property:
-
-- `variety` - the response type name in lower case (e.g. `'text'`).
 
 #### `Generic`
 
@@ -2099,10 +2093,8 @@ var server = new Hapi.Server();
 server.ext('onPostHandler', function (request, next) {
 
     var response = request.response();
-    if (response.variety === 'obj') {
-        delete response.source._id;			// Remove internal key
-        response.options({ space: 4 });
-    }
+    delete response.source._id;			// Remove internal key
+    response.spaces(4);
     next();
 });
 ```
