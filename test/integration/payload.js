@@ -497,6 +497,27 @@ describe('Payload', function () {
                 done();
             });
         });
+
+        it('parses application/x-www-form-urlencoded', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                handler: function (request, reply) {
+
+                    reply('got ' + request.payload.x);
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', payload: 'x=abc', headers: { 'content-type': 'application/x-www-form-urlencoded' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('got abc');
+                done();
+            });
+        });
     });
 
     describe('unzip', function () {
