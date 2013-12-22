@@ -123,10 +123,10 @@ describe('Proxy', function () {
         var redirectHandler = function (request, reply) {
 
             switch (request.query.x) {
-                case '1': reply.redirect('/redirect?x=1'); break;
+                case '1': reply().redirect('/redirect?x=1'); break;
                 case '2': reply().header('Location', '//localhost:' + request.server.info.port + '/profile').code(302); break;
                 case '3': reply().code(302); break;
-                default: reply.redirect('/profile'); break;
+                default: reply().redirect('/profile'); break;
             }
         };
 
@@ -159,7 +159,7 @@ describe('Proxy', function () {
             { method: 'GET', path: '/gzip', handler: gzipHandler },
             { method: 'GET', path: '/gzipstream', handler: gzipStreamHandler },
             { method: 'GET', path: '/redirect', handler: redirectHandler },
-            { method: 'POST', path: '/post1', handler: function (request, reply) { reply.redirect('/post2').rewritable(false); } },
+            { method: 'POST', path: '/post1', handler: function (request, reply) { reply().redirect('/post2').rewritable(false); } },
             { method: 'POST', path: '/post2', handler: function (request, reply) { reply(request.payload); } },
             { method: 'GET', path: '/custom', handler: profile },
             { method: 'GET', path: '/timeout1', handler: timeoutHandler },

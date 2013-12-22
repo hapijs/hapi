@@ -14,7 +14,6 @@
             - [Path parameters](#path-parameters)
             - [Route handler](#route-handler)
                 - [`reply([result])`](#replyresult)
-                - [`reply.redirect(uri)`](#replyredirecturi)
                 - [`reply.file(path, options)`](#replyfilepath-options)
                 - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
                 - [`reply.close()`](#replyclose)
@@ -58,7 +57,6 @@
         - [`Buffer`](#buffer)
         - [`Stream`](#stream)
         - [`Obj`](#obj)
-        - [`Redirection`](#redirection)
         - [`View`](#view)
 - [`Hapi.error`](#hapierror)
       - [Error transformation](#error-transformation)
@@ -722,7 +720,7 @@ var handler = function (request, reply) {
 
 ###### `reply([result])`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router where:
@@ -759,32 +757,9 @@ var handler = function (request, reply) {
 };
 ```
 
-###### `reply.redirect(uri)`
-
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router with a redirection response where:
-
-- `uri` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
-  the server [`location`](#server.config.location) configuration option is used as prefix.
-
-Returns a [`Redirection`](#redirection) response.
-
-The [response flow control rules](#flow-control) apply.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply.redirection('http://example.com/elsewhere')
-        .message('You are being redirected...')
-        .permanent();
-};
-```
-
 ###### `reply.file(path, [options])`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension.:
@@ -811,7 +786,7 @@ var handler = function (request, reply) {
 
 ###### `reply.view(template, [context, [options]])`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router with a templatized view response where:
@@ -864,7 +839,7 @@ server.route({ method: 'GET', path: '/', handler: handler });
 
 ###### `reply.close()`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
@@ -876,7 +851,7 @@ The [response flow control rules](#flow-control) **do not** apply.
 
 ###### `reply.proxy(options)`
 
-_Available only within the handler method and only before one of `reply()`, `reply.redirection()`, `reply.file()`, `reply.view()`,
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Proxies the request to an upstream endpoint where:
@@ -1254,7 +1229,7 @@ var home = function (request, reply) {
 var login = function (request, reply) {
 
     if (request.auth.isAuthenticated) {
-        return reply.redirect('/');
+        return reply().redirect('/');
     }
 
     var message = '';
@@ -1289,13 +1264,13 @@ var login = function (request, reply) {
     }
 
     request.auth.session.set(account);
-    return reply.redirect('/');
+    return reply().redirect('/');
 };
 
 var logout = function (request, reply) {
 
     request.auth.session.clear();
-    return reply.redirect('/');
+    return reply().redirect('/');
 };
 
 var server = new Hapi.Server('localhost', 8000);
@@ -1974,13 +1949,15 @@ for deriving other response types. It provides the following methods:
     - `length` - the header value. Must match the actual payload size.
 - `vary(header)` - adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
     - `header` - the HTTP request header name.
-- `location(uri)` - sets the HTTP 'Location' header where:
+- `location(location)` - sets the HTTP 'Location' header where:
     - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of the server
       [`location`](#server.config.location) configuration option is used as prefix.
 - `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
     `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
-      the server [`location`](#server.config.location) configuration option is used as prefix. Not available in the `Redirection`
-      response object or for methods other than PUT and POST.
+      the server [`location`](#server.config.location) configuration option is used as prefix. Not available for methods other than PUT and POST.
+- `redirect(location)` - sets an HTTP redirection response (302) and decorates the response with additional methods listed below, where:
+    - `location` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
+      the server [`location`](#server.config.location) configuration option is used as prefix.
 - `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload where:
     `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
 - `charset(charset)` - sets the 'Content-Type' HTTP header 'charset' property where:
@@ -1989,6 +1966,26 @@ for deriving other response types. It provides the following methods:
     - `msec` - the time-to-live value in milliseconds.
 - `state(name, value, [options])` - sets an HTTP cookie as described in [`request.setState()`](#requestsetstatename-value-options).
 - `unstate(name)` - clears the HTTP cookie by setting an expired value as described in [`request.clearState()`](#requestclearstatename).
+
+When using the `redirect()` method, the response object provides these additional methods:
+
+- `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
+    - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
+- `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()` setting) where:
+    - `isPermanent` - if `true`, sets status to temporary. Defaults to `false`.
+- `rewritable(isRewritable)` - sets the status code to `301`/`302` for rewritable (allows changing the request method from 'POST' to 'GET') or
+  `307`/`308` for non-rewritable (does not allow changing the request method from 'POST' to 'GET'). Exact code based on the `temporary()` or
+  `permanent()` setting. Arguments:
+    - `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
+
+|                |  Permanent | Temporary |
+| -------------- | ---------- | --------- |
+| Rewritable     | 301        | **302**(1)|
+| Non-rewritable | 308(2)     | 307       |
+
+Notes:
+1. Default value.
+2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
 
 #### `Empty`
 
@@ -2120,45 +2117,6 @@ Generated with:
 var handler = function (request, reply) {
 
     reply({ message: 'hello world' });
-};
-```
-
-#### `Redirection`
-
-An HTTP redirection response (3xx). Supports all the methods provided by [`Generic`](#generic) (except for `created()`) as well as the additional methods:
-
-- `source` - the response text string value.
-- `message(text, [type, [encoding]])` - sets or replace the response text where:
-    - `text` - the text content.
-    - `type` - the 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-    - `encoding` - the 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
-- `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
-    - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
-- `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()` setting) where:
-    - `isPermanent` - if `true`, sets status to temporary. Defaults to `false`.
-- `rewritable(isRewritable)` - sets the status code to `301`/`302` for rewritable (allows changing the request method from 'POST' to 'GET') or
-  `307`/`308` for non-rewritable (does not allow changing the request method from 'POST' to 'GET'). Exact code based on the `temporary()` or
-  `permanent()` setting. Arguments:
-    - `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
-
-|                |  Permanent   | Temporary |
-| -------------- | ---------- | --------- |
-| Rewritable     | 301        | **302**(1)|
-| Non-rewritable | 308(2)     | 307       |
-
-Notes:
-1. Default value.
-2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
-
-Generated with:
-
-- `reply.redirect(uri)` - as described in [`reply.redirect()`](#replyredirecturi).
-
-```javascript
-var handler = function (request, reply) {
-
-    reply.redirect('http://example.com/elsewhere')
-        .temporary().rewritable(false);   // 307
 };
 ```
 

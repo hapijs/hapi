@@ -7,7 +7,6 @@ var Request = require('request');
 var Stream = require('stream');
 var Zlib = require('zlib');
 var Hapi = require('../..');
-var ResponseError = require('../../lib/response/error');
 
 
 // Declare internals
@@ -487,33 +486,6 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result.message).to.equal('boom');
                 done();
-            });
-        });
-
-        it('returns an error response reply', function (done) {
-
-            var handler = function (request, reply) {
-
-                var error = new ResponseError(Hapi.error.internal('kaboom'));
-                reply(error);
-            };
-
-            var server = new Hapi.Server({ debug: false });
-
-            server.once('internalError', function (request, err) {
-
-                expect(err).to.exist;
-                expect(err.trace[0]).to.contain('test/integration/response');
-                done();
-            });
-
-            server.route({ method: 'GET', path: '/', handler: handler });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist;
-                expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
 
@@ -1904,43 +1876,43 @@ describe('Response', function () {
         var handler = function (request, reply) {
 
             if (!request.query.x) {
-                return reply.redirect('example');
+                return reply().redirect('example');
             }
 
             if (request.query.x === 'verbose') {
-                return reply.redirect().location('examplex').message('We moved!');
+                return reply('We moved!').redirect().location('examplex');
             }
 
             if (request.query.x === '302') {
-                return reply.redirect('example').temporary().rewritable();
+                return reply().redirect('example').temporary().rewritable();
             }
 
             if (request.query.x === '307') {
-                return reply.redirect('example').temporary().rewritable(false);
+                return reply().redirect('example').temporary().rewritable(false);
             }
 
             if (request.query.x === '301') {
-                return reply.redirect('example').permanent().rewritable();
+                return reply().redirect('example').permanent().rewritable();
             }
 
             if (request.query.x === '308') {
-                return reply.redirect('example').permanent().rewritable(false);
+                return reply().redirect('example').permanent().rewritable(false);
             }
 
             if (request.query.x === '302f') {
-                return reply.redirect('example').rewritable().temporary();
+                return reply().redirect('example').rewritable().temporary();
             }
 
             if (request.query.x === '307f') {
-                return reply.redirect('example').rewritable(false).temporary();
+                return reply().redirect('example').rewritable(false).temporary();
             }
 
             if (request.query.x === '301f') {
-                return reply.redirect('example').rewritable().permanent();
+                return reply().redirect('example').rewritable().permanent();
             }
 
             if (request.query.x === '308f') {
-                return reply.redirect('example').rewritable(false).permanent();
+                return reply().redirect('example').rewritable(false).permanent();
             }
         };
 
@@ -1957,7 +1929,6 @@ describe('Response', function () {
             server.inject('http://example.org/redirect', function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result).to.equal('You are being redirected...');
                 expect(res.headers.location).to.equal('http://example.org/example');
                 expect(res.statusCode).to.equal(302);
                 done();
@@ -2065,62 +2036,6 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.result).to.equal('');
-                done();
-            });
-        });
-    });
-
-    describe('Extension', function () {
-
-        it('returns last known error on error response loop', function (done) {
-
-            var handler = function (request, reply) {
-
-                var custom = {
-                    isHapiResponse: true,
-                    variety: 'x-custom',
-                    _prepare: function (request, callback) {
-
-                        callback(Hapi.error.badRequest());
-                    }
-                };
-
-                request.setState('bad', {});
-                reply(custom);
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-            server.inject('/', function (res) {
-
-                expect(res.result.code).to.equal(400);
-                done();
-            });
-        });
-
-        it('returns an error on infinite _prepare loop', function (done) {
-
-            var handler = function (request, reply) {
-
-                var custom = {
-                    isHapiResponse: true,
-                    variety: 'x-custom',
-                    _prepare: function (request, callback) {
-
-                        callback(custom);
-                    }
-                };
-
-                reply(custom);
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-            server.inject('/', function (res) {
-
-                expect(res.result.code).to.equal(500);
                 done();
             });
         });

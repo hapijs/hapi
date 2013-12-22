@@ -26,7 +26,7 @@ internals.home = function (request, reply) {
 internals.login = function (request, reply) {
 
     if (request.auth.isAuthenticated) {
-        return reply.redirect('/');
+        return reply().redirect('/');
     }
 
     var message = '';
@@ -56,14 +56,14 @@ internals.login = function (request, reply) {
     }
 
     request.auth.session.set(account);
-    return reply.redirect('/');
+    return reply().redirect('/');
 };
 
 
 internals.logout = function (request, reply) {
 
     request.auth.session.clear();
-    return reply.redirect('/');
+    return reply().redirect('/');
 };
 
 

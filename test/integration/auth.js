@@ -1477,7 +1477,6 @@ describe('Auth', function () {
 
                 server.inject('/', function (res) {
 
-                    expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
                     expect(res.headers.location).to.equal('http://example.com/login?next=%2F');
                     done();
@@ -1505,7 +1504,6 @@ describe('Auth', function () {
 
                 server.inject('/', function (res) {
 
-                    expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
                     expect(res.headers.location).to.equal('http://example.com/login?mode=1&next=%2F');
                     done();
@@ -1533,7 +1531,6 @@ describe('Auth', function () {
 
                 server.inject('/', function (res) {
 
-                    expect(res.result).to.equal('You are being redirected...');
                     expect(res.statusCode).to.equal(302);
                     expect(res.headers.location).to.equal('http://example.com/login?mode=1');
                     done();
