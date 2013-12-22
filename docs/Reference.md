@@ -449,12 +449,12 @@ The following options are available when adding a route:
                 - `headers` - optional object where each key is an HTTP request header and the value is the header content.
         - `postResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
           custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
-          `function(request, reply, settings, res, payload, ttl)` where:
+          `function(request, reply, res, settings, ttl)` where:
               - `request` - is the incoming `request` object.
               - `reply()` - the continuation function.
+              - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
+                [**nipple**](https://github.com/spumko/nipple) module `parse` method to easily convert it to a Buffer or string).
               - `settings` - the proxy handler configuration.
-              - `res` - the node response object received from the upstream service.
-              - `payload` - the response payload.
               - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and the upstream response included a valid
                 'Cache-Control' header with 'max-age'.
         - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the response using the `response.ttl()` method (or passed

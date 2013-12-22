@@ -84,7 +84,7 @@ describe('Proxy', function () {
             reply(Hapi.error.unauthorized('Not authorized'));
         };
 
-        var postResponseWithError = function (request, reply, settings, res, payload, ttl) {
+        var postResponseWithError = function (request, reply, res, settings, ttl) {
 
             reply(Hapi.error.forbidden('Forbidden'));
         };
@@ -161,7 +161,6 @@ describe('Proxy', function () {
             { method: 'GET', path: '/redirect', handler: redirectHandler },
             { method: 'POST', path: '/post1', handler: function (request, reply) { reply().redirect('/post2').rewritable(false); } },
             { method: 'POST', path: '/post2', handler: function (request, reply) { reply(request.payload); } },
-            { method: 'GET', path: '/custom', handler: profile },
             { method: 'GET', path: '/timeout1', handler: timeoutHandler },
             { method: 'GET', path: '/timeout2', handler: timeoutHandler },
             { method: 'GET', path: '/handlerOldSchool', handler: activeItem }
@@ -192,9 +191,9 @@ describe('Proxy', function () {
             return callback(null, 'https://127.0.0.1:' + upstreamSingle.info.port);
         };
         
-        var postResponse = function (request, reply, settings, res, payload, ttl) {
+        var postResponse = function (request, reply, res, settings, ttl) {
 
-            reply(payload);
+            reply(res);
         };
 
         upstream.start(function () {
@@ -227,7 +226,6 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/redirect', handler: { proxy: { host: 'localhost', port: backendPort, passThrough: true, redirects: 2 } } },
                         { method: 'POST', path: '/post1', handler: { proxy: { host: 'localhost', port: backendPort, redirects: 3 } }, config: { payload: 'stream' } },
                         { method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } },
-                        { method: 'GET', path: '/custom', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponse } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/timeout1', handler: { proxy: { host: 'localhost', port: backendPort, timeout: 5 } } },
                         { method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'GET', path: '/single', handler: { proxy: { mapUri: mapSingleUri } } },
@@ -501,22 +499,6 @@ describe('Proxy', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('test');
-            done();
-        });
-    });
-
-    it('errors on invalid response stream', function (done) {
-
-        var orig = Nipple.parse;
-        Nipple.parse = function (res, callback) {
-
-            Nipple.parse = orig;
-            callback(Hapi.error.internal('Fake error'));
-        };
-
-        server.inject('/custom', function (res) {
-
-            expect(res.statusCode).to.equal(500);
             done();
         });
     });

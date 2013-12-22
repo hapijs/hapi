@@ -1,5 +1,6 @@
 // Load modules
 
+var Nipple = require('nipple');
 var Hapi = require('../lib');
 
 
@@ -15,6 +16,32 @@ internals.main = function () {
     var mapper = function (request, callback) {
 
         callback(null, 'http://www.google.com/search?q=' + request.params.term);
+    };
+
+    var postResponse = function (request, reply, res, settings, ttl) {
+
+        if (res.statusCode !== 200) {
+            return reply(Boom.badGateway());
+        }
+
+        Nipple.parse(res, function (err, payload) {
+
+            if (err) {
+                return reply(err);
+            }
+            
+            var contentType = res.headers['content-type'];
+
+            var response = reply(payload);
+            if (ttl) {
+                response.ttl(ttl);
+            }
+
+            if (contentType) {
+                response.type(contentType);
+            }
+
+        });
     };
 
     server.route({ method: '*', path: '/{p*}', handler: { proxy: { host: 'google.com', port: 80, redirects: 5 } } });
