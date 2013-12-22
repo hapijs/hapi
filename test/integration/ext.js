@@ -169,4 +169,55 @@ describe('Ext', function () {
             });
         });
     });
+
+    describe('#runProtected', function () {
+
+        it('catches error when handler throws after reply() is called', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+
+            var handler = function (request, reply) {
+
+                reply('ok');
+                process.nextTick(function () {
+
+                    throw new Error('should not leave domain');
+                });
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('catches error when handler throws twice after reply() is called', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+
+            var handler = function (request, reply) {
+
+                reply('ok');
+
+                process.nextTick(function () {
+
+                    throw new Error('should not leave domain 1');
+                });
+
+                process.nextTick(function () {
+
+                    throw new Error('should not leave domain 2');
+                });
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
 });
