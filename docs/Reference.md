@@ -2086,11 +2086,10 @@ var handler2 = function (request, reply) {
 JavaScript object, sent stringified. The 'Content-Type' header defaults to 'application/json'. Supports all the methods provided by
 [`Generic`](#generic) as well as:
 
-- `options(options)` - updates response configuration where `options` includes these optional keys:
-    - `type` - 'Content-Type' HTTP header value. Defaults to `'text/html'`.
-    - `encoding` - 'Content-Type' HTTP header encoding property. Defaults to `'utf-8'`.
-    - `replacer` - the `JSON.stringify()` replacer function or array. Defaults to no action.
-    - `space` - the `JSON.stringify()` number of spaces to indent nested object keys. Defaults to no indentation.
+- `replacer(method)` - sets the `JSON.stringify()` `replacer` argument where:
+    - `method` - the replacer function or array. Defaults to none.
+- `spaces(count)` - sets the `JSON.stringify()` `space` argument where:
+    - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
 - `source` - the response object reference.
 
 ```javascript

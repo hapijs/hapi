@@ -343,7 +343,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply({ a: 1, b: 2 }).options({ type: 'application/x-test', space: 0, replacer: null });
+                reply({ a: 1, b: 2 }).type('application/x-test').spaces(0).replacer(null);
             };
 
             var server = new Hapi.Server();
