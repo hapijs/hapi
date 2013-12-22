@@ -38,7 +38,7 @@ describe('Payload', function () {
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true } }, function (res) {
+            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(500);
@@ -56,7 +56,7 @@ describe('Payload', function () {
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true } }, function (res) {
+            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result.code).to.equal(500);
