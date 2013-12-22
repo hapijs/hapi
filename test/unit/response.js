@@ -3,7 +3,6 @@
 var Lab = require('lab');
 var Hapi = require('../..');
 var Response = require('../../lib/response');
-var Payload = require('../../lib/response/payload');
 
 
 // Declare internals
@@ -32,7 +31,7 @@ describe('Response', function () {
 
         Hapi.utils.inherits(Custom, Response.Generic);
 
-        Custom.prototype._prepare = function (request, callback) {
+        Custom.prototype._marshall = function (request, callback) {
 
             callback(Hapi.error.badRequest());
         };
@@ -49,36 +48,6 @@ describe('Response', function () {
         server.inject('/', function (res) {
 
             expect(res.result.code).to.equal(400);
-            done();
-        });
-    });
-
-    it('returns an error on infinite _prepare loop', function (done) {
-
-        var Custom = function (blow) {
-        
-            Response.Generic.call(this);
-            this.blow = blow;
-        };
-
-        Hapi.utils.inherits(Custom, Response.Generic);
-
-        Custom.prototype._prepare = function (request, callback) {
-
-            callback(this);
-        };
-
-        var handler = function (request, reply) {
-
-            reply(new Custom());
-        };
-
-        var server = new Hapi.Server({ debug: false });
-        server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-        server.inject('/', function (res) {
-
-            expect(res.result.code).to.equal(500);
             done();
         });
     });

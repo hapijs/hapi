@@ -548,13 +548,14 @@ describe('Response', function () {
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
             var handler = function (request, reply) {
 
-                reply.file(__dirname + '/../../package.json');
+                reply.file(__dirname + '/../../package.json').code(499);
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
             server.inject('/file', function (res) {
 
+                expect(res.statusCode).to.equal(499);
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
