@@ -1926,12 +1926,24 @@ var handler = function (request, reply) {
 ### Response
 
 Every response includes the following properties:
+- `statusCode` - the HTTP response statuc code. Defaults to `200` (except for errors).
+- `headers` - an object containing the response headers where each key is a header field name. Note that this is an incomplete list of
+  headers to be included with the response. Additional headers will be added once the response is prepare for transmission (e.g. 'Location',
+  'Cache-Control').
 - `source` - the value provided using the `reply()` interface.
 - `isPlain` - true if `source` is a plain response such as string, number, `null`, or object (but not a `Stream`, `Buffer`, or view).
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
   key is a plugin name and the value is the state.
+- `settings` - response handling flags:
+    - `encoding` - the string encoding scheme used to serial data into the HTTP payload when `source` is a string or marshalls into a string.
+      Defaults to `'utf-8'`.
+    - `charset` -  the 'Content-Type' HTTP header 'charset' property. Defaults to `'utf-8'`.
+    - `location` - the raw value used to set the HTTP 'Location' header (actual value set depends on the server
+      [`location`](#server.config.location) configuration option). Defaults to no header.
+    - `ttl` -  if set, overrides the route cache expiration milliseconds value set in the route config. Defaults to no override.
+    - `stringify`: options used for `source` value requiring stringification. Defaults to no replacer and no space padding.
 
 It provides the following methods:
 

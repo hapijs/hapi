@@ -25,11 +25,11 @@ describe('Response', function () {
 
         var Custom = function (blow) {
 
-            Response.Generic.call(this);
+            Response.Plain.call(this);
             this.blow = blow;
         };
 
-        Hapi.utils.inherits(Custom, Response.Generic);
+        Hapi.utils.inherits(Custom, Response.Plain);
 
         Custom.prototype._marshall = function (request, callback) {
 
