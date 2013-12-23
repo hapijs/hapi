@@ -51,13 +51,8 @@ describe('Security', function () {
 
     describe('Path Traversal', function () {
 
-        var server = new Hapi.Server('0.0.0.0', 0);
-
-        before(function (done) {
-
-            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
-            done();
-        });
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
         it('to files outside of hosted directory is not allowed with null byte injection', function (done) {
 

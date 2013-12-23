@@ -365,7 +365,7 @@ describe('Route', function () {
             done();
         });
 
-        it('returns false when called with an invalid path', function (done) {
+        it('returns bad request route when called with an invalid path', function (done) {
 
             var route = new Route({ path: '/{test}', method: 'get', handler: _handler }, server);
             var request = {
@@ -374,7 +374,7 @@ describe('Route', function () {
                 method: 'get'
             };
 
-            expect(route.match(request)).to.be.false;
+            expect(route.match(request).message).to.equal('URI malformed');
             done();
         });
     });
