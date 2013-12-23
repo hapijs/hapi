@@ -227,7 +227,7 @@ When creating a server instance, the following options configure the server's be
       out of memory. Defaults to `1048576` (1MB).
     - `multipart` - enables and customizes handling of incoming multipart payloads. Value can be:
         - `false` - no multipart payloads allowed. This is the default value.
-        - `'stream'` - each incoming file part is provided as a ReadableStream without touching the local file system.
+        - `'stream'` - each incoming file part is provided as a `Stream.Readable` without touching the local file system.
         - `'file'` - each incoming file part is written locally and the file path is provided.
         - Object with the following keys:
             - `mode` - required mode with allowed values:
@@ -237,7 +237,7 @@ When creating a server instance, the following options configure the server's be
             - `maxFieldBytes` - limits the amount of memory a field (not a file) can allocate in bytes. If this value is exceeded, the request fails.
               Defaults to `2097152` (2MB).
             - `maxFields` - limits the number of fields that will be parsed before an error response is returned. Files count as fields in this case.
-              Defaults to 1000.
+              Defaults to `1000`.
             - `uploadDir` - only used in `'file'` mode. The directory for writing file uploads. Defaults to `os.tmpDir()`.
             - `hash` - only used in `'file'` mode. If set, calculates checksums for incoming files with supported hash functions:
                 - `'sha1'`

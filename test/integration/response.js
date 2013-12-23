@@ -1403,6 +1403,20 @@ describe('Response', function () {
                     expect(body).to.equal(expectedBody);
                     done();
                 });
+                
+                /*
+                Nipple.request('GET', 'https://localhost:' + streamServer.info.port, { rejectUnauthorized: false }, function (err, res) {
+
+                    expect(err).to.not.exist;
+                    Nipple.parse(res, function (err, payload) {
+
+                        expect(err).to.not.exist;
+                        expect(payload).to.equal(expectedBody);
+                        done();
+                    });
+                });
+                
+                */
             });
         });
     });

@@ -3,7 +3,7 @@
 var Lab = require('lab');
 var Http = require('http');
 var Stream = require('stream');
-var Request = require('request');
+var Nipple = require('nipple');
 var Hapi = require('../..');
 
 
@@ -346,10 +346,10 @@ describe('Socket timeout', function () {
 
     it('closes connection on socket timeout', function (done) {
 
-        Request('http://localhost:' + port + '/', function (err, response, body) {
+        Nipple.request('GET', 'http://localhost:' + port + '/', {}, function (err, res) {
 
             expect(err).to.exist;
-            expect(err.message).to.equal('socket hang up');
+            expect(err.message).to.equal('Client request error');
             done();
         });
     });

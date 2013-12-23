@@ -1,7 +1,7 @@
 // Load modules
 
 var Hapi = require('../lib');
-var Request = require('request');
+var Nipple = require('nipple');
 
 
 // Declare internals
@@ -17,8 +17,10 @@ internals.echo = function (request, reply) {
 
 internals.request = function (request, reply) {
 
-    var reqStream = Request('http://google.com');
-    reqStream.once('response', reply);
+    Nipple.request('GET', 'http://google.com', {}, function (err, res) {
+
+        reply(err || res);
+    });
 };
 
 
