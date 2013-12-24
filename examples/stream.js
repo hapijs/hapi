@@ -11,16 +11,13 @@ var internals = {};
 
 internals.echo = function (request, reply) {
 
-    reply(request.raw.req);
+    reply(request.payload);
 };
 
 
 internals.request = function (request, reply) {
 
-    Nipple.request('GET', 'http://google.com', {}, function (err, res) {
-
-        reply(err || res);
-    });
+    Nipple.request('GET', 'http://google.com', {}, reply);
 };
 
 
