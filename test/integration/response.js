@@ -34,6 +34,7 @@ describe('Response', function () {
                 reply('text').type('text/plain')
                              .charset('ISO-8859-1')
                              .ttl(1000)
+                             .header('set-cookie', 'abc=123')
                              .state('sid', 'abcdefg123456')
                              .state('other', 'something', { isSecure: true })
                              .unstate('x')
@@ -62,7 +63,7 @@ describe('Response', function () {
                 expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
                 expect(res.headers['access-control-allow-origin']).to.equal('*');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
-                expect(res.headers['set-cookie']).to.deep.equal(['sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
+                expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
                 expect(res.headers.vary).to.equal('x-control');
                 done();
             });
@@ -83,6 +84,25 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
+                done();
+            });
+        });
+
+        it('does not override CORS origin', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok').header('access-control-allow-origin', 'something');
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.equal('something');
                 done();
             });
         });
