@@ -16,7 +16,7 @@ internals.serveLogo = function (request, reply) {
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
+    var http = new Hapi.Server(8000, { files: { relativeTo: __dirname } });
 
     http.route([
         { method: 'GET', path: '/', handler: { file: './index.html' } },
