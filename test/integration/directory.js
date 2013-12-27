@@ -143,7 +143,7 @@ describe('Directory', function () {
         server.inject('/showindex/directory/subdir', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.contain('href="' + escape("/showindex/directory/subdir/sub subdir") + '"');
+            expect(res.payload).to.contain('href="/showindex/directory/subdir/sub%20subdir%3D"');
             done();
         });
     });
@@ -153,10 +153,10 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
-        server.inject(encodeURI('/showindex/directory/subdir/sub subdir/subsubsubdir'), function (res) {
+        server.inject('/showindex/directory/subdir/sub%20subdir%3D/subsubsubdir', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.contain('href="' + escape("/showindex/directory/subdir/sub subdir/subsubsubdir/test.txt") + '"');
+            expect(res.payload).to.contain('href="/showindex/directory/subdir/sub%20subdir%3D/subsubsubdir/test.txt"');
             done();
         });
     });
@@ -166,7 +166,7 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
-        server.inject(encodeURI("/directory/directory/subdir/sub subdir/test.json"), function (res) {
+        server.inject('/directory/directory/subdir/sub%20subdir%3D/test%24.json', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('{"test":"test"}');
@@ -179,7 +179,7 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
-        server.inject(encodeURI("/directory/directory/subdir/sub subdir/subsubsubdir/test.txt"), function (res) {
+        server.inject('/directory/directory/subdir/sub%20subdir%3D/subsubsubdir/test.txt', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('test');
