@@ -1799,6 +1799,31 @@ describe('Response', function () {
                 });
             });
 
+            it('returns response with custom server layout', function (done) {
+
+                var layoutServer = new Hapi.Server({ debug: false });
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates',
+                    layout: 'otherLayout'
+                });
+
+                var handler = function (request, reply) {
+
+                    return reply.view('valid/test', { title: 'test', message: 'Hapi' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/', handler: handler });
+
+                layoutServer.inject('/', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('test:<div>\n    <h1>Hapi</h1>\n</div>\n');
+                    done();
+                });
+            });
+
             it('returns response without layout', function (done) {
 
                 var layoutServer = new Hapi.Server({ debug: false });
