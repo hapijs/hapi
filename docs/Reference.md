@@ -1,4 +1,4 @@
-# 2.0.x API Reference
+# 2.1.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -267,6 +267,7 @@ When creating a server instance, the following options configure the server's be
       for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
       Otherwise, the provided filename is suffixed with the engine's extension and laoded. Disable `layout` when using Jade as it will handle
       including any layout files independently. Defaults to `false`.
+    - `layoutPath` - the root file path where layout templates are located (relative to `basePath` is present). Defaults to `path`.
     - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
     - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.

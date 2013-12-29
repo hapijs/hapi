@@ -1751,7 +1751,7 @@ describe('Response', function () {
 
             it('returns response', function (done) {
 
-                var layoutServer = new Hapi.Server({ debug: false });
+                var layoutServer = new Hapi.Server();
                 layoutServer.views({
                     engines: { 'html': 'handlebars' },
                     path: __dirname + '/../unit/templates',
@@ -1776,7 +1776,7 @@ describe('Response', function () {
 
             it('returns response with layout override', function (done) {
 
-                var layoutServer = new Hapi.Server({ debug: false });
+                var layoutServer = new Hapi.Server();
                 layoutServer.views({
                     engines: { 'html': 'handlebars' },
                     path: __dirname + '/../unit/templates',
@@ -1801,7 +1801,7 @@ describe('Response', function () {
 
             it('returns response with custom server layout', function (done) {
 
-                var layoutServer = new Hapi.Server({ debug: false });
+                var layoutServer = new Hapi.Server();
                 layoutServer.views({
                     engines: { 'html': 'handlebars' },
                     path: __dirname + '/../unit/templates',
@@ -1824,9 +1824,82 @@ describe('Response', function () {
                 });
             });
 
-            it('returns response without layout', function (done) {
+            it('returns response with custom server layout and path', function (done) {
+
+                var layoutServer = new Hapi.Server();
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    basePath: __dirname + '/../unit',
+                    path: 'templates',
+                    layoutPath: 'templates/layout',
+                    layout: 'elsewhere'
+                });
+
+                var handler = function (request, reply) {
+
+                    return reply.view('valid/test', { title: 'test', message: 'Hapi' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/', handler: handler });
+
+                layoutServer.inject('/', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('test+<div>\n    <h1>Hapi</h1>\n</div>\n');
+                    done();
+                });
+            });
+
+            it('errors on missing layout', function (done) {
 
                 var layoutServer = new Hapi.Server({ debug: false });
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates',
+                    layout: 'missingLayout'
+                });
+
+                var handler = function (request, reply) {
+
+                    return reply.view('valid/test', { title: 'test', message: 'Hapi' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/', handler: handler });
+
+                layoutServer.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+
+            it('errors on invalid layout', function (done) {
+
+                var layoutServer = new Hapi.Server({ debug: false });
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/../unit/templates',
+                    layout: '../invalidLayout'
+                });
+
+                var handler = function (request, reply) {
+
+                    return reply.view('valid/test', { title: 'test', message: 'Hapi' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/', handler: handler });
+
+                layoutServer.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+
+            it('returns response without layout', function (done) {
+
+                var layoutServer = new Hapi.Server();
                 layoutServer.views({
                     engines: { 'html': 'handlebars' },
                     path: __dirname + '/../unit/templates',
