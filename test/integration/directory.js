@@ -135,6 +135,58 @@ describe('Directory', function () {
         });
     });
 
+    it('has the correct link to a sub folder with spaces when inside of a sub folder listing', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+        server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+
+        server.inject('/showindex/directory/subdir', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('href="/showindex/directory/subdir/sub%20subdir%3D"');
+            done();
+        });
+    });
+
+    it('has the correct link to a file when inside of a listing of a sub folder that is inside a subfolder with spaces', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+        server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+
+        server.inject('/showindex/directory/subdir/sub%20subdir%3D/subsubsubdir', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('href="/showindex/directory/subdir/sub%20subdir%3D/subsubsubdir/test.txt"');
+            done();
+        });
+    });
+
+    it('returns the correct file when requesting a file from a directory with spaces', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+
+        server.inject('/directory/directory/subdir/sub%20subdir%3D/test%24.json', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('{"test":"test"}');
+            done();
+        });
+    });
+
+    it('returns the correct file when requesting a file from a directory that its parent directory has spaces', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+
+        server.inject('/directory/directory/subdir/sub%20subdir%3D/subsubsubdir/test.txt', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('test');
+            done();
+        });
+    });
+
     it('returns a 403 when index and listing are disabled', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
