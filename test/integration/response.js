@@ -27,7 +27,7 @@ describe('Response', function () {
 
     describe('Text', function () {
 
-        it('returns a text reply', function (done) {
+        it('returns a reply', function (done) {
 
             var handler = function (request, reply) {
 
@@ -276,6 +276,101 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-type']).to.equal('text/plain; charset=ISO-8859-1');
+                done();
+            });
+        });
+
+        it('sets Vary header with single value', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok').vary('x');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('x');
+                done();
+            });
+        });
+
+        it('sets Vary header with multiple values', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok').vary('x').vary('y');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('x,y');
+                done();
+            });
+        });
+
+        it('sets Vary header with *', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok').vary('*');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('*');
+                done();
+            });
+        });
+
+        it('leaves Vary header with * on additional values', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok').vary('*').vary('x');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('*');
+                done();
+            });
+        });
+
+        it('drops other Vary header values when set to *', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok').vary('x').vary('*');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('*');
                 done();
             });
         });
