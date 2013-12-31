@@ -196,7 +196,7 @@ describe('Views', function () {
 
             tempView.render('testPartials', {}, null, function (err, rendered, config) {
 
-                expect(rendered).to.equal('Nav:<nav>Nav</nav>|<nav>Nested</nav>');
+                expect(rendered).to.equal(' Nav:<nav>Nav</nav>|<nav>Nested</nav>');
                 done();
             });
         });
@@ -228,8 +228,7 @@ describe('Views', function () {
 
             tempView.render('testPartials', {}, null, function (err, rendered, config) {
 
-                expect(rendered).to.exist;
-                expect(rendered.length).above(1);
+                expect(rendered).to.equal('Nav:{{> nav}}|{{> nested/nav}}');
                 done();
             });
         });
