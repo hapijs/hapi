@@ -141,11 +141,17 @@ describe('Validation', function () {
 
     it('logs on invalid input', function (done) {
 
+        var handler = function (request, reply) {
+
+            var item = request.getLog('validation')[0];
+            reply(item);
+        };
+
         var server = new Hapi.Server();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply(request.getLog('validation')[0].data); },
+            handler: handler,
             config: {
                 validate: {
                     query: {
@@ -159,16 +165,7 @@ describe('Validation', function () {
         server.inject('/?a=1', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.deep.equal({
-                response: {
-                    validation: {
-                        source: 'query',
-                        keys: ['a']
-                    }
-                },
-                message: 'the length of a must be at least 2 characters long'
-            });
-
+            expect(res.result.data.response.payload.message).to.deep.equal('the length of a must be at least 2 characters long');
             done();
         });
     });
@@ -224,7 +221,7 @@ describe('Validation', function () {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result).to.deep.equal({
-                code: 400,
+                statusCode: 400,
                 error: 'Bad Request',
                 message: 'the length of a must be at least 2 characters long',
                 validation: {

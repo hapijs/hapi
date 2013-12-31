@@ -42,7 +42,7 @@ describe('Payload', function () {
             server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(500);
+                expect(res.result.statusCode).to.equal(500);
                 done();
             });
         });
@@ -60,7 +60,7 @@ describe('Payload', function () {
             server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(500);
+                expect(res.result.statusCode).to.equal(500);
                 done();
             });
         });
@@ -537,7 +537,7 @@ describe('Payload', function () {
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
+                expect(res.result.statusCode).to.equal(400);
                 done();
             });
         });
@@ -622,7 +622,7 @@ describe('Payload', function () {
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
+                expect(res.result.statusCode).to.equal(400);
                 done();
             });
         });
@@ -632,7 +632,7 @@ describe('Payload', function () {
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
 
                 expect(res.result).to.exist;
-                expect(res.result.code).to.equal(400);
+                expect(res.result.statusCode).to.equal(400);
                 done();
             });
         });

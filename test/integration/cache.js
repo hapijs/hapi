@@ -52,7 +52,7 @@ describe('Cache', function () {
     var errorHandler = function (request, reply) {
 
         var error = new Error('myerror');
-        error.code = 500;
+        error.statusCode = 500;
 
         reply(error);
     };

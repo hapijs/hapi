@@ -272,7 +272,7 @@
           }
   
           if (result &&
-              result.code === 200) {
+              result.statusCode === 200) {
           
               console.log('special case');
           }
@@ -299,7 +299,7 @@
           }
    
           if (result &&
-              result.code === 200) {
+              result.statusCode === 200) {
               console.log('special case');
           }
      
@@ -640,7 +640,7 @@
   ```javascript
   if (result &&
       result.status &&
-      result.status.code === 200) {
+      result.status.statusCode === 200) {
 
       console.log('success');
   }

@@ -205,7 +205,7 @@ describe('Handler', function () {
 
         server.inject('/', function (res) {
 
-            expect(res.result.code).to.equal(500);
+            expect(res.result.statusCode).to.equal(500);
             done();
         });
     });
@@ -274,7 +274,7 @@ describe('Handler', function () {
 
         server.inject('/', function (res) {
 
-            expect(res.result.code).to.equal(500);
+            expect(res.result.statusCode).to.equal(500);
             done();
         });
     });

@@ -47,7 +47,7 @@ describe('Response', function () {
 
         server.inject('/', function (res) {
 
-            expect(res.result.code).to.equal(400);
+            expect(res.result.statusCode).to.equal(400);
             done();
         });
     });

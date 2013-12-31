@@ -68,7 +68,6 @@
       - [`forbidden([message])`](#forbiddenmessage)
       - [`notFound([message])`](#notfoundmessage)
       - [`internal([message, [data]])`](#internalmessage-data)
-      - [`passThrough(code, payload, contentType, headers)`](#passthroughcode-payload-contenttype-headers)
 - [`Hapi.Pack`](#hapipack)
       - [`new Pack([options])`](#new-packoptions)
       - [`Pack` properties](#pack-properties)
@@ -1872,7 +1871,7 @@ server.ext('onPreResponse', function (request, next) {
 
       var error = response;
       var ctx = {
-          message: (error.response.code === 404 ? 'page not found' : 'something went wrong')
+          message: (error.response.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
       next(request.generateView('error', ctx));
@@ -2100,13 +2099,12 @@ Provides a set of utilities for returning HTTP errors. An alias of the [**boom**
 - `isBoom` - if `true`, indicates this is a `Boom` object instance.
 - `message` - the error message.
 - `response` - the formatted response. Can be directly manipulated after object construction to return a custom error response. Allowed root keys:
-    - `code` - the HTTP status code (typically 4xx or 5xx).
+    - `statusCode` - the HTTP status code (typically 4xx or 5xx).
     - `headers` - an object containing any HTTP headers where each key is a header name and value is the header content.
-    - `type` - a mime-type used as the content of the HTTP 'Content-Type' header (overrides `headers['Content-Type']` if present in both).
     - `payload` - the formatted object used as the response payload (stringified). Can be directly manipulated but any changes will be lost
       if `reformat()` is called. Any content allowed and by default includes the following content:
-        - `code` - the HTTP status code, derived from `error.response.code`.
-        - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived from `code`.
+        - `statusCode` - the HTTP status code, derived from `error.response.statusCode`.
+        - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived from `statusCode`.
         - `message` - the error message derived from `error.message`.
 - inherited `Error` properties.
 
@@ -2120,7 +2118,7 @@ var Hapi = require('hapi');
 var handler = function (request, reply) {
 
     var error = Hapi.error.badRequest('Cannot feed after midnight');
-    error.response.code = 499;    // Assign a custom error code
+    error.response.statusCode = 499;    // Assign a custom error code
     error.reformat();
     
     error.response.payload.custom = 'abc_123'; // Add custom key
@@ -2131,7 +2129,7 @@ var handler = function (request, reply) {
 
 ### Error transformation
 
-Error responses return a JSON object with the `code`, `error`, and `message` keys. When a different error representation is desired, such
+Error responses return a JSON object with the `statusCode`, `error`, and `message` keys. When a different error representation is desired, such
 as an HTML page or using another format, the `'onPreResponse'` extension point may be used to identify errors and replace them with a different
 response object.
 
@@ -2150,7 +2148,7 @@ server.ext('onPreResponse', function (request, next) {
 
       var error = response;
       var ctx = {
-          message: (error.response.code === 404 ? 'page not found' : 'something went wrong')
+          message: (error.response.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
       next(request.generateView('error', ctx));
@@ -2233,13 +2231,8 @@ Hapi.error.notFound('Wrong number');
 Returns an HTTP Internal Server Error (500) error response object where:
 
 - `message` - the error message.
-- `data` - optional data used for error logging. Typically set to the `Error` object causing the failure.
-
-The returned error object includes the following additional properties:
-
-- `data` - the `data` object provided.
-- `trace` - the call stack leading to this error. If `data` is an `Error` object, `trace` is set to `data.trace`.
-- `outterTrace` - If `data` is an `Error` object, set to the call stack leading to this error, otherwise `null`.
+- `data` - optional data used for error logging. If `data` is an `Error`, the returned object is `data` decorated with
+  the **boom** properties. Otherwise, the returned `Error` has a `data` property with the provided value.
 
 Note that the `error.response.payload.message` is overridden with `'An internal server error occurred'` to hide any internal details from
 the client. `error.message` remains unchanged.
@@ -2259,23 +2252,6 @@ var handler = function (request, reply) {
 
     reply(result);
 };
-```
-
-#### `passThrough(code, payload, contentType, headers)`
-
-Returns a custom HTTP error response object where:
-
-- `code` - the HTTP status code (typically 4xx or 5xx).
-- `payload` - the error payload string or `Buffer`.
-- `contentType` - a mime-type used as the content of the HTTP 'Content-Type' header (overrides `headers['Content-Type']` if present in both).
-- `headers` - an object containing any HTTP headers where each key is a header name and value is the header content.
-
-Used to pass-through errors received from upstream services (proxied) when a response should be treated internally as an error but contain
-custom properties.
-
-```javascript
-var Hapi = require('hapi');
-Hapi.error.passThrough(404, '<h1>Not Found</h1>', 'text/html', { 'Cache-Control': 'no-cache' });
 ```
 
 ## `Hapi.Pack`

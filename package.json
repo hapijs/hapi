@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "hoek": "1.x.x",
-    "boom": "1.x.x",
+    "boom": "2.x.x",
     "joi": "2.x.x",
     "catbox": "1.x.x",
     "hawk": "1.x.x",

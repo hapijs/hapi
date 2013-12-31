@@ -22,162 +22,17 @@ var it = Lab.test;
 
 describe('Request', function () {
 
-    var customErrorHandler = function (request, reply) {
-
-        reply(Hapi.error.passThrough(599, 'heya', 'text/plain'));
-    };
-
-    var tailHandler = function (request, reply) {
-
-        var t1 = request.addTail('t1');
-        var t2 = request.addTail('t2');
-
-        reply('Done');
-
-        t1();
-        t1();                           // Ignored
-        setTimeout(t2, 10);
-    };
-
-    var plainHandler = function (request, reply) {
-
-        reply('OK');
-    };
-
-    var postHandler = function (request, next) {
-
-        next(request.path === '/ext' ? Hapi.error.badRequest() : null);
-    };
-
-    var unknownRouteHandler = function (request, reply) {
-
-        if (request.path === '/unknown/reply') {
-            reply('unknown-reply');
-        }
-        else if (request.path === '/unknown/close') {
-            reply('unknown-close');
-        }
-        else {
-            reply('unknown-error');
-        }
-    };
-
-    var responseErrorHandler = function (request, reply) {
-
-        reply('success');
-
-        var orig = request.raw.res.write;
-        request.raw.res.write = function (chunk, encoding) {
-
-            orig.call(request.raw.res, chunk, encoding);
-            request.raw.res.emit('error', new Error('fail'));
-        };
-    };
-
-    var streamErrorHandler = function (request, reply) {
-
-        var TestStream = function () {
-
-            Stream.Readable.call(this);
-        };
-
-        Hapi.utils.inherits(TestStream, Stream.Readable);
-
-        TestStream.prototype._read = function (size) {
-
-            var self = this;
-
-            if (this.isDone) {
-                return;
-            }
-            this.isDone = true;
-
-            self.push('success');
-
-            setImmediate(function () {
-
-                self.emit('error', new Error());
-            });
-        };
-
-        var stream = new TestStream();
-        reply(stream);
-    };
-
-    var forbiddenErrorHandler = function (request, reply) {
-
-        reply(Hapi.error.forbidden('Unauthorized content'));
-    };
-
-    var addressHandler = function (request, reply) {
-
-        expect(request.info.remoteAddress).to.equal('127.0.0.1');
-        expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
-        reply('ok');
-    };
-
-    var simpleHandler = function (request, reply) {
-
-        var TestStream = function () {
-
-            Stream.Readable.call(this);
-        };
-
-        Hapi.utils.inherits(TestStream, Stream.Readable);
-
-        TestStream.prototype._read = function (size) {
-
-            if (this.isDone) {
-                return;
-            }
-            this.isDone = true;
-
-            this.push('success');
-            this.emit('data', 'success');
-        };
-
-        var stream = new TestStream();
-        reply(stream);
-    };
-
-    var headersHandler = function (request, reply) {
-
-        reply(request.headers['user-agent']);
-    };
-
-    var server = new Hapi.Server('0.0.0.0', 0, { cors: true });
-    server.ext('onPostHandler', postHandler);
-    server.route([
-        { method: 'GET', path: '/', config: { handler: simpleHandler } },
-        { method: 'GET', path: '/custom', config: { handler: customErrorHandler } },
-        { method: 'GET', path: '/tail', config: { handler: tailHandler } },
-        { method: 'GET', path: '/ext', config: { handler: plainHandler } },
-        { method: 'GET', path: '/response', config: { handler: responseErrorHandler } },
-        { method: 'GET', path: '/stream', config: { handler: streamErrorHandler } },
-        { method: 'GET', path: '/forbidden', config: { handler: forbiddenErrorHandler } },
-        { method: 'GET', path: '/header', handler: headersHandler }
-    ]);
-
-    server.route({ method: 'GET', path: '/address', handler: addressHandler });
-    server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
-
-    before(function (done) {
-
-        server.start(done);
-    });
-
-    it('returns custom error response', function (done) {
-
-        server.inject('/custom', function (res) {
-
-            expect(res.headers['content-type']).to.equal('text/plain; charset=utf-8');
-            done();
-        });
-    });
-
     it('returns valid OPTIONS response', function (done) {
 
-        server.inject({ method: 'OPTIONS', url: '/custom' }, function (res) {
+        var handler = function (request, reply) {
+
+            reply(Hapi.error.badRequest());
+        };
+
+        var server = new Hapi.Server({ cors: true });
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
 
             expect(res.headers['access-control-allow-origin']).to.equal('*');
             done();
@@ -185,6 +40,21 @@ describe('Request', function () {
     });
 
     it('generates tail event', function (done) {
+
+        var handler = function (request, reply) {
+
+            var t1 = request.addTail('t1');
+            var t2 = request.addTail('t2');
+
+            reply('Done');
+
+            t1();
+            t1();                           // Ignored
+            setTimeout(t2, 10);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         var result = null;
 
@@ -194,7 +64,7 @@ describe('Request', function () {
             done();
         });
 
-        server.inject('/tail', function (res) {
+        server.inject('/', function (res) {
 
             result = res.result;
         });
@@ -202,16 +72,39 @@ describe('Request', function () {
 
     it('returns error response on ext error', function (done) {
 
-        server.inject('/ext', function (res) {
+        var handler = function (request, reply) {
 
-            expect(res.result.code).to.equal(400);
+            reply('OK');
+        };
+
+        var server = new Hapi.Server();
+
+        var ext = function (request, next) {
+
+            next(Hapi.error.badRequest());
+        };
+
+        server.ext('onPostHandler', ext);
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
+
+            expect(res.result.statusCode).to.equal(400);
             done();
         });
     });
 
     it('returns unknown response using reply()', function (done) {
 
-        server.inject('/unknown/reply', function (res) {
+        var unknownRouteHandler = function (request, reply) {
+
+            reply('unknown-reply');
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
+
+        server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('unknown-reply');
@@ -219,19 +112,24 @@ describe('Request', function () {
         });
     });
 
-    it('returns unknown response using close()', function (done) {
-
-        server.inject('/unknown/close', function (res) {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('unknown-close');
-            done();
-        });
-    });
-
     it('handles errors on the response after the response has been started', function (done) {
 
-        server.inject('/response', function (res) {
+        var handler = function (request, reply) {
+
+            reply('success');
+
+            var orig = request.raw.res.write;
+            request.raw.res.write = function (chunk, encoding) {
+
+                orig.call(request.raw.res, chunk, encoding);
+                request.raw.res.emit('error', new Error('fail'));
+            };
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
 
             expect(res.result).to.equal('success');
             done();
@@ -240,7 +138,40 @@ describe('Request', function () {
 
     it('handles stream errors on the response after the response has been piped', function (done) {
 
-        server.inject('/stream', function (res) {
+        var handler = function (request, reply) {
+
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Hapi.utils.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                var self = this;
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                self.push('success');
+
+                setImmediate(function () {
+
+                    self.emit('error', new Error());
+                });
+            };
+
+            var stream = new TestStream();
+            reply(stream);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
 
             expect(res.result).to.equal('success');
             done();
@@ -267,8 +198,6 @@ describe('Request', function () {
 
     it('returns 500 on handler exception (next tick)', function (done) {
 
-        var server = new Hapi.Server();
-
         var handler = function (request) {
 
             setImmediate(function () {
@@ -277,10 +206,11 @@ describe('Request', function () {
             });
         };
 
-        server.route({ method: 'GET', path: '/domain', handler: handler });
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.on('internalError', function (request, err) {
 
-            expect(err.trace[0]).to.equal('ReferenceError: not is not defined');
+            expect(err.stack.split('\n')[0]).to.equal('ReferenceError: not is not defined');
             done();
         });
 
@@ -299,7 +229,7 @@ describe('Request', function () {
             }
         };
 
-        server.inject('/domain', function (res) {
+        server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(500);
         });
@@ -330,8 +260,7 @@ describe('Request', function () {
         var handler = function (request, reply) {
 
             var response = reply('123').hold();
-            setTimeout(function ()
-            {
+            setTimeout(function () {
                 response.send();
             }, 10);
         };
@@ -350,7 +279,7 @@ describe('Request', function () {
         var server = new Hapi.Server({ debug: false });
         server.ext('onRequest', function (request, next) {
 
-           var x = a.b.c;
+            var x = a.b.c;
         });
 
         var handler = function (request, reply) {
@@ -389,10 +318,23 @@ describe('Request', function () {
 
     it('request has client address', function (done) {
 
-        Request('http://localhost:' + server.info.port + '/address', function (err, res, body) {
+        var handler = function (request, reply) {
 
-            expect(body).to.equal('ok');
-            done();
+            expect(request.info.remoteAddress).to.equal('127.0.0.1');
+            expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
+            reply('ok');
+        };
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.start(function () {
+
+            Request('http://localhost:' + server.info.port + '/', function (err, res, body) {
+
+                expect(body).to.equal('ok');
+                done();
+            });
         });
     });
 
@@ -417,6 +359,7 @@ describe('Request', function () {
 
     it('returns 400 on invalid path', function (done) {
 
+        var server = new Hapi.Server();
         server.inject('invalid', function (res) {
 
             expect(res.statusCode).to.equal(400);
@@ -426,7 +369,15 @@ describe('Request', function () {
 
     it('returns 403 on forbidden response', function (done) {
 
-        server.inject('/forbidden', function (res) {
+        var handler = function (request, reply) {
+
+            reply(Hapi.error.forbidden('Unauthorized content'));
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(403);
             done();
@@ -435,39 +386,77 @@ describe('Request', function () {
 
     it('handles aborted requests', function (done) {
 
-        var total = 2;
-        var createConnection = function () {
+        var handler = function (request, reply) {
 
-            var client = Net.connect(server.info.port, function () {
+            var TestStream = function () {
 
-                client.write('GET / HTTP/1.1\r\n\r\n');
-                client.write('GET / HTTP/1.1\r\n\r\n');
-            });
+                Stream.Readable.call(this);
+            };
 
-            client.on('data', function() {
+            Hapi.utils.inherits(TestStream, Stream.Readable);
 
-                total--;
-                client.destroy();
-            });
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push('success');
+                this.emit('data', 'success');
+            };
+
+            var stream = new TestStream();
+            reply(stream);
         };
 
-        var check = function () {
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: handler });
 
-           if (total) {
-               createConnection();
-               setImmediate(check);
-           }
-           else {
-               done();
-           }
-        };
+        server.start(function () {
 
-        check();
+            var total = 2;
+            var createConnection = function () {
+
+                var client = Net.connect(server.info.port, function () {
+
+                    client.write('GET / HTTP/1.1\r\n\r\n');
+                    client.write('GET / HTTP/1.1\r\n\r\n');
+                });
+
+                client.on('data', function () {
+
+                    total--;
+                    client.destroy();
+                });
+            };
+
+            var check = function () {
+
+                if (total) {
+                    createConnection();
+                    setImmediate(check);
+                }
+                else {
+                    done();
+                }
+            };
+
+            check();
+        });
     });
 
     it('returns request header', function (done) {
 
-        server.inject('/header', function (res) {
+        var handler = function (request, reply) {
+
+            reply(request.headers['user-agent']);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
 
             expect(res.payload).to.equal('shot');
             done();
