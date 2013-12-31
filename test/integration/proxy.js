@@ -338,12 +338,12 @@ describe('Proxy', function () {
 
             expect(res.statusCode).to.equal(200);
 
-            Fs.readFile(__dirname + '/../../package.json', { encoding: 'utf-8' }, function (err, file) {
+            Fs.readFile(__dirname + '/../../package.json', { encoding: 'utf8' }, function (err, file) {
 
                 Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, unzipped) {
 
                     expect(err).to.not.exist;
-                    expect(unzipped.toString('utf-8')).to.deep.equal(file);
+                    expect(unzipped.toString('utf8')).to.deep.equal(file);
                     done();
                 });
             });

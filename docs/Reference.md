@@ -302,7 +302,7 @@ When creating a server instance, the following options configure the server's be
       in the same engine. The layout template name must be 'layout.ext' where 'ext' is the engine's extension.  Disable 'layout' when using Jade as
       it will handle including any layout files independently of Hapi.  Defaults to `false`.
     - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
-    - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf-8'`.
+    - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
     - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `reply.view()`. Defaults to `false`.
     - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to contain '../'. Defaults to `false`.
@@ -1958,7 +1958,7 @@ Every response includes the following properties:
   key is a plugin name and the value is the state.
 - `settings` - response handling flags:
     - `encoding` - the string encoding scheme used to serial data into the HTTP payload when `source` is a string or marshalls into a string.
-      Defaults to `'utf-8'`.
+      Defaults to `'utf8'`.
     - `charset` -  the 'Content-Type' HTTP header 'charset' property. Defaults to `'utf-8'`.
     - `location` - the raw value used to set the HTTP 'Location' header (actual value set depends on the server
       [`location`](#server.config.location) configuration option). Defaults to no header.
