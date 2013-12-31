@@ -16,7 +16,7 @@
                 - [`reply([result])`](#replyresult)
                 - [`reply.file(path, options)`](#replyfilepath-options)
                 - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
-                - [`reply.close()`](#replyclose)
+                - [`reply.close([options])`](#replycloseoptions)
                 - [`reply.proxy(options)`](#replyproxyoptions)
             - [Route prerequisites](#route-prerequisites)
             - [Route not found](#route-not-found)
@@ -836,13 +836,14 @@ server.route({ method: 'GET', path: '/', handler: handler });
 </html>
 ```
 
-###### `reply.close()`
+###### `reply.close([options])`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, or `reply.proxy()`  is called._
 
 Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
-directly via `request.raw.res` and that no further response action is needed (the router will ensure the `request.raw.res` was ended).
+directly via `request.raw.res` and that no further response action is needed. Supports the following optional options:
+- `end` - if `false`, the router will not call `request.raw.res.end())` to ensure the response was ended. Defaults to `true`.
 
 No return value.
 

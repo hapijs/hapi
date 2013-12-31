@@ -2132,11 +2132,28 @@ describe('Response', function () {
 
     describe('Closed', function () {
 
-        it('returns a reply', function (done) {
+        it('returns a reply with manual end', function (done) {
 
             var handler = function (request, reply) {
 
                 request.raw.res.end();
+                reply.close({ end: false });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('');
+                done();
+            });
+        });
+
+        it('returns a reply with auto end', function (done) {
+
+            var handler = function (request, reply) {
+
                 reply.close();
             };
 
