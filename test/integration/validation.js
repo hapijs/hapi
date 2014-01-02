@@ -165,7 +165,7 @@ describe('Validation', function () {
         server.inject('/?a=1', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result.data.response.payload.message).to.deep.equal('the length of a must be at least 2 characters long');
+            expect(res.result.data.output.payload.message).to.deep.equal('the length of a must be at least 2 characters long');
             done();
         });
     });
@@ -184,7 +184,7 @@ describe('Validation', function () {
                     },
                     failAction: function (source, error, next) {
 
-                        next('Got error in ' + source + ' where ' + error.response.payload.validation.keys[0] + ' is bad');
+                        next('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad');
                     }
                 }
             }

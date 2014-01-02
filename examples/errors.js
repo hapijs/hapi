@@ -20,7 +20,7 @@ internals.onPreResponse = function (request, next) {
 
     if (request.response.isBoom) {
         var error = request.response;
-        error.response.payload.message = 'Censored Error';
+        error.output.payload.message = 'Censored Error';
     }
 
     next();

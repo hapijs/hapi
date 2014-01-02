@@ -109,7 +109,7 @@ describe('Ext', function () {
             var server = new Hapi.Server();
             server.ext('onPreResponse', function (request, next) {
 
-                return next(null, request.response.response.statusCode);
+                return next(null, request.response.output.statusCode);
             });
 
             server.inject({ method: 'GET', url: '/missing' }, function (res) {

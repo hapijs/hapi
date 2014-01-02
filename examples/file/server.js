@@ -10,7 +10,7 @@ var internals = {};
 
 internals.serveLogo = function (request, reply) {
 
-    reply(new Hapi.response.File('../../images/hapi.png'));
+    reply.file('../../images/hapi.png');
 };
 
 

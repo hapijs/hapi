@@ -774,7 +774,6 @@ The [response flow control rules](#flow-control) **do not** apply.
 ```javascript
 var handler = function (request, reply) {
 
-    var response = new Hapi.response.File;
     reply.file('./hello.txt');
 };
 ```
@@ -2007,19 +2006,19 @@ Provides a set of utilities for returning HTTP errors. An alias of the [**boom**
 
 - `isBoom` - if `true`, indicates this is a `Boom` object instance.
 - `message` - the error message.
-- `response` - the formatted response. Can be directly manipulated after object construction to return a custom error response. Allowed root keys:
+- `output` - the formatted response. Can be directly manipulated after object construction to return a custom error response. Allowed root keys:
     - `statusCode` - the HTTP status code (typically 4xx or 5xx).
     - `headers` - an object containing any HTTP headers where each key is a header name and value is the header content.
     - `payload` - the formatted object used as the response payload (stringified). Can be directly manipulated but any changes will be lost
       if `reformat()` is called. Any content allowed and by default includes the following content:
-        - `statusCode` - the HTTP status code, derived from `error.response.statusCode`.
+        - `statusCode` - the HTTP status code, derived from `error.output.statusCode`.
         - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived from `statusCode`.
         - `message` - the error message derived from `error.message`.
 - inherited `Error` properties.
 
 It also supports the following method:
 
-- `reformat()` - rebuilds `error.response` using the other object properties.
+- `reformat()` - rebuilds `error.output` using the other object properties.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2027,10 +2026,10 @@ var Hapi = require('hapi');
 var handler = function (request, reply) {
 
     var error = Hapi.error.badRequest('Cannot feed after midnight');
-    error.response.statusCode = 499;    // Assign a custom error code
+    error.output.statusCode = 499;    // Assign a custom error code
     error.reformat();
     
-    error.response.payload.custom = 'abc_123'; // Add custom key
+    error.output.payload.custom = 'abc_123'; // Add custom key
 
     reply(error);
 });
@@ -2057,7 +2056,7 @@ server.ext('onPreResponse', function (request, reply) {
 
       var error = response;
       var ctx = {
-          message: (error.response.statusCode === 404 ? 'page not found' : 'something went wrong')
+          message: (error.output.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
       reply.view('error', ctx);
@@ -2143,7 +2142,7 @@ Returns an HTTP Internal Server Error (500) error response object where:
 - `data` - optional data used for error logging. If `data` is an `Error`, the returned object is `data` decorated with
   the **boom** properties. Otherwise, the returned `Error` has a `data` property with the provided value.
 
-Note that the `error.response.payload.message` is overridden with `'An internal server error occurred'` to hide any internal details from
+Note that the `error.output.payload.message` is overridden with `'An internal server error occurred'` to hide any internal details from
 the client. `error.message` remains unchanged.
 
 ```javascript
