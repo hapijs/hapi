@@ -44,7 +44,6 @@
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags])`](#requestgetlogtags)
         - [`request.tail([name])`](#requesttailname)
-        - [`request.response()`](#requestresponse)
 - [`Hapi.response`](#hapiresponse)
     - [Flow control](#flow-control)
     - [Response types](#response-types)
@@ -1443,16 +1442,14 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Route prerequisites
 - Route handler
 - **`'onPostHandler'`** extension point
-    - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object.
-      The response object may be modified. To return a different response (for example, replace an error with an HTML response), return the new
-      response via `next(response)`.
+    - The response contained in `request.response` may be modified. To return a different response type (for example, replace an error
+      with an HTML response), return a new response via `next(response)`.
 - Validate response payload
 - **`'onPreResponse'`** extension point
     - always called.
-    - the `request` object passed to the extension function is decorated with the `request.response()` method which returns the response object.
-      The response object may be modified. To return a different response (for example, replace an error with an HTML response), return a new
-      response via `next(response)`. Note that any errors generated after `next(response)` is called will not be passed back to the `'onPreResponse'`
-      extention method to prevent an infinite loop.
+    - The response contained in `request.response` may be modified. To return a different response type (for example, replace an error
+      with an HTML response), return a new response via `next(response)`. Note that any errors generated after `next(response)` is called
+      will not be passed back to the `'onPreResponse'` extention method to prevent an infinite loop.
 - Send response (may emit `'internalError'` event)
 - Emits `'response'` event
 - Wait for tails
@@ -1675,8 +1672,10 @@ Each request object has the following properties:
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
   key is a plugin name and the value is the state.
 - `pre` - an object where each key is the name assigned by a [route prerequisites](#route-prerequisites) function. The values are the raw values
-  provided to the continuation function as argument. For the wrapped response object, use `request.responses`.
-- `responses` - same as `request.pre` but represented as the response object created by the pre method.
+  provided to the continuation function as argument. For the wrapped response object, use `responses`.
+- `response` - the response object when set. The object can be modified but must not be assigned another object. To replace the response
+  with another from within an extension point, use `next(response)` to override with a different response.
+- `responses` - same as `pre` but represented as the response object created by the pre method.
 - `query` - an object containing the query parameters.
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
     - `req` - the `request` object.
@@ -1812,25 +1811,6 @@ server.route({ method: 'GET', path: '/', handler: get });
 server.on('tail', function (request) {
 
     console.log('Request completed including db activity');
-});
-```
-
-#### `request.response()`
-
-_Available after the handler method concludes and immediately after the `'onPreResponse'` extension point methods._
-
-Returns the response object. The object can be modified but cannot be assigned another object. To replace the response with another
-from within an extension point, use `next(response)` to return a different response.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-
-server.ext('onPostHandler', function (request, next) {
-
-    var response = request.response();
-    delete response.source._id;                // Remove internal key
-    next();
 });
 ```
 
@@ -2068,7 +2048,7 @@ var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
 
 server.ext('onPreResponse', function (request, reply) {
 
-    var response = request.response();
+    var response = request.response;
     if (!response.isBoom) {
         return next();
     }

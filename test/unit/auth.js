@@ -83,61 +83,6 @@ describe('Auth', function () {
             done();
         });
 
-        it('does not throw an error if strategies are defined and used', function (done) {
-
-            var request = {
-                _bench: new Hapi.utils.Bench(),
-                route: {
-                    auth: {
-                        mode: 'required',
-                        strategies: ['test']
-                    }
-                },
-                auth: {},
-                log: function () { },
-                raw: {
-                    res: {
-                        setHeader: function () { }
-                    },
-                    req: {
-                        headers: {
-                            host: 'localhost',
-                            authorization: 'basic ' + (new Buffer('steve:password').toString('base64'))
-                        },
-                        url: 'http://localhost/test'
-                    }
-                }
-            };
-
-            var server = {
-                settings: {},
-                route: function () { }
-            };
-
-            var scheme = {
-                'test': {
-                    scheme: 'basic',
-                    validateFunc: function (username, password, callback) {
-
-                        return callback(null, password === 'password', { user: 'steve' });
-                    }
-                }
-            };
-
-            var a = function () {
-
-                var auth = new Auth(server);
-                auth.addBatch(scheme);
-                auth.authenticate(request, function (err) {
-
-                    expect(err).to.not.exist;
-                });
-            };
-
-            expect(a).to.not.throw(Error);
-            done();
-        });
-
         it('cannot create a route with a strategy not configured on the server', function (done) {
 
             var config = {

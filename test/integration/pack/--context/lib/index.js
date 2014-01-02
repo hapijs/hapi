@@ -23,7 +23,7 @@ exports.register = function (plugin, options, next) {
 
     plugin.ext('onPreResponse', function (request, next) {
 
-        next(request.response().source + this.suffix);
+        next(request.response.source + this.suffix);
     });
 
     plugin.bind(bind);        // Call last to test late binding

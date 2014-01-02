@@ -87,7 +87,7 @@ describe('Ext', function () {
             var server = new Hapi.Server();
             server.ext('onPreResponse', function (request, next) {
 
-                return next(typeof request.response().source === 'string' ? Hapi.error.badRequest('boom') : undefined);
+                return next(typeof request.response.source === 'string' ? Hapi.error.badRequest('boom') : undefined);
             });
 
             server.route({ method: 'GET', path: '/text', handler: function (request, reply) { reply('ok'); } });
@@ -109,7 +109,7 @@ describe('Ext', function () {
             var server = new Hapi.Server();
             server.ext('onPreResponse', function (request, next) {
 
-                return next(null, request.response().response.statusCode);
+                return next(null, request.response.response.statusCode);
             });
 
             server.inject({ method: 'GET', url: '/missing' }, function (res) {
@@ -126,7 +126,7 @@ describe('Ext', function () {
 
             server.ext('onPreResponse', function (request, next) {
 
-                var response = request.response();
+                var response = request.response;
                 return next({ isBoom: response.isBoom });
             });
 

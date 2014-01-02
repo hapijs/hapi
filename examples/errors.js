@@ -18,8 +18,8 @@ internals.onPreResponse = function (request, next) {
 
     // Demonstrates how to hide error messages from the client
 
-    if (request.response().isBoom) {
-        var error = request.response();
+    if (request.response.isBoom) {
+        var error = request.response;
         error.response.payload.message = 'Censored Error';
     }
 

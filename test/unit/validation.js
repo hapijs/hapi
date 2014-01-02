@@ -86,7 +86,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request._response = Response.wrap({ username: 'test' }, request);
+            request.response = Response.wrap({ username: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -100,7 +100,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request._response = Response.wrap(Hapi.error.unauthorized('You are not authorized'), request);
+            request.response = Response.wrap(Hapi.error.unauthorized('You are not authorized'), request);
 
             Validation.response(request, function (err) {
 
@@ -113,7 +113,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request._response = Response.wrap({ wrongParam: 'test' }, request);
+            request.response = Response.wrap({ wrongParam: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -127,7 +127,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.sample = 100;
-            request._response = Response.wrap({ wrongParam: 'test' }, request);
+            request.response = Response.wrap({ wrongParam: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -142,7 +142,7 @@ describe('Validation', function () {
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
             request.route.response.sample = sample;
-            request._response = Response.wrap({ wrongParam: 'test' }, request);
+            request.response = Response.wrap({ wrongParam: 'test' }, request);
             var failureCount = 0;
 
             request.log = function () {
@@ -183,7 +183,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
-            request._response = Response.wrap({ username: 'a', wrongParam: 'test' }, request);
+            request.response = Response.wrap({ username: 'a', wrongParam: 'test' }, request);
 
             request.log = function (tags, data) {
 
@@ -201,7 +201,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request._response = Response.wrap('test', request);
+            request.response = Response.wrap('test', request);
 
             Validation.response(request, function (err) {
 
