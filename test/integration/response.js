@@ -397,6 +397,17 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('ignores result when err provided in reply(err, result)', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(Hapi.error.badRequest(), 'steve'); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+        });
     });
 
     describe('Buffer', function () {

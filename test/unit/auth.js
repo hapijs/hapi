@@ -465,7 +465,7 @@ describe('Auth', function () {
                     implementation: {
                         authenticate: function (request, callback) {
 
-                            return callback(null, null, false);
+                            return callback(null, null);
                         }
                     }
                 }

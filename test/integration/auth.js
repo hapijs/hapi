@@ -525,7 +525,7 @@ describe('Auth', function () {
 
         server.route([
             { method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: true } },
-            { method: 'POST', path: '/hawkValidate', handler: hawkHandler, config: { auth: true, validate: { query: { } } } },
+            { method: 'POST', path: '/hawkValidate', handler: hawkHandler, config: { auth: true, validate: { query: {} } } },
             { method: 'POST', path: '/hawkError', handler: hawkErrorHandler, config: { auth: true } },
             { method: 'POST', path: '/hawkStream', handler: hawkStreamHandler, config: { auth: true } },
             { method: 'POST', path: '/hawkOptional', handler: hawkHandler, config: { auth: { mode: 'optional' } } },
@@ -1061,7 +1061,7 @@ describe('Auth', function () {
 
                         authenticate: function (request, callback) {
 
-                            callback(null, {});
+                            callback(null, { credentials: {} });
                         }
                     }
                 }
@@ -1202,7 +1202,7 @@ describe('Auth', function () {
 
         it('returns a 401 response when missing the authorization header', function (done) {
 
-            var request = { method: 'POST', url: 'http://example.com:8080/multiple'};
+            var request = { method: 'POST', url: 'http://example.com:8080/multiple' };
 
             server.inject(request, function (res) {
 
