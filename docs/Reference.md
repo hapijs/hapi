@@ -13,11 +13,6 @@
             - [Path processing](#path-processing)
             - [Path parameters](#path-parameters)
             - [Route handler](#route-handler)
-                - [`reply([result])`](#replyresult)
-                - [`reply.file(path, options)`](#replyfilepath-options)
-                - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
-                - [`reply.close([options])`](#replycloseoptions)
-                - [`reply.proxy(options)`](#replyproxyoptions)
             - [Route prerequisites](#route-prerequisites)
             - [Route not found](#route-not-found)
         - [`server.route(routes)`](#serverrouteroutes)
@@ -44,16 +39,15 @@
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags])`](#requestgetlogtags)
         - [`request.tail([name])`](#requesttailname)
-- [`Hapi.response`](#hapiresponse)
+- [Reply interface](#reply-interface)
     - [Flow control](#flow-control)
-    - [Response types](#response-types)
-        - [`Generic`](#generic)
-        - [`Empty`](#empty)
-        - [`Text`](#text)
-        - [`Buffer`](#buffer)
-        - [`Stream`](#stream)
-        - [`Obj`](#obj)
-        - [`View`](#view)
+    - [`reply([result])`](#replyresult)
+    - [`reply.file(path, options)`](#replyfilepath-options)
+    - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
+    - [`reply.close([options])`](#replycloseoptions)
+    - [`reply.proxy(options)`](#replyproxyoptions)
+- [Response object](#response-object)
+    - [Response events](#response-events)
 - [`Hapi.error`](#hapierror)
       - [Error transformation](#error-transformation)
       - [`badRequest([message])`](#badrequestmessage)
@@ -710,156 +704,6 @@ The handler method must call [`reply()`](#replyresult) or one of its sub-methods
 var handler = function (request, reply) {
 
     reply('success');
-};
-```
-
-###### `reply([result])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router where:
-
-- `result` - an optional response payload.
-
-Returns a [`response`](#response-types) object based on the value of `result`:
-
-- `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
-- string - [`Text`](#text) response.
-- `Buffer` object - [`Buffer`](#buffer) response.
-- `Error` object (generated via [`error`](#hapierror) or `new Error()`) - [`Boom`](#hapierror) object.
-- `Stream` object - [`Stream`](#stream) response.
-- any other object - [`Obj`](#obj) response.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply('success');
-};
-```
-
-The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
-are response-type-specific and listed in [`response`](#response-types).
-
-The [response flow control rules](#flow-control) apply.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply('success')
-        .type('text/plain')
-        .header('X-Custom', 'some-value');
-};
-```
-
-###### `reply.file(path, [options])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
-
-Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension.:
-
-- `path` - the file path.
-- `options` - optional settings:
-    - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
-    - `options` - optional configuration:
-        - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
-            - `'attachment'`
-            - `'inline'`
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply.file('./hello.txt');
-};
-```
-
-###### `reply.view(template, [context, [options]])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router with a templatized view response where:
-
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
-
-Returns a [`View`](#view) response.
-
-The [response flow control rules](#flow-control) apply.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server({
-    views: {
-        engines: { html: 'handlebars' },
-        path: __dirname + '/templates'
-    }
-});
-
-var handler = function (request, reply) {
-
-    var context = {
-        title: 'Views Example',
-        message: 'Hello, World'
-    };
-
-    reply.view('hello', context);
-};
-
-server.route({ method: 'GET', path: '/', handler: handler });
-```
-
-**templates/hello.html**
-
-```html
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{{title}}</title>
-    </head>
-    <body>
-        <div>
-            <h1>{{message}}</h1>
-        </div>
-    </body>
-</html>
-```
-
-###### `reply.close([options])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
-
-Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
-directly via `request.raw.res` and that no further response action is needed. Supports the following optional options:
-- `end` - if `false`, the router will not call `request.raw.res.end())` to ensure the response was ended. Defaults to `true`.
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-###### `reply.proxy(options)`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
-
-Proxies the request to an upstream endpoint where:
-- `options` - an object including the same keys and restrictions defined by the [route `proxy` handler options](#route.config.proxy).
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-```javascript
-var handler = function (request, reply) {
-
-    reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
 };
 ```
 
@@ -1813,7 +1657,7 @@ server.on('tail', function (request) {
 });
 ```
 
-## `Hapi.response`
+## Reply interface
 
 ### Flow control
 
@@ -1853,7 +1697,157 @@ var pre = function (request, reply) {
 };
 ```
 
-### Response
+### `reply([result])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Concludes the handler activity by returning control over to the router where:
+
+- `result` - an optional response payload.
+
+Returns a [`response`](#response-object) object based on the value of `result`:
+
+- `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
+- string - [`Text`](#text) response.
+- `Buffer` object - [`Buffer`](#buffer) response.
+- `Error` object (generated via [`error`](#hapierror) or `new Error()`) - [`Boom`](#hapierror) object.
+- `Stream` object - [`Stream`](#stream) response.
+- any other object - [`Obj`](#obj) response.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply('success');
+};
+```
+
+The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
+are response-type-specific and listed in [`response`](#response-object).
+
+The [response flow control rules](#flow-control) apply.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply('success')
+        .type('text/plain')
+        .header('X-Custom', 'some-value');
+};
+```
+
+### `reply.file(path, [options])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension.:
+
+- `path` - the file path.
+- `options` - optional settings:
+    - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
+    - `options` - optional configuration:
+        - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
+            - `'attachment'`
+            - `'inline'`
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply.file('./hello.txt');
+};
+```
+
+### `reply.view(template, [context, [options]])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Concludes the handler activity by returning control over to the router with a templatized view response where:
+
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
+
+Returns a response object.
+
+The [response flow control rules](#flow-control) apply.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server({
+    views: {
+        engines: { html: 'handlebars' },
+        path: __dirname + '/templates'
+    }
+});
+
+var handler = function (request, reply) {
+
+    var context = {
+        title: 'Views Example',
+        message: 'Hello, World'
+    };
+
+    reply.view('hello', context);
+};
+
+server.route({ method: 'GET', path: '/', handler: handler });
+```
+
+**templates/hello.html**
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <div>
+            <h1>{{message}}</h1>
+        </div>
+    </body>
+</html>
+```
+
+### `reply.close([options])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
+directly via `request.raw.res` and that no further response action is needed. Supports the following optional options:
+- `end` - if `false`, the router will not call `request.raw.res.end())` to ensure the response was ended. Defaults to `true`.
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+### `reply.proxy(options)`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
+`reply.close()`, or `reply.proxy()`  is called._
+
+Proxies the request to an upstream endpoint where:
+- `options` - an object including the same keys and restrictions defined by the [route `proxy` handler options](#route.config.proxy).
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
+};
+```
+
+## Response object
 
 Every response includes the following properties:
 - `statusCode` - the HTTP response statuc code. Defaults to `200` (except for errors).
@@ -1947,56 +1941,37 @@ Notes:
 1. Default value.
 2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
 
+### Response events
 
-#### `View`
+The response object supports the following events:
 
-Template-based response. Supports all the methods provided by [`Generic`](#generic) as well as:
-
-- `source` - the view settings.
-
-Generated with:
-
-- `reply.view(template, [context, [options]])` - as described in [`reply.view()`](#replyviewtemplate-context-options).
-- the built-in route [`view`](#route.config.view) handler.
+- `'peek'` - emitted for each chunk of data written back to the client connection. The event method signature is `function(chunk, encoding)`.
+- `'finish'` - emitted when the response finished writing but before the client response connection is ended. The event method signature is
+  `function ()`.
 
 ```javascript
+var Crypto = require('crypto');
 var Hapi = require('hapi');
-var server = new Hapi.Server({
-    views: {
-        engines: { html: 'handlebars' },
-        path: __dirname + '/templates'
+var server = new Hapi.Server();
+
+server.ext('onPreResponse', function (request, reply) {
+
+    var response = request.response;
+    if (!response.isBoom) {
+        return reply();
     }
+
+    var hash = Crypto.createHash('sha1');
+    response.on('peek', function (chunk) {
+
+        hash.update(chunk);
+    });
+
+    response.once('finish', function () {
+
+        console.log(hash.digest('hex'));
+    });
 });
-
-var handler = function (request, reply) {
-
-    var context = {
-        params: {
-            user: request.params.user
-        }
-    };
-
-    reply.view('hello', context);
-};
-
-server.route({ method: 'GET', path: '/1/{user}', handler: handler1 });
-server.route({ method: 'GET', path: '/2/{user}', handler: { view: 'hello' } });
-```
-
-**templates/hello.html**
-
-```html
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Hello World</title>
-    </head>
-    <body>
-        <div>
-            <h1>About {{ params.user }}</h1>
-        </div>
-    </body>
-</html>
 ```
 
 ## `Hapi.error`
@@ -2049,7 +2024,7 @@ server.ext('onPreResponse', function (request, reply) {
 
     var response = request.response;
     if (!response.isBoom) {
-        return next();
+        return reply();
     }
 
     // Replace error with friendly HTML
