@@ -374,6 +374,29 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('uses reply(null, result) for result', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, 'steve'); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('steve');
+                done();
+            });
+        });
+
+        it('uses reply(null, err) for err', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, Hapi.error.badRequest()); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+        });
     });
 
     describe('Buffer', function () {

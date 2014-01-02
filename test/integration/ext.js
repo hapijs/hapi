@@ -39,6 +39,23 @@ describe('Ext', function () {
             });
         });
 
+        it('replies with error using reply(null, result)', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onRequest', function (request, next) {
+
+                return next(null, Hapi.error.badRequest('boom'));
+            });
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.message).to.equal('boom');
+                done();
+            });
+        });
+
         it('replies with a view', function (done) {
 
             var server = new Hapi.Server({
@@ -92,7 +109,7 @@ describe('Ext', function () {
             var server = new Hapi.Server();
             server.ext('onPreResponse', function (request, next) {
 
-                return next(request.response().response.statusCode);
+                return next(null, request.response().response.statusCode);
             });
 
             server.inject({ method: 'GET', url: '/missing' }, function (res) {
