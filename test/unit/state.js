@@ -105,7 +105,7 @@ describe('State', function () {
 
                             logged = true;
                         },
-                        clearState: function (name) {
+                        _clearState: function (name) {
 
                             cleared = name;
                         }

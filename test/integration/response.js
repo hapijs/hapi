@@ -46,11 +46,11 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
             server.state('sid', { encoding: 'base64' });
             server.state('always', { autoValue: 'present' });
-            server.ext('onPostHandler', function (request, next) {
+            server.ext('onPostHandler', function (request, reply) {
 
-                request.setState('test', '123');
-                request.clearState('empty');
-                next();
+                reply.state('test', '123');
+                reply.unstate('empty');
+                reply();
             });
 
             server.inject('/', function (res) {

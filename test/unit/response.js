@@ -37,7 +37,7 @@ describe('Response', function () {
 
         var handler = function (request, reply) {
 
-            request.setState('bad', {});
+            reply.state('bad', {});
             reply(new Custom(request));
         };
 

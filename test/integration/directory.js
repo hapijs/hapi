@@ -361,10 +361,10 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: 'routes' }, debug: false });
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
 
-        server.ext('onRequest', function (request, next) {
+        server.ext('onRequest', function (request, reply) {
 
-            request.setState('bad', {});
-            next();
+            reply.state('bad', {});
+            reply();
         });
 
         server.inject('/directory/response.js', function (res) {

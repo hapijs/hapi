@@ -44,8 +44,6 @@
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags])`](#requestgetlogtags)
         - [`request.tail([name])`](#requesttailname)
-        - [`request.setState(name, value, [options])`](#requestsetstatename-value-options)
-        - [`request.clearState(name)`](#requestclearstatename)
         - [`request.response()`](#requestresponse)
 - [`Hapi.response`](#hapiresponse)
     - [Flow control](#flow-control)
@@ -1817,33 +1815,6 @@ server.on('tail', function (request) {
 });
 ```
 
-#### `request.setState(name, value, [options])`
-
-_Available until immediately after the `'onPostHandler'` extension point methods are called._
-
-Sets a cookie which is sent with the response, where:
-
-- `name` - the cookie name.
-- `value` - the cookie value. If no `encoding` is defined, must be a string.
-- `options` - optional configuration. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
-  the specified keys in `options` override those same keys in the server definition (but not others).
-
-```javascript
-request.setState('preferences', { color: 'blue' }, { encoding: 'base64json' });
-```
-
-#### `request.clearState(name)`
-
-_Available until immediately after the `'onPostHandler'` extension point methods are called._
-
-Clears a cookie which sets an expired cookie and sent with the response, where:
-
-- `name` - the cookie name.
-
-```javascript
-request.clearState('preferences');
-```
-
 #### `request.response()`
 
 _Available after the handler method concludes and immediately after the `'onPreResponse'` extension point methods._
@@ -1962,8 +1933,13 @@ It provides the following methods:
     `charset` - the charset property value.
 - `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
     - `msec` - the time-to-live value in milliseconds.
-- `state(name, value, [options])` - sets an HTTP cookie as described in [`request.setState()`](#requestsetstatename-value-options).
-- `unstate(name)` - clears the HTTP cookie by setting an expired value as described in [`request.clearState()`](#requestclearstatename).
+- `state(name, value, [options])` - sets an HTTP cookie where:
+    - `name` - the cookie name.
+    - `value` - the cookie value. If no `encoding` is defined, must be a string.
+    - `options` - optional configuration. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
+      the specified keys in `options` override those same keys in the server definition (but not others).
+- `unstate(name)` - clears the HTTP cookie by setting an expired value where:
+    - `name` - the cookie name.
 
 When the value provided by `reply()` requires stringification before transmission, the following methods are provided:
 
@@ -3130,7 +3106,7 @@ var handler = function (request, reply) {
         }
 
         if (value.length < maxCookieSize) {
-            request.setState('user', value, { encoding: 'none' } );   // Already encoded
+            reply.state('user', value, { encoding: 'none' } );   // Already encoded
         }
 
         reply('success');
