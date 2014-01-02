@@ -48,9 +48,9 @@ describe('Ext', function () {
                 }
             });
 
-            server.ext('onRequest', function (request, next) {
+            server.ext('onRequest', function (request, reply) {
 
-                return next(request.generateView('test', { message: 'hola!' }));
+                return reply.view('test', { message: 'hola!' });
             });
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
@@ -70,7 +70,7 @@ describe('Ext', function () {
             var server = new Hapi.Server();
             server.ext('onPreResponse', function (request, next) {
 
-                return next(typeof request.response().source === 'string' ? Hapi.error.badRequest('boom') : null);
+                return next(typeof request.response().source === 'string' ? Hapi.error.badRequest('boom') : undefined);
             });
 
             server.route({ method: 'GET', path: '/text', handler: function (request, reply) { reply('ok'); } });

@@ -222,7 +222,7 @@ describe('Request', function () {
 
             if (prints === 1) {
                 expect(arguments[0]).to.equal('Debug:');
-                expect(arguments[1]).to.equal('hapi, uncaught, error, handler');
+                expect(arguments[1]).to.equal('hapi, handler, uncaught, error');
             }
             else {
                 console.error = orig;

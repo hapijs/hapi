@@ -23,10 +23,9 @@ describe('Response', function () {
 
     it('returns last known error on error response loop', function (done) {
 
-        var Custom = function (blow) {
+        var Custom = function (request) {
 
-            Response.Plain.call(this);
-            this.blow = blow;
+            Response.Plain.call(this, request, 'blow');
         };
 
         Hapi.utils.inherits(Custom, Response.Plain);
@@ -39,7 +38,7 @@ describe('Response', function () {
         var handler = function (request, reply) {
 
             request.setState('bad', {});
-            reply(new Custom());
+            reply(new Custom(request));
         };
 
         var server = new Hapi.Server({ debug: false });

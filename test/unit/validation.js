@@ -6,7 +6,6 @@ var Path = require('path');
 var Hapi = require('../..');
 var Response = require('../../lib/response');
 var Validation = require('../../lib/validation');
-var Handler = require('../../lib/handler');
 
 
 // Declare internals
@@ -87,7 +86,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request._response = Handler.response({ username: 'test' }, request);
+            request._response = Response.wrap({ username: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -101,7 +100,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
 
-            request._response = Handler.response(Hapi.error.unauthorized('You are not authorized'), request);
+            request._response = Response.wrap(Hapi.error.unauthorized('You are not authorized'), request);
 
             Validation.response(request, function (err) {
 
@@ -114,7 +113,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request._response = Handler.response({ wrongParam: 'test' }, request);
+            request._response = Response.wrap({ wrongParam: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -128,7 +127,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.sample = 100;
-            request._response = Handler.response({ wrongParam: 'test' }, request);
+            request._response = Response.wrap({ wrongParam: 'test' }, request);
 
             Validation.response(request, function (err) {
 
@@ -143,7 +142,7 @@ describe('Validation', function () {
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
             request.route.response.sample = sample;
-            request._response = Handler.response({ wrongParam: 'test' }, request);
+            request._response = Response.wrap({ wrongParam: 'test' }, request);
             var failureCount = 0;
 
             request.log = function () {
@@ -184,7 +183,7 @@ describe('Validation', function () {
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
             request.route.response.failAction = 'log';
-            request._response = Handler.response({ username: 'a', wrongParam: 'test' }, request);
+            request._response = Response.wrap({ username: 'a', wrongParam: 'test' }, request);
 
             request.log = function (tags, data) {
 
@@ -202,7 +201,7 @@ describe('Validation', function () {
 
             var query = { username: 'steve' };
             var request = createRequestObject(query, route);
-            request._response = Handler.response('test', request);
+            request._response = Response.wrap('test', request);
 
             Validation.response(request, function (err) {
 

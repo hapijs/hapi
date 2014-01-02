@@ -24,13 +24,13 @@ exports.register = function (plugin, options, next) {
         }
     ]);
 
-    plugin.ext('onRequest', function (request, next) {
+    plugin.ext('onRequest', function (request, reply) {
 
         if (request.path === '/ext') {
-            return next(request.generateView('test', { message: 'grabbed' }));
+            return reply.view('test', { message: 'grabbed' });
         }
 
-        return next();
+        return reply();
     });
 
     return next();

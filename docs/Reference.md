@@ -46,7 +46,6 @@
         - [`request.tail([name])`](#requesttailname)
         - [`request.setState(name, value, [options])`](#requestsetstatename-value-options)
         - [`request.clearState(name)`](#requestclearstatename)
-        - [`request.generateView(template, context, [options])`](#requestgenerateviewtemplate-context-options)
         - [`request.response()`](#requestresponse)
 - [`Hapi.response`](#hapiresponse)
     - [Flow control](#flow-control)
@@ -1845,40 +1844,6 @@ Clears a cookie which sets an expired cookie and sent with the response, where:
 request.clearState('preferences');
 ```
 
-#### `request.generateView(template, context, [options])`
-
-_Always available._
-
-Returns a [`View`](#view) response object using the request environment where:
-
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
-
-Useful when a view response is required outside of the handler (e.g. used in an extension point method to return an override response).
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
-
-server.ext('onPreResponse', function (request, next) {
-
-    var response = request.response();
-    if (!response.isBoom) {
-        return next();
-    }
-
-    // Replace error with friendly HTML
-
-      var error = response;
-      var ctx = {
-          message: (error.response.statusCode === 404 ? 'page not found' : 'something went wrong')
-      };
-
-      next(request.generateView('error', ctx));
-});
-```
-
 #### `request.response()`
 
 _Available after the handler method concludes and immediately after the `'onPreResponse'` extension point methods._
@@ -2037,7 +2002,6 @@ Template-based response. Supports all the methods provided by [`Generic`](#gener
 Generated with:
 
 - `reply.view(template, [context, [options]])` - as described in [`reply.view()`](#replyviewtemplate-context-options).
-- `request.generateView(template, context, [options])` - as described in [`request.generateView()`](#requestgenerateviewtemplate-context-options).
 - the built-in route [`view`](#route.config.view) handler.
 
 ```javascript
@@ -2049,7 +2013,7 @@ var server = new Hapi.Server({
     }
 });
 
-var handler1 = function (request, reply) {
+var handler = function (request, reply) {
 
     var context = {
         params: {
@@ -2060,20 +2024,8 @@ var handler1 = function (request, reply) {
     reply.view('hello', context);
 };
 
-var handler2 = function (request, reply) {
-
-    var context = {
-        params: {
-            user: request.params.user
-        }
-    };
-
-    reply(request.generateView('hello', context));
-};
-
 server.route({ method: 'GET', path: '/1/{user}', handler: handler1 });
-server.route({ method: 'GET', path: '/2/{user}', handler: handler2 });
-server.route({ method: 'GET', path: '/3/{user}', handler: { view: 'hello' } });
+server.route({ method: 'GET', path: '/2/{user}', handler: { view: 'hello' } });
 ```
 
 **templates/hello.html**
@@ -2138,7 +2090,7 @@ response object.
 var Hapi = require('hapi');
 var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
 
-server.ext('onPreResponse', function (request, next) {
+server.ext('onPreResponse', function (request, reply) {
 
     var response = request.response();
     if (!response.isBoom) {
@@ -2152,7 +2104,7 @@ server.ext('onPreResponse', function (request, next) {
           message: (error.response.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
-      next(request.generateView('error', ctx));
+      reply.view('error', ctx);
 });
 ```
 

@@ -3,6 +3,7 @@
 var Lab = require('lab');
 var Hapi = require('../..');
 var Ext = require('../../lib/ext');
+var Handler = require('../../lib/handler');
 
 
 // Declare internals
@@ -25,7 +26,7 @@ describe('Ext', function () {
 
         it('skips when no exts added', function (done) {
 
-            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse']);
+            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse'], Handler.invoke);
             ext.sort('onRequest');
             expect(ext._events.onRequest).to.equal(null);
             done();
@@ -43,13 +44,15 @@ describe('Ext', function () {
                 };
             };
 
-            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse']);
+            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse'], Handler.invoke);
             scenario.forEach(function (record, i) {
 
                 ext._add('onRequest', generateExt(record.id), { before: record.before, after: record.after }, { name: record.group });
             });
 
             var request = {
+                _route: { env: {} },
+                server: {},
                 log: function () { }
             };
 
@@ -121,7 +124,7 @@ describe('Ext', function () {
         it('throws on circular dependency', function (done) {
 
             var scenario = [
-                { id: '0', before: 'a', group: 'b'},
+                { id: '0', before: 'a', group: 'b' },
                 { id: '1', before: 'c', group: 'a' },
                 { id: '2', before: 'b', group: 'c' }
             ];
