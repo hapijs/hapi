@@ -22,7 +22,6 @@
         - [`server.views(options)`](#serverviewsoptions)
         - [`server.cache(name, options)`](#servercachename-options)
         - [`server.auth(name, options)`](#serverauthname-options)
-            - [Basic authentication](#basic-authentication)
             - [Cookie authentication](#cookie-authentication)
             - [Hawk authentication](#hawk-authentication)
             - [Bewit authentication](#bewit-authentication)
@@ -144,10 +143,6 @@ When creating a server instance, the following options configure the server's be
 
 - `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which should use `plugins[name]`. Note the difference between
   `server.settings.app` which is used to store configuration value and `server.app` which is meant for storing run-time state.
-
-- `auth` - configures one or more authentication strategies. The `auth` key can be set to a single strategy object (the name will default to `'default'`),
-  or to an object with multiple strategies where the strategy name is the object key. The authentication strategies and their options are described in
-  [`server.auth()`](#serverauthname-options).
 
 - <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
   responses and helper results. By default a simple memory-based cache is used which has limited capacity and limited production environment suitability.
@@ -950,7 +945,7 @@ var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 
 Registers an authentication strategy where:
 
-- `name` - is the strategy name (`'default'` is automatically assigned if a single strategy is registered via the server `auth` config).
+- `name` - is the strategy name.
 - `options` - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared by all schemes:
     - `scheme` - (required, except when `implementation` is used) the built-in scheme name. Available values:
         - `'basic'` - [HTTP Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
@@ -960,55 +955,6 @@ Registers an authentication strategy where:
     - `implementation` -  an object with the **hapi** authentication scheme interface (use the `'hawk'` implementation as template). Cannot be used together with `scheme`.
     - `defaultMode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be assigned to a single
       server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
-
-##### Basic authentication
-
-Basic authentication requires validating a username and password combination. The `'basic'` scheme takes the following options:
-
-- `scheme` - (required) set to `'basic'`.
-- `validateFunc` - (required) a user lookup and password validation function with the signature `function(username, password, callback)` where:
-    - `username` - the username received from the client.
-    - `password` - the password received from the client.
-    - `callback` - a callback function with the signature `function(err, isValid, credentials)` where:
-        - `err` - an internal error.
-        - `isValid` - `true` if both the username was found and the password matched, otherwise `false`.
-        - `credentials` - a credentials object passed back to the application in `request.auth.credentials`. Typically, `credentials` are only
-          included when `isValid` is `true`, but there are cases when the application needs to know who tried to authenticate even when it fails
-          (e.g. with authentication mode `'try'`).
-- `allowEmptyUsername` - (optional) if `true`, allows making requests with an empty username. Defaults to `false`.
-
-```javascript
-var Bcrypt = require('bcrypt');
-
-var users = {
-    john: {
-        username: 'john',
-        password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm',   // 'secret'
-        name: 'John Doe',
-        id: '2133d32a'
-    }
-};
-
-var validate = function (username, password, callback) {
-
-    var user = users[username];
-    if (!user) {
-        return callback(null, false);
-    }
-
-    Bcrypt.compare(password, user.password, function (err, isValid) {
-
-        callback(err, isValid, { id: user.id, name: user.name });
-    });
-};
-
-server.auth('simple', {
-    scheme: 'basic',
-    validateFunc: validate
-});
-
-server.route({ method: 'GET', path: '/', config: { auth: 'simple' } });
-```
 
 ##### Cookie authentication
 

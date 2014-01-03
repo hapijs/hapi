@@ -23,16 +23,41 @@ var it = Lab.test;
 
 describe('Auth', function () {
 
-    it('throws when setting defaultMode to invalid value', function (done) {
+    it('throws when setting mode to invalid value', function (done) {
 
         var server = new Hapi.Server();
         expect(function () {
-            server.auth('password', {
-                scheme: 'basic',
-                validateFunc: function () { },
-                defaultMode: 'boom'
+            server.auth.strategy('password', 'basic', 'boom', {
+                validateFunc: function () { }
             });
         }).to.throw('Unknown default authentication mode: boom');
+        done();
+    });
+
+    it('cannot create a route with a strategy not configured on the server', function (done) {
+
+        var config = {
+            auth: {
+                mode: 'required',
+                strategies: ['missing']
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.auth.strategy('test', 'basic', {
+            validateFunc: function (username, password, callback) {
+
+                return callback(null, password === 'password', { id: 'steve', password: 'password' });
+            }
+        });
+
+        var a = function () {
+
+            var handler = function (request) { };
+            server.route({ method: 'GET', path: '/', handler: handler, config: config });
+        };
+
+        expect(a).to.throw(Error, 'Unknown authentication strategy: missing');
         done();
     });
 
@@ -62,16 +87,8 @@ describe('Auth', function () {
             return callback(null, false);
         };
 
-        var config = {
-            debug: false,
-            auth: {
-                scheme: 'basic',
-                validateFunc: loadUser,
-                defaultMode: 'required'
-            }
-        };
-
-        var server = new Hapi.Server(config);
+        var server = new Hapi.Server({ debug: false });
+        server.auth.strategy('default', 'basic', 'required', { validateFunc: loadUser });
 
         var basicHandler = function (request, reply) {
 
@@ -197,15 +214,12 @@ describe('Auth', function () {
 
         it('allow missing username', function (done) {
 
-            var config = {
-                auth: {
-                    scheme: 'basic',
-                    validateFunc: function (username, password, callback) { callback(null, true, {}); },
-                    allowEmptyUsername: true
-                }
-            };
+            var server1 = new Hapi.Server();
+            server1.auth.strategy('default', 'basic', {
+                validateFunc: function (username, password, callback) { callback(null, true, {}); },
+                allowEmptyUsername: true
+            });
 
-            var server1 = new Hapi.Server(config);
             server1.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); }, config: { auth: true } });
 
             server1.inject({ method: 'GET', url: '/', headers: { authorization: basicHeader('', 'abcd') } }, function (res) {
@@ -301,8 +315,7 @@ describe('Auth', function () {
 
         it('should not ask for credentials if no server auth configured', function (done) {
 
-            var config = {};
-            var server = new Hapi.Server(config);
+            var server = new Hapi.Server();
             server.route({
                 path: '/noauth',
                 method: 'GET',
@@ -324,13 +337,8 @@ describe('Auth', function () {
 
         it('should ask for credentials if server has one default strategy', function (done) {
 
-            var config = {
-                auth: {
-                    scheme: 'basic',
-                    validateFunc: loadUser
-                }
-            };
-            var server = new Hapi.Server(config);
+            var server = new Hapi.Server();
+            server.auth.strategy('default', 'basic', { validateFunc: loadUser });
             server.route({
                 path: '/noauth',
                 method: 'GET',
@@ -360,19 +368,9 @@ describe('Auth', function () {
 
         it('should throw if server has strategies route refers to nonexistent strategy', function (done) {
 
-            var config = {
-                auth: {
-                    'a': {
-                        scheme: 'basic',
-                        validateFunc: loadUser
-                    },
-                    'b': {
-                        scheme: 'basic',
-                        validateFunc: loadUser
-                    }
-                }
-            };
-            var server = new Hapi.Server(config);
+            var server = new Hapi.Server();
+            server.auth.strategy('a', 'basic', { validateFunc: loadUser });
+            server.auth.strategy('b', 'basic', { validateFunc: loadUser });
 
             var fn = function () {
 
@@ -471,14 +469,8 @@ describe('Auth', function () {
             }
         };
 
-        var config = {
-            auth: {
-                scheme: 'hawk',
-                getCredentialsFunc: getCredentials
-            }
-        };
-
-        var server = new Hapi.Server(config);
+        var server = new Hapi.Server();
+        server.auth.strategy('default', 'hawk', { getCredentialsFunc: getCredentials });
 
         var hawkHandler = function (request, reply) {
 
@@ -709,17 +701,14 @@ describe('Auth', function () {
 
             var request = { method: 'POST', url: '/hawk', headers: { authorization: hawkHeader('john', '/hawk').field, custom: 'example.com:8080' } };
 
-            var config = {
-                auth: {
-                    scheme: 'hawk',
-                    getCredentialsFunc: getCredentials,
-                    hawk: {
-                        hostHeaderName: 'custom'
-                    }
+            var server = new Hapi.Server();
+            server.auth.strategy('default', 'hawk', {
+                getCredentialsFunc: getCredentials,
+                hawk: {
+                    hostHeaderName: 'custom'
                 }
-            };
+            });
 
-            var server = new Hapi.Server(config);
             server.route({ method: 'POST', path: '/hawk', handler: hawkHandler, config: { auth: true } });
 
             server.inject(request, function (res) {
@@ -911,14 +900,8 @@ describe('Auth', function () {
             }
         };
 
-        var config = {
-            auth: {
-                scheme: 'bewit',
-                getCredentialsFunc: getCredentials
-            }
-        };
-
-        var server = new Hapi.Server(config);
+        var server = new Hapi.Server();
+        server.auth.strategy('default', 'bewit', { getCredentialsFunc: getCredentials })
 
         var bewitHandler = function (request, reply) {
 
@@ -996,17 +979,14 @@ describe('Auth', function () {
             var bewit = getBewit('john', '/bewit');
             var request = { method: 'GET', url: '/bewit?bewit=' + bewit, headers: { custom: 'example.com:8080' } };
 
-            var config = {
-                auth: {
-                    scheme: 'bewit',
-                    getCredentialsFunc: getCredentials,
-                    hawk: {
-                        hostHeaderName: 'custom'
-                    }
+            var server = new Hapi.Server();
+            server.auth.strategy('default', 'bewit', {
+                getCredentialsFunc: getCredentials,
+                hawk: {
+                    hostHeaderName: 'custom'
                 }
-            };
+            });
 
-            var server = new Hapi.Server(config);
             server.route({ method: 'GET', path: '/bewit', handler: bewitHandler, config: { auth: true } });
 
             server.inject(request, function (res) {
@@ -1048,40 +1028,6 @@ describe('Auth', function () {
 
             expect(fn).to.not.throw(Error);
             done();
-        });
-    });
-
-    describe('Ext', function () {
-
-        it('returns a reply on successful ext any', function (done) {
-
-            var config = {
-                auth: {
-                    implementation: {
-
-                        authenticate: function (request, callback) {
-
-                            callback(null, { credentials: {} });
-                        }
-                    }
-                }
-            };
-
-            var handler = function (request, reply) {
-
-                reply('Success');
-            };
-
-            var server = new Hapi.Server(config);
-            server.route({ method: 'POST', path: '/ext', handler: handler, config: { auth: true } });
-
-            var request = { method: 'POST', url: '/ext' };
-            server.inject(request, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.equal('Success');
-                done();
-            });
         });
     });
 
@@ -1139,20 +1085,9 @@ describe('Auth', function () {
             }
         };
 
-        var config = {
-            auth: {
-                'hawk': {
-                    scheme: 'hawk',
-                    getCredentialsFunc: getCredentials
-                },
-                'basic': {
-                    scheme: 'basic',
-                    validateFunc: loadUser
-                }
-            }
-        };
-
-        var server = new Hapi.Server(config);
+        var server = new Hapi.Server();
+        server.auth.strategy('hawk', 'hawk', { getCredentialsFunc: getCredentials });
+        server.auth.strategy('basic', 'basic', { validateFunc: loadUser });
 
         var handler = function (request, reply) {
 
@@ -1300,8 +1235,8 @@ describe('Auth', function () {
 
     describe('Cookie', function (done) {
 
-        var config = {
-            scheme: 'cookie',
+        var server = new Hapi.Server();
+        server.auth.strategy('default', 'cookie', {
             password: 'password',
             ttl: 60 * 1000,
             cookie: 'special',
@@ -1313,9 +1248,7 @@ describe('Auth', function () {
 
                 return callback(null, session.user === 'valid', override);
             }
-        };
-
-        var server = new Hapi.Server({ auth: config });
+        });
 
         server.route({
             method: 'GET', path: '/login/{user}',
@@ -1406,15 +1339,13 @@ describe('Auth', function () {
 
         it('authenticates a request', function (done) {
 
-            var config = {
-                scheme: 'cookie',
+            var server = new Hapi.Server();
+            server.auth.strategy('default', 'cookie', {
                 password: 'password',
                 ttl: 60 * 1000,
                 cookie: 'special',
                 clearInvalid: true
-            };
-
-            var server = new Hapi.Server({ auth: config });
+            });
 
             server.route({
                 method: 'GET', path: '/login/{user}',
@@ -1458,15 +1389,13 @@ describe('Auth', function () {
 
             it('sends to login page (uri without query)', function (done) {
 
-                var config = {
-                    scheme: 'cookie',
+                var server = new Hapi.Server();
+                server.auth.strategy('default', 'cookie', {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login',
                     appendNext: true
-                };
-
-                var server = new Hapi.Server({ auth: config });
+                });
 
                 server.route({
                     method: 'GET', path: '/', handler: function (request, reply) {
@@ -1485,15 +1414,13 @@ describe('Auth', function () {
 
             it('sends to login page (uri with query)', function (done) {
 
-                var config = {
-                    scheme: 'cookie',
+                var server = new Hapi.Server();
+                server.auth.strategy('default', 'cookie', {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login?mode=1',
                     appendNext: true
-                };
-
-                var server = new Hapi.Server({ auth: config });
+                });
 
                 server.route({
                     method: 'GET', path: '/', handler: function (request, reply) {
@@ -1512,15 +1439,13 @@ describe('Auth', function () {
 
             it('sends to login page and does not append the next query when appendNext is false', function (done) {
 
-                var config = {
-                    scheme: 'cookie',
+                var server = new Hapi.Server();
+                server.auth.strategy('default', 'cookie', {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login?mode=1',
                     appendNext: false
-                };
-
-                var server = new Hapi.Server({ auth: config });
+                });
 
                 server.route({
                     method: 'GET', path: '/', handler: function (request, reply) {
@@ -1539,15 +1464,13 @@ describe('Auth', function () {
 
             it('does not redirect on try', function (done) {
 
-                var config = {
-                    scheme: 'cookie',
+                var server = new Hapi.Server();
+                server.auth.strategy('default', 'cookie', {
                     password: 'password',
                     ttl: 60 * 1000,
                     redirectTo: 'http://example.com/login',
                     appendNext: true
-                };
-
-                var server = new Hapi.Server({ auth: config });
+                });
 
                 server.route({
                     method: 'GET', path: '/', config: { auth: { mode: 'try' } }, handler: function (request, reply) {

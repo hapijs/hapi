@@ -16,17 +16,10 @@ exports.register = function (plugin, options, next) {
         return callback(null, false);
     };
 
-    plugin.auth('basic', {
-        scheme: 'basic',
-        validateFunc: loadUser,
-        defaultMode: true
-    });
+    plugin.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
 
-    plugin.auth('special', {
-        implementation: {
-            authenticate: function () { }
-        }
-    });
+    plugin.auth.scheme('special', function () { return { authenticate: function () { } } });
+    plugin.auth.strategy('special', 'special', {});
 
     return next();
 };

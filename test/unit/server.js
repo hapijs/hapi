@@ -184,16 +184,6 @@ describe('Server', function () {
         done();
     });
 
-    it('does not throw an error when enabling auth', function (done) {
-
-        var fn = function () {
-
-            var server = new Hapi.Server({ auth: { scheme: 'basic', validateFunc: function () { } } });
-        };
-        expect(fn).to.not.throw(Error);
-        done();
-    });
-
     describe('#start', function () {
 
         it('does not throw an error', function (done) {
