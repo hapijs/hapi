@@ -21,9 +21,8 @@
         - [`server.state(name, [options])`](#serverstatename-options)
         - [`server.views(options)`](#serverviewsoptions)
         - [`server.cache(name, options)`](#servercachename-options)
-        - [`server.auth(name, options)`](#serverauthname-options)
-            - [Hawk authentication](#hawk-authentication)
-            - [Bewit authentication](#bewit-authentication)
+        - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
+        - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
         - [`server.ext(event, method, [options])`](#serverextevent-method-options)
             - [Request lifecycle](#request-lifecycle)
         - [`server.helper(name, method, [options])`](#serverhelpername-method-options)
@@ -100,7 +99,8 @@
         - [`plugin.route(options)`](#pluginrouteoptions)
         - [`plugin.route(routes)`](#pluginrouteroutes)
         - [`plugin.state(name, [options])`](#pluginstatename-options)
-        - [`plugin.auth(name, options)`](#pluginauthname-options)
+        - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
+        - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
 - [`Hapi.utils`](#hapiutils)
       - [`version()`](#version)
@@ -535,7 +535,7 @@ The following options are available when adding a route:
           expire. Cannot be used together with `expiresIn`.
 
     - `auth` - authentication configuration. Value can be:
-        - a string with the name of an authentication strategy registered with `server.auth()`.
+        - a string with the name of an authentication strategy registered with `server.auth.strategy()`.
         - a boolean where `false` means no authentication, and `true` sets to the default authentication strategy which is available only
           when a single strategy is configured.
         - an object with:
@@ -940,109 +940,31 @@ Provisions a server cache segment within the common caching facility where:
 var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 ```
 
-#### `server.auth(name, options)`
+#### `server.auth.scheme(name, scheme)`
+
+Registers an authentication scheme where:
+
+- `name` - the scheme name.
+- `scheme` - the method implementing the scheme with signature `function(server, options)` where:
+    - `server` - a reference to the server object the scheme is added to.
+    - `options` - optional scheme settings used to instantiate a strategy.
+
+The `scheme` method must return an object with the following keys:
+
+- `authenticate(request, reply)` - required function called on each incoming request configured with the authentication scheme.
+- `payload(request, callback)` - optional function called to authenticate the request payload.
+- `response(request, response, callback)` - optional function called to decorate the response with authentication headers.
+
+#### `server.auth.strategy(name, scheme, [mode], [options])`
 
 Registers an authentication strategy where:
 
-- `name` - is the strategy name.
-- `options` - required strategy options. Each scheme comes with its own set of required options, in addition to the options shared by all schemes:
-    - `scheme` - (required, except when `implementation` is used) the built-in scheme name. Available values:
-        - `'basic'` - [HTTP Basic authentication](#basic-authentication) ([RFC 2617](http://tools.ietf.org/html/rfc2617))
-        - `'cookie'` - [cookie authentication](#cookie-authentication)
-        - `'hawk'` - [HTTP Hawk authentication](#hawk-authentication) ([Hawk protocol](https://github.com/hueniverse/hawk))
-        - `'bewit'` - [URI Bewit (Hawk)](#bewit-authentication) query authentication ([Hawk protocol](https://github.com/hueniverse/hawk))
-    - `implementation` -  an object with the **hapi** authentication scheme interface (use the `'hawk'` implementation as template). Cannot be used together with `scheme`.
-    - `defaultMode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be assigned to a single
-      server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
-
-##### Hawk authentication
-
-[Hawk authentication](https://github.com/hueniverse/hawk) provides a holder-of-key authentication scheme. The scheme supports payload
-authentication. The scheme requires the following options:
-
-- `scheme` - set to `'hawk'`.
-- `getCredentialsFunc` - credential lookup function with the signature `function(id, callback)` where:
-    - `id` - the Hawk credentials identifier.
-    - `callback` - the callback function with signature `function(err, credentials)` where:
-        - `err` - an internal error.
-        - `credentials` - a credentials object passed back to the application in `request.auth.credentials`. Return `null` or `undefined` to
-          indicate unknown credentials (which is not considered an error state).
-- `hawk` - optional protocol options passed to `Hawk.server.authenticate()`.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server(config);
-
-var credentials = {
-    d74s3nz2873n: {
-        key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-        algorithm: 'sha256'
-    }
-}
-
-var getCredentials = function (id, callback) {
-
-    return callback(null, credentials[id]);
-};
-
-server.auth('hawk', {
-    scheme: 'hawk',
-    getCredentialsFunc: getCredentials
-});
-```
-
-##### Bewit authentication
-
-[Bewit authentication](https://github.com/hueniverse/hawk#single-uri-authorization) provides a short-term access to a protected resource by
-including a token (bewit) in the request query, issued by an authorized party. Bewit is a subset of the Hawk protocol. The scheme can only
-be used with 'GET' requests and requires the following options:
-
-- `scheme` - set to `'bewit'`.
-- `getCredentialsFunc` - credential lookup function with the signature `function(id, callback)` where:
-    - `id` - the Hawk credentials identifier.
-    - `callback` - the callback function with signature `function(err, credentials)` where:
-        - `err` - an internal error.
-        - `credentials` - a credentials object passed back to the application in `request.auth.credentials`. Return `null` or `undefined` to
-          indicate unknown credentials (which is not considered an error state).
-- `hawk` - optional protocol options passed to `Hawk.server.authenticateBewit()`.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server(config);
-
-var credentials = {
-    d74s3nz2873n: {
-        key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-        algorithm: 'sha256'
-    }
-}
-
-var getCredentials = function (id, callback) {
-
-    return callback(null, credentials[id]);
-};
-
-server.auth('bewit', {
-    scheme: 'bewit',
-    getCredentialsFunc: getCredentials
-});
-```
-
-To send an authenticated Bewit request, the URI must contain the `'bewit'` query parameter which can be generated using the Hawk module:
-
-```javascript
-var Hawk = require('hawk');
-
-var credentials = {
-    id: 'd74s3nz2873n',
-    key: 'werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn',
-    algorithm: 'sha256'
-};
-
-var uri = 'http://example.com:8080/endpoint';
-var bewit = Hawk.client.getBewit(uri, { credentials: credentials, ttlSec: 60 });
-uri += '?bewit=' + bewit;
-```
+- `name` - the strategy name.
+- `scheme` - the scheme name (must be previously registered using `server.auth.scheme()`).
+- `mode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be
+  assigned to a single server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode
+  (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
+- `options` - scheme options based on the scheme requirements.
 
 #### `server.ext(event, method, [options])`
 
@@ -2793,24 +2715,13 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.auth(name, options)`
+#### `plugin.auth.scheme(name, scheme)`
 
-Adds an authentication strategy to the selected pack's servers as described in [`server.auth()`](#serverauthname-options).
+Adds an authentication scheme to the selected pack's servers as described in [`server.auth.scheme()`](#serverauthschemename-scheme).
 
-```javascript
-exports.register = function (plugin, options, next) {
+#### `plugin.auth.strategy(name, scheme, [mode], [options])`
 
-    plugin.auth('simple', {
-        scheme: 'basic',
-        validateFunc: function (username, password, callback) {
-
-            callback(new Error('User not found'));
-        }
-    });
-
-    next();
-};
-```
+Adds an authentication strategy to the selected pack's servers as described in [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
 
 #### `plugin.ext(event, method, [options])`
 

@@ -451,6 +451,23 @@ describe('Response', function () {
             });
         });
 
+        it('returns false', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply(false);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('false');
+                done();
+            });
+        });
+
         it('returns a formatted response', function (done) {
 
             var handler = function (request, reply) {
