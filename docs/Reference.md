@@ -951,9 +951,26 @@ Registers an authentication scheme where:
 
 The `scheme` method must return an object with the following keys:
 
-- `authenticate(request, reply)` - required function called on each incoming request configured with the authentication scheme.
-- `payload(request, callback)` - optional function called to authenticate the request payload.
-- `response(request, response, callback)` - optional function called to decorate the response with authentication headers.
+- `authenticate(request, reply)` - required function called on each incoming request configured with the authentication scheme where:
+    - `request` - the request object.
+    - `reply(err, result)` - the interface the authentication method must call when done where:
+        - `err` - if not `null`, indicates failed authentication.
+        - `result` - an object containing:
+            - `credentials` - the authenticated credentials. Required if `err` is `null`.
+            - `artifacts` - optional authentication artifacts.
+            - `log` - optional object used to customize the request authentication log which supports:
+                - `data` - log data.
+                - `tags` - additional tags.
+- `payload(request, next)` - optional function called to authenticate the request payload where:
+    - `request` - the request object.
+    - `next(err)` - the continuation function the method must called when done where:
+        - `err` - if `null`, payload successfully authenticated. If `false`, indicates that authentication could not be performed
+          (e.g. missing payload hash). If set to any other value, it is used as an error response.
+- `response(request, next)` - optional function called to decorate the response with authentication headers before the response
+  headers or payload is written where:
+    - `request` - the request object.
+    - `next(err)` - the continuation function the method must called when done where:
+        - `err` - if `null`, successfully applied. If set to any other value, it is used as an error response.
 
 #### `server.auth.strategy(name, scheme, [mode], [options])`
 

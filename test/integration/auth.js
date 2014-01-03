@@ -2,7 +2,6 @@
 
 var Lab = require('lab');
 var Boom = require('boom');
-var Hoek = require('hoek');
 var Hapi = require('../..');
 
 
@@ -28,7 +27,17 @@ describe('Auth', function () {
             scope: ['a'],
             tos: '1.0.0'
         },
-        message: 'in a bottle'
+        client: {},
+        message: 'in a bottle',
+        validPayload: {
+            payload: null
+        },
+        optionalPayload: {
+            payload: false
+        },
+        invalidPayload: {
+            payload: Boom.unauthorized('Payload is invalid')
+        }
     };
 
     it('requires and authenticates a request', function (done) {
@@ -47,6 +56,31 @@ describe('Auth', function () {
                 expect(res.statusCode).to.equal(200);
                 done();
             });
+        });
+    });
+
+    it('authenticates using multiple strategies', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('first', 'custom', { users: {} });
+        server.auth.strategy('second', 'custom', { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.strategy); },
+                auth: {
+                    strategies: ['first', 'second']
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('second');
+            done();
         });
     });
 
@@ -208,7 +242,7 @@ describe('Auth', function () {
 
         server.inject({ url: '/', headers: { authorization: 'Custom john' } }, function (res) {
 
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(401);
         });
     });
 
@@ -241,12 +275,288 @@ describe('Auth', function () {
             done();
         });
     });
+
+    it('matches scope', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    scope: 'a'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('errors on missing scope', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    scope: 'b'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
+    it('matches tos', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    tos: '1.x.x'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('errors on incorrect tos', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    tos: '2.x.x'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
+    it('matches user entity', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    entity: 'user'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('errors on missing user entity', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    entity: 'user'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom client' } }, function (res) {
+
+            expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
+    it('matches app entity', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    entity: 'app'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom client' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('errors on missing app entity', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    entity: 'app'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
+    it('authenticates request payload', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'POST',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    payload: 'required'
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('skips optional payload', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'POST',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    payload: 'optional'
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('errors on missing payload auth when required', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'POST',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    payload: 'required'
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } }, function (res) {
+
+            expect(res.statusCode).to.equal(401);
+            done();
+        });
+    });
+
+    it('errors on invalid request payload', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({
+            method: 'POST',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    payload: 'required'
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom invalidPayload' } }, function (res) {
+
+            expect(res.statusCode).to.equal(401);
+            done();
+        });
+    });
 });
 
 
 internals.implementation = function (server, options) {
 
-    var settings = Hoek.clone(options);
+    var settings = Hapi.utils.clone(options);
 
     var scheme = {
         authenticate: function (request, reply) {
@@ -266,7 +576,7 @@ internals.implementation = function (server, options) {
             var credentials = settings.users[username];
 
             if (!credentials) {
-                return reply(Boom.internal('Missing'), { log: { tags: ['auth', 'custom'], data: 'oops' } });
+                return reply(Boom.unauthorized(null, 'Custom'), { log: { tags: ['auth', 'custom'], data: 'oops' } });
             }
 
             if (typeof credentials === 'string') {
@@ -274,6 +584,14 @@ internals.implementation = function (server, options) {
             }
 
             return reply(null, { credentials: credentials });
+        },
+        payload: function (request, next) {
+
+            return next(request.auth.credentials.payload);
+        },
+        response: function (request, next) {
+
+            return next();
         }
     };
 
