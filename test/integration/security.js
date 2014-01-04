@@ -178,38 +178,6 @@ describe('Security', function () {
                 });
         });
 
-        it('does not exist when setting invalid cookie names', function (done) {
-
-            server.route({
-                method: 'GET', path: '/cookiename', handler: function (request, reply) {
-
-                    reply('Success').setState('<script></script>', 'something');
-                }
-            });
-
-            server.inject('/cookiename', function (res) {
-
-                expect(res.result.message).to.not.contain('<script>');
-                done();
-            });
-        });
-
-        it('does not exist when setting invalid cookie value', function (done) {
-
-            server.route({
-                method: 'GET', path: '/cookievalue', handler: function (request, reply) {
-
-                    reply('Success').setState('something', '<script></script>');
-                }
-            });
-
-            server.inject('/cookievalue', function (res) {
-
-                expect(res.result.message).to.not.contain('<script>');
-                done();
-            });
-        });
-
         it('does not exist in path validation response message', function (done) {
 
             server.route({
