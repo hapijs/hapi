@@ -187,6 +187,7 @@ When creating a server instance, the following options configure the server's be
         - `'routes'` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
           location of the source code determines the location of the static resources when using relative paths.
         - an absolute path (e.g. '/path') used as prefix for all relative paths.
+    - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the cache. Defaults to `10000`.
 
 - `json` - optional arguments passed to `JSON.stringify()` when converting an object or error response to a string payload. Supports the following:
     - `replacer` - the replacer function or array. Defaults to no action.

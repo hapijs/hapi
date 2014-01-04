@@ -902,6 +902,28 @@ describe('Response', function () {
             });
         });
 
+        
+        it('does not cache etags', function (done) {
+
+            var server = new Hapi.Server({ files: { relativeTo: 'routes', etagsCacheMaxSize: 0 } });
+            server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
+
+            server.inject('/note', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Test');
+                expect(res.headers.etag).to.not.exist;
+
+                server.inject('/note', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('Test');
+                    expect(res.headers.etag).to.not.exist;
+                    done();
+                });
+            });
+        });
+
         it('invalidates etags when file changes', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
