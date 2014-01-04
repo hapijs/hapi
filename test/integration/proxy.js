@@ -282,7 +282,7 @@ describe('Proxy', function () {
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('John Doe');
             expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
-            expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+            expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate, private');
 
             server.inject('/profile', function (res) {
 
@@ -605,7 +605,7 @@ describe('Proxy', function () {
         server.inject('/cachedItem', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+            expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate, private');
             done();
         });
     });

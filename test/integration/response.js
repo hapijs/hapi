@@ -58,7 +58,7 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('text');
-                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
                 expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
                 expect(res.headers['access-control-allow-origin']).to.equal('*');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
