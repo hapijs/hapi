@@ -232,9 +232,6 @@ When creating a server instance, the following options configure the server's be
 
 - <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
-    - `normalizeRequestPath` - determines whether request paths should be normalized prior to matching. Normalization percent-encodes reserved
-      characters, decodes unreserved characters, and capitalizes any percent encoded values. Useful when serving non-compliant HTTP clients.
-      Defaults to `false`.
 
 - <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
   request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).

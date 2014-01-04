@@ -3,6 +3,7 @@
 var Lab = require('lab');
 var Hapi = require('../..');
 var Route = require('../../lib/route');
+var Request = require('../../lib/request');
 var Defaults = require('../../lib/defaults');
 
 
@@ -278,7 +279,21 @@ describe('Route', function () {
                     },
                     '/ac': {
                         b: ''
+                    },
+                    '/abC': false,
+                    '/Ac': false
+                },
+                '/a{b?}c|false': {
+                    '/abC': {
+                        b: 'b'
+                    },
+                    '/Ac': {
+                        b: ''
                     }
+                },
+                '/%0A': {
+                    '/%0A': true,
+                    '/%0a': true
                 }
             };
 
@@ -295,7 +310,8 @@ describe('Route', function () {
 
                             it((result ? 'matches' : 'unmatches') + ' the path \'' + path + '\' with ' + match + ' (' + (isCaseSensitive ? 'case-sensitive' : 'case-insensitive') + ')', function (done) {
 
-                                var request = { path: match };
+                                var request = {};
+                                Request.prototype._setUrl.call(request, match);
                                 var isMatch = route.match(request);
 
                                 expect(isMatch).to.equal(!!result);
@@ -354,6 +370,7 @@ describe('Route', function () {
             var route = new Route({ path: '/{test}', method: 'get', handler: _handler }, server);
             var request = {
                 path: '/test%l',
+                _pathSegments: '/test%l'.split('/'),
                 method: 'get'
             };
 
