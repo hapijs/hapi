@@ -51,12 +51,12 @@ describe('Security', function () {
 
     describe('Path Traversal', function () {
 
-        var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
-
         it('to files outside of hosted directory is not allowed with null byte injection', function (done) {
 
-            server.inject({ method: 'GET', url: '/%00/../security.js' }, function (res) {
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
+
+            server.inject('/%00/../security.js', function (res) {
 
                 expect(res.statusCode).to.equal(403);
                 done();
@@ -65,7 +65,10 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed', function (done) {
 
-            server.inject({ method: 'GET', url: '/../security.js' }, function (res) {
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
+
+            server.inject('/../security.js', function (res) {
 
                 expect(res.statusCode).to.equal(403);
                 done();
@@ -74,7 +77,10 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed with encoded slash', function (done) {
 
-            server.inject({ method: 'GET', url: '/..%2Fsecurity.js' }, function (res) {
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
+
+            server.inject('/..%2Fsecurity.js', function (res) {
 
                 expect(res.statusCode).to.equal(403);
                 done();
@@ -83,7 +89,10 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed with double encoded slash', function (done) {
 
-            server.inject({ method: 'GET', url: '/..%252Fsecurity.js' }, function (res) {
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
+
+            server.inject('/..%252Fsecurity.js', function (res) {
 
                 expect(res.statusCode).to.equal(403);
                 done();
@@ -92,9 +101,12 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed with unicode encoded slash', function (done) {
 
-            server.inject({ method: 'GET', url: '/..%u2216security.js' }, function (res) {
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
-                expect(res.statusCode).to.equal(404);
+            server.inject('/..\u2216security.js', function (res) {
+
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
@@ -112,7 +124,7 @@ describe('Security', function () {
 
         it('isn\'t allowed when serving a file', function (done) {
 
-            server.inject({ method: 'GET', url: '/index%00.html' }, function (res) {
+            server.inject('/index%00.html', function (res) {
 
                 expect(res.statusCode).to.equal(404);
                 done();

@@ -221,4 +221,16 @@ describe('Router', function () {
             done();
         });
     });
+
+    it('fails matching a required missing param', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/a/{b}', handler: function (request, reply) { reply(request.params.b); } });
+
+        server.inject('/a/', function (res) {
+
+            expect(res.statusCode).to.equal(404);
+            done();
+        });
+    })
 });

@@ -210,23 +210,16 @@ describe('Request', function () {
         server.route({ method: 'GET', path: '/', handler: handler });
         server.on('internalError', function (request, err) {
 
-            expect(err.stack.split('\n')[0]).to.equal('ReferenceError: not is not defined');
+            expect(err.stack.split('\n')[0]).to.equal('ReferenceError: Uncaught error: not is not defined');
             done();
         });
 
         var orig = console.error;
-        var prints = 0;
         console.error = function () {
 
-            ++prints;
-
-            if (prints === 1) {
-                expect(arguments[0]).to.equal('Debug:');
-                expect(arguments[1]).to.equal('hapi, handler, uncaught, error');
-            }
-            else {
-                console.error = orig;
-            }
+            expect(arguments[0]).to.equal('Debug:');
+            expect(arguments[1]).to.equal('hapi, internal, implementation, error');
+            console.error = orig;
         };
 
         server.inject('/', function (res) {

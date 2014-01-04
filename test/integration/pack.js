@@ -23,7 +23,7 @@ describe('Pack', function () {
 
     var routesList = function (server) {
 
-        var routes = server._router._table['get'];
+        var routes = server._router.routes['get'];
         var list = [];
         for (var i = 0, il = routes.length; i < il; ++i) {
             var route = routes[i];
@@ -162,9 +162,9 @@ describe('Pack', function () {
 
             expect(err).to.not.exist;
 
-            expect(pack._servers[0]._router._table['get']).to.not.exist;
+            expect(pack._servers[0]._router.routes['get']).to.not.exist;
             expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
-            expect(pack._servers[2]._router._table['get']).to.not.exist;
+            expect(pack._servers[2]._router.routes['get']).to.not.exist;
             expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
 
             expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);

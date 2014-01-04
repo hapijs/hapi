@@ -103,28 +103,6 @@ describe('Request', function () {
             expect(request.getLog().length).to.be.above(7);
             done();
         });
-
-        it('does not throw an error when logging without data and debug is configured', function (done) {
-
-            var debugServer = new Hapi.Server({ debug: { request: ['uncaught'] } });
-            var request = new Request(debugServer, _req, _res, {});
-
-            var fn = function () {
-
-                request.log('uncaught', null, Date.now());
-            };
-
-            var orig = console.error;
-            console.error = function (msg1, msg2) {
-
-                expect(msg1).to.equal('Debug:');
-                expect(msg2).to.equal('uncaught');
-                console.error = orig;
-                done();
-            };
-
-            expect(fn).to.not.throw(Error);
-        });
     });
 
     describe('path normalization', function () {
