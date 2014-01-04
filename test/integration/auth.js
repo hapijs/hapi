@@ -551,6 +551,21 @@ describe('Auth', function () {
             done();
         });
     });
+
+    it('defaults cache to private if request authenticated', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: users });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').ttl(1000); } });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
+            done();
+        });
+    });
 });
 
 
