@@ -27,7 +27,7 @@ internals.request = function (request, reply) {
 internals.main = function () {
 
     var server = new Hapi.Server(8000);
-    server.route({ method: 'POST', path: '/', config: { handler: internals.echo, payload: 'stream' } });
+    server.route({ method: 'POST', path: '/', config: { handler: internals.echo, payload: { output: 'stream' } } });
     server.route({ method: 'GET', path: '/request', handler: internals.request });
     server.start();
 };

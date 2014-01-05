@@ -77,7 +77,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
             server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
 
@@ -120,7 +120,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
             var s = new Stream.PassThrough();
 
@@ -167,7 +167,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 0);
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
             server.start(function () {
 
@@ -212,7 +212,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '5' } }, function (res) {
 
@@ -234,7 +234,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'raw' } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '500' } }, function (res) {
 
@@ -254,7 +254,7 @@ describe('Payload', function () {
         };
 
         var server = new Hapi.Server('localhost', 0);
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'stream' } });
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { output: 'stream' } } });
 
         before(function (done) {
 
@@ -315,12 +315,11 @@ describe('Payload', function () {
         };
 
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: 'parse' } });
+        server.route({ method: 'POST', path: '/', config: { handler: handler } });
         server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
         server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
         server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
         server.route({ method: '*', path: '/any', handler: handler });
-        server.route({ method: 'POST', path: '/try', config: { handler: tryHandler, payload: { mode: 'try' } } });
 
         before(function (done) {
 
@@ -439,6 +438,18 @@ describe('Payload', function () {
             req.end('{ "key": "value" }');
         });
 
+        it('returns 200 on octet mime type', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply('ok'); } });
+            server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('ok');
+                done();
+            });
+        });
+
         it('returns 200 on text mime type', function (done) {
 
             server.inject({ method: 'POST', url: '/text', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
@@ -474,26 +485,6 @@ describe('Payload', function () {
             server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
 
                 expect(res.statusCode).to.equal(415);
-                done();
-            });
-        });
-
-        it('returns 200 on invalid payload with try mode', function (done) {
-
-            server.inject({ method: 'POST', url: '/try', payload: 'tried but ' }, function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('tried but failed');
-                done();
-            });
-        });
-
-        it('returns 200 on application/octet-stream mime type', function (done) {
-
-            server.inject({ method: 'POST', url: '/try', payload: 'not ', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('not failed');
                 done();
             });
         });
@@ -657,7 +648,7 @@ describe('Payload', function () {
             var fileStream = Fs.createReadStream(path);
             var fileContents = Fs.readFileSync(path, { encoding: 'binary' });
 
-            var fileHandler = function (request) {
+            var fileHandler = function (request, reply) {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
                 expect(request.payload['my_file'].size).to.equal(stats.size);
@@ -668,7 +659,7 @@ describe('Payload', function () {
             };
 
             var server = new Hapi.Server('0.0.0.0', 0, { payload: { multipart: 'file' } });
-            server.route({ method: 'POST', path: '/file', config: { handler: fileHandler } });
+            server.route({ method: 'POST', path: '/file', handler: fileHandler });
             server.start(function () {
 
                 var r = Request.post(server.info.uri + '/file');

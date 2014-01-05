@@ -489,8 +489,7 @@ The following options are available when adding a route:
                       "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
                       value accepted by [`reply()`](#replyresult).
 
-    - `payload` - determines how the request payload is processed. `payload` can be assigned a string with the parsing mode directly (e.g. `'parse'`)
-      which will use the default values of the other settings, or an object with the following:
+    - `payload` - determines how the request payload is processed:
         - `mode` - the parsing mode. Defaults to `'parse'` if `validate.payload` is set or when `method` is
           `'POST'`, `'PUT'` or `'PATCH'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
           Options are:
@@ -809,7 +808,7 @@ console.log(table);
             plugins: {},
             app: {},
             validate: {},
-            payload: 'stream',
+            payload: { output: 'stream' },
             auth: undefined,
             cache: [Object] }
     }] */

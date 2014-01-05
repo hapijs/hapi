@@ -38,28 +38,6 @@ describe('Payload', function () {
 
     describe('#read', function () {
 
-        it('passes null to the callback when the method is not put, patch or post', function (done) {
-
-            var request = {
-                _bench: new Hapi.utils.Bench(),
-                method: 'delete',
-                _route: new Route({ method: '*', path: '/', handler: function () { } }, server),
-                raw: {
-                    req: {
-                        read: function () { }
-                    }
-                }
-            };
-
-            request.route = request._route.settings;
-
-            Payload.read(request, function (result) {
-
-                expect(result).not.to.exist;
-                done();
-            });
-        });
-
         it('sets the request payload property whenever reading a json request', function (done) {
 
             shotRequest('POST', '/', { 'content-type': 'application/json' }, '{ "item": "test" }', function (req, res) {
