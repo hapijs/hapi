@@ -209,23 +209,7 @@ When creating a server instance, the following options configure the server's be
 - <a name="server.config.payload"></a>`payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
       out of memory. Defaults to `1048576` (1MB).
-    - `multipart` - enables and customizes handling of incoming multipart payloads. Value can be:
-        - `false` - no multipart payloads allowed. This is the default value.
-        - `'stream'` - each incoming file part is provided as a `Stream.Readable` without touching the local file system.
-        - `'file'` - each incoming file part is written locally and the file path is provided.
-        - Object with the following keys:
-            - `mode` - required mode with allowed values:
-                - `'stream'` - see above.
-                - `'file'` - see above.
-            - `encoding` - sets encoding for the incoming form fields. Defaults to `'utf8'`.
-            - `maxFieldBytes` - limits the amount of memory a field (not a file) can allocate in bytes. If this value is exceeded, the request fails.
-              Defaults to `2097152` (2MB).
-            - `maxFields` - limits the number of fields that will be parsed before an error response is returned. Files count as fields in this case.
-              Defaults to `1000`.
-            - `uploadDir` - only used in `'file'` mode. The directory for writing file uploads. Defaults to `os.tmpDir()`.
-            - `hash` - only used in `'file'` mode. If set, calculates checksums for incoming files with supported hash functions:
-                - `'sha1'`
-                - `'md5'`
+    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
 
 - `plugins` - plugin-specific configuration which can later be accessed by `server.plugins`. Provides a place to store and pass plugin configuration that
   is at server-level. The `plugins` is an object where each key is a plugin name and the value is the configuration. Note the difference between
@@ -503,13 +487,12 @@ The following options are available when adding a route:
                 - application/octet-stream
                 - multipart/form-data ([multiparty](https://npmjs.org/package/multiparty) is used for processing this data and is capable of
                   receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
-            - `'try'` - same as `'parse'` but does not return an error on failed parsing. Instead, leaves `request.payload` undefined.
         - `allow` - a string or an array of strings with the allowed mime types for the endpoint. Defaults to any of the supported mime types listed
           above. Note that allowing other mime types not listed will not enable them to be parsed, and that if parsing mode is `'parse'`, the request
           will result in an error response.
         - `override` - a mime type string overriding the 'Content-Type' header value received. Defaults to no override.
         - `maxBytes` - overrides the server [default value](#server.config.payload) for this route.
-        - `multipart` - overrides the server [default value](#server.config.payload) for this route.
+        - `uploads` - overrides the server [default value](#server.config.payload) for this route.
 
     - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response. Values allowed:
         - `true` - any payload allowed (no validation performed). This is the default.
