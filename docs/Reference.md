@@ -1271,7 +1271,7 @@ Each request object has the following properties:
 - `mime` - the parsed content-type header. Only available when payload parsing enabled and no payload error occurred.
 - `params` - an object where each key is a path parameter name with matching value as described in [Path parameters](#path-parameters).
 - `path` - the request URI's path component.
-- `payload` - an object containing the parsed request payload (when the route `payload` option is set to `'parse'`).
+- `payload` - the request payload based on the route `payload.output` and `payload.parse` settings.
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
   key is a plugin name and the value is the state.
 - `pre` - an object where each key is the name assigned by a [route prerequisites](#route-prerequisites) function. The values are the raw values
@@ -1283,7 +1283,6 @@ Each request object has the following properties:
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
     - `req` - the `request` object.
     - `res` - the response object.
-- `rawPayload` - the raw request payload `Buffer` (except when the route `payload` option is set to `'stream'`).
 - `route` - the route configuration object after defaults are applied.
 - `server` - the server object.
 - `session` - Special key reserved for plugins implementing session support. Plugins utilizing this key must check for `null` value

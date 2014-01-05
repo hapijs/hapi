@@ -71,8 +71,8 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.rawPayload.toString()).to.equal(payload);
-                reply(request.rawPayload);
+                expect(request.payload.toString()).to.equal(payload);
+                reply(request.payload);
             };
 
             var server = new Hapi.Server();
@@ -94,7 +94,6 @@ describe('Payload', function () {
 
                 expect(request.payload).to.exist;
                 expect(request.payload.z).to.equal('3');
-                expect(request.rawPayload.toString()).to.equal(payload);
                 expect(request.mime).to.equal('application/json');
                 reply(request.payload);
             };
@@ -203,8 +202,8 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.rawPayload.toString()).to.equal(payload);
-                reply(request.rawPayload);
+                expect(request.payload.toString()).to.equal(payload);
+                reply(request.payload);
             };
 
             var server = new Hapi.Server();
@@ -224,8 +223,8 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.rawPayload.toString()).to.equal(payload);
-                reply(request.rawPayload);
+                expect(request.payload.toString()).to.equal(payload);
+                reply(request.payload);
             };
 
             var server = new Hapi.Server();
@@ -301,11 +300,6 @@ describe('Payload', function () {
         var textHandler = function (request, reply) {
 
             reply(request.payload + '+456');
-        };
-
-        var tryHandler = function (request, reply) {
-
-            reply(request.rawPayload.toString() + 'failed');
         };
 
         var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
