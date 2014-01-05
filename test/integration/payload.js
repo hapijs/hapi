@@ -71,7 +71,6 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.payload).to.not.exist;
                 expect(request.rawPayload.toString()).to.equal(payload);
                 reply(request.rawPayload);
             };
@@ -115,7 +114,6 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.payload).to.not.exist;
                 reply('Success');
             };
 
@@ -162,7 +160,6 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.payload).to.not.exist;
                 reply('Success');
             };
 
@@ -206,7 +203,6 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.payload).to.not.exist;
                 expect(request.rawPayload.toString()).to.equal(payload);
                 reply(request.rawPayload);
             };
@@ -228,7 +224,6 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.payload).to.not.exist;
                 expect(request.rawPayload.toString()).to.equal(payload);
                 reply(request.rawPayload);
             };
@@ -249,7 +244,6 @@ describe('Payload', function () {
 
         var handler = function (request, reply) {
 
-            expect(request.payload).to.not.exist;
             reply('Success');
         };
 

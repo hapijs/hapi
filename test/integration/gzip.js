@@ -30,11 +30,9 @@ describe('Payload', function () {
     var postHandler = {
         method: 'POST',
         path: '/',
-        config: {
-            handler: function (request, reply) {
+        handler: function (request, reply) {
 
-                reply(request.payload);
-            }
+            reply(request.payload);
         }
     };
 
@@ -43,11 +41,9 @@ describe('Payload', function () {
     var getHandler = {
         method: 'GET',
         path: '/',
-        config: {
-            handler: function (request, reply) {
+        handler: function (request, reply) {
 
-                reply('{"test":"true"}');
-            }
+            reply('{"test":"true"}');
         }
     };
 
@@ -66,7 +62,7 @@ describe('Payload', function () {
 
         var input = JSON.stringify(message);
 
-        Zlib.deflate(input, function (err, buf) {
+        Zlib.gzip(input, function (err, buf) {
 
             var request = {
                 method: 'POST',
@@ -83,6 +79,31 @@ describe('Payload', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.deep.equal(message);
+                done();
+            });
+        });
+    });
+
+    it('returns error if given wrong encoding', function (done) {
+
+        var input = JSON.stringify(message);
+
+        Zlib.gzip(input, function (err, buf) {
+
+            var request = {
+                method: 'POST',
+                url: '/',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-encoding': 'deflate',
+                    'content-length': buf.length
+                },
+                payload: buf
+            };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(400);
                 done();
             });
         });
@@ -317,7 +338,7 @@ describe('Payload', function () {
 
         var rawBody = '{"test":"true"}';
 
-        Request.get({ url: uri, headers: {}}, function (err, res, body) {
+        Request.get({ url: uri, headers: {} }, function (err, res, body) {
 
             expect(body).to.equal(rawBody);
             done();
