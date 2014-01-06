@@ -639,7 +639,7 @@ describe('Payload', function () {
             var fileHandler = function (request, reply) {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
-                expect(request.payload['my_file'].size).to.equal(stats.size);
+                expect(request.payload.my_file.bytes).to.equal(stats.size);
 
                 var tmpContents = Fs.readFileSync(request.payload['my_file'].path, { encoding: 'binary' });
                 expect(fileContents).to.deep.equal(tmpContents);
