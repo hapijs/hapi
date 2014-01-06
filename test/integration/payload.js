@@ -683,7 +683,7 @@ describe('Payload', function () {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
 
-                Nipple.parse(request.payload['my_file'], function (err, buffer) {
+                Nipple.read(request.payload['my_file'], function (err, buffer) {
 
                     expect(err).to.not.exist;
                     expect(fileContents.length).to.equal(buffer.length);

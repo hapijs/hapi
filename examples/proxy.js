@@ -24,7 +24,7 @@ internals.main = function () {
             return reply(Boom.badGateway());
         }
 
-        Nipple.parse(res, function (err, payload) {
+        Nipple.read(res, function (err, payload) {
 
             if (err) {
                 return reply(err);
