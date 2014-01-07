@@ -116,7 +116,7 @@ describe('Payload', function () {
                 reply('Success');
             };
 
-            var server = new Hapi.Server('0.0.0.0', 0);
+            var server = new Hapi.Server(0);
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
             var s = new Stream.PassThrough();
@@ -162,7 +162,7 @@ describe('Payload', function () {
                 reply('Success');
             };
 
-            var server = new Hapi.Server('0.0.0.0', 0);
+            var server = new Hapi.Server(0);
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
             server.start(function () {
@@ -546,28 +546,6 @@ describe('Payload', function () {
 
     describe('multi-part', function () {
 
-        var invalidHandler = function (request) {
-
-            expect(request).to.not.exist;       // Must not be called
-        };
-
-        var echo = function (request, reply) {
-
-            var result = {};
-            var keys = Object.keys(request.payload);
-            for (var i = 0, il = keys.length; i < il; ++i) {
-                var key = keys[i];
-                var value = request.payload[key]
-                result[key] = value._readableState ? true : value;
-            }
-
-            reply(result);
-        };
-
-        var server = new Hapi.Server('0.0.0.0', 0);
-        server.route({ method: 'POST', path: '/invalid', config: { handler: invalidHandler, payload: { output: 'file' } } });
-        server.route({ method: 'POST', path: '/echo', config: { handler: echo, payload: { output: 'file' } } });
-
         var multipartPayload =
                 '--AaB03x\r\n' +
                 'content-disposition: form-data; name="x"\r\n' +
@@ -596,7 +574,28 @@ describe('Payload', function () {
                 '... contents of file1.txt ...\r\r\n' +
                 '--AaB03x--\r\n';
 
+        var echo = function (request, reply) {
+
+            var result = {};
+            var keys = Object.keys(request.payload);
+            for (var i = 0, il = keys.length; i < il; ++i) {
+                var key = keys[i];
+                var value = request.payload[key]
+                result[key] = value._readableState ? true : value;
+            }
+
+            reply(result);
+        };
+
         it('returns an error on missing boundary in content-type header', function (done) {
+
+            var invalidHandler = function (request) {
+
+                expect(request).to.not.exist;       // Must not be called
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/invalid', config: { handler: invalidHandler } });
 
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
 
@@ -608,6 +607,14 @@ describe('Payload', function () {
 
         it('returns an error on empty separator in content-type header', function (done) {
 
+            var invalidHandler = function (request) {
+
+                expect(request).to.not.exist;       // Must not be called
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/invalid', config: { handler: invalidHandler } });
+
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
 
                 expect(res.result).to.exist;
@@ -617,6 +624,9 @@ describe('Payload', function () {
         });
 
         it('returns parsed multipart data', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/echo', config: { handler: echo } });
 
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
 
@@ -629,30 +639,190 @@ describe('Payload', function () {
             });
         });
 
-        it('parses a file correctly', function (done) {
+        it('parses file without content-type', function (done) {
+
+            var multipartPayload =
+                    '--AaB03x\r\n' +
+                    'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+                    '\r\n' +
+                    '... contents of file1.txt ...\r\r\n' +
+                    '--AaB03x--\r\n';
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/echo', config: { handler: function (request, reply) { reply(request.payload.pics); } } });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.result.toString()).to.equal('... contents of file1.txt ...\r');
+                done();
+            });
+        });
+
+        it('parses empty file', function (done) {
+
+            var multipartPayload =
+                    '--AaB03x\r\n' +
+                    'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+                    'Content-Type: text/plain\r\n' +
+                    '\r\n' +
+                    '\r\n' +
+                    '--AaB03x--\r\n';
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/echo', config: { handler: function (request, reply) { reply(request.payload); } } });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.result).to.deep.equal({ pics: {} });
+                done();
+            });
+        });
+
+        it('errors on missing upload folder', function (done) {
+
+            var multipartPayload =
+                    '--AaB03x\r\n' +
+                    'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+                    'Content-Type: text/plain\r\n' +
+                    '\r\n' +
+                    'something to fail with\r\n' +
+                    '--AaB03x--\r\n';
+
+            var server = new Hapi.Server({ payload: { uploads: '/a/b/c/d/e/f/g/not' } });
+            server.route({ method: 'POST', path: '/echo', config: { handler: function (request, reply) { reply(request.payload); }, payload: { output: 'file' } } });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('errors while processing a parsed data stream in multiple form', function (done) {
+
+            var payload = '--AaB03x\r\n' +
+                          'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+                          'Content-Type: text/plain\r\n' +
+                          '\r\n';
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/', handler: function () { } });
+            server.ext('onPreResponse', function (request, reply) {
+
+                expect(request.response.isBoom).to.equal(true);
+                expect(request.response.output.statusCode).to.equal(400);
+                expect(request.response.message).to.equal('Invalid multipart payload format');
+                done();
+            });
+
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/',
+                    method: 'POST',
+                    headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' }
+                };
+
+                var req = Http.request(options, function (res) { });
+                req.write(payload);
+                setTimeout(function () {
+                    req.destroy();
+                });
+
+                req.on('error', function () { });
+            });
+        });
+
+        it('parses multiple file as streams', function (done) {
+
+            var multipartPayload =
+                    '--AaB03x\r\n' +
+                    'content-disposition: form-data; name="files"; filename="file1.txt"\r\n' +
+                    'Content-Type: text/plain\r\n' +
+                    '\r\n' +
+                    'one\r\n' +
+                    '--AaB03x\r\n' +
+                    'content-disposition: form-data; name="files"; filename="file2.txt"\r\n' +
+                    'Content-Type: text/plain\r\n' +
+                    '\r\n' +
+                    'two\r\n' +
+                    '--AaB03x\r\n' +
+                    'content-disposition: form-data; name="files"; filename="file3.txt"\r\n' +
+                    'Content-Type: text/plain\r\n' +
+                    '\r\n' +
+                    'three\r\n' +
+                    '--AaB03x--\r\n';
+
+            var handler = function (request, reply) {
+
+                Nipple.read(request.payload.files[0], function (err, payload1) {
+
+                    Nipple.read(request.payload.files[1], function (err, payload2) {
+
+                        Nipple.read(request.payload.files[2], function (err, payload3) {
+
+                            reply([payload1, payload2, payload3].join('-'));
+                        });
+                    });
+                });
+            }
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/echo', config: { handler: handler, payload: { output: 'stream' } } });
+
+            server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.result).to.equal('one-two-three');
+                done();
+            });
+        });
+
+        it('parses a file', function (done) {
 
             var path = Path.join(__dirname, '../../images/hapi.png');
             var stats = Fs.statSync(path);
-            var fileStream = Fs.createReadStream(path);
-            var fileContents = Fs.readFileSync(path, { encoding: 'binary' });
 
-            var fileHandler = function (request, reply) {
+            var handler = function (request, reply) {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
                 expect(request.payload.my_file.bytes).to.equal(stats.size);
 
-                var tmpContents = Fs.readFileSync(request.payload['my_file'].path, { encoding: 'binary' });
-                expect(fileContents).to.deep.equal(tmpContents);
+                var sourceContents = Fs.readFileSync(path);
+                var receivedContents = Fs.readFileSync(request.payload['my_file'].path);
+                expect(sourceContents).to.deep.equal(receivedContents);
                 done();
             };
 
-            var server = new Hapi.Server('0.0.0.0', 0);
-            server.route({ method: 'POST', path: '/file', config: { handler: fileHandler, payload: { output: 'file' } } });
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
             server.start(function () {
 
                 var r = Request.post(server.info.uri + '/file');
                 var form = r.form();
-                form.append('my_file', fileStream);
+                form.append('my_file', Fs.createReadStream(path));
+            });
+        });
+
+        it('parses a file as data', function (done) {
+
+            var path = Path.join(__dirname, '../../package.json');
+
+            var handler = function (request, reply) {
+
+                var fileContents = Fs.readFileSync(path);
+                expect(request.payload.my_file.name).to.equal('hapi');
+                done();
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'data' } } });
+            server.start(function () {
+
+                var r = Request.post(server.info.uri + '/file');
+                var form = r.form();
+                form.append('my_file', Fs.createReadStream(path));
             });
         });
 
@@ -692,7 +862,7 @@ describe('Payload', function () {
                 });
             };
 
-            var server = new Hapi.Server('0.0.0.0', 0);
+            var server = new Hapi.Server(0);
             server.route({ method: 'POST', path: '/file', config: { handler: fileHandler, payload: { output: 'stream' } } });
             server.start(function () {
 

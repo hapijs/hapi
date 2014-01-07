@@ -474,19 +474,23 @@ The following options are available when adding a route:
                       value accepted by [`reply()`](#replyresult).
 
     - `payload` - determines how the request payload is processed:
-        - `mode` - the parsing mode. Defaults to `'parse'` if `validate.payload` is set or when `method` is
-          `'POST'`, `'PUT'` or `'PATCH'`, otherwise `'stream'`. Payload processing is configured using the server [`payload`](#server.config.payload) configuration.
-          Options are:
-            - `'stream'` - the incoming request stream is left untouched, leaving it up to the handler to process the request via `request.raw.req`.
-            - `'raw'` - the payload is read and stored in `request.rawPayload` as a `Buffer` and is not parsed.
-            - `'parse'` - the payload is read and stored in `request.rawPayload` as a `Buffer`, and then parsed (JSON or form-encoded) and stored
-              in `request.payload`. Parsing is performed based on the incoming request 'Content-Type' header. If the parsing is enabled and the
-              format is unknown, a Bad Request (400) error response is sent. The supported mime types are:
-                - application/json
-                - application/x-www-form-urlencoded
-                - application/octet-stream
-                - multipart/form-data ([multiparty](https://npmjs.org/package/multiparty) is used for processing this data and is capable of
-                  receiving files as well as other form data.  All values are assigned to their respective form names in `request.payload`.
+        - `output` - the type of payload representation requested where:
+            - `data` - the incoming payload is ready fully into memory. If `parse` is `true`, the payload is parsed (JSON, form-decoded,
+              multipart) based on the 'Content-Type' header. If `parse` is false, the raw `Buffer` is returned. This is the default value
+              except when a proxy handler is used.
+            - `stream` - the incoming payload is made available via a `Stream.Readable` interface. If the payload is 'multipart/form-data' and
+              `parse` is `true`, fields values are presented as text while files are provided as streams.
+            - `file` - the incoming payload in written to temporary file in the directory specified by the server's `payload.uploads` settings.
+              If the payload is 'multipart/form-data' and `parse` is `true`, fields values are presented as text while files are saved.
+        - `parse` - determines if the incoming payload is processed or presented raw. Processing includes applying any 'Content-Encoding'
+          received and parsing 'multipart/form-data'. If the 'Content-Type' is known (for the whole payload as well as parts), the payload
+          is converted into an object when possibler. If parsing is enabled and the format is unknown, a Bad Request (400) error response is
+          sent. Defaults to `true`, except when a proxy handler is used. The supported mime types are:
+            - 'application/json'
+            - 'application/x-www-form-urlencoded'
+            - 'application/octet-stream'
+            - 'text/*'
+            - 'multipart/form-data'
         - `allow` - a string or an array of strings with the allowed mime types for the endpoint. Defaults to any of the supported mime types listed
           above. Note that allowing other mime types not listed will not enable them to be parsed, and that if parsing mode is `'parse'`, the request
           will result in an error response.
