@@ -27,255 +27,252 @@ var it = Lab.test;
 
 describe('Payload', function () {
 
-    describe('raw mode', function () {
+    it('returns an error on req socket error', function (done) {
 
-        it('returns an error on req socket error', function (done) {
+        var handler = function (request) {
 
-            var handler = function (request) {
+            expect(request).to.not.exist;       // Must not be called
+        };
 
-                expect(request).to.not.exist;       // Must not be called
-            };
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler } });
+        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, function (res) {
 
-            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result.statusCode).to.equal(500);
-                done();
-            });
-        });
-
-        it('returns an error on req socket close', function (done) {
-
-            var handler = function (request) {
-
-                expect(request).to.not.exist;       // Must not be called
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler } });
-
-            server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result.statusCode).to.equal(500);
-                done();
-            });
-        });
-
-        it('returns a raw body', function (done) {
-
-            var payload = '{"x":"1","y":"2","z":"3"}';
-
-            var handler = function (request, reply) {
-
-                expect(request.payload.toString()).to.equal(payload);
-                reply(request.payload);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
-
-            server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.equal(payload);
-                done();
-            });
-        });
-
-        it('returns a parsed body and sets a raw body', function (done) {
-
-            var payload = '{"x":"1","y":"2","z":"3"}';
-
-            var handler = function (request, reply) {
-
-                expect(request.payload).to.exist;
-                expect(request.payload.z).to.equal('3');
-                expect(request.mime).to.equal('application/json');
-                reply(request.payload);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler } });
-
-            server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result.x).to.equal('1');
-                done();
-            });
-        });
-
-        it('does not set the request payload when the request is interrupted and its streaming', function (done) {
-
-            var handler = function (request, reply) {
-
-                reply('Success');
-            };
-
-            var server = new Hapi.Server(0);
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
-
-            var s = new Stream.PassThrough();
-
-            server.start(function () {
-
-                var options = {
-                    hostname: 'localhost',
-                    port: server.info.port,
-                    path: '/',
-                    method: 'POST'
-                };
-
-                var iv = setInterval(function () {
-
-                    s.write('Hello');
-                }, 5);
-
-                var req = Http.request(options, function (res) {
-
-                });
-
-                req.on('error', function (err) {
-
-                    expect(err.code).to.equal('ECONNRESET');
-                    done();
-                });
-
-                s.pipe(req);
-
-                setTimeout(function () {
-
-                    req.abort();
-                    clearInterval(iv);
-                }, 15);
-            });
-        });
-
-        it('does not set the request payload when the request is interrupted', function (done) {
-
-            var handler = function (request, reply) {
-
-                reply('Success');
-            };
-
-            var server = new Hapi.Server(0);
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
-
-            server.start(function () {
-
-                var options = {
-                    hostname: 'localhost',
-                    port: server.info.port,
-                    path: '/',
-                    method: 'POST',
-                    headers: {
-                        'Content-Length': '10'
-                    }
-                };
-
-                var req = Http.request(options, function (res) {
-
-                });
-
-                req.write('Hello\n');
-
-                req.on('error', function (err) {
-
-                    expect(err.code).to.equal('ECONNRESET');
-                    done();
-                });
-
-                setTimeout(function () {
-
-                    req.abort();
-                }, 15);
-            });
-        });
-
-        it('returns the correct raw body when content-length is smaller than payload', function (done) {
-
-            var payload = '{"x":"1","y":"2","z":"3"}';
-
-            var handler = function (request, reply) {
-
-                expect(request.payload.toString()).to.equal(payload);
-                reply(request.payload);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
-
-            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '5' } }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.equal(payload);
-                done();
-            });
-        });
-
-        it('returns the correct raw body when content-length is larger than payload', function (done) {
-
-            var payload = '{"x":"1","y":"2","z":"3"}';
-
-            var handler = function (request, reply) {
-
-                expect(request.payload.toString()).to.equal(payload);
-                reply(request.payload);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
-
-            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '500' } }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.equal(payload);
-                done();
-            });
-        });
-
-        it('peeks at unparsed data', function (done) {
-
-            var data = null;
-            var ext = function (request, reply) {
-
-                var chunks = [];
-                request.on('peek', function (chunk) {
-
-                    chunks.push(chunk);
-                });
-
-                request.once('finish', function () {
-
-                    data = Buffer.concat(chunks);
-                });
-
-                reply();
-            };
-
-            var handler = function (request, reply) {
-
-                reply(data);
-            };
-
-            var server = new Hapi.Server();
-            server.ext('onRequest', ext);
-            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
-
-            var payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
-            server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
-
-                expect(res.result).to.equal(payload);
-                done();
-            });
+            expect(res.result).to.exist;
+            expect(res.result.statusCode).to.equal(500);
+            done();
         });
     });
 
-    describe('stream mode', function () {
+    it('returns an error on req socket close', function (done) {
+
+        var handler = function (request) {
+
+            expect(request).to.not.exist;       // Must not be called
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
+        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('returns a raw body', function (done) {
+
+        var payload = '{"x":"1","y":"2","z":"3"}';
+
+        var handler = function (request, reply) {
+
+            expect(request.payload.toString()).to.equal(payload);
+            reply(request.payload);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+
+        server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result).to.equal(payload);
+            done();
+        });
+    });
+
+    it('returns a parsed body and sets a raw body', function (done) {
+
+        var payload = '{"x":"1","y":"2","z":"3"}';
+
+        var handler = function (request, reply) {
+
+            expect(request.payload).to.exist;
+            expect(request.payload.z).to.equal('3');
+            expect(request.mime).to.equal('application/json');
+            reply(request.payload);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
+        server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result.x).to.equal('1');
+            done();
+        });
+    });
+
+    it('does not set the request payload when the request is interrupted and its streaming', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply('Success');
+        };
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+
+        var s = new Stream.PassThrough();
+
+        server.start(function () {
+
+            var options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/',
+                method: 'POST'
+            };
+
+            var iv = setInterval(function () {
+
+                s.write('Hello');
+            }, 5);
+
+            var req = Http.request(options, function (res) {
+
+            });
+
+            req.on('error', function (err) {
+
+                expect(err.code).to.equal('ECONNRESET');
+                done();
+            });
+
+            s.pipe(req);
+
+            setTimeout(function () {
+
+                req.abort();
+                clearInterval(iv);
+            }, 15);
+        });
+    });
+
+    it('does not set the request payload when the request is interrupted', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply('Success');
+        };
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+
+        server.start(function () {
+
+            var options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Length': '10'
+                }
+            };
+
+            var req = Http.request(options, function (res) {
+
+            });
+
+            req.write('Hello\n');
+
+            req.on('error', function (err) {
+
+                expect(err.code).to.equal('ECONNRESET');
+                done();
+            });
+
+            setTimeout(function () {
+
+                req.abort();
+            }, 15);
+        });
+    });
+
+    it('returns the correct raw body when content-length is smaller than payload', function (done) {
+
+        var payload = '{"x":"1","y":"2","z":"3"}';
+
+        var handler = function (request, reply) {
+
+            expect(request.payload.toString()).to.equal(payload);
+            reply(request.payload);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+
+        server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '5' } }, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result).to.equal(payload);
+            done();
+        });
+    });
+
+    it('returns the correct raw body when content-length is larger than payload', function (done) {
+
+        var payload = '{"x":"1","y":"2","z":"3"}';
+
+        var handler = function (request, reply) {
+
+            expect(request.payload.toString()).to.equal(payload);
+            reply(request.payload);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+
+        server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '500' } }, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result).to.equal(payload);
+            done();
+        });
+    });
+
+    it('peeks at unparsed data', function (done) {
+
+        var data = null;
+        var ext = function (request, reply) {
+
+            var chunks = [];
+            request.on('peek', function (chunk) {
+
+                chunks.push(chunk);
+            });
+
+            request.once('finish', function () {
+
+                data = Buffer.concat(chunks);
+            });
+
+            reply();
+        };
+
+        var handler = function (request, reply) {
+
+            reply(data);
+        };
+
+        var server = new Hapi.Server();
+        server.ext('onRequest', ext);
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+
+        var payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+        server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
+
+            expect(res.result).to.equal(payload);
+            done();
+        });
+    });
+
+    describe('stream output', function () {
 
         var handler = function (request, reply) {
 
@@ -323,6 +320,89 @@ describe('Payload', function () {
                 req.abort();
                 clearInterval(iv);
             }, 25);
+        });
+    });
+
+    describe('file output', function () {
+
+        var path = Path.join(__dirname, '../../images/hapi.png');
+        var sourceContents = Fs.readFileSync(path);
+        var stats = Fs.statSync(path);
+
+        var compressed;
+        before(function (done) {
+
+            Zlib.gzip(sourceContents, function (err, result) {
+
+                compressed = result;
+                done()
+            });
+        });
+
+        it('saves a file after content decoding', function (done) {
+
+            var handler = function (request, reply) {
+
+                var receivedContents = Fs.readFileSync(request.payload.path);
+                expect(receivedContents).to.deep.equal(sourceContents);
+                reply(request.payload.bytes);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+            server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
+
+                expect(res.result).to.equal(stats.size);
+                done();
+            });
+        });
+
+        it('saves a file before content decoding', function (done) {
+
+            var path = Path.join(__dirname, '../../images/hapi.png');
+            var sourceContents = Fs.readFileSync(path);
+            var stats = Fs.statSync(path);
+
+            var handler = function (request, reply) {
+
+                var receivedContents = Fs.readFileSync(request.payload.path);
+                expect(receivedContents).to.deep.equal(compressed);
+                reply(request.payload.bytes);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false } } });
+            server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
+
+                expect(res.result).to.equal(compressed.length);
+                done();
+            });
+        });
+
+        it('errors saving a file with parse', function (done) {
+
+            var handler = function (request, reply) { };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', uploads: '/a/b/c/d/not' } } });
+            server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('errors saving a file without parse', function (done) {
+
+            var handler = function (request, reply) { };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
+            server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
         });
     });
 
@@ -764,6 +844,7 @@ describe('Payload', function () {
                 var req = Http.request(options, function (res) { });
                 req.write(payload);
                 setTimeout(function () {
+
                     req.destroy();
                 }, 100);
 

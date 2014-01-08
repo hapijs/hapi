@@ -1,3 +1,5 @@
+// Note: Make sure to 'npm install bcrypt hawk hapi-auth-basic hapi-auth-hawk' first
+
 // Load modules
 
 var Hawk = require('hawk');
@@ -35,7 +37,7 @@ internals.validate = function (username, password, callback) {
 
     Bcrypt.compare(password, internals.passwords[username], function (err, isValid) {
 
-        callback(null, isValid , internals.users[username]);
+        callback(null, isValid, internals.users[username]);
     });
 };
 
@@ -64,37 +66,29 @@ internals.handler = function (request, reply) {
 
 internals.main = function () {
 
-    var config = {
-        auth: {
-            'hawk': {
-                scheme: 'hawk',
-                getCredentialsFunc: internals.getCredentials
-            },
-            'basic': {
-                scheme: 'basic',
-                validateFunc: internals.validate
-            }
-        }
-    };
+    var server = new Hapi.Server(8000);
+    server.pack.require(['hapi-auth-basic', 'hapi-auth-hawk'], function (err) {
 
-    var server = new Hapi.Server(8000, config);
+        server.auth.strategy('hawk', 'hawk', { getCredentialsFunc: internals.getCredentials });
+        server.auth.strategy('basic', 'basic', { validateFunc: internals.validate });
 
-    server.route([
-        { method: 'GET', path: '/basic', config: { handler: internals.handler, auth: { strategies: ['basic'] } } },
-        { method: 'GET', path: '/hawk', config: { handler: internals.handler, auth: { strategies: ['hawk'] } } },
-        { method: 'GET', path: '/multiple', config: { handler: internals.handler, auth: { strategies: ['basic', 'hawk'] } } }
-    ]);
+        server.route([
+            { method: 'GET', path: '/basic', config: { handler: internals.handler, auth: { strategies: ['basic'] } } },
+            { method: 'GET', path: '/hawk', config: { handler: internals.handler, auth: { strategies: ['hawk'] } } },
+            { method: 'GET', path: '/multiple', config: { handler: internals.handler, auth: { strategies: ['basic', 'hawk'] } } }
+        ]);
 
-    server.start(function () {
+        server.start(function () {
 
-        console.log('\nBasic request to /basic:');
-        console.log('curl ' + server.info.uri + '/basic -H "Authorization: Basic ' + (new Buffer('john:secret', 'utf8')).toString('base64') + '"');
-        console.log('\nHawk request to /hawk:');
-        console.log('curl ' + server.info.uri + '/hawk -H \'Authorization: ' + internals.hawkHeader('john', '/hawk', server) + '\'');
-        console.log('\nBasic request to /multiple:');
-        console.log('curl ' + server.info.uri + '/multiple -H "Authorization: Basic ' + (new Buffer('john:secret', 'utf8')).toString('base64') + '"');
-        console.log('\nHawk request to /multiple:');
-        console.log('curl ' + server.info.uri + '/multiple -H \'Authorization: ' + internals.hawkHeader('john', '/multiple', server) + '\'');
+            console.log('\nBasic request to /basic:');
+            console.log('curl ' + server.info.uri + '/basic -H "Authorization: Basic ' + (new Buffer('john:secret', 'utf8')).toString('base64') + '"');
+            console.log('\nHawk request to /hawk:');
+            console.log('curl ' + server.info.uri + '/hawk -H \'Authorization: ' + internals.hawkHeader('john', '/hawk', server) + '\'');
+            console.log('\nBasic request to /multiple:');
+            console.log('curl ' + server.info.uri + '/multiple -H "Authorization: Basic ' + (new Buffer('john:secret', 'utf8')).toString('base64') + '"');
+            console.log('\nHawk request to /multiple:');
+            console.log('curl ' + server.info.uri + '/multiple -H \'Authorization: ' + internals.hawkHeader('john', '/multiple', server) + '\'');
+        });
     });
 };
 
