@@ -729,7 +729,7 @@ describe('Payload', function () {
                 req.write(payload);
                 setTimeout(function () {
                     req.destroy();
-                });
+                }, 100);
 
                 req.on('error', function () { });
             });
