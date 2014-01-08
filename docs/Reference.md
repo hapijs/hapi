@@ -1626,11 +1626,13 @@ It provides the following methods:
 
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
-- `header(name, value, [isAppend, [separator]])` - sets an HTTP header where:
+- `header(name, value, options)` - sets an HTTP header where:
     - `name` - the header name.
     - `value` - the header value.
-    - `isAppend` - optional indicator if the value should be appended to any existing header value. Defaults to `false`.
-    - `separator` - optional string used as separator when appending to an exiting value. Defaults to `','`.
+    - `options` - optional settings where:
+        - `append` - if `true`, the value is appended to any existing header value using `separator`. Defaults to `false`.
+        - `separator` - string used as separator when appending to an exiting value. Defaults to `','`.
+        - `override` - if `false`, the header value is not set if an existing value present. Defaults to `true`.
 - `type(mimeType)` - sets the HTTP 'Content-Type' header where:
     - `value` - is the mime type. Should only be used to override the built-in default for each response type.
 - `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
