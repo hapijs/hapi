@@ -36,6 +36,7 @@
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags])`](#requestgetlogtags)
         - [`request.tail([name])`](#requesttailname)
+    - [`request` events](#request-events)
 - [Reply interface](#reply-interface)
     - [Flow control](#flow-control)
     - [`reply([result])`](#replyresult)
@@ -1402,6 +1403,33 @@ server.route({ method: 'GET', path: '/', handler: get });
 server.on('tail', function (request) {
 
     console.log('Request completed including db activity');
+});
+```
+
+### Request events
+
+The request object supports the following events:
+
+- `'peek'` - emitted for each chunk of payload data read from the client connection. The event method signature is `function(chunk, encoding)`.
+- `'finish'` - emitted when the request payload finished reading. The event method signature is `function ()`.
+
+```javascript
+var Crypto = require('crypto');
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+server.ext('onRequest', function (request, reply) {
+
+    var hash = Crypto.createHash('sha1');
+    response.on('peek', function (chunk) {
+
+        hash.update(chunk);
+    });
+
+    response.once('finish', function () {
+
+        console.log(hash.digest('hex'));
+    });
 });
 ```
 

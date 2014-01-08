@@ -49,7 +49,8 @@ describe('Payload', function () {
                     raw: {
                         req: req
                     },
-                    server: server
+                    server: server,
+                    _tap: function () { }
                 };
 
                 request.route = request._route.settings;
@@ -74,7 +75,8 @@ describe('Payload', function () {
                     raw: {
                         req: req
                     },
-                    server: server
+                    server: server,
+                    _tap: function () { }
                 };
 
                 request.route = request._route.settings;
@@ -100,7 +102,8 @@ describe('Payload', function () {
                     raw: {
                         req: req
                     },
-                    server: server
+                    server: server,
+                    _tap: function () { }
                 };
 
                 request.route = request._route.settings;
@@ -125,7 +128,8 @@ describe('Payload', function () {
                     raw: {
                         req: req
                     },
-                    server: server
+                    server: server,
+                    _tap: function () { }
                 };
 
                 request.route = request._route.settings;
@@ -151,7 +155,8 @@ describe('Payload', function () {
                     raw: {
                         req: req
                     },
-                    server: server
+                    server: server,
+                    _tap: function () { }
                 };
 
                 request.route = request._route.settings;

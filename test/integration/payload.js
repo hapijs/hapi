@@ -237,6 +237,42 @@ describe('Payload', function () {
                 done();
             });
         });
+
+        it('peeks at unparsed data', function (done) {
+
+            var data = null;
+            var ext = function (request, reply) {
+
+                var chunks = [];
+                request.on('peek', function (chunk) {
+
+                    chunks.push(chunk);
+                });
+
+                request.once('finish', function () {
+
+                    data = Buffer.concat(chunks);
+                });
+
+                reply();
+            };
+
+            var handler = function (request, reply) {
+
+                reply(data);
+            };
+
+            var server = new Hapi.Server();
+            server.ext('onRequest', ext);
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+
+            var payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+            server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
+
+                expect(res.result).to.equal(payload);
+                done();
+            });
+        });
     });
 
     describe('stream mode', function () {
@@ -757,9 +793,9 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                Nipple.read(request.payload.files[0], function (err, payload1) {
+                Nipple.read(request.payload.files[1], function (err, payload2) {
 
-                    Nipple.read(request.payload.files[1], function (err, payload2) {
+                    Nipple.read(request.payload.files[0], function (err, payload1) {
 
                         Nipple.read(request.payload.files[2], function (err, payload3) {
 
@@ -869,6 +905,41 @@ describe('Payload', function () {
                 var r = Request.post(server.info.uri + '/file');
                 var form = r.form();
                 form.append('my_file', fileStream);
+            });
+        });
+
+        it('peeks at parsed multipart data', function (done) {
+
+            var data = null;
+            var ext = function (request, reply) {
+
+                var chunks = [];
+                request.on('peek', function (chunk) {
+
+                    chunks.push(chunk);
+                });
+
+                request.once('finish', function () {
+
+                    data = Buffer.concat(chunks);
+                });
+
+                reply();
+            };
+
+            var handler = function (request, reply) {
+
+                reply(data);
+            };
+
+            var server = new Hapi.Server();
+            server.ext('onRequest', ext);
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
+            server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.result).to.equal(multipartPayload);
+                done();
             });
         });
     });
