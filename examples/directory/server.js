@@ -20,7 +20,7 @@ internals.main = function () {
 
     server.route([
         { method: 'GET', path: '/img/{path}', handler: { directory: { path: internals.images } } },
-        { method: 'GET', path: '/files/{path*}', handler: { directory: { path: '../../', listing: true } } },
+        { method: 'GET', path: '/files/browse/{path*}', handler: { directory: { path: '../../', listing: true } } },
         { method: 'GET', path: '/{path?}', handler: { directory: { path: './' } } }
     ]);
 
