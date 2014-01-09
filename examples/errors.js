@@ -14,7 +14,7 @@ internals.get = function (request, reply) {
 };
 
 
-internals.onPreResponse = function (request, next) {
+internals.onPreResponse = function (request, reply) {
 
     // Demonstrates how to hide error messages from the client
 
@@ -23,7 +23,7 @@ internals.onPreResponse = function (request, next) {
         error.output.payload.message = 'Censored Error';
     }
 
-    next();
+    reply();
 };
 
 

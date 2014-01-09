@@ -711,10 +711,10 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             var handler = function (request, reply) {
 
-                reply.file(__dirname + '/../../package.json').code(499);
+                reply.file('../../package.json').code(499);
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -732,7 +732,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers using cwd relative paths without content-disposition header', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
 
             server.inject('/', function (res) {
@@ -747,7 +747,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the inline content-disposition header when using route config', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server({ files: { relativeTo: './' } });
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'inline' } } });
 
             server.inject('/', function (res) {
@@ -762,7 +762,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the attachment content-disposition header when using route config', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment' } } });
 
             server.inject('/', function (res) {
@@ -777,7 +777,7 @@ describe('Response', function () {
 
         it('returns a file in the response without the content-disposition header when using route config mode false', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'cwd' } });
+            var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: false } } });
 
             server.inject('/', function (res) {
@@ -792,7 +792,7 @@ describe('Response', function () {
 
         it('returns a file with correct headers when using attachment mode', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             var handler = function (request, reply) {
 
                 reply.file(__dirname + '/../../package.json', { mode: 'attachment' });
@@ -812,7 +812,7 @@ describe('Response', function () {
 
         it('returns a file with correct headers when using inline mode', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             var handler = function (request, reply) {
 
                 reply.file(__dirname + '/../../package.json', { mode: 'inline' });
@@ -863,7 +863,7 @@ describe('Response', function () {
 
         it('returns a file using the build-in handler config', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             server.route({ method: 'GET', path: '/staticfile', handler: { file: __dirname + '/../../package.json' } });
 
             server.inject('/staticfile', function (res) {
@@ -877,7 +877,7 @@ describe('Response', function () {
 
         it('returns a file using the file function with the build-in handler config', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             server.route({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
 
             server.inject('/filefn/index.js', function (res) {
@@ -891,7 +891,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers (relative path)', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: '.' } });
             var relativeHandler = function (request, reply) {
 
                 reply.file('./package.json');
@@ -910,7 +910,7 @@ describe('Response', function () {
 
         it('returns a file using the built-in handler config (relative path)', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             server.route({ method: 'GET', path: '/relativestaticfile', handler: { file: '../../package.json' } });
 
             server.inject('/relativestaticfile', function (res) {
@@ -925,7 +925,7 @@ describe('Response', function () {
         
         it('does not cache etags', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes', etagsCacheMaxSize: 0 } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname, etagsCacheMaxSize: 0 } });
             server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
 
             server.inject('/note', function (res) {
@@ -946,7 +946,7 @@ describe('Response', function () {
 
         it('invalidates etags when file changes', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
 
             server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
 
@@ -1071,7 +1071,7 @@ describe('Response', function () {
 
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             var handler = function (request, reply) {
 
                 reply.file(__dirname + '/../../package.json');
@@ -1091,7 +1091,7 @@ describe('Response', function () {
 
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: 'routes' } });
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             var handler = function (request, reply) {
 
                 reply.file(__dirname + '/../../package.json');
@@ -1142,7 +1142,7 @@ describe('Response', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server(0, { files: { relativeTo: 'routes' } });
+                var server = new Hapi.Server(0, { files: { relativeTo: __dirname } });
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
             };
 

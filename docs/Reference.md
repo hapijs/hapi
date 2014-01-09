@@ -183,11 +183,7 @@ When creating a server instance, the following options configure the server's be
       To turn off all console debug messages set it to `false`.
 
 - <a name="server.config.files"></a>`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
-    - `relativeTo` - determines how relative paths are resolved. Available values:
-        - `'cwd'` - relative paths are resolved using the active process path (`process.cwd()`). This is the default setting.
-        - `'routes'` - relative paths are resolved relative to the source file in which the `server.route()` method is called. This means the
-          location of the source code determines the location of the static resources when using relative paths.
-        - an absolute path (e.g. '/path') used as prefix for all relative paths.
+    - `relativeTo` - determines the folder relative paths are resolved against when using the file and directory handlers.
     - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the cache. Defaults to `10000`.
 
 - `json` - optional arguments passed to `JSON.stringify()` when converting an object or error response to a string payload. Supports the following:

@@ -16,7 +16,7 @@ internals.serveImages = function (request) {
 
 internals.main = function () {
 
-    var server = new Hapi.Server(8000, { files: { relativeTo: 'routes' } });
+    var server = new Hapi.Server(8000, { files: { relativeTo: __dirname } });
 
     server.route([
         { method: 'GET', path: '/img/{path}', handler: { directory: { path: internals.serveImages } } },
