@@ -1016,6 +1016,7 @@ Each incoming request passes through a pre-defined set of steps, along with opti
     - always called
     - the `request` object passed to the extension functions is decorated with the `request.setUrl(url)` and `request.setMethod(verb)` methods. Calls to these methods
       will impact how the request is routed and can be used for rewrite rules.
+    - `request.route` is not yet populated as the router only looks at the request after this point.
 - Lookup route using request path
 - Parse cookies
 - **`'onPreAuth'`** extension point
