@@ -7,18 +7,19 @@ var routes = [
     { method: 'POST', path: '/products', config: { handler: addProduct, validate: { payload: { name: Hapi.types.String().required().min(3) } } } }
 ];
 
-var server = new Hapi.Server(8080);
-server.addRoutes(routes);
+var server = new Hapi.Server(8000);
+server.route(routes);
 
 server.start(function () {
 
     console.log('Server started at: ' + server.info.uri);
 });
 
-var products = [{
-    id: 1,
-    name: 'Guitar'
-},
+var products = [
+    {
+        id: 1,
+        name: 'Guitar'
+    },
     {
         id: 2,
         name: 'Banjo'
@@ -36,14 +37,14 @@ function getProducts(request, reply) {
 
 function findProducts(name) {
 
-    return products.filter(function(product) {
+    return products.filter(function (product) {
         return product.name.toLowerCase() === name.toLowerCase();
     });
 }
 
 function getProduct(request, reply) {
 
-    var product = products.filter(function(p) {
+    var product = products.filter(function (p) {
         return p.id === parseInt(request.params.id);
     }).pop();
 
