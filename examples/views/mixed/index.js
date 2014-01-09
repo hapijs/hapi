@@ -8,18 +8,18 @@ var Hapi = require('../../../lib');
 var internals = {};
 
 var ctx = {
-    title: 'examples/views/mixed/basic.js | Hapi ' + Hapi.utils.version(),
+    title: 'examples/views/mixed | Hapi ' + Hapi.utils.version(),
     message: 'Hello World!'
 }
 
 var oneHandler = function (request, reply) {
 
-    reply.view('index', ctx);
+    reply.view('index.jade', ctx);
 };
 
 var twoHandler = function (request, reply) {
 
-    reply.view('handlebars', ctx);
+    reply.view('handlebars.html', ctx);
 };
 
 
