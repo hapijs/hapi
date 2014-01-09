@@ -220,17 +220,6 @@ describe('Route', function () {
                         param: ''
                     }
                 },
-                '/path/{param*}': {
-                    '/path': {
-                        param: ''
-                    },
-                    '/path/a/b/to': {
-                        param: 'a/b/to'
-                    },
-                    '/path/': {
-                        param: ''
-                    }
-                },
                 '/path/{p1}/{p2?}': {
                     '/path/a/c/d': false,
                     '/Path/a/c/d': false,

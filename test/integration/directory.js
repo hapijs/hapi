@@ -127,7 +127,7 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
-        server.inject('/showindex/directory/subdir', function (res) {
+        server.inject('/showindex/directory/subdir/', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('href="/showindex/directory/subdir/subsubdir"');
@@ -140,7 +140,7 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
-        server.inject('/showindex/directory/subdir', function (res) {
+        server.inject('/showindex/directory/subdir/', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('href="/showindex/directory/subdir/sub%20subdir%3D"');
@@ -153,7 +153,7 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.route({ method: 'GET', path: '/showindex/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
-        server.inject('/showindex/directory/subdir/sub%20subdir%3D/subsubsubdir', function (res) {
+        server.inject('/showindex/directory/subdir/sub%20subdir%3D/subsubsubdir/', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('href="/showindex/directory/subdir/sub%20subdir%3D/subsubsubdir/test.txt"');
@@ -217,7 +217,7 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.route({ method: 'GET', path: '/directorylist/{path*}', handler: { directory: { path: '../../', listing: true } } });
 
-        server.inject('/directorylist/test', function (res) {
+        server.inject('/directorylist/test/', function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.contain('integration');
@@ -256,7 +256,7 @@ describe('Directory', function () {
         var server = new Hapi.Server({ files: { relativeTo: __dirname }, debug: false });
         server.route({ method: 'GET', path: '/directoryIndex/{path*}', handler: { directory: { path: './directory/' } } });
 
-        server.inject('/directoryIndex/invalid', function (res) {
+        server.inject('/directoryIndex/invalid/', function (res) {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -333,12 +333,25 @@ describe('Directory', function () {
     it('redirects to the same path with / appended if asking for a directory', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
-        server.route({ method: 'GET', path: '/redirect/{path*}', handler: { directory: { path: './', index: true, listing: true, redirectToSlash: true } } });
+        server.route({ method: 'GET', path: '/redirect/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
 
         server.inject('http://example.com/redirect/directory/subdir', function (res) {
 
             expect(res.statusCode).to.equal(302);
             expect(res.headers.location).to.equal('http://example.com/redirect/directory/subdir/');
+            done();
+        });
+    });
+
+    it('does not redirect to the same path with / appended redirectToSlash disabled', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/redirect/{path*}', handler: { directory: { path: './', index: true, listing: true, redirectToSlash: false } } });
+
+        server.inject('http://example.com/redirect/directory/subdir', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.contain('<html>');
             done();
         });
     });
