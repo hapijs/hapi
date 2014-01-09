@@ -236,6 +236,28 @@ describe('Payload', function () {
         });
     });
 
+    it('errors on payload too big', function (done) {
+
+        var payload = '{"x":"1","y":"2","z":"3"}';
+
+        var handler = function (request, reply) {
+
+            expect(request.payload.toString()).to.equal(payload);
+            reply(request.payload);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 10 } } });
+
+        server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-length': payload.length } }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result).to.exist;
+            expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
+            done();
+        });
+    });
+
     it('peeks at unparsed data', function (done) {
 
         var data = null;
@@ -540,6 +562,18 @@ describe('Payload', function () {
             });
 
             req.end('{ "key": "value" }');
+        });
+
+        it('ignores unsupported mime type', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/', config: { handler: function (request, reply) { reply(request.payload); }, payload: { failAction: 'ignore' } } });
+            server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.deep.equal({});
+                done();
+            });
         });
 
         it('returns 200 on octet mime type', function (done) {

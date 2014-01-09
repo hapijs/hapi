@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "2.0.0",
+  "version": "2.0.0-preview",
   "repository": {
     "type": "git",
     "url": "git://github.com/spumko/hapi"

@@ -496,6 +496,10 @@ The following options are available when adding a route:
         - `override` - a mime type string overriding the 'Content-Type' header value received. Defaults to no override.
         - `maxBytes` - overrides the server [default value](#server.config.payload) for this route.
         - `uploads` - overrides the server [default value](#server.config.payload) for this route.
+        - `failAction` - determines how to handle payload parsing errors. Allowed values are:
+            - `'error'` - return a Bad Request (400) error response. This is the default value.
+            - `'log'` - report the error but continue processing the request.
+            - `'ignore'` - take no action and continue processing the request.
 
     - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response. Values allowed:
         - `true` - any payload allowed (no validation performed). This is the default.
