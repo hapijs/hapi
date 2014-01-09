@@ -32,7 +32,8 @@
     "lru-cache": "2.5.x",
     "optimist": "0.6.x",
     "negotiator": "0.2.x",
-    "semver": "2.2.x"
+    "semver": "2.2.x",
+    "qs": "0.6.x"
   },
   "devDependencies": {
     "lab": "1.x.x",
