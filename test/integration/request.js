@@ -455,4 +455,21 @@ describe('Request', function () {
             done();
         });
     });
+
+    it('parses nested query string', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.query);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/?a[b]=5&d[ff]=ok', function (res) {
+
+            expect(res.result).to.deep.equal({ a: { b: '5' }, d: { ff: 'ok' } });
+            done();
+        });
+    });
 });
