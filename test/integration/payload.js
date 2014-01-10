@@ -647,6 +647,27 @@ describe('Payload', function () {
                 done();
             });
         });
+
+        it('parses application/x-www-form-urlencoded with arrays', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                handler: function (request, reply) {
+
+                    reply(request.payload.x.y + request.payload.x.z);
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', payload: 'x[y]=1&x[z]=2', headers: { 'content-type': 'application/x-www-form-urlencoded' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('12');
+                done();
+            });
+        });
     });
 
     describe('unzip', function () {
