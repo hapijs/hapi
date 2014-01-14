@@ -472,4 +472,21 @@ describe('Request', function () {
             done();
         });
     });
+
+    it('returns empty params array when none present', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.params);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.deep.equal({});
+            done();
+        });
+    });
 });
