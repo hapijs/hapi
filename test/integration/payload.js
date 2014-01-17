@@ -1078,5 +1078,32 @@ describe('Payload', function () {
                 done();
             });
         });
+
+        it('parses field names with arrays', function (done) {
+
+            var payload = '--AaB03x\r\n' +
+                          'Content-Disposition: form-data; name="a[b]"\r\n' +
+                          '\r\n' +
+                          '3\r\n' +
+                          '--AaB03x\r\n' +
+                          'Content-Disposition: form-data; name="a[c]"\r\n' +
+                          '\r\n' +
+                          '4\r\n' +
+                          '--AaB03x--\r\n'
+
+            var handler = function (request, reply) {
+
+                reply(request.payload.a.b + request.payload.a.c);
+            }
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/', handler: handler });
+
+            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-Type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+
+                expect(res.result).to.equal('34');
+                done();
+            });
+        });
     });
 });
