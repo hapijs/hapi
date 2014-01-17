@@ -263,9 +263,10 @@ When creating a server instance, the following options configure the server's be
       is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
       not supported and are ignored. Defaults to no helpers support (empty path).
     - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
-    - `layout` - if set to `true`, layout support is enabled. A layout is a single template file used as the parent template for other view templates
-      in the same engine. The layout template name must be 'layout.ext' where 'ext' is the engine's extension.  Disable 'layout' when using Jade as
-      it will handle including any layout files independently of Hapi.  Defaults to `false`.
+    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
+      for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
+      Otherwise, the provided filename is suffixed with the engine's extension and laoded. Disable `layout` when using Jade as it will handle
+      including any layout files independently. Defaults to `false`.
     - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
     - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
