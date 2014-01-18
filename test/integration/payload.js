@@ -1,7 +1,6 @@
 // Load modules
 
 var Lab = require('lab');
-var Request = require('request');
 var Nipple = require('nipple');
 var Fs = require('fs');
 var Http = require('http');
