@@ -1105,5 +1105,37 @@ describe('Payload', function () {
                 done();
             });
         });
+
+        it('parses field names with arrays', function (done) {
+
+            var payload = '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n' +
+                      'Content-Disposition: form-data; name="a[b]"\r\n' +
+                      '\r\n' +
+                      '3\r\n' +
+                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n' +
+                      'Content-Disposition: form-data; name="a[c]"\r\n' +
+                      '\r\n' +
+                      '4\r\n' +
+                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n' + 
+                      'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n'+
+                      'Content-Type: plain/text\r\n' +
+                      '\r\n' +
+                      'and\r\n' +
+                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n'
+
+            var handler = function (request, reply) {
+
+                reply(request.payload.a.b + request.payload.file + request.payload.a.c);
+            }
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/', handler: handler });
+
+            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-Type': 'multipart/form-data; boundary=--WebKitFormBoundaryE19zNvXGzXaLvS5C' } }, function (res) {
+
+                expect(res.result).to.equal('3and4');
+                done();
+            });
+        });
     });
 });
