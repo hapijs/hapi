@@ -2729,7 +2729,7 @@ Adds multiple server routes to the selected pack's servers as described in [`ser
 exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('admin');
-    selection.routes([
+    selection.route([
         { method: 'GET', path: '/1', handler: 'notfound' },
         { method: 'GET', path: '/2', handler: 'notfound' }
     ]);
