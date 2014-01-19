@@ -40,7 +40,8 @@
     "handlebars": "1.2.x",
     "jade": "1.0.x",
     "hapi-plugin-test": "2.x.x",
-    "dtrace-provider": "0.2.x"
+    "dtrace-provider": "0.2.x",
+    "form-data": "0.1.x"
   },
   "bin": {
     "hapi": "./bin/hapi"

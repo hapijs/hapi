@@ -2,10 +2,10 @@
 
 var Fs = require('fs');
 var Http = require('http');
-var Lab = require('lab');
-var Request = require('request');
 var Stream = require('stream');
 var Zlib = require('zlib');
+var Lab = require('lab');
+var Nipple = require('nipple');
 var Hapi = require('../..');
 
 
@@ -1586,25 +1586,11 @@ describe('Response', function () {
 
             streamServer.start(function () {
 
-                Request({ url: 'https://127.0.0.1:' + streamServer.info.port, rejectUnauthorized: false }, function (err, res, body) {
+                Nipple.get('https://127.0.0.1:' + streamServer.info.port, { rejectUnauthorized: false }, function (err, res, body) {
 
                     expect(body).to.equal(expectedBody);
                     done();
                 });
-                
-                /*
-                Nipple.request('GET', 'https://localhost:' + streamServer.info.port, { rejectUnauthorized: false }, function (err, res) {
-
-                    expect(err).to.not.exist;
-                    Nipple.read(res, function (err, payload) {
-
-                        expect(err).to.not.exist;
-                        expect(payload).to.equal(expectedBody);
-                        done();
-                    });
-                });
-                
-                */
             });
         });
     });

@@ -1,12 +1,13 @@
 // Load modules
 
-var Lab = require('lab');
-var Nipple = require('nipple');
 var Fs = require('fs');
 var Http = require('http');
 var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');
+var FormData = require('form-data');
+var Lab = require('lab');
+var Nipple = require('nipple');
 var Hapi = require('../..');
 
 
@@ -482,22 +483,18 @@ describe('Payload', function () {
         it('sets the request payload with the streaming data', function (done) {
 
             var options = {
-                uri: 'http://localhost:' + server.info.port + '/?x=1',
-                method: 'POST',
+                payload: new TestStream(),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             };
 
-            var req = Request(options, function (err, res, body) {
+            Nipple.post('http://localhost:' + server.info.port + '/?x=1', options, function (err, res, body) {
 
                 expect(res.statusCode).to.equal(200);
                 expect(body).to.equal('value');
                 done();
             });
-
-            var s = new TestStream();
-            s.pipe(req);
         });
 
         it('times out when the request content-length is larger than payload', function (done) {
@@ -525,18 +522,16 @@ describe('Payload', function () {
         it('resets connection when the request content-length is smaller than payload', function (done) {
 
             var options = {
-                uri: 'http://localhost:' + server.info.port + '/?x=3',
-                body: '{ "key": "value" }',
-                method: 'POST',
+                payload: '{ "key": "value" }',
                 headers: {
                     'Content-Type': 'application/json',
                     'Content-Length': '1'
                 }
             };
 
-            Request(options, function (err, res, body) {
+            Nipple.post('http://localhost:' + server.info.port + '/?x=3', options, function (err, res, body) {
 
-                expect(err.message).to.equal('socket hang up');
+                expect(err.message).to.equal('Client request error');
                 done();
             });
         });
@@ -970,9 +965,9 @@ describe('Payload', function () {
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
             server.start(function () {
 
-                var r = Request.post(server.info.uri + '/file');
-                var form = r.form();
+                var form = new FormData();
                 form.append('my_file', Fs.createReadStream(path));
+                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 
@@ -991,9 +986,9 @@ describe('Payload', function () {
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'data' } } });
             server.start(function () {
 
-                var r = Request.post(server.info.uri + '/file');
-                var form = r.form();
+                var form = new FormData();
                 form.append('my_file', Fs.createReadStream(path));
+                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 
@@ -1037,9 +1032,9 @@ describe('Payload', function () {
             server.route({ method: 'POST', path: '/file', config: { handler: fileHandler, payload: { output: 'stream' } } });
             server.start(function () {
 
-                var r = Request.post(server.info.uri + '/file');
-                var form = r.form();
+                var form = new FormData();
                 form.append('my_file', fileStream);
+                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 
@@ -1088,7 +1083,7 @@ describe('Payload', function () {
                           'Content-Disposition: form-data; name="a[c]"\r\n' +
                           '\r\n' +
                           '4\r\n' +
-                          '--AaB03x--\r\n'
+                          '--AaB03x--\r\n';
 
             var handler = function (request, reply) {
 
@@ -1120,7 +1115,7 @@ describe('Payload', function () {
                       'Content-Type: plain/text\r\n' +
                       '\r\n' +
                       'and\r\n' +
-                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n'
+                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n';
 
             var handler = function (request, reply) {
 

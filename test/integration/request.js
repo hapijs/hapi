@@ -3,7 +3,7 @@
 var Lab = require('lab');
 var Net = require('net');
 var Stream = require('stream');
-var Request = require('request');
+var Nipple = require('nipple');
 var Hapi = require('../..');
 
 // Declare internals
@@ -323,7 +323,7 @@ describe('Request', function () {
 
         server.start(function () {
 
-            Request('http://localhost:' + server.info.port + '/', function (err, res, body) {
+            Nipple.get('http://localhost:' + server.info.port, function (err, res, body) {
 
                 expect(body).to.equal('ok');
                 done();
