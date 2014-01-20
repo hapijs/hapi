@@ -25,25 +25,25 @@ describe('Views', function () {
 
     describe('#render', function () {
 
-        var testView = new Views({
+        var testView = new Views.Manager({
             engines: { 'html': 'handlebars' },
             path: viewsPath,
             layout: false
         });
 
-        var testViewWithLayouts = new Views({
+        var testViewWithLayouts = new Views.Manager({
             engines: { 'html': 'handlebars' },
             path: viewsPath,
             layout: true
         });
 
-        var testViewWithJadeLayouts = new Views({
+        var testViewWithJadeLayouts = new Views.Manager({
             engines: { 'jade': 'jade' },
             path: viewsPath + '/valid/',
             layout: true
         });
 
-        var testViewWithoutJadeLayouts = new Views({
+        var testViewWithoutJadeLayouts = new Views.Manager({
             engines: { 'jade': 'jade' },
             path: viewsPath + '/valid/',
             layout: false
@@ -51,7 +51,7 @@ describe('Views', function () {
 
         it('renders with async compile', function (done) {
 
-            var views = new Views({
+            var views = new Views.Manager({
                 path: viewsPath,
                 engines: {
                     'html': {
@@ -76,7 +76,7 @@ describe('Views', function () {
 
         it('returns error on sync compile that throws', function (done) {
 
-            var views = new Views({
+            var views = new Views.Manager({
                 path: viewsPath,
                 engines: {
                     'html': {
@@ -139,7 +139,7 @@ describe('Views', function () {
 
         it('should work and not throw with basePath, template name, and no path', function (done) {
 
-            var views = new Views({ engines: { 'html': 'handlebars' } });
+            var views = new Views.Manager({ engines: { 'html': 'handlebars' } });
             views.render('test', { title: 'test', message: 'Hapi' }, { basePath: viewsPath + '/valid' }, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
@@ -188,7 +188,7 @@ describe('Views', function () {
 
         it('should load partials and be able to render them', function (done) {
 
-            var tempView = new Views({
+            var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
                 path: viewsPath + '/valid',
                 partialsPath: viewsPath + '/valid/partials'
@@ -203,7 +203,7 @@ describe('Views', function () {
 
         it('should load partials and render them EVEN if viewsPath has trailing slash', function (done) {
 
-            var tempView = new Views({
+            var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
                 path: viewsPath + '/valid',
                 partialsPath: viewsPath + '/valid/partials/'
@@ -219,7 +219,7 @@ describe('Views', function () {
 
         it('should skip loading partials and helpers if engine does not support them', function (done) {
 
-            var tempView = new Views({
+            var tempView = new Views.Manager({
                 path: viewsPath + '/valid',
                 partialsPath: viewsPath + '/valid/partials',
                 helpersPath: viewsPath + '/valid/helpers',
@@ -235,7 +235,7 @@ describe('Views', function () {
 
         it('should load helpers and render them', function (done) {
 
-            var tempView = new Views({
+            var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
                 path: viewsPath + '/valid',
                 helpersPath: viewsPath + '/valid/helpers'
