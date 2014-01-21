@@ -1760,6 +1760,32 @@ describe('Response', function () {
                 });
             });
 
+            it('returns response with basePath and absolute path', function (done) {
+
+                var layoutServer = new Hapi.Server();
+                layoutServer.views({
+                    engines: { 'html': 'handlebars' },
+                    basePath: '/none/shall/pass',
+                    path: __dirname + '/../unit/templates',
+                    layout: true
+                });
+
+                var handler = function (request, reply) {
+
+                    return reply.view('valid/test', { title: 'test', message: 'Hapi' });
+                };
+
+                layoutServer.route({ method: 'GET', path: '/', handler: handler });
+
+                layoutServer.inject('/', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('<!DOCTYPE html>\n<html>\n    <head>\n        <title>test</title>\n    </head>\n    <body>\n        <div>\n    <h1>Hapi</h1>\n</div>\n\n    </body>\n</html>\n');
+                    done();
+                });
+            });
+
             it('returns response with layout override', function (done) {
 
                 var layoutServer = new Hapi.Server();
