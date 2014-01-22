@@ -56,6 +56,7 @@ Launch the application (`node .`) and open 'http://localhost:8000/hello' in a br
 
 - For the **latest updates** follow [@hapijs](https://twitter.com/hapijs).
 - For more **information, tutorials, and references** on the currently published version, visit [**hapijs.com**](http://hapijs.com)
+- For a full application example, check out [postmile](https://github.com/hueniverse/postmile)
 - Information about the **work-in-progress** in the master branch:
     - [API reference](/docs/Reference.md)
     - [Upcoming breaking changes](https://github.com/spumko/hapi/issues?labels=breaking+changes)
