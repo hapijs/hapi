@@ -347,23 +347,30 @@
   var  value =  calculate(1,  3);
   ```
 
-  - No space between function name and `(`
+  - One space between function and `(` when declaring a function
   ```javascript
   // Right
 
-  function example() {
+  var example = function () {
   
       return value;
   }
+
+  // Wrong
+  
+  var example = function() {
+  
+      return value;
+  }
+  ```
+  
+  - No space between function name and `(` when invoking a function
+  ```javascript
+  // Right
 
   var key = example();
 
   // Wrong
-  
-  function example () {
-  
-      return value;
-  }
 
   var key = example ();
   ```
