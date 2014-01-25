@@ -677,9 +677,9 @@
     
 ### Variable names
 
-  - `err` is reserved for errors received via a callback. Use `error` for local function variables.
+  - `err` is reserved for errors received via a callback. Use `error` for local function variables
 
 ### Callback
 
   - First argument must always be `err`
-  - If a function takes a `callback` argument, it **must** be called on `process.nextTick()`. Otherwise, the argument name **must** be `next` to clearly declare that it may get called on same tick.
+  - If a function takes a `callback` argument, it **must** be called on `process.nextTick()`. Otherwise, the argument name **must** be `next` to clearly declare that it may get called on same tick
