@@ -210,7 +210,7 @@ describe('Request', function () {
         server.route({ method: 'GET', path: '/', handler: handler });
         server.on('internalError', function (request, err) {
 
-            expect(err.stack.split('\n')[0]).to.equal('ReferenceError: Uncaught error: not is not defined');
+            expect(err.message).to.equal('Uncaught error: not is not defined');
             done();
         });
 

@@ -349,7 +349,7 @@ describe('Socket timeout', function () {
         Nipple.request('GET', 'http://localhost:' + port + '/', {}, function (err, res) {
 
             expect(err).to.exist;
-            expect(err.message).to.equal('Client request error');
+            expect(err.message).to.equal('Client request error: socket hang up');
             done();
         });
     });
