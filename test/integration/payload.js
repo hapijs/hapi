@@ -531,7 +531,7 @@ describe('Payload', function () {
 
             Nipple.post('http://localhost:' + server.info.port + '/?x=3', options, function (err, res, body) {
 
-                expect(err.message).to.equal('Client request error');
+                expect(err.message).to.equal('Client request error: socket hang up');
                 done();
             });
         });
