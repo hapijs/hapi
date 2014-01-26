@@ -23,13 +23,19 @@ describe('Cache', function () {
 
     var server = new Hapi.Server(0, { debug: false, cache: [{ engine: 'memory', name: 'secondary' }] });
 
-    server.helper('profile', function (id, next) {
-        
-        next({
-            'id': 'fa0dbda9b1b',
-            'name': 'John Doe'
-        });
-    }, { cache: { expiresIn: 120000 } });
+    server.helper({
+        name: 'profile', 
+        method: function (id, next) {
+
+            next({
+                'id': 'fa0dbda9b1b',
+                'name': 'John Doe'
+            });
+        }, 
+        options: { 
+            cache: { expiresIn: 120000 } 
+        }
+    });
     
     var profileHandler = function (request, reply) {
 

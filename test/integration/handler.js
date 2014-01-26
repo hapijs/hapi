@@ -283,9 +283,12 @@ describe('Handler', function () {
 
         var server = new Hapi.Server();
 
-        server.helper('user', function (id, next) {
+        server.helper({
+            name: 'user', 
+            method: function (id, next) {
 
-            return next({ id: id, name: 'Bob' });
+                return next({ id: id, name: 'Bob' });
+            }
         });
 
         server.route({
@@ -313,14 +316,20 @@ describe('Handler', function () {
 
         var server = new Hapi.Server();
 
-        server.helper('user', function (id, next) {
+        server.helper({
+            name: 'user', 
+            method: function (id, next) {
 
-            return next({ id: id, name: 'Bob' });
+                return next({ id: id, name: 'Bob' });
+            }
         });
 
-        server.helper('name', function (user, next) {
+        server.helper({
+            name: 'name', 
+            method: function (user, next) {
 
-            return next(user.name);
+                return next(user.name);
+            }
         });
 
         server.route({
