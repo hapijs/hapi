@@ -32,7 +32,7 @@ describe('Ext', function () {
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
 
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.result.message).to.equal('boom');
                 done();
@@ -49,7 +49,7 @@ describe('Ext', function () {
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
 
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.result.message).to.equal('boom');
                 done();
@@ -72,9 +72,28 @@ describe('Ext', function () {
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
 
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.result).to.equal('<div>\n    <h1>hola!</h1>\n</div>\n');
+                done();
+            });
+        });
+
+        it('continues when result is null', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onRequest', function (request, reply) {
+
+                return reply(null).state('a', 'b');
+            });
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('ok');
+                expect(res.headers['set-cookie']).to.deep.equal(["a=b"]);
                 done();
             });
         });
@@ -161,7 +180,7 @@ describe('Ext', function () {
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });
 
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.result).to.equal('12');
                 done();
@@ -179,7 +198,7 @@ describe('Ext', function () {
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });
 
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.result).to.equal(42);
                 done();
