@@ -1738,7 +1738,7 @@ var server = new Hapi.Server();
 server.ext('onPreResponse', function (request, reply) {
 
     var response = request.response;
-    if (!response.isBoom) {
+    if (response.isBoom) {
         return reply();
     }
 
