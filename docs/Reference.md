@@ -354,8 +354,7 @@ The following options are available when adding a route:
   Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
 
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
-  described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404)
-  error response, or `handler` can be assigned an object with one of:
+  described in [Route handler](#route-handler). Alternatively, `handler` can be assigned an object with one of:
     - <a name="route.config.file"></a>`file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute file path.
@@ -2642,7 +2641,7 @@ Selecting again on a selection operates as a logic AND statement between the ind
 exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: 'notfound' });
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
     next();
 };
 ```
@@ -2670,7 +2669,7 @@ exports.register = function (plugin, options, next) {
     var selection = plugin.select('web');
     selection.servers.forEach(function (server) {
 
-        server.route({ method: 'GET', path: '/', handler: 'notfound' });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
     });
 
     next();
@@ -2716,7 +2715,7 @@ Adds a server route to the selected pack's servers as described in [`server.rout
 exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: 'notfound' });
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
     next();
 };
 ```
@@ -2730,8 +2729,8 @@ exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('admin');
     selection.route([
-        { method: 'GET', path: '/1', handler: 'notfound' },
-        { method: 'GET', path: '/2', handler: 'notfound' }
+        { method: 'GET', path: '/1', handler: function (request, reply) { reply('ok'); } },
+        { method: 'GET', path: '/2', handler: function (request, reply) { reply('ok'); } }
     ]);
 
     next();
