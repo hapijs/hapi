@@ -208,7 +208,7 @@ describe('Proxy', function () {
                     server = new Hapi.Server(0, { cors: true, maxSockets: 10 });
                     server.route([
                         { method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: backendPort, xforward: true, passThrough: true } } },
-                        { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                        { method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort, protocol: 'http:' } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/unauthorized', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
                         { method: 'POST', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'POST', path: '/notfound', handler: { proxy: { host: 'localhost', port: backendPort } } },
