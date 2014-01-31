@@ -2126,16 +2126,11 @@ var manifest = {
         }
     ],
     plugins: {
-        'yar': [
-            {
-                ext: true
-            },
-            {
-                cookieOptions: {
-                    password: 'secret'
-                }
+        'yar': {
+            cookieOptions: {
+                password: 'secret'
             }
-        ]
+        }
     }
 };
 
