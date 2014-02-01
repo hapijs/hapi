@@ -89,6 +89,11 @@ describe('Proxy', function () {
             reply(Hapi.error.forbidden('Forbidden'));
         };
 
+        var failureResponse = function (request, reply, err, settings) {
+
+            reply(err);
+        };
+
         var streamHandler = function (request, reply) {
 
             reply('success');
@@ -215,6 +220,7 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/proxyerror', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/postResponseError', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/errorResponse', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                        { method: 'GET', path: '/failureResponse', handler: { proxy: { host: 'localhost', port: backendPort - 10, failureResponse: failureResponse } }, config: { cache: routeCache } },
                         { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
                         { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: { output: 'stream' } } },
                         { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
@@ -412,6 +418,15 @@ describe('Proxy', function () {
         server.inject('/postResponseError', function (res) {
 
             expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
+    it('calls the failureResponse function if the upstream is unreachable', function (done) {
+
+        server.inject('/failureResponse', function (res) {
+
+            expect(res.statusCode).to.equal(502);
             done();
         });
     });
