@@ -419,6 +419,8 @@ The following options are available when adding a route:
               - `reply()` - the continuation function.
               - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
                 [**nipple**](https://github.com/spumko/nipple) module `parse` method to easily convert it to a Buffer or string).
+                Note: the postResponse function will also be called in the event of an error making a request to the upstream host.
+                You should check for `res.isBoom` to see if the response is an error and handle it appropriately.
               - `settings` - the proxy handler configuration.
               - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and the upstream response included a valid
                 'Cache-Control' header with 'max-age'.

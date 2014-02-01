@@ -220,7 +220,7 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/proxyerror', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/postResponseError', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/errorResponse', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
-                        { method: 'GET', path: '/failureResponse', handler: { proxy: { host: 'localhost', port: backendPort - 10, failureResponse: failureResponse } }, config: { cache: routeCache } },
+                        { method: 'GET', path: '/failureResponse', handler: { proxy: { host: 'localhost', port: backendPort - 10, postResponse: failureResponse } }, config: { cache: routeCache } },
                         { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
                         { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: { output: 'stream' } } },
                         { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
@@ -422,7 +422,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('calls the failureResponse function if the upstream is unreachable', function (done) {
+    it('calls the postResponse function if the upstream is unreachable', function (done) {
 
         server.inject('/failureResponse', function (res) {
 
