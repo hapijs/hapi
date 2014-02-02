@@ -412,15 +412,14 @@ The following options are available when adding a route:
                 - `err` - internal error condition.
                 - `uri` - the absolute proxy URI.
                 - `headers` - optional object where each key is an HTTP request header and the value is the header content.
-        - `postResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
+        - `preResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
           custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
-          `function(request, reply, res, settings, ttl)` where:
-              - `request` - is the incoming `request` object.
-              - `reply()` - the continuation function.
+          `function(err, res, request, reply, settings, ttl)` where:
+              - `err` - is any error returned from attempting to contact the upstream proxy
               - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
                 [**nipple**](https://github.com/spumko/nipple) module `parse` method to easily convert it to a Buffer or string).
-                Note: the postResponse function will also be called in the event of an error making a request to the upstream host.
-                You should check for `res.isBoom` to see if the response is an error and handle it appropriately.
+              - `request` - is the incoming `request` object.
+              - `reply()` - the continuation function.
               - `settings` - the proxy handler configuration.
               - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and the upstream response included a valid
                 'Cache-Control' header with 'max-age'.
