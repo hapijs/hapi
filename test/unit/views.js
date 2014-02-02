@@ -274,6 +274,7 @@ describe('Views', function () {
         });
 
         it('handles bind context', function (done) {
+
            var options = {
                 views: {
                     engines: { 'jade': 'jade' },
