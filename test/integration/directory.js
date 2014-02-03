@@ -57,7 +57,7 @@ describe('Directory', function () {
         });
     });
 
-    it('returns a redirect with the defaultExtension handler setting appended to path before returning a 404', function (done) {
+    it('returns a redirect and returns file using clean url if redirectToSlash set to true and the defaultExtension set to a string before returning a 404', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', defaultExtension: 'html' } } });
@@ -67,7 +67,19 @@ describe('Directory', function () {
             expect(res.statusCode).to.equal(302);
             done();
         });
-    });    
+    });
+
+    it('returns a file using clean url if redirectToSlash set to false and the defaultExtension set to a string before returning a 404', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', defaultExtension: 'html', redirectToSlash: false } } });
+
+        server.inject('/directory/directory/default', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
 
     it('returns a file when requesting a file from the directory', function (done) {
 
