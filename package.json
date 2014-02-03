@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "2.0.0-preview",
+  "version": "2.1.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/spumko/hapi"
@@ -18,9 +18,9 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "hoek": "1.x.x",
+    "hoek": "^1.4.x",
     "boom": "2.x.x",
-    "joi": "2.x.x",
+    "joi": "^2.4.x",
     "catbox": "1.x.x",
     "shot": "1.x.x",
     "nipple": "2.x.x",
@@ -37,11 +37,11 @@
   },
   "devDependencies": {
     "lab": "1.x.x",
-    "request": "2.30.x",
     "handlebars": "1.2.x",
     "jade": "1.0.x",
     "hapi-plugin-test": "2.x.x",
-    "dtrace-provider": "0.2.x"
+    "dtrace-provider": "0.2.x",
+    "form-data": "0.1.x"
   },
   "bin": {
     "hapi": "./bin/hapi"

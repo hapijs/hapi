@@ -1,4 +1,4 @@
-# 2.0.x API Reference
+# 2.1.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -263,9 +263,11 @@ When creating a server instance, the following options configure the server's be
       is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
       not supported and are ignored. Defaults to no helpers support (empty path).
     - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
-    - `layout` - if set to `true`, layout support is enabled. A layout is a single template file used as the parent template for other view templates
-      in the same engine. The layout template name must be 'layout.ext' where 'ext' is the engine's extension.  Disable 'layout' when using Jade as
-      it will handle including any layout files independently of Hapi.  Defaults to `false`.
+    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
+      for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
+      Otherwise, the provided filename is suffixed with the engine's extension and laoded. Disable `layout` when using Jade as it will handle
+      including any layout files independently. Defaults to `false`.
+    - `layoutPath` - the root file path where layout templates are located (relative to `basePath` is present). Defaults to `path`.
     - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
     - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
@@ -352,8 +354,7 @@ The following options are available when adding a route:
   Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
 
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
-  described in [Route handler](#route-handler). Alternatively, `handler` can be set to the string `'notfound'` to return a Not Found (404)
-  error response, or `handler` can be assigned an object with one of:
+  described in [Route handler](#route-handler). Alternatively, `handler` can be assigned an object with one of:
     - <a name="route.config.file"></a>`file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute file path.
@@ -1736,7 +1737,7 @@ var server = new Hapi.Server();
 server.ext('onPreResponse', function (request, reply) {
 
     var response = request.response;
-    if (!response.isBoom) {
+    if (response.isBoom) {
         return reply();
     }
 
@@ -2125,16 +2126,11 @@ var manifest = {
         }
     ],
     plugins: {
-        'yar': [
-            {
-                ext: true
-            },
-            {
-                cookieOptions: {
-                    password: 'secret'
-                }
+        'yar': {
+            cookieOptions: {
+                password: 'secret'
             }
-        ]
+        }
     }
 };
 
@@ -2640,7 +2636,7 @@ Selecting again on a selection operates as a logic AND statement between the ind
 exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: 'notfound' });
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
     next();
 };
 ```
@@ -2668,7 +2664,7 @@ exports.register = function (plugin, options, next) {
     var selection = plugin.select('web');
     selection.servers.forEach(function (server) {
 
-        server.route({ method: 'GET', path: '/', handler: 'notfound' });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
     });
 
     next();
@@ -2714,7 +2710,7 @@ Adds a server route to the selected pack's servers as described in [`server.rout
 exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: 'notfound' });
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
     next();
 };
 ```
@@ -2727,9 +2723,9 @@ Adds multiple server routes to the selected pack's servers as described in [`ser
 exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('admin');
-    selection.routes([
-        { method: 'GET', path: '/1', handler: 'notfound' },
-        { method: 'GET', path: '/2', handler: 'notfound' }
+    selection.route([
+        { method: 'GET', path: '/1', handler: function (request, reply) { reply('ok'); } },
+        { method: 'GET', path: '/2', handler: function (request, reply) { reply('ok'); } }
     ]);
 
     next();

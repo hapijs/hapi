@@ -2,7 +2,7 @@
 
 var Lab = require('lab');
 var Zlib = require('zlib');
-var Request = require('request');
+var Nipple = require('nipple');
 var Hapi = require('../..');
 
 
@@ -26,6 +26,9 @@ describe('Payload', function () {
     var uri = '';
     var message = { 'msg': 'This message is going to be gzipped.' };
     var badMessage = '{ gzip this is just wrong }';
+    var data = '{"test":"true"}';
+    var zdata = null;
+    var ddata = null;
 
     var postHandler = {
         method: 'POST',
@@ -43,7 +46,7 @@ describe('Payload', function () {
         path: '/',
         handler: function (request, reply) {
 
-            reply('{"test":"true"}');
+            reply(data);
         }
     };
 
@@ -54,7 +57,17 @@ describe('Payload', function () {
         server.start(function () {
 
             uri = 'http://localhost:' + server.info.port;
-            done();
+
+            Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+                zdata = zipped.toString();
+
+                Zlib.deflate(new Buffer(data), function (err, deflated) {
+
+                    ddata = deflated.toString();
+                    done();
+                });
+            });
         });
     });
 
@@ -157,190 +170,140 @@ describe('Payload', function () {
 
     it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
 
-        Zlib.gzip(new Buffer(rawBody), function (err, zippedBody) {
-
-            Request.post({ url: uri, headers: { 'accept-encoding': 'gzip' }, body: rawBody }, function (err, res, body) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns a gzip response on a get request when accept-encoding: gzip is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.get(uri, { headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
 
-        Request.get({ url: uri, headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
-
-            Zlib.gzip(rawBody, function (err, zippedBody) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns a gzip response on a post request when accept-encoding: * is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
 
-        Zlib.gzip(new Buffer(rawBody), function (err, zippedBody) {
-
-            Request.post({ url: uri, headers: { 'accept-encoding': '*' }, body: rawBody }, function (err, res, body) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns a gzip response on a get request when accept-encoding: * is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
 
-        Request.get({ url: uri, headers: { 'accept-encoding': '*' } }, function (err, res, body) {
-
-            Zlib.gzip(rawBody, function (err, zippedBody) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns a deflate response on a post request when accept-encoding: deflate is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, function (err, res, body) {
 
-        Zlib.deflate(new Buffer(rawBody), function (err, zippedBody) {
-
-            Request.post({ url: uri, headers: { 'accept-encoding': 'deflate' }, body: rawBody }, function (err, res, body) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(ddata);
+            done();
         });
     });
 
     it('returns a deflate response on a get request when accept-encoding: deflate is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.get(uri, { headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
 
-        Request.get({ url: uri, headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
-
-            Zlib.deflate(rawBody, function (err, zippedBody) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(ddata);
+            done();
         });
     });
 
     it('returns a gzip response on a post request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.post(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' }, payload: data }, function (err, res, body) {
 
-        Zlib.gzip(new Buffer(rawBody), function (err, zippedBody) {
-
-            Request.post({ url: uri, headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' }, body: rawBody }, function (err, res, body) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns a gzip response on a get request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.get(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' } }, function (err, res, body) {
 
-        Request.get({ url: uri, headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' } }, function (err, res, body) {
-
-            Zlib.gzip(rawBody, function (err, zippedBody) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns a deflate response on a post request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.post(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' }, payload: data }, function (err, res, body) {
 
-        Zlib.deflate(new Buffer(rawBody), function (err, zippedBody) {
-
-            Request.post({ url: uri, headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' }, body: rawBody }, function (err, res, body) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(ddata);
+            done();
         });
     });
 
     it('returns a deflate response on a get request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.get(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' } }, function (err, res, body) {
 
-        Request.get({ url: uri, headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' } }, function (err, res, body) {
-
-            Zlib.deflate(rawBody, function (err, zippedBody) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(ddata);
+            done();
         });
     });
 
     it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, function (err, res, body) {
 
-        Zlib.gzip(new Buffer(rawBody), function (err, zippedBody) {
-
-            Request.post({ url: uri, headers: { 'accept-encoding': 'deflate, gzip' }, body: rawBody }, function (err, res, body) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
 
-        Request.get({ url: uri, headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
-
-            Zlib.gzip(rawBody, function (err, zippedBody) {
-
-                expect(body).to.equal(zippedBody.toString());
-                done();
-            });
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
         });
     });
 
     it('returns an identity response on a post request when accept-encoding is missing', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.post(uri, { payload: data }, function (err, res, body) {
 
-        Request.post({ url: uri, headers: {}, body: rawBody }, function (err, res, body) {
-
-            expect(body).to.equal(rawBody);
+            expect(err).to.not.exist;
+            expect(body).to.equal(data);
             done();
         });
     });
 
     it('returns an identity response on a get request when accept-encoding is missing', function (done) {
 
-        var rawBody = '{"test":"true"}';
+        Nipple.get(uri, {}, function (err, res, body) {
 
-        Request.get({ url: uri, headers: {} }, function (err, res, body) {
-
-            expect(body).to.equal(rawBody);
+            expect(err).to.not.exist;
+            expect(body.toString()).to.equal(data);
             done();
         });
     });

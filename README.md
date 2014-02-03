@@ -8,7 +8,7 @@ infrastructure. The framework supports a powerful plugin architecture for pain-f
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **2.0.x**
+Current version: **2.1.x**
 
 Node version: **0.10** required
 
@@ -56,6 +56,7 @@ Launch the application (`node .`) and open 'http://localhost:8000/hello' in a br
 
 - For the **latest updates** follow [@hapijs](https://twitter.com/hapijs).
 - For more **information, tutorials, and references** on the currently published version, visit [**hapijs.com**](http://hapijs.com)
+- For a full application example, check out [postmile](https://github.com/hueniverse/postmile)
 - Information about the **work-in-progress** in the master branch:
     - [API reference](/docs/Reference.md)
     - [Upcoming breaking changes](https://github.com/spumko/hapi/issues?labels=breaking+changes)

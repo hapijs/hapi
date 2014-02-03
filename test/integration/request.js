@@ -3,7 +3,7 @@
 var Lab = require('lab');
 var Net = require('net');
 var Stream = require('stream');
-var Request = require('request');
+var Nipple = require('nipple');
 var Hapi = require('../..');
 
 // Declare internals
@@ -210,7 +210,7 @@ describe('Request', function () {
         server.route({ method: 'GET', path: '/', handler: handler });
         server.on('internalError', function (request, err) {
 
-            expect(err.stack.split('\n')[0]).to.equal('ReferenceError: Uncaught error: not is not defined');
+            expect(err.message).to.equal('Uncaught error: not is not defined');
             done();
         });
 
@@ -323,7 +323,7 @@ describe('Request', function () {
 
         server.start(function () {
 
-            Request('http://localhost:' + server.info.port + '/', function (err, res, body) {
+            Nipple.get('http://localhost:' + server.info.port, function (err, res, body) {
 
                 expect(body).to.equal('ok');
                 done();
@@ -469,6 +469,23 @@ describe('Request', function () {
         server.inject('/?a[b]=5&d[ff]=ok', function (res) {
 
             expect(res.result).to.deep.equal({ a: { b: '5' }, d: { ff: 'ok' } });
+            done();
+        });
+    });
+
+    it('returns empty params array when none present', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.params);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.deep.equal({});
             done();
         });
     });
