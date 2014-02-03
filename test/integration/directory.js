@@ -57,6 +57,18 @@ describe('Directory', function () {
         });
     });
 
+    it('returns a redirect with the defaultExtension handler setting appended to path before returning a 404', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', defaultExtension: 'html' } } });
+
+        server.inject('/directory/directory/default', function (res) {
+
+            expect(res.statusCode).to.equal(302);
+            done();
+        });
+    });    
+
     it('returns a file when requesting a file from the directory', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
