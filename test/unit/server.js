@@ -85,6 +85,46 @@ describe('Server', function () {
         done();
     });
 
+    it('does not throw an error when host and port are provided and port is a string', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Server('localhost', '8888');
+        };
+        expect(fn).to.not.throw(Error);
+        done();
+    });
+
+    it('does not throw an error when port is a string', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Server('8888');
+        };
+        expect(fn).to.not.throw(Error);
+        done();
+    });
+
+    it('does throw an error when two ports and one is a string is provided', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Server('8888', 8900);
+        };
+        expect(fn).to.throw(Error);
+        done();
+    });
+
+    it('does throw an error when two hosts are provided', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Server('localhost', '127.0.0.1');
+        };
+        expect(fn).to.throw(Error);
+        done();
+    });
+
     it('throws an error when double port config is provided', function (done) {
 
         var fn = function () {
