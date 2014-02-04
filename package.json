@@ -33,7 +33,8 @@
     "optimist": "0.6.x",
     "negotiator": "0.2.x",
     "semver": "2.2.x",
-    "qs": "0.6.x"
+    "qs": "0.6.x",
+    "graceful-fs": "~2.0.1"
   },
   "devDependencies": {
     "lab": "1.x.x",

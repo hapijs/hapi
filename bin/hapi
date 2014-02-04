@@ -2,7 +2,7 @@
 
 // Load modules
 
-var Fs = require('fs');
+var Fs = require('graceful-fs');
 var Optimist = require('optimist');
 var Hapi = require('../');
 
