@@ -482,9 +482,8 @@ The following options are available when adding a route:
               `parse` is `true`, fields values are presented as text while files are provided as streams.
             - `file` - the incoming payload in written to temporary file in the directory specified by the server's `payload.uploads` settings.
               If the payload is 'multipart/form-data' and `parse` is `true`, fields values are presented as text while files are saved.
-        - `parse` - determines if the incoming payload is processed or presented raw. Processing includes applying any 'Content-Encoding'
-          received and parsing 'multipart/form-data'. If the 'Content-Type' is known (for the whole payload as well as parts), the payload
-          is converted into an object when possibler. If parsing is enabled and the format is unknown, a Bad Request (400) error response is
+        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the 'Content-Type' is known (for the whole payload as well as parts), the payload
+          is converted into an object when possible. If the format is unknown, a Bad Request (400) error response is
           sent. Defaults to `true`, except when a proxy handler is used. The supported mime types are:
             - 'application/json'
             - 'application/x-www-form-urlencoded'
