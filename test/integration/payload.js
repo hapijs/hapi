@@ -347,7 +347,7 @@ describe('Payload', function () {
 
     describe('file output', function () {
 
-        var path = Path.join(__dirname, '../../images/hapi.png');
+        var path = Path.join(__dirname, './payload/image.jpg');
         var sourceContents = Fs.readFileSync(path);
         var stats = Fs.statSync(path);
 
@@ -381,7 +381,7 @@ describe('Payload', function () {
 
         it('saves a file before content decoding', function (done) {
 
-            var path = Path.join(__dirname, '../../images/hapi.png');
+            var path = Path.join(__dirname, './payload/image.jpg');
             var sourceContents = Fs.readFileSync(path);
             var stats = Fs.statSync(path);
 
@@ -947,7 +947,7 @@ describe('Payload', function () {
 
         it('parses a file', function (done) {
 
-            var path = Path.join(__dirname, '../../images/hapi.png');
+            var path = Path.join(__dirname, './payload/image.jpg');
             var stats = Fs.statSync(path);
 
             var handler = function (request, reply) {
@@ -1008,9 +1008,9 @@ describe('Payload', function () {
             });
         });
 
-        it('parses a file correctly om stream mode', function (done) {
+        it('parses a file correctly on stream mode', function (done) {
 
-            var path = Path.join(__dirname, '../../images/hapi.png');
+            var path = Path.join(__dirname, './payload/image.jpg');
             var stats = Fs.statSync(path);
             var fileStream = Fs.createReadStream(path);
             var fileContents = Fs.readFileSync(path);
