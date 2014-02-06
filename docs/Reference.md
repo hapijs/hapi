@@ -1628,7 +1628,7 @@ var handler = function (request, reply) {
 ## Response object
 
 Every response includes the following properties:
-- `statusCode` - the HTTP response statuc code. Defaults to `200` (except for errors).
+- `statusCode` - the HTTP response status code. Defaults to `200` (except for errors).
 - `headers` - an object containing the response headers where each key is a header field name. Note that this is an incomplete list of
   headers to be included with the response. Additional headers will be added once the response is prepare for transmission (e.g. 'Location',
   'Cache-Control').
