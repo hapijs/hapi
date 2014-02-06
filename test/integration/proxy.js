@@ -149,6 +149,7 @@ describe('Proxy', function () {
             { method: 'GET', path: '/item', handler: activeItem },
             { method: 'GET', path: '/cachedItem', handler: activeItem, config: { cache: { expiresIn: 2000 } } },
             { method: 'GET', path: '/proxyerror', handler: activeItem },
+            { method: 'GET', path: '/proxyerrorhandler', handler: timeoutHandler },
             { method: 'POST', path: '/item', handler: item },
             { method: 'GET', path: '/unauthorized', handler: unauthorized },
             { method: 'POST', path: '/file', handler: streamHandler, config: { payload: { output: 'stream' } } },
@@ -196,6 +197,10 @@ describe('Proxy', function () {
             reply(res);
         };
 
+        var customErrorHandler = function (request, reply, error, settings) {
+            reply('Ok');
+        };
+
         upstream.start(function () {
 
             upstreamSsl.start(function () {
@@ -213,6 +218,7 @@ describe('Proxy', function () {
                         { method: 'POST', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'POST', path: '/notfound', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'GET', path: '/proxyerror', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
+                        { method: 'GET', path: '/proxyerrorhandler', handler: { proxy: { host: 'localhost', port: backendPort, onError: customErrorHandler, timeout: 5 } } },
                         { method: 'GET', path: '/postResponseError', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponseWithError } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/errorResponse', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
                         { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
@@ -412,6 +418,15 @@ describe('Proxy', function () {
         server.inject('/postResponseError', function (res) {
 
             expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
+    it('uses a custom error handler on proxy error', function (done) {
+
+        server.inject('/proxyerrorhandler', function (res) {
+
+            expect(res.statusCode).to.equal(200);
             done();
         });
     });
