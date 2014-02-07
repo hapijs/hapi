@@ -1,5 +1,6 @@
 // Load modules
 
+var ChildProcess = require('child_process');
 var Lab = require('lab');
 var Hapi = require('../..');
 
@@ -139,7 +140,7 @@ describe('Ext', function () {
             });
         });
 
-        it('intercepts 404 when using directory and file missing', function (done) {
+        it('intercepts 404 when using directory handler and file is missing', function (done) {
 
             var server = new Hapi.Server();
 
@@ -149,13 +150,72 @@ describe('Ext', function () {
                 return next({ isBoom: response.isBoom });
             });
 
-            server.route({ method: 'GET', path: "/{path*}", handler: { directory: { path: './somewhere', listing: false, index: true } } });
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './somewhere', listing: false, index: true } } });
 
-            server.inject({ method: 'GET', url: '/missing' }, function (res) {
+            server.inject('/missing', function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result.isBoom).to.equal(true);
                 done();
+            });
+        });
+
+        it('intercepts 404 when using file handler and file is missing', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.ext('onPreResponse', function (request, next) {
+
+                var response = request.response;
+                return next({ isBoom: response.isBoom });
+            });
+
+            server.route({ method: 'GET', path: '/{path*}', handler: { file: './somewhere/something.txt' } });
+
+            server.inject('/missing', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.isBoom).to.equal(true);
+                done();
+            });
+        });
+
+        it('cleans unused file stream when response is overridden', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                return reply({ something: 'else' });
+            });
+
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './' } } });
+
+            server.inject('/package.json', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.something).to.equal('else');
+
+                var cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                var lsof = '';
+                cmd.stdout.on('data', function (buffer) {
+
+                    lsof += buffer.toString();
+                });
+
+                cmd.stdout.on('end', function () {
+
+                    var count = 0;
+                    var lines = lsof.split('\n');
+                    for (var i = 0, il = lines.length; i < il; ++i) {
+                        count += !!lines[i].match(/package.json/);
+                    }
+
+                    expect(count).to.equal(0);
+                    done();
+                });
+
+                cmd.stdin.end();
             });
         });
     });

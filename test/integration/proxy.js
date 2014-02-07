@@ -29,6 +29,7 @@ describe('Proxy', function () {
     var sslServer = null;
     var timeoutServer = null;
     var upstreamSingle = null;
+    var backendPort = 0;
 
     before(function (done) {
 
@@ -82,6 +83,11 @@ describe('Proxy', function () {
         var unauthorized = function (request, reply) {
 
             reply(Hapi.error.unauthorized('Not authorized'));
+        };
+
+        var postResponse304 = function (request, reply, res, settings, ttl) {
+
+            reply(res).code(304);
         };
 
         var postResponseWithError = function (request, reply, res, settings, ttl) {
@@ -202,7 +208,7 @@ describe('Proxy', function () {
 
                 upstreamSingle.start(function () {
 
-                    var backendPort = upstream.info.port;
+                    backendPort = upstream.info.port;
                     var routeCache = { expiresIn: 500 };
 
                     server = new Hapi.Server(0, { cors: true, maxSockets: 10 });
@@ -233,7 +239,8 @@ describe('Proxy', function () {
                         { method: 'GET', path: '/handlerTemplate', handler: function (request, reply) { reply.proxy({ uri: '{protocol}://localhost:' + backendPort + '/item' }); } },
                         { method: 'GET', path: '/handlerOldSchool', handler: function (request, reply) { reply.proxy({ host: 'localhost', port: backendPort }); } },
                         { method: 'GET', path: '/cachedItem', handler: { proxy: { host: 'localhost', port: backendPort, ttl: 'upstream' } } },
-                        { method: 'GET', path: '/clientCachedItem', handler: { proxy: { uri: 'http://localhost:' + backendPort + '/cachedItem', ttl: 'upstream' } } }
+                        { method: 'GET', path: '/clientCachedItem', handler: { proxy: { uri: 'http://localhost:' + backendPort + '/cachedItem', ttl: 'upstream' } } },
+                        { method: 'GET', path: '/304', handler: { proxy: { uri: 'http://localhost:' + backendPort + '/item', postResponse: postResponse304 } } }
                     ]);
 
                     sslServer = new Hapi.Server(0);
@@ -606,6 +613,34 @@ describe('Proxy', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate, private');
+            done();
+        });
+    });
+
+    it('overrides response code with 304', function (done) {
+
+        server.inject('/304', function (res) {
+
+            expect(res.statusCode).to.equal(304);
+            expect(res.payload).to.equal('');
+            done();
+        });
+    });
+
+    it('cleans up when proxy response replaced in onPreResponse', function (done) {
+
+        var server = new Hapi.Server();
+        server.ext('onPreResponse', function (request, reply) {
+
+            reply({ something: 'else' });
+        });
+        
+        server.route({ method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: backendPort } } });
+
+        server.inject('/item', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.something).to.equal('else');
             done();
         });
     });

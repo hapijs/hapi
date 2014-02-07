@@ -4,6 +4,7 @@ var Fs = require('fs');
 var Http = require('http');
 var Stream = require('stream');
 var Zlib = require('zlib');
+var ChildProcess = require('child_process');
 var Lab = require('lab');
 var Nipple = require('nipple');
 var Hapi = require('../..');
@@ -1069,6 +1070,40 @@ describe('Response', function () {
             });
         });
 
+        it('closes file handlers when not reading file stream', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    var cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                    var lsof = '';
+                    cmd.stdout.on('data', function (buffer) {
+
+                        lsof += buffer.toString();
+                    });
+                    
+                    cmd.stdout.on('end', function () {
+
+                        var count = 0;
+                        var lines = lsof.split('\n');
+                        for (var i = 0, il = lines.length; i < il; ++i) {
+                            count += !!lines[i].match(/package.json/);
+                        }
+
+                        expect(count).to.equal(0);
+                        done();
+                    });
+
+                    cmd.stdin.end();
+                 });
+            });
+        });
+
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: __dirname } });
@@ -1111,6 +1146,8 @@ describe('Response', function () {
 
         it('returns a gzipped file using precompressed file', function (done) {
 
+            var content = Fs.readFileSync('./test/integration/file/image.png.gz');
+
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/integration/file/image.png', lookupCompressed: true } } });
 
@@ -1119,7 +1156,7 @@ describe('Response', function () {
                 expect(res.headers['content-type']).to.equal('image/png');
                 expect(res.headers['content-encoding']).to.equal('gzip');
                 expect(res.headers['content-length']).to.not.exist;
-                expect(res.payload).to.exist;
+                expect(res.payload.length).to.equal(content.length);
                 done();
             });
         });
@@ -1138,6 +1175,19 @@ describe('Response', function () {
             });
         });
 
+        it('ignores precompressed file when content-encoding not requested', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/integration/file/image.png', lookupCompressed: true } } });
+
+            server.inject('/file', function (res) {
+
+                expect(res.headers['content-type']).to.equal('image/png');
+                expect(res.payload).to.exist;
+                done();
+            });
+        });
+
         it('does not throw an error when adding a route with a parameter and function path', function (done) {
 
             var fn = function () {
@@ -1148,6 +1198,26 @@ describe('Response', function () {
 
             expect(fn).to.not.throw(Error);
             done();
+        });
+
+        it('returns error when file is removed before stream is opened', function (done) {
+
+            var filename = './test/integration/file/tempErrDel';
+            Fs.writeFileSync(filename, 'data');
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { file: filename } });
+            server.ext('onPreResponse', function (request, reply) {
+
+                Fs.unlinkSync(filename);
+                reply();
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
         });
     });
 

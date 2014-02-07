@@ -1036,14 +1036,14 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Route prerequisites
 - Route handler
 - **`'onPostHandler'`** extension point
-    - The response contained in `request.response` may be modified. To return a different response type (for example, replace an error
-      with an HTML response), return a new response via `next(response)`.
+    - The response object contained in `request.response` may be modified (but not assigned a new value). To return a different response type
+      (for example, replace an error with an HTML response), return a new response via `next(response)`.
 - Validate response payload
 - **`'onPreResponse'`** extension point
     - always called.
-    - The response contained in `request.response` may be modified. To return a different response type (for example, replace an error
-      with an HTML response), return a new response via `next(response)`. Note that any errors generated after `next(response)` is called
-      will not be passed back to the `'onPreResponse'` extention method to prevent an infinite loop.
+    - The response contained in `request.response` may be modified (but not assigned a new value). To return a different response type (for
+      example, replace an error with an HTML response), return a new response via `next(response)`. Note that any errors generated after
+      `next(response)` is called will not be passed back to the `'onPreResponse'` extention method to prevent an infinite loop.
 - Send response (may emit `'internalError'` event)
 - Emits `'response'` event
 - Wait for tails
