@@ -30,7 +30,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.string().min(2)
                     }
                 }
             }
@@ -39,6 +39,54 @@ describe('Validation', function () {
         server.inject('/?a=123', function (res) {
 
             expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('casts input to desired type', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/{seq}',
+            handler: function (request, reply) { reply(request.params.seq + 1); },
+            config: {
+                validate: {
+                    path: {
+                        seq: Hapi.types.number()
+                    }
+                }
+            }
+        });
+
+        server.inject('/10', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(11)
+            done();
+        });
+    });
+
+    it('does not cast input to desired type when modify set to false', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/{seq}',
+            handler: function (request, reply) { reply(request.params.seq + 1); },
+            config: {
+                validate: {
+                    path: {
+                        seq: Hapi.types.number().options({ modify: false })
+                    }
+                }
+            }
+        });
+
+        server.inject('/10', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('101')
             done();
         });
     });
@@ -73,8 +121,8 @@ describe('Validation', function () {
             handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
-                    query: Hapi.types.Object({
-                        a: Hapi.types.String().min(2)
+                    query: Hapi.types.object({
+                        a: Hapi.types.string().min(2)
                     })
                 }
             }
@@ -97,7 +145,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.string().min(2)
                     }
                 }
             }
@@ -125,7 +173,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.string().min(2)
                     },
                     failAction: 'ignore'
                 }
@@ -155,7 +203,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.string().min(2)
                     },
                     failAction: 'log'
                 }
@@ -180,7 +228,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.string().min(2)
                     },
                     failAction: function (source, error, next) {
 
@@ -208,7 +256,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.string().min(2)
                     },
                     errorFields: {
                         walt: 'jr'
@@ -245,7 +293,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.String().min(2)
+                        a: Hapi.types.string().min(2)
                     }
                 }
             }
@@ -268,7 +316,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.String().required()
+                        a: Hapi.types.string().required()
                     }
                 }
             }
@@ -292,7 +340,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.String().required()
+                        a: Hapi.types.string().required()
                     }
                 }
             }
