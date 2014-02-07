@@ -228,6 +228,63 @@ describe('Request', function () {
         });
     });
 
+    it('outputs log data to debug console', function (done) {
+
+        var handler = function (request, reply) {
+
+            request.log(['implementation'], 'data');
+            reply();
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        var orig = console.error;
+        console.error = function () {
+
+            expect(arguments[0]).to.equal('Debug:');
+            expect(arguments[1]).to.equal('implementation');
+            expect(arguments[2]).to.equal('\n    data');
+            console.error = orig;
+            done();
+        };
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+        });
+    });
+
+    it('handles invalid log data object stringify', function (done) {
+
+        var handler = function (request, reply) {
+
+            var obj = {};
+            obj.a = obj;
+
+            request.log(['implementation'], obj);
+            reply();
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        var orig = console.error;
+        console.error = function () {
+
+            expect(arguments[0]).to.equal('Debug:');
+            expect(arguments[1]).to.equal('implementation');
+            expect(arguments[2]).to.equal('\n    [Cannot display object: Converting circular structure to JSON]');
+            console.error = orig;
+            done();
+        };
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+        });
+    });
+
     it('ignores second call to onReply()', function (done) {
 
         var server = new Hapi.Server();

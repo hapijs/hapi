@@ -633,6 +633,25 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('captures object which cannot be stringify', function (done) {
+
+            var handler = function (request, reply) {
+
+                var obj = {};
+                obj.a = obj;
+                reply(obj);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
     });
 
     describe('Error', function () {

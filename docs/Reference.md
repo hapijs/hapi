@@ -240,7 +240,8 @@ When creating a server instance, the following options configure the server's be
 - `maxSockets` - sets the number of sockets available per outgoing host connection. `null` means use node.js default value.
     Impacts all outgoing client connections using the defualt HTTP/HTTPS agent. Defaults to `Infinity`.
 
-- `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly` (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to `undefined`.
+- `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly` (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to `{ modify: true }` which will cast data to the specified
+  types.
 
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
