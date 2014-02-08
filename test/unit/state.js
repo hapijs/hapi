@@ -23,6 +23,17 @@ var it = Lab.test;
 
 describe('State', function () {
 
+    it('does not clear invalid cookie if cannot parse', function (done) {
+
+        var server = new Hapi.Server({ state: { cookies: { clearInvalid: true } } });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a,b' } }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.headers['set-cookie']).to.not.exists;
+            done();
+        });
+    });
+
     describe('#parseCookies', function () {
 
         describe('cases', function () {
