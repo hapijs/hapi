@@ -706,6 +706,26 @@ describe('Payload', function () {
             });
         });
 
+        it('returns an error on malformed payload (gunzip only)', function (done) {
+
+            var payload = '7d8d78347h8347d58w347hd58w374d58w37h5d8w37hd4';
+
+            var handler = function () {
+
+                throw new Error('never called');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: 'gunzip' } } });
+
+            server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-encoding': 'gzip' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.statusCode).to.equal(400);
+                done();
+            });
+        });
+
         it('does not return an error when the payload has the correct gzip header and gzipped payload', function (done) {
 
             var payload = '{"hi":"hello"}';
