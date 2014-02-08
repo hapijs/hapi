@@ -26,6 +26,7 @@
         - [`server.ext(event, method, [options])`](#serverextevent-method-options)
             - [Request lifecycle](#request-lifecycle)
         - [`server.helper(name, method, [options])`](#serverhelpername-method-options)
+        - [`server.helper(helper)`](#serverhelperhelper)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
@@ -85,6 +86,7 @@
         - [`plugin.after(method)`](#pluginaftermethod)
         - [`plugin.views(options)`](#pluginviewsoptions)
         - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
+        - [`plugin.helper(helper)`](#pluginhelperhelper)
         - [`plugin.helpers`](#pluginhelpers)
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
@@ -1145,6 +1147,25 @@ server.helpers.sumObj([5, 6], function (result) {
 
     console.log(result);
 });
+```
+
+#### `server.helper(helper)`
+
+Registers a server helper function as described in [`server.helper()`](#serverhelpername-method-options) using a helper object or an array
+of objects where each has:
+- `name` - the helper name.
+- `method` - the helper function.
+- `options` - optional settings.
+
+```javascript
+var add = function (a, b, next) {
+
+    next(a + b);
+};
+
+server.helper({ name: 'sum', method: add, options: { cache: { expiresIn: 2000 } } });
+
+server.helper([{ name: 'also', method: add }]);
 ```
 
 #### `server.inject(options, callback)`
@@ -2515,6 +2536,25 @@ exports.register = function (plugin, options, next) {
     plugin.helper('user', function (id, next) {
 
         next({ id: id });
+    });
+
+    next();
+};
+```
+
+#### `plugin.helper(helper)`
+
+Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelperhelper)
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.helper({
+        name: 'user',
+        method: function (id, next) {
+
+            next({ id: id });
+        }
     });
 
     next();

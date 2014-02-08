@@ -66,10 +66,10 @@ describe('Pack', function () {
                 sodd.route({ method: 'GET', path: '/sodd', handler: function (request, reply) { reply('sodd'); } });
 
                 memoryx.state('sid', { encoding: 'base64' });
-                plugin.helper('test', function (next) {
+                plugin.helper({ name: 'test', method: function (next) {
 
                     next('123');
-                }, { cache: { expiresIn: 1000 } });
+                }, options: { cache: { expiresIn: 1000 } } });
 
                 server2.helpers.test(function (result) {
 

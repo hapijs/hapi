@@ -646,10 +646,10 @@ describe('Server', function () {
                     return next({ id: id, gen: ++gen });
                 };
 
-                server.helper('user', helper, { cache: { expiresIn: 2000 } });
+                server.helper([{ name: 'user', method: helper, options: { cache: { expiresIn: 2000 } } }]);
 
                 server.start(function () {
-                    
+
                     server.helpers.user(id1, function (result1) {
 
                         expect(result1.id).to.equal(id1);
