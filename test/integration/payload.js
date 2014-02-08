@@ -109,13 +109,23 @@ describe('Payload', function () {
 
     it('does not set the request payload when the request is interrupted and its streaming', function (done) {
 
+        var handlerCalled = false;
+        var reqErrorCalled = false;
+
         var handler = function (request, reply) {
 
+            handlerCalled = true;
             reply('Success');
         };
 
         var server = new Hapi.Server(0);
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+        var extCalled = false;
+        server.ext('onPreResponse', function (request, reply) {
+
+            extCalled = true;
+            reply();
+        });
 
         var s = new Stream.PassThrough();
 
@@ -140,6 +150,8 @@ describe('Payload', function () {
             req.on('error', function (err) {
 
                 expect(err.code).to.equal('ECONNRESET');
+                expect(handlerCalled).to.equal(false);
+                expect(extCalled).to.equal(true);
                 done();
             });
 
