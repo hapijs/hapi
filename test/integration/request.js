@@ -489,4 +489,43 @@ describe('Request', function () {
             done();
         });
     });
+
+    it('gunzips when parse=gunzip', function (done) {
+
+        var zlib = require('zlib');
+        var msg  = "hapi=joi";
+        var buf  = new Buffer(msg, 'utf-8');
+
+        var handler = function (request, reply) {
+            reply({
+                isBuffer: Buffer.isBuffer(request.payload),
+                msg: request.payload.toString()
+            });
+        };
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'POST', path: '/',
+            config: {
+                payload: { parse: 'gunzip' },
+                handler:handler
+            }
+        });
+
+        zlib.gzip(buf, function (err, gz_data) {
+            server.inject({
+                method: 'POST', url: '/', payload: gz_data,
+                headers: {
+                    'Content-Encoding':'gzip',
+                    'Content-Type':'application/x-www-form-urlencoded'
+                }
+            }, function (res) {
+
+                expect(res.result.isBuffer).to.equal(true);
+                expect(res.result.msg).to.equal(msg);
+                
+                done();
+            });
+        });
+    });
 });
