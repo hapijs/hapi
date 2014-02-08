@@ -1628,7 +1628,7 @@ var handler = function (request, reply) {
 ## Response object
 
 Every response includes the following properties:
-- `statusCode` - the HTTP response statuc code. Defaults to `200` (except for errors).
+- `statusCode` - the HTTP response status code. Defaults to `200` (except for errors).
 - `headers` - an object containing the response headers where each key is a header field name. Note that this is an incomplete list of
   headers to be included with the response. Additional headers will be added once the response is prepare for transmission (e.g. 'Location',
   'Cache-Control').
@@ -2841,6 +2841,6 @@ When installing **hapi** with the global flag the **hapi** binary script will be
 - '-c' - the path to configuration json file (required)
 - '-p' - the path to the node_modules folder to load plugins from (optional)
 
-In order to help with A/B testing there is (confidence)[https://github.com/spumko/confidence).  Confidence is a configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c). In addition, confidence defines special $-prefixed keys used to filter values for a given criteria.
+In order to help with A/B testing there is [confidence](https://github.com/spumko/confidence).  Confidence is a configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c). In addition, confidence defines special $-prefixed keys used to filter values for a given criteria.
 
 
