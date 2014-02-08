@@ -43,6 +43,36 @@ describe('Validation', function () {
         });
     });
 
+    it('validates using custom validator', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: function (value, options, next) {
+
+                        return next(value.a === '123' ? null : new Error('Bad query'));
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+
+            server.inject('/?a=456', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                expect(res.result.message).to.equal('Bad query');
+                done();
+            });
+        });
+    });
+
     it('casts input to desired type', function (done) {
 
         var server = new Hapi.Server();

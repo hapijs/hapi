@@ -20,7 +20,7 @@
   "dependencies": {
     "hoek": "^1.4.x",
     "boom": "2.x.x",
-    "joi": "^2.4.x",
+    "joi": "^2.7.x",
     "catbox": "1.x.x",
     "shot": "1.x.x",
     "nipple": "2.x.x",

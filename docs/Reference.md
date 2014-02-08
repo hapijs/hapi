@@ -447,18 +447,30 @@ The following options are available when adding a route:
           `request.query` prior to validation. Values allowed:
             - `true` - any query parameters allowed (no validation performed). This is the default.
             - `false` - no query parameters allowed.
-            - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
+            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a validation function using the signature `function(value, options, next)` where:
+                - `value` - the object containing the query parameters.
+                - `options` - the server validation options.
+                - `next(err)` - the callback function called when validation is completed.
 
         - `payload` - validation rules for an incoming request payload (request body). Values allowed:
             - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
-            - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
+            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a validation function using the signature `function(value, options, next)` where:
+                - `value` - the object containing the payload object.
+                - `options` - the server validation options.
+                - `next(err)` - the callback function called when validation is completed.
 
         - `path` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
           parameters then stored in `request.params`. Values allowed:
             - `true` - any path parameters allowed (no validation performed).  This is the default.
             - `false` - no path variables allowed.
-            - a validation rules object as described in the [Joi](http://github.com/spumko/joi) module.
+            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a validation function using the signature `function(value, options, next)` where:
+                - `value` - the object containing the path parameters.
+                - `options` - the server validation options.
+                - `next(err)` - the callback function called when validation is completed.
 
         - `errorFields` - an optional object with error fields copied into every validation error response.
         - `failAction` - determines how to handle invalid requests. Allowed values are:
@@ -506,7 +518,12 @@ The following options are available when adding a route:
         - `true` - any payload allowed (no validation performed). This is the default.
         - `false` - no payload allowed.
         - an object with the following options:
-            - `schema` - the validation schema as described in the [Joi](http://github.com/spumko/joi) module.
+            - `schema` - the response object validation rules expressed as one of:
+                - a [Joi](http://github.com/spumko/joi) validation object.
+                - a validation function using the signature `function(value, options, next)` where:
+                    - `value` - the object containing the response object.
+                    - `options` - the server validation options.
+                    - `next(err)` - the callback function called when validation is completed.
             - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
             - `failAction` - defines what to do when a response fails validation. Options are:
                 - `error` - return an Internal Server Error (500) error response. This is the default value.
