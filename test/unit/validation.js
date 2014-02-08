@@ -54,7 +54,8 @@ describe('Validation', function () {
             route: routeClone.config,
             server: {
                 settings: {}
-            }
+            },
+            log: function () { }
         };
     };
 
@@ -73,7 +74,8 @@ describe('Validation', function () {
             route: routeClone.config,
             server: {
                 settings: {}
-            }
+            },
+            log: function () { }
         };
     };
 
