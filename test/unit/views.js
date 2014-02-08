@@ -25,30 +25,6 @@ describe('Views', function () {
 
     describe('#render', function () {
 
-        var testView = new Views.Manager({
-            engines: { 'html': 'handlebars' },
-            path: viewsPath,
-            layout: false
-        });
-
-        var testViewWithLayouts = new Views.Manager({
-            engines: { 'html': 'handlebars' },
-            path: viewsPath,
-            layout: true
-        });
-
-        var testViewWithJadeLayouts = new Views.Manager({
-            engines: { 'jade': 'jade' },
-            path: viewsPath + '/valid/',
-            layout: true
-        });
-
-        var testViewWithoutJadeLayouts = new Views.Manager({
-            engines: { 'jade': 'jade' },
-            path: viewsPath + '/valid/',
-            layout: false
-        });
-
         it('renders with async compile', function (done) {
 
             var views = new Views.Manager({
@@ -59,7 +35,13 @@ describe('Views', function () {
                         module: {
                             compile: function (string, options, callback) {
 
-                                callback(null, require('handlebars').compile(string, options));
+                                var compiled = require('handlebars').compile(string, options);
+                                var renderer = function (context, opt, next) {
+
+                                    return next(null, compiled(context, opt));
+                                };
+
+                                return callback(null, renderer);
                             }
                         }
                     }
@@ -101,6 +83,12 @@ describe('Views', function () {
 
         it('should work and not throw with valid (no layouts)', function (done) {
 
+            var testView = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: false
+            });
+
             testView.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
@@ -111,6 +99,12 @@ describe('Views', function () {
 
         it('should work and not throw with valid (with layouts)', function (done) {
 
+            var testViewWithLayouts = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: true
+            });
+
             testViewWithLayouts.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
@@ -119,7 +113,29 @@ describe('Views', function () {
             });
         });
 
+        it('errors on invalid layout', function (done) {
+
+            var views = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: 'badlayout'
+            });
+
+            views.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
+
+                expect(err).to.exist;
+                expect(err.message).to.equal('Parse error on line 1:\n{{}\n--^\nExpecting \'ID\', \'DATA\', got \'INVALID\': Parse error on line 1:\n{{}\n--^\nExpecting \'ID\', \'DATA\', got \'INVALID\'');
+                done();
+            });
+        });
+
         it('should work and not throw with valid jade layouts', function (done) {
+
+            var testViewWithJadeLayouts = new Views.Manager({
+                engines: { 'jade': 'jade' },
+                path: viewsPath + '/valid/',
+                layout: true
+            });
 
             testViewWithJadeLayouts.render('index', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
@@ -129,6 +145,12 @@ describe('Views', function () {
         });
 
         it('should work and not throw without jade layouts', function (done) {
+
+            var testViewWithoutJadeLayouts = new Views.Manager({
+                engines: { 'jade': 'jade' },
+                path: viewsPath + '/valid/',
+                layout: false
+            });
 
             testViewWithoutJadeLayouts.render('test', { title: 'test', message: 'Hapi Message' }, null, function (err, rendered, config) {
 
@@ -150,6 +172,12 @@ describe('Views', function () {
 
         it('should return error when referencing non existant partial (with layouts)', function (done) {
 
+            var testViewWithLayouts = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: true
+            });
+
             testViewWithLayouts.render('invalid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
                 expect(err).to.exist;
@@ -158,6 +186,12 @@ describe('Views', function () {
         });
 
         it('should return error when referencing non existant partial (no layouts)', function (done) {
+
+            var testView = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: false
+            });
 
             testView.render('invalid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
@@ -169,6 +203,12 @@ describe('Views', function () {
 
         it('should return error if context uses layoutKeyword as a key', function (done) {
 
+            var testViewWithLayouts = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: true
+            });
+
             var opts = { title: 'test', message: 'Hapi', content: 1 };
             testViewWithLayouts.render('valid/test', opts, null, function (err, rendered, config) {
 
@@ -178,6 +218,12 @@ describe('Views', function () {
         });
 
         it('should return error on compile error (invalid template code)', function (done) {
+
+            var testView = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: false
+            });
 
             testView.render('invalid/badmustache', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
 
