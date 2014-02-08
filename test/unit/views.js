@@ -273,7 +273,7 @@ describe('Views', function () {
             });
         });
 
-        it('handles bind context', function (done) {
+        it('handles custom context', function (done) {
 
            var options = {
                 views: {
@@ -284,11 +284,9 @@ describe('Views', function () {
 
             var server = new Hapi.Server(options);
 
-            server.route({ method: 'GET', path: '/', handler: {view: 'valid/index'}, config: {bind: {message: 'heyloo'}}});
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, function (res) {
+            server.route({ method: 'GET', path: '/', handler: { view: { template: 'valid/index', context: { message: 'heyloo' } } } });
+            server.inject('/', function (res) {
+
                 expect(res.result).to.contain('heyloo');
                 done();
             });

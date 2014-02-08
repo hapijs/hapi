@@ -1,4 +1,4 @@
-# 2.1.x API Reference
+# 2.2.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -426,11 +426,14 @@ The following options are available when adding a route:
         - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the response using the `response.ttl()` method (or passed
           as an argument to the `postResponse` method if provided).
 
-    - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` options is set to the desired template file name.
-      The view context available to the template includes:
-        - `payload` - maps to `request.payload`.
-        - `params` - maps to `request.params`.
-        - `query` - maps to `request.query`.
+    - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` option can be set to one of:
+        - a string with the template file name.
+        - an object with the following keys:
+            - `template` - a string with the template file name.
+            - `context` - an optional template context object. Defaults to an object with the following key:
+                - `payload` - maps to `request.payload`.
+                - `params` - maps to `request.params`.
+                - `query` - maps to `request.query`.
 
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
