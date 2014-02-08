@@ -90,7 +90,7 @@ describe('Proxy', function () {
             reply(res).code(304);
         };
 
-        var preResponseWithError = function (err, res, request, reply, settings, ttl) {
+        var onResponseWithError = function (err, res, request, reply, settings, ttl) {
 
             reply(Hapi.error.forbidden('Forbidden'));
         };
@@ -208,7 +208,7 @@ describe('Proxy', function () {
             reply(res);
         };
 
-        var preResponse = function (err, res, request, reply, settings, ttl) {
+        var onResponse = function (err, res, request, reply, settings, ttl) {
 
             reply(res);
         };
@@ -231,9 +231,9 @@ describe('Proxy', function () {
                         { method: 'POST', path: '/notfound', handler: { proxy: { host: 'localhost', port: backendPort } } },
                         { method: 'GET', path: '/proxyerror', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/postResponse', handler: { proxy: { host: 'localhost', port: backendPort, postResponse: postResponse } }, config: { cache: routeCache } },
-                        { method: 'GET', path: '/preResponseError', handler: { proxy: { host: 'localhost', port: backendPort, preResponse: preResponseWithError } }, config: { cache: routeCache } },
+                        { method: 'GET', path: '/onResponseError', handler: { proxy: { host: 'localhost', port: backendPort, onResponse: onResponseWithError } }, config: { cache: routeCache } },
                         { method: 'GET', path: '/errorResponse', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { cache: routeCache } },
-                        { method: 'GET', path: '/failureResponse', handler: { proxy: { host: 'localhost', port: backendPort - 10, preResponse: failureResponse } }, config: { cache: routeCache } },
+                        { method: 'GET', path: '/failureResponse', handler: { proxy: { host: 'localhost', port: backendPort - 10, onResponse: failureResponse } }, config: { cache: routeCache } },
                         { method: 'POST', path: '/echo', handler: { proxy: { mapUri: mapUri } } },
                         { method: 'POST', path: '/file', handler: { proxy: { host: 'localhost', port: backendPort } }, config: { payload: { output: 'stream' } } },
                         { method: 'GET', path: '/maperror', handler: { proxy: { mapUri: mapUriWithError } } },
@@ -436,16 +436,16 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards on the status code when a custom preResponse returns an error', function (done) {
+    it('forwards on the status code when a custom onResponse returns an error', function (done) {
 
-        server.inject('/preResponseError', function (res) {
+        server.inject('/onResponseError', function (res) {
 
             expect(res.statusCode).to.equal(403);
             done();
         });
     });
 
-    it('calls the preResponse function if the upstream is unreachable', function (done) {
+    it('calls the onResponse function if the upstream is unreachable', function (done) {
 
         server.inject('/failureResponse', function (res) {
 
@@ -454,9 +454,9 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards the error message with a custom preResponse and a route error', function (done) {
+    it('forwards the error message with a custom onResponse and a route error', function (done) {
 
-        server.inject('/preResponseNotFound', function (res) {
+        server.inject('/onResponseNotFound', function (res) {
 
             expect(res.payload).to.contain('error');
             done();
