@@ -1,4 +1,4 @@
-# 2.2.x API Reference
+# 2.3.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -217,8 +217,8 @@ When creating a server instance, the following options configure the server's be
 - <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
 
-- <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to the server with every
-  request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
+- <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to
+  the server with every request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
     - `cookies` - The server automatically parses incoming cookies based on these options:
         - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the `request.cookies` object. Defaults to `true`.
         - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
@@ -253,7 +253,8 @@ When creating a server instance, the following options configure the server's be
             - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
               `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
               and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
-              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature `function(context, options)`.
+              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature
+              `function(context, options, callback)` and `callback` has the signature `function(err, rendered)`.
         - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
     - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
       explicit extension is provided for a given template. No default value.
