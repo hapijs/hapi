@@ -36,7 +36,7 @@ describe('Helper', function () {
             return next({ id: id, gen: gen++ });
         };
 
-        server.helper('test', helper, { cache: { expiresIn: 1000 } });
+        server.helper({ name: 'test', method: helper, options: { cache: { expiresIn: 1000 } } });
 
         server.helpers.test(1, function (result) {
 
@@ -58,7 +58,7 @@ describe('Helper', function () {
             return next({ id: id, gen: gen++ });
         };
 
-        server.helper('dropTest', helper, { cache: { expiresIn: 1000 } });
+        server.helper({ name: 'dropTest', method: helper, options: { cache: { expiresIn: 1000 } } });
 
         server.helpers.dropTest(2, function (result) {
 
@@ -84,7 +84,7 @@ describe('Helper', function () {
             return next({ id: id, gen: gen++ });
         };
 
-        server.helper('dropErrTest', helper, { cache: { expiresIn: 1000 } });
+        server.helper({ name: 'dropErrTest', method: helper, options: { cache: { expiresIn: 1000 } } });
 
         server.helpers.dropErrTest.cache.drop(function () {}, function (err) {
 

@@ -25,7 +25,7 @@
         - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
         - [`server.ext(event, method, [options])`](#serverextevent-method-options)
             - [Request lifecycle](#request-lifecycle)
-        - [`server.helper(name, method, [options])`](#serverhelpername-method-options)
+        - [`server.helper(config)`](#serverhelper)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
@@ -84,7 +84,7 @@
         - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
         - [`plugin.after(method)`](#pluginaftermethod)
         - [`plugin.views(options)`](#pluginviewsoptions)
-        - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
+        - [`plugin.helper()`](#pluginhelper)
         - [`plugin.helpers`](#pluginhelpers)
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
@@ -285,7 +285,7 @@ Each instance of the `Server` object have the following properties:
 
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
-- `helpers` - helper functions registered with [`server.helper()`](#serverhelpername-method-options).
+- `helpers` - helper functions registered with [`server.helper()`](#serverhelper).
 - `info` - server information:
     - `port` - the port the server was configured to (before `start()`) or bound to (after `start()`).
     - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
@@ -724,7 +724,7 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
         - `'log'` - logs the error but continues processing the request. If `assign` is used, the error will be assigned.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
-- strings - special short-hand notation for [registered server helpers](#serverhelpername-method-options) using the format 'name(args)'
+- strings - special short-hand notation for [registered server helpers](#serverhelper) using the format 'name(args)'
   (e.g. `'user(params.id)'`) where:
     - 'name' - the helper name. The name is also used as the default value of `assign`.
     - 'args' - the helper arguments (excluding `next`) where each argument is a property of `request`.
@@ -1070,13 +1070,13 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Wait for tails
 - Emits `'tail'` event
 
-#### `server.helper(name, method, [options])`
+#### `server.helper(config)`
 
 Registers a server helper function. Server helpers are functions registered with the server and used throughout the application as
 a common utility. Their advantage is in the ability to configure them to use the built-in cache and shared across multiple request
 handlers without having to create a common module.
 
-Helpers are registered via `server.helper(name, method, [options])` where:
+Helpers are registered via `server.helper(config)` where `config` is an object with the keys:
 
 - `name` - a unique helper name used to invoke the method via `server.helpers[name]`. When configured with caching enabled,
   `server.helpers[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key.
@@ -1102,6 +1102,8 @@ Helpers are registered via `server.helper(name, method, [options])` where:
      `null` if no key can be generated). Note that when the `generateKey` method is invoked, the arguments list will include
      the `next` argument which must not be used in calculation of the key.
 
+`config` can also be an array of helper configuration objects to register multiple helpers in one call.
+
 ```javascript
 var Hapi = require('hapi');
 var server = new Hapi.Server();
@@ -1113,7 +1115,7 @@ var add = function (a, b, next) {
     next(a + b);
 };
 
-server.helper('sum', add, { cache: { expiresIn: 2000 } });
+server.helper({ name: 'sum', method: add, options: { cache: { expiresIn: 2000 } } });
 
 server.helpers.sum(4, 5, function (result) {
 
@@ -1133,12 +1135,16 @@ var addArray = function (array, next) {
     next(sum);
 };
 
-server.helper('sumObj', addArray, {
+server.helper({
+  name: 'sumObj', 
+  method: addArray, 
+  options: {
     cache: { expiresIn: 2000 },
     generateKey: function (array) {
 
         return array.join(',');
     }
+  }
 });
 
 server.helpers.sumObj([5, 6], function (result) {
@@ -2505,16 +2511,19 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.helper(name, method, [options])`
+#### `plugin.helper(config)`
 
-Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelpername-method-options)
+Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelper)
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.helper('user', function (id, next) {
+    plugin.helper({
+      name: 'user', 
+      method: function (id, next) {
 
         next({ id: id });
+      }
     });
 
     next();
@@ -2523,14 +2532,17 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.helpers`
 
-Provides access to the helper methods registered with [`plugin.helper()`](#pluginhelpername-method-options)
+Provides access to the helper methods registered with [`plugin.helper()`](#pluginhelper)
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.helper('user', function (id, next) {
+    plugin.helper({ 
+      name: 'user', 
+      method: function (id, next) {
 
         next({ id: id });
+      }
     });
 
     plugin.helpers.user(5, function (result) {
