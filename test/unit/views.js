@@ -272,5 +272,26 @@ describe('Views', function () {
                 done();
             });
         });
+
+        it('handles bind context', function (done) {
+
+           var options = {
+                views: {
+                    engines: { 'jade': 'jade' },
+                    path: viewsPath
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            server.route({ method: 'GET', path: '/', handler: {view: 'valid/index'}, config: {bind: {message: 'heyloo'}}});
+            server.inject({
+                method: 'GET',
+                url: '/'
+            }, function (res) {
+                expect(res.result).to.contain('heyloo');
+                done();
+            });
+        });
     });
 });
