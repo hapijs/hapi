@@ -174,9 +174,15 @@ describe('State', function () {
 
     describe('#generateSetCookieHeader', function () {
 
+        var generateSetCookieHeader = function (cookies, definition, callback) {
+
+            var server = { _stateDefinitions: definition, settings: Defaults.server };
+            State.generateSetCookieHeader(cookies, server, callback);
+        };
+
         it('skips an empty header', function (done) {
 
-            State.generateSetCookieHeader(null, null, function (err, header) {
+            generateSetCookieHeader(null, null, function (err, header) {
 
                 expect(err).to.not.exist;
                 expect(header).to.deep.equal([]);
@@ -186,7 +192,7 @@ describe('State', function () {
 
         it('formats a header', function (done) {
 
-            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } }, null, function (err, header) {
 
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
@@ -197,7 +203,7 @@ describe('State', function () {
 
         it('formats a header with null value', function (done) {
 
-            State.generateSetCookieHeader({ name: 'sid', options: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', options: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } }, null, function (err, header) {
 
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
@@ -209,7 +215,7 @@ describe('State', function () {
         it('formats a header with server definition', function (done) {
 
             var definitions = { sid: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } };
-            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, definitions, function (err, header) {
 
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
@@ -221,7 +227,7 @@ describe('State', function () {
         it('formats a header with server definition (base64)', function (done) {
 
             var definitions = { sid: { encoding: 'base64' } };
-            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf' }, definitions, function (err, header) {
 
                 expect(err).to.not.exist;
                 expect(header[0]).to.equal('sid=ZmloZmlldWhyOTM4NGhm');
@@ -232,7 +238,7 @@ describe('State', function () {
         it('formats a header with server definition (base64json)', function (done) {
 
             var definitions = { sid: { encoding: 'base64json' } };
-            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
 
                 expect(err).to.not.exist;
                 expect(header[0]).to.equal('sid=eyJhIjoxLCJiIjoyLCJjIjozfQ==');
@@ -247,7 +253,7 @@ describe('State', function () {
             bad.b = bad.a;
             bad.a.x = bad.b;
 
-            State.generateSetCookieHeader({ name: 'sid', value: bad }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: bad }, definitions, function (err, header) {
 
                 expect(err).to.exist;
                 done();
@@ -257,7 +263,7 @@ describe('State', function () {
         it('formats a header with server definition (form)', function (done) {
 
             var definitions = { sid: { encoding: 'form' } };
-            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions, function (err, header) {
 
                 expect(err).to.not.exist;
                 expect(header[0]).to.equal('sid=a=1&b=2&c=3%20x');
@@ -281,7 +287,7 @@ describe('State', function () {
                     }
                 }
             };
-            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions, function (err, header) {
 
                 expect(err).to.not.exist;
                 expect(header[0]).to.equal('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo');
@@ -297,7 +303,7 @@ describe('State', function () {
                     sign: {}
                 }
             };
-            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions, function (err, header) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Failed to sign cookie (sid) value: Empty password');
@@ -308,7 +314,7 @@ describe('State', function () {
         it('formats a header with server definition (iron)', function (done) {
 
             var definitions = { sid: { encoding: 'iron', password: 'password' } };
-            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
 
                 expect(err).to.not.exist;
                 expect(header[0]).to.have.string('sid=Fe26.2*');
@@ -319,7 +325,7 @@ describe('State', function () {
         it('fails a header with bad server definition (iron)', function (done) {
 
             var definitions = { sid: { encoding: 'iron' } };
-            State.generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Failed to encode cookie (sid) value: Empty password');
@@ -329,7 +335,7 @@ describe('State', function () {
 
         it('formats a header with multiple cookies', function (done) {
 
-            State.generateSetCookieHeader([
+            generateSetCookieHeader([
                 { name: 'sid', value: 'fihfieuhr9384hf', options: { ttl: 3600, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } },
                 { name: 'pid', value: 'xyz' }
             ], null, function (err, header) {
@@ -344,7 +350,7 @@ describe('State', function () {
 
         it('fails on bad cookie name', function (done) {
 
-            State.generateSetCookieHeader({ name: 's;id', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 's;id', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, null, function (err, header) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Invalid cookie name: s;id');
@@ -352,9 +358,21 @@ describe('State', function () {
             });
         });
 
+        it('allows bad cookie name in loose mode', function (done) {
+
+            var server = { _stateDefinitions: null, settings: Hapi.utils.clone(Defaults.server) };
+            server.settings.state.cookies.strictHeader = false;
+            State.generateSetCookieHeader({ name: 's;id', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, server, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header[0]).to.equal('s;id=fihfieuhr9384hf; Secure; Domain=example.com; Path=/');
+                done();
+            });
+        });
+
         it('fails on bad cookie value', function (done) {
 
-            State.generateSetCookieHeader({ name: 'sid', value: 'fi"hfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fi"hfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, null, function (err, header) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Invalid cookie value: fi"hfieuhr9384hf');
@@ -362,9 +380,21 @@ describe('State', function () {
             });
         });
 
+        it('allows bad cookie value in loose mode', function (done) {
+
+            var server = { _stateDefinitions: null, settings: Hapi.utils.clone(Defaults.server) };
+            server.settings.state.cookies.strictHeader = false;
+            State.generateSetCookieHeader({ name: 'sid', value: 'fi"hfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, server, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header[0]).to.equal('sid=fi"hfieuhr9384hf; Secure; Domain=example.com; Path=/');
+                done();
+            });
+        });
+
         it('fails on bad cookie domain', function (done) {
 
-            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: '-example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: '-example.com' } }, null, function (err, header) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Invalid cookie domain: -example.com');
@@ -374,7 +404,7 @@ describe('State', function () {
 
         it('fails on too long cookie domain', function (done) {
 
-            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: '1234567890123456789012345678901234567890123456789012345678901234567890.example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: '1234567890123456789012345678901234567890123456789012345678901234567890.example.com' } }, null, function (err, header) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Cookie domain too long: 1234567890123456789012345678901234567890123456789012345678901234567890.example.com');
@@ -384,7 +414,7 @@ describe('State', function () {
 
         it('formats a header with cookie domain with . prefix', function (done) {
 
-            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: '.12345678901234567890.example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: '.12345678901234567890.example.com' } }, null, function (err, header) {
 
                 expect(err).to.not.exist;
                 done();
@@ -393,7 +423,7 @@ describe('State', function () {
 
         it('fails on bad cookie path', function (done) {
 
-            State.generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: 'd', domain: 'example.com' } }, null, function (err, header) {
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: 'd', domain: 'example.com' } }, null, function (err, header) {
 
                 expect(err).to.exist;
                 expect(err.message).to.equal('Invalid cookie path: d');
