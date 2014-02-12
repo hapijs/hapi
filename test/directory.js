@@ -251,6 +251,38 @@ describe('Directory', function () {
         });
     });
 
+    it('returns the index when found in hidden folder', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory/.dot' } } });
+
+        server.inject('/index.html', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('<p>test</p>');
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.contain('<p>test</p>');
+                done();
+            });
+        });
+    });
+
+    it('returns listing when found in hidden folder', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory/.dot', index: false, listing: true } } });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('index.html');
+            done();
+        });
+    });
+
     it('returns a 500 when index.html is a directory', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname }, debug: false });

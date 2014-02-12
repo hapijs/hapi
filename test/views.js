@@ -129,6 +129,22 @@ describe('Views', function () {
             });
         });
 
+        it('errors on invalid layout path', function (done) {
+
+            var views = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: viewsPath,
+                layout: '/badlayout'
+            });
+
+            views.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
+
+                expect(err).to.exist;
+                expect(err.message).to.equal('Absolute paths are not allowed in views');
+                done();
+            });
+        });
+
         it('should work and not throw with valid jade layouts', function (done) {
 
             var testViewWithJadeLayouts = new Views.Manager({
