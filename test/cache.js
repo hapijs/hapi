@@ -21,73 +21,78 @@ var it = Lab.test;
 
 describe('Cache', function () {
 
-    var server = new Hapi.Server(0, { debug: false, cache: [{ engine: 'memory', name: 'secondary' }] });
-
-    server.helper('profile', function (id, next) {
-        
-        next({
-            'id': 'fa0dbda9b1b',
-            'name': 'John Doe'
-        });
-    }, { cache: { expiresIn: 120000 } });
-    
-    var profileHandler = function (request, reply) {
-
-        server.helpers.profile(0, reply);
-    };
-
-    var activeItemHandler = function (request, reply) {
-
-        reply({
-            'id': '55cf687663',
-            'name': 'Active Item'
-        });
-    };
-
-    var cacheItemHandler = function (request, reply) {
-
-        reply('hello');
-    };
-
-    var errorHandler = function (request, reply) {
-
-        var error = new Error('myerror');
-        error.statusCode = 500;
-
-        reply(error);
-    };
-
-    server.route([
-        { method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } },
-        { method: 'GET', path: '/item', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
-        { method: 'GET', path: '/item2', config: { handler: activeItemHandler } },
-        { method: 'GET', path: '/item3', config: { handler: activeItemHandler, cache: { expiresIn: 120000 } } },
-    ]);
-
-    before(function (done) {
-
-        server.start(done);
-    });
-
     it('returns max-age value when route uses default cache rules', function (done) {
 
-        server.inject('/profile', function (res) {
+        var server = new Hapi.Server(0, { cache: [{ engine: 'memory', name: 'secondary' }] });
 
-            expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
-            done();
+        server.helper('profile', function (id, next) {
+
+            next({
+                'id': 'fa0dbda9b1b',
+                'name': 'John Doe'
+            });
+        }, { cache: { expiresIn: 120000 } });
+
+        var profileHandler = function (request, reply) {
+
+            server.helpers.profile(0, reply);
+        };
+
+        server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
+        server.start(function () {
+
+            server.inject('/profile', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+                done();
+            });
         });
     });
 
     it('returns max-age value when route uses client cache mode', function (done) {
 
-        server.inject('/profile', function (res) {
+        var server = new Hapi.Server(0);
 
-            expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
-            done();
+        server.helper('profile', function (id, next) {
+
+            next({
+                'id': 'fa0dbda9b1b',
+                'name': 'John Doe'
+            });
+        }, { cache: { expiresIn: 120000 } });
+
+        var profileHandler = function (request, reply) {
+
+            server.helpers.profile(0, reply);
+        };
+
+        server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
+        server.start(function () {
+
+            server.inject('/profile', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+                done();
+            });
         });
     });
 
     it('does not return max-age value when route is not cached', function (done) {
+
+        var server = new Hapi.Server(0);
+        var activeItemHandler = function (request, reply) {
+
+            reply({
+                'id': '55cf687663',
+                'name': 'Active Item'
+            });
+        };
+
+        server.route({ method: 'GET', path: '/item2', config: { handler: activeItemHandler } });
+        before(function (done) {
+
+            server.start(done);
+        });
 
         server.inject('/item2', function (res) {
 
@@ -98,24 +103,28 @@ describe('Cache', function () {
 
     it('does not send cache headers for responses with status codes other than 200', function (done) {
 
-        server.inject('/nocache', function (res) {
+        var server = new Hapi.Server(0);
+        server.start(function () {
 
-            expect(res.headers['cache-control']).to.equal('no-cache');
-            done();
+            server.inject('/nocache', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('no-cache');
+                done();
+            });
         });
     });
 
     it('caches using non default cache', function (done) {
 
         var server = new Hapi.Server(0, { cache: { name: 'primary', engine: 'memory' } });
-        var _default = server.cache('a', { expiresIn: 2000 });
+        var defaults = server.cache('a', { expiresIn: 2000 });
         var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });
 
         server.start(function (err) {
 
             expect(err).to.not.exist;
 
-            _default.set('b', 1, null, function (err) {
+            defaults.set('b', 1, null, function (err) {
 
                 expect(err).to.not.exist;
 
@@ -123,7 +132,7 @@ describe('Cache', function () {
 
                     expect(err).to.not.exist;
 
-                    _default.get('b', function (err, cached) {
+                    defaults.get('b', function (err, cached) {
 
                         expect(err).to.not.exist;
                         expect(cached.item).to.equal(1);
