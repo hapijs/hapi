@@ -156,11 +156,11 @@ describe('Security', function () {
                 payload: '{"something":"something"}',
                 headers: { 'content-type': '<script>alert(1)</script>;' }
             },
-                function (res) {
+            function (res) {
 
-                    expect(res.result.message).to.not.exist;
-                    done();
-                });
+                expect(res.result.message).to.not.exist;
+                done();
+            });
         });
 
         it('does not exist with invalid cookie values in the request', function (done) {
@@ -171,11 +171,26 @@ describe('Security', function () {
                 payload: '{"something":"something"}',
                 headers: { 'cookie': 'encoded="<script></script>";' }
             },
-                function (res) {
+            function (res) {
 
-                    expect(res.result.message).to.not.contain('<script>');
-                    done();
-                });
+                expect(res.result.message).to.not.contain('<script>');
+                done();
+            });
+        });
+
+        it('does not exist with invalid cookie name in the request', function (done) {
+
+            server.inject({
+                method: 'POST',
+                url: '/',
+                payload: '{"something":"something"}',
+                headers: { 'cookie': '<script></script>=value;' }
+            },
+            function (res) {
+
+                expect(res.result.message).to.not.contain('<script>');
+                done();
+            });
         });
 
         it('does not exist in path validation response message', function (done) {
@@ -186,7 +201,7 @@ describe('Security', function () {
                     reply('Success');
                 },
                 config: {
-                    validate: { path: { name: Hapi.types.Function() } }
+                    validate: { path: { name: Hapi.types.number() } }
                 }
             });
 
@@ -194,11 +209,11 @@ describe('Security', function () {
                 method: 'GET',
                 url: '/fail/<script>'
             },
-                function (res) {
+            function (res) {
 
-                    expect(res.result.message).to.not.contain('<script>');
-                    done();
-                });
+                expect(res.result.message).to.not.contain('<script>');
+                done();
+            });
         });
 
         it('does not exist in payload validation response message', function (done) {
@@ -209,21 +224,21 @@ describe('Security', function () {
                     reply('Success');
                 },
                 config: {
-                    validate: { payload: { name: Hapi.types.String().max(4).min(1).required() } }
+                    validate: { payload: { name: Hapi.types.number() } }
                 }
             });
 
             server.inject({
                 method: 'POST',
                 url: '/fail/payload',
-                payload: '{"name":"<script></script>"}',
+                payload: '{"<script></script>":"other"}',
                 headers: { 'content-type': 'application/json' }
             },
-                function (res) {
+            function (res) {
 
-                    expect(res.result.message).to.not.contain('<script>');
-                    done();
-                });
+                expect(res.result.message).to.not.contain('<script>');
+                done();
+            });
         });
 
         it('does not exist in query validation response message', function (done) {
@@ -234,19 +249,19 @@ describe('Security', function () {
                     reply('Success');
                 },
                 config: {
-                    validate: { query: { name: Hapi.types.String().alphanum().required() } }
+                    validate: { query: { name: Hapi.types.string() } }
                 }
             });
 
             server.inject({
                 method: 'GET',
-                url: '/fail/query?name=<script></script>'
+                url: '/fail/query?<script></script>=value'
             },
-                function (res) {
+            function (res) {
 
-                    expect(res.result.message).to.not.contain('<script>');
-                    done();
-                });
+                expect(res.result.message).to.not.contain('<script>');
+                done();
+            });
         });
     });
 });

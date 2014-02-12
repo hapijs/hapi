@@ -159,7 +159,7 @@ describe('State', function () {
 
             var setLog = Hapi.utils.clone(Defaults.server.state);
             setLog.cookies.failAction = 'log';
-            fail('abc="xyz', setLog);
+            fail('abc="xyzf', setLog, null, { abc: '"xyzf'});
             fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } });
             fail('y=XeyJ0ZXN0aW5nIjoianNvbiJ9; y=XeyJ0ZXN0aW5dnIjoianNvbiJ9', setLog, { y: { encoding: 'base64json' } });
             fail('sid=a=1&b=2&c=3%20x', setLog, { sid: { encoding: 'form', sign: { password: 'password' } } });
