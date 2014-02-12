@@ -527,12 +527,12 @@ describe('Response', function () {
                 reply({ a: 1, b: 2 });
             };
 
-            var server = new Hapi.Server({ json: { replacer: ['a'], space: 4 } });
+            var server = new Hapi.Server({ json: { replacer: ['a'], space: 4, suffix: '\n' } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
-                expect(res.payload).to.equal('{\n    \"a\": 1\n}');
+                expect(res.payload).to.equal('{\n    \"a\": 1\n}\n');
                 done();
             });
         });
@@ -541,7 +541,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply({ a: 1, b: 2 }).type('application/x-test').spaces(0).replacer(null);
+                reply({ a: 1, b: 2 }).type('application/x-test').spaces(0).replacer(null).suffix('\n');
             };
 
             var server = new Hapi.Server();
@@ -549,7 +549,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
-                expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
+                expect(res.payload).to.equal('{\"a\":1,\"b\":2}\n');
                 expect(res.headers['content-type']).to.equal('application/x-test');
                 done();
             });
