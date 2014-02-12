@@ -57,6 +57,54 @@ describe('Directory', function () {
         });
     });
 
+    it('returns a redirect and returns file using clean url if redirectToSlash set to true and the defaultExtension set to a string before returning a 404', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', defaultExtension: 'html' } } });
+
+        server.inject('/directory/directory/default', function (res) {
+
+            expect(res.statusCode).to.equal(302);
+            done();
+        });
+    });
+
+    it('returns a file using clean url if redirectToSlash set to false and the defaultExtension set to a string before returning a 404', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', defaultExtension: 'html', redirectToSlash: false } } });
+
+        server.inject('/directory/directory/default', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('returns a file using clean url with a trailing slash if redirectToSlash set to false and the defaultExtension set to a string before returning a 404', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', defaultExtension: 'html', redirectToSlash: false } } });
+
+        server.inject('/directory/directory/default/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('returns a 404 using clean url with defaultExtension set to a string', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: './', defaultExtension: 'html', redirectToSlash: false } } });
+
+        server.inject('/directory/directory/not-there', function (res) {
+
+            expect(res.statusCode).to.equal(404);
+            done();
+        });
+    });    
+
     it('returns a file when requesting a file from the directory', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
