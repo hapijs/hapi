@@ -1457,6 +1457,7 @@ The request object supports the following events:
 
 - `'peek'` - emitted for each chunk of payload data read from the client connection. The event method signature is `function(chunk, encoding)`.
 - `'finish'` - emitted when the request payload finished reading. The event method signature is `function ()`.
+- `'disconnect'` - emitted when a request errors or aborts unexpectedly.
 
 ```javascript
 var Crypto = require('crypto');
@@ -1466,14 +1467,19 @@ var server = new Hapi.Server();
 server.ext('onRequest', function (request, reply) {
 
     var hash = Crypto.createHash('sha1');
-    response.on('peek', function (chunk) {
+    request.on('peek', function (chunk) {
 
         hash.update(chunk);
     });
 
-    response.once('finish', function () {
+    request.once('finish', function () {
 
         console.log(hash.digest('hex'));
+    });
+
+    request.once('disconnect', function () {
+
+        console.error('request aborted');
     });
 });
 ```
