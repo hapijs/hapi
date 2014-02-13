@@ -1,4 +1,4 @@
-# 2.3.x API Reference
+# 2.4.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -664,7 +664,7 @@ Parameterized paths are processed by matching the named parameters to the conten
  the closing '/' unless it is the end of the path) can only include one named parameter. A parameter can cover the entire segment ('/{param}') or
  part of the segment ('/file.{ext}').
 
- An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the end of the path or
+ An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path or
  only covers part of the segment as in '/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of `request.params.id` set
  to an empty string `''`.
 
