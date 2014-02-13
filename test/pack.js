@@ -719,7 +719,7 @@ describe('Pack', function () {
             table = server.table();
             table.filter(function (route) {
                 if (route.path === '/handler/{file*}') {
-                    expect(route.handler).to.be.an('object');
+                    expect(route.handler).to.be.an('function');
                 }
             });
 
