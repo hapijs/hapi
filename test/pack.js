@@ -709,4 +709,21 @@ describe('Pack', function () {
             server.inject({ url: '/' }, function () { });
         });
     });
+
+     it('plugin can set route handler', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.pack.require('./pack/--handler', function (err) {
+
+            expect(err).to.not.exist;
+            table = server.table();
+            table.filter(function (route) {
+                if (route.path === '/handler/{file*}') {
+                    expect(route.handler).to.be.an('object');
+                }
+            });
+
+            done();
+        });
+    });
 });
