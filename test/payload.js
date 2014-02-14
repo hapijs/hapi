@@ -143,16 +143,18 @@ describe('Payload', function () {
                 s.write('Hello');
             }, 5);
 
-            var req = Http.request(options, function (res) {
-
-            });
+            var req = Http.request(options, function (res) { });
 
             req.on('error', function (err) {
 
                 expect(err.code).to.equal('ECONNRESET');
-                expect(handlerCalled).to.equal(false);
-                expect(extCalled).to.equal(true);
-                done();
+                
+                setTimeout(function () {
+
+                    expect(handlerCalled).to.equal(false);
+                    expect(extCalled).to.equal(true);
+                    done();
+                }, 25);
             });
 
             s.pipe(req);
@@ -308,108 +310,99 @@ describe('Payload', function () {
 
     describe('stream output', function () {
 
-        var handler = function (request, reply) {
-
-            reply('Success');
-        };
-
-        var server = new Hapi.Server('localhost', 0);
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { output: 'stream' } } });
-
-        before(function (done) {
-
-            server.start(done);
-        });
-
         it('does not set the request payload when streaming data in and the connection is interrupted', function (done) {
 
-            var options = {
-                hostname: 'localhost',
-                port: server.info.port,
-                path: '/',
-                method: 'POST'
+            var handler = function (request, reply) {
+
+                reply('Success');
             };
 
-            var s = new Stream.PassThrough();
+            var server = new Hapi.Server('localhost', 0);
+            server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { output: 'stream' } } });
+            server.start(function () {
 
-            var iv = setInterval(function () {
+                var options = {
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    path: '/',
+                    method: 'POST'
+                };
 
-                s.write('Hello');
-            }, 5);
+                var s = new Stream.PassThrough();
 
-            var req = Http.request(options, function (res) {
+                var iv = setInterval(function () {
 
-                expect(res.statusCode).to.equal(200);
-                done();
+                    s.write('Hello');
+                }, 5);
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+
+                req.on('error', function () { });
+
+                s.pipe(req);
+
+                setTimeout(function () {
+
+                    req.abort();
+                    clearInterval(iv);
+                }, 25);
             });
-
-            req.on('error', function () {
-
-            });
-
-            s.pipe(req);
-
-            setTimeout(function () {
-
-                req.abort();
-                clearInterval(iv);
-            }, 25);
         });
     });
 
     describe('file output', function () {
 
-        var path = Path.join(__dirname, './payload/image.jpg');
-        var sourceContents = Fs.readFileSync(path);
-        var stats = Fs.statSync(path);
-
-        var compressed;
-        before(function (done) {
-
-            Zlib.gzip(sourceContents, function (err, result) {
-
-                compressed = result;
-                done()
-            });
-        });
-
         it('saves a file after content decoding', function (done) {
 
-            var handler = function (request, reply) {
+            var path = Path.join(__dirname, './file/image.jpg');
+            var sourceContents = Fs.readFileSync(path);
+            var stats = Fs.statSync(path);
 
-                var receivedContents = Fs.readFileSync(request.payload.path);
-                expect(receivedContents).to.deep.equal(sourceContents);
-                reply(request.payload.bytes);
-            };
+            Zlib.gzip(sourceContents, function (err, compressed) {
 
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
-            server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
+                var handler = function (request, reply) {
 
-                expect(res.result).to.equal(stats.size);
-                done();
+                    var receivedContents = Fs.readFileSync(request.payload.path);
+                    expect(receivedContents).to.deep.equal(sourceContents);
+                    reply(request.payload.bytes);
+                };
+
+                var server = new Hapi.Server();
+                server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+                server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
+
+                    expect(res.result).to.equal(stats.size);
+                    done();
+                });
             });
         });
 
         it('saves a file before content decoding', function (done) {
 
-            var path = Path.join(__dirname, './payload/image.jpg');
+            var path = Path.join(__dirname, './file/image.jpg');
             var sourceContents = Fs.readFileSync(path);
             var stats = Fs.statSync(path);
+            
+            Zlib.gzip(sourceContents, function (err, compressed) {
 
-            var handler = function (request, reply) {
+                var handler = function (request, reply) {
 
-                var receivedContents = Fs.readFileSync(request.payload.path);
-                expect(receivedContents).to.deep.equal(compressed);
-                reply(request.payload.bytes);
-            };
+                    var receivedContents = Fs.readFileSync(request.payload.path);
+                    expect(receivedContents).to.deep.equal(compressed);
+                    reply(request.payload.bytes);
+                };
 
-            var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false } } });
-            server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
+                var server = new Hapi.Server();
+                server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false } } });
+                server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
-                expect(res.result).to.equal(compressed.length);
-                done();
+                    expect(res.result).to.equal(compressed.length);
+                    done();
+                });
             });
         });
 
@@ -442,48 +435,15 @@ describe('Payload', function () {
 
     describe('parse mode', function () {
 
-        var handler = function (request, reply) {
-
-            reply(request.payload.key);
-        };
-
-        var textHandler = function (request, reply) {
-
-            reply(request.payload + '+456');
-        };
-
-        var server = new Hapi.Server('localhost', 0, { timeout: { client: 50 } });
-        server.route({ method: 'POST', path: '/', config: { handler: handler } });
-        server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
-        server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
-        server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
-        server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
-        server.route({ method: '*', path: '/any', handler: handler });
-
-        before(function (done) {
-
-            server.start(done);
-        });
-
-        var TestStream = function () {
-
-            Stream.Readable.call(this);
-        };
-
-        Hapi.utils.inherits(TestStream, Stream.Readable);
-
-        TestStream.prototype._read = function (size) {
-
-            if (this.isDone) {
-                return;
-            }
-            this.isDone = true;
-
-            this.push('{ "key": "value" }');
-            this.push(null);
-        };
-
         it('sets parse mode when route methos is * and request is POST', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply(request.payload.key);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: '*', path: '/any', handler: handler });
 
             server.inject({ url: '/any', method: 'POST', payload: { key: '09876' } }, function (res) {
 
@@ -495,6 +455,32 @@ describe('Payload', function () {
 
         it('sets the request payload with the streaming data', function (done) {
 
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Hapi.utils.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push('{ "key": "value" }');
+                this.push(null);
+            };
+
+            var handler = function (request, reply) {
+
+                reply(request.payload.key);
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
             var options = {
                 payload: new TestStream(),
                 headers: {
@@ -502,79 +488,116 @@ describe('Payload', function () {
                 }
             };
 
-            Nipple.post('http://localhost:' + server.info.port + '/?x=1', options, function (err, res, body) {
+            server.start(function () {
 
-                expect(res.statusCode).to.equal(200);
-                expect(body).to.equal('value');
-                done();
+                Nipple.post('http://localhost:' + server.info.port + '/?x=1', options, function (err, res, body) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(body).to.equal('value');
+                    done();
+                });
             });
         });
 
         it('times out when the request content-length is larger than payload', function (done) {
 
-            var options = {
-                hostname: 'localhost',
-                port: server.info.port,
-                path: '/?x=2',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': '100'
-                }
+            var handler = function (request, reply) {
+
+                reply(request.payload.key);
             };
 
-            var req = Http.request(options, function (res) {
+            var server = new Hapi.Server(0, { timeout: { client: 50 } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-                expect(res.statusCode).to.equal(408);
-                done();
+            server.start(function () {
+
+                var options = {
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    path: '/?x=2',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': '100'
+                    }
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(408);
+                    done();
+                });
+
+                req.end('{ "key": "value" }');
             });
-
-            req.end('{ "key": "value" }');
         });
 
         it('resets connection when the request content-length is smaller than payload', function (done) {
 
-            var options = {
-                payload: '{ "key": "value" }',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': '1'
-                }
+            var handler = function (request, reply) {
+
+                reply(request.payload.key);
             };
 
-            Nipple.post('http://localhost:' + server.info.port + '/?x=3', options, function (err, res, body) {
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-                expect(err.message).to.equal('Client request error: socket hang up');
-                done();
+            server.start(function () {
+
+                var options = {
+                    payload: '{ "key": "value" }',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': '1'
+                    }
+                };
+
+                Nipple.post('http://localhost:' + server.info.port + '/?x=3', options, function (err, res, body) {
+
+                    expect(err.message).to.equal('Client request error: socket hang up');
+                    done();
+                });
             });
         });
 
         it('returns an error on unsupported mime type', function (done) {
 
-            var options = {
-                hostname: 'localhost',
-                port: server.info.port,
-                path: '/?x=4',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/unknown',
-                    'Content-Length': '18'
-                }
+            var handler = function (request, reply) {
+
+                reply(request.payload.key);
             };
 
-            var req = Http.request(options, function (res) {
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-                expect(res.statusCode).to.equal(415);
-                done();
+            server.start(function () {
+
+                var options = {
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    path: '/?x=4',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/unknown',
+                        'Content-Length': '18'
+                    }
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(415);
+                    done();
+                });
+
+                req.end('{ "key": "value" }');
             });
-
-            req.end('{ "key": "value" }');
         });
 
         it('ignores unsupported mime type', function (done) {
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', config: { handler: function (request, reply) { reply(request.payload); }, payload: { failAction: 'ignore' } } });
+
             server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -587,6 +610,7 @@ describe('Payload', function () {
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply('ok'); } });
+ 
             server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -596,6 +620,14 @@ describe('Payload', function () {
         });
 
         it('returns 200 on text mime type', function (done) {
+
+            var textHandler = function (request, reply) {
+
+                reply(request.payload + '+456');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
 
             server.inject({ method: 'POST', url: '/text', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
 
@@ -607,6 +639,14 @@ describe('Payload', function () {
 
         it('returns 200 on override mime type', function (done) {
 
+            var handler = function (request, reply) {
+
+                reply(request.payload.key);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
+
             server.inject({ method: 'POST', url: '/override', payload: '{"key":"cool"}', headers: { 'content-type': 'text/plain' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -616,6 +656,14 @@ describe('Payload', function () {
         });
 
         it('returns 200 on text mime type when allowed', function (done) {
+
+            var textHandler = function (request, reply) {
+
+                reply(request.payload + '+456');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
 
             server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
 
@@ -627,6 +675,14 @@ describe('Payload', function () {
 
         it('returns 415 on nonn text mime type when disallowed', function (done) {
 
+            var textHandler = function (request, reply) {
+
+                reply(request.payload + '+456');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
+
             server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
 
                 expect(res.statusCode).to.equal(415);
@@ -635,6 +691,14 @@ describe('Payload', function () {
         });
 
         it('returns 200 on text mime type when allowed (array)', function (done) {
+
+            var textHandler = function (request, reply) {
+
+                reply(request.payload + '+456');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
             server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
 
@@ -645,6 +709,14 @@ describe('Payload', function () {
         });
 
         it('returns 415 on nonn text mime type when disallowed (array)', function (done) {
+
+            var textHandler = function (request, reply) {
+
+                reply(request.payload + '+456');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
             server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
 
@@ -999,7 +1071,7 @@ describe('Payload', function () {
 
         it('parses a file', function (done) {
 
-            var path = Path.join(__dirname, './payload/image.jpg');
+            var path = Path.join(__dirname, './file/image.jpg');
             var stats = Fs.statSync(path);
 
             var handler = function (request, reply) {
@@ -1062,7 +1134,7 @@ describe('Payload', function () {
 
         it('parses a file correctly on stream mode', function (done) {
 
-            var path = Path.join(__dirname, './payload/image.jpg');
+            var path = Path.join(__dirname, './file/image.jpg');
             var stats = Fs.statSync(path);
             var fileStream = Fs.createReadStream(path);
             var fileContents = Fs.readFileSync(path);

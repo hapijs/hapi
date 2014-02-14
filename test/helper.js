@@ -20,14 +20,6 @@ var it = Lab.test;
 
 describe('Helper', function () {
 
-    var server = null;
-
-    before(function (done) {
-
-        server = new Hapi.Server(0);
-        server.start(done);
-    });
-
     it('reuses cached helper value', function (done) {
 
         var gen = 0;
@@ -36,16 +28,20 @@ describe('Helper', function () {
             return next({ id: id, gen: gen++ });
         };
 
+        var server = new Hapi.Server(0);
         server.helper('test', helper, { cache: { expiresIn: 1000 } });
 
-        server.helpers.test(1, function (result) {
-
-            expect(result.gen).to.equal(0);
+        server.start(function () {
 
             server.helpers.test(1, function (result) {
 
                 expect(result.gen).to.equal(0);
-                done();
+
+                server.helpers.test(1, function (result) {
+
+                    expect(result.gen).to.equal(0);
+                    done();
+                });
             });
         });
     });
@@ -58,19 +54,23 @@ describe('Helper', function () {
             return next({ id: id, gen: gen++ });
         };
 
+        var server = new Hapi.Server(0);
         server.helper('dropTest', helper, { cache: { expiresIn: 1000 } });
 
-        server.helpers.dropTest(2, function (result) {
+        server.start(function () {
 
-            expect(result.gen).to.equal(0);
-            server.helpers.dropTest.cache.drop(2, function (err) {
+            server.helpers.dropTest(2, function (result) {
 
-                expect(err).to.not.exist;
+                expect(result.gen).to.equal(0);
+                server.helpers.dropTest.cache.drop(2, function (err) {
 
-                server.helpers.dropTest(2, function (result) {
+                    expect(err).to.not.exist;
 
-                    expect(result.gen).to.equal(1);
-                    done();
+                    server.helpers.dropTest(2, function (result) {
+
+                        expect(result.gen).to.equal(1);
+                        done();
+                    });
                 });
             });
         });
@@ -84,12 +84,16 @@ describe('Helper', function () {
             return next({ id: id, gen: gen++ });
         };
 
+        var server = new Hapi.Server(0);
         server.helper('dropErrTest', helper, { cache: { expiresIn: 1000 } });
 
-        server.helpers.dropErrTest.cache.drop(function () {}, function (err) {
+        server.start(function () {
 
-            expect(err).to.exist;
-            done();
+            server.helpers.dropErrTest.cache.drop(function () {}, function (err) {
+
+                expect(err).to.exist;
+                done();
+            });
         });
     });
 });
