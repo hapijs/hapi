@@ -27,11 +27,11 @@
     "cryptiles": "2.x.x",
     "iron": "2.x.x",
     "async": "0.2.x",
-    "multiparty": "3.1.x",
+    "multiparty": "3.2.x",
     "mime": "1.2.x",
     "lru-cache": "2.5.x",
     "optimist": "0.6.x",
-    "negotiator": "0.2.x",
+    "negotiator": "0.4.x",
     "semver": "2.2.x",
     "qs": "0.6.x"
   },
