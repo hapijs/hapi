@@ -364,18 +364,25 @@ describe('Proxy', function () {
 
     it('calls the onResponse function if the upstream is unreachable', function (done) {
 
-        var failureResponse = function (err, res, request, reply, settings, ttl) {
+        var dummy = new Hapi.Server(0);
+        dummy.start(function () {
 
-            reply(err);
-        };
+            var dummyPort = dummy.info.port;
+            dummy.stop();
 
-        var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/failureResponse', handler: { proxy: { host: 'localhost', port: 918273, onResponse: failureResponse } }, config: { cache: { expiresIn: 500 } } });
+            var failureResponse = function (err, res, request, reply, settings, ttl) {
 
-        server.inject('/failureResponse', function (res) {
+                reply(err);
+            };
 
-            expect(res.statusCode).to.equal(502);
-            done();
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/failureResponse', handler: { proxy: { host: 'localhost', port: dummyPort, onResponse: failureResponse } }, config: { cache: { expiresIn: 500 } } });
+
+            server.inject('/failureResponse', function (res) {
+
+                expect(res.statusCode).to.equal(502);
+                done();
+            });
         });
     });
 
