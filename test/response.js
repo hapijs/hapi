@@ -1,6 +1,7 @@
 // Load modules
 
 var Fs = require('fs');
+var Os = require('os');
 var Http = require('http');
 var Stream = require('stream');
 var Zlib = require('zlib');
@@ -1288,7 +1289,7 @@ describe('Response', function () {
 
         it('returns error when file is removed before stream is opened', function (done) {
 
-            var filename = './test/file/tempErrDel';
+            var filename = Hapi.utils.uniqueFilename(Os.tmpDir());
             Fs.writeFileSync(filename, 'data');
 
             var server = new Hapi.Server();

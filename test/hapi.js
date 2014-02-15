@@ -2,8 +2,10 @@
 
 var ChildProcess = require('child_process');
 var Fs = require('fs');
+var Os = require('os');
 var Lab = require('lab');
 var Path = require('path');
+var Hapi = require('..');
 
 
 // Declare internals
@@ -53,13 +55,11 @@ describe('Hapi command line', function () {
             }
         };
 
-        var configPath = Path.join(__dirname, 'manifest2.json');
+        var configPath = Hapi.utils.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
         var modulePath = Path.join(__dirname, 'pack');
 
-        if (!Fs.existsSync(configPath)) {
-            Fs.writeFileSync(configPath, JSON.stringify(manifest));
-        }
+        Fs.writeFileSync(configPath, JSON.stringify(manifest));
 
         var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath]);
 
@@ -67,10 +67,7 @@ describe('Hapi command line', function () {
 
             expect(data.toString()).to.equal('loaded\n');
             hapi.kill();
-
-            if (Fs.existsSync(configPath)) {
-                Fs.unlinkSync(configPath);
-            }
+            Fs.unlinkSync(configPath);
 
             done();
         });
@@ -112,16 +109,13 @@ describe('Hapi command line', function () {
             }
         };
 
-        var configPath = Path.join(__dirname, 'manifest3.json');
+        var configPath = Hapi.utils.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
         var modulePath = Path.join(__dirname, 'pack');
-        var symlinkPath = Path.join(modulePath, '..', 'mypack');
+        var symlinkPath = Hapi.utils.uniqueFilename(Os.tmpDir());
 
         Fs.symlinkSync(modulePath, symlinkPath, 'dir');
-
-        if (!Fs.existsSync(configPath)) {
-            Fs.writeFileSync(configPath, JSON.stringify(manifest));
-        }
+        Fs.writeFileSync(configPath, JSON.stringify(manifest));
 
         var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', symlinkPath]);
 
@@ -130,10 +124,7 @@ describe('Hapi command line', function () {
             expect(data.toString()).to.equal('loaded\n');
             hapi.kill();
 
-            if (Fs.existsSync(configPath)) {
-                Fs.unlinkSync(configPath);
-            }
-
+            Fs.unlinkSync(configPath);
             Fs.unlinkSync(symlinkPath);
 
             done();
@@ -176,12 +167,10 @@ describe('Hapi command line', function () {
             }
         };
 
-        var configPath = Path.join(__dirname, 'manifest4.json');
+        var configPath = Hapi.utils.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
 
-        if (!Fs.existsSync(configPath)) {
-            Fs.writeFileSync(configPath, JSON.stringify(manifest));
-        }
+        Fs.writeFileSync(configPath, JSON.stringify(manifest));
 
         var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p somethingWrong']);
 
@@ -196,9 +185,7 @@ describe('Hapi command line', function () {
 
             hapi.kill();
 
-            if (Fs.existsSync(configPath)) {
-                Fs.unlinkSync(configPath);
-            }
+            Fs.unlinkSync(configPath);
 
             done();
         });

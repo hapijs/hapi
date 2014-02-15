@@ -367,6 +367,7 @@ describe('Payload', function () {
                 var handler = function (request, reply) {
 
                     var receivedContents = Fs.readFileSync(request.payload.path);
+                    Fs.unlinkSync(request.payload.path);
                     expect(receivedContents).to.deep.equal(sourceContents);
                     reply(request.payload.bytes);
                 };
@@ -392,6 +393,7 @@ describe('Payload', function () {
                 var handler = function (request, reply) {
 
                     var receivedContents = Fs.readFileSync(request.payload.path);
+                    Fs.unlinkSync(request.payload.path);
                     expect(receivedContents).to.deep.equal(compressed);
                     reply(request.payload.bytes);
                 };
@@ -1081,6 +1083,7 @@ describe('Payload', function () {
 
                 var sourceContents = Fs.readFileSync(path);
                 var receivedContents = Fs.readFileSync(request.payload['my_file'].path);
+                Fs.unlinkSync(request.payload['my_file'].path);
                 expect(sourceContents).to.deep.equal(receivedContents);
                 done();
             };
