@@ -22,20 +22,16 @@ describe('Security', function () {
 
     describe('response splitting', function () {
 
-        var server = new Hapi.Server('0.0.0.0', 0);
-
-        internals.createItemHandler = function (request, reply) {
-
-            reply('Moved').created('/item/' + request.payload.name);
-        };
-
-        before(function (done) {
-
-            server.route({ method: 'POST', path: '/item', handler: internals.createItemHandler });
-            done();
-        });
-
         it('isn\'t allowed through the request.create method', function (done) {
+
+            var server = new Hapi.Server();
+
+            var createItemHandler = function (request, reply) {
+
+                reply('Moved').created('/item/' + request.payload.name);
+            };
+
+            server.route({ method: 'POST', path: '/item', handler: createItemHandler });
 
             server.inject({
                 method: 'POST', url: '/item',
@@ -114,15 +110,10 @@ describe('Security', function () {
 
     describe('Null Byte Injection', function () {
 
-        var server = new Hapi.Server('0.0.0.0', 0);
-
-        before(function (done) {
-
-            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
-            done();
-        });
-
         it('isn\'t allowed when serving a file', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
             server.inject('/index%00.html', function (res) {
 
@@ -134,21 +125,16 @@ describe('Security', function () {
 
     describe('XSS', function () {
 
-        var server = new Hapi.Server('0.0.0.0', 0, { debug: false });
-
-        internals.postHandler = function (request, reply) {
-
-            reply('Success');
-        };
-
-        before(function (done) {
-
-            server.state('encoded', { encoding: 'iron' });
-            server.route({ method: 'POST', path: '/', handler: internals.postHandler });
-            done();
-        });
-
         it('does not exist with invalid content types', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('Success');
+            };
+
+            var server = new Hapi.Server();
+            server.state('encoded', { encoding: 'iron' });
+            server.route({ method: 'POST', path: '/', handler: handler });
 
             server.inject({
                 method: 'POST',
@@ -165,6 +151,15 @@ describe('Security', function () {
 
         it('does not exist with invalid cookie values in the request', function (done) {
 
+            var handler = function (request, reply) {
+
+                reply('Success');
+            };
+
+            var server = new Hapi.Server();
+            server.state('encoded', { encoding: 'iron' });
+            server.route({ method: 'POST', path: '/', handler: handler });
+
             server.inject({
                 method: 'POST',
                 url: '/',
@@ -180,6 +175,15 @@ describe('Security', function () {
 
         it('does not exist with invalid cookie name in the request', function (done) {
 
+            var handler = function (request, reply) {
+
+                reply('Success');
+            };
+
+            var server = new Hapi.Server();
+            server.state('encoded', { encoding: 'iron' });
+            server.route({ method: 'POST', path: '/', handler: handler });
+
             server.inject({
                 method: 'POST',
                 url: '/',
@@ -194,6 +198,9 @@ describe('Security', function () {
         });
 
         it('does not exist in path validation response message', function (done) {
+
+            var server = new Hapi.Server();
+            server.state('encoded', { encoding: 'iron' });
 
             server.route({
                 method: 'GET', path: '/fail/{name}', handler: function (request, reply) {
@@ -218,6 +225,7 @@ describe('Security', function () {
 
         it('does not exist in payload validation response message', function (done) {
 
+            var server = new Hapi.Server();
             server.route({
                 method: 'POST', path: '/fail/payload', handler: function (request, reply) {
 
@@ -243,6 +251,7 @@ describe('Security', function () {
 
         it('does not exist in query validation response message', function (done) {
 
+            var server = new Hapi.Server();
             server.route({
                 method: 'GET', path: '/fail/query', handler: function (request, reply) {
 

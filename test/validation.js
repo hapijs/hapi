@@ -1,11 +1,8 @@
 // Load modules
 
+var Async = require('async');
 var Lab = require('lab');
-var Querystring = require('querystring');
-var Path = require('path');
 var Hapi = require('..');
-var Response = require('../lib/response');
-var Validation = require('../lib/validation');
 
 
 // Declare internals
@@ -392,272 +389,124 @@ describe('Validation', function () {
         });
     });
 
-    var testHandler = function (hapi, reply) {
+    it('samples responses', function (done) {
 
-        reply('ohai');
-    };
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
 
-    var createRequestObject = function (query, route, payload) {
-
-        var qstr = Querystring.stringify(query);
-        var routeClone = Hapi.utils.clone(route);
-
-        return {
-            url: {
-                search: '?' + qstr,
-                query: query,
-                pathname: routeClone.path,
-                path: routeClone.path + '?' + qstr,//'/config?choices=1&choices=2',
-                href: routeClone.path + '?' + qstr //'/config?choices=1&choices=2'
-            },
-            query: query,
-            payload: payload,
-            path: routeClone.path,
-            method: routeClone.method,
-            route: routeClone.config,
-            server: {
-                settings: {}
-            },
-            log: function () { }
-        };
-    };
-
-    var createRequestObjectFromPath = function (path, params, route) {
-
-        var routeClone = Hapi.utils.clone(route);
-
-        return {
-            url: {
-                pathname: path,
-                path: path,
-                href: path
-            },
-            params: params,
-            method: routeClone.method,
-            route: routeClone.config,
-            server: {
-                settings: {}
-            },
-            log: function () { }
-        };
-    };
-
-    describe('#response', function () {
-
-        var route = { method: 'GET', path: '/', config: { handler: testHandler, response: { schema: { username: Hapi.types.string().required() } } } };
-
-        it('should not raise an error when responding with valid param', function (done) {
-
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-
-            request.response = Response.wrap({ username: 'test' }, request);
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
-
-        it('an error response should skip response validation and not return an error', function (done) {
-
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-
-            request.response = Response.wrap(Hapi.error.unauthorized('You are not authorized'), request);
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
-
-        it('should raise an error when responding with invalid param', function (done) {
-
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-            request.response = Response.wrap({ wrongParam: 'test' }, request);
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.exist;
-                done();
-            });
-        });
-
-        it('should raise an error when responding with invalid param and sample is 100', function (done) {
-
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-            request.route.response.sample = 100;
-            request.response = Response.wrap({ wrongParam: 'test' }, request);
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.exist;
-                done();
-            });
-        });
-
-        internals.calculateFailAverage = function (size, sample) {
-
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-            request.route.response.failAction = 'log';
-            request.route.response.sample = sample;
-            request.response = Response.wrap({ wrongParam: 'test' }, request);
-            var failureCount = 0;
-
-            request.log = function () {
-
-                failureCount++;
-            };
-
-            var validationResponse = function () { };
-
-            for (var i = size; i > 0; i--) {
-                Validation.response(request, validationResponse);
+                    reply({ a: 1});
+                },
+                response: {
+                    sample: 50,
+                    schema: {
+                        b: Hapi.types.string()
+                    }
+                }
             }
+        });
 
-            return (failureCount / size) * 100;
-        };
+        var count = 0;
+        Async.times(100, function (n, next) {
 
-        it('sample percentage results in correct fail rate', function (done) {
+            server.inject('/', function (res) {
 
-            var rates = [];
-
-            for (var i = 50; i > 0; i--) {                                  // Try 50 times and take the max and min
-                rates.push(internals.calculateFailAverage(100, 25));
-            }
-
-            rates = rates.sort(function (a, b) {
-
-                return a - b;
+                count += (res.statusCode === 500 ? 1 : 0);
+                next(null, res.statusCode);
             });
+        }, function (err, codes) {
 
-            expect(rates[0]).to.be.greaterThan(8);                          // accept a 15 point margin
-            expect(rates[49]).to.be.lessThan(45);
-
+            expect(count).to.be.within(40, 60);
             done();
         });
+    });
 
-        it('should report an error when responding with invalid response param and failAction is report', function (done) {
+    it('ignores error responses', function (done) {
 
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-            request.route.response.failAction = 'log';
-            request.response = Response.wrap({ username: 'a', wrongParam: 'test' }, request);
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
 
-            request.log = function (tags, data) {
-
-                expect(data).to.contain('not allowed');
-                done();
-            };
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.not.exist;
-            });
+                    reply(Hapi.error.badRequest());
+                },
+                response: {
+                    schema: {
+                        b: Hapi.types.string()
+                    }
+                }
+            }
         });
 
-        it('should raise an error when validating a non-object response', function (done) {
+        server.inject('/', function (res) {
 
-            var query = { username: 'steve' };
-            var request = createRequestObject(query, route);
-            request.response = Response.wrap('test', request);
-
-            Validation.response(request, function (err) {
-
-                expect(err).to.exist;
-                done();
-            });
+            expect(res.statusCode).to.equal(400);
+            done();
         });
     });
 
-    describe('#path', function () {
+    it('errors on non-plain-object responses', function (done) {
 
-        var route = { method: 'GET', path: '/{id}', config: { handler: testHandler, validate: { path: { id: Hapi.types.number().required() } } } };
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
 
-        it('should not raise an error when responding with valid param in the path', function (done) {
-
-            var request = createRequestObjectFromPath('/21', { id: 21 }, route);
-
-            Validation.path(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
+                    reply.file('./package.json');
+                },
+                response: {
+                    schema: {
+                        b: Hapi.types.string()
+                    }
+                }
+            }
         });
 
-        it('should raise an error when responding with an invalid path param', function (done) {
+        server.inject('/', function (res) {
 
-            var request = createRequestObjectFromPath('/test', { id: 'test', something: true }, route);
-
-            Validation.path(request, function (err) {
-
-                expect(err).to.exist;
-                done();
-            });
-        });
-    });
-
-    describe('#query', function () {
-
-        it('should not raise an error when responding with valid param in the querystring', function (done) {
-
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { query: { username: Hapi.types.string().min(7) } } } };
-            var query = { username: 'username' };
-            var request = createRequestObject(query, route);
-
-            Validation.query(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
-        });
-
-        it('should raise an error when responding with an invalid querystring param', function (done) {
-
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { query: { username: Hapi.types.string().min(7) } } } };
-            var query = { username: '1' };
-            var request = createRequestObject(query, route);
-
-            Validation.query(request, function (err) {
-
-                expect(err).to.exist;
-                done();
-            });
+            expect(res.statusCode).to.equal(500);
+            done();
         });
     });
 
-    describe('#payload', function () {
+    it('logs invalid responses', function (done) {
 
-        it('should not raise an error when responding with valid param in the payload', function (done) {
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: { username: Hapi.types.string().min(7) } } } };
-            var payload = { username: 'username' };
-            var request = createRequestObject(null, route, payload);
-
-            Validation.payload(request, function (err) {
-
-                expect(err).to.not.exist;
-                done();
-            });
+                    reply({ a: 1 });
+                },
+                response: {
+                    failAction: 'log',
+                    schema: {
+                        b: Hapi.types.string()
+                    }
+                }
+            }
         });
 
-        it('should raise an error when responding with an invalid payload param', function (done) {
+        server.on('request', function (request, event, tags) {
 
-            var route = { method: 'GET', path: '/', config: { handler: testHandler, validate: { payload: { username: Hapi.types.string().required() } } } };
-            var payload = { username: '' };
-            var request = createRequestObject(null, route, payload);
+            if (tags.validation) {
+                expect(event.data).to.equal('the key a is not allowed');
+            }
+        });
 
-            Validation.payload(request, function (err) {
+        server.inject('/', function (res) {
 
-                expect(err).to.exist;
-                done();
-            });
+            expect(res.statusCode).to.equal(200);
+            done();
         });
     });
 });

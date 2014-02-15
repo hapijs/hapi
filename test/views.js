@@ -21,14 +21,12 @@ var it = Lab.test;
 
 describe('Views', function () {
 
-    var viewsPath = __dirname + '/templates';
-
     describe('#render', function () {
 
         it('renders with async compile', function (done) {
 
             var views = new Views.Manager({
-                path: viewsPath,
+                path: __dirname + '/templates',
                 engines: {
                     'html': {
                         compileMode: 'async',
@@ -59,7 +57,7 @@ describe('Views', function () {
         it('returns error on sync compile that throws', function (done) {
 
             var views = new Views.Manager({
-                path: viewsPath,
+                path: __dirname + '/templates',
                 engines: {
                     'html': {
                         compileMode: 'sync',
@@ -85,7 +83,7 @@ describe('Views', function () {
 
             var testView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: false
             });
 
@@ -101,7 +99,7 @@ describe('Views', function () {
 
             var testViewWithLayouts = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: true
             });
 
@@ -117,7 +115,7 @@ describe('Views', function () {
 
             var views = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: 'badlayout'
             });
 
@@ -133,7 +131,7 @@ describe('Views', function () {
 
             var views = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: '/badlayout'
             });
 
@@ -149,7 +147,7 @@ describe('Views', function () {
 
             var testViewWithJadeLayouts = new Views.Manager({
                 engines: { 'jade': 'jade' },
-                path: viewsPath + '/valid/',
+                path: __dirname + '/templates' + '/valid/',
                 layout: true
             });
 
@@ -164,7 +162,7 @@ describe('Views', function () {
 
             var testViewWithoutJadeLayouts = new Views.Manager({
                 engines: { 'jade': 'jade' },
-                path: viewsPath + '/valid/',
+                path: __dirname + '/templates' + '/valid/',
                 layout: false
             });
 
@@ -178,7 +176,7 @@ describe('Views', function () {
         it('should work and not throw with basePath, template name, and no path', function (done) {
 
             var views = new Views.Manager({ engines: { 'html': 'handlebars' } });
-            views.render('test', { title: 'test', message: 'Hapi' }, { basePath: viewsPath + '/valid' }, function (err, rendered, config) {
+            views.render('test', { title: 'test', message: 'Hapi' }, { basePath: __dirname + '/templates/valid' }, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered).to.contain('Hapi');
@@ -190,7 +188,7 @@ describe('Views', function () {
 
             var testViewWithLayouts = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: true
             });
 
@@ -205,7 +203,7 @@ describe('Views', function () {
 
             var testView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: false
             });
 
@@ -221,7 +219,7 @@ describe('Views', function () {
 
             var testViewWithLayouts = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: true
             });
 
@@ -237,7 +235,7 @@ describe('Views', function () {
 
             var testView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath,
+                path: __dirname + '/templates',
                 layout: false
             });
 
@@ -252,8 +250,8 @@ describe('Views', function () {
 
             var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath + '/valid',
-                partialsPath: viewsPath + '/valid/partials'
+                path: __dirname + '/templates/valid',
+                partialsPath: __dirname + '/templates/valid/partials'
             });
 
             tempView.render('testPartials', {}, null, function (err, rendered, config) {
@@ -267,8 +265,8 @@ describe('Views', function () {
 
             var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath + '/valid',
-                partialsPath: viewsPath + '/valid/partials/'
+                path: __dirname + '/templates/valid',
+                partialsPath: __dirname + '/templates/valid/partials/'
             });
 
             tempView.render('testPartials', {}, null, function (err, rendered, config) {
@@ -282,9 +280,9 @@ describe('Views', function () {
         it('should skip loading partials and helpers if engine does not support them', function (done) {
 
             var tempView = new Views.Manager({
-                path: viewsPath + '/valid',
-                partialsPath: viewsPath + '/valid/partials',
-                helpersPath: viewsPath + '/valid/helpers',
+                path: __dirname + '/templates/valid',
+                partialsPath: __dirname + '/templates/valid/partials',
+                helpersPath: __dirname + '/templates/valid/helpers',
                 engines: { 'html': 'jade' }
             });
 
@@ -299,8 +297,8 @@ describe('Views', function () {
 
             var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
-                path: viewsPath + '/valid',
-                helpersPath: viewsPath + '/valid/helpers'
+                path: __dirname + '/templates/valid',
+                helpersPath: __dirname + '/templates/valid/helpers'
             });
 
             tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
@@ -318,7 +316,7 @@ describe('Views', function () {
             var options = {
                 views: {
                     engines: { 'html': 'handlebars' },
-                    path: viewsPath
+                    path: __dirname + '/templates'
                 }
             };
 
@@ -340,7 +338,7 @@ describe('Views', function () {
            var options = {
                 views: {
                     engines: { 'jade': 'jade' },
-                    path: viewsPath
+                    path: __dirname + '/templates'
                 }
             };
 

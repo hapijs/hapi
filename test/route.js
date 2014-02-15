@@ -204,56 +204,6 @@ describe('Route', function () {
             done();
         });
     });
-});
-
-describe('Route', function () {
-
-    var server = new Hapi.Server(Defaults.server);
-
-    var _handler = function (request, reply) {
-
-        reply('ok');
-    };
-
-    it('throws an error if the method is missing', function (done) {
-
-        var fn = function () {
-
-            var route = new Route({ path: '/test', handler: _handler }, server);
-        };
-        expect(fn).throws(Error);
-        done();
-    });
-
-    it('does not throw an error when a method is present', function (done) {
-
-        var fn = function () {
-
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
-        };
-        expect(fn).to.not.throw(Error);
-        done();
-    });
-
-    it('throws an error if the handler is missing', function (done) {
-
-        var fn = function () {
-
-            var route = new Route({ path: '/test', method: 'get', handler: null }, server);
-        };
-        expect(fn).throws(Error);
-        done();
-    });
-
-    it('throws an error if the path is includes an encoded non-reserved character', function (done) {
-
-        var fn = function () {
-
-            var route = new Route({ path: '/abc%21123', method: 'get', handler: _handler }, server);
-        };
-        expect(fn).throws(Error);
-        done();
-    });
 
     describe('#pathRegex.validatePath', function () {
 
@@ -517,7 +467,7 @@ describe('Route', function () {
 
         it('returns true when called with a matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
+            var route = new Route({ path: '/test', method: 'get', handler: function () { } }, server);
             var request = {
                 path: '/test',
                 method: 'get'
@@ -529,7 +479,7 @@ describe('Route', function () {
 
         it('returns false when called with a non-matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
+            var route = new Route({ path: '/test', method: 'get', handler: function () { } }, server);
             var request = {
                 path: '/test2',
                 method: 'get'
@@ -541,7 +491,7 @@ describe('Route', function () {
 
         it('returns bad request route when called with an invalid path', function (done) {
 
-            var route = new Route({ path: '/{test}', method: 'get', handler: _handler }, server);
+            var route = new Route({ path: '/{test}', method: 'get', handler: function () { } }, server);
             var request = {
                 path: '/test%l',
                 _pathSegments: '/test%l'.split('/'),
@@ -557,7 +507,7 @@ describe('Route', function () {
 
         it('returns true when called with a matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
+            var route = new Route({ path: '/test', method: 'get', handler: function () { } }, server);
 
             expect(route.test('/test')).to.be.true;
             done();
@@ -565,7 +515,7 @@ describe('Route', function () {
 
         it('returns false when called with a non-matching path', function (done) {
 
-            var route = new Route({ path: '/test', method: 'get', handler: _handler }, server);
+            var route = new Route({ path: '/test', method: 'get', handler: function () { } }, server);
 
             expect(route.test('/test2')).to.be.false;
             done();

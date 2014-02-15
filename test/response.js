@@ -1742,49 +1742,79 @@ describe('Response', function () {
 
     describe('View', function () {
 
-        var handler = function (request, reply) {
+        it('should render handlebars template', function (done) {
 
-            return reply.view('test', { message: 'Hello, World!' });
-        };
-        var absoluteHandler = function (request, reply) {
+            var server = new Hapi.Server({
+                views: {
+                    engines: {
+                        html: {
+                            module: 'handlebars',
+                            path: __dirname + '/templates/valid'
+                        }
+                    }
+                }
+            });
 
-            return reply.view(__dirname + '/templates/valid/test', { message: 'Hello, World!' });
-        };
-        var insecureHandler = function (request, reply) {
+            var handler = function (request, reply) {
 
-            return reply.view('../test', { message: 'Hello, World!' });
-        };
-        var nonexistentHandler = function (request, reply) {
+                return reply.view('test.html', { message: "Hello World!" });
+            };
 
-            return reply.view('testNope', { message: 'Hello, World!' });
-        };
-        var invalidHandler = function (request, reply) {
+            server.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
 
-            return reply.view('badmustache', { message: 'Hello, World!' }, { path: __dirname + '/templates/valid/invalid' });
-        };
-        var testMultiHandlerJade = function (request, reply) {
+            server.inject('/handlebars', function (res) {
 
-            return reply.view('testMulti.jade', { message: "Hello World!" });
-        };
-        var testMultiHandlerHB = function (request, reply) {
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
 
-            return reply.view('test.html', { message: "Hello World!" });
-        };
-        var testMultiHandlerUnknown = function (request, reply) {
+        it('should throw if view module not found', function (done) {
 
-            return reply.view('test', { message: "Hello World!" });
-        };
-        var testMultiHandlerMissing = function (request, reply) {
+            var fn = function () {
 
-            return reply.view('test.xyz', { message: "Hello World!" });
-        };
+                var failServer = new Hapi.Server({
+                    views: {
+                        path: __dirname + '/templates/valid',
+                        engines: {
+                            'html': 'handlebars',
+                            'jade': 'jade',
+                            'hbar': {
+                                module: require('handlebars'),
+                                compile: function (engine) { return engine.compile; }
+                            },
+                            'err': {
+                                module: 'hapi-module-that-does-not-exist'
+                            }
+                        }
+                    }
+                });
+            };
+            expect(fn).to.throw();
+            done();
+        });
 
-        var cached = 1;
-        var cachedHandler = function (request, reply) {
+        it('should work if view engine module is a pre-required module', function (done) {
 
-            reply.view('test', { message: cached++ });
-        };
-        
+            var options = {
+                views: {
+                    path: __dirname + '/templates/valid',
+                    engines: {
+                        'test': {
+                            module: require('jade')
+                        }
+                    }
+                }
+            };
+            var fn = function () {
+
+                var passServer = new Hapi.Server(options);
+            };
+            expect(fn).to.not.throw();
+            done();
+        });
+
         it('returns error on invalid template path', function (done) {
 
             var server = new Hapi.Server({
@@ -1794,12 +1824,17 @@ describe('Response', function () {
                     path: __dirname + '/templates/invalid'
                 }
             });
-            
+
             var handler = function (request, reply) {
-                
+
                 reply.view('test', { message: 'Ohai' });
             };
-            
+
+            var handler = function (request, reply) {
+
+                return reply.view('test', { message: 'Hello, World!' });
+            };
+
             server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
@@ -1808,7 +1843,32 @@ describe('Response', function () {
             });
         });
 
-        describe('Default', function (done) {
+        it('returns a compiled Handlebars template reply', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/templates/valid'
+                }
+            });
+
+            var handler = function (request, reply) {
+
+                return reply.view('test', { message: 'Hello, World!' });
+            };
+
+            server.route({ method: 'GET', path: '/views', config: { handler: handler } });
+
+            server.inject('/views', function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.have.string('Hello, World!');
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
 
             var server = new Hapi.Server({
                 debug: false,
@@ -1817,61 +1877,94 @@ describe('Response', function () {
                     path: __dirname + '/templates/valid'
                 }
             });
-            server.route({ method: 'GET', path: '/views', config: { handler: handler } });
+            
+            var absoluteHandler = function (request, reply) {
+
+                return reply.view(__dirname + '/templates/valid/test', { message: 'Hello, World!' });
+            };
+
             server.route({ method: 'GET', path: '/views/abspath', config: { handler: absoluteHandler } });
+
+            server.inject('/views/abspath', function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error if path given includes ../ and allowInsecureAccess is false (by default)', function (done) {
+
+            var server = new Hapi.Server({
+                debug: false,
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/templates/valid'
+                }
+            });
+
+            var insecureHandler = function (request, reply) {
+
+                return reply.view('../test', { message: 'Hello, World!' });
+            };
+
             server.route({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
+
+            server.inject('/views/insecure', function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error if template does not exist', function (done) {
+
+            var server = new Hapi.Server({
+                debug: false,
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/templates/valid'
+                }
+            });
+
+            var nonexistentHandler = function (request, reply) {
+
+                return reply.view('testNope', { message: 'Hello, World!' });
+            };
+
             server.route({ method: 'GET', path: '/views/nonexistent', config: { handler: nonexistentHandler } });
+
+            server.inject('/views/nonexistent', function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns an error if engine.compile throws', function (done) {
+
+            var server = new Hapi.Server({
+                debug: false,
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/templates/valid'
+                }
+            });
+
+            var invalidHandler = function (request, reply) {
+
+                return reply.view('badmustache', { message: 'Hello, World!' }, { path: __dirname + '/templates/valid/invalid' });
+            };
+
             server.route({ method: 'GET', path: '/views/invalid', config: { handler: invalidHandler } });
 
-            it('returns a compiled Handlebars template reply', function (done) {
+            server.inject('/views/invalid', function (res) {
 
-                server.inject('/views', function (res) {
-
-                    expect(res.result).to.exist;
-                    expect(res.result).to.have.string('Hello, World!');
-                    expect(res.statusCode).to.equal(200);
-                    done();
-                });
-            });
-
-            it('returns an error absolute path given and allowAbsolutePath is false (by default)', function (done) {
-
-                server.inject('/views/abspath', function (res) {
-
-                    expect(res.result).to.exist;
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
-            });
-
-            it('returns an error if path given includes ../ and allowInsecureAccess is false (by default)', function (done) {
-
-                server.inject('/views/insecure', function (res) {
-
-                    expect(res.result).to.exist;
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
-            });
-
-            it('returns an error if template does not exist', function (done) {
-
-                server.inject('/views/nonexistent', function (res) {
-
-                    expect(res.result).to.exist;
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
-            });
-
-            it('returns an error if engine.compile throws', function (done) {
-
-                server.inject('/views/invalid', function (res) {
-
-                    expect(res.result).to.exist;
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(500);
+                done();
             });
         });
 
@@ -2125,47 +2218,25 @@ describe('Response', function () {
             });
         });
 
-        describe('Engine Support', function () {
+        describe('Caching', function () {
 
-            describe('Caching', function () {
+            it('should not throw if local cache disabled', function (done) {
 
-                it('should not throw if local cache disabled', function (done) {
-
-                    var fn = function () {
-
-                        var testServer = new Hapi.Server({
-                            views: {
-                                engines: { 'html': 'handlebars' },
-                                path: __dirname + '/templates/valid'
-                            }
-                        });
-                        testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
-                        testServer.inject('/handlebars', function (res) {
-
-                            expect(res.result).to.exist;
-                            expect(res.statusCode).to.equal(200);
-                            testServer.inject('/handlebars', function (res) {
-
-                                expect(res.result).to.exist;
-                                expect(res.statusCode).to.equal(200);
-                                // done();
-                            });
-                        });
-                    };
-                    expect(fn).to.not.throw();
-                    done();
-                });
-
-                it('should use the cache if all caching enabled', function (done) {
+                var fn = function () {
 
                     var testServer = new Hapi.Server({
                         views: {
                             engines: { 'html': 'handlebars' },
-                            path: __dirname + '/templates/valid',
-                            isCached: true
+                            path: __dirname + '/templates/valid'
                         }
                     });
-                    testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+
+                    var handler = function (request, reply) {
+
+                        return reply.view('test.html', { message: "Hello World!" });
+                    };
+
+                    testServer.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
                     testServer.inject('/handlebars', function (res) {
 
                         expect(res.result).to.exist;
@@ -2174,21 +2245,34 @@ describe('Response', function () {
 
                             expect(res.result).to.exist;
                             expect(res.statusCode).to.equal(200);
-                            done();
+                            // done();
                         });
                     });
+                };
+                expect(fn).to.not.throw();
+                done();
+            });
+
+            it('should use the cache if all caching enabled', function (done) {
+
+                var testServer = new Hapi.Server({
+                    views: {
+                        engines: { 'html': 'handlebars' },
+                        path: __dirname + '/templates/valid',
+                        isCached: true
+                    }
                 });
 
-                it('should not throw if global cache disabled', function (done) {
+                var handler = function (request, reply) {
 
-                    var testServer = new Hapi.Server({
-                        views: {
-                            engines: { 'html': 'handlebars' },
-                            path: __dirname + '/templates/valid',
-                            isCached: false
-                        }
-                    });
-                    testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+                    return reply.view('test.html', { message: "Hello World!" });
+                };
+
+                testServer.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
+                testServer.inject('/handlebars', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
                     testServer.inject('/handlebars', function (res) {
 
                         expect(res.result).to.exist;
@@ -2198,81 +2282,34 @@ describe('Response', function () {
                 });
             });
 
-            describe('General', function () {
+            it('should not throw if global cache disabled', function (done) {
 
-                it('should throw if view module not found', function (done) {
-
-                    var fn = function () {
-
-                        var failServer = new Hapi.Server({
-                            views: {
-                                path: __dirname + '/templates/valid',
-                                engines: {
-                                    'html': 'handlebars',
-                                    'jade': 'jade',
-                                    'hbar': {
-                                        module: require('handlebars'),
-                                        compile: function (engine) { return engine.compile; }
-                                    },
-                                    'err': {
-                                        module: 'hapi-module-that-does-not-exist'
-                                    }
-                                }
-                            }
-                        });
-                    };
-                    expect(fn).to.throw();
-                    done();
+                var testServer = new Hapi.Server({
+                    views: {
+                        engines: { 'html': 'handlebars' },
+                        path: __dirname + '/templates/valid',
+                        isCached: false
+                    }
                 });
 
-                it('should work if view engine module is a pre-required module', function (done) {
+                var handler = function (request, reply) {
 
-                    var options = {
-                        views: {
-                            path: __dirname + '/templates/valid',
-                            engines: {
-                                'test': {
-                                    module: require('jade')
-                                }
-                            }
-                        }
-                    };
-                    var fn = function () {
+                    return reply.view('test.html', { message: "Hello World!" });
+                };
 
-                        var passServer = new Hapi.Server(options);
-                    };
-                    expect(fn).to.not.throw();
+                testServer.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
+                testServer.inject('/handlebars', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
                     done();
                 });
             });
+        });
 
-            describe('Single', function () {
+        describe('Multiple', function () {
 
-                it('should render handlebars template', function (done) {
-
-                    var server = new Hapi.Server({
-                        views: {
-                            engines: {
-                                html: {
-                                    module: 'handlebars',
-                                    path: __dirname + '/templates/valid'
-                                }
-                            }
-                        }
-                    });
-
-                    server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
-
-                    server.inject('/handlebars', function (res) {
-
-                        expect(res.result).to.exist;
-                        expect(res.statusCode).to.equal(200);
-                        done();
-                    });
-                });
-            });
-
-            describe('Multiple', function () {
+            it('should render jade template', function (done) {
 
                 var server = new Hapi.Server({
                     debug: false,
@@ -2289,47 +2326,116 @@ describe('Response', function () {
                         }
                     }
                 });
+
+                var testMultiHandlerJade = function (request, reply) {
+
+                    return reply.view('testMulti.jade', { message: "Hello World!" });
+                };
+
                 server.route({ method: 'GET', path: '/jade', config: { handler: testMultiHandlerJade } });
-                server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
+
+                server.inject('/jade', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+
+            it('should render handlebars template', function (done) {
+
+                var server = new Hapi.Server({
+                    debug: false,
+                    views: {
+                        path: __dirname + '/templates/valid',
+                        engines: {
+                            'html': 'handlebars',
+                            'jade': 'jade',
+                            'hbar': {
+                                module: {
+                                    compile: function (engine) { return engine.compile; }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                var handler = function (request, reply) {
+
+                    return reply.view('test.html', { message: "Hello World!" });
+                };
+
+                server.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
+
+                server.inject('/handlebars', function (res) {
+
+                    expect(res.result).to.exist;
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+
+            it('should return 500 on unknown extension', function (done) {
+
+                var server = new Hapi.Server({
+                    debug: false,
+                    views: {
+                        path: __dirname + '/templates/valid',
+                        engines: {
+                            'html': 'handlebars',
+                            'jade': 'jade',
+                            'hbar': {
+                                module: {
+                                    compile: function (engine) { return engine.compile; }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                var testMultiHandlerUnknown = function (request, reply) {
+
+                    return reply.view('test', { message: "Hello World!" });
+                };
+
                 server.route({ method: 'GET', path: '/unknown', config: { handler: testMultiHandlerUnknown } });
+
+                server.inject('/unknown', function (res) {
+
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+
+            it('should return 500 on missing extension engine', function (done) {
+
+                var server = new Hapi.Server({
+                    debug: false,
+                    views: {
+                        path: __dirname + '/templates/valid',
+                        engines: {
+                            'html': 'handlebars',
+                            'jade': 'jade',
+                            'hbar': {
+                                module: {
+                                    compile: function (engine) { return engine.compile; }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                var testMultiHandlerMissing = function (request, reply) {
+
+                    return reply.view('test.xyz', { message: "Hello World!" });
+                };
+
                 server.route({ method: 'GET', path: '/missing', config: { handler: testMultiHandlerMissing } });
 
-                it('should render jade template', function (done) {
+                server.inject('/missing', function (res) {
 
-                    server.inject('/jade', function (res) {
-
-                        expect(res.result).to.exist;
-                        expect(res.statusCode).to.equal(200);
-                        done();
-                    });
-                });
-
-                it('should render handlebars template', function (done) {
-
-                    server.inject('/handlebars', function (res) {
-
-                        expect(res.result).to.exist;
-                        expect(res.statusCode).to.equal(200);
-                        done();
-                    });
-                });
-
-                it('should return 500 on unknown extension', function (done) {
-
-                    server.inject('/unknown', function (res) {
-
-                        expect(res.statusCode).to.equal(500);
-                        done();
-                    });
-                });
-
-                it('should return 500 on missing extension engine', function (done) {
-
-                    server.inject('/missing', function (res) {
-
-                        expect(res.statusCode).to.equal(500);
-                        done();
-                    });
+                    expect(res.statusCode).to.equal(500);
+                    done();
                 });
             });
         });
