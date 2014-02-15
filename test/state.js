@@ -42,32 +42,33 @@ describe('State', function () {
 
                 it('parses cookie header: ' + header, function (done) {
 
-                    var request = {
-                        raw: {
-                            req: {
-                                headers: {
-                                    cookie: header
-                                }
-                            }
-                        },
-                        server: {
-                            _stateDefinitions: definitions || {},
-                            settings: {
-                                state: settings || Defaults.server.state
-                            }
+                    var server = new Hapi.Server({ state: settings || Defaults.server.state });
+
+                    if (definitions) {
+                        var cookies = Object.keys(definitions);
+                        for (var i = 0, il = cookies.length; i < il; ++i) {
+                            var cookie = cookies[i];
+                            server.state(cookie, definitions[cookie]);
                         }
-                    };
+                    }
 
-                    State.parseCookies(request, function (err) {
+                    server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.state); } });
 
-                        expect(err).not.to.exist;
-                        expect(request.state).to.deep.equal(values);
+                    server.inject({ method: 'GET', url: '/', headers: { cookie: header } }, function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        if (values) {
+                            expect(res.result).to.deep.equal(values);
+                        }
                         done();
                     });
                 });
             };
 
             pass('a=b', { a: 'b' });
+            pass('a=', { a: '' });
+            pass('a=""', { a: '' });
+            pass('a=;', { a: '' });
             pass('a=123', { a: '123' });
             pass('a=1; a=2', { a: ['1', '2'] });
             pass('a=1; b="2"; c=3', { a: '1', b: '2', c: '3' });
