@@ -774,15 +774,15 @@ describe('Response', function () {
 
     describe('Empty', function () {
 
-        var handler = function (request, reply) {
-
-            return reply().code(299);
-        };
-
-        var server = new Hapi.Server({ cors: { credentials: true } });
-        server.route({ method: 'GET', path: '/', handler: handler });
-
         it('returns an empty reply', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply().code(299);
+            };
+
+            var server = new Hapi.Server({ cors: { credentials: true } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -943,11 +943,6 @@ describe('Response', function () {
             });
         });
 
-        var filenameFn = function (request) {
-
-            return '../' + request.params.file;
-        };
-
         it('returns a file using the build-in handler config', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: __dirname } });
@@ -963,6 +958,11 @@ describe('Response', function () {
         });
 
         it('returns a file using the file function with the build-in handler config', function (done) {
+
+            var filenameFn = function (request) {
+
+                return '../' + request.params.file;
+            };
 
             var server = new Hapi.Server({ files: { relativeTo: __dirname } });
             server.route({ method: 'GET', path: '/filefn/{file}', handler: { file: filenameFn } });
@@ -1742,28 +1742,25 @@ describe('Response', function () {
 
     describe('View', function () {
 
-        var viewPath = __dirname + '/templates/valid';
-        var msg = "Hello, World!";
-
         var handler = function (request, reply) {
 
-            return reply.view('test', { message: msg });
+            return reply.view('test', { message: 'Hello, World!' });
         };
         var absoluteHandler = function (request, reply) {
 
-            return reply.view(viewPath + '/test', { message: msg });
+            return reply.view(__dirname + '/templates/valid/test', { message: 'Hello, World!' });
         };
         var insecureHandler = function (request, reply) {
 
-            return reply.view('../test', { message: msg });
+            return reply.view('../test', { message: 'Hello, World!' });
         };
         var nonexistentHandler = function (request, reply) {
 
-            return reply.view('testNope', { message: msg });
+            return reply.view('testNope', { message: 'Hello, World!' });
         };
         var invalidHandler = function (request, reply) {
 
-            return reply.view('badmustache', { message: msg }, { path: viewPath + '/invalid' });
+            return reply.view('badmustache', { message: 'Hello, World!' }, { path: __dirname + '/templates/valid/invalid' });
         };
         var testMultiHandlerJade = function (request, reply) {
 
@@ -1817,7 +1814,7 @@ describe('Response', function () {
                 debug: false,
                 views: {
                     engines: { 'html': 'handlebars' },
-                    path: viewPath
+                    path: __dirname + '/templates/valid'
                 }
             });
             server.route({ method: 'GET', path: '/views', config: { handler: handler } });
@@ -1831,7 +1828,7 @@ describe('Response', function () {
                 server.inject('/views', function (res) {
 
                     expect(res.result).to.exist;
-                    expect(res.result).to.have.string(msg);
+                    expect(res.result).to.have.string('Hello, World!');
                     expect(res.statusCode).to.equal(200);
                     done();
                 });
@@ -2090,7 +2087,7 @@ describe('Response', function () {
 
                 var handler = function (request, reply) {
 
-                    return reply.view('test', { message: msg, content: 'fail' });
+                    return reply.view('test', { message: 'Hello, World!', content: 'fail' });
                 };
 
                 layoutServer.route({ method: 'GET', path: '/conflict', handler: handler });
@@ -2114,7 +2111,7 @@ describe('Response', function () {
 
                 var handler = function (request, reply) {
 
-                    return reply.view('test', { message: msg }, { path: viewPath + '/invalid' });
+                    return reply.view('test', { message: 'Hello, World!' }, { path: __dirname + '/templates/valid/invalid' });
                 };
 
                 layoutServer.route({ method: 'GET', path: '/abspath', handler: handler });
@@ -2139,7 +2136,7 @@ describe('Response', function () {
                         var testServer = new Hapi.Server({
                             views: {
                                 engines: { 'html': 'handlebars' },
-                                path: viewPath
+                                path: __dirname + '/templates/valid'
                             }
                         });
                         testServer.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
@@ -2164,7 +2161,7 @@ describe('Response', function () {
                     var testServer = new Hapi.Server({
                         views: {
                             engines: { 'html': 'handlebars' },
-                            path: viewPath,
+                            path: __dirname + '/templates/valid',
                             isCached: true
                         }
                     });
@@ -2187,7 +2184,7 @@ describe('Response', function () {
                     var testServer = new Hapi.Server({
                         views: {
                             engines: { 'html': 'handlebars' },
-                            path: viewPath,
+                            path: __dirname + '/templates/valid',
                             isCached: false
                         }
                     });
@@ -2209,7 +2206,7 @@ describe('Response', function () {
 
                         var failServer = new Hapi.Server({
                             views: {
-                                path: viewPath,
+                                path: __dirname + '/templates/valid',
                                 engines: {
                                     'html': 'handlebars',
                                     'jade': 'jade',
@@ -2232,7 +2229,7 @@ describe('Response', function () {
 
                     var options = {
                         views: {
-                            path: viewPath,
+                            path: __dirname + '/templates/valid',
                             engines: {
                                 'test': {
                                     module: require('jade')
@@ -2251,20 +2248,20 @@ describe('Response', function () {
 
             describe('Single', function () {
 
-                var server = new Hapi.Server({
-                    views: {
-                        engines: {
-                            html: {
-                                module: 'handlebars',
-                                path: viewPath
+                it('should render handlebars template', function (done) {
+
+                    var server = new Hapi.Server({
+                        views: {
+                            engines: {
+                                html: {
+                                    module: 'handlebars',
+                                    path: __dirname + '/templates/valid'
+                                }
                             }
                         }
-                    }
-                });
+                    });
 
-                server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
-
-                it('should render handlebars template', function (done) {
+                    server.route({ method: 'GET', path: '/handlebars', config: { handler: testMultiHandlerHB } });
 
                     server.inject('/handlebars', function (res) {
 
@@ -2280,7 +2277,7 @@ describe('Response', function () {
                 var server = new Hapi.Server({
                     debug: false,
                     views: {
-                        path: viewPath,
+                        path: __dirname + '/templates/valid',
                         engines: {
                             'html': 'handlebars',
                             'jade': 'jade',
@@ -2340,60 +2337,17 @@ describe('Response', function () {
 
     describe('Redirection', function () {
 
-        var handler = function (request, reply) {
-
-            if (!request.query.x) {
-                return reply('Please wait while we send your elsewhere').redirect('example');
-            }
-
-            if (request.query.x === 'verbose') {
-                return reply('We moved!').redirect().location('examplex');
-            }
-
-            if (request.query.x === '302') {
-                return reply().redirect('example').temporary().rewritable();
-            }
-
-            if (request.query.x === '307') {
-                return reply().redirect('example').temporary().rewritable(false);
-            }
-
-            if (request.query.x === '301') {
-                return reply().redirect('example').permanent().rewritable();
-            }
-
-            if (request.query.x === '308') {
-                return reply().redirect('example').permanent().rewritable(false);
-            }
-
-            if (request.query.x === '302f') {
-                return reply().redirect('example').rewritable().temporary();
-            }
-
-            if (request.query.x === '307f') {
-                return reply().redirect('example').rewritable(false).temporary();
-            }
-
-            if (request.query.x === '301f') {
-                return reply().redirect('example').rewritable().permanent();
-            }
-
-            if (request.query.x === '308f') {
-                return reply().redirect('example').rewritable(false).permanent();
-            }
-        };
-
-        var server = new Hapi.Server(0, { debug: false });
-        server.route({ method: 'GET', path: '/redirect', config: { handler: handler } });
-
-        before(function (done) {
-
-            server.start(done);
-        });
-
         it('returns a redirection reply', function (done) {
 
-            server.inject('http://example.org/redirect', function (res) {
+            var handler = function (request, reply) {
+
+                return reply('Please wait while we send your elsewhere').redirect('example');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('http://example.org/', function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.headers.location).to.equal('http://example.org/example');
@@ -2404,7 +2358,15 @@ describe('Response', function () {
 
         it('returns a redirection reply using verbose call', function (done) {
 
-            server.inject('/redirect?x=verbose', function (res) {
+            var handler = function (request, reply) {
+
+                return reply('We moved!').redirect().location('examplex');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('We moved!');
@@ -2416,7 +2378,15 @@ describe('Response', function () {
 
         it('returns a 301 redirection reply', function (done) {
 
-            server.inject('/redirect?x=301', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').permanent().rewritable();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(301);
                 done();
@@ -2425,7 +2395,15 @@ describe('Response', function () {
 
         it('returns a 302 redirection reply', function (done) {
 
-            server.inject('/redirect?x=302', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').temporary().rewritable();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(302);
                 done();
@@ -2434,7 +2412,15 @@ describe('Response', function () {
 
         it('returns a 307 redirection reply', function (done) {
 
-            server.inject('/redirect?x=307', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').temporary().rewritable(false);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(307);
                 done();
@@ -2443,7 +2429,15 @@ describe('Response', function () {
 
         it('returns a 308 redirection reply', function (done) {
 
-            server.inject('/redirect?x=308', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').permanent().rewritable(false);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(308);
                 done();
@@ -2452,7 +2446,15 @@ describe('Response', function () {
 
         it('returns a 301 redirection reply (reveresed methods)', function (done) {
 
-            server.inject('/redirect?x=301f', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').rewritable().permanent();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(301);
                 done();
@@ -2461,7 +2463,15 @@ describe('Response', function () {
 
         it('returns a 302 redirection reply (reveresed methods)', function (done) {
 
-            server.inject('/redirect?x=302f', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').rewritable().temporary();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(302);
                 done();
@@ -2470,7 +2480,15 @@ describe('Response', function () {
 
         it('returns a 307 redirection reply (reveresed methods)', function (done) {
 
-            server.inject('/redirect?x=307f', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').rewritable(false).temporary();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(307);
                 done();
@@ -2479,7 +2497,15 @@ describe('Response', function () {
 
         it('returns a 308 redirection reply (reveresed methods)', function (done) {
 
-            server.inject('/redirect?x=308f', function (res) {
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').rewritable(false).permanent();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(308);
                 done();
