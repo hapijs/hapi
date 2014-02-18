@@ -18,26 +18,26 @@ var describe = Lab.experiment;
 var it = Lab.test;
 
 
-describe('Helper', function () {
+describe('Method', function () {
 
-    it('reuses cached helper value', function (done) {
+    it('reuses cached method value', function (done) {
 
         var gen = 0;
-        var helper = function (id, next) {
+        var method = function (id, next) {
 
-            return next({ id: id, gen: gen++ });
+            return next(null, { id: id, gen: gen++ });
         };
 
         var server = new Hapi.Server(0);
-        server.helper('test', helper, { cache: { expiresIn: 1000 } });
+        server.method('test', method, { cache: { expiresIn: 1000 } });
 
         server.start(function () {
 
-            server.helpers.test(1, function (result) {
+            server.methods.test(1, function (err, result) {
 
                 expect(result.gen).to.equal(0);
 
-                server.helpers.test(1, function (result) {
+                server.methods.test(1, function (err, result) {
 
                     expect(result.gen).to.equal(0);
                     done();
@@ -49,24 +49,24 @@ describe('Helper', function () {
     it('generates new value after cache drop', function (done) {
 
         var gen = 0;
-        var helper = function (id, next) {
+        var method = function (id, next) {
 
-            return next({ id: id, gen: gen++ });
+            return next(null, { id: id, gen: gen++ });
         };
 
         var server = new Hapi.Server(0);
-        server.helper('dropTest', helper, { cache: { expiresIn: 1000 } });
+        server.method('dropTest', method, { cache: { expiresIn: 1000 } });
 
         server.start(function () {
 
-            server.helpers.dropTest(2, function (result) {
+            server.methods.dropTest(2, function (err, result) {
 
                 expect(result.gen).to.equal(0);
-                server.helpers.dropTest.cache.drop(2, function (err) {
+                server.methods.dropTest.cache.drop(2, function (err) {
 
                     expect(err).to.not.exist;
 
-                    server.helpers.dropTest(2, function (result) {
+                    server.methods.dropTest(2, function (err, result) {
 
                         expect(result.gen).to.equal(1);
                         done();
@@ -79,17 +79,17 @@ describe('Helper', function () {
     it('errors on invalid drop key', function (done) {
 
         var gen = 0;
-        var helper = function (id, next) {
+        var method = function (id, next) {
 
-            return next({ id: id, gen: gen++ });
+            return next(null, { id: id, gen: gen++ });
         };
 
         var server = new Hapi.Server(0);
-        server.helper('dropErrTest', helper, { cache: { expiresIn: 1000 } });
+        server.method('dropErrTest', method, { cache: { expiresIn: 1000 } });
 
         server.start(function () {
 
-            server.helpers.dropErrTest.cache.drop(function () {}, function (err) {
+            server.methods.dropErrTest.cache.drop(function () {}, function (err) {
 
                 expect(err).to.exist;
                 done();
@@ -102,18 +102,18 @@ describe('Helper', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-            server.helper(0, function () { });
+            server.method(0, function () { });
         };
         expect(fn).to.throw(Error);
         done();
     });
 
-    it('throws an error when method is not a function', function (done) {
+    it('throws an error when fn is not a function', function (done) {
 
         var fn = function () {
 
             var server = new Hapi.Server();
-            server.helper('user', 'function');
+            server.method('user', 'function');
         };
         expect(fn).to.throw(Error);
         done();
@@ -124,7 +124,7 @@ describe('Helper', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-            server.helper('user', function () { }, 'options');
+            server.method('user', function () { }, 'options');
         };
         expect(fn).to.throw(Error);
         done();
@@ -135,7 +135,7 @@ describe('Helper', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-            server.helper('user', function () { }, { generateKey: 'function' });
+            server.method('user', function () { }, { generateKey: 'function' });
         };
         expect(fn).to.throw(Error);
         done();
@@ -146,30 +146,30 @@ describe('Helper', function () {
         var fn = function () {
 
             var server = new Hapi.Server({ cache: 'memory' });
-            server.helper('user', function () { }, { cache: { x: 'y' } });
+            server.method('user', function () { }, { cache: { x: 'y' } });
         };
         expect(fn).to.throw(Error);
         done();
     });
 
-    it('returns a valid result when calling a helper without using the cache', function (done) {
+    it('returns a valid result when calling a method without using the cache', function (done) {
 
         var server = new Hapi.Server();
-        server.helper('user', function (id, next) { return next({ id: id }); });
-        server.helpers.user(4, function (result) {
+        server.method('user', function (id, next) { return next(null, { id: id }); });
+        server.methods.user(4, function (err, result) {
 
             expect(result.id).to.equal(4);
             done();
         });
     });
 
-    it('returns a valid result when calling a helper when using the cache', function (done) {
+    it('returns a valid result when calling a method when using the cache', function (done) {
 
         var server = new Hapi.Server(0);
         server.start(function () {
 
-            server.helper('user', function (id, str, next) { return next({ id: id, str: str }); }, { cache: { expiresIn: 1000 } });
-            server.helpers.user(4, 'something', function (result) {
+            server.method('user', function (id, str, next) { return next(null, { id: id, str: str }); }, { cache: { expiresIn: 1000 } });
+            server.methods.user(4, 'something', function (err, result) {
 
                 expect(result.id).to.equal(4);
                 expect(result.str).to.equal('something');
@@ -178,27 +178,27 @@ describe('Helper', function () {
         });
     });
 
-    it('returns an error result when calling a helper that returns an error', function (done) {
+    it('returns an error result when calling a method that returns an error', function (done) {
 
         var server = new Hapi.Server();
-        server.helper('user', function (id, next) { return next(new Error()); });
-        server.helpers.user(4, function (result) {
+        server.method('user', function (id, next) { return next(new Error()); });
+        server.methods.user(4, function (err, result) {
 
-            expect(result instanceof Error).to.equal(true);
+            expect(err).to.exist;
             done();
         });
     });
 
-    it('returns a different result when calling a helper without using the cache', function (done) {
+    it('returns a different result when calling a method without using the cache', function (done) {
 
         var server = new Hapi.Server();
         var gen = 0;
-        server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); });
-        server.helpers.user(4, function (result1) {
+        server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); });
+        server.methods.user(4, function (err, result1) {
 
             expect(result1.id).to.equal(4);
             expect(result1.gen).to.equal(1);
-            server.helpers.user(4, function (result2) {
+            server.methods.user(4, function (err, result2) {
 
                 expect(result2.id).to.equal(4);
                 expect(result2.gen).to.equal(2);
@@ -209,21 +209,21 @@ describe('Helper', function () {
 
     describe('with cache', function () {
 
-        it('returns a valid result when calling a helper using the cache', function (done) {
+        it('returns a valid result when calling a method using the cache', function (done) {
 
             var server = new Hapi.Server(0, { cache: 'memory' });
 
             var gen = 0;
-            server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+            server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
 
             server.start(function () {
 
                 var id = Math.random();
-                server.helpers.user(id, function (result1) {
+                server.methods.user(id, function (err, result1) {
 
                     expect(result1.id).to.equal(id);
                     expect(result1.gen).to.equal(1);
-                    server.helpers.user(id, function (result2) {
+                    server.methods.user(id, function (err, result2) {
 
                         expect(result2.id).to.equal(id);
                         expect(result2.gen).to.equal(1);
@@ -233,21 +233,21 @@ describe('Helper', function () {
             });
         });
 
-        it('supports empty key helper', function (done) {
+        it('supports empty key method', function (done) {
 
             var server = new Hapi.Server(0, { cache: 'memory' });
 
             var gen = 0;
             var terms = 'I agree to give my house';
-            server.helper('tos', function (next) { return next({ gen: gen++, terms: terms }); }, { cache: { expiresIn: 2000 } });
+            server.method('tos', function (next) { return next(null, { gen: gen++, terms: terms }); }, { cache: { expiresIn: 2000 } });
 
             server.start(function () {
 
-                server.helpers.tos(function (result1) {
+                server.methods.tos(function (err, result1) {
 
                     expect(result1.terms).to.equal(terms);
                     expect(result1.gen).to.equal(0);
-                    server.helpers.tos(function (result2) {
+                    server.methods.tos(function (err, result2) {
 
                         expect(result2.terms).to.equal(terms);
                         expect(result2.gen).to.equal(0);
@@ -257,20 +257,20 @@ describe('Helper', function () {
             });
         });
 
-        it('returns valid results when calling a helper (with different keys) using the cache', function (done) {
+        it('returns valid results when calling a method (with different keys) using the cache', function (done) {
 
             var server = new Hapi.Server(0, { cache: 'memory' });
             var gen = 0;
-            server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+            server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
             server.start(function () {
                 
                 var id1 = Math.random();
-                server.helpers.user(id1, function (result1) {
+                server.methods.user(id1, function (err, result1) {
 
                     expect(result1.id).to.equal(id1);
                     expect(result1.gen).to.equal(1);
                     var id2 = Math.random();
-                    server.helpers.user(id2, function (result2) {
+                    server.methods.user(id2, function (err, result2) {
 
                         expect(result2.id).to.equal(id2);
                         expect(result2.gen).to.equal(2);
@@ -285,25 +285,25 @@ describe('Helper', function () {
             var server = new Hapi.Server(0, { cache: 'memory' });
             var id1 = Math.random();
             var gen = 0;
-            var helper = function (id, next) {
+            var method = function (id, next) {
 
                 if (typeof id === 'function') {
                     id = id1;
                 }
 
-                return next({ id: id, gen: ++gen });
+                return next(null, { id: id, gen: ++gen });
             };
 
-            server.helper([{ name: 'user', method: helper, options: { cache: { expiresIn: 2000 } } }]);
+            server.method([{ name: 'user', fn: method, options: { cache: { expiresIn: 2000 } } }]);
 
             server.start(function () {
 
-                server.helpers.user(id1, function (result1) {
+                server.methods.user(id1, function (err, result1) {
 
                     expect(result1.id).to.equal(id1);
                     expect(result1.gen).to.equal(1);
 
-                    server.helpers.user(function () { }, function (result2) {
+                    server.methods.user(function () { }, function (err, result2) {
 
                         expect(result2.id).to.equal(id1);
                         expect(result2.gen).to.equal(2);

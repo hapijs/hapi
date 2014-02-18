@@ -66,18 +66,33 @@ describe('Pack', function () {
                 sodd.route({ method: 'GET', path: '/sodd', handler: function (request, reply) { reply('sodd'); } });
 
                 memoryx.state('sid', { encoding: 'base64' });
-                plugin.helper({ name: 'test', method: function (next) {
+                plugin.method({ name: 'testMethod', fn: function (next) {
 
-                    next('123');
+                    next(null, '123');
                 }, options: { cache: { expiresIn: 1000 } } });
 
-                server2.helpers.test(function (result) {
+                server2.methods.testMethod(function (err, result) {
 
                     expect(result).to.equal('123');
-                    plugin.helpers.test(function (result) {
+
+                    plugin.methods.testMethod(function (err, result) {
 
                         expect(result).to.equal('123');
-                        next();
+
+                        plugin.helper({ name: 'test', method: function (next) {
+
+                            next('123');
+                        }, options: { cache: { expiresIn: 1000 } } });
+
+                        server2.helpers.test(function (result) {
+
+                            expect(result).to.equal('123');
+                            plugin.helpers.test(function (result) {
+
+                                expect(result).to.equal('123');
+                                next();
+                            });
+                        });
                     });
                 });
             }

@@ -1,4 +1,4 @@
-# 2.4.x API Reference
+# 2.5.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -25,8 +25,8 @@
         - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
         - [`server.ext(event, method, [options])`](#serverextevent-method-options)
             - [Request lifecycle](#request-lifecycle)
-        - [`server.helper(name, method, [options])`](#serverhelpername-method-options)
-        - [`server.helper(helper)`](#serverhelperhelper)
+        - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
+        - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
@@ -85,9 +85,9 @@
         - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
         - [`plugin.after(method)`](#pluginaftermethod)
         - [`plugin.views(options)`](#pluginviewsoptions)
-        - [`plugin.helper(name, method, [options])`](#pluginhelpername-method-options)
-        - [`plugin.helper(helper)`](#pluginhelperhelper)
-        - [`plugin.helpers`](#pluginhelpers)
+        - [`plugin.method(name, fn, [options])`](#pluginmethodname-fn-options)
+        - [`plugin.method(method)`](#pluginmethodmethod)
+        - [`plugin.methods`](#pluginmethods)
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
@@ -146,14 +146,13 @@ When creating a server instance, the following options configure the server's be
 - `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which should use `plugins[name]`. Note the difference between
   `server.settings.app` which is used to store configuration value and `server.app` which is meant for storing run-time state.
 
-- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing request
-  responses and helper results. By default a simple memory-based cache is used which has limited capacity and limited production environment suitability.
-  In addition to the memory cache, a Redis, MongoDB, or Memcache cache can be configured. Actual caching is only utilized if helpers and plugins
-  are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself. The value can be a string
-  with the cache engine name (using the defaults for that engine type), an object with the cache options, or an array of cache options. The cache options
-  are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client). When an array of options is provided, multiple cache
-  connections are established and each array item (except one) must include an additional option:
-    - `name` - an identifier used later when provisioning or configuring caching for routes, helpers, or plugins. Each connection name must be unique. A
+- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing application state and server method results. By default a simple memory-based cache is used which has limited capacity and limited production
+  environment suitability. In addition to the memory cache, a Redis, MongoDB, or Memcache cache can be configured. Actual caching is only utilized
+  if methods and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself.
+  The value can be a string with the cache engine name (using the defaults for that engine type), an object with the cache options, or an array of
+  cache options. The cache options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client). When an array
+  of options is provided, multiple cache connections are established and each array item (except one) must include an additional option:
+    - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each connection name must be unique. A
       single item may omit the `name` option which defines the default cache. If every connection includes a `name`, a default memory cache is provisions
       as well as the default.
     - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same route and cache.
@@ -288,7 +287,7 @@ Each instance of the `Server` object have the following properties:
 
 - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
   Should not be used by plugins which should use `plugins[name]`.
-- `helpers` - helper functions registered with [`server.helper()`](#serverhelpername-method-options).
+- `methods` - methods registered with [`server.method()`](#servermethodname-fn-options).
 - `info` - server information:
     - `port` - the port the server was configured to (before `start()`) or bound to (after `start()`).
     - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
@@ -720,7 +719,7 @@ The route `pre` option allows defining such pre-handler methods. The methods are
 those methods are called in parallel. `pre` can be assigned a mixed array of:
 - arrays containing the elemets listed below, which are executed in parallel.
 - objects with:
-    - `method` - the function to call (or short-hand helper string as described below). the function signature is identical to a route handler
+    - `method` - the function to call (or short-hand method string as described below). the function signature is identical to a route handler
       as describer in [Route handler](#route-handler).
     - `assign` - key name to assign the result of the function to within `request.pre`.
     - `failAction` - determines how to handle errors returned by the method. Allowed values are:
@@ -728,10 +727,10 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
         - `'log'` - logs the error but continues processing the request. If `assign` is used, the error will be assigned.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
-- strings - special short-hand notation for [registered server helpers](#serverhelpername-method-options) using the format 'name(args)'
+- strings - special short-hand notation for [registered server methods](#servermethodname-fn-options) using the format 'name(args)'
   (e.g. `'user(params.id)'`) where:
-    - 'name' - the helper name. The name is also used as the default value of `assign`.
-    - 'args' - the helper arguments (excluding `next`) where each argument is a property of `request`.
+    - 'name' - the method name. The name is also used as the default value of `assign`.
+    - 'args' - the method arguments (excluding `next`) where each argument is a property of `request`.
 
 ```javascript
 var Hapi = require('hapi');
@@ -1074,20 +1073,21 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Wait for tails
 - Emits `'tail'` event
 
-#### `server.helper(name, method, [options])`
+#### `server.method(name, fn, [options])`
 
-Registers a server helper function. Server helpers are functions registered with the server and used throughout the application as
+Registers a server method function. Server methods are functions registered with the server and used throughout the application as
 a common utility. Their advantage is in the ability to configure them to use the built-in cache and shared across multiple request
 handlers without having to create a common module.
 
-Helpers are registered via `server.helper(name, method, [options])` where:
+Methods are registered via `server.method(name, fn, [options])` where:
 
-- `name` - a unique helper name used to invoke the method via `server.helpers[name]`. When configured with caching enabled,
-  `server.helpers[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key.
-- `method` - the helper function with the signature is `function(arg1, arg2, ..., argn, next)` where:
-    - `arg1`, `arg2`, etc. - the helper function arguments.
-    - `next` - the function called when the helper is done with the signature `function(result)` where:
-        - `result` - any return value including an `Error` object (created via `new Error()` or [`Hapi.error`](#hapierror)).
+- `name` - a unique method name used to invoke the method via `server.methods[name]`. When configured with caching enabled,
+  `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key.
+- `fn` - the method function with the signature is `function(arg1, arg2, ..., argn, next)` where:
+    - `arg1`, `arg2`, etc. - the method function arguments.
+    - `next` - the function called when the method is done with the signature `function(err, result)` where:
+        - `err` - error response if the method failed.
+        - `result` - the return value.
 - `options` - optional configuration:
     - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy) with a few additions:
         - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
@@ -1097,11 +1097,11 @@ Helpers are registered via `server.helper(name, method, [options])` where:
         - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
         - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
         - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' where 'name' is the
-          helper name. When setting segment manually, it must begin with '##'.
+          method name. When setting segment manually, it must begin with '##'.
         - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
-    - `generateKey` - a function used to generate a unique key (for caching) from the arguments passed to the helper function
+    - `generateKey` - a function used to generate a unique key (for caching) from the arguments passed to the method function
      (with the exception of the last 'next' argument). The server will automatically generate a unique key if the function's
-     arguments are all of types `'string'`, `'number'`, or `'boolean'`. However if the helper uses other types of arguments, a
+     arguments are all of types `'string'`, `'number'`, or `'boolean'`. However if the method uses other types of arguments, a
      key generation function must be provided which takes the same arguments as the function and returns a unique string (or
      `null` if no key can be generated). Note that when the `generateKey` method is invoked, the arguments list will include
      the `next` argument which must not be used in calculation of the key.
@@ -1114,12 +1114,12 @@ var server = new Hapi.Server();
 
 var add = function (a, b, next) {
 
-    next(a + b);
+    next(null, a + b);
 };
 
-server.helper('sum', add, { cache: { expiresIn: 2000 } });
+server.method('sum', add, { cache: { expiresIn: 2000 } });
 
-server.helpers.sum(4, 5, function (result) {
+server.methods.sum(4, 5, function (err, result) {
 
     console.log(result);
 });
@@ -1134,10 +1134,10 @@ var addArray = function (array, next) {
         sum += item;
     });
 
-    next(sum);
+    next(null, sum);
 };
 
-server.helper('sumObj', addArray, {
+server.method('sumObj', addArray, {
     cache: { expiresIn: 2000 },
     generateKey: function (array) {
 
@@ -1145,29 +1145,29 @@ server.helper('sumObj', addArray, {
     }
 });
 
-server.helpers.sumObj([5, 6], function (result) {
+server.methods.sumObj([5, 6], function (err, result) {
 
     console.log(result);
 });
 ```
 
-#### `server.helper(helper)`
+#### `server.method(method)`
 
-Registers a server helper function as described in [`server.helper()`](#serverhelpername-method-options) using a helper object or an array
+Registers a server method function as described in [`server.method()`](#servermethodname-fn-options) using a method object or an array
 of objects where each has:
-- `name` - the helper name.
-- `method` - the helper function.
+- `name` - the method name.
+- `fn` - the method function.
 - `options` - optional settings.
 
 ```javascript
 var add = function (a, b, next) {
 
-    next(a + b);
+    next(null, a + b);
 };
 
-server.helper({ name: 'sum', method: add, options: { cache: { expiresIn: 2000 } } });
+server.method({ name: 'sum', fn: add, options: { cache: { expiresIn: 2000 } } });
 
-server.helper([{ name: 'also', method: add }]);
+server.method([{ name: 'also', fn: add }]);
 ```
 
 #### `server.inject(options, callback)`
@@ -2062,7 +2062,7 @@ Registers a plugin where:
   [`exports.register()`](#exportsregisterplugin-options-next).
 - `callback` - the callback function with signature `function(err)` where:
       - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-        (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+        (e.g. among routes, methods, state) will throw an error and will not return a callback.
 
 ```javascript
 pack.require('furball', { version: '/v' }, function (err) {
@@ -2081,7 +2081,7 @@ Registers a list of plugins where:
   each key is a plugin name, and each value is the `options` object used to register that plugin.
 - `callback` - the callback function with signature `function(err)` where:
       - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-        (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+        (e.g. among routes, methods, state) will throw an error and will not return a callback.
 
 Batch registration is required when plugins declare a [dependency](#plugindependencydeps-after), so that all the required dependencies are loaded in
 a single transaction (internal order does not matter).
@@ -2115,7 +2115,7 @@ Registers a plugin object (without using `require()`) where:
   [`exports.register()`](#exportsregisterplugin-options-next).
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-      (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+      (e.g. among routes, methods, state) will throw an error and will not return a callback.
 
 ```javascript
 var plug = {
@@ -2193,7 +2193,7 @@ Creates the packs described in the manifest construction where:
 - `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
   `function(err)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-      (e.g. among routes, helpers, state) will throw an error and will not return a callback.
+      (e.g. among routes, methods, state) will throw an error and will not return a callback.
 
 ```javascript
 composer.compose(function (err) {
@@ -2534,34 +2534,34 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.helper(name, method, [options])`
+#### `plugin.method(name, fn, [options])`
 
-Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelpername-method-options)
+Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodname-fn-options)
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.helper('user', function (id, next) {
+    plugin.method('user', function (id, next) {
 
-        next({ id: id });
+        next(null, { id: id });
     });
 
     next();
 };
 ```
 
-#### `plugin.helper(helper)`
+#### `plugin.method(method)`
 
-Registers a server helper function with all the pack's servers as described in [`server.helper()`](#serverhelperhelper)
+Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodmethod)
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.helper({
+    plugin.method({
         name: 'user',
-        method: function (id, next) {
+        fn: function (id, next) {
 
-            next({ id: id });
+            next(null, { id: id });
         }
     });
 
@@ -2569,19 +2569,19 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.helpers`
+#### `plugin.methods`
 
-Provides access to the helper methods registered with [`plugin.helper()`](#pluginhelpername-method-options)
+Provides access to the method methods registered with [`plugin.method()`](#pluginmethodname-fn-options)
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
-    plugin.helper('user', function (id, next) {
+    plugin.method('user', function (id, next) {
 
-        next({ id: id });
+        next(null, { id: id });
     });
 
-    plugin.helpers.user(5, function (result) {
+    plugin.methods.user(5, function (err, result) {
 
         // Do something with result
 

@@ -279,6 +279,72 @@ describe('Handler', function () {
         });
     });
 
+    it('returns a user record using server method', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.method('user', function (id, next) {
+
+            return next(null, { id: id, name: 'Bob' });
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/user/{id}',
+            config: {
+                pre: [
+                    'user(params.id)'
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.pre.user);
+                }
+            }
+        });
+
+        server.inject('/user/5', function (res) {
+
+            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+            done();
+        });
+    });
+
+    it('returns a user name using multiple server methods', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.method('user', function (id, next) {
+
+            return next(null, { id: id, name: 'Bob' });
+        });
+
+        server.method('name', function (user, next) {
+
+            return next(null, user.name);
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/user/{id}/name',
+            config: {
+                pre: [
+                    'user(params.id)',
+                    'name(pre.user)'
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.pre.name);
+                }
+            }
+        });
+
+        server.inject('/user/5/name', function (res) {
+
+            expect(res.result).to.equal('Bob');
+            done();
+        });
+    });
+
     it('returns a user record using helper', function (done) {
 
         var server = new Hapi.Server();
@@ -365,7 +431,7 @@ describe('Handler', function () {
             });
         };
 
-        expect(test).to.throw('Unknown server helper method in prerequisite string');
+        expect(test).to.throw('Unknown server helper or method in prerequisite string');
         done();
     });
 
@@ -389,7 +455,7 @@ describe('Handler', function () {
             });
         };
 
-        expect(test).to.throw('Invalid prerequisite string method syntax');
+        expect(test).to.throw('Invalid prerequisite string syntax');
         done();
     });
 });
