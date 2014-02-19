@@ -432,4 +432,52 @@ describe('Directory', function () {
             done();
         });
     });
+
+    it('appends default extention', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
+
+        server.inject('/directory/directory/index', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('appends default extention when resource ends with /', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
+
+        server.inject('/directory/directory/index/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('appends default extention and fails to find file', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
+
+        server.inject('/directory/directory/none', function (res) {
+
+            expect(res.statusCode).to.equal(404);
+            done();
+        });
+    });
+
+    it('does not append default extention when directory exists', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
+
+        server.inject('/directory/directory', function (res) {
+
+            expect(res.statusCode).to.equal(302);
+            done();
+        });
+    });
 });

@@ -388,6 +388,7 @@ The following options are available when adding a route:
           the missing slash. Useful for ensuring relative links inside the response are resolved correctly. Defaults to `true`.
         - `lookupCompressed` - optional boolean, instructs the file processor to look for the same filename with the '.gz' suffix for a precompressed
           version of the file to serve if the request supports content encoding. Defaults to `false`.
+        - `defaultExtension` - optional string, appended to file requests if the requested file is not found. Defaults to no extension.
 
     - <a name="route.config.proxy"></a>`proxy` - generates a reverse proxy handler with the following options:
         - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
