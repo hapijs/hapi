@@ -547,6 +547,38 @@ describe('Auth', function () {
             done();
         });
     });
+
+    it('logs error code when authenticate returns a non-error error', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('test', function (server, options) {
+
+            return {
+                authenticate: function (request, reply) {
+
+                    reply('Redirecting ...').redirect('/test');
+                }
+            };
+        });
+
+        server.auth.strategy('test', 'test', true, {});
+
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('test'); } });
+
+        var result = undefined;
+        server.on('request', function (request, event, tags) {
+
+            if (tags.unauthenticated) {
+                result = event.data;
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(result).to.equal(302);
+            done();
+        });
+    });
 });
 
 
