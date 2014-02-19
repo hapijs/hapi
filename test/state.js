@@ -34,6 +34,58 @@ describe('State', function () {
         });
     });
 
+    it('sets cookie value automatically', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+        server.state('always', { autoValue: 'present' });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.deep.equal(['always=present']);
+            done();
+        });
+    });
+
+    it('sets cookie value automatically using function', function (done) {
+
+        var present = function (request, next) {
+
+            next(null, request.params.x)
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/{x}', handler: function (request, reply) { reply('ok'); } });
+        server.state('always', { autoValue: present });
+
+        server.inject('/sweet', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.deep.equal(['always=sweet']);
+            done();
+        });
+    });
+
+    it('fails to set cookie value automatically using function', function (done) {
+
+        var present = function (request, next) {
+
+            next(new Error())
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+        server.state('always', { autoValue: present });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            expect(res.headers['set-cookie']).to.not.exist;
+            done();
+        });
+    });
+
     describe('#parseCookies', function () {
 
         describe('cases', function () {

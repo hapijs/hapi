@@ -867,7 +867,9 @@ can be registered with the server using the `server.state()` method, where:
     - `path` - the path scope. Defaults to `null` (no path).
     - `domain` - the domain scope. Defaults to `null` (no domain).
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by the route handler, the cookie is automatically
-      added to the response with the provided value.
+      added to the response with the provided value. The value can be a function with signature `function(request, next)` where:
+        - `request` - the request object.
+        - `next` - the continuation function using the `function(err, value)` signature.
     - `encoding` - encoding performs on the provided value before serialization. Options are:
         - `'none'` - no encoding. When used, the cookie value must be a string. This is the default value.
         - `'base64'` - string value is encoded using Base64.

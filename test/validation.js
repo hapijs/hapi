@@ -410,7 +410,7 @@ describe('Validation', function () {
         });
 
         var count = 0;
-        Async.times(100, function (n, next) {
+        Async.times(500, function (n, next) {
 
             server.inject('/', function (res) {
 
@@ -419,7 +419,7 @@ describe('Validation', function () {
             });
         }, function (err, codes) {
 
-            expect(count).to.be.within(40, 60);
+            expect(count).to.be.within(200, 300);
             done();
         });
     });
