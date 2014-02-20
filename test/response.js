@@ -898,6 +898,26 @@ describe('Response', function () {
             });
         });
 
+        it('returns a file with correct headers when using attachment mode and overriding the filename', function (done) {
+
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+            var handler = function (request, reply) {
+
+                reply.file(__dirname + '/../package.json', { mode: 'attachment', filename: 'attachment.json' });
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.inject('/file', function (res) {
+
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.equal('attachment; filename=attachment.json');
+                done();
+            });
+        });
+
         it('returns a file with correct headers when using inline mode', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: __dirname } });
@@ -914,6 +934,26 @@ describe('Response', function () {
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist;
                 expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
+                done();
+            });
+        });
+
+        it('returns a file with correct headers when using inline mode and overriding filename', function (done) {
+
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+            var handler = function (request, reply) {
+
+                reply.file(__dirname + '/../package.json', { mode: 'inline', filename: 'attachment.json' });
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.inject('/file', function (res) {
+
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.equal('inline; filename=attachment.json');
                 done();
             });
         });

@@ -363,6 +363,7 @@ The following options are available when adding a route:
         - a function with the signature `function(request)` which returns the relative or absolute file path.
         - an object with the following options:
             - `path` - a path string or function as described above.
+            - `filename` - an optional filename to specify if sending a 'Content-Disposition' header, defaults to the basename of `path`
             - `mode` - specifies whether to include the 'Content-Disposition' header with the response. Available values:
                 - `false` - header is not included. This is the default value.
                 - `'attachment'`
@@ -1577,6 +1578,7 @@ Transmits a file from the file system. The 'Content-Type' header defaults to the
 - `options` - optional settings:
     - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
     - `options` - optional configuration:
+        - `filename` - optional filename to send if 'Content-Disposition' header is sent, defaults to basename of `path`
         - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
             - `'attachment'`
             - `'inline'`
