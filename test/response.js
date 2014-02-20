@@ -863,6 +863,21 @@ describe('Response', function () {
             });
         });
 
+        it('returns a file in the response with the attachment content-disposition header when using route config and overriding filename', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment', filename: 'attachment.json' } } });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-disposition']).to.equal('attachment; filename=attachment.json');
+                done();
+            });
+        });
+
         it('returns a file in the response without the content-disposition header when using route config mode false', function (done) {
 
             var server = new Hapi.Server();
