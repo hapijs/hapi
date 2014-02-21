@@ -1127,7 +1127,6 @@ describe('Response', function () {
                     var etag1 = res2.headers.etag;
 
                     expect(etag1.slice(0, 1)).to.equal('"');
-
                     expect(etag1.slice(-1)).to.equal('"');
 
                     // etag
@@ -1135,11 +1134,8 @@ describe('Response', function () {
                     server.inject({ url: '/note', headers: { 'if-none-match': etag1 } }, function (res3) {
 
                         expect(res3.statusCode).to.equal(304);
-
                         expect(res3.headers).to.not.have.property('content-length');
-
                         expect(res3.headers).to.not.have.property('etag');
-
                         expect(res3.headers).to.not.have.property('last-modified');
 
                         var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
@@ -1232,13 +1228,9 @@ describe('Response', function () {
                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
-
                     expect(res2.headers).to.not.have.property('content-length');
-
                     expect(res2.headers).to.not.have.property('etag');
-
                     expect(res2.headers).to.not.have.property('last-modified');
-
                     done();
                 });
             });
