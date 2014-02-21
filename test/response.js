@@ -1232,6 +1232,13 @@ describe('Response', function () {
                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
+
+                    expect(res2.headers).to.not.have.property('content-length');
+
+                    expect(res2.headers).to.not.have.property('etag');
+
+                    expect(res2.headers).to.not.have.property('last-modified');
+
                     done();
                 });
             });
