@@ -1,7 +1,8 @@
 ## Current Documentation
-  [v2.5.x](https://github.com/spumko/hapi/blob/master/docs/Reference.md)  
+  [v2.6.x](https://github.com/spumko/hapi/blob/master/docs/Reference.md)  
 
 ## Previous Documentation
+  [v2.5.x](https://github.com/spumko/hapi/blob/v2.5.0/docs/Reference.md)  
   [v2.4.x](https://github.com/spumko/hapi/blob/v2.4.0/docs/Reference.md)  
   [v2.3.x](https://github.com/spumko/hapi/blob/v2.3.0/docs/Reference.md)  
   [v2.2.x](https://github.com/spumko/hapi/blob/89b12a2/docs/Reference.md)  

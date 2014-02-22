@@ -345,13 +345,13 @@ describe('Handler', function () {
         });
     });
 
-    it('returns a user record using helper', function (done) {
+    it('returns a user record using server method with trailing space', function (done) {
 
         var server = new Hapi.Server();
 
-        server.helper('user', function (id, next) {
+        server.method('user', function (id, next) {
 
-            return next({ id: id, name: 'Bob' });
+            return next(null, { id: id, name: 'Bob' });
         });
 
         server.route({
@@ -359,7 +359,7 @@ describe('Handler', function () {
             path: '/user/{id}',
             config: {
                 pre: [
-                    'user(params.id)'
+                    'user(params.id )'
                 ],
                 handler: function (request, reply) {
 
@@ -375,43 +375,127 @@ describe('Handler', function () {
         });
     });
 
-    it('returns a user name using multiple helpers', function (done) {
+    it('returns a user record using server method with leading space', function (done) {
 
         var server = new Hapi.Server();
 
-        server.helper('user', function (id, next) {
+        server.method('user', function (id, next) {
 
-            return next({ id: id, name: 'Bob' });
-        });
-
-        server.helper('name', function (user, next) {
-
-            return next(user.name);
+            return next(null, { id: id, name: 'Bob' });
         });
 
         server.route({
             method: 'GET',
-            path: '/user/{id}/name',
+            path: '/user/{id}',
             config: {
                 pre: [
-                    'user(params.id)',
-                    'name(pre.user)'
+                    'user( params.id)'
                 ],
                 handler: function (request, reply) {
 
-                    return reply(request.pre.name);
+                    return reply(request.pre.user);
                 }
             }
         });
 
-        server.inject('/user/5/name', function (res) {
+        server.inject('/user/5', function (res) {
 
-            expect(res.result).to.equal('Bob');
+            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
             done();
         });
     });
 
-    it('fails on bad helper name', function (done) {
+    it('returns a user record using server method with zero args', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.method('user', function (next) {
+
+            return next(null, { name: 'Bob' });
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/user',
+            config: {
+                pre: [
+                    'user()'
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.pre.user);
+                }
+            }
+        });
+
+        server.inject('/user', function (res) {
+
+            expect(res.result).to.deep.equal({ name: 'Bob' });
+            done();
+        });
+    });
+
+    it('returns a user record using server method with no args', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.method('user', function (request, next) {
+
+            return next(null, { id: request.params.id, name: 'Bob' });
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/user/{id}',
+            config: {
+                pre: [
+                    'user'
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.pre.user);
+                }
+            }
+        });
+
+        server.inject('/user/5', function (res) {
+
+            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+            done();
+        });
+    });
+
+    it('returns a user record using server method with nested name', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.method('user.get', function (next) {
+
+            return next(null, { name: 'Bob' });
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/user',
+            config: {
+                pre: [
+                    'user.get()'
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.pre['user.get']);
+                }
+            }
+        });
+
+        server.inject('/user', function (res) {
+
+            expect(res.result).to.deep.equal({ name: 'Bob' });
+            done();
+        });
+    });
+
+    it('fails on bad method name', function (done) {
 
         var server = new Hapi.Server();
         var test = function () {
@@ -431,7 +515,7 @@ describe('Handler', function () {
             });
         };
 
-        expect(test).to.throw('Unknown server helper or method in prerequisite string');
+        expect(test).to.throw('Unknown server helper or method in string notation: xuser(params.id)');
         done();
     });
 
@@ -455,8 +539,24 @@ describe('Handler', function () {
             });
         };
 
-        expect(test).to.throw('Invalid prerequisite string syntax');
+        expect(test).to.throw('Invalid server method string notation: userparams.id)');
         done();
     });
+
+    it('uses string handler', function (done) {
+
+        var server = new Hapi.Server();
+        server.method('handler.get', function (request, next) {
+
+            next(null, request.params.x + request.params.y);
+        });
+
+        server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
+        server.inject('/a/b', function (res) {
+
+            expect(res.result).to.equal('ab');
+            done();
+        });
+    })
 });
 

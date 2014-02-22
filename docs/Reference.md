@@ -1,4 +1,4 @@
-# 2.5.x API Reference
+# 2.6.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -357,7 +357,7 @@ The following options are available when adding a route:
   Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
 
 - `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
-  described in [Route handler](#route-handler). Alternatively, `handler` can be assigned an object with one of:
+  described in [Route handler](#route-handler). If set to a string, the value is parsed the same way a prerequisite server method string shortcut is processed. Alternatively, `handler` can be assigned an object with one of:
     - <a name="route.config.file"></a>`file` - generates a static file endpoint for serving a single file. `file` can be set to:
         - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute file path.
@@ -1086,13 +1086,18 @@ handlers without having to create a common module.
 Methods are registered via `server.method(name, fn, [options])` where:
 
 - `name` - a unique method name used to invoke the method via `server.methods[name]`. When configured with caching enabled,
-  `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key.
+  `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key. Supports using
+  nested names such as `utils.users.get` which will automatically create the missing path under `server.methods` and can be accessed
+  for the previous example via `server.methods.utils.users.get`.
 - `fn` - the method function with the signature is `function(arg1, arg2, ..., argn, next)` where:
     - `arg1`, `arg2`, etc. - the method function arguments.
-    - `next` - the function called when the method is done with the signature `function(err, result)` where:
+    - `next` - the function called when the method is done with the signature `function(err, result, isUncacheable)` where:
         - `err` - error response if the method failed.
         - `result` - the return value.
+        - `isUncacheable` - `true` if result is valid but cannot be cached. Defaults to `false`.
 - `options` - optional configuration:
+    - `bind` - an object passed back to the provided method function (via `this`) when called. Defaults to `null` unless added via a plugin, in which
+      case it defaults to the plugin bind object.
     - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy) with a few additions:
         - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
           together with `expiresAt`.
@@ -1578,7 +1583,7 @@ Transmits a file from the file system. The 'Content-Type' header defaults to the
 - `options` - optional settings:
     - `filePath` - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
     - `options` - optional configuration:
-        - `filename` - optional filename to send if 'Content-Disposition' header is sent, defaults to basename of `path`
+        - `filename` - optional filename to send if the 'Content-Disposition' header is sent. Defaults to basename of `path`.
         - `mode` - value of the HTTP 'Content-Disposition' header. Allowed values:
             - `'attachment'`
             - `'inline'`
