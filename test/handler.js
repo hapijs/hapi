@@ -250,7 +250,7 @@ describe('Handler', function () {
 
         var pre2 = function (request, reply) {
 
-            a.b.c;
+            a.b.c = 0;
         };
 
         var handler = function (request, reply) {

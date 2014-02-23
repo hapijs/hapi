@@ -1,10 +1,13 @@
 // Load modules
 
+var Events = require('events');
+var Domain = require('domain');
 var ChildProcess = require('child_process');
 var Lab = require('lab');
 var Hapi = require('..');
 var Ext = require('../lib/ext');
 var Handler = require('../lib/handler');
+var Protect = require('../lib/protect');
 
 
 // Declare internals
@@ -268,62 +271,11 @@ describe('Ext', function () {
         });
     });
 
-    describe('#runProtected', function () {
-
-        it('catches error when handler throws after reply() is called', function (done) {
-
-            var server = new Hapi.Server({ debug: false });
-
-            var handler = function (request, reply) {
-
-                reply('ok');
-                process.nextTick(function () {
-
-                    throw new Error('should not leave domain');
-                });
-            };
-
-            server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
-        });
-
-        it('catches error when handler throws twice after reply() is called', function (done) {
-
-            var server = new Hapi.Server({ debug: false });
-
-            var handler = function (request, reply) {
-
-                reply('ok');
-
-                process.nextTick(function () {
-
-                    throw new Error('should not leave domain 1');
-                });
-
-                process.nextTick(function () {
-
-                    throw new Error('should not leave domain 2');
-                });
-            };
-
-            server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
-        });
-    });
-
     describe('#sort', function () {
 
         it('skips when no exts added', function (done) {
 
-            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse'], Handler.invoke);
+            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse']);
             ext.sort('onRequest');
             expect(ext._events.onRequest).to.equal(null);
             done();
@@ -341,7 +293,7 @@ describe('Ext', function () {
                 };
             };
 
-            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse'], Handler.invoke);
+            var ext = new Ext(['onRequest', 'onPreAuth', 'onPostAuth', 'onPreHandler', 'onPostHandler', 'onPreResponse']);
             scenario.forEach(function (record, i) {
 
                 ext._add('onRequest', generateExt(record.id), { before: record.before, after: record.after }, { name: record.group });
@@ -349,11 +301,12 @@ describe('Ext', function () {
 
             var request = {
                 _route: { env: {} },
-                server: {},
-                log: function () { }
+                server: { _ext: ext },
+                log: function () { },
+                _protect: new Protect()
             };
 
-            ext.invoke(request, 'onRequest', function (err) {
+            Handler.invoke(request, 'onRequest', function (err) {
 
                 expect(err).to.not.exist;
                 callback(request.x);

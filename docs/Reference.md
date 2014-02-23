@@ -1304,6 +1304,8 @@ Each request object has the following properties:
       successful authentication.
     - `artifacts` - an artifact object received from the authentication strategy and used in authentication-related actions.
     - `session` - an object used by the [`'cookie'` authentication scheme](#cookie-authentication).
+- `domain` - the node domain object used to protect against exceptions thrown in extentions, handlers and prerequisites. Can be used to
+  manually bind callback functions otherwise bound to other domains.
 - `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier.
 - `info` - request information:
