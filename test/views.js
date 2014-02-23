@@ -351,5 +351,41 @@ describe('Views', function () {
                 done();
             });
         });
+
+        it('includes prerequisites in the default view context', function (done) {
+
+            var pre = function (request, reply) {
+
+                reply('PreHello');
+            };
+
+            var options = {
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    path: __dirname + '/templates'
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        { method: pre, assign: 'p' }
+                    ],
+                    handler: {
+                        view: 'valid/handler'
+                    }
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.contain('PreHello');
+                done();
+            });
+        });
     });
 });

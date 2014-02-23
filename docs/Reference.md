@@ -439,6 +439,7 @@ The following options are available when adding a route:
                 - `payload` - maps to `request.payload`.
                 - `params` - maps to `request.params`.
                 - `query` - maps to `request.query`.
+                - `pre` - maps to `request.pre`.
 
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
