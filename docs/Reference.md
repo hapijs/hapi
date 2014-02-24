@@ -1242,7 +1242,8 @@ The server object inherits from `Events.EventEmitter` and emits the following ev
 When provided (as listed below) the `event` object include:
 
 - `timestamp` - the event timestamp.
-- `id` - if the event relates to a request, the request id.
+- `request` - if the event relates to a request, the `request id`.
+- `server` - if the event relates to a server, the `server.info.uri`.
 - `tags` - an array of tags (e.g. `['error', 'http']`). Includes the `'hapi'` tag is the event was generated internally.
 - `data` - optional event-specific information.
 

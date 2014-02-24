@@ -733,19 +733,53 @@ describe('Server', function () {
 
             var server = new Hapi.Server();
 
+            var count = 0;
             server.once('log', function (event) {
 
+                ++count;
                 expect(event.data).to.equal('log event 1');
             });
+
+            server.pack.events.once('log', function (event) {
+
+                ++count;
+                expect(event.data).to.equal('log event 1');
+            });
+
             server.log('1', 'log event 1', Date.now());
 
             server.once('log', function (event) {
 
+                ++count;
                 expect(event.data).to.equal('log event 2');
             });
+
             server.log(['2'], 'log event 2', new Date(Date.now()));
 
+            expect(count).to.equal(3);
             done();
+        });
+
+        it('emits a log event and print to console', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.once('log', function (event) {
+
+                expect(event.data).to.equal('log event 1');
+            });
+
+            var orig = console.error;
+            console.error = function () {
+
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('hapi, internal, implementation, error');
+                console.error = orig;
+
+                done();
+            };
+
+            server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
         });
     });
 });
