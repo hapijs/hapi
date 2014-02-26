@@ -177,6 +177,22 @@ When creating a server instance, the following options configure the server's be
     - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
     - `credentials` - if `true`, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to `false`.
 
+- `security` - sets some common security related headers. All headers are disabled by default. To enable set `security` to `true` or to an object with
+the following options:
+    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be set to `maxAge=15768000`, if specified as a number
+      the maxAge parameter will be set to that number. Defaults to `true`. You may also specify an object with the following fields:
+          - `maxAge` - the maxAge portion of the header, as a number. Default is `15768000`.
+          - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains` flag to the header.
+    - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will be set to `DENY`, you may also specify a string value of
+      'deny' or 'sameorigin'. To use the 'allow-from' rule, you must set this to an object with the following fields:
+          - `rule` - either 'deny', 'sameorigin', or 'allow-from'
+          - `source` - when `rule` is 'allow-from' this is used to form the rest of the header, otherwise this field is ignored. If `rule` is 'allow-from'
+            but `source` is unset, the rule will be automatically changed to 'sameorigin'.
+    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which sets the header to equal '1; mode=block'.
+    - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing downloads from executing in your context. Defaults to `true` setting
+      the header to 'noopen'.
+    - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting the header to its only and default option, 'nosniff'.
+
 - `debug` - controls the error types sent to the console:
     - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
       to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response) or
