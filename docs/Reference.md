@@ -179,12 +179,14 @@ When creating a server instance, the following options configure the server's be
 
 - `security` - sets some common security related headers. All headers are disabled by default. To enable set `security` to `true` or to an object with
 the following options:
-    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be set to `maxAge=15768000`, if specified as a number
+    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be set to `max-age=15768000`, if specified as a number
       the maxAge parameter will be set to that number. Defaults to `true`. You may also specify an object with the following fields:
-          - `maxAge` - the maxAge portion of the header, as a number. Default is `15768000`.
+
+          - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
           - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains` flag to the header.
     - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will be set to `DENY`, you may also specify a string value of
       'deny' or 'sameorigin'. To use the 'allow-from' rule, you must set this to an object with the following fields:
+
           - `rule` - either 'deny', 'sameorigin', or 'allow-from'
           - `source` - when `rule` is 'allow-from' this is used to form the rest of the header, otherwise this field is ignored. If `rule` is 'allow-from'
             but `source` is unset, the rule will be automatically changed to 'sameorigin'.

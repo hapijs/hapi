@@ -314,7 +314,7 @@ describe('Response', function () {
                 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('maxAge=15768000');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
                 expect(res.headers['x-frame-options']).to.equal('DENY');
                 expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
                 expect(res.headers['x-download-options']).to.equal('noopen');
@@ -336,7 +336,7 @@ describe('Response', function () {
                 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('maxAge=15768000');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
                 done();
             });
         });
@@ -354,7 +354,7 @@ describe('Response', function () {
                 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('maxAge=123456789');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
                 done();
             });
         });
@@ -372,7 +372,7 @@ describe('Response', function () {
                 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('maxAge=123456789; includeSubdomains');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789; includeSubdomains');
                 done();
             });
         });
@@ -383,14 +383,14 @@ describe('Response', function () {
                 reply('Test');
             };
 
-            var server = new Hapi.Server({ security: { hsts: { maxAge: 15768000, includeSubdomains: true } } });
+            var server = new Hapi.Server({ security: { hsts: { includeSubdomains: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
                 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('maxAge=123456789; includeSubdomains');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubdomains');
                 done();
             });
         });
