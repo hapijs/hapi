@@ -422,7 +422,7 @@ The following options are available when adding a route:
           `function(err, res, request, reply, settings, ttl)` where:
               - `err` - internal or upstream error returned from attempting to contact the upstream proxy.
               - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
-                [**nipple**](https://github.com/spumko/nipple) module `parse` method to easily convert it to a Buffer or string).
+                [**nipple**](https://github.com/spumko/nipple) module `read` method to easily convert it to a Buffer or string).
               - `request` - is the incoming `request` object.
               - `reply()` - the continuation function.
               - `settings` - the proxy handler configuration.
