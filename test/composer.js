@@ -25,7 +25,7 @@ describe('Composer', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'
@@ -75,7 +75,7 @@ describe('Composer', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 }
             },
             servers: [

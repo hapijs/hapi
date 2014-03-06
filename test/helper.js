@@ -145,7 +145,7 @@ describe('Helper', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server({ cache: 'memory' });
+            var server = new Hapi.Server({ cache: 'catbox-memory' });
             server.helper('user', function () { }, { cache: { x: 'y' } });
         };
         expect(fn).to.throw(Error);
@@ -209,7 +209,7 @@ describe('Helper', function () {
 
     it('returns a valid result when calling a helper using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
 
         var gen = 0;
         server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
@@ -233,7 +233,7 @@ describe('Helper', function () {
 
     it('supports empty key helper', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
 
         var gen = 0;
         var terms = 'I agree to give my house';
@@ -257,7 +257,7 @@ describe('Helper', function () {
 
     it('returns valid results when calling a helper (with different keys) using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
         var gen = 0;
         server.helper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
         server.start(function () {
@@ -280,7 +280,7 @@ describe('Helper', function () {
 
     it('returns new object (not cached) when second key generation fails when using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
         var id1 = Math.random();
         var gen = 0;
         var helper = function (id, next) {

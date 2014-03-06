@@ -276,7 +276,7 @@ describe('Server', function () {
 
     it('reuses the same cache segment', function (done) {
 
-        var server = new Hapi.Server({ cache: { engine: 'memory', shared: true } });
+        var server = new Hapi.Server({ cache: { engine: 'catbox-memory', shared: true } });
         expect(function () {
 
             var a1 = server.cache('a', { expiresIn: 1000 });
@@ -402,7 +402,7 @@ describe('Server', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server({ cache: 'memory', something: false });
+            var server = new Hapi.Server({ cache: 'catbox-memory', something: false });
         };
 
         expect(fn).throws(Error);

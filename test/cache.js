@@ -23,7 +23,7 @@ describe('Cache', function () {
 
     it('returns max-age value when route uses default cache rules', function (done) {
 
-        var server = new Hapi.Server(0, { cache: [{ engine: 'memory', name: 'secondary' }] });
+        var server = new Hapi.Server(0, { cache: [{ engine: 'catbox-memory', name: 'secondary' }] });
 
         server.helper('profile', function (id, next) {
 
@@ -116,7 +116,7 @@ describe('Cache', function () {
 
     it('caches using non default cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: { name: 'primary', engine: 'memory' } });
+        var server = new Hapi.Server(0, { cache: { name: 'primary', engine: 'catbox-memory' } });
         var defaults = server.cache('a', { expiresIn: 2000 });
         var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });
 

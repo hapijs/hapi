@@ -66,7 +66,7 @@ describe('Schema', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server({ cache: 'memory' });
+                var server = new Hapi.Server({ cache: 'catbox-memory' });
             };
 
             expect(fn).to.not.throw(Error);

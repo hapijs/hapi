@@ -1,4 +1,4 @@
-# 2.6.x API Reference
+# 3.0.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -146,10 +146,14 @@ When creating a server instance, the following options configure the server's be
 - `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which should use `plugins[name]`. Note the difference between
   `server.settings.app` which is used to store configuration value and `server.app` which is meant for storing run-time state.
 
-- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing application state and server method results. By default a simple memory-based cache is used which has limited capacity and limited production
-  environment suitability. In addition to the memory cache, a Redis, MongoDB, or Memcache cache can be configured. Actual caching is only utilized
-  if methods and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself.
-  The value can be a string with the cache engine name (using the defaults for that engine type), an object with the cache options, or an array of
+- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a default cache for storing and
+  application state. By default, a simple memory-based cache is created which has a limited capacity. **hapi** uses
+  [**catbox** module documentation](https://github.com/spumko/catbox#client) as its cache implementation which includes support for Redis, MongoDB,
+  Memcached, and Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache configuration
+  only defines the store itself. `cache` can be assigned:
+    - a string with the cache engine module name (e.g. `'catbox-memory'`, `'catbox-redis'`).
+    - a configuration object with the following options:
+        - `engine` - 
   cache options. The cache options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client). When an array
   of options is provided, multiple cache connections are established and each array item (except one) must include an additional option:
     - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each connection name must be unique. A
@@ -157,6 +161,7 @@ When creating a server instance, the following options configure the server's be
       as well as the default.
     - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same route and cache.
       Default to not shared.
+    - an array of the above types for configuring multiple cache instances, each with a unqiue name.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
@@ -2171,7 +2176,7 @@ var Hapi = require('hapi');
 
 var manifest = {
     pack: {
-        cache: 'memory'
+        cache: 'catbox-memory'
     },
     servers: [
         {

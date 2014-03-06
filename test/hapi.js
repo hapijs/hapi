@@ -29,7 +29,7 @@ describe('Hapi command line', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'
@@ -83,7 +83,7 @@ describe('Hapi command line', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'
@@ -141,7 +141,7 @@ describe('Hapi command line', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'

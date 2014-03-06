@@ -274,7 +274,7 @@ describe('Method', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server({ cache: 'memory' });
+            var server = new Hapi.Server({ cache: 'catbox-memory' });
             server.method('user', function () { }, { cache: { x: 'y' } });
         };
         expect(fn).to.throw(Error);
@@ -338,7 +338,7 @@ describe('Method', function () {
 
     it('returns a valid result when calling a method using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
 
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
@@ -362,7 +362,7 @@ describe('Method', function () {
 
     it('supports empty key method', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
 
         var gen = 0;
         var terms = 'I agree to give my house';
@@ -386,7 +386,7 @@ describe('Method', function () {
 
     it('returns valid results when calling a method (with different keys) using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
         server.start(function () {
@@ -409,7 +409,7 @@ describe('Method', function () {
 
     it('returns new object (not cached) when second key generation fails when using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
         var id1 = Math.random();
         var gen = 0;
         var method = function (id, next) {
