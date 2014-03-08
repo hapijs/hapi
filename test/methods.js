@@ -120,12 +120,12 @@ describe('Method', function () {
         });
     });
 
-    it('does not cache value when isUncacheable is true', function (done) {
+    it('does not cache value when ttl is 0', function (done) {
 
         var gen = 0;
         var method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ }, true);
+            return next(null, { id: id, gen: gen++ }, 0);
         };
 
         var server = new Hapi.Server(0);
