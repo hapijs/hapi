@@ -1100,7 +1100,7 @@ Methods are registered via `server.method(name, fn, [options])` where:
     - `next` - the function called when the method is done with the signature `function(err, result, isUncacheable)` where:
         - `err` - error response if the method failed.
         - `result` - the return value.
-        - `isUncacheable` - `true` if result is valid but cannot be cached. Defaults to `false`.
+        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
 - `options` - optional configuration:
     - `bind` - an object passed back to the provided method function (via `this`) when called. Defaults to `null` unless added via a plugin, in which
       case it defaults to the plugin bind object.
