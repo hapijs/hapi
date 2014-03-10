@@ -1822,6 +1822,39 @@ describe('Response', function () {
 
     describe('View', function () {
 
+        it('should not fail if rendered template returns undefined', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    engines: {
+                        html: {
+                            module: {
+                                compile: function (template, options) {
+                                    return function (context, options) {
+                                        return undefined;
+                                    }
+                                }
+                            },
+                            path: __dirname + '/templates/valid'
+                        }
+                    }
+                }
+            });
+
+            var handler = function (request, reply) {
+                
+                return reply.view('test.html', { message: "Hello World!" });
+            };
+
+            server.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
+
+            server.inject('/handlebars', function (res) {
+                
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
         it('should render handlebars template', function (done) {
 
             var server = new Hapi.Server({

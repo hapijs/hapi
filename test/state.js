@@ -48,6 +48,24 @@ describe('State', function () {
         });
     });
 
+    it('does not clobber already set cookies', function (done) {
+
+        var handler = function (request, reply) {
+            reply().header('set-cookie', ['onecookie=yes', 'twocookie=no']);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.state('always', { autoValue: 'present' });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.deep.equal(['onecookie=yes', 'twocookie=no', 'always=present']);
+            done();
+        });
+    });
+
     it('sets cookie value automatically using function', function (done) {
 
         var present = function (request, next) {

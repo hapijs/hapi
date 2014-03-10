@@ -113,6 +113,31 @@ describe('Handler', function () {
         });
     });
 
+    it('doesnt explode if an empty prerequisite array is specified', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply('Hello');
+        };
+
+        var server = new Hapi.Server();
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [],
+                handler: handler
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('Hello');
+            done();
+        });
+    });
+
     it('takes over response', function (done) {
 
         var pre1 = function (request, reply) {
