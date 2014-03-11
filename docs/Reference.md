@@ -450,10 +450,10 @@ The following options are available when adding a route:
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
     - `bind` - an object passed back to the provided handler (via `this`) when called.
-    - `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
-      Should not be used by plugins which should use `plugins[name]`.
-    - `plugins` - plugin-specific state. Provides a place to store and pass route-level plugin data. The `plugins` is an object where each
-      key is a plugin name and the value is the state.
+    - `app` - application-specific configuration. Provides a safe place to pass application configuration without potential conflicts
+      with **hapi**. Should not be used by plugins which should use `plugins[name]`.
+    - `plugins` - plugin-specific configuration. Provides a place to pass route-level plugin configuration. The `plugins` is an object
+      where each key is a plugin name and the value is the state.
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
 
