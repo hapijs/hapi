@@ -307,6 +307,21 @@ describe('Views', function () {
                 done();
             });
         });
+
+        it('should load helpers and render them when helpersPath ends with a slash', function (done) {
+
+            var tempView = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: __dirname + '/templates/valid',
+                helpersPath: __dirname + '/templates/valid/helpers/'
+            });
+
+            tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
+                done();
+            });
+        });
     });
 
     describe('#handler', function () {

@@ -386,6 +386,48 @@ describe('Proxy', function () {
         });
     });
 
+    it('does not clobber existing x-forwarded-* headers', function (done) {
+
+        var handler = function (request, reply) {
+
+            // TODO: fix these bugs
+
+            // trailing commas because remotePort and remoteAddress do not exist
+            expect(request.raw.req.headers['x-forwarded-for']).to.equal('testhost,');
+            expect(request.raw.req.headers['x-forwarded-port']).to.equal('1337,');
+
+            // undefined because settings.protocol isn't set
+            expect(request.raw.req.headers['x-forwarded-proto']).to.equal('https,undefined');
+            reply('ok');
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: handler });
+        upstream.start(function () {
+
+            var mapUri = function (request, callback) {
+                
+                var headers = {
+                    'x-forwarded-for': 'testhost',
+                    'x-forwarded-port': 1337,
+                    'x-forwarded-proto': 'https'
+                };
+
+                return callback(null, 'http://127.0.0.1:' + upstream.info.port + '/', headers);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { mapUri: mapUri, xforward: true } } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('ok');
+                done();
+            });
+        });
+    });
+
     it('forwards on a POST body', function (done) {
 
         var echoPostBody = function (request, reply) {

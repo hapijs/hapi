@@ -7,6 +7,6 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.require('hapi-plugin-test', next);
+    plugin.require('hapi-plugin-test', {}, next);
 };
 

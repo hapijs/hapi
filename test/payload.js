@@ -833,6 +833,72 @@ describe('Payload', function () {
                 });
             });
         });
+
+        it('does not return an error when the payload has the correct deflate header and deflated payload', function (done) {
+
+            var payload = '{"hi":"hello"}';
+
+            Zlib.deflate(payload, function (err, result) {
+
+                var handler = function (request, reply) {
+
+                    reply('Success');
+                };
+
+                var server = new Hapi.Server();
+                server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
+                server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'deflate' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it('does not return an error when the payload has the correct gzip header and gzipped payload (gunzip only)', function (done) {
+
+            var payload = '{"hi":"hello"}';
+
+            Zlib.gzip(payload, function (err, result) {
+
+                var handler = function (request, reply) {
+
+                    reply('Success');
+                };
+
+                var server = new Hapi.Server();
+                server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: 'gunzip' } } });
+
+                server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'gzip' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it('does not return an error when the payload has the correct deflate header and deflated payload (gunzip only)', function (done) {
+
+            var payload = '{"hi":"hello"}';
+
+            Zlib.deflate(payload, function (err, result) {
+
+                var handler = function (request, reply) {
+
+                    reply('Success');
+                };
+
+                var server = new Hapi.Server();
+                server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: 'gunzip' } } });
+
+                server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'deflate' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
     });
 
     describe('multi-part', function () {
