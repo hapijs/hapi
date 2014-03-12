@@ -72,7 +72,7 @@ describe('Method', function () {
         expect(function () {
 
             server.method('tools.add', add);
-        }).to.throw('Helper or method function name already exists');
+        }).to.throw('Server method function name already exists');
 
         done();
     });

@@ -31,11 +31,11 @@ internals.main = function () {
 
     server.route({ method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } });
 
-    server.helper('user', function (id, next) {
+    server.method('user', function (id, next) {
 
         setTimeout(function () {
 
-            next({
+            next(null, {
                 'id': id,
                 'name': 'Item'
             });
@@ -45,7 +45,7 @@ internals.main = function () {
 
     internals.item = function (request, reply) {
 
-        server.helpers.user(request.params.id, reply);
+        server.methods.user(request.params.id, reply);
     };
 
     server.route({ method: 'GET', path: '/item/{id}', config: { handler: internals.item } });

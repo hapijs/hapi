@@ -66,10 +66,12 @@ describe('Pack', function () {
                 sodd.route({ method: 'GET', path: '/sodd', handler: function (request, reply) { reply('sodd'); } });
 
                 memoryx.state('sid', { encoding: 'base64' });
-                plugin.method({ name: 'testMethod', fn: function (next) {
+                plugin.method({
+                    name: 'testMethod', fn: function (next) {
 
-                    next(null, '123');
-                }, options: { cache: { expiresIn: 1000 } } });
+                        next(null, '123');
+                    }, options: { cache: { expiresIn: 1000 } }
+                });
 
                 server2.methods.testMethod(function (err, result) {
 
@@ -78,21 +80,7 @@ describe('Pack', function () {
                     plugin.methods.testMethod(function (err, result) {
 
                         expect(result).to.equal('123');
-
-                        plugin.helper({ name: 'test', method: function (next) {
-
-                            next('123');
-                        }, options: { cache: { expiresIn: 1000 } } });
-
-                        server2.helpers.test(function (result) {
-
-                            expect(result).to.equal('123');
-                            plugin.helpers.test(function (result) {
-
-                                expect(result).to.equal('123');
-                                next();
-                            });
-                        });
+                        next();
                     });
                 });
             }
@@ -737,7 +725,7 @@ describe('Pack', function () {
             done();
         });
     });
-    
+
     it('sets route handler', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });

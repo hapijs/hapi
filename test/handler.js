@@ -540,7 +540,7 @@ describe('Handler', function () {
             });
         };
 
-        expect(test).to.throw('Unknown server helper or method in string notation: xuser(params.id)');
+        expect(test).to.throw('Unknown server method in string notation: xuser(params.id)');
         done();
     });
 

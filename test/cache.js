@@ -25,9 +25,9 @@ describe('Cache', function () {
 
         var server = new Hapi.Server(0, { cache: [{ engine: 'catbox-memory', name: 'secondary' }] });
 
-        server.helper('profile', function (id, next) {
+        server.method('profile', function (id, next) {
 
-            next({
+            next(null, {
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
             });
@@ -35,7 +35,7 @@ describe('Cache', function () {
 
         var profileHandler = function (request, reply) {
 
-            server.helpers.profile(0, reply);
+            server.methods.profile(0, reply);
         };
 
         server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
@@ -53,9 +53,9 @@ describe('Cache', function () {
 
         var server = new Hapi.Server(0);
 
-        server.helper('profile', function (id, next) {
+        server.method('profile', function (id, next) {
 
-            next({
+            next(null, {
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
             });
@@ -63,7 +63,7 @@ describe('Cache', function () {
 
         var profileHandler = function (request, reply) {
 
-            server.helpers.profile(0, reply);
+            server.methods.profile(0, reply);
         };
 
         server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
