@@ -56,34 +56,24 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards on the response when making a GET request', function (done) {
+    it('overrides maxSockets', function (done) {
 
-        var profile = function (request, reply) {
-
-            reply({ id: 'fa0dbda9b1b', name: 'John Doe' }).state('test', '123');
-        };
+        var server = new Hapi.Server({ maxSockets: 1 });
 
         var upstream = new Hapi.Server(0);
-        upstream.route({ method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } });
+        upstream.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(Object.keys(server._agents.http.sockets).length); } });
         upstream.start(function () {
 
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: upstream.info.port, xforward: true, passThrough: true } } });
-            server.state('auto', { autoValue: 'xyz' });
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
 
-            server.inject('/profile', function (res) {
+            expect(Object.keys(server._agents.http.sockets).length).to.equal(0);
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.contain('John Doe');
-                expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
-                expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate, private');
+                expect(res.payload).to.equal('1');
 
-                server.inject('/profile', function (res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.payload).to.contain('John Doe');
-                    done();
-                });
+                done();
             });
         });
     });
@@ -406,7 +396,7 @@ describe('Proxy', function () {
         upstream.start(function () {
 
             var mapUri = function (request, callback) {
-                
+
                 var headers = {
                     'x-forwarded-for': 'testhost',
                     'x-forwarded-port': 1337,
@@ -874,7 +864,7 @@ describe('Proxy', function () {
 
                 reply({ something: 'else' });
             });
-        
+
             server.route({ method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
 
             server.inject('/item', function (res) {
