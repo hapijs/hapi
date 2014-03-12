@@ -772,9 +772,9 @@ describe('Server', function () {
             var orig = console.error;
             console.error = function () {
 
+                console.error = orig;
                 expect(arguments[0]).to.equal('Debug:');
                 expect(arguments[1]).to.equal('hapi, internal, implementation, error');
-                console.error = orig;
 
                 done();
             };

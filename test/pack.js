@@ -738,7 +738,7 @@ describe('Pack', function () {
         });
     });
     
-    it('plugin can set route handler', function (done) {
+    it('sets route handler', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.pack.require('./pack/--handler', function (err) {
@@ -753,5 +753,39 @@ describe('Pack', function () {
 
             done();
         });
+    });
+
+    it('outputs log data to debug console', function (done) {
+
+        var server = new Hapi.Server();
+
+        var orig = console.error;
+        console.error = function () {
+
+            console.error = orig;
+            expect(arguments[0]).to.equal('Debug:');
+            expect(arguments[1]).to.equal('implementation');
+            expect(arguments[2]).to.equal('\n    {"data":1}');
+            done();
+        };
+
+        server.pack.log(['implementation'], { data: 1 });
+    });
+
+    it('outputs log data to debug console without data', function (done) {
+
+        var server = new Hapi.Server();
+
+        var orig = console.error;
+        console.error = function () {
+
+            console.error = orig;
+            expect(arguments[0]).to.equal('Debug:');
+            expect(arguments[1]).to.equal('implementation');
+            expect(arguments[2]).to.equal('');
+            done();
+        };
+
+        server.pack.log(['implementation']);
     });
 });

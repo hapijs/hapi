@@ -111,6 +111,23 @@ describe('Views', function () {
             });
         });
 
+        it('allows absolute path', function (done) {
+
+            var testViewWithLayouts = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: __dirname + '/templates',
+                layout: __dirname + '/templates/layout',
+                allowAbsolutePaths: true
+            });
+
+            testViewWithLayouts.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
+        });
+
         it('errors on invalid layout', function (done) {
 
             var views = new Views.Manager({

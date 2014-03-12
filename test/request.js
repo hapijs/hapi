@@ -220,9 +220,9 @@ describe('Request', function () {
         var orig = console.error;
         console.error = function () {
 
+            console.error = orig;
             expect(arguments[0]).to.equal('Debug:');
             expect(arguments[1]).to.equal('hapi, internal, implementation, error');
-            console.error = orig;
         };
 
         server.inject('/', function (res) {
@@ -258,6 +258,33 @@ describe('Request', function () {
         });
     });
 
+    it('outputs log to debug console without data', function (done) {
+
+        var handler = function (request, reply) {
+
+            request.log(['implementation']);
+            reply();
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        var orig = console.error;
+        console.error = function () {
+
+            expect(arguments[0]).to.equal('Debug:');
+            expect(arguments[1]).to.equal('implementation');
+            expect(arguments[2]).to.equal('');
+            console.error = orig;
+            done();
+        };
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+        });
+    });
+
     it('handles invalid log data object stringify', function (done) {
 
         var handler = function (request, reply) {
@@ -275,10 +302,10 @@ describe('Request', function () {
         var orig = console.error;
         console.error = function () {
 
+            console.error = orig;
             expect(arguments[0]).to.equal('Debug:');
             expect(arguments[1]).to.equal('implementation');
             expect(arguments[2]).to.equal('\n    [Cannot display object: Converting circular structure to JSON]');
-            console.error = orig;
             done();
         };
 

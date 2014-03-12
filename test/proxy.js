@@ -281,7 +281,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('sends the correct status code with a request is unauthorized', function (done) {
+    it('sends the correct status code when a request is unauthorized', function (done) {
 
         var unauthorized = function (request, reply) {
 
@@ -303,7 +303,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('sends a 404 status code with a proxied route does not exist', function (done) {
+    it('sends a 404 status code when a proxied route does not exist', function (done) {
 
         var upstream = new Hapi.Server(0);
         upstream.start(function () {
@@ -521,6 +521,18 @@ describe('Proxy', function () {
 
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } });
+
+        server.inject('/nowhere', function (res) {
+
+            expect(res.statusCode).to.equal(502);
+            done();
+        });
+    });
+
+    it('errors on redirection to bad host (https)', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8', protocol: 'https' } } });
 
         server.inject('/nowhere', function (res) {
 
