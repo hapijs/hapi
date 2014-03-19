@@ -776,4 +776,26 @@ describe('Pack', function () {
 
         server.pack.log(['implementation']);
     });
+
+    it('adds server method using arguments', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server();
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.method('log', function () { });
+                next();
+            }
+        };
+
+        pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
 });
