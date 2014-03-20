@@ -849,4 +849,120 @@ describe('Server', function () {
             server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
         });
     });
+
+    describe('#handler', function () {
+
+        var handler = function (route, options) {
+
+            return function (request, reply) {
+
+                reply(options.message);
+            };
+        };
+
+        it('adds handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                expect(server.handlers.proxy).to.not.exist;
+                server.handler('proxy', handler);
+                expect(server.handlers.proxy).to.equal(handler);
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+
+        it('call new handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('test', handler);
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {
+                            message: 'success'
+                        }
+                    }
+                });
+                server.inject('/', function (res) {
+                    expect(res.payload).to.equal('success');
+                    done();
+                });
+            };
+
+            expect(fn).to.not.throw(Error);
+        });
+
+        it('overwrite proxy handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('proxy', handler);
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        proxy: {
+                            message: 'success'
+                        }
+                    }
+                });
+                server.inject('/', function (res) {
+                    expect(res.payload).to.equal('success');
+                    done();
+                });
+            };
+
+            expect(fn).to.not.throw(Error);
+        });
+
+        it('errors on non-string name', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler();
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on duplicate handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('proxy', handler);
+                server.handler('proxy', handler);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on non-function handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('foo', 'bar');
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+    });
 });
