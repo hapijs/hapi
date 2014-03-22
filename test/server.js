@@ -782,4 +782,26 @@ describe('Server', function () {
             server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
         });
     });
+
+
+    describe('#handler', function() {
+        it('adds new handler', function(done) {
+            var newHandlerType = function (route, options) {
+                
+                return function (request, reply) {
+
+                    reply("message is: " + options.msg);
+                };
+            };
+
+            var fn = function () {
+                var server = new Hapi.Server();
+
+                server.handler('proxy', newHandlerType);
+            }
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+    });
 });

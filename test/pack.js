@@ -798,4 +798,32 @@ describe('Pack', function () {
             done();
         });
     });
+
+
+    it('registers new handler types', function(done) {
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (plugin, options, next) {
+
+                var handlerFunc = function (route, options) {
+
+                    return function (request, reply) {
+
+                        reply('Message from plugin handler: ' + options.msg);
+                    };
+                };
+                
+                plugin.handler('testhandler', handlerFunc);
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+        });
+    });
 });
