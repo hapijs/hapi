@@ -28,7 +28,7 @@
         - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
-		- [`server.handler(name, method)`](#serverhandlername-method)
+        - [`server.handler(name, method)`](#serverhandlername-method)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -94,7 +94,7 @@
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
         - [`plugin.loader(require)`](#pluginloader-require)
         - [`plugin.bind(bind)`](#pluginbind-bind)
-		- [`plugin.handler(name, method)`](#pluginhandlername-method)
+        - [`plugin.handler(name, method)`](#pluginhandlername-method)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -1246,9 +1246,12 @@ Registers a new handler type object to be used for routing. This will allow you 
 - `name` - The name of the handler that you want to register. Examples is 'proxy' or 'myhandler'
 - `method` - The method that will be used to handle the requests routed to it. The function should be in the following form:
 ```
-function(route, options) {
+function (route, options) {
+
     //possibly add code here
-    function(request, reply) {
+
+    function (request, reply) {
+
         //code to add
     }
 }
@@ -1258,17 +1261,21 @@ Example:
 var Hapi = require('hapi');
 var server = Hapi.createServer('localhost', 8000);
 
-server.handler("proxy", function(route, options) {
-	return function(request, reply) {
-		reply("new overwritten proxy handler " + options.msg);
-	}
+server.handler('proxy', function (route, options) {
+
+    return function (request, reply) {
+
+        reply ('new overwritten proxy handler ' + options.msg);
+    }
 });
 
+
 server.route({
-	method: 'GET',
-	path: '/newproxy',
-	handler: { proxy: { msg: "option of handler" } }
+    method: 'GET',
+    path: '/newproxy',
+    handler: { proxy: { msg: 'option of handler' } }
 });
+
 
 server.start();
 ```
@@ -2748,9 +2755,12 @@ Registers a new handler type object to be used for routing. This will allow you 
 - `name` - The name of the handler that you want to register. Examples is 'proxy' or 'myhandler'
 - `method` - The method that will be used to handle the requests routed to it. The function should be in the following form:
 ```
-function(route, options) {
+function (route, options) {
+
     //possibly add code here
-    function(request, reply) {
+
+    function (request, reply) {
+
         //code to add
     }
 }
@@ -2759,31 +2769,39 @@ Example:
 Project index.js
 ```
 var Hapi = require('hapi');
-var server = Hapi.createServer(localhost, 8000);
+var server = Hapi.createServer('localhost', 8000);
 
-server.pack.require('testhandler', function(err) {
-	if(err) {
-		console.log("error loading plugin");
-	}
+
+server.pack.require('testhandler', function (err) {
+
+    if (err) {
+
+        console.log('error loading plugin');
+    }
 });
 
+
 server.route({
-	method: 'GET',
-	path: '/pluginhandler',
-	handler: { testhandler: { msg: "option in handler" } }
+    method: 'GET',
+    path: '/pluginhandler',
+    handler: { testhandler: { msg: 'option in handler' } }
 });
 ```
 Plugin index.js
 ```
-exports.register = function(plugin, options, next) {
-	var handlerFunc = function(route, options) {
-		return function(request, reply) {
-			reply("Message from plugin handler: " + options.msg);
-		}
-	};
+exports.register = function (plugin, options, next) {
 
-	plugin.handler("testhandler", handlerFunc);
-	next();
+    var handlerFunc = function (route, options) {
+
+        return function(request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+
+    plugin.handler('testhandler', handlerFunc);
+    next();
 }
 ```
 
