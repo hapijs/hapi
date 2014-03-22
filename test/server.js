@@ -866,9 +866,8 @@ describe('Server', function () {
 
                 var server = new Hapi.Server();
 
-                expect(server.handlers.proxy).to.not.exist;
                 server.handler('proxy', handler);
-                expect(server.handlers.proxy).to.equal(handler);
+                expect(server.handlers.proxy.func).to.equal(handler);
             };
 
             expect(fn).to.not.throw(Error);
@@ -925,6 +924,25 @@ describe('Server', function () {
             expect(fn).to.not.throw(Error);
         });
 
+        it('errors on unknown handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {}
+                    }
+                });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
         it('errors on non-string name', function (done) {
 
             var fn = function () {
@@ -932,20 +950,6 @@ describe('Server', function () {
                 var server = new Hapi.Server();
 
                 server.handler();
-            };
-
-            expect(fn).to.throw(Error);
-            done();
-        });
-
-        it('errors on duplicate handler', function (done) {
-
-            var fn = function () {
-
-                var server = new Hapi.Server();
-
-                server.handler('proxy', handler);
-                server.handler('proxy', handler);
             };
 
             expect(fn).to.throw(Error);
