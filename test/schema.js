@@ -139,4 +139,22 @@ describe('Schema', function () {
             done();
         });
     });
+
+
+    describe('#addHandlerSchema', function() {
+
+        it('it successfully added a schema to handler schemas', function(done) {
+
+            var schema = { test: Joi.string() };
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+                server.handlerSchema('test', schema);
+            }
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });            
+    });
 });

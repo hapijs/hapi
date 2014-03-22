@@ -786,6 +786,7 @@ describe('Server', function () {
 
     describe('#handler', function() {
         it('adds new handler', function(done) {
+
             var newHandlerType = function (route, options) {
                 
                 return function (request, reply) {
@@ -795,9 +796,27 @@ describe('Server', function () {
             };
 
             var fn = function () {
-                var server = new Hapi.Server();
 
+                var server = new Hapi.Server();
                 server.handler('proxy', newHandlerType);
+            }
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+    });
+
+
+    describe('#handlerSchema', function() {
+
+        it('adds new handler schema', function(done) {
+
+            var schema = { test: Joi.string() };
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+                server.handlerSchema('test', schema);
             }
 
             expect(fn).to.not.throw(Error);
