@@ -28,6 +28,7 @@
         - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
+	- [`server.handler(name, method)`](#serverhandlername-method)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -93,6 +94,7 @@
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
         - [`plugin.loader(require)`](#pluginloader-require)
         - [`plugin.bind(bind)`](#pluginbind-bind)
+	- [`plugin.handler(name, method)`](#pluginhandlername-method)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -1235,6 +1237,21 @@ server.inject('/', function (res) {
 
     console.log(res.result);
 });
+```
+
+#### `server.handler(name, method)`
+
+Registers a new handler type object to be used for routing. This will allow you to define a new handler type object that you can then refrence in your routes, or you can overwrite the 4 currently built in handler types of `directory`, `file`, `proxy`, and `views`. 
+
+- `name` - The name of the handler that you want to register. Examples is 'proxy' or 'myhandler'
+- `method` - The method that will be used to handle the requests routed to it. The function should be in the following form:
+```
+function(route, options) {
+    //possibly add code here
+    function(request, reply) {
+        //code to add
+    }
+}
 ```
 
 ### `Server` events
@@ -2703,6 +2720,20 @@ exports.register = function (plugin, options, next) {
     plugin.route({ method: 'GET', path: '/', handler: internals.handler });
     next();
 };
+```
+
+#### `plugin.handler(name, method)`
+Registers a new handler type object to be used for routing. This will allow you to define a new handler type object that you can then refrence in your routes, or you can overwrite the 4 currently built in handler types of `directory`, `file`, `proxy`, and `views`. This method will in turn call the [`server.handler(name, method)`](#serverhandlername-method)
+
+- `name` - The name of the handler that you want to register. Examples is 'proxy' or 'myhandler'
+- `method` - The method that will be used to handle the requests routed to it. The function should be in the following form:
+```
+function(route, options) {
+    //possibly add code here
+    function(request, reply) {
+        //code to add
+    }
+}
 ```
 
 ### Selectable methods and properties
