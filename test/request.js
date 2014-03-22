@@ -680,6 +680,22 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('allows missing path', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onRequest', function (request, reply) {
+
+                request.setUrl('');
+                reply();
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+        });
     });
 
     describe('#log', function () {
