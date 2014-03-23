@@ -6,7 +6,7 @@ var Https = require('https');
 var Lab = require('lab');
 var Hapi = require('..');
 var Path = require('path');
-
+var Joi = require('joi');
 
 // Declare internals
 
@@ -708,6 +708,26 @@ describe('Server', function () {
             expect(server._router.routes.put[0].path).to.equal('/test');
             done();
         });
+
+
+        it('errors when handler does not conform to schema', function(done) {
+
+            var theRoute = {
+                method: 'GET',
+                path: '/testhandler',
+                handler: { proxy: { hostbad: 'test.com', port: 80, redirects: 5 } }
+            };
+
+
+            var fn = function() {
+
+                var server = new Hapi.Server();
+                server.route(theRoute);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
     });
 
     describe('#table', function () {
@@ -785,6 +805,7 @@ describe('Server', function () {
 
 
     describe('#handler', function() {
+
         it('adds new handler', function(done) {
 
             var newHandlerType = function (route, options) {
@@ -799,7 +820,30 @@ describe('Server', function () {
 
                 var server = new Hapi.Server();
                 server.handler('proxy', newHandlerType);
-            }
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+
+
+        it('adds new handler with schema', function(done) {
+
+            var newHandlerType = function (route, options)  {
+
+                return function (request, reply) {
+
+                    reply("message is: " + options.msg);
+                };
+            };
+
+            var newSchema = { msg: Joi.string() };
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+                server.handler('proxy', newHandlerType, newSchema);
+            };
 
             expect(fn).to.not.throw(Error);
             done();
@@ -817,7 +861,7 @@ describe('Server', function () {
 
                 var server = new Hapi.Server();
                 server.handlerSchema('test', schema);
-            }
+            };
 
             expect(fn).to.not.throw(Error);
             done();

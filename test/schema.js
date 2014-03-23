@@ -3,7 +3,7 @@
 var Lab = require('lab');
 var Hapi = require('..');
 var Schema = require('../lib/schema');
-
+var Joi = require('joi');
 
 // Declare internals
 
@@ -134,8 +134,37 @@ describe('Schema', function () {
         });
 
         it('succeeds validating cache config', function (done) {
+            
             var config = { handler: internals.item, cache: { expiresIn: 20000 } };
             expect(Schema.routeConfig(config)).to.not.exist;
+            done();
+        });
+
+        it('errors when handler does not meet schema criteria', function(done) {
+
+            var schema = { msg: Joi.string() };
+            var theHandler = function (route, options) {
+
+                return function(request, response) {
+
+                    reply('successful reply: ' + options.msg);
+                }
+            };
+
+            var server = new Hapi.Server();
+
+
+            var fn = function () {
+
+               server.handler('testhandler', theHandler, schema);
+               server.route({
+                   method: 'GET',
+                   path: '/test',
+                   handler: { testhandler: { msg: 1001 } }
+               });
+            };
+
+            expect(fn).to.throw(Error);
             done();
         });
     });
@@ -155,6 +184,34 @@ describe('Schema', function () {
 
             expect(fn).to.not.throw(Error);
             done();
-        });            
+        });
+
+        it('rejects schema with non string name', function(done) {
+
+            var schema = { test: Joi.string() };
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+                server.handlerSchema(1001, schema);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('rejects schema with non objecet schemas', function(done) {
+
+            var schema = 1001;
+
+            var fn = function() {
+
+                var server = new Hapi.Server();
+                server.handlerSchema('testschema', schema);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
     });
 });
