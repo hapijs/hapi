@@ -1047,8 +1047,8 @@ describe('Server', function () {
 
             expect(fn).to.not.throw(Error);
             done();
-        )};
-    )};
+        });
+    });
 
 
     describe('#state', function () {

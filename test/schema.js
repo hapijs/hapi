@@ -214,9 +214,7 @@ describe('Schema', function () {
             done();
         });
     });
-<<<<<<< HEAD
-});
-=======
+
 
     describe('#view', function () {
 
@@ -228,4 +226,4 @@ describe('Schema', function () {
         });
     });
 });
->>>>>>> upstream/master
+
