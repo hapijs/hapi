@@ -1,5 +1,6 @@
 // Load modules
 
+var Net = require('net');
 var Lab = require('lab');
 var Http = require('http');
 var Stream = require('stream');
@@ -310,8 +311,42 @@ describe('Server Timeouts', function () {
 
             Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
 
+                server.stop();
                 expect(err).to.exist;
                 expect(err.message).to.equal('Client request error: socket hang up');
+                done();
+            });
+        });
+    });
+
+    it('disables node socket timeout', function (done) {
+
+        var server = new Hapi.Server(0, { timeout: { socket: false } });
+        server.route({
+            method: 'GET', path: '/', config: {
+                handler: function (request, reply) {
+
+                    reply();
+                }
+            }
+        });
+
+        server.start(function () {
+
+            var timeout;
+            var orig = Net.Socket.prototype.setTimeout;
+            Net.Socket.prototype.setTimeout = function () {
+
+                timeout = 'gotcha';
+                Net.Socket.prototype.setTimeout = orig;
+                return orig.apply(this, arguments);
+            };
+
+            Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+
+                server.stop();
+                expect(err).to.not.exist;
+                expect(timeout).to.equal('gotcha');
                 done();
             });
         });

@@ -73,6 +73,30 @@ describe('Request', function () {
         });
     });
 
+    it('generates tail event without name', function (done) {
+
+        var handler = function (request, reply) {
+
+            var tail = request.tail();
+            reply('Done');
+            tail();
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        var result = null;
+
+        server.once('tail', function () {
+
+            done();
+        });
+
+        server.inject('/', function (res) {
+
+        });
+    });
+
     it('returns error response on ext error', function (done) {
 
         var handler = function (request, reply) {
