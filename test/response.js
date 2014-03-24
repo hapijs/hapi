@@ -103,6 +103,25 @@ describe('Response', function () {
             });
         });
 
+        it('overrides cache-control with ttl', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('text').ttl(1000)
+                             .header('cache-control', 'none');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                done();
+            });
+        });
+
         it('returns CORS origin', function (done) {
 
             var handler = function (request, reply) {
