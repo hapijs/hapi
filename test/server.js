@@ -487,6 +487,13 @@ describe('Server', function () {
         done();
     });
 
+    it('removes duplicate labels', function (done) {
+
+        var server = new Hapi.Server({ labels: ['a', 'b', 'a', 'c', 'b'] });
+        expect(server.settings.labels).to.deep.equal(['a', 'b', 'c']);
+        done();
+    });
+
     describe('#start', function () {
 
         it('does not throw an error', function (done) {
