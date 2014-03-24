@@ -579,6 +579,20 @@ describe('Auth', function () {
             done();
         });
     });
+
+    it('fails when options default to null', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
 });
 
 
