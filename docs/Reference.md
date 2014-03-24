@@ -16,7 +16,7 @@
             - [Route prerequisites](#route-prerequisites)
             - [Route not found](#route-not-found)
         - [`server.route(routes)`](#serverrouteroutes)
-        - [`server.table()`](#servertable)
+        - [`server.table([host])`](#servertablehost)
         - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
         - [`server.state(name, [options])`](#serverstatename-options)
         - [`server.views(options)`](#serverviewsoptions)
@@ -810,10 +810,12 @@ server.route([
 ]);
 ```
 
-#### `server.table()`
+#### `server.table([host])`
 
-Returns a copy of the routing table. The return value is an array of routes where each route contains:
+Returns a copy of the routing table where:
+- `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual hosts.
 
+The return value is an array of routes where each route contains:
 - `settings` - the route config with defaults applied.
 - `method` - the HTTP method in lower case.
 - `path` - the route path.

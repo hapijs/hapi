@@ -139,4 +139,14 @@ describe('Schema', function () {
             done();
         });
     });
+
+    describe('#view', function () {
+
+        it('fails on invalid config', function (done) {
+
+            var config = {};
+            expect(Schema.view(config)).to.exist;
+            done();
+        });
+    });
 });

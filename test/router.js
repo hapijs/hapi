@@ -25,6 +25,7 @@ describe('Router', function () {
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/head', handler: function (request, reply) { reply('ok-common'); } });
         server.route({ method: 'GET', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok-vhost'); } });
+        server.route({ method: 'GET', path: '/get', vhost: 'special.example.com', handler: function (request, reply) { reply('just-get'); } });
         server.route({ method: 'HEAD', path: '/head', handler: function (request, reply) { reply('ok').header('x1', '123'); } });
         server.route({ method: 'HEAD', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok').header('x1', '456'); } });
 
@@ -45,7 +46,12 @@ describe('Router', function () {
 
                         expect(res.result).to.equal('ok-common');
                         expect(res.headers.x1).to.not.exist;
-                        done();
+
+                        server.inject({ method: 'HEAD', url: 'http://special.example.com/get' }, function (res) {
+
+                            expect(res.result).to.equal('just-get');
+                            done();
+                        });
                     });
                 });
             });
@@ -175,6 +181,20 @@ describe('Router', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('ok');
+            done();
+        });
+    });
+
+    it('matches wildcard vhost method', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.route({ method: '*', path: '/', handler: function (request, reply) { reply('global'); } });
+        server.route({ method: '*', vhost: 'special.example.com', path: '/', handler: function (request, reply) { reply('vhost'); } });
+        server.inject('http://special.example.com/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('vhost');
             done();
         });
     });

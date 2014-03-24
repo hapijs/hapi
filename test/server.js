@@ -732,6 +732,66 @@ describe('Server', function () {
             expect(routes[0].path).to.equal('/test/');
             done();
         });
+
+        it('combines global and vhost routes', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table();
+
+            expect(routes.length).to.equal(4);
+            done();
+        });
+
+        it('combines global and vhost routes and filters based on host', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table('one.example.com');
+
+            expect(routes.length).to.equal(3);
+            done();
+        });
+
+        it('accepts a list of hosts', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table(['one.example.com', 'two.example.com']);
+
+            expect(routes.length).to.equal(4);
+            done();
+        });
+
+        it('ignores unknown host', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table('three.example.com');
+
+            expect(routes.length).to.equal(2);
+            done();
+        });
     });
 
     describe('#log', function () {
