@@ -303,6 +303,29 @@ describe('Auth', function () {
         });
     });
 
+    it('errors on missing scope using arrays', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['a', 'b'] } } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    scope: ['c', 'd']
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
     it('matches tos', function (done) {
 
         var server = new Hapi.Server();
