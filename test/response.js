@@ -1081,6 +1081,17 @@ describe('Response', function () {
             });
         });
 
+        it('returns a file with default mime type', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../bin/hapi' } });
+
+            server.inject('/', function (res) {
+
+                expect(res.headers['content-type']).to.equal('application/octet-stream');
+                done();
+            });
+        });
 
         it('does not cache etags', function (done) {
 

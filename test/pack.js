@@ -798,4 +798,27 @@ describe('Pack', function () {
             done();
         });
     });
+
+    describe('#_provisionCache ', function () {
+
+        it('throws when creating method cache with invalid segment', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.pack._provisionCache({ expiresIn: 1000 }, 'method', 'steve', 'bad');
+            }).to.throw('Server method cache segment must start with \'##\'');
+            done();
+        });
+
+        it('throws when creating plugin cache with invalid segment', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.pack._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', 'bad');
+            }).to.throw('Plugin cache segment must start with \'!!\'');
+            done();
+        });
+    });
 });
