@@ -1216,7 +1216,7 @@ describe('Payload', function () {
 
                     expect(err).to.not.exist;
                     expect(fileContents.length).to.equal(buffer.length);
-                    expect(fileContents.toString()).to.equal(buffer.toString());
+                    expect(fileContents.toString() === buffer.toString()).to.equal(true);
                     done();
                 });
             };

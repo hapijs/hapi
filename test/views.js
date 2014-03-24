@@ -79,7 +79,7 @@ describe('Views', function () {
             });
         });
 
-        it('should work and not throw with valid (no layouts)', function (done) {
+        it('allows valid (no layouts)', function (done) {
 
             var testView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -95,7 +95,38 @@ describe('Views', function () {
             });
         });
 
-        it('should work and not throw with valid (with layouts)', function (done) {
+        it('renders without context', function (done) {
+
+            var testView = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: __dirname + '/templates'
+            });
+
+            testView.render('valid/test', null, null, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered).to.equal('<div>\n    <h1></h1>\n</div>\n');
+                done();
+            });
+        });
+
+        it('allows relative path with no base', function (done) {
+
+            var testView = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: './test/templates',
+                layout: false
+            });
+
+            testView.render('valid/test', { title: 'test', message: 'Hapi' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered).to.equal('<div>\n    <h1>Hapi</h1>\n</div>\n');
+                done();
+            });
+        });
+
+        it('allows valid (with layouts)', function (done) {
 
             var testViewWithLayouts = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -160,7 +191,7 @@ describe('Views', function () {
             });
         });
 
-        it('should work and not throw with valid jade layouts', function (done) {
+        it('allows valid jade layouts', function (done) {
 
             var testViewWithJadeLayouts = new Views.Manager({
                 engines: { 'jade': 'jade' },
@@ -190,7 +221,7 @@ describe('Views', function () {
             });
         });
 
-        it('should work and not throw with basePath, template name, and no path', function (done) {
+        it('allows basePath, template name, and no path', function (done) {
 
             var views = new Views.Manager({ engines: { 'html': 'handlebars' } });
             views.render('test', { title: 'test', message: 'Hapi' }, { basePath: __dirname + '/templates/valid' }, function (err, rendered, config) {
@@ -201,7 +232,7 @@ describe('Views', function () {
             });
         });
 
-        it('should return error when referencing non existant partial (with layouts)', function (done) {
+        it('errors when referencing non existant partial (with layouts)', function (done) {
 
             var testViewWithLayouts = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -216,7 +247,7 @@ describe('Views', function () {
             });
         });
 
-        it('should return error when referencing non existant partial (no layouts)', function (done) {
+        it('errors when referencing non existant partial (no layouts)', function (done) {
 
             var testView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -232,7 +263,7 @@ describe('Views', function () {
 
         });
 
-        it('should return error if context uses layoutKeyword as a key', function (done) {
+        it('errors if context uses layoutKeyword as a key', function (done) {
 
             var testViewWithLayouts = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -248,7 +279,7 @@ describe('Views', function () {
             });
         });
 
-        it('should return error on compile error (invalid template code)', function (done) {
+        it('errors on compile error (invalid template code)', function (done) {
 
             var testView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -263,7 +294,7 @@ describe('Views', function () {
             });
         });
 
-        it('should load partials and be able to render them', function (done) {
+        it('loads partials and be able to render them', function (done) {
 
             var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -278,7 +309,22 @@ describe('Views', function () {
             });
         });
 
-        it('should load partials and render them EVEN if viewsPath has trailing slash', function (done) {
+        it('loads partials from relative path without base', function (done) {
+
+            var tempView = new Views.Manager({
+                engines: { 'html': 'handlebars' },
+                path: __dirname + '/templates/valid',
+                partialsPath: './test/templates/valid/partials'
+            });
+
+            tempView.render('testPartials', {}, null, function (err, rendered, config) {
+
+                expect(rendered).to.equal(' Nav:<nav>Nav</nav>|<nav>Nested</nav>');
+                done();
+            });
+        });
+
+        it('loads partials and render them EVEN if viewsPath has trailing slash', function (done) {
 
             var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -294,7 +340,7 @@ describe('Views', function () {
             });
         });
 
-        it('should skip loading partials and helpers if engine does not support them', function (done) {
+        it('skips loading partials and helpers if engine does not support them', function (done) {
 
             var tempView = new Views.Manager({
                 path: __dirname + '/templates/valid',
@@ -310,7 +356,7 @@ describe('Views', function () {
             });
         });
 
-        it('should load helpers and render them', function (done) {
+        it('loads helpers and render them', function (done) {
 
             var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },
@@ -325,7 +371,7 @@ describe('Views', function () {
             });
         });
 
-        it('should load helpers and render them when helpersPath ends with a slash', function (done) {
+        it('loads helpers and render them when helpersPath ends with a slash', function (done) {
 
             var tempView = new Views.Manager({
                 engines: { 'html': 'handlebars' },

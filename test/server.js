@@ -3,10 +3,14 @@
 var Net = require('net');
 var Fs = require('fs');
 var Https = require('https');
+var Os = require('os');
+var Path = require('path');
 var Lab = require('lab');
 var Hapi = require('..');
 var Path = require('path');
 var Joi = require('joi');
+var Defaults = require('../lib/defaults');
+
 
 // Declare internals
 
@@ -242,9 +246,73 @@ describe('Server', function () {
         });
     });
 
-    it('rejects request due to high load', function (done) {
+    it('rejects request due to high rss load', function (done) {
 
         var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxRssBytes: 1 } });
+        var handler = function (request, reply) {
+
+            var start = Date.now();
+            while (Date.now() - start < 10);
+            reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function (err) {
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                setImmediate(function () {
+
+                    server.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(503);
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+    it('rejects request due to high heap load', function (done) {
+
+        var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxHeapUsedBytes: 1 } });
+        var handler = function (request, reply) {
+
+            var start = Date.now();
+            while (Date.now() - start < 10);
+            reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function (err) {
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                setImmediate(function () {
+
+                    server.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(503);
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+    it('rejects request due to high event loop delay load', function (done) {
+
+        var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxEventLoopDelay: 1 } });
         var handler = function (request, reply) {
 
             var start = Date.now();
@@ -487,6 +555,27 @@ describe('Server', function () {
         done();
     });
 
+    it('removes duplicate labels', function (done) {
+
+        var server = new Hapi.Server({ labels: ['a', 'b', 'a', 'c', 'b'] });
+        expect(server.settings.labels).to.deep.equal(['a', 'b', 'c']);
+        done();
+    });
+
+    it('sets info.uri with default localhost when no hostname', function (done) {
+
+        var orig = Os.hostname;
+        Os.hostname = function () {
+
+            Os.hostname = orig;
+            return '';
+        };
+
+        var server = new Hapi.Server(80);
+        expect(server.info.uri).to.equal('http://localhost:80');
+        done();
+    });
+
     describe('#start', function () {
 
         it('does not throw an error', function (done) {
@@ -495,6 +584,7 @@ describe('Server', function () {
 
                 var server = new Hapi.Server(0);
                 server.start();
+                server.stop();
             };
             expect(fn).to.not.throw(Error);
             done();
@@ -507,6 +597,7 @@ describe('Server', function () {
 
                 expect(server.info.host).to.equal('0.0.0.0');
                 expect(server.info.port).to.not.equal(0);
+                server.stop();
                 done();
             });
         });
@@ -518,6 +609,37 @@ describe('Server', function () {
 
                 expect(server.info.host).to.equal('0.0.0.0');
                 expect(server.info.port).to.not.equal(0);
+                server.stop();
+                done();
+            });
+        });
+
+        it('sets info with defaults no hostname or address', function (done) {
+
+            var hostname = Os.hostname;
+            Os.hostname  = function () {
+
+                Os.hostname = hostname;
+                return '';
+            };
+
+            var server = new Hapi.Server(0);
+            expect(server._host).to.equal('');
+
+            var address = server.listener.address;
+            server.listener.address = function () {
+
+                server.listener.address = address;
+                var add = address.call(this);
+                add.address = '';
+                return add;
+            };
+
+            server.start(function () {
+
+                expect(server.info.host).to.equal('0.0.0.0');
+                expect(server.info.uri).to.equal('http://localhost:' + server.info.port);
+                server.stop();
                 done();
             });
         });
@@ -745,6 +867,66 @@ describe('Server', function () {
             expect(routes[0].path).to.equal('/test/');
             done();
         });
+
+        it('combines global and vhost routes', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table();
+
+            expect(routes.length).to.equal(4);
+            done();
+        });
+
+        it('combines global and vhost routes and filters based on host', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table('one.example.com');
+
+            expect(routes.length).to.equal(3);
+            done();
+        });
+
+        it('accepts a list of hosts', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table(['one.example.com', 'two.example.com']);
+
+            expect(routes.length).to.equal(4);
+            done();
+        });
+
+        it('ignores unknown host', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table('three.example.com');
+
+            expect(routes.length).to.equal(2);
+            done();
+        });
     });
 
     describe('#log', function () {
@@ -864,6 +1046,18 @@ describe('Server', function () {
             };
 
             expect(fn).to.not.throw(Error);
+            done();
+        )};
+    )};
+
+
+    describe('#state', function () {
+
+        it('uses default options', function (done) {
+
+            var server = new Hapi.Server();
+            server.state('steve');
+            expect(server._stateDefinitions['steve']).deep.equal(Defaults.state);
             done();
         });
     });

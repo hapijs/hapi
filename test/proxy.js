@@ -56,6 +56,27 @@ describe('Proxy', function () {
         });
     });
 
+    it('throws when used with explicit route payload config other than data or steam', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: {
+                        proxy: { host: 'example.com' }
+                    },
+                    payload: {
+                        output: 'file'
+                    }
+                }
+            });
+        }).to.throw('Cannot proxy if payload is parsed or if output is not stream or data');
+        done();
+    });
+
     it('overrides maxSockets', function (done) {
 
         var server = new Hapi.Server({ maxSockets: 1 });
