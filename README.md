@@ -8,7 +8,7 @@ infrastructure. The framework supports a powerful plugin architecture for pain-f
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **3.0.x**
+Current version: **3.1.x**
 
 [![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
 
