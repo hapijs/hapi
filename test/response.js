@@ -618,7 +618,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply({ a: 1, b: 2 }).type('application/x-test').spaces(0).replacer(null).suffix('\n');
+                reply({ a: 1, b: 2 }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n');
             };
 
             var server = new Hapi.Server();
@@ -626,7 +626,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
-                expect(res.payload).to.equal('{\"a\":1,\"b\":2}\n');
+                expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
                 expect(res.headers['content-type']).to.equal('application/x-test');
                 done();
             });
@@ -2935,6 +2935,23 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(308);
+                done();
+            });
+        });
+
+        it('returns a 302 redirection reply (flip flop)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').permanent().temporary();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(302);
                 done();
             });
         });
