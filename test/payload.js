@@ -1115,6 +1115,10 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
+                expect(request.payload.files[0].hapi).to.deep.equal({ filename: 'file1.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file1.txt"', 'content-type': 'text/plain'} });
+                expect(request.payload.files[1].hapi).to.deep.equal({ filename: 'file2.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file2.txt"', 'content-type': 'text/plain'} });
+                expect(request.payload.files[2].hapi).to.deep.equal({ filename: 'file3.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file3.txt"', 'content-type': 'text/plain'} });
+
                 Nipple.read(request.payload.files[1], function (err, payload2) {
 
                     Nipple.read(request.payload.files[0], function (err, payload1) {
@@ -1211,6 +1215,13 @@ describe('Payload', function () {
             var fileHandler = function (request) {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
+                expect(request.payload['my_file'].hapi).to.deep.equal({
+                    filename: 'image.jpg',
+                    headers: {
+                        'content-disposition': 'form-data; name="my_file"; filename="image.jpg"',
+                        'content-type': 'image/jpeg'
+                    }
+                });
 
                 Nipple.read(request.payload['my_file'], function (err, buffer) {
 
