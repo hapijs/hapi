@@ -21,7 +21,7 @@ internals.main = function () {
 
     var config = {
         cache: {
-            engine: 'redis',
+            engine: 'catbox-memory',
             host: '127.0.0.1',
             port: 6379
         }
