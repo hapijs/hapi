@@ -119,6 +119,42 @@ describe('Composer', function () {
         });
     });
 
+    it('composes pack with ports', function (done) {
+
+        var manifest = {
+            servers: [
+                {
+                    port: 8000
+                },
+                {
+                    port: '8001',
+                }
+            ],
+            plugins: {}
+        };
+
+        var composer = new Hapi.Composer(manifest);
+        composer.compose(function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
+    it('throws when missing servers', function (done) {
+
+        var manifest = {
+            plugins: {}
+        };
+
+        var composer = new Hapi.Composer(manifest);
+        expect(function () {
+
+            composer.compose(function (err) { });
+        }).to.throw('Pack missing servers definition');
+        done();
+    });
+
     it('composes pack with default pack settings', function (done) {
 
         var composer = new Hapi.Composer({ servers: [{}], plugins: {} }, { pack: { app: 'only here' } });
