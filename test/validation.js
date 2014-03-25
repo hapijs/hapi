@@ -44,6 +44,27 @@ describe('Validation', function () {
         });
     });
 
+    it('allows any input when set to null', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: null
+                }
+            }
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
     it('validates using custom validator', function (done) {
 
         var server = new Hapi.Server();

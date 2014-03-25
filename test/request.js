@@ -886,4 +886,65 @@ describe('Request', function () {
             });
         });
     });
+
+    describe('#_setResponse', function () {
+
+        it('leaves the response open when the same response is set again', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onPostHandler', function (request, reply) {
+
+                reply(request.response);
+            });
+
+            var handler = function (request, reply) {
+
+                var stream = new Stream.Readable();
+                stream._read = function (size) {
+
+                    this.push('value');
+                    this.push(null);
+                };
+
+                reply(stream);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('value');
+                done();
+            });
+        });
+
+        it('leaves the response open when the same response source is set again', function (done) {
+
+            var server = new Hapi.Server();
+            server.ext('onPostHandler', function (request, reply) {
+
+                reply(request.response.source);
+            });
+
+            var handler = function (request, reply) {
+
+                var stream = new Stream.Readable();
+                stream._read = function (size) {
+
+                    this.push('value');
+                    this.push(null);
+                };
+
+                reply(stream);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('value');
+                done();
+            });
+        });
+    });
 });

@@ -23,6 +23,18 @@ var it = Lab.test;
 
 describe('State', function () {
 
+    it('skips parsing cookies', function (done) {
+
+        var server = new Hapi.Server({ state: { cookies: { parse: false } } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.state) } });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(null);
+            done();
+        });
+    });
+
     it('does not clear invalid cookie if cannot parse', function (done) {
 
         var server = new Hapi.Server({ state: { cookies: { clearInvalid: true } } });
