@@ -3,9 +3,11 @@
 var Net = require('net');
 var Fs = require('fs');
 var Https = require('https');
+var Os = require('os');
+var Path = require('path');
 var Lab = require('lab');
 var Hapi = require('..');
-var Path = require('path');
+var Defaults = require('../lib/defaults');
 
 
 // Declare internals
@@ -242,9 +244,73 @@ describe('Server', function () {
         });
     });
 
-    it('rejects request due to high load', function (done) {
+    it('rejects request due to high rss load', function (done) {
 
         var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxRssBytes: 1 } });
+        var handler = function (request, reply) {
+
+            var start = Date.now();
+            while (Date.now() - start < 10);
+            reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function (err) {
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                setImmediate(function () {
+
+                    server.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(503);
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+    it('rejects request due to high heap load', function (done) {
+
+        var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxHeapUsedBytes: 1 } });
+        var handler = function (request, reply) {
+
+            var start = Date.now();
+            while (Date.now() - start < 10);
+            reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function (err) {
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                setImmediate(function () {
+
+                    server.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(503);
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+    it('rejects request due to high event loop delay load', function (done) {
+
+        var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxEventLoopDelay: 1 } });
         var handler = function (request, reply) {
 
             var start = Date.now();
@@ -494,6 +560,20 @@ describe('Server', function () {
         done();
     });
 
+    it('sets info.uri with default localhost when no hostname', function (done) {
+
+        var orig = Os.hostname;
+        Os.hostname = function () {
+
+            Os.hostname = orig;
+            return '';
+        };
+
+        var server = new Hapi.Server(80);
+        expect(server.info.uri).to.equal('http://localhost:80');
+        done();
+    });
+
     describe('#start', function () {
 
         it('does not throw an error', function (done) {
@@ -502,6 +582,7 @@ describe('Server', function () {
 
                 var server = new Hapi.Server(0);
                 server.start();
+                server.stop();
             };
             expect(fn).to.not.throw(Error);
             done();
@@ -514,6 +595,7 @@ describe('Server', function () {
 
                 expect(server.info.host).to.equal('0.0.0.0');
                 expect(server.info.port).to.not.equal(0);
+                server.stop();
                 done();
             });
         });
@@ -525,6 +607,37 @@ describe('Server', function () {
 
                 expect(server.info.host).to.equal('0.0.0.0');
                 expect(server.info.port).to.not.equal(0);
+                server.stop();
+                done();
+            });
+        });
+
+        it('sets info with defaults no hostname or address', function (done) {
+
+            var hostname = Os.hostname;
+            Os.hostname  = function () {
+
+                Os.hostname = hostname;
+                return '';
+            };
+
+            var server = new Hapi.Server(0);
+            expect(server._host).to.equal('');
+
+            var address = server.listener.address;
+            server.listener.address = function () {
+
+                server.listener.address = address;
+                var add = address.call(this);
+                add.address = '';
+                return add;
+            };
+
+            server.start(function () {
+
+                expect(server.info.host).to.equal('0.0.0.0');
+                expect(server.info.uri).to.equal('http://localhost:' + server.info.port);
+                server.stop();
                 done();
             });
         });
@@ -847,6 +960,17 @@ describe('Server', function () {
             };
 
             server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
+        });
+    });
+
+    describe('#state', function () {
+
+        it('uses default options', function (done) {
+
+            var server = new Hapi.Server();
+            server.state('steve');
+            expect(server._stateDefinitions['steve']).deep.equal(Defaults.state);
+            done();
         });
     });
 });
