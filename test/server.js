@@ -1079,6 +1079,7 @@ describe('Server', function () {
             };
 
             expect(fn).to.throw(Error);
+            done();
         });
     });
 
