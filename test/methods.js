@@ -120,6 +120,32 @@ describe('Method', function () {
         });
     });
 
+    it('reuses cached method value with custom key function', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return id + 1; } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(0);
+                    done();
+                });
+            });
+        });
+    });
+
     it('does not cache value when ttl is 0', function (done) {
 
         var gen = 0;
