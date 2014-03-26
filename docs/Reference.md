@@ -1245,10 +1245,13 @@ server.inject('/', function (res) {
 
 #### `server.handler(name, method)`
 
-Registers a new handler type. This allows you to define a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`), or any previously registered type is not allowed.
+Registers a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`),
+or any previously registered types is not allowed.
 
-- `name` - String name for the handler that you want to register.
-- `method` - The method that will be used to handle the requests routed to it.
+- `name` - string name for the handler being registered.
+- `method` - the function used to generate the route handler using the signature `function(route, options)` where:
+    - `route` - the internal route object.
+    - `options` - the configuration object provided in the handler config.
 
 ```javascript
 var Hapi = require('hapi');
@@ -1259,7 +1262,7 @@ server.handler('test', function (route, options) {
 
     return function (request, reply) {
 
-        reply ('new handler: ' + options.msg);
+        reply('new handler: ' + options.msg);
     }
 });
 
@@ -2744,17 +2747,14 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.handler(name, method)`
 
-Registers a new handler type. This allows you to define a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`), or any previously registered type is not allowed.
-
-- `name` - String name for the handler that you want to register.
-- `method` - The method that will be used to handle the requests routed to it.
+Registers a new handler type as describe in [`server.handler(name, method)`](#serverhandlername-method).
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
     var handlerFunc = function (route, options) {
 
-        return function(request, reply) {
+        return function (request, reply) {
 
             reply('Message from plugin handler: ' + options.msg);
         }

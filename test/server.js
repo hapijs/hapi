@@ -365,7 +365,7 @@ describe('Server', function () {
 
         it('rejects request due to high event loop delay load', function (done) {
 
-            var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxEventLoopDelay: 1 } });
+            var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxEventLoopDelay: 5 } });
             var handler = function (request, reply) {
 
                 var start = Date.now();
