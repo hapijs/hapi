@@ -693,8 +693,7 @@ server.route({
 });
 ```
 
-In addition to the optional '?' suffix, a parameter name can also specify the number of matching segments using the '*' suffix, followed by a number
-greater than 1. If the number of expected parts can be anything, then use '*' without a number (matching any number of segments can only be used in the
+In addition to the optional `?` suffix, a parameter name can also specify the number of matching segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts can be anything, then use `*` without a number (matching any number of segments can only be used in the
 last path segment).
 
 ```javascript
