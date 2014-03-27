@@ -1187,6 +1187,45 @@ describe('Payload', function () {
             });
         });
 
+        it('parses multiple files while waiting for last file to be written', function (done) {
+
+            var path = Path.join(__dirname, './file/image.jpg');
+            var stats = Fs.statSync(path);
+
+            var orig = Fs.createWriteStream;
+            Fs.createWriteStream = function () {        // Make the first file write happen faster by bypassing the disk
+
+                Fs.createWriteStream = orig;
+                var stream = new Stream.Writable();
+                stream._write = function (chunk, encoding, callback) {
+
+                    callback();
+                };
+                stream.once('finish', function () {
+
+                    stream.emit('close');
+                });
+                return stream;
+            };
+
+            var handler = function (request, reply) {
+
+                expect(request.payload.file1.bytes).to.equal(stats.size);
+                expect(request.payload.file2.bytes).to.equal(stats.size);
+                done();
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+            server.start(function () {
+
+                var form = new FormData();
+                form.append('file1', Fs.createReadStream(path));
+                form.append('file2', Fs.createReadStream(path));
+                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+            });
+        });
+
         it('parses a file as data', function (done) {
 
             var path = Path.join(__dirname, '../package.json');
