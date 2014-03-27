@@ -60,6 +60,36 @@ describe('Method', function () {
         });
     });
 
+    it('registers two methods with shared nested name', function (done) {
+
+        var add = function (a, b, next) {
+
+            return next(null, a + b);
+        };
+
+        var sub = function (a, b, next) {
+
+            return next(null, a - b);
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('tools.add', add);
+        server.method('tools.sub', sub);
+
+        server.start(function () {
+
+            server.methods.tools.add(1, 5, function (err, result) {
+
+                expect(result).to.equal(6);
+                server.methods.tools.sub(1, 5, function (err, result) {
+
+                    expect(result).to.equal(-4);
+                    done();
+                });
+            });
+        });
+    });
+
     it('throws when registering a method with nested name twice', function (done) {
 
         var add = function (a, b, next) {

@@ -777,6 +777,60 @@ describe('Pack', function () {
         server.pack.log(['implementation']);
     });
 
+    it('does not output events when debug disabled', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+
+        var i = 0;
+        var orig = console.error;
+        console.error = function () {
+
+            ++i;
+            console.error = orig;
+        };
+
+        server.pack.log(['implementation']);
+        console.error('nothing');
+        expect(i).to.equal(1);
+        done();
+    });
+
+    it('does not output events when debug.request disabled', function (done) {
+
+        var server = new Hapi.Server({ debug: { request: false } });
+
+        var i = 0;
+        var orig = console.error;
+        console.error = function () {
+
+            ++i;
+            console.error = orig;
+        };
+
+        server.pack.log(['implementation']);
+        console.error('nothing');
+        expect(i).to.equal(1);
+        done();
+    });
+
+    it('does not output non-implementation events by default', function (done) {
+
+        var server = new Hapi.Server();
+
+        var i = 0;
+        var orig = console.error;
+        console.error = function () {
+
+            ++i;
+            console.error = orig;
+        };
+
+        server.pack.log(['xyz']);
+        console.error('nothing');
+        expect(i).to.equal(1);
+        done();
+    });
+
     it('adds server method using arguments', function (done) {
 
         var pack = new Hapi.Pack();
