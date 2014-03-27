@@ -370,7 +370,7 @@ describe('Server', function () {
 
             var a1 = server.cache('a', { expiresIn: 1000 });
             var a2 = server.cache('a', { expiresIn: 1000 });
-        }).to.not.throw;
+        }).to.not.throw();
         done();
     });
 

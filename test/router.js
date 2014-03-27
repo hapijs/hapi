@@ -168,7 +168,7 @@ describe('Router', function () {
             server.route({ method: 'GET', path: '/', vhost: 'new.example.com', handler: function (request, reply) { reply('special'); } });
         };
 
-        expect(fn).to.not.throw;
+        expect(fn).to.not.throw();
         done();
     });
 

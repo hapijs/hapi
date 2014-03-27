@@ -1093,7 +1093,7 @@ describe('Payload', function () {
             });
         });
 
-        it('parses multiple file as streams', function (done) {
+        it('parses multiple files as streams', function (done) {
 
             var multipartPayload =
                     '--AaB03x\r\n' +
@@ -1137,7 +1137,7 @@ describe('Payload', function () {
             });
         });
 
-        it('parses a file', function (done) {
+        it('parses a file as file', function (done) {
 
             var path = Path.join(__dirname, './file/image.jpg');
             var stats = Fs.statSync(path);
@@ -1160,6 +1160,29 @@ describe('Payload', function () {
 
                 var form = new FormData();
                 form.append('my_file', Fs.createReadStream(path));
+                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+            });
+        });
+
+        it('parses multiple files as files', function (done) {
+
+            var path = Path.join(__dirname, './file/image.jpg');
+            var stats = Fs.statSync(path);
+
+            var handler = function (request, reply) {
+
+                expect(request.payload.file1.bytes).to.equal(stats.size);
+                expect(request.payload.file2.bytes).to.equal(stats.size);
+                done();
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+            server.start(function () {
+
+                var form = new FormData();
+                form.append('file1', Fs.createReadStream(path));
+                form.append('file2', Fs.createReadStream(path));
                 Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
