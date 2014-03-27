@@ -60,6 +60,36 @@ describe('Method', function () {
         });
     });
 
+    it('registers two methods with shared nested name', function (done) {
+
+        var add = function (a, b, next) {
+
+            return next(null, a + b);
+        };
+
+        var sub = function (a, b, next) {
+
+            return next(null, a - b);
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('tools.add', add);
+        server.method('tools.sub', sub);
+
+        server.start(function () {
+
+            server.methods.tools.add(1, 5, function (err, result) {
+
+                expect(result).to.equal(6);
+                server.methods.tools.sub(1, 5, function (err, result) {
+
+                    expect(result).to.equal(-4);
+                    done();
+                });
+            });
+        });
+    });
+
     it('throws when registering a method with nested name twice', function (done) {
 
         var add = function (a, b, next) {
@@ -104,6 +134,32 @@ describe('Method', function () {
 
         var server = new Hapi.Server(0);
         server.method('test', method, { cache: { expiresIn: 1000 } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(0);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('reuses cached method value with custom key function', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return id + 1; } });
 
         server.start(function () {
 

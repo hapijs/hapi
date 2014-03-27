@@ -202,6 +202,29 @@ describe('Server', function () {
         });
     });
 
+    it('provisions a server cache with custom partition', function (done) {
+
+        var server = new Hapi.Server(0, { cache: { engine: 'catbox-memory', partition: 'hapi-test-other' } });
+        var cache = server.cache('test', { expiresIn: 1000 });
+        server.start(function () {
+
+            cache.set('a', 'going in', 0, function (err) {
+
+                cache.get('a', function (err, value) {
+
+                    expect(value.item).to.equal('going in');
+
+                    expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
+
+                    server.stop(function () {
+
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
     it('measures loop delay', function (done) {
 
         var server = new Hapi.Server(0, { load: { sampleInterval: 4 } });

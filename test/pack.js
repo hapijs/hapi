@@ -777,6 +777,60 @@ describe('Pack', function () {
         server.pack.log(['implementation']);
     });
 
+    it('does not output events when debug disabled', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+
+        var i = 0;
+        var orig = console.error;
+        console.error = function () {
+
+            ++i;
+            console.error = orig;
+        };
+
+        server.pack.log(['implementation']);
+        console.error('nothing');
+        expect(i).to.equal(1);
+        done();
+    });
+
+    it('does not output events when debug.request disabled', function (done) {
+
+        var server = new Hapi.Server({ debug: { request: false } });
+
+        var i = 0;
+        var orig = console.error;
+        console.error = function () {
+
+            ++i;
+            console.error = orig;
+        };
+
+        server.pack.log(['implementation']);
+        console.error('nothing');
+        expect(i).to.equal(1);
+        done();
+    });
+
+    it('does not output non-implementation events by default', function (done) {
+
+        var server = new Hapi.Server();
+
+        var i = 0;
+        var orig = console.error;
+        console.error = function () {
+
+            ++i;
+            console.error = orig;
+        };
+
+        server.pack.log(['xyz']);
+        console.error('nothing');
+        expect(i).to.equal(1);
+        done();
+    });
+
     it('adds server method using arguments', function (done) {
 
         var pack = new Hapi.Pack();
@@ -795,6 +849,74 @@ describe('Pack', function () {
         pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
+            done();
+        });
+    });
+
+    it('adds server method with plugin bind', function (done) {
+
+        var server = new Hapi.Server();
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.bind({ x: 1 });
+                plugin.method('log', function () { return this.x; });
+                next();
+            }
+        };
+
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            expect(server.methods.log()).to.equal(1);
+            done();
+        });
+    });
+
+    it('adds server method with method bind', function (done) {
+
+        var server = new Hapi.Server();
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
+                next();
+            }
+        };
+
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            expect(server.methods.log()).to.equal(2);
+            done();
+        });
+    });
+
+    it('adds server method with method and ext bind', function (done) {
+
+        var server = new Hapi.Server();
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.bind({ x: 1 });
+                plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
+                next();
+            }
+        };
+
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            expect(server.methods.log()).to.equal(2);
             done();
         });
     });
