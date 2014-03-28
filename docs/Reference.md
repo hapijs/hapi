@@ -243,7 +243,7 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 
-- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `null` means use node.js default value.
+- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use node.js default value.
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
 - `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly` (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to `{ modify: true }` which will cast data to the specified

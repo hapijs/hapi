@@ -141,6 +141,26 @@ describe('Response', function () {
             });
         });
 
+        it('returns CORS without origin', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { origin: [] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
+                done();
+            });
+        });
+
         it('does not override CORS origin', function (done) {
 
             var handler = function (request, reply) {

@@ -452,6 +452,10 @@ describe('Route', function () {
                 '/%0A': {
                     '/%0A': true,
                     '/%0a': true
+                },
+                '/a/b/{c}': {
+                    '/a/b/c': true,
+                    '/a/b': false
                 }
             };
 

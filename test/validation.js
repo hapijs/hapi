@@ -445,6 +445,41 @@ describe('Validation', function () {
         });
     });
 
+    it('skips response validation when sample is zero', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    reply({ a: 1 });
+                },
+                response: {
+                    sample: 0,
+                    schema: {
+                        b: Hapi.types.string()
+                    }
+                }
+            }
+        });
+
+        var count = 0;
+        Async.times(500, function (n, next) {
+
+            server.inject('/', function (res) {
+
+                count += (res.statusCode === 500 ? 1 : 0);
+                next(null, res.statusCode);
+            });
+        }, function (err, codes) {
+
+            expect(count).to.equal(0);
+            done();
+        });
+    });
+
     it('ignores error responses', function (done) {
 
         var server = new Hapi.Server();
