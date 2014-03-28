@@ -461,6 +461,25 @@ describe('Request', function () {
         });
     });
 
+    it('request has referer', function (done) {
+
+        var server = new Hapi.Server();
+
+        var handler = function (request, reply) {
+
+            expect(request.info.referrer).to.equal('http://site.com');
+            reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ url: '/', headers: { referer: 'http://site.com' } }, function (res) {
+
+            expect(res.result).to.equal('ok');
+            done();
+        });
+    });
+
     it('returns 400 on invalid path', function (done) {
 
         var server = new Hapi.Server();
@@ -659,6 +678,40 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('errors on missing method', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            server.ext('onRequest', function (request, reply) {
+
+                request.setMethod();
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('errors on invalid method type', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            server.ext('onRequest', function (request, reply) {
+
+                request.setMethod(42);
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
     });
 
     describe('#setUrl', function () {
@@ -745,6 +798,90 @@ describe('Request', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.equal('2|4|4|0|7|true');
+                done();
+            });
+        });
+
+        it('does not output events when debug disabled', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            var handler = function (request, reply) {
+
+                request.log(['implementation']);
+                reply();
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                console.error('nothing');
+                expect(i).to.equal(1);
+                console.error = orig;
+                done();
+            });
+        });
+
+        it('does not output events when debug.request disabled', function (done) {
+
+            var server = new Hapi.Server({ debug: { request: false } });
+
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            var handler = function (request, reply) {
+
+                request.log(['implementation']);
+                reply();
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                console.error('nothing');
+                expect(i).to.equal(1);
+                console.error = orig;
+                done();
+            });
+        });
+
+        it('does not output non-implementation events by default', function (done) {
+
+            var server = new Hapi.Server();
+
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            var handler = function (request, reply) {
+
+                request.log(['xyz']);
+                reply();
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                console.error('nothing');
+                expect(i).to.equal(1);
+                console.error = orig;
                 done();
             });
         });

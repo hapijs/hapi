@@ -880,12 +880,12 @@ describe('Pack', function () {
         console.error = function () {
 
             ++i;
-            console.error = orig;
         };
 
         server.pack.log(['implementation']);
         console.error('nothing');
         expect(i).to.equal(1);
+        console.error = orig;
         done();
     });
 
@@ -898,12 +898,12 @@ describe('Pack', function () {
         console.error = function () {
 
             ++i;
-            console.error = orig;
         };
 
         server.pack.log(['implementation']);
         console.error('nothing');
         expect(i).to.equal(1);
+        console.error = orig;
         done();
     });
 
@@ -916,12 +916,12 @@ describe('Pack', function () {
         console.error = function () {
 
             ++i;
-            console.error = orig;
         };
 
         server.pack.log(['xyz']);
         console.error('nothing');
         expect(i).to.equal(1);
+        console.error = orig;
         done();
     });
 
