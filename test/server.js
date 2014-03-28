@@ -393,6 +393,38 @@ describe('Server', function () {
         });
     });
 
+    it('rejects request due to high event loop delay load before next sample', function (done) {
+
+        var server = new Hapi.Server(0, { load: { sampleInterval: 500, maxEventLoopDelay: 1 } });
+        var handler = function (request, reply) {
+
+            var start = Date.now();
+            while (Date.now() - start < 10);
+            reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function (err) {
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                setImmediate(function () {
+
+                    server.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(503);
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
     it('reuses the same cache segment', function (done) {
 
         var server = new Hapi.Server({ cache: { engine: 'catbox-memory', shared: true } });
@@ -1039,6 +1071,16 @@ describe('Server', function () {
             var server = new Hapi.Server();
             server.state('steve');
             expect(server._stateDefinitions['steve']).deep.equal(Defaults.state);
+            done();
+        });
+
+        it('throws when missing name', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.state();
+            }).to.throw('Invalid name');
             done();
         });
     });
