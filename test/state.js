@@ -163,12 +163,15 @@ describe('State', function () {
             pass('a="b=123456789&c=something%20else"', { a: { b: '123456789', c: 'something else' } }, null, { a: { encoding: 'form' } });
             pass('a="b=%p123456789"', { a: { b: '%p123456789' } }, null, { a: { encoding: 'form' } });
             pass('a=dGVzdA; a=dGVzdA', { a: ['test', 'test'] }, null, { a: { encoding: 'base64' } });
+            pass('a=dGVzdA; a=dGVzdA; a=dGVzdA', { a: ['test', 'test', 'test'] }, null, { a: { encoding: 'base64' } });
             pass('key=dGVzdA==', { key: 'test' }, null, { key: { encoding: 'base64' } });
             pass('key=dGVzdA', { key: 'test' }, null, { key: { encoding: 'base64' } });
             pass('key=dGVzdA', { key: 'dGVzdA' }, null, { key: { encoding: 'none' } });
             pass('key=eyJ0ZXN0aW5nIjoianNvbiJ9', { key: { testing: 'json' } }, null, { key: { encoding: 'base64json' } });
             pass('key=Fe26.2**f3fc42242467f7a97c042be866a32c1e7645045c2cc085124eadc66d25fc8395*URXpH8k-R0d4O5bnY23fRQ*uq9rd8ZzdjZqUrq9P2Ci0yZ-EEUikGzxTLn6QTcJ0bc**3880c0ac8bab054f529afec8660ebbbbc8050e192e39e5d622e7ac312b9860d0*r_g7N9kJYqXDrFlvOnuKpfpEWwrJLOKMXEI43LAGeFg', { key: { a: 1, b: 2, c: 3 } }, null, { key: { encoding: 'iron', password: 'password' } });
+            pass('key=Fe26.2**f3fc42242467f7a97c042be866a32c1e7645045c2cc085124eadc66d25fc8395*URXpH8k-R0d4O5bnY23fRQ*uq9rd8ZzdjZqUrq9P2Ci0yZ-EEUikGzxTLn6QTcJ0bc**3880c0ac8bab054f529afec8660ebbbbc8050e192e39e5d622e7ac312b9860d0*r_g7N9kJYqXDrFlvOnuKpfpEWwrJLOKMXEI43LAGeFg', { key: { a: 1, b: 2, c: 3 } }, null, { key: { encoding: 'iron', password: 'password', iron: Iron.defaults } });
             pass('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', { sid: { a: '1', b: '2', c: '3 x' } }, null, { sid: { encoding: 'form', sign: { password: 'password' } } });
+            pass('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', { sid: { a: '1', b: '2', c: '3 x' } }, null, { sid: { encoding: 'form', sign: { password: 'password', integrity: Iron.defaults.integrity } } });
 
             var loose = Hapi.utils.clone(Defaults.server.state);
             loose.cookies.strictHeader = false;
@@ -243,6 +246,7 @@ describe('State', function () {
             var setLog = Hapi.utils.clone(Defaults.server.state);
             setLog.cookies.failAction = 'log';
             fail('abc="xyzf', setLog, null, { abc: '"xyzf'});
+            fail('"abc=xyzf', setLog, null, { '"abc': 'xyzf' });
             fail('key=XeyJ0ZXN0aW5nIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } });
             fail('y=XeyJ0ZXN0aW5nIjoianNvbiJ9; y=XeyJ0ZXN0aW5dnIjoianNvbiJ9', setLog, { y: { encoding: 'base64json' } });
             fail('sid=a=1&b=2&c=3%20x', setLog, { sid: { encoding: 'form', sign: { password: 'password' } } });
@@ -266,6 +270,16 @@ describe('State', function () {
         it('skips an empty header', function (done) {
 
             generateSetCookieHeader(null, null, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header).to.deep.equal([]);
+                done();
+            });
+        });
+
+        it('skips an empty array', function (done) {
+
+            generateSetCookieHeader([], null, function (err, header) {
 
                 expect(err).to.not.exist;
                 expect(header).to.deep.equal([]);
@@ -405,6 +419,17 @@ describe('State', function () {
             });
         });
 
+        it('formats a header with server definition (iron + options)', function (done) {
+
+            var definitions = { sid: { encoding: 'iron', password: 'password', iron: Iron.defaults } };
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header[0]).to.have.string('sid=Fe26.2*');
+                done();
+            });
+        });
+
         it('fails a header with bad server definition (iron)', function (done) {
 
             var definitions = { sid: { encoding: 'iron' } };
@@ -512,6 +537,18 @@ describe('State', function () {
                 expect(err.message).to.equal('Invalid cookie path: d');
                 done();
             });
+        });
+    });
+
+    describe('#prepareValue', function () {
+
+        it('throws when missing options', function (done) {
+
+            expect(function () {
+
+                Hapi.state.prepareValue('name', 'value');
+            }).to.throw('Missing or invalid options');
+            done();
         });
     });
 });

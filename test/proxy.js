@@ -681,7 +681,7 @@ describe('Proxy', function () {
 
         server.inject('/maperror', function (res) {
 
-            expect(res.payload).to.contain('myerror');
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });

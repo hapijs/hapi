@@ -778,7 +778,6 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
-                expect(res.result.message).to.equal('boom');
                 done();
             });
         });

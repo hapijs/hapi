@@ -361,6 +361,20 @@ describe('Pack', function () {
         });
     });
 
+    it('requires plugin with views and loader', function (done) {
+
+        var server = new Hapi.Server();
+        server.pack.require({ './pack/--viewsLoader': { message: 'viewing it' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('<h1>{{message}}</h1>|{"message":"viewing it"}');
+                done();
+            });
+        });
+    });
+
     it('requires module', function (done) {
 
         var server = new Hapi.Server();
