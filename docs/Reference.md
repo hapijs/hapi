@@ -500,8 +500,8 @@ The following options are available when adding a route:
                 - `next` - the continuation method called to resume route processing or return an error response. The function signature
                   is `function(exit)` where:
                     - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the
-                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
-                      value accepted by [`reply()`](#replyresult).
+                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can
+                      be any result value accepted by [`reply()`](#replyresult).
 
     - `payload` - determines how the request payload is processed:
         - `output` - the type of payload representation requested where:
@@ -509,12 +509,15 @@ The following options are available when adding a route:
               multipart) based on the 'Content-Type' header. If `parse` is false, the raw `Buffer` is returned. This is the default value
               except when a proxy handler is used.
             - `stream` - the incoming payload is made available via a `Stream.Readable` interface. If the payload is 'multipart/form-data' and
-              `parse` is `true`, fields values are presented as text while files are provided as streams. File streams from a 'multipart/form-data' upload will also have a property `.hapi` containing `filename` and `headers` properties.
+              `parse` is `true`, fields values are presented as text while files are provided as streams. File streams from a
+              'multipart/form-data' upload will also have a property `.hapi` containing `filename` and `headers` properties.
             - `file` - the incoming payload in written to temporary file in the directory specified by the server's `payload.uploads` settings.
               If the payload is 'multipart/form-data' and `parse` is `true`, fields values are presented as text while files are saved.
-        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the 'Content-Type' is known (for the whole payload as well as parts), the payload
-          is converted into an object when possible. If the format is unknown, a Bad Request (400) error response is
-          sent. Defaults to `true`, except when a proxy handler is used. The supported mime types are:
+        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip`
+          includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the
+          'Content-Type' is known (for the whole payload as well as parts), the payload is converted into an object when possible. If the
+          format is unknown, a Bad Request (400) error response is sent. Defaults to `true`, except when a proxy handler is used. The
+          supported mime types are:
             - 'application/json'
             - 'application/x-www-form-urlencoded'
             - 'application/octet-stream'
