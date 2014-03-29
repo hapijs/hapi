@@ -496,7 +496,7 @@ The following options are available when adding a route:
             - `'ignore'` - take no action.
             - a custom error handler function with the signature `functon(source, error, next)` where:
                 - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
-                - `error` - the error object prepared for the client response.
+                - `error` - the error object prepared for the client response (including the validation function error under `error.data`).
                 - `next` - the continuation method called to resume route processing or return an error response. The function signature
                   is `function(exit)` where:
                     - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the

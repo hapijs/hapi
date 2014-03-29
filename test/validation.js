@@ -164,6 +164,33 @@ describe('Validation', function () {
         });
     });
 
+    it('retains the validation error', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: false
+                }
+            }
+        });
+
+        server.ext('onPreResponse', function (request, reply) {
+
+            reply(request.response.data.details[0].path);
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('a');
+            done();
+        });
+    });
+
     it('validates valid input (Object root)', function (done) {
 
         var server = new Hapi.Server();
