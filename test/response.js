@@ -85,6 +85,9 @@ describe('Response', function () {
                              .unstate('x')
                              .header('Content-Type', 'text/plain; something=something')
                              .header('vary', 'x-control')
+                             .header('combo', 'o')
+                             .header('combo', 'k', { append: true, separator: '-' })
+                             .header('combo', 'bad', { override: false })
                              .code(200);
             };
 
@@ -111,6 +114,7 @@ describe('Response', function () {
                 expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
                 expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
                 expect(res.headers.vary).to.equal('x-control');
+                expect(res.headers.combo).to.equal('o-k');
                 done();
             });
         });
@@ -255,7 +259,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply('Tada').header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
@@ -295,7 +299,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply('Tada').header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
@@ -335,7 +339,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply('Tada').header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'], matchOrigin: false } });
