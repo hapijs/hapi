@@ -1585,6 +1585,8 @@ var handler = function (request, reply) {
 };
 ```
 
+Note that if `result` is a `Stream` with a `statusCode` property, that status code will be used as the default response code.
+
 ### `reply.file(path, [options])`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
