@@ -415,6 +415,28 @@ describe('Proxy', function () {
         });
     });
 
+    it('adds cookie to response', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var on = function (err, res, request, reply, settings, ttl) {
+
+                reply(res).state('a', 'b');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: on } } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                expect(res.headers['set-cookie'][0]).to.equal('a=b');
+                done();
+            });
+        });
+    });
+
     it('binds onResponse to route bind config', function (done) {
 
         var upstream = new Hapi.Server(0);
