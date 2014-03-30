@@ -29,6 +29,11 @@ var it = Lab.test;
 
 describe('Server', function () {
 
+    it('always fails', function (done) {
+
+        throw new Error('boom');
+    });
+
     it('calls start twice', function (done) {
 
         var server = new Hapi.Server(0);
