@@ -1191,7 +1191,7 @@ describe('Payload', function () {
             });
         });
 
-        it('parses multiple files while waiting for last file to be written', function (done) {
+        it('parses multiple files while waiting for last file to be written', { parallel: false }, function (done) {
 
             var path = Path.join(__dirname, './file/image.jpg');
             var stats = Fs.statSync(path);
