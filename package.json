@@ -37,7 +37,7 @@
     "qs": "0.6.x"
   },
   "devDependencies": {
-    "lab": "1.x.x",
+    "lab": "3.x.x",
     "handlebars": "1.2.x",
     "jade": "1.0.x",
     "hapi-plugin-test": "2.x.x",

@@ -834,109 +834,112 @@ describe('Pack', function () {
         });
     });
 
-    it('outputs log data to debug console', function (done) {
+    describe('#log', { parallel: false }, function () {
 
-        var server = new Hapi.Server();
+        it('outputs log data to debug console', function (done) {
 
-        var orig = console.error;
-        console.error = function () {
+            var server = new Hapi.Server();
 
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.equal('\n    {"data":1}');
+                done();
+            };
+
+            server.pack.log(['implementation'], { data: 1 });
+        });
+
+        it('outputs log error data to debug console', function (done) {
+
+            var server = new Hapi.Server();
+
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.contain('\n    Error: test\n    at');
+                done();
+            };
+
+            server.pack.log(['implementation'], new Error('test'));
+        });
+
+        it('outputs log data to debug console without data', function (done) {
+
+            var server = new Hapi.Server();
+
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.equal('');
+                done();
+            };
+
+            server.pack.log(['implementation']);
+        });
+
+        it('does not output events when debug disabled', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            server.pack.log(['implementation']);
+            console.error('nothing');
+            expect(i).to.equal(1);
             console.error = orig;
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.equal('\n    {"data":1}');
             done();
-        };
+        });
 
-        server.pack.log(['implementation'], { data: 1 });
-    });
+        it('does not output events when debug.request disabled', function (done) {
 
-    it('outputs log error data to debug console', function (done) {
+            var server = new Hapi.Server({ debug: { request: false } });
 
-        var server = new Hapi.Server();
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
 
-        var orig = console.error;
-        console.error = function () {
+                ++i;
+            };
 
+            server.pack.log(['implementation']);
+            console.error('nothing');
+            expect(i).to.equal(1);
             console.error = orig;
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.contain('\n    Error: test\n    at');
             done();
-        };
+        });
 
-        server.pack.log(['implementation'], new Error('test'));
-    });
+        it('does not output non-implementation events by default', function (done) {
 
-    it('outputs log data to debug console without data', function (done) {
+            var server = new Hapi.Server();
 
-        var server = new Hapi.Server();
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
 
-        var orig = console.error;
-        console.error = function () {
+                ++i;
+            };
 
+            server.pack.log(['xyz']);
+            console.error('nothing');
+            expect(i).to.equal(1);
             console.error = orig;
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.equal('');
             done();
-        };
-
-        server.pack.log(['implementation']);
-    });
-
-    it('does not output events when debug disabled', function (done) {
-
-        var server = new Hapi.Server({ debug: false });
-
-        var i = 0;
-        var orig = console.error;
-        console.error = function () {
-
-            ++i;
-        };
-
-        server.pack.log(['implementation']);
-        console.error('nothing');
-        expect(i).to.equal(1);
-        console.error = orig;
-        done();
-    });
-
-    it('does not output events when debug.request disabled', function (done) {
-
-        var server = new Hapi.Server({ debug: { request: false } });
-
-        var i = 0;
-        var orig = console.error;
-        console.error = function () {
-
-            ++i;
-        };
-
-        server.pack.log(['implementation']);
-        console.error('nothing');
-        expect(i).to.equal(1);
-        console.error = orig;
-        done();
-    });
-
-    it('does not output non-implementation events by default', function (done) {
-
-        var server = new Hapi.Server();
-
-        var i = 0;
-        var orig = console.error;
-        console.error = function () {
-
-            ++i;
-        };
-
-        server.pack.log(['xyz']);
-        console.error('nothing');
-        expect(i).to.equal(1);
-        console.error = orig;
-        done();
+        });
     });
 
     it('adds server method using arguments', function (done) {

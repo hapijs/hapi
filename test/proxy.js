@@ -970,7 +970,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('times out when proxy timeout is less than server', function (done) {
+    it('times out when proxy timeout is less than server', { parallel: false }, function (done) {
 
         var upstream = new Hapi.Server(0);
         upstream.route({ method: 'GET', path: '/timeout2', handler: function (request, reply) { setTimeout(function () { reply('Ok'); }, 10); } });

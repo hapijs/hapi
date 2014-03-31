@@ -223,7 +223,7 @@ describe('Request', function () {
         });
     });
 
-    it('returns 500 on handler exception (next tick)', function (done) {
+    it('returns 500 on handler exception (next tick)', { parallel: false }, function (done) {
 
         var handler = function (request) {
 
@@ -252,90 +252,6 @@ describe('Request', function () {
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(500);
-        });
-    });
-
-    it('outputs log data to debug console', function (done) {
-
-        var handler = function (request, reply) {
-
-            request.log(['implementation'], 'data');
-            reply();
-        };
-
-        var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: handler });
-
-        var orig = console.error;
-        console.error = function () {
-
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.equal('\n    data');
-            console.error = orig;
-            done();
-        };
-
-        server.inject('/', function (res) {
-
-            expect(res.statusCode).to.equal(200);
-        });
-    });
-
-    it('outputs log to debug console without data', function (done) {
-
-        var handler = function (request, reply) {
-
-            request.log(['implementation']);
-            reply();
-        };
-
-        var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: handler });
-
-        var orig = console.error;
-        console.error = function () {
-
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.equal('');
-            console.error = orig;
-            done();
-        };
-
-        server.inject('/', function (res) {
-
-            expect(res.statusCode).to.equal(200);
-        });
-    });
-
-    it('handles invalid log data object stringify', function (done) {
-
-        var handler = function (request, reply) {
-
-            var obj = {};
-            obj.a = obj;
-
-            request.log(['implementation'], obj);
-            reply();
-        };
-
-        var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: handler });
-
-        var orig = console.error;
-        console.error = function () {
-
-            console.error = orig;
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.equal('\n    [Cannot display object: Converting circular structure to JSON]');
-            done();
-        };
-
-        server.inject('/', function (res) {
-
-            expect(res.statusCode).to.equal(200);
         });
     });
 
@@ -507,7 +423,7 @@ describe('Request', function () {
         });
     });
 
-    it('handles aborted requests', function (done) {
+    it('handles aborted requests', { parallel: false }, function (done) {
 
         var handler = function (request, reply) {
 
@@ -623,8 +539,8 @@ describe('Request', function () {
     it('gunzips when parse=gunzip', function (done) {
 
         var zlib = require('zlib');
-        var msg  = "hapi=joi";
-        var buf  = new Buffer(msg, 'utf-8');
+        var msg = "hapi=joi";
+        var buf = new Buffer(msg, 'utf-8');
 
         var handler = function (request, reply) {
             reply({
@@ -638,7 +554,7 @@ describe('Request', function () {
             method: 'POST', path: '/',
             config: {
                 payload: { parse: 'gunzip' },
-                handler:handler
+                handler: handler
             }
         });
 
@@ -646,14 +562,14 @@ describe('Request', function () {
             server.inject({
                 method: 'POST', url: '/', payload: gz_data,
                 headers: {
-                    'Content-Encoding':'gzip',
-                    'Content-Type':'application/x-www-form-urlencoded'
+                    'Content-Encoding': 'gzip',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             }, function (res) {
 
                 expect(res.result.isBuffer).to.equal(true);
                 expect(res.result.msg).to.equal(msg);
-                
+
                 done();
             });
         });
@@ -775,7 +691,91 @@ describe('Request', function () {
         });
     });
 
-    describe('#log', function () {
+    describe('#log', { parallel: false }, function () {
+
+        it('outputs log data to debug console', function (done) {
+
+            var handler = function (request, reply) {
+
+                request.log(['implementation'], 'data');
+                reply();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            var orig = console.error;
+            console.error = function () {
+
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.equal('\n    data');
+                console.error = orig;
+                done();
+            };
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+            });
+        });
+
+        it('outputs log to debug console without data', function (done) {
+
+            var handler = function (request, reply) {
+
+                request.log(['implementation']);
+                reply();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            var orig = console.error;
+            console.error = function () {
+
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.equal('');
+                console.error = orig;
+                done();
+            };
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+            });
+        });
+
+        it('handles invalid log data object stringify', function (done) {
+
+            var handler = function (request, reply) {
+
+                var obj = {};
+                obj.a = obj;
+
+                request.log(['implementation'], obj);
+                reply();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.equal('\n    [Cannot display object: Converting circular structure to JSON]');
+                done();
+            };
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+            });
+        });
 
         it('adds a log event to the request', function (done) {
 
@@ -794,7 +794,7 @@ describe('Request', function () {
 
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: handler });
-            
+
             server.inject('/', function (res) {
 
                 expect(res.payload).to.equal('2|4|4|0|7|true');
