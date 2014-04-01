@@ -28,6 +28,7 @@
         - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
+        - [`server.handler(name, method, [schema])`](#serverhandlername-method-schema)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -105,6 +106,7 @@
         - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
         - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
+        - [`plugin.handler(name, method, [schema])`](#pluginhandlername-method-schema)
 - [`Hapi.utils`](#hapiutils)
       - [`version()`](#version)
 - [`Hapi.types`](#hapitypes)
@@ -1239,6 +1241,36 @@ server.inject('/', function (res) {
 
     console.log(res.result);
 });
+```
+
+#### `server.handler(name, method, [schema])`
+
+Registers a new handler type. This allows you to define a new handler type which can then be used in routes. Additionally, you can overwrite the four currently built in handler types of `directory`, `file`, `proxy`, and `view`. You can optionally pass a schema to be used to validate routes with this handler type.
+
+- `name` - The name of the handler that you want to register. Examples are `'proxy'` or `'myhandler'`.
+- `method` - The method that will be used to handle the requests routed to it.
+- `schema` - Optional object that describes the schema to be used for the handler being registered. Defaults to `Joi.any()`.
+
+```javascript
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+
+// Defines new handler for routes on this server
+server.handler('proxy', function (route, options) {
+
+    return function (request, reply) {
+
+        reply ('new proxy handler: ' + options.msg);
+    }
+});
+
+server.route({
+    method: 'GET',
+    path: '/newproxy',
+    handler: { proxy: { msg: 'test' } }
+});
+
+server.start();
 ```
 
 ### `Server` events
@@ -2863,6 +2895,31 @@ exports.register = function (plugin, options, next) {
 
     next();
 };
+```
+
+#### `plugin.handler(name, method, [schema])`
+
+Registers a new handler type. This allows you to define a new handler type which can then be used in routes. Additionally, you can overwrite the four currently built in handler types of `directory`, `file`, `proxy`, and `view`. You can optionally pass a schema to be used to validate routes with this handler type.
+
+- `name` - The name of the handler that you want to register. Examples are `'proxy'` or `'myhandler'`.
+- `method` - The method that will be used to handle the requests routed to it.
+- `schema` - Optional object that describes the schema to be used for the handler being registered. Defaults to `Joi.any()`.
+
+Example:
+```javascript
+exports.register = function (plugin, options, next) {
+
+    var handlerFunc = function (route, options) {
+
+        return function(request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+    plugin.handler('testHandler', handlerFunc);
+    next();
+}
 ```
 
 ## `Hapi.utils`

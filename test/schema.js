@@ -149,15 +149,4 @@ describe('Schema', function () {
             done();
         });
     });
-
-    describe('#routeHandler', function () {
-
-        it('fails when route has duplicate handler', function (done) {
-
-            var handler = { file: 'something', view: 'something' };
-
-            expect(Schema.routeHandler(handler)).to.exist;
-            done();
-        });
-    });
 });
