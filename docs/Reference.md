@@ -243,7 +243,7 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 
-- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `null` means use node.js default value.
+- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use node.js default value.
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
 - `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly` (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to `{ modify: true }` which will cast data to the specified
@@ -496,12 +496,12 @@ The following options are available when adding a route:
             - `'ignore'` - take no action.
             - a custom error handler function with the signature `functon(source, error, next)` where:
                 - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
-                - `error` - the error object prepared for the client response.
+                - `error` - the error object prepared for the client response (including the validation function error under `error.data`).
                 - `next` - the continuation method called to resume route processing or return an error response. The function signature
                   is `function(exit)` where:
                     - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the
-                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
-                      value accepted by [`reply()`](#replyresult).
+                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can
+                      be any result value accepted by [`reply()`](#replyresult).
 
     - `payload` - determines how the request payload is processed:
         - `output` - the type of payload representation requested where:
@@ -509,12 +509,15 @@ The following options are available when adding a route:
               multipart) based on the 'Content-Type' header. If `parse` is false, the raw `Buffer` is returned. This is the default value
               except when a proxy handler is used.
             - `stream` - the incoming payload is made available via a `Stream.Readable` interface. If the payload is 'multipart/form-data' and
-              `parse` is `true`, fields values are presented as text while files are provided as streams.
+              `parse` is `true`, fields values are presented as text while files are provided as streams. File streams from a
+              'multipart/form-data' upload will also have a property `.hapi` containing `filename` and `headers` properties.
             - `file` - the incoming payload in written to temporary file in the directory specified by the server's `payload.uploads` settings.
               If the payload is 'multipart/form-data' and `parse` is `true`, fields values are presented as text while files are saved.
-        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the 'Content-Type' is known (for the whole payload as well as parts), the payload
-          is converted into an object when possible. If the format is unknown, a Bad Request (400) error response is
-          sent. Defaults to `true`, except when a proxy handler is used. The supported mime types are:
+        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip`
+          includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the
+          'Content-Type' is known (for the whole payload as well as parts), the payload is converted into an object when possible. If the
+          format is unknown, a Bad Request (400) error response is sent. Defaults to `true`, except when a proxy handler is used. The
+          supported mime types are:
             - 'application/json'
             - 'application/x-www-form-urlencoded'
             - 'application/octet-stream'
@@ -693,8 +696,7 @@ server.route({
 });
 ```
 
-In addition to the optional '?' suffix, a parameter name can also specify the number of matching segments using the '*' suffix, followed by a number
-greater than 1. If the number of expected parts can be anything, then use '*' without a number (matching any number of segments can only be used in the
+In addition to the optional `?` suffix, a parameter name can also specify the number of matching segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts can be anything, then use `*` without a number (matching any number of segments can only be used in the
 last path segment).
 
 ```javascript
@@ -1585,6 +1587,8 @@ var handler = function (request, reply) {
         .header('X-Custom', 'some-value');
 };
 ```
+
+Note that if `result` is a `Stream` with a `statusCode` property, that status code will be used as the default response code.
 
 ### `reply.file(path, [options])`
 

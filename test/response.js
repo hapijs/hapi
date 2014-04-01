@@ -58,6 +58,18 @@ describe('Response', function () {
         });
     });
 
+    it('returns null', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, null); } });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(null);
+            done();
+        });
+    });
+
     describe('Text', function () {
 
         it('returns a reply', function (done) {
@@ -73,6 +85,9 @@ describe('Response', function () {
                              .unstate('x')
                              .header('Content-Type', 'text/plain; something=something')
                              .header('vary', 'x-control')
+                             .header('combo', 'o')
+                             .header('combo', 'k', { append: true, separator: '-' })
+                             .header('combo', 'bad', { override: false })
                              .code(200);
             };
 
@@ -99,6 +114,7 @@ describe('Response', function () {
                 expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
                 expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
                 expect(res.headers.vary).to.equal('x-control');
+                expect(res.headers.combo).to.equal('o-k');
                 done();
             });
         });
@@ -137,6 +153,26 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
+                done();
+            });
+        });
+
+        it('returns CORS without origin', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { origin: [] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
                 done();
             });
         });
@@ -223,7 +259,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply('Tada').header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
@@ -263,10 +299,30 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply('Tada').header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Tada');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
+                expect(res.headers.vary).to.equal('x-test,origin');
+                done();
+            });
+        });
+
+        it('returns matching CORS origin wildcard when more than one wildcard', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('Tada').header('vary', 'x-test', true);
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
@@ -283,7 +339,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply('Tada').header('vary', 'x-test', true);
+                reply('Tada').header('vary', 'x-test');
             };
 
             var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'], matchOrigin: false } });
@@ -562,7 +618,7 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                reply({ a: 1, b: 2 }).type('application/x-test').spaces(0).replacer(null).suffix('\n');
+                reply({ a: 1, b: 2 }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n');
             };
 
             var server = new Hapi.Server();
@@ -570,7 +626,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
-                expect(res.payload).to.equal('{\"a\":1,\"b\":2}\n');
+                expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
                 expect(res.headers['content-type']).to.equal('application/x-test');
                 done();
             });
@@ -758,7 +814,6 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist;
-                expect(res.result.message).to.equal('boom');
                 done();
             });
         });
@@ -1249,7 +1304,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 304 when the request has if-modified-since and the response hasn\'t been modified since', function (done) {
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since', function (done) {
 
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -1264,6 +1319,30 @@ describe('Response', function () {
                     expect(res2.headers).to.not.have.property('last-modified');
                     done();
                 });
+            });
+        });
+
+        it('returns 200 if if-modified-since is invalid', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject({ url: '/file', headers: { 'if-modified-since': 'some crap' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('returns 200 if last-modified is invalid', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').header('last-modified', 'some crap'); } });
+
+            server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } }, function (res2) {
+
+                expect(res2.statusCode).to.equal(200);
+                done();
             });
         });
 
@@ -1297,7 +1376,7 @@ describe('Response', function () {
                     });
 
                     cmd.stdin.end();
-                 });
+                });
             });
         });
 
@@ -1369,6 +1448,48 @@ describe('Response', function () {
                 expect(res.headers['content-length']).to.not.exist;
                 expect(res.payload).to.exist;
                 done();
+            });
+        });
+
+        it('ignores _hapi decoration when missing gzipped child', function (done) {
+
+            var handler = function (request, reply) {
+
+                var stream = new Stream.Readable();
+                stream._hapi = {};
+                stream._read = function (size) {
+
+                    this.push('ok');
+                    this.push(null);
+                };
+
+                reply(stream);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.headers['content-encoding']).to.equal('gzip');
+                expect(res.headers['content-length']).to.not.exist;
+                expect(res.payload).to.exist;
+                done();
+            });
+        });
+
+        it('returns a 304 when using precompressed file and if-modified-since set', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/file/image.png', lookupCompressed: true } } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date, 'accept-encoding': 'gzip' } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    done();
+                });
             });
         });
 
@@ -1873,14 +1994,14 @@ describe('Response', function () {
             });
 
             var handler = function (request, reply) {
-                
+
                 return reply.view('test.html', { message: "Hello World!" });
             };
 
             server.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
 
             server.inject('/handlebars', function (res) {
-                
+
                 expect(res.statusCode).to.equal(200);
                 done();
             });
@@ -1908,6 +2029,35 @@ describe('Response', function () {
 
             server.inject('/handlebars', function (res) {
 
+                expect(res.result).to.exist;
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('sets content type', function (done) {
+
+            var server = new Hapi.Server({
+                views: {
+                    engines: {
+                        html: {
+                            module: 'handlebars',
+                            path: __dirname + '/templates/valid',
+                            contentType: 'something/else'
+                        }
+                    }
+                }
+            });
+
+            var handler = function (request, reply) {
+
+                return reply.view('test', { message: "Hello World!" });
+            };
+
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+            server.inject('/', function (res) {
+
+                expect(res.headers['content-type']).to.equal('something/else');
                 expect(res.result).to.exist;
                 expect(res.statusCode).to.equal(200);
                 done();
@@ -2058,6 +2208,33 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('allows if path given includes ../ and allowInsecureAccess is true', function (done) {
+
+            var server = new Hapi.Server({
+                debug: false,
+                views: {
+                    engines: { 'html': 'handlebars' },
+                    allowInsecureAccess: true,
+                    path: __dirname + '/templates/valid/helpers'
+                }
+            });
+
+            var insecureHandler = function (request, reply) {
+
+                return reply.view('../test', { message: 'Hello, World!' });
+            };
+
+            server.route({ method: 'GET', path: '/views/insecure', config: { handler: insecureHandler } });
+
+            server.inject('/views/insecure', function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.have.string('Hello, World!');
+                expect(res.statusCode).to.equal(200);
                 done();
             });
         });
@@ -2758,6 +2935,23 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(308);
+                done();
+            });
+        });
+
+        it('returns a 302 redirection reply (flip flop)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').permanent().temporary();
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(302);
                 done();
             });
         });

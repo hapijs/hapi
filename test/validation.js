@@ -44,6 +44,27 @@ describe('Validation', function () {
         });
     });
 
+    it('allows any input when set to null', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: null
+                }
+            }
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
     it('validates using custom validator', function (done) {
 
         var server = new Hapi.Server();
@@ -139,6 +160,33 @@ describe('Validation', function () {
         server.inject('/?a=123', function (res) {
 
             expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
+
+    it('retains the validation error', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: false
+                }
+            }
+        });
+
+        server.ext('onPreResponse', function (request, reply) {
+
+            reply(request.response.data.details[0].path);
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('a');
             done();
         });
     });
@@ -420,6 +468,41 @@ describe('Validation', function () {
         }, function (err, codes) {
 
             expect(count).to.be.within(200, 300);
+            done();
+        });
+    });
+
+    it('skips response validation when sample is zero', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    reply({ a: 1 });
+                },
+                response: {
+                    sample: 0,
+                    schema: {
+                        b: Hapi.types.string()
+                    }
+                }
+            }
+        });
+
+        var count = 0;
+        Async.times(500, function (n, next) {
+
+            server.inject('/', function (res) {
+
+                count += (res.statusCode === 500 ? 1 : 0);
+                next(null, res.statusCode);
+            });
+        }, function (err, codes) {
+
+            expect(count).to.equal(0);
             done();
         });
     });

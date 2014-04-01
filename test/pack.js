@@ -143,6 +143,21 @@ describe('Pack', function () {
         });
     });
 
+    it('throws when plugin missing register', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '2.0.0'
+        };
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.register(plugin, { something: true }, function (err) { });
+        }).to.throw('Plugin missing register() method');
+        done();
+    });
+
     it('throws when pack server contains cache configuration', function (done) {
 
         expect(function () {
@@ -162,6 +177,30 @@ describe('Pack', function () {
         pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
 
         pack.require('./pack/--test1', {}, function (err) {
+
+            expect(err).to.not.exist;
+
+            expect(pack._servers[0]._router.routes['get']).to.not.exist;
+            expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
+            expect(pack._servers[2]._router.routes['get']).to.not.exist;
+            expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
+
+            expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
+            expect(pack._servers[0].plugins['--test1'].glue('1', '3')).to.equal('13');
+
+            done();
+        });
+    });
+
+    it('requires plugin with absolute path', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['s1', 'a', 'b'] });
+        pack.server({ labels: ['s2', 'a', 'test'] });
+        pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+        pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
+
+        pack.require(__dirname + '/pack/--test1', {}, function (err) {
 
             expect(err).to.not.exist;
 
@@ -280,6 +319,58 @@ describe('Pack', function () {
                         done();
                     });
                 });
+            });
+        });
+    });
+
+    it('requires plugin with views with specific basePath', function (done) {
+
+        var plugin = {
+            name: 'test',
+            version: '3.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.views({
+                    engines: { 'html': 'handlebars' },
+                    basePath: __dirname + '/pack/--views',
+                    path: './templates'
+                });
+
+                plugin.route([
+                    {
+                        path: '/view', method: 'GET', handler: function (request, reply) {
+
+                            return reply.view('test', { message: 'steve' });
+                        }
+                    }
+                ]);
+
+                return next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/view' }, function (res) {
+
+                expect(res.result).to.equal('<h1>steve</h1>');
+                done();
+            });
+        });
+    });
+
+    it('requires plugin with views and loader', function (done) {
+
+        var server = new Hapi.Server();
+        server.pack.require({ './pack/--viewsLoader': { message: 'viewing it' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result).to.equal('<h1>{{message}}</h1>|{"message":"viewing it"}');
+                done();
             });
         });
     });
@@ -743,92 +834,112 @@ describe('Pack', function () {
         });
     });
 
-    it('outputs log data to debug console', function (done) {
+    describe('#log', { parallel: false }, function () {
 
-        var server = new Hapi.Server();
+        it('outputs log data to debug console', function (done) {
 
-        var orig = console.error;
-        console.error = function () {
+            var server = new Hapi.Server();
 
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.equal('\n    {"data":1}');
+                done();
+            };
+
+            server.pack.log(['implementation'], { data: 1 });
+        });
+
+        it('outputs log error data to debug console', function (done) {
+
+            var server = new Hapi.Server();
+
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.contain('\n    Error: test\n    at');
+                done();
+            };
+
+            server.pack.log(['implementation'], new Error('test'));
+        });
+
+        it('outputs log data to debug console without data', function (done) {
+
+            var server = new Hapi.Server();
+
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.equal('');
+                done();
+            };
+
+            server.pack.log(['implementation']);
+        });
+
+        it('does not output events when debug disabled', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            server.pack.log(['implementation']);
+            console.error('nothing');
+            expect(i).to.equal(1);
             console.error = orig;
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.equal('\n    {"data":1}');
             done();
-        };
+        });
 
-        server.pack.log(['implementation'], { data: 1 });
-    });
+        it('does not output events when debug.request disabled', function (done) {
 
-    it('outputs log data to debug console without data', function (done) {
+            var server = new Hapi.Server({ debug: { request: false } });
 
-        var server = new Hapi.Server();
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
 
-        var orig = console.error;
-        console.error = function () {
+                ++i;
+            };
 
+            server.pack.log(['implementation']);
+            console.error('nothing');
+            expect(i).to.equal(1);
             console.error = orig;
-            expect(arguments[0]).to.equal('Debug:');
-            expect(arguments[1]).to.equal('implementation');
-            expect(arguments[2]).to.equal('');
             done();
-        };
+        });
 
-        server.pack.log(['implementation']);
-    });
+        it('does not output non-implementation events by default', function (done) {
 
-    it('does not output events when debug disabled', function (done) {
+            var server = new Hapi.Server();
 
-        var server = new Hapi.Server({ debug: false });
+            var i = 0;
+            var orig = console.error;
+            console.error = function () {
 
-        var i = 0;
-        var orig = console.error;
-        console.error = function () {
+                ++i;
+            };
 
-            ++i;
+            server.pack.log(['xyz']);
+            console.error('nothing');
+            expect(i).to.equal(1);
             console.error = orig;
-        };
-
-        server.pack.log(['implementation']);
-        console.error('nothing');
-        expect(i).to.equal(1);
-        done();
-    });
-
-    it('does not output events when debug.request disabled', function (done) {
-
-        var server = new Hapi.Server({ debug: { request: false } });
-
-        var i = 0;
-        var orig = console.error;
-        console.error = function () {
-
-            ++i;
-            console.error = orig;
-        };
-
-        server.pack.log(['implementation']);
-        console.error('nothing');
-        expect(i).to.equal(1);
-        done();
-    });
-
-    it('does not output non-implementation events by default', function (done) {
-
-        var server = new Hapi.Server();
-
-        var i = 0;
-        var orig = console.error;
-        console.error = function () {
-
-            ++i;
-            console.error = orig;
-        };
-
-        server.pack.log(['xyz']);
-        console.error('nothing');
-        expect(i).to.equal(1);
-        done();
+            done();
+        });
     });
 
     it('adds server method using arguments', function (done) {
@@ -921,7 +1032,167 @@ describe('Pack', function () {
         });
     });
 
+    it('sets multiple dependencies in one statement', function (done) {
+
+        var a = {
+            name: 'a',
+            version: '2.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.dependency(['b', 'c']);
+                next();
+            }
+        };
+
+        var b = {
+            name: 'b',
+            version: '2.0.0',
+            register: function (plugin, options, next) {
+
+                next();
+            }
+        };
+
+        var c = {
+            name: 'c',
+            version: '2.0.0',
+            register: function (plugin, options, next) {
+
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(b, function (err) {
+
+            server.pack.register(c, function (err) {
+
+                server.pack.register(a, function (err) {
+
+                    done();
+                });
+            });
+        });
+    });
+
+    it('sets multiple dependencies in multiple statements', function (done) {
+
+        var a = {
+            name: 'a',
+            version: '2.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.dependency('b');
+                plugin.dependency('c');
+                next();
+            }
+        };
+
+        var b = {
+            name: 'b',
+            version: '2.0.0',
+            register: function (plugin, options, next) {
+
+                next();
+            }
+        };
+
+        var c = {
+            name: 'c',
+            version: '2.0.0',
+            register: function (plugin, options, next) {
+
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(b, function (err) {
+
+            server.pack.register(c, function (err) {
+
+                server.pack.register(a, function (err) {
+
+                    done();
+                });
+            });
+        });
+    });
+
+    it('sets a loader then undo it', function (done) {
+
+        var server = new Hapi.Server();
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (plugin, options, next) {
+
+                plugin.loader(function () { throw new Error('bad'); });
+                plugin.loader();
+                plugin.require('./pack/--test2', next);
+            }
+        };
+
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/test2/path', function (res) {
+
+                expect(res.result).to.equal(process.cwd() + '/test/pack/--test2');
+                done();
+            });
+        });
+    });
+
+    it('throws when name is missing', function (done) {
+
+        var server = new Hapi.Server();
+
+        expect(function () {
+
+            server.pack.require(null, function (err) { });
+        }).to.throw('Invalid plugin name(s) object: must be string, object, or array');
+        done();
+    });
+
+    it('throws when name is invalid type', function (done) {
+
+        var server = new Hapi.Server();
+
+        expect(function () {
+
+            server.pack.require(45, function (err) { });
+        }).to.throw('Invalid plugin name(s) object: must be string, object, or array');
+        done();
+    });
+
+    it('starts a pack without callback', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server(0);
+        pack.require('./pack/--afterErr', function (err) {
+
+            pack.start();
+            setTimeout(function () {
+
+                pack.stop();
+                done();
+            }, 10);
+        });
+    });
+
     describe('#_provisionCache ', function () {
+
+        it('throws when missing options', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.pack._provisionCache();
+            }).to.throw('Invalid cache policy options');
+            done();
+        });
 
         it('throws when creating method cache with invalid segment', function (done) {
 
@@ -940,6 +1211,48 @@ describe('Pack', function () {
 
                 server.pack._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', 'bad');
             }).to.throw('Plugin cache segment must start with \'!!\'');
+            done();
+        });
+
+        it('uses custom method cache segment', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.pack._provisionCache({ expiresIn: 1000 }, 'method', 'steve', '##method');
+            }).to.not.throw();
+            done();
+        });
+
+        it('uses custom plugin cache segment', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.pack._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
+            }).to.not.throw();
+            done();
+        });
+
+        it('throws when creating the same cache twice', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.pack._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
+                server.pack._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
+            }).to.throw('Cannot provision the same cache segment more than once');
+            done();
+        });
+
+        it('allows creating the same cache twice via cache options', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.pack._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
+                server.pack._provisionCache({ expiresIn: 1000, shared: true }, 'plugin', 'steve', '!!plugin');
+            }).to.not.throw();
             done();
         });
     });

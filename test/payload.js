@@ -1093,7 +1093,7 @@ describe('Payload', function () {
             });
         });
 
-        it('parses multiple file as streams', function (done) {
+        it('parses multiple files as streams', function (done) {
 
             var multipartPayload =
                     '--AaB03x\r\n' +
@@ -1114,6 +1114,10 @@ describe('Payload', function () {
                     '--AaB03x--\r\n';
 
             var handler = function (request, reply) {
+
+                expect(request.payload.files[0].hapi).to.deep.equal({ filename: 'file1.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file1.txt"', 'content-type': 'text/plain'} });
+                expect(request.payload.files[1].hapi).to.deep.equal({ filename: 'file2.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file2.txt"', 'content-type': 'text/plain'} });
+                expect(request.payload.files[2].hapi).to.deep.equal({ filename: 'file3.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file3.txt"', 'content-type': 'text/plain'} });
 
                 Nipple.read(request.payload.files[1], function (err, payload2) {
 
@@ -1137,7 +1141,7 @@ describe('Payload', function () {
             });
         });
 
-        it('parses a file', function (done) {
+        it('parses a file as file', function (done) {
 
             var path = Path.join(__dirname, './file/image.jpg');
             var stats = Fs.statSync(path);
@@ -1160,6 +1164,68 @@ describe('Payload', function () {
 
                 var form = new FormData();
                 form.append('my_file', Fs.createReadStream(path));
+                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+            });
+        });
+
+        it('parses multiple files as files', function (done) {
+
+            var path = Path.join(__dirname, './file/image.jpg');
+            var stats = Fs.statSync(path);
+
+            var handler = function (request, reply) {
+
+                expect(request.payload.file1.bytes).to.equal(stats.size);
+                expect(request.payload.file2.bytes).to.equal(stats.size);
+                done();
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+            server.start(function () {
+
+                var form = new FormData();
+                form.append('file1', Fs.createReadStream(path));
+                form.append('file2', Fs.createReadStream(path));
+                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+            });
+        });
+
+        it('parses multiple files while waiting for last file to be written', { parallel: false }, function (done) {
+
+            var path = Path.join(__dirname, './file/image.jpg');
+            var stats = Fs.statSync(path);
+
+            var orig = Fs.createWriteStream;
+            Fs.createWriteStream = function () {        // Make the first file write happen faster by bypassing the disk
+
+                Fs.createWriteStream = orig;
+                var stream = new Stream.Writable();
+                stream._write = function (chunk, encoding, callback) {
+
+                    callback();
+                };
+                stream.once('finish', function () {
+
+                    stream.emit('close');
+                });
+                return stream;
+            };
+
+            var handler = function (request, reply) {
+
+                expect(request.payload.file1.bytes).to.equal(stats.size);
+                expect(request.payload.file2.bytes).to.equal(stats.size);
+                done();
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+            server.start(function () {
+
+                var form = new FormData();
+                form.append('file1', Fs.createReadStream(path));
+                form.append('file2', Fs.createReadStream(path));
                 Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
@@ -1211,12 +1277,19 @@ describe('Payload', function () {
             var fileHandler = function (request) {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
+                expect(request.payload['my_file'].hapi).to.deep.equal({
+                    filename: 'image.jpg',
+                    headers: {
+                        'content-disposition': 'form-data; name="my_file"; filename="image.jpg"',
+                        'content-type': 'image/jpeg'
+                    }
+                });
 
                 Nipple.read(request.payload['my_file'], function (err, buffer) {
 
                     expect(err).to.not.exist;
                     expect(fileContents.length).to.equal(buffer.length);
-                    expect(fileContents.toString() === buffer.toString()).to.equal(true);
+                    expect(fileContents.toString('binary') === buffer.toString('binary')).to.equal(true);
                     done();
                 });
             };
