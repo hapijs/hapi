@@ -94,6 +94,7 @@
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
         - [`plugin.loader(require)`](#pluginloader-require)
         - [`plugin.bind(bind)`](#pluginbind-bind)
+        - [`plugin.handler(name, method, [schema])`](#pluginhandlername-method-schema)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -106,7 +107,6 @@
         - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
         - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
-        - [`plugin.handler(name, method, [schema])`](#pluginhandlername-method-schema)
 - [`Hapi.utils`](#hapiutils)
       - [`version()`](#version)
 - [`Hapi.types`](#hapitypes)
@@ -2743,6 +2743,30 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
+#### `plugin.handler(name, method, [schema])`
+
+Registers a new handler type. This allows you to define a new handler type which can then be used in routes. Additionally, you can overwrite the four currently built in handler types of `directory`, `file`, `proxy`, and `view`. You can optionally pass a schema to be used to validate routes with this handler type.
+
+- `name` - The name of the handler that you want to register. Examples are `'proxy'` or `'myhandler'`.
+- `method` - The method that will be used to handle the requests routed to it.
+- `schema` - Optional object that describes the schema to be used for the handler being registered. Defaults to `Joi.any()`.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    var handlerFunc = function (route, options) {
+
+        return function(request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+    plugin.handler('testHandler', handlerFunc);
+    next();
+}
+```
+
 ### Selectable methods and properties
 
 The plugin interface selectable methods and properties are those available both on the `plugin` object received via the
@@ -2895,31 +2919,6 @@ exports.register = function (plugin, options, next) {
 
     next();
 };
-```
-
-#### `plugin.handler(name, method, [schema])`
-
-Registers a new handler type. This allows you to define a new handler type which can then be used in routes. Additionally, you can overwrite the four currently built in handler types of `directory`, `file`, `proxy`, and `view`. You can optionally pass a schema to be used to validate routes with this handler type.
-
-- `name` - The name of the handler that you want to register. Examples are `'proxy'` or `'myhandler'`.
-- `method` - The method that will be used to handle the requests routed to it.
-- `schema` - Optional object that describes the schema to be used for the handler being registered. Defaults to `Joi.any()`.
-
-Example:
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var handlerFunc = function (route, options) {
-
-        return function(request, reply) {
-
-            reply('Message from plugin handler: ' + options.msg);
-        }
-    };
-
-    plugin.handler('testHandler', handlerFunc);
-    next();
-}
 ```
 
 ## `Hapi.utils`
