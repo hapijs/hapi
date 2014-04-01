@@ -1003,7 +1003,7 @@ describe('Server', function () {
                 var server = new Hapi.Server();
 
                 server.handler('proxy', handler);
-                expect(server.handlers.proxy).to.equal(handler);
+                expect(server.pack._handlers.handlers.proxy.fn).to.equal(handler);
             };
 
             expect(fn).to.not.throw(Error);
