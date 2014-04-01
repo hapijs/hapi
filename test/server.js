@@ -1083,8 +1083,8 @@ describe('Server', function () {
 
                 var server = new Hapi.Server();
 
-                server.handler('proxy', handler);
-                expect(server.pack._handlers.handlers.proxy.fn).to.equal(handler);
+                server.handler('test', handler);
+                expect(server.pack._handlers.test.fn).to.equal(handler);
             };
 
             expect(fn).to.not.throw(Error);
@@ -1116,29 +1116,17 @@ describe('Server', function () {
             expect(fn).to.not.throw(Error);
         });
 
-        it('overwrite proxy handler', function (done) {
+        it('errors on duplicate handler', function (done) {
 
             var fn = function () {
 
                 var server = new Hapi.Server();
 
                 server.handler('proxy', handler);
-                server.route({
-                    method: 'GET',
-                    path: '/',
-                    handler: {
-                        proxy: {
-                            message: 'success'
-                        }
-                    }
-                });
-                server.inject('/', function (res) {
-                    expect(res.payload).to.equal('success');
-                    done();
-                });
             };
 
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.throw(Error);
+            done();
         });
 
         it('errors on unknown handler', function (done) {
