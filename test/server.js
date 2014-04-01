@@ -10,6 +10,8 @@ var Path = require('path');
 var Nipple = require('nipple');
 var Lab = require('lab');
 var Hapi = require('..');
+var Path = require('path');
+var Joi = require('joi');
 var Defaults = require('../lib/defaults');
 
 
@@ -932,6 +934,26 @@ describe('Server', function () {
             expect(server._router.routes.put[0].path).to.equal('/test');
             done();
         });
+
+
+        it('errors when handler does not conform to schema', function(done) {
+
+            var theRoute = {
+                method: 'GET',
+                path: '/testhandler',
+                handler: { proxy: { hostbad: 'test.com', port: 80, redirects: 5 } }
+            };
+
+
+            var fn = function() {
+
+                var server = new Hapi.Server();
+                server.route(theRoute);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
     });
 
     describe('#table', function () {
@@ -1066,6 +1088,72 @@ describe('Server', function () {
             server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
         });
     });
+
+
+    describe('#handler', function() {
+
+        it('adds new handler', function(done) {
+
+            var newHandlerType = function (route, options) {
+                
+                return function (request, reply) {
+
+                    reply("message is: " + options.msg);
+                };
+            };
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+                server.handler('proxy', newHandlerType);
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+
+
+        it('adds new handler with schema', function(done) {
+
+            var newHandlerType = function (route, options)  {
+
+                return function (request, reply) {
+
+                    reply("message is: " + options.msg);
+                };
+            };
+
+            var newSchema = { msg: Joi.string() };
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+                server.handler('proxy', newHandlerType, newSchema);
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+    });
+
+
+    describe('#handlerSchema', function() {
+
+        it('adds new handler schema', function(done) {
+
+            var schema = { test: Joi.string() };
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+                server.handlerSchema('test', schema);
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+    });
+
 
     describe('#state', function () {
 

@@ -3,7 +3,7 @@
 var Domain = require('domain');
 var Lab = require('lab');
 var Hapi = require('..');
-
+var Joi = require('joi');
 
 // Declare internals
 
@@ -960,8 +960,73 @@ describe('Pack', function () {
         pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            done();
         });
+
+        done();
+    });
+
+
+    it('registers new handler types', function(done) {
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.0',
+            register: function (plugin, options, next) {
+
+                var handlerFunc = function (route, options) {
+
+                    return function (request, reply) {
+
+                        reply('Message from plugin handler: ' + options.msg);
+                    };
+                };
+                
+                plugin.handler('testhandler', handlerFunc);
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+        });
+
+        done();
+    });
+
+
+    it('registers new handler schema', function(done) {
+
+        var plugin = {
+            name: 'test',
+            version: '1.0.1',
+            register: function(plugin, options, next) {
+
+                var handlerFunc = function (route, options) {
+
+                    return function (request, reply) {
+
+                        reply('Message from plugin handler: ' + options.msg);
+                    };
+                };
+
+
+                var handlerSchema = { msg: Joi.string() };                
+
+                plugin.handler('testhandler', handlerFunc);
+                plugin.handlerSchema('testhandler', handlerSchema);
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+        });
+
+        done();
     });
 
     it('adds server method with plugin bind', function (done) {

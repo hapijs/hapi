@@ -28,6 +28,8 @@
         - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
+        - [`server.handler(name, method, [schema])`](#serverhandlername-method-schema)
+        - [`server.handlerSchema(name, schema)`](#serverhandlerschemaname-schema)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -105,6 +107,8 @@
         - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
         - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
+        - [`plugin.handler(name, method, [schema])`](#pluginhandlername-method-schema)
+        - [`plugin.handlerSchema(name, schema)`](#pluginhandlerschemaname-schema)
 - [`Hapi.utils`](#hapiutils)
       - [`version()`](#version)
 - [`Hapi.types`](#hapitypes)
@@ -1239,6 +1243,82 @@ server.inject('/', function (res) {
 
     console.log(res.result);
 });
+```
+
+#### `server.handler(name, method, [schema])`
+
+Registers a new handler type object to be used for routing. This will allow you to define a new handler type object that you can then refrence in your routes, or you can overwrite the 4 currently built in handler types of `directory`, `file`, `proxy`, and `views`. You can also optionally pass a schema to be used to validate routes with this handler.
+
+- `name` - The name of the handler that you want to register. Examples is 'proxy' or 'myhandler'.
+- `method` - The method that will be used to handle the requests routed to it.
+- `schema` - Optional object that describes the schema to be used for the handler being registered.
+
+```
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+
+// Defines new handler for routes on this server
+server.handler('proxy', function (route, options) {
+
+    return function (request, reply) {
+
+        reply ('new overwritten proxy handler ' + options.msg);
+    }
+});
+
+
+server.route({
+    method: 'GET',
+    path: '/newproxy',
+    handler: { proxy: { msg: 'option of handler' } }
+});
+
+
+server.start();
+```
+
+
+#### `server.handlerSchema(name, schema)`
+
+Adds the schema to a list of handler schemas and maps it to the handler refrenced by the `name` parameter.
+
+- `name` - The name of the handler that the schema will be used for.
+- `schema` - A schema object to be used to validate the handler against.
+
+```
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+var Joi = require('joi');
+
+
+// Define new schema
+var theSchema = {
+    message: Joi.string(),
+    aNumber: Joi.number()
+};
+
+// Define new handler for schema
+var theHandler = function(route, options) {
+
+    return function (request, response) {
+
+        reply('Message: " + options.message + ' Number: ' + options.aNumber);
+    }
+};
+
+// Add new handler and schema for handler to the server
+server.handler('myHandler', theHandler);
+server.handlerSchema('myHandler', theSchema);
+
+// Create route that uses the given handler and schema
+server.route({
+    method: 'GET',
+    path: '/testpath',
+    handler: { myHandler: { message: 'the message', aNumber: 100 } }
+});
+
+
+server.start();
 ```
 
 ### `Server` events
@@ -2863,6 +2943,104 @@ exports.register = function (plugin, options, next) {
 
     next();
 };
+```
+
+#### `plugin.handler(name, method, [schema])`
+
+Registers a new handler type object to be used for routing. This will allow you to define a new handler type object that you can then refrence in your routes, or you can overwrite the 4 currently built in handler types of `directory`, `file`, `proxy`, and `views`. You can also optionally pass a schema to be used to validate routes with this handler.  This method will in turn call the [`server.handler(name, method, [schema])`](#serverhandlername-method-schema)
+
+- `name` - The name of the handler that you want to register. Examples is 'proxy' or 'myhandler'.
+- `method` - The method that will be used to handle the requests routed to it.
+- `schema` - Optional object that describes the schema to be used for the handler being registered.
+
+Example:
+Project index.js
+```
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+
+
+server.pack.require('test-handler', function (err) {
+
+    if (err) {
+        console.log('error loading plugin');
+    }
+});
+
+
+server.route({
+    method: 'GET',
+    path: '/pluginhandler',
+    handler: { testHandler: { msg: 'option in handler' } }
+});
+```
+Plugin test-handler index.js
+```
+exports.register = function (plugin, options, next) {
+
+    var handlerFunc = function (route, options) {
+
+        return function(request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+
+    plugin.handler('testHandler', handlerFunc);
+    next();
+}
+```
+
+#### `plugin.handlerSchema(name, schema)`
+Adds the schema to a list of handler schemas and maps it to the handler refrenced by the `name` parameter.
+This method will in turn call the [`server.handlerSchema(name, schema)`](#serverhandlerschemaname-schema)
+
+- `name` - The name of the handler that the schema will be used for.
+- `schema` - A schema object to be used to validate the handler against.
+
+Example:
+Project index.js
+```
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+
+
+server.pack.require('test-handler', function (err) {
+
+    if (err) {
+        console.log('error loading plugin');
+    }
+});
+
+
+server.route({
+    method: 'GET',
+    path: '/pluginhandler',
+    handler: { testHandler: { msg: 'option in handler' } }
+});
+```
+Plugin test-handler index.js
+```
+var Joi = require('joi');
+
+exports.register = function (plugin, options, next) {
+
+    var handlerFunc = function (route, options) {
+
+        return function(request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+
+    var handlerSchema = { msg: Joi.string() };
+
+    plugin.handler('testHandler', handlerFunc);
+    plugin.handlerSchema('testHandler', handlerSchema);
+    next();
+}
 ```
 
 ## `Hapi.utils`
