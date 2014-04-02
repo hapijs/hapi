@@ -67,5 +67,12 @@ describe('Utils', function () {
             expect(Hapi.utils.isAbsolutePath(path)).to.equal(false);
             done();
         });
+
+        it('returns false for invalid paths', function (done) {
+            expect(Hapi.utils.isAbsolutePath('abcdef')).to.equal(false);
+            expect(Hapi.utils.isAbsolutePath('x:yz')).to.equal(false);
+            expect(Hapi.utils.isAbsolutePath('\\')).to.equal(false);
+            done();
+        });
     });
 });
