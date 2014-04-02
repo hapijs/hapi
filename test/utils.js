@@ -60,6 +60,12 @@ describe('Utils', function () {
             var path = '..\\test\\directory\\test.js';
             expect(Hapi.utils.isAbsolutePath(path)).to.equal(false);
             done();
-        })
+        });
+
+        it('returns false for empty path', function (done) {
+            var path = '';
+            expect(Hapi.utils.isAbsolutePath(path)).to.equal(false);
+            done();
+        });
     });
 });
