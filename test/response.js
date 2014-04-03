@@ -1346,7 +1346,7 @@ describe('Response', function () {
             });
         });
 
-        it('closes file handlers when not reading file stream', function (done) {
+        it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, function (done) {
 
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });

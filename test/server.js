@@ -573,7 +573,7 @@ describe('Server', function () {
         done();
     });
 
-    it('creates a server listening on a unix domain socket', function (done) {
+    it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, function (done) {
 
         var host = Path.join(__dirname, 'hapi-server.socket');
         var server = new Hapi.Server(host);

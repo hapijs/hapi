@@ -20,7 +20,7 @@ internals.argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_pat
 internals.getManifest = function () {
 
     var manifest = null;
-    var manifestPath = internals.argv.c[0] !== '/' ? process.cwd() + '/' + internals.argv.c : internals.argv.c;
+    var manifestPath = internals.argv.c[0] !== '/' && !internals.argv.c.match(/^[a-zA-Z]:/) ? process.cwd() + '/' + internals.argv.c : internals.argv.c;
 
     try {
         manifest = JSON.parse(Fs.readFileSync(manifestPath));

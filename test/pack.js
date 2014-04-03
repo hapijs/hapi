@@ -1,6 +1,7 @@
 // Load modules
 
 var Domain = require('domain');
+var Path = require('path');
 var Lab = require('lab');
 var Hapi = require('..');
 
@@ -293,7 +294,7 @@ describe('Pack', function () {
             expect(err).to.not.exist;
             server.inject('/test2/path', function (res) {
 
-                expect(res.result).to.equal(process.cwd() + '/test/pack/--test2');
+                expect(res.result).to.equal(Path.join(process.cwd(), 'test', 'pack', '--test2'));
                 done();
             });
         });
@@ -384,7 +385,7 @@ describe('Pack', function () {
             server.inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
 
                 expect(res.result).to.equal('hapi-plugin-test');
-                expect(server.plugins['hapi-plugin-test'].path).to.equal(process.cwd() + '/node_modules/hapi-plugin-test');
+                expect(server.plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
                 done();
             });
         });
@@ -399,7 +400,7 @@ describe('Pack', function () {
             server.inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
 
                 expect(res.result).to.equal('hapi-plugin-test');
-                expect(server.plugins['hapi-plugin-test'].path).to.equal(process.cwd() + '/node_modules/hapi-plugin-test');
+                expect(server.plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
                 done();
             });
         });
@@ -584,7 +585,7 @@ describe('Pack', function () {
             pack._servers[0].inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
 
                 expect(res.result).to.equal('hapi-plugin-test');
-                expect(pack._servers[0].plugins['hapi-plugin-test'].path).to.equal(process.cwd() + '/node_modules/hapi-plugin-test');
+                expect(pack._servers[0].plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
                 done();
             });
         });
@@ -600,7 +601,7 @@ describe('Pack', function () {
             pack._servers[0].inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
 
                 expect(res.result).to.equal('hapi-plugin-test');
-                expect(pack._servers[0].plugins['hapi-plugin-test'].path).to.equal(process.cwd() + '/node_modules/hapi-plugin-test');
+                expect(pack._servers[0].plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
                 done();
             });
         });
@@ -1139,7 +1140,7 @@ describe('Pack', function () {
             expect(err).to.not.exist;
             server.inject('/test2/path', function (res) {
 
-                expect(res.result).to.equal(process.cwd() + '/test/pack/--test2');
+                expect(res.result).to.equal(Path.join(process.cwd(), 'test', 'pack', '--test2'));
                 done();
             });
         });
