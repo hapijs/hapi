@@ -165,7 +165,7 @@ describe('Cache', function () {
     it('allows allocating a cache segment with empty options', function (done) {
 
         var server = new Hapi.Server();
-        
+
         function fn() {
             server.cache('a', {});
         }
@@ -173,5 +173,42 @@ describe('Cache', function () {
         expect(fn).to.not.throw(Error);
 
         done();
+    });
+
+    it('returns a warning header when cache is stale', function (done) {
+
+        var server = new Hapi.Server(0);
+
+        server.method('profile', function (id, next) {
+
+            setTimeout(function () {
+
+                next(null, {
+                    'id': 'fa0dbda9b1b',
+                    'name': 'John Doe'
+                });
+            }, 600);
+        }, { cache: { expiresIn: 60 * 1000, staleIn: 200, staleTimeout: 500 } });
+
+        var profileHandler = function (request, reply) {
+
+            server.methods.profile(0, reply);
+        };
+
+        server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler } });
+        server.start(function () {
+
+            server.inject('/profile', function (res) {
+
+                expect(res.headers['warning']).to.not.exist;
+                setTimeout(function() {
+
+                    server.inject('/profile', function (res) {
+                        expect(res.headers['warning']).to.equal('110 - "Response is Stale"');
+                        done();
+                    });
+                }, 300);
+            });
+        });
     });
 });
