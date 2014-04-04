@@ -1084,7 +1084,7 @@ describe('Server', function () {
                 var server = new Hapi.Server();
 
                 server.handler('test', handler);
-                expect(server.pack._handlers.test.fn).to.equal(handler);
+                expect(server.pack._handlers.test).to.equal(handler);
             };
 
             expect(fn).to.not.throw(Error);
