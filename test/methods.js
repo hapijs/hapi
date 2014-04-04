@@ -159,7 +159,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server(0);
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return id + 1; } });
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return '' + (id + 1); } });
 
         server.start(function () {
 
@@ -170,6 +170,58 @@ describe('Method', function () {
                 server.methods.test(1, function (err, result) {
 
                     expect(result.gen).to.equal(0);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('does not cache when custom key function return null', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return null; } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(1);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('does not cache when custom key function returns a non-string', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return id + 1; } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(1);
                     done();
                 });
             });
