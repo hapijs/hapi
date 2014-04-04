@@ -674,7 +674,7 @@ describe('Server', function () {
 
         var server = new Hapi.Server({ maxSockets: 5 });
 
-        expect(Object.keys(server._agents).length).to.equal(2);
+        expect(Object.keys(server._agents).length).to.equal(3);
         done();
     });
 
