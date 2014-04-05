@@ -34,7 +34,8 @@
     "optimist": "0.6.x",
     "negotiator": "0.4.x",
     "semver": "2.2.x",
-    "qs": "0.6.x"
+    "qs": "0.6.x",
+    "absolute-path": "0.0.0"
   },
   "devDependencies": {
     "lab": "3.x.x",
