@@ -1067,6 +1067,114 @@ describe('Server', function () {
         });
     });
 
+    describe('#handler', function () {
+
+        var handler = function (route, options) {
+
+            return function (request, reply) {
+
+                reply(options.message);
+            };
+        };
+
+        it('adds handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('test', handler);
+                expect(server.pack._handlers.test).to.equal(handler);
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+
+        it('call new handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('test', handler);
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {
+                            message: 'success'
+                        }
+                    }
+                });
+                server.inject('/', function (res) {
+                    expect(res.payload).to.equal('success');
+                    done();
+                });
+            };
+
+            expect(fn).to.not.throw(Error);
+        });
+
+        it('errors on duplicate handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('proxy', handler);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on unknown handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {}
+                    }
+                });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on non-string name', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler();
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on non-function handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('foo', 'bar');
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+    });
+
     describe('#state', function () {
 
         it('uses default options', function (done) {

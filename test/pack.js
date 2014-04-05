@@ -1256,4 +1256,43 @@ describe('Pack', function () {
             done();
         });
     });
+
+    describe('#handler', function () {
+
+        it('add new handler', function (done) {
+
+            var server = new Hapi.Server();
+            var plugin = {
+                name: 'foo',
+                version: '0.0.1',
+                register: function (plugin, options, next) {
+
+                    plugin.handler('bar', function (route, options) {
+
+                        return function (request, reply) {
+
+                            reply('success');
+                        };
+                    });
+                    next();
+                }
+            };
+
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        bar: {}
+                    }
+                });
+                server.inject('/', function (res) {
+                    expect(res.payload).to.equal('success');
+                    done();
+                });
+            });
+        });
+    });
 });
