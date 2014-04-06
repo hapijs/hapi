@@ -28,6 +28,7 @@
         - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
+        - [`server.handler(name, method)`](#serverhandlername-method)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -93,6 +94,7 @@
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
         - [`plugin.loader(require)`](#pluginloader-require)
         - [`plugin.bind(bind)`](#pluginbind-bind)
+        - [`plugin.handler(name, method)`](#pluginhandlername-method)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -1239,6 +1241,38 @@ server.inject('/', function (res) {
 
     console.log(res.result);
 });
+```
+
+#### `server.handler(name, method)`
+
+Registers a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`),
+or any previously registered types is not allowed.
+
+- `name` - string name for the handler being registered.
+- `method` - the function used to generate the route handler using the signature `function(route, options)` where:
+    - `route` - the internal route object.
+    - `options` - the configuration object provided in the handler config.
+
+```javascript
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+
+// Defines new handler for routes on this server
+server.handler('test', function (route, options) {
+
+    return function (request, reply) {
+
+        reply('new handler: ' + options.msg);
+    }
+});
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: { test: { msg: 'test' } }
+});
+
+server.start();
 ```
 
 ### `Server` events
@@ -2709,6 +2743,26 @@ exports.register = function (plugin, options, next) {
     plugin.route({ method: 'GET', path: '/', handler: internals.handler });
     next();
 };
+```
+
+#### `plugin.handler(name, method)`
+
+Registers a new handler type as describe in [`server.handler(name, method)`](#serverhandlername-method).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    var handlerFunc = function (route, options) {
+
+        return function (request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+    plugin.handler('testHandler', handlerFunc);
+    next();
+}
 ```
 
 ### Selectable methods and properties
