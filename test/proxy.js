@@ -372,28 +372,6 @@ describe('Proxy', function () {
         });
     });
 
-    it('calls the deprecated postResponse function if defined', function (done) {
-
-        var upstream = new Hapi.Server(0);
-        upstream.route({ method: 'GET', path: '/postResponse', handler: function (request, reply) { reply({ a: 1 }); } });
-        upstream.start(function () {
-
-            var postResponse = function (request, reply, res, settings, ttl) {
-
-                reply(res);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/postResponse', handler: { proxy: { host: 'localhost', port: upstream.info.port, postResponse: postResponse } }, config: { cache: { expiresIn: 500 } } });
-
-            server.inject('/postResponse', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
-        });
-    });
-
     it('overrides status code when a custom onResponse returns an error', function (done) {
 
         var upstream = new Hapi.Server(0);
@@ -976,7 +954,7 @@ describe('Proxy', function () {
         upstream.route({ method: 'GET', path: '/timeout2', handler: function (request, reply) { setTimeout(function () { reply('Ok'); }, 10); } });
         upstream.start(function () {
 
-            var server = new Hapi.Server({ timeout: { server: 5 } });
+            var server = new Hapi.Server({ timeout: { server: 8 } });
             server.route({ method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: upstream.info.port, timeout: 2 } } });
             server.inject('/timeout2', function (res) {
 
@@ -1125,13 +1103,13 @@ describe('Proxy', function () {
         upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { reply({ a: 1 }); } });
         upstream.start(function () {
 
-            var postResponse304 = function (request, reply, res, settings, ttl) {
+            var onResponse304 = function (err, res, request, reply, settings, ttl) {
 
                 reply(res).code(304);
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/304', handler: { proxy: { uri: 'http://localhost:' + upstream.info.port + '/item', postResponse: postResponse304 } } });
+            server.route({ method: 'GET', path: '/304', handler: { proxy: { uri: 'http://localhost:' + upstream.info.port + '/item', onResponse: onResponse304 } } });
 
             server.inject('/304', function (res) {
 

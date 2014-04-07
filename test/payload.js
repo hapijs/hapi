@@ -9,6 +9,7 @@ var FormData = require('form-data');
 var Lab = require('lab');
 var Nipple = require('nipple');
 var Hapi = require('..');
+var Hoek = require('hoek');
 
 
 // Declare internals
@@ -462,7 +463,7 @@ describe('Payload', function () {
                 Stream.Readable.call(this);
             };
 
-            Hapi.utils.inherits(TestStream, Stream.Readable);
+            Hoek.inherits(TestStream, Stream.Readable);
 
             TestStream.prototype._read = function (size) {
 

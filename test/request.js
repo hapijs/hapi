@@ -6,6 +6,7 @@ var Lab = require('lab');
 var Nipple = require('nipple');
 var Hoek = require('hoek');
 var Shot = require('shot');
+var Hoek = require('hoek');
 var Hapi = require('..');
 
 
@@ -172,7 +173,7 @@ describe('Request', function () {
                 Stream.Readable.call(this);
             };
 
-            Hapi.utils.inherits(TestStream, Stream.Readable);
+            Hoek.inherits(TestStream, Stream.Readable);
 
             TestStream.prototype._read = function (size) {
 
@@ -432,7 +433,7 @@ describe('Request', function () {
                 Stream.Readable.call(this);
             };
 
-            Hapi.utils.inherits(TestStream, Stream.Readable);
+            Hoek.inherits(TestStream, Stream.Readable);
 
             TestStream.prototype._read = function (size) {
 

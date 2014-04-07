@@ -3,6 +3,7 @@
 var Lab = require('lab');
 var Boom = require('boom');
 var Hapi = require('..');
+var Hoek = require('hoek');
 
 
 // Declare internals
@@ -770,7 +771,7 @@ describe('Auth', function () {
 
 internals.implementation = function (server, options) {
 
-    var settings = Hapi.utils.clone(options);
+    var settings = Hoek.clone(options);
 
     var scheme = {
         authenticate: function (request, reply) {

@@ -4,6 +4,7 @@ var Lab = require('lab');
 var Http = require('http');
 var Stream = require('stream');
 var Hapi = require('..');
+var Hoek = require('hoek');
 
 
 // Declare internals
@@ -28,7 +29,7 @@ describe('Client Timeout', function () {
         server.route({ method: 'POST', path: '/fast', config: { handler: function (request, reply) { reply('fast'); } } });
         server.start(function () {
 
-            var timer = new Hapi.utils.Bench();
+            var timer = new Hoek.Bench();
             var options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,
@@ -86,7 +87,7 @@ describe('Client Timeout', function () {
                 Stream.Readable.call(this);
             };
 
-            Hapi.utils.inherits(TestStream, Stream.Readable);
+            Hoek.inherits(TestStream, Stream.Readable);
 
             TestStream.prototype._read = function (size) {
 
@@ -115,7 +116,7 @@ describe('Client Timeout', function () {
         server.route({ method: 'GET', path: '/', config: { handler: streamHandler } });
         server.start(function () {
 
-            var timer = new Hapi.utils.Bench();
+            var timer = new Hoek.Bench();
             var options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,
@@ -146,7 +147,7 @@ describe('Client Timeout', function () {
 
         server.start(function () {
 
-            var timer = new Hapi.utils.Bench();
+            var timer = new Hoek.Bench();
             var options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,

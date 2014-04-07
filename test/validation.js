@@ -2,6 +2,7 @@
 
 var Async = require('async');
 var Lab = require('lab');
+var Joi = require('joi');
 var Hapi = require('..');
 
 
@@ -31,7 +32,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     }
                 }
             }
@@ -105,7 +106,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     path: {
-                        seq: Hapi.types.number()
+                        seq: Joi.number()
                     }
                 }
             }
@@ -129,7 +130,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     path: {
-                        seq: Hapi.types.number().options({ modify: false })
+                        seq: Joi.number().options({ modify: false })
                     }
                 }
             }
@@ -200,8 +201,8 @@ describe('Validation', function () {
             handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
-                    query: Hapi.types.object({
-                        a: Hapi.types.string().min(2)
+                    query: Joi.object({
+                        a: Joi.string().min(2)
                     })
                 }
             }
@@ -224,7 +225,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     }
                 }
             }
@@ -252,7 +253,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     failAction: 'ignore'
                 }
@@ -282,7 +283,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     failAction: 'log'
                 }
@@ -307,7 +308,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     failAction: function (source, error, next) {
 
@@ -335,7 +336,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     errorFields: {
                         walt: 'jr'
@@ -372,7 +373,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     }
                 }
             }
@@ -395,7 +396,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.string().required()
+                        a: Joi.string().required()
                     }
                 }
             }
@@ -419,7 +420,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.string().required()
+                        a: Joi.string().required()
                     }
                 }
             }
@@ -451,7 +452,7 @@ describe('Validation', function () {
                 response: {
                     sample: 50,
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }
@@ -486,7 +487,7 @@ describe('Validation', function () {
                 response: {
                     sample: 0,
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }
@@ -520,7 +521,7 @@ describe('Validation', function () {
                 },
                 response: {
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }
@@ -546,7 +547,7 @@ describe('Validation', function () {
                 },
                 response: {
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }
@@ -573,7 +574,7 @@ describe('Validation', function () {
                 response: {
                     failAction: 'log',
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }

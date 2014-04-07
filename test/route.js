@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Async = require('async');
+var Hoek = require('hoek');
 var Hapi = require('..');
 var Route = require('../lib/route');
 var Request = require('../lib/request');
@@ -141,7 +142,7 @@ describe('Route', function () {
             it('sorts random routes in right order', function (done) {
 
                 var server = new Hapi.Server();
-                var copy = Hapi.utils.clone(paths);
+                var copy = Hoek.clone(paths);
                 while (copy.length) {
                     var i = Math.floor(Math.random() * (copy.length - 1));
                     var path = copy[i];

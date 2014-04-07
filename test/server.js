@@ -9,6 +9,7 @@ var Os = require('os');
 var Path = require('path');
 var Nipple = require('nipple');
 var Lab = require('lab');
+var Hoek = require('hoek');
 var Hapi = require('..');
 var Defaults = require('../lib/defaults');
 
@@ -104,7 +105,7 @@ describe('Server', function () {
                     server.listener.getConnections(function (err, count) {
 
                         expect(count).to.be.greaterThan(0);
-                        var timer = new Hapi.utils.Bench();
+                        var timer = new Hoek.Bench();
 
                         server.stop({ timeout: 20 }, function () {
 
@@ -142,7 +143,7 @@ describe('Server', function () {
                     server.listener.getConnections(function (err, count) {
 
                         expect(count).to.be.greaterThan(0);
-                        var timer = new Hapi.utils.Bench();
+                        var timer = new Hoek.Bench();
 
                         server.stop(function () {
 
@@ -1233,7 +1234,7 @@ describe('Server', function () {
                 Stream.Readable.call(this);
             };
 
-            Hapi.utils.inherits(TestStream, Stream.Readable);
+            Hoek.inherits(TestStream, Stream.Readable);
 
             TestStream.prototype._read = function (size) {
 
@@ -1265,7 +1266,7 @@ describe('Server', function () {
             var server = new Hapi.Server({ timeout: { server: 50 } });
             server.route({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
 
-            var timer = new Hapi.utils.Bench();
+            var timer = new Hoek.Bench();
 
             server.inject('/timeout', function (res) {
 
@@ -1308,7 +1309,7 @@ describe('Server', function () {
             var server = new Hapi.Server({ timeout: { server: 50 } });
             server.route({ method: 'GET', path: '/slow', config: { handler: slowHandler } });
 
-            var timer = new Hapi.utils.Bench();
+            var timer = new Hoek.Bench();
             server.inject('/slow', function (res) {
 
                 expect(timer.elapsed()).to.be.at.least(29);
@@ -1319,7 +1320,7 @@ describe('Server', function () {
 
         it('does not return an error when server is responding when the timeout occurs', function (done) {
 
-            var timer = new Hapi.utils.Bench();
+            var timer = new Hoek.Bench();
 
             var server = new Hapi.Server(0, { timeout: { server: 50 } });
             server.route({ method: 'GET', path: '/responding', config: { handler: respondingHandler } });
@@ -1386,7 +1387,7 @@ describe('Server', function () {
 
             server.start(function () {
 
-                var timer = new Hapi.utils.Bench();
+                var timer = new Hoek.Bench();
                 var options = {
                     hostname: '127.0.0.1',
                     port: server.info.port,
@@ -1428,7 +1429,7 @@ describe('Server', function () {
 
             server.start(function () {
 
-                var timer = new Hapi.utils.Bench();
+                var timer = new Hoek.Bench();
                 var options = {
                     hostname: '127.0.0.1',
                     port: server.info.port,

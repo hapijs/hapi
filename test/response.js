@@ -6,7 +6,11 @@ var Http = require('http');
 var Stream = require('stream');
 var Zlib = require('zlib');
 var ChildProcess = require('child_process');
+var Crypto = require('crypto');
+var Path = require('path');
 var Lab = require('lab');
+var Hoek = require('hoek');
+var Joi = require('joi');
 var Nipple = require('nipple');
 var Hapi = require('..');
 var Response = require('../lib/response');
@@ -26,6 +30,13 @@ var describe = Lab.experiment;
 var it = Lab.test;
 
 
+internals.uniqueFilename = function (path) {
+
+    var name = [Date.now(), process.pid, Crypto.randomBytes(8).toString('hex')].join('-');
+    return Path.join(path, name);
+};
+
+
 describe('Response', function () {
 
     it('returns last known error on error response loop', function (done) {
@@ -35,7 +46,7 @@ describe('Response', function () {
             Response.Plain.call(this, request, 'blow');
         };
 
-        Hapi.utils.inherits(Custom, Response.Plain);
+        Hoek.inherits(Custom, Response.Plain);
 
         Custom.prototype._marshall = function (request, callback) {
 
@@ -641,7 +652,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { response: { schema: { some: Hapi.types.string() } } }, handler: handler });
+            server.route({ method: 'GET', path: '/', config: { response: { schema: { some: Joi.string() } } }, handler: handler });
 
             server.inject('/', function (res) {
 
@@ -1520,7 +1531,7 @@ describe('Response', function () {
 
         it('returns error when file is removed before stream is opened', function (done) {
 
-            var filename = Hapi.utils.uniqueFilename(Os.tmpDir());
+            var filename = internals.uniqueFilename(Os.tmpDir());
             Fs.writeFileSync(filename, 'data');
 
             var server = new Hapi.Server();
@@ -1546,7 +1557,7 @@ describe('Response', function () {
             Stream.Readable.call(this);
         };
 
-        Hapi.utils.inherits(TestStream, Stream.Readable);
+        Hoek.inherits(TestStream, Stream.Readable);
 
         TestStream.prototype._read = function (size) {
 
@@ -1639,7 +1650,7 @@ describe('Response', function () {
                     this.headers = { custom: 'header' };
                 };
 
-                Hapi.utils.inherits(HeadersStream, Stream.Readable);
+                Hoek.inherits(HeadersStream, Stream.Readable);
 
                 HeadersStream.prototype._read = function (size) {
 
@@ -1676,7 +1687,7 @@ describe('Response', function () {
                     this.statusCode = 201;
                 };
 
-                Hapi.utils.inherits(HeadersStream, Stream.Readable);
+                Hoek.inherits(HeadersStream, Stream.Readable);
 
                 HeadersStream.prototype._read = function (size) {
 
@@ -1707,7 +1718,7 @@ describe('Response', function () {
             Stream.Readable.call(this);
         };
 
-        Hapi.utils.inherits(TimerStream, Stream.Readable);
+        Hoek.inherits(TimerStream, Stream.Readable);
 
         TimerStream.prototype._read = function (size) {
 
@@ -1805,7 +1816,7 @@ describe('Response', function () {
                 Stream.Readable.call(this);
             };
 
-            Hapi.utils.inherits(ErrStream, Stream.Readable);
+            Hoek.inherits(ErrStream, Stream.Readable);
 
             ErrStream.prototype._read = function (size) {
 
@@ -1844,7 +1855,7 @@ describe('Response', function () {
                 this.request = request;
             };
 
-            Hapi.utils.inherits(ErrStream, Stream.Readable);
+            Hoek.inherits(ErrStream, Stream.Readable);
 
             ErrStream.prototype._read = function (size) {
 

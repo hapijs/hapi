@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Iron = require('iron');
+var Hoek = require('hoek');
 var Hapi = require('..');
 var State = require('../lib/state');
 var Defaults = require('../lib/defaults');
@@ -173,7 +174,7 @@ describe('State', function () {
             pass('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', { sid: { a: '1', b: '2', c: '3 x' } }, null, { sid: { encoding: 'form', sign: { password: 'password' } } });
             pass('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', { sid: { a: '1', b: '2', c: '3 x' } }, null, { sid: { encoding: 'form', sign: { password: 'password', integrity: Iron.defaults.integrity } } });
 
-            var loose = Hapi.utils.clone(Defaults.server.state);
+            var loose = Hoek.clone(Defaults.server.state);
             loose.cookies.strictHeader = false;
             pass('a="1; b="2"; c=3; d[1]=4', { a: '"1', b: '2', c: '3', 'd[1]': '4' }, loose);
 
@@ -243,7 +244,7 @@ describe('State', function () {
             fail('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8', null, { sid: { encoding: 'form', sign: { password: 'password' } } });
             fail('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*-Ghc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', null, { sid: { encoding: 'form', sign: { password: 'password' } } });
 
-            var setLog = Hapi.utils.clone(Defaults.server.state);
+            var setLog = Hoek.clone(Defaults.server.state);
             setLog.cookies.failAction = 'log';
             fail('abc="xyzf', setLog, null, { abc: '"xyzf'});
             fail('"abc=xyzf', setLog, null, { '"abc': 'xyzf' });
@@ -253,7 +254,7 @@ describe('State', function () {
             fail('sid=a=1&b=2&c=3%20x; sid=a=1&b=2&c=3%20x', setLog, { sid: { encoding: 'form', sign: { password: 'password' } } });
             fail('a=1; b=2; key=XeyJ0ZXN0aW5nIjoianNvbiJ9', setLog, { key: { encoding: 'base64json' } }, { a: '1', b: '2' });
 
-            var clearInvalid = Hapi.utils.clone(Defaults.server.state);
+            var clearInvalid = Hoek.clone(Defaults.server.state);
             clearInvalid.cookies.clearInvalid = true;
             fail('sid=a=1&b=2&c=3%20x', clearInvalid, { sid: { encoding: 'form', sign: { password: 'password' } } });
         });
@@ -468,7 +469,7 @@ describe('State', function () {
 
         it('allows bad cookie name in loose mode', function (done) {
 
-            var server = { _stateDefinitions: null, settings: Hapi.utils.clone(Defaults.server) };
+            var server = { _stateDefinitions: null, settings: Hoek.clone(Defaults.server) };
             server.settings.state.cookies.strictHeader = false;
             State.generateSetCookieHeader({ name: 's;id', value: 'fihfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, server, function (err, header) {
 
@@ -490,7 +491,7 @@ describe('State', function () {
 
         it('allows bad cookie value in loose mode', function (done) {
 
-            var server = { _stateDefinitions: null, settings: Hapi.utils.clone(Defaults.server) };
+            var server = { _stateDefinitions: null, settings: Hoek.clone(Defaults.server) };
             server.settings.state.cookies.strictHeader = false;
             State.generateSetCookieHeader({ name: 'sid', value: 'fi"hfieuhr9384hf', options: { isSecure: true, isHttpOnly: false, path: '/', domain: 'example.com' } }, server, function (err, header) {
 

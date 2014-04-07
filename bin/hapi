@@ -5,6 +5,7 @@
 var Fs = require('fs');
 var Optimist = require('optimist');
 var Hapi = require('../');
+var Hoek = require('hoek');
 
 
 // Declare internals
@@ -61,10 +62,10 @@ internals.createComposer = function (manifest, options) {
 
     internals.composer.compose(function (err) {
 
-        Hapi.utils.assert(!err, 'Failed loading plugins: ' + (err && err.message));
+        Hoek.assert(!err, 'Failed loading plugins: ' + (err && err.message));
         internals.composer.start(function (err) {
 
-            Hapi.utils.assert(!err, 'Failed starting server: ' + (err && err.message));
+            Hoek.assert(!err, 'Failed starting server: ' + (err && err.message));
 
             if (!attached) {
                 internals.attachEvents();

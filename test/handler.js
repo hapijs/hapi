@@ -612,7 +612,7 @@ describe('Handler', function () {
                     {
                         method: function (request, reply) {
 
-                            reply(Hapi.boom.forbidden());
+                            reply(Hapi.error.forbidden());
                         },
                         failAction: 'error'
                     }
@@ -642,7 +642,7 @@ describe('Handler', function () {
                     {
                         method: function (request, reply) {
 
-                            reply(Hapi.boom.forbidden());
+                            reply(Hapi.error.forbidden());
                         },
                         failAction: 'ignore'
                     }
@@ -673,7 +673,7 @@ describe('Handler', function () {
                         assign: 'before',
                         method: function (request, reply) {
 
-                            reply(Hapi.boom.forbidden());
+                            reply(Hapi.error.forbidden());
                         },
                         failAction: 'log'
                     }

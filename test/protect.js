@@ -3,6 +3,7 @@
 var Events = require('events');
 var Lab = require('lab');
 var Hapi = require('..');
+var Hoek = require('hoek');
 
 
 // Declare internals
@@ -76,7 +77,7 @@ describe('Protect', function () {
             Events.EventEmitter.call(this);
         };
 
-        Hapi.utils.inherits(Client, Events.EventEmitter);
+        Hoek.inherits(Client, Events.EventEmitter);
 
         var plugin = {
             name: 'test',

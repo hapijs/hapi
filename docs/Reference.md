@@ -1,4 +1,4 @@
-# 3.1.x API Reference
+# 4.x.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -107,11 +107,9 @@
         - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
         - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
-- [`Hapi.utils`](#hapiutils)
-      - [`version()`](#version)
-- [`Hapi.types`](#hapitypes)
 - [`Hapi.state`](#hapistate)
       - [`prepareValue(name, value, options, callback)`](#preparevaluename-value-options-callback)
+- [`Hapi.version`](#hapiversion)
 - [Hapi CLI](#hapi-cli)
 
 ## `Hapi.Server`
@@ -2344,7 +2342,7 @@ var internals = {
     }
 };
 
-internals.version = Hoek.loadPackage().version;
+internals.version = 1.1;
 
 exports.register = function (plugin, options, next) {
 
@@ -2919,23 +2917,6 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-## `Hapi.utils`
-
-An alias of the [**hoek**](https://github.com/spumko/hoek) module.
-
-#### `version()`
-
-Returns the **hapi** module version number.
-
-```javascript
-var Hapi = require('hapi');
-console.log(Hapi.utils.version());
-```
-
-## `Hapi.types`
-
-See [**joi** Types](https://github.com/spumko/joi#type-registry).
-
 ## `Hapi.state`
 
 #### `prepareValue(name, value, options, callback)`
@@ -2980,6 +2961,15 @@ var handler = function (request, reply) {
         reply('success');
     });
 };
+```
+
+## `Hapi.version`
+
+The **hapi** module version number.
+
+```javascript
+var Hapi = require('hapi');
+console.log(Hapi.version);
 ```
 
 ## `Hapi CLI`
