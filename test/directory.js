@@ -1,6 +1,7 @@
 // Load modules
 
 var Fs = require('fs');
+var Path = require('path');
 var Lab = require('lab');
 var Hapi = require('..');
 
@@ -477,6 +478,71 @@ describe('Directory', function () {
         server.inject('/directory/directory', function (res) {
 
             expect(res.statusCode).to.equal(302);
+            done();
+        });
+    });
+
+    it('should correctly resolve windows path name from pack using root path', { skip: process.platform !== 'win32' }, function (done) {
+        // Note: This uses a root path of where the test file lives (to simulate requiring a pack), which is why the
+        //       directory handler path is ./directory instead of ./test/directory like the other test below
+        var pack = {
+            name: 'directory test',
+            version: '1.0',
+            path: __dirname,
+            register: function (plugin, options, next) {
+                plugin.route({ method: 'GET', path: '/test/{path*}', config: { handler: { directory: { path: './directory', index: false, listing: false } } } });
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(pack, {}, function () { });
+
+        server.inject('/test/index.html', function (res) {
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('should correctly resolve windows path name from pack using relative path', { skip: process.platform !== 'win32' }, function (done) {
+        // Note: This simulates a pack which is not "required", and therefore doesn't have a path set. This will use
+        //       the process' root directory then, so the directory handler needs to specify the path relative to that
+        var pack = {
+            name: 'directory test',
+            version: '1.0',
+            register: function (plugin, options, next) {
+                plugin.route({ method: 'GET', path: '/test/{path*}', config: { handler: { directory: { path: './test/directory', index: false, listing: false } } } });
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(pack, {}, function () { });
+
+        server.inject('/test/index.html', function (res) {
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('should resolve root pathnames on windows', { skip: process.platform !== 'win32' }, function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/test/{path*}', handler: { directory: { path: Path.join(__dirname, 'directory') } } });
+
+        server.inject('/test/index.html', function (res) {
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('should resolve relative pathnames on windows', { skip: process.platform !== 'win32' }, function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/test/{path*}', handler: { directory: { path: './test/directory' } } });
+
+        server.inject('/test/index.html', function (res) {
+            expect(res.statusCode).to.equal(200);
             done();
         });
     });
