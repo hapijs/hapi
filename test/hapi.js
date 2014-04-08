@@ -87,7 +87,7 @@ describe('Hapi command line', function () {
         });
     });
 
-    it('composes pack with absolute path using symlink', function (done) {
+    it('composes pack with absolute path using symlink', { skip: process.platform === 'win32' }, function (done) {
 
         var manifest = {
             pack: {

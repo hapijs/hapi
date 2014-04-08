@@ -185,7 +185,7 @@ describe('Ext', function () {
             });
         });
 
-        it('cleans unused file stream when response is overridden', function (done) {
+        it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, function (done) {
 
             var server = new Hapi.Server();
 
