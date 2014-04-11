@@ -174,5 +174,16 @@ describe('Schema', function () {
             expect(Schema.view(config)).to.exist;
             done();
         });
+        
+        it('suceeds with minimal config', function(done) {
+            var config = {
+                module: "baz",
+                path: "foo",
+                defaultExtension: "bar"
+            };
+            console.log("CK", Schema.view(config));
+            expect(Schema.view(config)).to.not.exist;
+            done();
+        });
     });
 });
