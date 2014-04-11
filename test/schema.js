@@ -181,7 +181,6 @@ describe('Schema', function () {
                 path: "foo",
                 defaultExtension: "bar"
             };
-            console.log("CK", Schema.view(config));
             expect(Schema.view(config)).to.not.exist;
             done();
         });
