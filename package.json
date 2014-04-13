@@ -27,6 +27,7 @@
     "nipple": "^2.4.x",
     "cryptiles": "2.x.x",
     "iron": "2.x.x",
+    "topo": "1.x.x",
     "async": "0.2.x",
     "multiparty": "3.2.x",
     "mime": "1.2.x",
