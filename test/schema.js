@@ -175,7 +175,7 @@ describe('Schema', function () {
             done();
         });
         
-        it('suceeds with minimal config', function(done) {
+        it('succeeds with minimal config', function(done) {
             var config = {
                 module: "baz",
                 path: "foo",
