@@ -113,6 +113,31 @@ describe('Handler', function () {
         });
     });
 
+    it('does not explode if an empty prerequisite array is specified', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply('Hello');
+        };
+
+        var server = new Hapi.Server();
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [],
+                handler: handler
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('Hello');
+            done();
+        });
+    });
+
     it('takes over response', function (done) {
 
         var pre1 = function (request, reply) {
@@ -298,6 +323,39 @@ describe('Handler', function () {
                 handler: function (request, reply) {
 
                     return reply(request.pre.user);
+                }
+            }
+        });
+
+        server.inject('/user/5', function (res) {
+
+            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+            done();
+        });
+    });
+
+    it('returns a user record using server method in object', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.method('user', function (id, next) {
+
+            return next(null, { id: id, name: 'Bob' });
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/user/{id}',
+            config: {
+                pre: [
+                    {
+                        method: 'user(params.id)',
+                        assign: 'steve'
+                    }
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.pre.steve);
                 }
             }
         });
@@ -515,7 +573,7 @@ describe('Handler', function () {
             });
         };
 
-        expect(test).to.throw('Unknown server helper or method in string notation: xuser(params.id)');
+        expect(test).to.throw('Unknown server method in string notation: xuser(params.id)');
         done();
     });
 
@@ -543,6 +601,106 @@ describe('Handler', function () {
         done();
     });
 
+    it('sets pre failAction to error', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [
+                    {
+                        method: function (request, reply) {
+
+                            reply(Hapi.error.forbidden());
+                        },
+                        failAction: 'error'
+                    }
+                ],
+                handler: function (request, reply) {
+
+                    reply('ok');
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
+    it('sets pre failAction to ignore', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [
+                    {
+                        method: function (request, reply) {
+
+                            reply(Hapi.error.forbidden());
+                        },
+                        failAction: 'ignore'
+                    }
+                ],
+                handler: function (request, reply) {
+
+                    reply('ok');
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('sets pre failAction to log', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [
+                    {
+                        assign: 'before',
+                        method: function (request, reply) {
+
+                            reply(Hapi.error.forbidden());
+                        },
+                        failAction: 'log'
+                    }
+                ],
+                handler: function (request, reply) {
+
+                    reply('ok');
+                }
+            }
+        });
+
+        var log = null;
+        server.on('request', function (request, event, tags) {
+
+            if (tags.hapi && tags.pre && tags.error) {
+                log = event.data.assign;
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(log).to.equal('before');
+            done();
+        });
+    });
+
     it('uses string handler', function (done) {
 
         var server = new Hapi.Server();
@@ -557,6 +715,42 @@ describe('Handler', function () {
             expect(res.result).to.equal('ab');
             done();
         });
-    })
+    });
+
+    it('binds handler to route bind object', function (done) {
+
+        var item = { x: 123 };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(this.x); }, bind: item } });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal(item.x);
+            done();
+        });
+    });
+
+    it('binds pre to route bind object', function (done) {
+
+        var item = { x: 123 };
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [ { method: function (request, reply) { reply(this.x); }, assign: 'x' }],
+                handler: function (request, reply) { reply(request.pre.x); },
+                bind: item
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal(item.x);
+            done();
+        });
+    });
 });
 

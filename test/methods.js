@@ -60,6 +60,36 @@ describe('Method', function () {
         });
     });
 
+    it('registers two methods with shared nested name', function (done) {
+
+        var add = function (a, b, next) {
+
+            return next(null, a + b);
+        };
+
+        var sub = function (a, b, next) {
+
+            return next(null, a - b);
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('tools.add', add);
+        server.method('tools.sub', sub);
+
+        server.start(function () {
+
+            server.methods.tools.add(1, 5, function (err, result) {
+
+                expect(result).to.equal(6);
+                server.methods.tools.sub(1, 5, function (err, result) {
+
+                    expect(result).to.equal(-4);
+                    done();
+                });
+            });
+        });
+    });
+
     it('throws when registering a method with nested name twice', function (done) {
 
         var add = function (a, b, next) {
@@ -72,7 +102,7 @@ describe('Method', function () {
         expect(function () {
 
             server.method('tools.add', add);
-        }).to.throw('Helper or method function name already exists');
+        }).to.throw('Server method function name already exists');
 
         done();
     });
@@ -120,12 +150,90 @@ describe('Method', function () {
         });
     });
 
-    it('does not cache value when isUncacheable is true', function (done) {
+    it('reuses cached method value with custom key function', function (done) {
 
         var gen = 0;
         var method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ }, true);
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return '' + (id + 1); } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(0);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('does not cache when custom key function return null', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return null; } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(1);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('does not cache when custom key function returns a non-string', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return id + 1; } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(1);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('does not cache value when ttl is 0', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ }, 0);
         };
 
         var server = new Hapi.Server(0);
@@ -274,7 +382,7 @@ describe('Method', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server({ cache: 'memory' });
+            var server = new Hapi.Server({ cache: 'catbox-memory' });
             server.method('user', function () { }, { cache: { x: 'y' } });
         };
         expect(fn).to.throw(Error);
@@ -338,7 +446,7 @@ describe('Method', function () {
 
     it('returns a valid result when calling a method using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
 
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
@@ -362,7 +470,7 @@ describe('Method', function () {
 
     it('supports empty key method', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
 
         var gen = 0;
         var terms = 'I agree to give my house';
@@ -386,7 +494,7 @@ describe('Method', function () {
 
     it('returns valid results when calling a method (with different keys) using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
         server.start(function () {
@@ -409,7 +517,7 @@ describe('Method', function () {
 
     it('returns new object (not cached) when second key generation fails when using the cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: 'memory' });
+        var server = new Hapi.Server(0, { cache: 'catbox-memory' });
         var id1 = Math.random();
         var gen = 0;
         var method = function (id, next) {

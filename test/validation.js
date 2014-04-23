@@ -2,6 +2,7 @@
 
 var Async = require('async');
 var Lab = require('lab');
+var Joi = require('joi');
 var Hapi = require('..');
 
 
@@ -31,8 +32,29 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     }
+                }
+            }
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('allows any input when set to null', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: null
                 }
             }
         });
@@ -84,7 +106,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     path: {
-                        seq: Hapi.types.number()
+                        seq: Joi.number()
                     }
                 }
             }
@@ -108,7 +130,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     path: {
-                        seq: Hapi.types.number().options({ modify: false })
+                        seq: Joi.number().options({ modify: false })
                     }
                 }
             }
@@ -143,6 +165,33 @@ describe('Validation', function () {
         });
     });
 
+    it('retains the validation error', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: false
+                }
+            }
+        });
+
+        server.ext('onPreResponse', function (request, reply) {
+
+            reply(request.response.data.details[0].path);
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('a');
+            done();
+        });
+    });
+
     it('validates valid input (Object root)', function (done) {
 
         var server = new Hapi.Server();
@@ -152,8 +201,8 @@ describe('Validation', function () {
             handler: function (request, reply) { reply('ok'); },
             config: {
                 validate: {
-                    query: Hapi.types.object({
-                        a: Hapi.types.string().min(2)
+                    query: Joi.object({
+                        a: Joi.string().min(2)
                     })
                 }
             }
@@ -176,7 +225,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     }
                 }
             }
@@ -204,7 +253,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     failAction: 'ignore'
                 }
@@ -234,7 +283,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     failAction: 'log'
                 }
@@ -259,7 +308,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     failAction: function (source, error, next) {
 
@@ -287,7 +336,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     },
                     errorFields: {
                         walt: 'jr'
@@ -324,7 +373,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.string().min(2)
+                        a: Joi.string().min(2)
                     }
                 }
             }
@@ -347,7 +396,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.string().required()
+                        a: Joi.string().required()
                     }
                 }
             }
@@ -371,7 +420,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     payload: {
-                        a: Hapi.types.string().required()
+                        a: Joi.string().required()
                     }
                 }
             }
@@ -403,7 +452,7 @@ describe('Validation', function () {
                 response: {
                     sample: 50,
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }
@@ -424,6 +473,41 @@ describe('Validation', function () {
         });
     });
 
+    it('skips response validation when sample is zero', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    reply({ a: 1 });
+                },
+                response: {
+                    sample: 0,
+                    schema: {
+                        b: Joi.string()
+                    }
+                }
+            }
+        });
+
+        var count = 0;
+        Async.times(500, function (n, next) {
+
+            server.inject('/', function (res) {
+
+                count += (res.statusCode === 500 ? 1 : 0);
+                next(null, res.statusCode);
+            });
+        }, function (err, codes) {
+
+            expect(count).to.equal(0);
+            done();
+        });
+    });
+
     it('ignores error responses', function (done) {
 
         var server = new Hapi.Server();
@@ -437,7 +521,7 @@ describe('Validation', function () {
                 },
                 response: {
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }
@@ -463,7 +547,7 @@ describe('Validation', function () {
                 },
                 response: {
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }
@@ -490,7 +574,7 @@ describe('Validation', function () {
                 response: {
                     failAction: 'log',
                     schema: {
-                        b: Hapi.types.string()
+                        b: Joi.string()
                     }
                 }
             }

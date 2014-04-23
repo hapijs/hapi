@@ -56,34 +56,87 @@ describe('Proxy', function () {
         });
     });
 
-    it('forwards on the response when making a GET request', function (done) {
+    it('throws when used with explicit route payload config other than data or steam', function (done) {
 
-        var profile = function (request, reply) {
+        var server = new Hapi.Server();
+        expect(function () {
 
-            reply({ id: 'fa0dbda9b1b', name: 'John Doe' }).state('test', '123');
-        };
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: {
+                        proxy: { host: 'example.com' }
+                    },
+                    payload: {
+                        output: 'file'
+                    }
+                }
+            });
+        }).to.throw('Cannot proxy if payload is parsed or if output is not stream or data');
+        done();
+    });
+
+    it('throws when used with explicit route payload parse config set to false', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: {
+                        proxy: { host: 'example.com' }
+                    },
+                    payload: {
+                        parse: true
+                    }
+                }
+            });
+        }).to.throw('Cannot proxy if payload is parsed or if output is not stream or data');
+        done();
+    });
+
+    it('allows when used with explicit route payload output data config', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: {
+                        proxy: { host: 'example.com' }
+                    },
+                    payload: {
+                        output: 'data'
+                    }
+                }
+            });
+        }).to.not.throw();
+        done();
+    });
+
+    it('overrides maxSockets', function (done) {
+
+        var server = new Hapi.Server({ maxSockets: 1 });
 
         var upstream = new Hapi.Server(0);
-        upstream.route({ method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } });
+        upstream.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(Object.keys(server._agents.http.sockets).length); } });
         upstream.start(function () {
 
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: upstream.info.port, xforward: true, passThrough: true } } });
-            server.state('auto', { autoValue: 'xyz' });
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
 
-            server.inject('/profile', function (res) {
+            expect(Object.keys(server._agents.http.sockets).length).to.equal(0);
+
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.contain('John Doe');
-                expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
-                expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate, private');
+                expect(res.payload).to.equal('1');
 
-                server.inject('/profile', function (res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.payload).to.contain('John Doe');
-                    done();
-                });
+                done();
             });
         });
     });
@@ -281,7 +334,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('sends the correct status code with a request is unauthorized', function (done) {
+    it('sends the correct status code when a request is unauthorized', function (done) {
 
         var unauthorized = function (request, reply) {
 
@@ -303,7 +356,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('sends a 404 status code with a proxied route does not exist', function (done) {
+    it('sends a 404 status code when a proxied route does not exist', function (done) {
 
         var upstream = new Hapi.Server(0);
         upstream.start(function () {
@@ -319,29 +372,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('calls the deprecated postResponse function if defined', function (done) {
-
-        var upstream = new Hapi.Server(0);
-        upstream.route({ method: 'GET', path: '/postResponse', handler: function (request, reply) { reply({ a: 1 }); } });
-        upstream.start(function () {
-
-            var postResponse = function (request, reply, res, settings, ttl) {
-
-                reply(res);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/postResponse', handler: { proxy: { host: 'localhost', port: upstream.info.port, postResponse: postResponse } }, config: { cache: { expiresIn: 500 } } });
-
-            server.inject('/postResponse', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
-        });
-    });
-
-    it('forwards on the status code when a custom onResponse returns an error', function (done) {
+    it('overrides status code when a custom onResponse returns an error', function (done) {
 
         var upstream = new Hapi.Server(0);
         upstream.start(function () {
@@ -352,12 +383,194 @@ describe('Proxy', function () {
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/onResponseError', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: onResponseWithError } }, config: { cache: { expiresIn: 500 } } });
+            server.route({ method: 'GET', path: '/onResponseError', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: onResponseWithError } } });
 
             server.inject('/onResponseError', function (res) {
 
                 expect(res.statusCode).to.equal(403);
                 done();
+            });
+        });
+    });
+
+    it('adds cookie to response', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var on = function (err, res, request, reply, settings, ttl) {
+
+                reply(res).state('a', 'b');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: on } } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                expect(res.headers['set-cookie'][0]).to.equal('a=b');
+                done();
+            });
+        });
+    });
+
+    it('binds onResponse to route bind config', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var onResponseWithError = function (err, res, request, reply, settings, ttl) {
+
+                reply(this.c);
+            };
+
+            var handler = {
+                proxy: {
+                    host: 'localhost',
+                    port: upstream.info.port,
+                    onResponse: onResponseWithError
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/onResponseError', config: { handler: handler, bind: { c: 6 } } });
+
+            server.inject('/onResponseError', function (res) {
+
+                expect(res.result).to.equal(6);
+                done();
+            });
+        });
+    });
+
+    it('binds onResponse to route bind config in plugin', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+
+            var plugin = {
+                name: 'test',
+                version: '1.0.0',
+                register: function (plugin, options, next) {
+
+                    var onResponseWithError = function (err, res, request, reply, settings, ttl) {
+
+                        reply(this.c);
+                    };
+
+                    var handler = {
+                        proxy: {
+                            host: 'localhost',
+                            port: upstream.info.port,
+                            onResponse: onResponseWithError
+                        }
+                    };
+
+                    plugin.route({ method: 'GET', path: '/', config: { handler: handler, bind: { c: 6 } } });
+                    next();
+                }
+            };
+
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+
+                server.inject('/', function (res) {
+
+                    expect(res.result).to.equal(6);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('binds onResponse to plugin bind', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+
+            var plugin = {
+                name: 'test',
+                version: '1.0.0',
+                register: function (plugin, options, next) {
+
+                    var onResponseWithError = function (err, res, request, reply, settings, ttl) {
+
+                        reply(this.c);
+                    };
+
+                    var handler = {
+                        proxy: {
+                            host: 'localhost',
+                            port: upstream.info.port,
+                            onResponse: onResponseWithError
+                        }
+                    };
+
+                    plugin.bind({ c: 7 });
+                    plugin.route({ method: 'GET', path: '/', config: { handler: handler } });
+                    next();
+                }
+            };
+
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+
+                server.inject('/', function (res) {
+
+                    expect(res.result).to.equal(7);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('binds onResponse to route bind config in plugin when plugin also has bind', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+
+            var plugin = {
+                name: 'test',
+                version: '1.0.0',
+                register: function (plugin, options, next) {
+
+                    var onResponseWithError = function (err, res, request, reply, settings, ttl) {
+
+                        reply(this.c);
+                    };
+
+                    var handler = {
+                        proxy: {
+                            host: 'localhost',
+                            port: upstream.info.port,
+                            onResponse: onResponseWithError
+                        }
+                    };
+
+                    plugin.bind({ c: 7 });
+                    plugin.route({ method: 'GET', path: '/', config: { handler: handler, bind: { c: 4 } } });
+                    next();
+                }
+            };
+
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+
+                server.inject('/', function (res) {
+
+                    expect(res.result).to.equal(4);
+                    done();
+                });
             });
         });
     });
@@ -381,6 +594,48 @@ describe('Proxy', function () {
             server.inject('/failureResponse', function (res) {
 
                 expect(res.statusCode).to.equal(502);
+                done();
+            });
+        });
+    });
+
+    it('does not clobber existing x-forwarded-* headers', function (done) {
+
+        var handler = function (request, reply) {
+
+            // TODO: fix these bugs
+
+            // trailing commas because remotePort and remoteAddress do not exist
+            expect(request.raw.req.headers['x-forwarded-for']).to.equal('testhost,');
+            expect(request.raw.req.headers['x-forwarded-port']).to.equal('1337,');
+
+            // undefined because settings.protocol isn't set
+            expect(request.raw.req.headers['x-forwarded-proto']).to.equal('https,undefined');
+            reply('ok');
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: handler });
+        upstream.start(function () {
+
+            var mapUri = function (request, callback) {
+
+                var headers = {
+                    'x-forwarded-for': 'testhost',
+                    'x-forwarded-port': 1337,
+                    'x-forwarded-proto': 'https'
+                };
+
+                return callback(null, 'http://127.0.0.1:' + upstream.info.port + '/', headers);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { mapUri: mapUri, xforward: true } } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('ok');
                 done();
             });
         });
@@ -426,7 +681,7 @@ describe('Proxy', function () {
 
         server.inject('/maperror', function (res) {
 
-            expect(res.payload).to.contain('myerror');
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });
@@ -479,6 +734,18 @@ describe('Proxy', function () {
 
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8' } } });
+
+        server.inject('/nowhere', function (res) {
+
+            expect(res.statusCode).to.equal(502);
+            done();
+        });
+    });
+
+    it('errors on redirection to bad host (https)', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/nowhere', handler: { proxy: { host: 'no.such.domain.x8', protocol: 'https' } } });
 
         server.inject('/nowhere', function (res) {
 
@@ -681,13 +948,13 @@ describe('Proxy', function () {
         });
     });
 
-    it('times out when proxy timeout is less than server', function (done) {
+    it('times out when proxy timeout is less than server', { parallel: false }, function (done) {
 
         var upstream = new Hapi.Server(0);
         upstream.route({ method: 'GET', path: '/timeout2', handler: function (request, reply) { setTimeout(function () { reply('Ok'); }, 10); } });
         upstream.start(function () {
 
-            var server = new Hapi.Server({ timeout: { server: 5 } });
+            var server = new Hapi.Server({ timeout: { server: 8 } });
             server.route({ method: 'GET', path: '/timeout2', handler: { proxy: { host: 'localhost', port: upstream.info.port, timeout: 2 } } });
             server.inject('/timeout2', function (res) {
 
@@ -786,19 +1053,63 @@ describe('Proxy', function () {
         });
     });
 
+    it('ignores when no upstream caching headers to pass', function (done) {
+
+        var upstream = Http.createServer(function (req, res) {
+
+            res.end('not much');
+        });
+
+        upstream.listen(0, function () {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.address().port, ttl: 'upstream' } } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['cache-control']).to.equal('no-cache');
+                done();
+            });
+        });
+    });
+
+    it('ignores when upstream caching header is invalid', function (done) {
+
+        var upstream = Http.createServer(function (req, res) {
+
+            res.writeHeader(200, { 'cache-control': 'some crap that does not work' });
+            res.end('not much');
+        });
+
+        upstream.listen(0, function () {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.address().port, ttl: 'upstream' } } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['cache-control']).to.equal('no-cache');
+//                expect(res.headers['cache-control']).to.not.exist;
+                done();
+            });
+        });
+    });
+
     it('overrides response code with 304', function (done) {
 
         var upstream = new Hapi.Server(0);
         upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { reply({ a: 1 }); } });
         upstream.start(function () {
 
-            var postResponse304 = function (request, reply, res, settings, ttl) {
+            var onResponse304 = function (err, res, request, reply, settings, ttl) {
 
                 reply(res).code(304);
             };
 
             var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/304', handler: { proxy: { uri: 'http://localhost:' + upstream.info.port + '/item', postResponse: postResponse304 } } });
+            server.route({ method: 'GET', path: '/304', handler: { proxy: { uri: 'http://localhost:' + upstream.info.port + '/item', onResponse: onResponse304 } } });
 
             server.inject('/304', function (res) {
 
@@ -820,7 +1131,7 @@ describe('Proxy', function () {
 
                 reply({ something: 'else' });
             });
-        
+
             server.route({ method: 'GET', path: '/item', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
 
             server.inject('/item', function (res) {

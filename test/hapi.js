@@ -3,9 +3,11 @@
 var ChildProcess = require('child_process');
 var Fs = require('fs');
 var Os = require('os');
-var Lab = require('lab');
 var Path = require('path');
+var Crypto = require('crypto');
+var Lab = require('lab');
 var Hapi = require('..');
+var Hoek = require('hoek');
 
 
 // Declare internals
@@ -22,6 +24,13 @@ var describe = Lab.experiment;
 var it = Lab.test;
 
 
+internals.uniqueFilename = function (path) {
+
+    var name = [Date.now(), process.pid, Crypto.randomBytes(8).toString('hex')].join('-');
+    return Path.join(path, name);
+};
+
+
 describe('Hapi command line', function () {
 
     it('composes pack with absolute path', function (done) {
@@ -29,7 +38,7 @@ describe('Hapi command line', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'
@@ -55,7 +64,7 @@ describe('Hapi command line', function () {
             }
         };
 
-        var configPath = Hapi.utils.uniqueFilename(Os.tmpDir());
+        var configPath = internals.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
         var modulePath = Path.join(__dirname, 'pack');
 
@@ -78,12 +87,12 @@ describe('Hapi command line', function () {
         });
     });
 
-    it('composes pack with absolute path using symlink', function (done) {
+    it('composes pack with absolute path using symlink', { skip: process.platform === 'win32' }, function (done) {
 
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'
@@ -109,10 +118,10 @@ describe('Hapi command line', function () {
             }
         };
 
-        var configPath = Hapi.utils.uniqueFilename(Os.tmpDir());
+        var configPath = internals.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
         var modulePath = Path.join(__dirname, 'pack');
-        var symlinkPath = Hapi.utils.uniqueFilename(Os.tmpDir());
+        var symlinkPath = internals.uniqueFilename(Os.tmpDir());
 
         Fs.symlinkSync(modulePath, symlinkPath, 'dir');
         Fs.writeFileSync(configPath, JSON.stringify(manifest));
@@ -141,7 +150,7 @@ describe('Hapi command line', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'
@@ -167,7 +176,7 @@ describe('Hapi command line', function () {
             }
         };
 
-        var configPath = Hapi.utils.uniqueFilename(Os.tmpDir());
+        var configPath = internals.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
 
         Fs.writeFileSync(configPath, JSON.stringify(manifest));

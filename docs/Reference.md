@@ -1,4 +1,4 @@
-# 2.6.x API Reference
+# 4.x.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -16,7 +16,7 @@
             - [Route prerequisites](#route-prerequisites)
             - [Route not found](#route-not-found)
         - [`server.route(routes)`](#serverrouteroutes)
-        - [`server.table()`](#servertable)
+        - [`server.table([host])`](#servertablehost)
         - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
         - [`server.state(name, [options])`](#serverstatename-options)
         - [`server.views(options)`](#serverviewsoptions)
@@ -28,6 +28,7 @@
         - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
+        - [`server.handler(name, method)`](#serverhandlername-method)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -93,6 +94,7 @@
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
         - [`plugin.loader(require)`](#pluginloader-require)
         - [`plugin.bind(bind)`](#pluginbind-bind)
+        - [`plugin.handler(name, method)`](#pluginhandlername-method)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -105,11 +107,9 @@
         - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
         - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
-- [`Hapi.utils`](#hapiutils)
-      - [`version()`](#version)
-- [`Hapi.types`](#hapitypes)
 - [`Hapi.state`](#hapistate)
       - [`prepareValue(name, value, options, callback)`](#preparevaluename-value-options-callback)
+- [`Hapi.version`](#hapiversion)
 - [Hapi CLI](#hapi-cli)
 
 ## `Hapi.Server`
@@ -146,10 +146,14 @@ When creating a server instance, the following options configure the server's be
 - `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which should use `plugins[name]`. Note the difference between
   `server.settings.app` which is used to store configuration value and `server.app` which is meant for storing run-time state.
 
-- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a cache for storing and reusing application state and server method results. By default a simple memory-based cache is used which has limited capacity and limited production
-  environment suitability. In addition to the memory cache, a Redis, MongoDB, or Memcache cache can be configured. Actual caching is only utilized
-  if methods and plugins are explicitly configured to store their state in the cache. The server cache configuration only defines the store itself.
-  The value can be a string with the cache engine name (using the defaults for that engine type), an object with the cache options, or an array of
+- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a default cache for storing and
+  application state. By default, a simple memory-based cache is created which has a limited capacity. **hapi** uses
+  [**catbox** module documentation](https://github.com/spumko/catbox#client) as its cache implementation which includes support for Redis, MongoDB,
+  Memcached, and Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache configuration
+  only defines the store itself. `cache` can be assigned:
+    - a string with the cache engine module name (e.g. `'catbox-memory'`, `'catbox-redis'`).
+    - a configuration object with the following options:
+        - `engine` - 
   cache options. The cache options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client). When an array
   of options is provided, multiple cache connections are established and each array item (except one) must include an additional option:
     - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each connection name must be unique. A
@@ -157,6 +161,7 @@ When creating a server instance, the following options configure the server's be
       as well as the default.
     - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same route and cache.
       Default to not shared.
+    - an array of the above types for configuring multiple cache instances, each with a unqiue name.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
   required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
@@ -254,8 +259,8 @@ the following options:
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 
-- `maxSockets` - sets the number of sockets available per outgoing host connection. `null` means use node.js default value.
-    Impacts all outgoing client connections using the defualt HTTP/HTTPS agent. Defaults to `Infinity`.
+- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use node.js default value.
+    Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
 - `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly` (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to `{ modify: true }` which will cast data to the specified
   types.
@@ -286,7 +291,7 @@ the following options:
       for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
       Otherwise, the provided filename is suffixed with the engine's extension and laoded. Disable `layout` when using Jade as it will handle
       including any layout files independently. Defaults to `false`.
-    - `layoutPath` - the root file path where layout templates are located (relative to `basePath` is present). Defaults to `path`.
+    - `layoutPath` - the root file path where layout templates are located (relative to `basePath` if present). Defaults to `path`.
     - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
     - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
@@ -438,7 +443,7 @@ The following options are available when adding a route:
           `function(err, res, request, reply, settings, ttl)` where:
               - `err` - internal or upstream error returned from attempting to contact the upstream proxy.
               - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
-                [**nipple**](https://github.com/spumko/nipple) module `parse` method to easily convert it to a Buffer or string).
+                [**nipple**](https://github.com/spumko/nipple) module `read` method to easily convert it to a Buffer or string).
               - `request` - is the incoming `request` object.
               - `reply()` - the continuation function.
               - `settings` - the proxy handler configuration.
@@ -461,7 +466,10 @@ The following options are available when adding a route:
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
       include one handler per route.
     - `bind` - an object passed back to the provided handler (via `this`) when called.
-
+    - `app` - application-specific configuration. Provides a safe place to pass application configuration without potential conflicts
+      with **hapi**. Should not be used by plugins which should use `plugins[name]`.
+    - `plugins` - plugin-specific configuration. Provides a place to pass route-level plugin configuration. The `plugins` is an object
+      where each key is a plugin name and the value is the state.
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
 
@@ -504,12 +512,12 @@ The following options are available when adding a route:
             - `'ignore'` - take no action.
             - a custom error handler function with the signature `functon(source, error, next)` where:
                 - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
-                - `error` - the error object prepared for the client response.
+                - `error` - the error object prepared for the client response (including the validation function error under `error.data`).
                 - `next` - the continuation method called to resume route processing or return an error response. The function signature
                   is `function(exit)` where:
                     - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the
-                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
-                      value accepted by [`reply()`](#replyresult).
+                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can
+                      be any result value accepted by [`reply()`](#replyresult).
 
     - `payload` - determines how the request payload is processed:
         - `output` - the type of payload representation requested where:
@@ -517,12 +525,15 @@ The following options are available when adding a route:
               multipart) based on the 'Content-Type' header. If `parse` is false, the raw `Buffer` is returned. This is the default value
               except when a proxy handler is used.
             - `stream` - the incoming payload is made available via a `Stream.Readable` interface. If the payload is 'multipart/form-data' and
-              `parse` is `true`, fields values are presented as text while files are provided as streams.
+              `parse` is `true`, fields values are presented as text while files are provided as streams. File streams from a
+              'multipart/form-data' upload will also have a property `.hapi` containing `filename` and `headers` properties.
             - `file` - the incoming payload in written to temporary file in the directory specified by the server's `payload.uploads` settings.
               If the payload is 'multipart/form-data' and `parse` is `true`, fields values are presented as text while files are saved.
-        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the 'Content-Type' is known (for the whole payload as well as parts), the payload
-          is converted into an object when possible. If the format is unknown, a Bad Request (400) error response is
-          sent. Defaults to `true`, except when a proxy handler is used. The supported mime types are:
+        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip`
+          includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the
+          'Content-Type' is known (for the whole payload as well as parts), the payload is converted into an object when possible. If the
+          format is unknown, a Bad Request (400) error response is sent. Defaults to `true`, except when a proxy handler is used. The
+          supported mime types are:
             - 'application/json'
             - 'application/x-www-form-urlencoded'
             - 'application/octet-stream'
@@ -701,8 +712,7 @@ server.route({
 });
 ```
 
-In addition to the optional '?' suffix, a parameter name can also specify the number of matching segments using the '*' suffix, followed by a number
-greater than 1. If the number of expected parts can be anything, then use '*' without a number (matching any number of segments can only be used in the
+In addition to the optional `?` suffix, a parameter name can also specify the number of matching segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts can be anything, then use `*` without a number (matching any number of segments can only be used in the
 last path segment).
 
 ```javascript
@@ -818,10 +828,12 @@ server.route([
 ]);
 ```
 
-#### `server.table()`
+#### `server.table([host])`
 
-Returns a copy of the routing table. The return value is an array of routes where each route contains:
+Returns a copy of the routing table where:
+- `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual hosts.
 
+The return value is an array of routes where each route contains:
 - `settings` - the route config with defaults applied.
 - `method` - the HTTP method in lower case.
 - `path` - the route path.
@@ -1111,7 +1123,7 @@ Methods are registered via `server.method(name, fn, [options])` where:
     - `next` - the function called when the method is done with the signature `function(err, result, isUncacheable)` where:
         - `err` - error response if the method failed.
         - `result` - the return value.
-        - `isUncacheable` - `true` if result is valid but cannot be cached. Defaults to `false`.
+        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
 - `options` - optional configuration:
     - `bind` - an object passed back to the provided method function (via `this`) when called. Defaults to `null` unless added via a plugin, in which
       case it defaults to the plugin bind object.
@@ -1243,6 +1255,38 @@ server.inject('/', function (res) {
 
     console.log(res.result);
 });
+```
+
+#### `server.handler(name, method)`
+
+Registers a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`),
+or any previously registered types is not allowed.
+
+- `name` - string name for the handler being registered.
+- `method` - the function used to generate the route handler using the signature `function(route, options)` where:
+    - `route` - the internal route object.
+    - `options` - the configuration object provided in the handler config.
+
+```javascript
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+
+// Defines new handler for routes on this server
+server.handler('test', function (route, options) {
+
+    return function (request, reply) {
+
+        reply('new handler: ' + options.msg);
+    }
+});
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: { test: { msg: 'test' } }
+});
+
+server.start();
 ```
 
 ### `Server` events
@@ -1591,6 +1635,8 @@ var handler = function (request, reply) {
         .header('X-Custom', 'some-value');
 };
 ```
+
+Note that if `result` is a `Stream` with a `statusCode` property, that status code will be used as the default response code.
 
 ### `reply.file(path, [options])`
 
@@ -2187,7 +2233,7 @@ var Hapi = require('hapi');
 
 var manifest = {
     pack: {
-        cache: 'memory'
+        cache: 'catbox-memory'
     },
     servers: [
         {
@@ -2312,7 +2358,7 @@ var internals = {
     }
 };
 
-internals.version = Hoek.loadPackage().version;
+internals.version = 1.1;
 
 exports.register = function (plugin, options, next) {
 
@@ -2713,6 +2759,26 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
+#### `plugin.handler(name, method)`
+
+Registers a new handler type as describe in [`server.handler(name, method)`](#serverhandlername-method).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    var handlerFunc = function (route, options) {
+
+        return function (request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+    plugin.handler('testHandler', handlerFunc);
+    next();
+}
+```
+
 ### Selectable methods and properties
 
 The plugin interface selectable methods and properties are those available both on the `plugin` object received via the
@@ -2867,23 +2933,6 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-## `Hapi.utils`
-
-An alias of the [**hoek**](https://github.com/spumko/hoek) module.
-
-#### `version()`
-
-Returns the **hapi** module version number.
-
-```javascript
-var Hapi = require('hapi');
-console.log(Hapi.utils.version());
-```
-
-## `Hapi.types`
-
-See [**joi** Types](https://github.com/spumko/joi#type-registry).
-
 ## `Hapi.state`
 
 #### `prepareValue(name, value, options, callback)`
@@ -2928,6 +2977,15 @@ var handler = function (request, reply) {
         reply('success');
     });
 };
+```
+
+## `Hapi.version`
+
+The **hapi** module version number.
+
+```javascript
+var Hapi = require('hapi');
+console.log(Hapi.version);
 ```
 
 ## `Hapi CLI`

@@ -25,7 +25,7 @@ describe('Utils', function () {
 
         it('returns the correct package version number', function (done) {
 
-            expect(Hapi.utils.version()).to.equal(Package.version);
+            expect(Hapi.version).to.equal(Package.version);
             done();
         });
     });

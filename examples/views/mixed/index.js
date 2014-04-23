@@ -8,7 +8,7 @@ var Hapi = require('../../../lib');
 var internals = {};
 
 var ctx = {
-    title: 'examples/views/mixed | Hapi ' + Hapi.utils.version(),
+    title: 'examples/views/mixed | Hapi ' + Hapi.version,
     message: 'Hello World!'
 }
 

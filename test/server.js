@@ -2,10 +2,16 @@
 
 var Net = require('net');
 var Fs = require('fs');
+var Http = require('http');
 var Https = require('https');
-var Lab = require('lab');
-var Hapi = require('..');
+var Stream = require('stream');
+var Os = require('os');
 var Path = require('path');
+var Nipple = require('nipple');
+var Lab = require('lab');
+var Hoek = require('hoek');
+var Hapi = require('..');
+var Defaults = require('../lib/defaults');
 
 
 // Declare internals
@@ -39,7 +45,7 @@ describe('Server', function () {
         });
     });
 
-    it('won\'t stop until all connections are closed', function (done) {
+    it('waits to stop until all connections are closed', function (done) {
 
         var server = Hapi.createServer(0);
         server.start(function () {
@@ -74,7 +80,7 @@ describe('Server', function () {
         });
     });
 
-    it('won\'t destroy connections until after the timeout', function (done) {
+    it('waits to destroy connections until after the timeout', function (done) {
 
         var server = Hapi.createServer(0);
         server.start(function () {
@@ -99,7 +105,7 @@ describe('Server', function () {
                     server.listener.getConnections(function (err, count) {
 
                         expect(count).to.be.greaterThan(0);
-                        var timer = new Hapi.utils.Bench();
+                        var timer = new Hoek.Bench();
 
                         server.stop({ timeout: 20 }, function () {
 
@@ -112,7 +118,7 @@ describe('Server', function () {
         });
     });
 
-    it('won\'t destroy connections if they close by themselves', function (done) {
+    it('waits to destroy connections if they close by themselves', function (done) {
 
         var server = Hapi.createServer(0);
         server.start(function () {
@@ -137,7 +143,7 @@ describe('Server', function () {
                     server.listener.getConnections(function (err, count) {
 
                         expect(count).to.be.greaterThan(0);
-                        var timer = new Hapi.utils.Bench();
+                        var timer = new Hoek.Bench();
 
                         server.stop(function () {
 
@@ -200,39 +206,92 @@ describe('Server', function () {
         });
     });
 
-    it('measures loop delay', function (done) {
+    it('provisions a server cache with custom partition', function (done) {
 
-        var server = new Hapi.Server(0, { load: { sampleInterval: 4 } });
-        var handler = function (request, reply) {
+        var server = new Hapi.Server(0, { cache: { engine: 'catbox-memory', partition: 'hapi-test-other' } });
+        var cache = server.cache('test', { expiresIn: 1000 });
+        server.start(function () {
 
-            var start = Date.now();
-            while (Date.now() - start < 5);
-            reply('ok');
-        };
+            cache.set('a', 'going in', 0, function (err) {
 
-        server.route({ method: 'GET', path: '/', handler: handler });
-        server.start(function (err) {
+                cache.get('a', function (err, value) {
 
-            server.inject('/', function (res) {
+                    expect(value.item).to.equal('going in');
 
-                expect(server.load.eventLoopDelay).to.equal(0);
+                    expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
 
-                setImmediate(function () {
+                    server.stop(function () {
 
-                    server.inject('/', function (res) {
+                        done();
+                    });
+                });
+            });
+        });
+    });
 
-                        expect(server.load.eventLoopDelay).to.be.above(0);
+    describe('Load', { parallel: false }, function () {
 
-                        setImmediate(function () {
+        it('requires load interval when maxEventLoopDelay is set', function (done) {
 
-                            server.inject('/', function (res) {
+            expect(function () {
 
-                                expect(server.load.eventLoopDelay).to.be.above(0);
-                                expect(server.load.heapUsed).to.be.above(1024 * 1024);
-                                expect(server.load.rss).to.be.above(1024 * 1024);
-                                server.stop(function () {
+                var server = new Hapi.Server({ load: { sampleInterval: 0, maxEventLoopDelay: 10, maxHeapUsedBytes: 0, maxRssBytes: 0 } });
+            }).to.throw('Load sample interval must be set in enable load limits');
+            done();
+        });
 
-                                    done();
+        it('requires load interval when maxHeapUsedBytes is set', function (done) {
+
+            expect(function () {
+
+                var server = new Hapi.Server({ load: { sampleInterval: 0, maxEventLoopDelay: 0, maxHeapUsedBytes: 10, maxRssBytes: 0 } });
+            }).to.throw('Load sample interval must be set in enable load limits');
+            done();
+        });
+
+        it('requires load interval when maxRssBytes is set', function (done) {
+
+            expect(function () {
+
+                var server = new Hapi.Server({ load: { sampleInterval: 0, maxEventLoopDelay: 0, maxHeapUsedBytes: 0, maxRssBytes: 10 } });
+            }).to.throw('Load sample interval must be set in enable load limits');
+            done();
+        });
+
+        it('measures loop delay', function (done) {
+
+            var server = new Hapi.Server(0, { load: { sampleInterval: 4 } });
+            var handler = function (request, reply) {
+
+                var start = Date.now();
+                while (Date.now() - start < 5);
+                reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start(function (err) {
+
+                server.inject('/', function (res) {
+
+                    expect(server.load.eventLoopDelay).to.equal(0);
+
+                    setImmediate(function () {
+
+                        server.inject('/', function (res) {
+
+                            expect(server.load.eventLoopDelay).to.be.above(0);
+
+                            setImmediate(function () {
+
+                                server.inject('/', function (res) {
+
+                                    expect(server.load.eventLoopDelay).to.be.above(0);
+                                    expect(server.load.heapUsed).to.be.above(1024 * 1024);
+                                    expect(server.load.rss).to.be.above(1024 * 1024);
+                                    server.stop(function () {
+
+                                        done();
+                                    });
                                 });
                             });
                         });
@@ -240,33 +299,129 @@ describe('Server', function () {
                 });
             });
         });
-    });
 
-    it('rejects request due to high load', function (done) {
+        it('rejects request due to high rss load', function (done) {
 
-        var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxRssBytes: 1 } });
-        var handler = function (request, reply) {
+            var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxRssBytes: 1 } });
+            var handler = function (request, reply) {
 
-            var start = Date.now();
-            while (Date.now() - start < 10);
-            reply('ok');
-        };
+                var start = Date.now();
+                while (Date.now() - start < 10);
+                reply('ok');
+            };
 
-        server.route({ method: 'GET', path: '/', handler: handler });
-        server.start(function (err) {
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start(function (err) {
 
-            server.inject('/', function (res) {
+                server.inject('/', function (res) {
 
-                expect(res.statusCode).to.equal(200);
+                    expect(res.statusCode).to.equal(200);
 
-                setImmediate(function () {
+                    setImmediate(function () {
 
-                    server.inject('/', function (res) {
+                        server.inject('/', function (res) {
 
-                        expect(res.statusCode).to.equal(503);
-                        server.stop(function () {
+                            expect(res.statusCode).to.equal(503);
+                            server.stop(function () {
 
-                            done();
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it('rejects request due to high heap load', function (done) {
+
+            var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxHeapUsedBytes: 1 } });
+            var handler = function (request, reply) {
+
+                var start = Date.now();
+                while (Date.now() - start < 10);
+                reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start(function (err) {
+
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+
+                    setImmediate(function () {
+
+                        server.inject('/', function (res) {
+
+                            expect(res.statusCode).to.equal(503);
+                            server.stop(function () {
+
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it('rejects request due to high event loop delay load', function (done) {
+
+            var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxEventLoopDelay: 5 } });
+            var handler = function (request, reply) {
+
+                var start = Date.now();
+                while (Date.now() - start < 10);
+                reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start(function (err) {
+
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+
+                    setImmediate(function () {
+
+                        server.inject('/', function (res) {
+
+                            expect(res.statusCode).to.equal(503);
+                            server.stop(function () {
+
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it('rejects request due to high event loop delay load before next sample', function (done) {
+
+            var server = new Hapi.Server(0, { load: { sampleInterval: 500, maxEventLoopDelay: 1 } });
+            var handler = function (request, reply) {
+
+                var start = Date.now();
+                while (Date.now() - start < 10);
+                reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start(function (err) {
+
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+
+                    setImmediate(function () {
+
+                        server.inject('/', function (res) {
+
+                            expect(res.statusCode).to.equal(503);
+                            server.stop(function () {
+
+                                done();
+                            });
                         });
                     });
                 });
@@ -276,12 +431,12 @@ describe('Server', function () {
 
     it('reuses the same cache segment', function (done) {
 
-        var server = new Hapi.Server({ cache: { engine: 'memory', shared: true } });
+        var server = new Hapi.Server({ cache: { engine: 'catbox-memory', shared: true } });
         expect(function () {
 
             var a1 = server.cache('a', { expiresIn: 1000 });
             var a2 = server.cache('a', { expiresIn: 1000 });
-        }).to.not.throw;
+        }).to.not.throw();
         done();
     });
 
@@ -402,7 +557,7 @@ describe('Server', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server({ cache: 'memory', something: false });
+            var server = new Hapi.Server({ cache: 'catbox-memory', something: false });
         };
 
         expect(fn).throws(Error);
@@ -419,7 +574,7 @@ describe('Server', function () {
         done();
     });
 
-    it('creates a server listening on a unix domain socket', function (done) {
+    it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, function (done) {
 
         var host = Path.join(__dirname, 'hapi-server.socket');
         var server = new Hapi.Server(host);
@@ -487,6 +642,43 @@ describe('Server', function () {
         done();
     });
 
+    it('removes duplicate labels', function (done) {
+
+        var server = new Hapi.Server({ labels: ['a', 'b', 'a', 'c', 'b'] });
+        expect(server.settings.labels).to.deep.equal(['a', 'b', 'c']);
+        done();
+    });
+
+    it('sets info.uri with default localhost when no hostname', { parallel: false }, function (done) {
+
+        var orig = Os.hostname;
+        Os.hostname = function () {
+
+            Os.hostname = orig;
+            return '';
+        };
+
+        var server = new Hapi.Server(80);
+        expect(server.info.uri).to.equal('http://localhost:80');
+        done();
+    });
+
+    it('sets maxSockets to node default', function (done) {
+
+        var server = new Hapi.Server({ maxSockets: false });
+
+        expect(Object.keys(server._agents).length).to.equal(0);
+        done();
+    });
+
+    it('sets maxSockets', function (done) {
+
+        var server = new Hapi.Server({ maxSockets: 5 });
+
+        expect(Object.keys(server._agents).length).to.equal(3);
+        done();
+    });
+
     describe('#start', function () {
 
         it('does not throw an error', function (done) {
@@ -495,6 +687,7 @@ describe('Server', function () {
 
                 var server = new Hapi.Server(0);
                 server.start();
+                server.stop();
             };
             expect(fn).to.not.throw(Error);
             done();
@@ -507,6 +700,7 @@ describe('Server', function () {
 
                 expect(server.info.host).to.equal('0.0.0.0');
                 expect(server.info.port).to.not.equal(0);
+                server.stop();
                 done();
             });
         });
@@ -518,6 +712,37 @@ describe('Server', function () {
 
                 expect(server.info.host).to.equal('0.0.0.0');
                 expect(server.info.port).to.not.equal(0);
+                server.stop();
+                done();
+            });
+        });
+
+        it('sets info with defaults no hostname or address', { parallel: false }, function (done) {
+
+            var hostname = Os.hostname;
+            Os.hostname = function () {
+
+                Os.hostname = hostname;
+                return '';
+            };
+
+            var server = new Hapi.Server(0);
+            expect(server._host).to.equal('');
+
+            var address = server.listener.address;
+            server.listener.address = function () {
+
+                server.listener.address = address;
+                var add = address.call(this);
+                add.address = '';
+                return add;
+            };
+
+            server.start(function () {
+
+                expect(server.info.host).to.equal('0.0.0.0');
+                expect(server.info.uri).to.equal('http://localhost:' + server.info.port);
+                server.stop();
                 done();
             });
         });
@@ -725,6 +950,66 @@ describe('Server', function () {
             expect(routes[0].path).to.equal('/test/');
             done();
         });
+
+        it('combines global and vhost routes', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table();
+
+            expect(routes.length).to.equal(4);
+            done();
+        });
+
+        it('combines global and vhost routes and filters based on host', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table('one.example.com');
+
+            expect(routes.length).to.equal(3);
+            done();
+        });
+
+        it('accepts a list of hosts', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table(['one.example.com', 'two.example.com']);
+
+            expect(routes.length).to.equal(4);
+            done();
+        });
+
+        it('ignores unknown host', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+            var routes = server.table('three.example.com');
+
+            expect(routes.length).to.equal(2);
+            done();
+        });
     });
 
     describe('#log', function () {
@@ -760,7 +1045,7 @@ describe('Server', function () {
             done();
         });
 
-        it('emits a log event and print to console', function (done) {
+        it('emits a log event and print to console', { parallel: false }, function (done) {
 
             var server = new Hapi.Server();
 
@@ -772,14 +1057,483 @@ describe('Server', function () {
             var orig = console.error;
             console.error = function () {
 
+                console.error = orig;
                 expect(arguments[0]).to.equal('Debug:');
                 expect(arguments[1]).to.equal('hapi, internal, implementation, error');
-                console.error = orig;
 
                 done();
             };
 
             server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
         });
+    });
+
+    describe('#handler', function () {
+
+        var handler = function (route, options) {
+
+            return function (request, reply) {
+
+                reply(options.message);
+            };
+        };
+
+        it('adds handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('test', handler);
+                expect(server.pack._handlers.test).to.equal(handler);
+            };
+
+            expect(fn).to.not.throw(Error);
+            done();
+        });
+
+        it('call new handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('test', handler);
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {
+                            message: 'success'
+                        }
+                    }
+                });
+                server.inject('/', function (res) {
+                    expect(res.payload).to.equal('success');
+                    done();
+                });
+            };
+
+            expect(fn).to.not.throw(Error);
+        });
+
+        it('errors on duplicate handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('proxy', handler);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on unknown handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {}
+                    }
+                });
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on non-string name', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler();
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('errors on non-function handler', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Server();
+
+                server.handler('foo', 'bar');
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+    });
+
+    describe('#state', function () {
+
+        it('uses default options', function (done) {
+
+            var server = new Hapi.Server();
+            server.state('steve');
+            expect(server._stateDefinitions['steve']).deep.equal(Defaults.state);
+            done();
+        });
+
+        it('throws when missing name', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.state();
+            }).to.throw('Invalid name');
+            done();
+        });
+    });
+
+    describe('Timeouts', { parallel: false }, function () {
+
+        var slowHandler = function (request, reply) {
+
+            setTimeout(function () {
+
+                reply('Slow');
+            }, 30);
+        };
+
+        var respondingHandler = function (request, reply) {
+
+            var s = new Stream.PassThrough();
+            reply(s);
+
+            for (var i = 10000; i > 0; --i) {
+                s.write(i.toString());
+            }
+
+            setTimeout(function () {
+
+                s.emit('end');
+            }, 40);
+        };
+
+        var fastHandler = function (request, reply) {
+
+            reply('Fast');
+        };
+
+        var streamHandler = function (request, reply) {
+
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Hoek.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                var self = this;
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                setTimeout(function () {
+
+                    self.push('Hello');
+                }, 30);
+
+                setTimeout(function () {
+
+                    self.push(null);
+                }, 60);
+            };
+
+            reply(new TestStream());
+        };
+
+        it('returns server error message when server taking too long', function (done) {
+
+            var timeoutHandler = function (request, reply) { };
+
+            var server = new Hapi.Server({ timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
+
+            var timer = new Hoek.Bench();
+
+            server.inject('/timeout', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                expect(timer.elapsed()).to.be.at.least(49);
+                done();
+            });
+        });
+
+        it('returns server error message when server timeout happens during request execution (and handler yields)', function (done) {
+
+            var serverShort = new Hapi.Server({ timeout: { server: 2 } });
+            serverShort.route({ method: 'GET', path: '/', config: { handler: slowHandler } });
+
+            serverShort.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                done();
+            });
+        });
+
+        it('returns server error message when server timeout is short and already occurs when request executes', function (done) {
+
+            var serverExt = new Hapi.Server({ timeout: { server: 2 } });
+            serverExt.route({ method: 'GET', path: '/', config: { handler: function () { } } });
+            serverExt.ext('onRequest', function (request, next) {
+
+                setTimeout(next, 10);
+            });
+
+            serverExt.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                done();
+            });
+        });
+
+        it('does not return an error response when server is slow but faster than timeout', function (done) {
+
+            var server = new Hapi.Server({ timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/slow', config: { handler: slowHandler } });
+
+            var timer = new Hoek.Bench();
+            server.inject('/slow', function (res) {
+
+                expect(timer.elapsed()).to.be.at.least(29);
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('does not return an error when server is responding when the timeout occurs', function (done) {
+
+            var timer = new Hoek.Bench();
+
+            var server = new Hapi.Server(0, { timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/responding', config: { handler: respondingHandler } });
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/responding',
+                    method: 'GET'
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect(timer.elapsed()).to.be.at.least(70);
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+
+                req.write('\n');
+            });
+        });
+
+        it('does not return an error response when server is slower than timeout but response has started', function (done) {
+
+            var server = new Hapi.Server(0, { timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/stream',
+                    method: 'GET'
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+                req.end();
+            });
+        });
+
+        it('does not return an error response when server takes less than timeout to respond', function (done) {
+
+            var server = new Hapi.Server({ timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/fast', config: { handler: fastHandler } });
+
+            server.inject('/fast', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('returned when both client and server timeouts are the same and the client times out', function (done) {
+
+            var timeoutHandler = function (request, reply) { };
+
+            var server = new Hapi.Server(0, { timeout: { server: 50, client: 50 } });
+            server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
+
+            server.start(function () {
+
+                var timer = new Hoek.Bench();
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/timeout',
+                    method: 'POST'
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect([503, 408]).to.contain(res.statusCode);
+                    expect(timer.elapsed()).to.be.at.least(49);
+                    done();
+                });
+
+                req.on('error', function (err) {
+
+                });
+
+                req.write('\n');
+                setTimeout(function () {
+
+                    req.end();
+                }, 100);
+            });
+        });
+
+        it('initial long running requests don\'t prevent server timeouts from occuring on future requests', function (done) {
+
+            var handler = function (request, reply) {
+
+                setTimeout(function () {
+
+                    reply('ok');
+                }, 70);
+            };
+
+            var server = new Hapi.Server(0, { timeout: { server: 50, client: 50 } });
+            server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
+            server.start(function () {
+
+                var timer = new Hoek.Bench();
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/',
+                    method: 'POST'
+                };
+
+                var req1 = Http.request(options, function (res1) {
+
+                    expect([503, 408]).to.contain(res1.statusCode);
+                    expect(timer.elapsed()).to.be.at.least(49);
+
+                    var req2 = Http.request(options, function (res2) {
+
+                        expect(res2.statusCode).to.equal(503);
+                        done();
+                    });
+
+                    req2.on('error', function (err) {
+
+                    });
+
+                    req2.end();
+                });
+
+                req1.on('error', function (err) {
+
+                });
+
+                req1.write('\n');
+                setTimeout(function () {
+
+                    req1.end();
+                }, 100);
+            });
+        });
+
+        it('closes connection on socket timeout', function (done) {
+
+            var server = new Hapi.Server(0, { timeout: { client: 45, socket: 50 } });
+            server.route({
+                method: 'GET', path: '/', config: {
+                    handler: function (request, reply) {
+
+                        setTimeout(function () {
+
+                            reply('too late');
+                        }, 70);
+                    }
+                }
+            });
+
+            server.start(function () {
+
+                Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+
+                    server.stop();
+                    expect(err).to.exist;
+                    expect(err.message).to.equal('Client request error: socket hang up');
+                    done();
+                });
+            });
+        });
+
+        it('disables node socket timeout', function (done) {
+
+            var server = new Hapi.Server(0, { timeout: { socket: false } });
+            server.route({
+                method: 'GET', path: '/', config: {
+                    handler: function (request, reply) {
+
+                        reply();
+                    }
+                }
+            });
+
+            server.start(function () {
+
+                var timeout;
+                var orig = Net.Socket.prototype.setTimeout;
+                Net.Socket.prototype.setTimeout = function () {
+
+                    timeout = 'gotcha';
+                    Net.Socket.prototype.setTimeout = orig;
+                    return orig.apply(this, arguments);
+                };
+
+                Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+
+                    server.stop();
+                    expect(err).to.not.exist;
+                    expect(timeout).to.equal('gotcha');
+                    done();
+                });
+            });
+        });
+
+        it('allows setting a server timeout without socket timeout', function (done) {
+
+            expect(function () {
+
+                var server = new Hapi.Server({ timeout: { server: 50, socket: false } });
+            }).to.not.throw();
+            done();
+        })
     });
 });

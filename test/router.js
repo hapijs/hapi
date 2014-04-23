@@ -25,6 +25,7 @@ describe('Router', function () {
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/head', handler: function (request, reply) { reply('ok-common'); } });
         server.route({ method: 'GET', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok-vhost'); } });
+        server.route({ method: 'GET', path: '/get', vhost: 'special.example.com', handler: function (request, reply) { reply('just-get'); } });
         server.route({ method: 'HEAD', path: '/head', handler: function (request, reply) { reply('ok').header('x1', '123'); } });
         server.route({ method: 'HEAD', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok').header('x1', '456'); } });
 
@@ -45,10 +46,27 @@ describe('Router', function () {
 
                         expect(res.result).to.equal('ok-common');
                         expect(res.headers.x1).to.not.exist;
-                        done();
+
+                        server.inject({ method: 'HEAD', url: 'http://special.example.com/get' }, function (res) {
+
+                            expect(res.payload).to.equal('');
+                            expect(res.result).to.equal('just-get');
+                            done();
+                        });
                     });
                 });
             });
+        });
+    });
+
+    it('fails to match head request', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+            expect(res.statusCode).to.equal(404);
+            done();
         });
     });
 
@@ -62,6 +80,35 @@ describe('Router', function () {
         server.inject({ method: 'GET', url: '/', headers: { host: 'special.example.com' } }, function (res) {
 
             expect(res.result).to.equal('special');
+            done();
+        });
+    });
+
+    it('matches global route when vhost is present but not matching', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
+        server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
+        server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain'); } });
+
+        server.inject({ method: 'HEAD', url: '/a', headers: { host: 'special.example.com' } }, function (res) {
+
+            expect(res.payload).to.equal('');
+            expect(res.result).to.equal('plain');
+            done();
+        });
+    });
+
+    it('fails to match route when vhost is present but not matching', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
+        server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
+        server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain'); } });
+
+        server.inject({ method: 'GET', url: '/b', headers: { host: 'special.example.com' } }, function (res) {
+
+            expect(res.statusCode).to.equal(404);
             done();
         });
     });
@@ -162,7 +209,7 @@ describe('Router', function () {
             server.route({ method: 'GET', path: '/', vhost: 'new.example.com', handler: function (request, reply) { reply('special'); } });
         };
 
-        expect(fn).to.not.throw;
+        expect(fn).to.not.throw();
         done();
     });
 
@@ -175,6 +222,20 @@ describe('Router', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('ok');
+            done();
+        });
+    });
+
+    it('matches wildcard vhost method', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.route({ method: '*', path: '/', handler: function (request, reply) { reply('global'); } });
+        server.route({ method: '*', vhost: 'special.example.com', path: '/', handler: function (request, reply) { reply('vhost'); } });
+        server.inject('http://special.example.com/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('vhost');
             done();
         });
     });
@@ -233,4 +294,21 @@ describe('Router', function () {
             done();
         });
     })
+
+    it('fails to return OPTIONS when cors disabled', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(Hapi.error.badRequest());
+        };
+
+        var server = new Hapi.Server({ cors: false });
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
+
+            expect(res.statusCode).to.equal(404);
+            done();
+        });
+    });
 });

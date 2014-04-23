@@ -25,7 +25,7 @@ describe('Composer', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 },
                 app: {
                     my: 'special-value'
@@ -47,7 +47,7 @@ describe('Composer', function () {
                 }
             ],
             plugins: {
-                '../test/pack/--test1': [ { ext: true }, {} ]
+                '../test/pack/--test1': [{ ext: true }, {}]
             }
         };
 
@@ -75,7 +75,7 @@ describe('Composer', function () {
         var manifest = {
             pack: {
                 cache: {
-                    engine: 'memory'
+                    engine: 'catbox-memory'
                 }
             },
             servers: [
@@ -116,6 +116,122 @@ describe('Composer', function () {
                     done();
                 });
             });
+        });
+    });
+
+    it('composes pack with ports', function (done) {
+
+        var manifest = {
+            servers: [
+                {
+                    port: 8000
+                },
+                {
+                    port: '8001',
+                }
+            ],
+            plugins: {}
+        };
+
+        var composer = new Hapi.Composer(manifest);
+        composer.compose(function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
+    it('throws when missing servers', function (done) {
+
+        var manifest = {
+            plugins: {}
+        };
+
+        var composer = new Hapi.Composer(manifest);
+        expect(function () {
+
+            composer.compose(function (err) { });
+        }).to.throw('Pack missing servers definition');
+        done();
+    });
+
+    it('composes pack with default pack settings', function (done) {
+
+        var composer = new Hapi.Composer({ servers: [{}], plugins: {} }, { pack: { app: 'only here' } });
+        composer.compose(function (err) {
+
+            expect(err).to.not.exist;
+
+            expect(composer._packs[0].app).to.equal('only here');
+            done();
+        });
+    });
+
+    it('allows start without callback', function (done) {
+
+        var manifest = {
+            servers: [
+                {
+                    port: 0,
+                }
+            ],
+            plugins: {}
+        };
+
+        var composer = new Hapi.Composer(manifest);
+        composer.compose(function (err) {
+
+            expect(err).to.not.exist;
+            composer.start();
+            done();
+        });
+    });
+
+    it('allows stop without callback', function (done) {
+
+        var manifest = {
+            servers: [
+                {
+                    port: 0,
+                }
+            ],
+            plugins: {}
+        };
+
+        var composer = new Hapi.Composer(manifest);
+        composer.compose(function (err) {
+
+            expect(err).to.not.exist;
+            composer.start(function () {
+
+                composer.stop();
+                done();
+            });
+        });
+    });
+
+    it('throws error when start fails', function (done) {
+
+        var manifest = {
+            servers: [
+                {
+                    port: 0,
+                }
+            ],
+            plugins: {
+                '../test/pack/--afterErr': {}
+            }
+        };
+
+        var composer = new Hapi.Composer(manifest);
+        composer.compose(function (err) {
+
+            expect(err).to.not.exist;
+            expect(function () {
+
+                composer.start();
+            }).to.throw('Failed starting plugins: Not in the mood');
+            done();
         });
     });
 });

@@ -1,6 +1,7 @@
 // Load modules
 
 var Lab = require('lab');
+var Joi = require('joi');
 var Hapi = require('..');
 
 
@@ -208,7 +209,7 @@ describe('Security', function () {
                     reply('Success');
                 },
                 config: {
-                    validate: { path: { name: Hapi.types.number() } }
+                    validate: { path: { name: Joi.number() } }
                 }
             });
 
@@ -232,7 +233,7 @@ describe('Security', function () {
                     reply('Success');
                 },
                 config: {
-                    validate: { payload: { name: Hapi.types.number() } }
+                    validate: { payload: { name: Joi.number() } }
                 }
             });
 
@@ -258,7 +259,7 @@ describe('Security', function () {
                     reply('Success');
                 },
                 config: {
-                    validate: { query: { name: Hapi.types.string() } }
+                    validate: { query: { name: Joi.string() } }
                 }
             });
 

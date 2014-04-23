@@ -23,11 +23,11 @@ describe('Cache', function () {
 
     it('returns max-age value when route uses default cache rules', function (done) {
 
-        var server = new Hapi.Server(0, { cache: [{ engine: 'memory', name: 'secondary' }] });
+        var server = new Hapi.Server(0, { cache: [{ engine: 'catbox-memory', name: 'secondary' }] });
 
-        server.helper('profile', function (id, next) {
+        server.method('profile', function (id, next) {
 
-            next({
+            next(null, {
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
             });
@@ -35,7 +35,7 @@ describe('Cache', function () {
 
         var profileHandler = function (request, reply) {
 
-            server.helpers.profile(0, reply);
+            server.methods.profile(0, reply);
         };
 
         server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
@@ -53,9 +53,9 @@ describe('Cache', function () {
 
         var server = new Hapi.Server(0);
 
-        server.helper('profile', function (id, next) {
+        server.method('profile', function (id, next) {
 
-            next({
+            next(null, {
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
             });
@@ -63,7 +63,7 @@ describe('Cache', function () {
 
         var profileHandler = function (request, reply) {
 
-            server.helpers.profile(0, reply);
+            server.methods.profile(0, reply);
         };
 
         server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
@@ -116,7 +116,7 @@ describe('Cache', function () {
 
     it('caches using non default cache', function (done) {
 
-        var server = new Hapi.Server(0, { cache: { name: 'primary', engine: 'memory' } });
+        var server = new Hapi.Server(0, { cache: { name: 'primary', engine: 'catbox-memory' } });
         var defaults = server.cache('a', { expiresIn: 2000 });
         var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });
 
@@ -147,5 +147,31 @@ describe('Cache', function () {
                 });
             });
         });
+    });
+
+    it('throws when allocating an invalid cache segment', function (done) {
+
+        var server = new Hapi.Server();
+
+        function fn() {
+            server.cache('a', { expiresAt: '12:00', expiresIn: 1000 });
+        }
+
+        expect(fn).throws(Error);
+
+        done();
+    });
+
+    it('allows allocating a cache segment with empty options', function (done) {
+
+        var server = new Hapi.Server();
+        
+        function fn() {
+            server.cache('a', {});
+        }
+
+        expect(fn).to.not.throw(Error);
+
+        done();
     });
 });
