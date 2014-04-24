@@ -2336,6 +2336,46 @@ describe('Response', function () {
                 });
             });
         });
+
+        it('does not leak stream data when request aborts before stream drains', function (done) {
+
+            var big = new Array(4096).join('x');
+
+            var handler = function (request, reply) {
+
+                var stream = new Stream.Readable();
+
+                var i = 0;
+                stream._read = function (size) {
+
+                    this.push(++i < 600 ? big : null);
+                };
+
+                stream.once('end', function () {
+
+                    done();
+                });
+
+                reply(stream);
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.start(function () {
+
+                Nipple.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+
+                    var i = 0;
+                    res.on('data', function (chunk) {
+
+                        if (++i > 5) {
+                            res.destroy();
+                        }
+                    });
+                });
+            });
+        });
     });
 
     describe('View', function () {
