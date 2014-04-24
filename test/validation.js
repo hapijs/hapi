@@ -593,4 +593,64 @@ describe('Validation', function () {
             done();
         });
     });
+
+    it('validates valid header', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    headers: {
+                        accept: Joi.string().valid('application/json').required(),
+                        'user-agent': Joi.string().optional()
+                    }
+                }
+            }
+        });
+
+        server.inject({
+            url: '/',
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('rejects invalid header', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    headers: {
+                        accept: Joi.string().valid('text/html').required(),
+                        'user-agent': Joi.string().optional()
+                    }
+                }
+            }
+        });
+
+        server.inject({
+            url: '/',
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
 });
