@@ -410,6 +410,56 @@ describe('Response', function () {
             });
         });
 
+        it('does not set default security headers when the route sets security false', function (done) {
+
+            var handler = function (request, reply) {
+                reply('Test');
+            };
+
+            var config = {
+                security: false
+            };
+
+            var server = new Hapi.Server({ security: true });
+            server.route({ method: 'GET', path: '/', handler: handler, config: config });
+
+            server.inject({ url: '/' }, function (res) {
+                
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Test');
+                expect(res.headers['strict-transport-security']).to.not.exist;
+                expect(res.headers['x-frame-options']).to.not.exist;
+                expect(res.headers['x-xss-protection']).to.not.exist;
+                expect(res.headers['x-download-options']).to.not.exist;
+                expect(res.headers['x-content-type-options']).to.not.exist;
+                done();
+            });
+
+        });
+
+        it('does not return hsts header when secuirty.hsts is false', function (done) {
+
+            var handler = function (request, reply) {
+                reply('Test');
+            };
+
+            var server = new Hapi.Server({ security: { hsts: false } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+                
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Test');
+                expect(res.headers['strict-transport-security']).to.not.exist;
+                expect(res.headers['x-frame-options']).to.equal('DENY');
+                expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+                expect(res.headers['x-download-options']).to.equal('noopen');
+                expect(res.headers['x-content-type-options']).to.equal('nosniff');
+                done();
+            });
+
+        });
+
         it('returns only default hsts header when security.hsts is true', function (done) {
 
             var handler = function (request, reply) {
@@ -464,6 +514,24 @@ describe('Response', function () {
             });
         });
 
+        it('returns the correct hsts header when security.hsts is an object only sepcifying maxAge', function (done) {
+
+            var handler = function (request, reply) {
+                reply('Test');
+            };
+
+            var server = new Hapi.Server({ security: { hsts: { maxAge: 123456789 } } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+                
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Test');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
+                done();
+            });
+        });
+
         it('returns correct hsts header when security.hsts is an object only specifying includeSubdomains', function (done) {
 
             var handler = function (request, reply) {
@@ -480,6 +548,29 @@ describe('Response', function () {
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubdomains');
                 done();
             });
+        });
+
+        it('does not return the xframe header whe security.xframe is false', function (done) {
+
+            var handler = function (request, reply) {
+                reply('Test');
+            };
+
+            var server = new Hapi.Server({ security: { xframe: false } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+                
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Test');
+                expect(res.headers['x-frame-options']).to.not.exist;
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+                expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+                expect(res.headers['x-download-options']).to.equal('noopen');
+                expect(res.headers['x-content-type-options']).to.equal('nosniff');
+                done();
+            });
+
         });
 
         it('returns only default xframe header when security.xframe is true', function (done) {
@@ -604,6 +695,28 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-content-type-options']).to.not.exist;
+                done();
+            });
+        });
+
+        it('does not set the x-xss-protection header when security.xss is false', function (done) {
+
+            var handler = function (request, reply) {
+                reply('Test');
+            };
+
+            var server = new Hapi.Server({ security: { xss: false } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+                
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('Test');
+                expect(res.headers['x-xss-protection']).to.not.exist;
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+                expect(res.headers['x-frame-options']).to.equal('DENY');
+                expect(res.headers['x-download-options']).to.equal('noopen');
+                expect(res.headers['x-content-type-options']).to.equal('nosniff');
                 done();
             });
         });
