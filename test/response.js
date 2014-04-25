@@ -14,6 +14,7 @@ var Joi = require('joi');
 var Nipple = require('nipple');
 var Hapi = require('..');
 var Response = require('../lib/response');
+var Payload = require('../lib/response/payload');
 
 
 // Declare internals
@@ -1072,6 +1073,23 @@ describe('Response', function () {
 
                 expect(res.payload).to.equal('me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(21);
+                done();
+            });
+        });
+
+        it('returns a normal response when JSONP enabled but not requested', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{"some":"value"}');
                 done();
             });
         });
@@ -2339,16 +2357,29 @@ describe('Response', function () {
 
         it('does not leak stream data when request aborts before stream drains', function (done) {
 
-            var big = new Array(4096).join('x');
+            var destroyed = false;
 
             var handler = function (request, reply) {
 
                 var stream = new Stream.Readable();
 
-                var i = 0;
                 stream._read = function (size) {
+                    
+                    var self = this;
 
-                    this.push(++i < 600 ? big : null);
+                    var chunk = new Array(size).join('x');
+
+                    if (destroyed) {
+                        this.push(chunk);
+                        this.push(null);
+                    }
+                    else {
+
+                        setTimeout(function () {
+
+                            self.push(chunk);
+                        }, 10);
+                    }
                 };
 
                 stream.once('end', function () {
@@ -2366,10 +2397,10 @@ describe('Response', function () {
 
                 Nipple.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
-                    var i = 0;
                     res.on('data', function (chunk) {
 
-                        if (++i > 5) {
+                        if (!destroyed) {
+                            destroyed = true;
                             res.destroy();
                         }
                     });
@@ -2388,7 +2419,9 @@ describe('Response', function () {
                         html: {
                             module: {
                                 compile: function (template, options) {
+
                                     return function (context, options) {
+
                                         return undefined;
                                     }
                                 }
@@ -2401,12 +2434,12 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                return reply.view('test.html', { message: "Hello World!" });
+                return reply.view('test.html');
             };
 
-            server.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/handlebars', function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 done();
