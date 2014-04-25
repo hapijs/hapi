@@ -14,6 +14,7 @@ var Joi = require('joi');
 var Nipple = require('nipple');
 var Hapi = require('..');
 var Response = require('../lib/response');
+var Payload = require('../lib/response/payload');
 
 
 // Declare internals
@@ -717,6 +718,23 @@ describe('Response', function () {
 
                 expect(res.payload).to.equal('me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(21);
+                done();
+            });
+        });
+
+        it('returns a normal response when JSONP enabled but not requested', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{"some":"value"}');
                 done();
             });
         });
@@ -2033,7 +2051,9 @@ describe('Response', function () {
                         html: {
                             module: {
                                 compile: function (template, options) {
+
                                     return function (context, options) {
+
                                         return undefined;
                                     }
                                 }
@@ -2046,12 +2066,12 @@ describe('Response', function () {
 
             var handler = function (request, reply) {
 
-                return reply.view('test.html', { message: "Hello World!" });
+                return reply.view('test.html');
             };
 
-            server.route({ method: 'GET', path: '/handlebars', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/handlebars', function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 done();
