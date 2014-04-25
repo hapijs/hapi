@@ -269,7 +269,7 @@ When creating a server instance, the following options configure the server's be
     - `helpersPath` - the directory path where helpers are located. Helpers are functions used within templates to perform transformations
       and other data manipulations using the template context or other inputs. Each '.js' file in the helpers directory is loaded and the file name
       is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
-      not supported and are ignored. Defaults to no helpers support (empty path).
+      not supported and are ignored. Defaults to no helpers support (empty path). Note that jade does not support loading helpers this way.
     - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
     - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
       for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
