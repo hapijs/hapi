@@ -401,6 +401,38 @@ describe('Views', function () {
                 done();
             });
         });
+
+        it('loads helpers using relative paths', function (done) {
+
+            var tempView = new Views.Manager({
+                engines: { html: 'handlebars' },
+                basePath: './test/templates',
+                path: './valid',
+                helpersPath: './valid/helpers'
+            });
+
+            tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
+                done();
+            });
+        });
+
+        it('loads helpers using relative paths (without dots)', function (done) {
+
+            var tempView = new Views.Manager({
+                engines: { html: 'handlebars' },
+                basePath: 'test/templates',
+                path: 'valid',
+                helpersPath: 'valid/helpers'
+            });
+
+            tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
+                done();
+            });
+        });
     });
 
     describe('#handler', function () {
