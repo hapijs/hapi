@@ -62,4 +62,4 @@ internals.Pages.prototype.loadPageFile = function (file) {
     };
 };
 
-module.exports = new internals.Pages(Path.join(__dirname, '_pages'));
+exports = module.exports = new internals.Pages(Path.join(__dirname, '_pages'));

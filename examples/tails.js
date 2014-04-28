@@ -8,23 +8,23 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.get = function () {
+internals.get = function (request, reply) {
 
-    var tail1 = this.tail('tail1');
+    var tail1 = request.tail('tail1');
     setTimeout(function () {
 
         console.log(1);
         tail1();
     }, 5000);
 
-    var tail2 = this.tail('tail2');
+    var tail2 = request.tail('tail2');
     setTimeout(function () {
 
         console.log(2);
         tail2();
     }, 2000);
 
-    this.reply('Success!\n');
+    reply('Success!\n');
 };
 
 

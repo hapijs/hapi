@@ -1,6 +1,7 @@
 // Load modules
 
 var Hapi = require('../lib');
+var Joi = require('joi');
 
 
 // Declare internals
@@ -10,20 +11,20 @@ var internals = {};
 
 // Type shortcuts
 
-var S = Hapi.types.String;
-var N = Hapi.types.Number;
-var A = Hapi.types.Array;
+var S = Joi.string;
+var N = Joi.number;
+var A = Joi.array;
 
 
-internals.get = function () {
+internals.get = function (request, reply) {
 
-    this.reply('Success!\n');
+    reply('Success!\n');
 };
 
 
-internals.payload = function () {
+internals.payload = function (request, reply) {
 
-    this.reply('Success!\n');
+    reply('Success!\n');
 };
 
 

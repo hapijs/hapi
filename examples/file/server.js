@@ -8,15 +8,15 @@ var Hapi = require('../../lib');
 var internals = {};
 
 
-internals.serveLogo = function (request) {
+internals.serveLogo = function (request, reply) {
 
-    request.reply(new Hapi.response.File('../../images/hapi.png'));
+    reply.file('../../images/hapi.png');
 };
 
 
 internals.main = function () {
 
-    var http = new Hapi.Server(8080);
+    var http = new Hapi.Server(8000, { files: { relativeTo: __dirname } });
 
     http.route([
         { method: 'GET', path: '/', handler: { file: './index.html' } },

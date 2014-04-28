@@ -272,7 +272,7 @@
           }
   
           if (result &&
-              result.code === 200) {
+              result.statusCode === 200) {
           
               console.log('special case');
           }
@@ -299,7 +299,7 @@
           }
    
           if (result &&
-              result.code === 200) {
+              result.statusCode === 200) {
               console.log('special case');
           }
      
@@ -347,23 +347,30 @@
   var  value =  calculate(1,  3);
   ```
 
-  - No space between function name and `(`
+  - One space between function and `(` when declaring a function
   ```javascript
   // Right
 
-  function example() {
+  var example = function () {
   
       return value;
   }
+
+  // Wrong
+  
+  var example = function() {
+  
+      return value;
+  }
+  ```
+  
+  - No space between function name and `(` when invoking a function
+  ```javascript
+  // Right
 
   var key = example();
 
   // Wrong
-  
-  function example () {
-  
-      return value;
-  }
 
   var key = example ();
   ```
@@ -640,7 +647,7 @@
   ```javascript
   if (result &&
       result.status &&
-      result.status.code === 200) {
+      result.status.statusCode === 200) {
 
       console.log('success');
   }
@@ -670,9 +677,9 @@
     
 ### Variable names
 
-  - `err` is reserved for errors received via a callback. Use `error` for local function variables.
+  - `err` is reserved for errors received via a callback. Use `error` for local function variables
 
 ### Callback
 
   - First argument must always be `err`
-  - If a function takes a `callback` argument, it **must** be called on `process.nextTick()`. Otherwise, the argument name **must** be `next` to clearly declare that it may get called on same tick.
+  - If a function takes a `callback` argument, it **must** be called on `process.nextTick()`. Otherwise, the argument name **must** be `next` to clearly declare that it may get called on same tick

@@ -8,10 +8,10 @@ var Hapi = require('../../../lib');
 var internals = {};
 
 
-var handler = function (request) {
+var handler = function (request, reply) {
 
-    request.reply.view('withLayout/index', {
-        title: 'examples/views/handlebars/layout.js | Hapi ' + Hapi.utils.version(),
+    reply.view('withLayout/index', {
+        title: 'examples/views/handlebars/layout.js | Hapi ' + Hapi.version,
         message: 'Hello World!\n'
     });
 };

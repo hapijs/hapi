@@ -8,37 +8,37 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.get = function (request) {
+internals.get = function (request, reply) {
 
-    request.reply('Success!\n');
+    reply('Success!\n');
 };
 
 
-internals.onRequest = function (request, next) {
+internals.onRequest = function (request, reply) {
 
     console.log('onRequest');
-    next();
+    reply();
 };
 
 
-internals.onPreHandler1 = function (request, next) {
+internals.onPreHandler1 = function (request, reply) {
 
     console.log('onPreHandler1: ' + request.method);
-    next();
+    reply();
 };
 
 
-internals.onPreHandler2 = function (request, next) {
+internals.onPreHandler2 = function (request, reply) {
 
     console.log('onPreHandler2: ' + request.path);
-    next();
+    reply();
 };
 
 
-internals.onPostHandler = function (request, next) {
+internals.onPostHandler = function (request, reply) {
 
     console.log('onPostHandler');
-    next();
+    reply();
 };
 
 

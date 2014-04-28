@@ -12,42 +12,42 @@ var internals = {};
 
 var view = function (viewName) {
 
-    return function (request) {
+    return function (request, reply) {
 
-        request.reply.view(viewName, { title: viewName });
+        reply.view(viewName, { title: viewName });
     };
 };
 
 
-var getPages = function (request) {
+var getPages = function (request, reply) {
 
-    request.reply.view('index', { pages: Object.keys(Pages.getAll()), title: 'All pages' });
+    reply.view('index', { pages: Object.keys(Pages.getAll()), title: 'All pages' });
 };
 
 
-var getPage = function (request) {
+var getPage = function (request, reply) {
 
-    request.reply.view('page', { page: Pages.getPage(request.params.page), title: request.params.page });
+    reply.view('page', { page: Pages.getPage(request.params.page), title: request.params.page });
 };
 
 
-var createPage = function (request) {
+var createPage = function (request, reply) {
 
     Pages.savePage(request.payload.name, request.payload.contents);
-    request.reply.view('page', { page: Pages.getPage(request.payload.name), title: 'Create page' });
+    reply.view('page', { page: Pages.getPage(request.payload.name), title: 'Create page' });
 };
 
 
-var showEditForm = function (request) {
+var showEditForm = function (request, reply) {
 
-    request.reply.view('edit', { page: Pages.getPage(request.params.page), title: 'Edit: ' + request.params.page });
+    reply.view('edit', { page: Pages.getPage(request.params.page), title: 'Edit: ' + request.params.page });
 };
 
 
-var updatePage = function (request) {
+var updatePage = function (request, reply) {
 
     Pages.savePage(request.params.page, request.payload.contents);
-    request.reply.view('page', { page: Pages.getPage(request.params.page), title: request.params.page });
+    reply.view('page', { page: Pages.getPage(request.params.page), title: request.params.page });
 };
 
 internals.main = function () {

@@ -8,22 +8,22 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.get = function () {
+internals.get = function (request, reply) {
 
-    this.reply(new Error('Here is my error'));
+    reply(new Error('Here is my error'));
 };
 
 
-internals.onPreResponse = function (request, next) {
+internals.onPreResponse = function (request, reply) {
 
     // Demonstrates how to hide error messages from the client
 
-    if (request.response().isBoom) {
-        var error = request.response();
-        error.response.payload.message = 'Censored Error';
+    if (request.response.isBoom) {
+        var error = request.response;
+        error.output.payload.message = 'Censored Error';
     }
 
-    next();
+    reply();
 };
 
 

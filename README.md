@@ -8,12 +8,11 @@ infrastructure. The framework supports a powerful plugin architecture for pain-f
 
 For the latest updates and release information follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
-Current version: **1.8.x**
-
-Node version: **0.10** required
+Current version: **4.0.x**
 
 [![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
-<img src="https://raw.github.com/olivierlacan/shields/master/coveralls/coveralls_100.png" />
+
+[![NPM](https://nodei.co/npm/hapi.png?downloads=true&stars=true)](https://nodei.co/npm/hapi/)
 
 ## Getting started
 
@@ -38,9 +37,9 @@ var server = Hapi.createServer('localhost', 8000);
 server.route({
     method: 'GET',
     path: '/hello',
-    handler: function () {
+    handler: function (request, reply) {
     
-        this.reply('hello world');
+        reply('hello world');
     }
 });
 
@@ -55,6 +54,7 @@ Launch the application (`node .`) and open 'http://localhost:8000/hello' in a br
 
 - For the **latest updates** follow [@hapijs](https://twitter.com/hapijs).
 - For more **information, tutorials, and references** on the currently published version, visit [**hapijs.com**](http://hapijs.com)
+- For a full application example, check out [postmile](https://github.com/hueniverse/postmile)
 - Information about the **work-in-progress** in the master branch:
     - [API reference](/docs/Reference.md)
     - [Upcoming breaking changes](https://github.com/spumko/hapi/issues?labels=breaking+changes)

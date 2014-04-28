@@ -1,5 +1,6 @@
 // Load modules
 
+var Nipple = require('nipple');
 var Hapi = require('../lib');
 
 
