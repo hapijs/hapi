@@ -107,6 +107,36 @@ describe('Payload', function () {
         });
     });
 
+    it('returns a parsed body for json-derived media type', function (done) {
+
+        var payload = '{"x":"1","y":"2","z":"3"}';
+
+        var handler = function (request, reply) {
+
+            expect(request.payload).to.exist;
+            expect(request.payload.z).to.equal('3');
+            expect(request.mime).to.equal('application/json-patch+json');
+            reply(request.payload);
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', config: { handler: handler } });
+
+        var options = {
+            method: 'POST', 
+            url: '/',
+            headers: { 'content-type': 'application/json-patch+json' },
+            payload: payload  
+        };
+
+        server.inject(options, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result.x).to.equal('1');
+            done();
+        });
+    });
+
     it('does not set the request payload when the request is interrupted and its streaming', function (done) {
 
         var handlerCalled = false;
