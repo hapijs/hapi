@@ -244,17 +244,34 @@ describe('Router', function () {
 
         var server = new Hapi.Server();
 
-        server.route({ method: ['GET', 'POST'], path: '/', handler: function (request, reply) { reply('ok'); } });
-        server.inject('/', function (res) {
+        server.route({ method: ['HEAD', 'GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { reply(request.route.method); } });
+        server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('ok');
 
-            server.inject({ method: 'POST', url: '/' }, function (res) {
+            server.inject({ method: 'GET', url: '/' }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('ok');
-                done();
+                expect(res.payload).to.equal('get');
+
+                server.inject({ method: 'PUT', url: '/' }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.payload).to.equal('put');
+
+                    server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        expect(res.payload).to.equal('post');
+
+                        server.inject({ method: 'DELETE', url: '/' }, function (res) {
+
+                            expect(res.statusCode).to.equal(200);
+                            expect(res.payload).to.equal('delete');
+                            done();
+                        });
+                    });
+                });
             });
         });
     });
