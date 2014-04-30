@@ -1,5 +1,6 @@
 // Load modules
 
+var Handlebars = require('handlebars');
 var Lab = require('lab');
 var Hapi = require('..');
 var Views = require('../lib/views');
@@ -33,7 +34,7 @@ describe('Views', function () {
                         module: {
                             compile: function (string, options, callback) {
 
-                                var compiled = require('handlebars').compile(string, options);
+                                var compiled = Handlebars.compile(string, options);
                                 var renderer = function (context, opt, next) {
 
                                     return next(null, compiled(context, opt));
@@ -313,7 +314,7 @@ describe('Views', function () {
         it('loads partials and be able to render them', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 partialsPath: __dirname + '/templates/valid/partials'
             });
@@ -328,9 +329,24 @@ describe('Views', function () {
         it('loads partials from relative path without base', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 partialsPath: './test/templates/valid/partials'
+            });
+
+            tempView.render('testPartials', {}, null, function (err, rendered, config) {
+
+                expect(rendered).to.equal(' Nav:<nav>Nav</nav>|<nav>Nested</nav>');
+                done();
+            });
+        });
+
+        it('loads partials from relative path without base (no dot)', function (done) {
+
+            var tempView = new Views.Manager({
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
+                path: __dirname + '/templates/valid',
+                partialsPath: 'test/templates/valid/partials'
             });
 
             tempView.render('testPartials', {}, null, function (err, rendered, config) {
@@ -343,7 +359,7 @@ describe('Views', function () {
         it('loads partials and render them EVEN if viewsPath has trailing slash', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 partialsPath: __dirname + '/templates/valid/partials/'
             });
@@ -375,7 +391,7 @@ describe('Views', function () {
         it('loads helpers and render them', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 helpersPath: __dirname + '/templates/valid/helpers'
             });
@@ -390,9 +406,41 @@ describe('Views', function () {
         it('loads helpers and render them when helpersPath ends with a slash', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 helpersPath: __dirname + '/templates/valid/helpers/'
+            });
+
+            tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
+                done();
+            });
+        });
+
+        it('loads helpers using relative paths', function (done) {
+
+            var tempView = new Views.Manager({
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
+                basePath: './test/templates',
+                path: './valid',
+                helpersPath: './valid/helpers'
+            });
+
+            tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {
+
+                expect(rendered).to.equal('<p>This is all UPPERCASE and this is how we like it!</p>');
+                done();
+            });
+        });
+
+        it('loads helpers using relative paths (without dots)', function (done) {
+
+            var tempView = new Views.Manager({
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
+                basePath: 'test/templates',
+                path: 'valid',
+                helpersPath: 'valid/helpers'
             });
 
             tempView.render('testHelpers', { something: 'uppercase' }, null, function (err, rendered, config) {

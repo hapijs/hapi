@@ -3433,4 +3433,32 @@ describe('Response', function () {
             });
         });
     });
+
+    it('object listeners are maintained after transmission is complete', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply('ok');
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        var response;
+        server.ext('onPreResponse', function (request, reply) {
+
+            response = request.response;
+            response.once('special', function () {
+
+                done();
+            });
+
+            reply();
+        });
+
+        server.inject('/', function (res) {
+
+            response.emit('special');
+        });
+    });
 });
