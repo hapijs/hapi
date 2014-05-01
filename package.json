@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/spumko/hapi"
@@ -28,7 +28,7 @@
     "cryptiles": "2.x.x",
     "iron": "2.x.x",
     "topo": "1.x.x",
-    "async": "0.2.x",
+    "async": "0.8.x",
     "multiparty": "3.2.x",
     "mime": "1.2.x",
     "lru-cache": "2.5.x",
