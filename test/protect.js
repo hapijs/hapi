@@ -4,6 +4,7 @@ var Events = require('events');
 var Lab = require('lab');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var Nipple = require('nipple');
 
 
 // Declare internals
@@ -40,6 +41,48 @@ describe('Protect', function () {
 
             expect(res.statusCode).to.equal(200);
             done();
+        });
+    });
+
+
+    it('does not propagate the domain outside of request lifetime', function (done) {
+
+        // The server must be run without the test domain to demonstrate the issue.
+        // In isolation this is unnecessary but multiple tests somehow leave the domain
+        // state in a somehow broken state.
+        while (process.domain) {
+            process.domain.exit();
+        }
+
+        var server = new Hapi.Server(0);
+        var executed = false;
+
+        var handler = function (request, reply) {
+
+            expect(process.domain).to.equal(request.domain);
+            expect(request.raw.req.socket.domain).to.equal(null);
+
+            if (!executed) {
+                executed = true;
+                Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+                    expect(res.statusCode).to.equal(200);
+                    reply('ok');
+                });
+            } else {
+                reply('ok');
+            }
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.start(function() {
+
+            require('domain').log = true;
+            Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+
+                server.stop();
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
         });
     });
 
