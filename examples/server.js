@@ -3,9 +3,9 @@ var Joi = require('joi');
 
 
 var routes = [
-    { method: 'GET', path: '/products', config: { handler: getProducts, validate: { query: { name: Joi.String() } } } },
+    { method: 'GET', path: '/products', config: { handler: getProducts, validate: { query: { name: Joi.string() } } } },
     { method: 'GET', path: '/products/{id}', config: { handler: getProduct } },
-    { method: 'POST', path: '/products', config: { handler: addProduct, validate: { payload: { name: Joi.String().required().min(3) } } } }
+    { method: 'POST', path: '/products', config: { handler: addProduct, validate: { payload: { name: Joi.string().required().min(3) } } } }
 ];
 
 var server = new Hapi.Server(8000);
