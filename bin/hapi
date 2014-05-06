@@ -6,8 +6,8 @@ var Fs = require('fs');
 var Path = require('path');
 var Utils = require('../lib/utils');
 var Optimist = require('optimist');
-var Hapi = require('../');
 var Hoek = require('hoek');
+var Hapi;
 
 
 // Declare internals
@@ -17,8 +17,36 @@ var internals = {};
 
 internals.argv = Optimist.usage('Usage: $0 -c manifest.json [-p node_modules_path]')
                     .demand(['c'])
+                    .options({
+                        require: {
+                            string: true,
+                            description: 'A module to be required before hapi is loaded'
+                        }
+                    })
                     .argv;
 
+
+internals.loadExtras = function () {
+
+    var extras = internals.argv.require;
+
+    if (!extras) {
+        return;
+    }
+    
+    var extrasPath = !Utils.isAbsolutePath(extras) ? Path.join(process.cwd(), extras) : extras;
+    
+    try {
+
+        require(extrasPath);
+    } catch (err) {
+
+       console.error('Unable to require extra file: %s (%s)', extras, err.message);
+       process.exit(1);
+    }
+
+    return;
+}
 
 internals.getManifest = function () {
 
@@ -88,7 +116,7 @@ internals.stop = function () {
 
     internals.composer.stop(function () {
 
-        process.exit();
+        process.exit(0);
     });
 };
 
@@ -106,12 +134,14 @@ internals.restart = function () {
 
 internals.start = function () {
 
+    internals.loadExtras();
+    Hapi = require('..')
     var manifest = internals.getManifest();
     internals.loadPacks(manifest, function (err, options) {
 
         if (err) {
             console.error(err);
-            process.exit();
+            process.exit(1);
         }
 
         internals.createComposer(manifest, options);
