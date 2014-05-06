@@ -232,6 +232,62 @@ describe('Hapi command line', function () {
         };
 
         var configPath = internals.uniqueFilename(Os.tmpDir());
+        var extraPath = 'somecoolmodule';
+        var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
+        var modulePath = Path.join(__dirname, 'pack');
+
+        Fs.writeFileSync(configPath, JSON.stringify(manifest));
+
+        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath, '--require', extraPath]);
+
+        hapi.stdout.on('data', function (data) {
+
+            expect(data.toString()).to.not.exist;
+        });
+
+        hapi.stderr.on('data', function (data) {
+
+            expect(data.toString()).to.contain('Cannot find module');
+
+            hapi.kill();
+
+            Fs.unlinkSync(configPath);
+
+            done();
+        });
+    });
+    it('errors when it can\'t require the extra module from absolute path', function (done) {
+
+        var manifest = {
+            pack: {
+                cache: {
+                    engine: 'catbox-memory'
+                },
+                app: {
+                    my: 'special-value'
+                }
+            },
+            servers: [
+                {
+                    port: 0,
+                    options: {
+                        labels: ['api', 'nasty', 'test']
+                    }
+                },
+                {
+                    host: 'localhost',
+                    port: 0,
+                    options: {
+                        labels: ['api', 'nice']
+                    }
+                }
+            ],
+            plugins: {
+                '--loaded': {}
+            }
+        };
+
+        var configPath = internals.uniqueFilename(Os.tmpDir());
         var extraPath = internals.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
         var modulePath = Path.join(__dirname, 'pack');
@@ -298,7 +354,7 @@ describe('Hapi command line', function () {
         Fs.writeFileSync(configPath, JSON.stringify(manifest));
         Fs.writeFileSync(extraPath, extra);        
 
-        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath, '--require', extraPath]);
+        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath,'-p', modulePath, '--require', extraPath]);
 
         hapi.stdout.on('data', function (data) {
 
