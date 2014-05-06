@@ -36,7 +36,7 @@ internals.loadExtras = function () {
     }
     
     var extrasPath;
-    var nodeModulesPath;
+    var nodeModulesPath = Path.join(process.cwd(), 'node_modules');
 
     if (internals.argv.p) {
 
@@ -50,7 +50,7 @@ internals.loadExtras = function () {
             extrasPath = Path.join(process.cwd(), extras)
         } else {
 
-            extrasPath = nodeModulesPath ? Path.join(nodeModulesPath, extras) : extras;
+            extrasPath = Path.join(nodeModulesPath, extras);
         }
     } else {
 
