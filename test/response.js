@@ -1230,8 +1230,7 @@ describe('Response', function () {
                 expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
-
-
+        
         it('does not fail request aborts before Error is returned', function (done) {
 
             var clientRequest;
@@ -1240,7 +1239,8 @@ describe('Response', function () {
 
                 clientRequest.abort();
 
-                setTimeout(function() {
+                setTimeout(function () {
+
                     reply(new Error('fail'));
                     setTimeout(done, 10);
                 }, 10);
@@ -1256,7 +1256,8 @@ describe('Response', function () {
                     port: server.info.port,
                     method: 'GET'
                 });
-                clientRequest.on('error', function() { /* NOP */ });
+
+                clientRequest.on('error', function () { /* NOP */ });
                 clientRequest.end();
             });
         });
@@ -2448,7 +2449,7 @@ describe('Response', function () {
 
                     setTimeout(function () {
 
-                        if (request._isWagging) {
+                        if (request._isFinalized) {
                             stream.push(null);
                         }
                         else {
@@ -2500,7 +2501,6 @@ describe('Response', function () {
                         this.push(null);
                     }
                     else {
-
                         setTimeout(function () {
 
                             responded = true;
@@ -2514,7 +2514,8 @@ describe('Response', function () {
                     done();
                 });
 
-                setTimeout(function() {
+                setTimeout(function () {
+
                     reply(stream);
                 }, 100);
             };
@@ -2529,7 +2530,7 @@ describe('Response', function () {
                     port: server.info.port,
                     method: 'GET'
                 });
-                clientRequest.on('error', function() { /* NOP */ });
+                clientRequest.on('error', function () { /* NOP */ });
                 clientRequest.end();
             });
         });
