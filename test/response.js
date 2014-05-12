@@ -2407,6 +2407,46 @@ describe('Response', function () {
                 });
             });
         });
+
+        it('does not leak stream data when request timeouts before stream drains', function (done) {
+
+            var handler = function (request, reply) {
+
+                var stream = new Stream.Readable();
+                var count = 0;
+                stream._read = function (size) {
+
+                    setTimeout(function () {
+
+
+                        if (request._isWagging) {
+                            stream.push(null);
+                        } else {
+                            stream.push(new Array(size).join('x'));
+                        }
+                    }, 10*(count++));       // Must have back off here to hit the socket timeout
+                };
+
+                stream.once('end', function () {
+
+                    done();
+                });
+
+                reply(stream);
+            };
+
+            var server = new Hapi.Server(0, {timeout: {server: 20, client: false, socket: 40}});
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.start(function () {
+
+                Nipple.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+
+                    expect(err).to.not.exist;
+                    res.on('data', function (chunk) {});
+                });
+            });
+        });
     });
 
     describe('View', function () {
