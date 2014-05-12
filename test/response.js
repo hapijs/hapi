@@ -1230,6 +1230,36 @@ describe('Response', function () {
                 expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
+
+
+        it('does not fail request aborts before Error is returned', function (done) {
+
+            var clientRequest;
+
+            var handler = function (request, reply) {
+
+                clientRequest.abort();
+
+                setTimeout(function() {
+                    reply(new Error('fail'));
+                    setTimeout(done, 10);
+                }, 10);
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.start(function () {
+
+                clientRequest = Http.request({
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    method: 'GET'
+                });
+                clientRequest.on('error', function() { /* NOP */ });
+                clientRequest.end();
+            });
+        });
     });
 
     describe('Empty', function () {
@@ -2445,6 +2475,62 @@ describe('Response', function () {
                     expect(err).to.not.exist;
                     res.on('data', function (chunk) { });
                 });
+            });
+        });
+
+        it('does not leak stream data when request aborts before stream is returned', function (done) {
+
+            var clientRequest;
+
+            var handler = function (request, reply) {
+
+                clientRequest.abort();
+
+                var stream = new Stream.Readable();
+                var responded = false;
+
+                stream._read = function (size) {
+
+                    var self = this;
+
+                    var chunk = new Array(size).join('x');
+
+                    if (responded) {
+                        this.push(chunk);
+                        this.push(null);
+                    }
+                    else {
+
+                        setTimeout(function () {
+
+                            responded = true;
+                            self.push(chunk);
+                        }, 10);
+                    }
+                };
+
+                stream.once('end', function () {
+
+                    done();
+                });
+
+                setTimeout(function() {
+                    reply(stream);
+                }, 100);
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.start(function () {
+
+                clientRequest = Http.request({
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    method: 'GET'
+                });
+                clientRequest.on('error', function() { /* NOP */ });
+                clientRequest.end();
             });
         });
     });
