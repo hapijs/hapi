@@ -377,7 +377,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.not.exist;
@@ -399,7 +399,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
@@ -425,7 +425,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler, config: config });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.not.exist;
@@ -448,7 +448,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.not.exist;
@@ -471,7 +471,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
@@ -489,7 +489,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
@@ -507,7 +507,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=123456789; includeSubdomains');
@@ -525,7 +525,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
@@ -543,7 +543,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubdomains');
@@ -561,7 +561,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.not.exist;
@@ -584,7 +584,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('DENY');
@@ -602,7 +602,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
@@ -620,7 +620,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('ALLOW-FROM http://example.com');
@@ -638,7 +638,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('DENY');
@@ -656,7 +656,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
@@ -674,7 +674,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-download-options']).to.not.exist;
@@ -692,7 +692,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-content-type-options']).to.not.exist;
@@ -710,7 +710,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                
+
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-xss-protection']).to.not.exist;
@@ -2364,7 +2364,7 @@ describe('Response', function () {
                 var stream = new Stream.Readable();
 
                 stream._read = function (size) {
-                    
+
                     var self = this;
 
                     var chunk = new Array(size).join('x');
@@ -2418,13 +2418,13 @@ describe('Response', function () {
 
                     setTimeout(function () {
 
-
                         if (request._isWagging) {
                             stream.push(null);
-                        } else {
+                        }
+                        else {
                             stream.push(new Array(size).join('x'));
                         }
-                    }, 10*(count++));       // Must have back off here to hit the socket timeout
+                    }, 10 * (count++));       // Must have back off here to hit the socket timeout
                 };
 
                 stream.once('end', function () {
@@ -2435,7 +2435,7 @@ describe('Response', function () {
                 reply(stream);
             };
 
-            var server = new Hapi.Server(0, {timeout: {server: 20, client: false, socket: 40}});
+            var server = new Hapi.Server(0, { timeout: { server: 20, client: false, socket: 40 } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.start(function () {
@@ -2443,7 +2443,7 @@ describe('Response', function () {
                 Nipple.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
                     expect(err).to.not.exist;
-                    res.on('data', function (chunk) {});
+                    res.on('data', function (chunk) { });
                 });
             });
         });
