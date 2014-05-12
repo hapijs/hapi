@@ -86,7 +86,7 @@ describe('Protect', function () {
 
                 plugin.after(function (plugin, afterNext) {
 
-                    var client = new Client();                      // Created in the server domain
+                    var client = new Client();                      // Created in the global domain
                     plugin.bind({ client: client });
                     afterNext();
                 });
@@ -98,7 +98,7 @@ describe('Protect', function () {
 
                         this.client.on('event', request.domain.bind(function () {
 
-                            throw new Error('boom');                // Caught by the server domain by default, not request domain
+                            throw new Error('boom');                // Caught by the global domain by default, not request domain
                         }));
 
                         this.client.emit('event');

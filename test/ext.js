@@ -6,8 +6,6 @@ var ChildProcess = require('child_process');
 var Lab = require('lab');
 var Hapi = require('..');
 var Ext = require('../lib/ext');
-var Handler = require('../lib/handler');
-var Protect = require('../lib/protect');
 
 
 // Declare internals
