@@ -100,7 +100,7 @@ internals.loadPacks = function (manifest, callback) {
 
 internals.createComposer = function (manifest, options) {
 
-    var attached = !!internals.composer;                                                // When composer exists events are already attached
+    var attached = !!internals.composer;                                                // When composer exists events are already attached.
     internals.composer = new Hapi.Composer(manifest, options);
 
     internals.composer.compose(function (err) {
