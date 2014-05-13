@@ -123,4 +123,31 @@ describe('Protect', function () {
             });
         });
     });
+
+    it('logs to console after request completed', { parallel: false }, function (done) {
+
+        var orig = console.error;
+        console.error = function () {
+
+            console.error = orig;
+            expect(arguments[0]).to.contain('Debug: late request implementation error:\n    Error: After done');
+            done();
+        };
+
+        var handler = function (request, reply) {
+
+            reply('ok');
+            setTimeout(function () {
+
+                throw new Error('After done');
+            }, 10);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+        });
+    });
 });
