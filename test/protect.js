@@ -124,15 +124,7 @@ describe('Protect', function () {
         });
     });
 
-    it('logs to console after request completed', { parallel: false }, function (done) {
-
-        var orig = console.error;
-        console.error = function () {
-
-            console.error = orig;
-            expect(arguments[0]).to.contain('Debug: late request implementation error:\n    Error: After done');
-            done();
-        };
+    it('logs to console after request completed', function (done) {
 
         var handler = function (request, reply) {
 
@@ -144,6 +136,13 @@ describe('Protect', function () {
         };
 
         var server = new Hapi.Server({ debug: false });
+
+        server.on('log', function (event, tags) {
+
+            expect(tags.implementation).to.exist;
+            done();
+        });
+
         server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
 
