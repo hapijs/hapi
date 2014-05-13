@@ -31,7 +31,6 @@ internals.loadExtras = function () {
     var extras = internals.argv.require;
 
     if (!extras) {
-
         return;
     }
     
@@ -39,29 +38,22 @@ internals.loadExtras = function () {
     var nodeModulesPath = Path.join(process.cwd(), 'node_modules');
 
     if (internals.argv.p) {
-
         nodeModulesPath = Path.join(Fs.realpathSync(internals.argv.p), 'node_modules');
     }
 
     if (!Utils.isAbsolutePath(extras)) {
-
         if (extras[0] === '.') {
-
             extrasPath = Path.join(process.cwd(), extras)
         } else {
-
             extrasPath = Path.join(nodeModulesPath, extras);
         }
     } else {
-
         extrasPath = extras;
     }
     
     try {
-
         require(extrasPath);
     } catch (err) {
-
        console.error('Unable to require extra file: %s (%s)', extras, err.message);
        process.exit(1);
     }
