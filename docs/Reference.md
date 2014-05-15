@@ -1231,7 +1231,7 @@ testing purposes as well as for invoking routing logic internally without the ov
 - `callback` - the callback function with signature `function(res)` where:
     - `res` - the response object where:
         - `statusCode` - the HTTP status code.
-        - `headers` - an array containing the headers set.
+        - `headers` - an object containing the headers set.
         - `payload` - the response payload string.
         - `rawPayload` - the raw response payload buffer.
         - `raw` - an object with the injection request and response objects:
