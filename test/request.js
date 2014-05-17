@@ -2,6 +2,7 @@
 
 var Net = require('net');
 var Stream = require('stream');
+var Http = require('http');
 var Lab = require('lab');
 var Nipple = require('nipple');
 var Hoek = require('hoek');
@@ -573,6 +574,135 @@ describe('Request', function () {
 
                 done();
             });
+        });
+    });
+    
+    it('does not fail on abort', function (done) {
+
+        var clientRequest;
+
+        var handler = function (request, reply) {
+
+            clientRequest.abort();
+
+            setTimeout(function () {
+
+                reply(new Error('fail'));
+                setTimeout(done, 10);
+            }, 10);
+        };
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.start(function () {
+
+            clientRequest = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'GET'
+            });
+
+            clientRequest.on('error', function () { /* NOP */ });
+            clientRequest.end();
+        });
+    });
+
+    it('does not fail on abort with ext', function (done) {
+
+        var clientRequest;
+
+        var handler = function (request, reply) {
+
+            clientRequest.abort();
+            setTimeout(function () {
+
+                reply(new Error('boom'));
+            }, 10);
+        };
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.ext('onPreResponse', function (request, reply) {
+
+            return reply();
+        });
+
+        server.on('tail', function () {
+
+            done();
+        });
+
+        server.start(function () {
+
+            clientRequest = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'GET'
+            });
+
+            clientRequest.on('error', function () { /* NOP */ });
+            clientRequest.end();
+        });
+    });
+
+    it('closes response after server timeout', function (done) {
+
+        var handler = function (request, reply) {
+
+            setTimeout(function () {
+
+                var stream = new Stream.Readable();
+                stream._read = function (size) {
+
+                    this.push('value');
+                    this.push(null);
+                };
+
+                stream.close = function () {
+
+                    done();
+                }
+
+                reply(stream);
+            }, 10)
+        };
+
+        var server = new Hapi.Server({ timeout: { server: 5 } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(503);
+        });
+    });
+
+    it('does not close error response after server timeout', function (done) {
+
+        var handler = function (request, reply) {
+
+            setTimeout(function () {
+
+                reply(new Error('after'));
+            }, 10)
+        };
+
+        var server = new Hapi.Server({ timeout: { server: 5 } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(503);
+            done();
         });
     });
 
