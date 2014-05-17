@@ -56,12 +56,13 @@ describe('Payload', function () {
         var server = new Hapi.Server();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) {
+        server.once('response', function (request) {
 
-            expect(res.result).to.exist;
-            expect(res.result.statusCode).to.equal(500);
+            expect(request._isBailed).to.equal(true);
             done();
         });
+
+        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) { });
     });
 
     it('returns a raw body', function (done) {
@@ -124,10 +125,10 @@ describe('Payload', function () {
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
         var options = {
-            method: 'POST', 
+            method: 'POST',
             url: '/',
             headers: { 'content-type': 'application/json-patch+json' },
-            payload: payload  
+            payload: payload
         };
 
         server.inject(options, function (res) {
@@ -179,7 +180,7 @@ describe('Payload', function () {
             req.on('error', function (err) {
 
                 expect(err.code).to.equal('ECONNRESET');
-                
+
                 setTimeout(function () {
 
                     expect(handlerCalled).to.equal(false);
@@ -418,7 +419,7 @@ describe('Payload', function () {
             var path = Path.join(__dirname, './file/image.jpg');
             var sourceContents = Fs.readFileSync(path);
             var stats = Fs.statSync(path);
-            
+
             Zlib.gzip(sourceContents, function (err, compressed) {
 
                 var handler = function (request, reply) {
@@ -643,7 +644,7 @@ describe('Payload', function () {
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply('ok'); } });
- 
+
             server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -1146,9 +1147,9 @@ describe('Payload', function () {
 
             var handler = function (request, reply) {
 
-                expect(request.payload.files[0].hapi).to.deep.equal({ filename: 'file1.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file1.txt"', 'content-type': 'text/plain'} });
-                expect(request.payload.files[1].hapi).to.deep.equal({ filename: 'file2.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file2.txt"', 'content-type': 'text/plain'} });
-                expect(request.payload.files[2].hapi).to.deep.equal({ filename: 'file3.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file3.txt"', 'content-type': 'text/plain'} });
+                expect(request.payload.files[0].hapi).to.deep.equal({ filename: 'file1.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file1.txt"', 'content-type': 'text/plain' } });
+                expect(request.payload.files[1].hapi).to.deep.equal({ filename: 'file2.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file2.txt"', 'content-type': 'text/plain' } });
+                expect(request.payload.files[2].hapi).to.deep.equal({ filename: 'file3.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file3.txt"', 'content-type': 'text/plain' } });
 
                 Nipple.read(request.payload.files[1], function (err, payload2) {
 
@@ -1407,8 +1408,8 @@ describe('Payload', function () {
                       'Content-Disposition: form-data; name="a[c]"\r\n' +
                       '\r\n' +
                       '4\r\n' +
-                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n' + 
-                      'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n'+
+                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n' +
+                      'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n' +
                       'Content-Type: plain/text\r\n' +
                       '\r\n' +
                       'and\r\n' +
