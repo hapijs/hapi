@@ -9,13 +9,6 @@ var Joi = require('joi');
 var internals = {};
 
 
-// Type shortcuts
-
-var S = Joi.string;
-var N = Joi.number;
-var A = Joi.array;
-
-
 internals.get = function (request, reply) {
 
     reply('Success!\n');
@@ -33,19 +26,19 @@ internals.main = function () {
     var server = new Hapi.Server(8000);
 
     server.route([
-        { method: 'GET', path: '/', config: { handler: internals.get, validate: { query: { username: S() } } } },
-        { method: 'GET', path: '/admin', config: { handler: internals.get, validate: { query: { username: S().required().with('password'), password: S() } } } },
-        { method: 'GET', path: '/users', config: { handler: internals.get, validate: { query: { email: S().email().required().min(18) } } } },
-        { method: 'GET', path: '/config', config: { handler: internals.get, validate: { query: { choices: A().required() } } } },
-        { method: 'GET', path: '/test', config: { handler: internals.get, validate: { query: { num: N().min(0) } } } },
-        { method: 'GET', path: '/test2', config: { handler: internals.get, validate: { query: { p1: S().required().rename('itemId') } } } },
-        { method: 'GET', path: '/simple', config: { handler: internals.get, validate: { query: { input: S().min(3) } } } }
+        { method: 'GET', path: '/', config: { handler: internals.get, validate: { query: { username: Joi.string() } } } },
+        { method: 'GET', path: '/admin', config: { handler: internals.get, validate: { query: Joi.object({ username: Joi.string().required(), password: Joi.string() }).and('username', 'password') } } },
+        { method: 'GET', path: '/users', config: { handler: internals.get, validate: { query: { email: Joi.string().email().required().min(18) } } } },
+        { method: 'GET', path: '/config', config: { handler: internals.get, validate: { query: { choices: Joi.array().required() } } } },
+        { method: 'GET', path: '/test', config: { handler: internals.get, validate: { query: { num: Joi.number().min(0) } } } },
+        { method: 'GET', path: '/test2', config: { handler: internals.get, validate: { query: Joi.object({ p1: Joi.string().required() }).rename('p1', 'itemId') } } },
+        { method: 'GET', path: '/simple', config: { handler: internals.get, validate: { query: { input: Joi.string().min(3) } } } }
     ]);
 
     var schema = {
-        title: S(),
-        status: S().valid('open', 'pending', 'close'),
-        participants: A().includes(S(), N())
+        title: Joi.string(),
+        status: Joi.string().valid('open', 'pending', 'close'),
+        participants: Joi.array().includes(Joi.string(), Joi.number())
     };
 
     server.route({ method: 'POST', path: '/users/{id}', config: { handler: internals.payload, validate: { query: {}, payload: schema } } });
