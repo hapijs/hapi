@@ -474,6 +474,25 @@ The following options are available when adding a route:
       described in [Route prerequisites](#route-prerequisites).
 
     - `validate`
+        - `headers` - validation rules for incoming request headers. Values allowed:
+            - `true` - any headers allowed (no validation performed).  This is the default.
+            - `false` - no headers allowed (this will cause all valid HTTP requests to fail).
+            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a validation function using the signature `function(value, options, next)` where:
+                - `value` - the object containing the request headers.
+                - `options` - the server validation options.
+                - `next(err, value)` - the callback function called when validation is completed.
+
+        - `params` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
+          parameters then stored in `request.params`. Values allowed:
+            - `true` - any path parameters allowed (no validation performed).  This is the default.
+            - `false` - no path variables allowed.
+            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a validation function using the signature `function(value, options, next)` where:
+                - `value` - the object containing the path parameters.
+                - `options` - the server validation options.
+                - `next(err, value)` - the callback function called when validation is completed.
+
         - `query` - validation rules for an incoming request URI query component (the key-value part of the URI between '?' and '#').
           The query is parsed into its individual key-value pairs (see
           [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
@@ -492,16 +511,6 @@ The following options are available when adding a route:
             - a [Joi](http://github.com/spumko/joi) validation object.
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the payload object.
-                - `options` - the server validation options.
-                - `next(err, value)` - the callback function called when validation is completed.
-
-        - `params` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
-          parameters then stored in `request.params`. Values allowed:
-            - `true` - any path parameters allowed (no validation performed).  This is the default.
-            - `false` - no path variables allowed.
-            - a [Joi](http://github.com/spumko/joi) validation object.
-            - a validation function using the signature `function(value, options, next)` where:
-                - `value` - the object containing the path parameters.
                 - `options` - the server validation options.
                 - `next(err, value)` - the callback function called when validation is completed.
 
