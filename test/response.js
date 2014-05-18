@@ -999,66 +999,6 @@ describe('Response', function () {
             });
         });
 
-        it('validates response', function (done) {
-
-            var i = 0;
-            var handler = function (request, reply) {
-
-                reply({ some: i++ ? null : 'value' });
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { response: { schema: { some: Joi.string() } } }, handler: handler });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('{"some":"value"}');
-
-                server.inject('/', function (res) {
-
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
-            });
-        });
-
-        it('validates response using custom validation function', function (done) {
-
-            var i = 0;
-            var handler = function (request, reply) {
-
-                reply({ some: i++ ? null : 'value' });
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.route({
-                method: 'GET',
-                path: '/',
-                config: {
-                    response: {
-                        schema: function (value, options, next) {
-
-                            return next(value.some === 'value' ? null : new Error('Bad response'));
-                        }
-                    }
-                },
-                handler: handler
-            });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('{"some":"value"}');
-
-                server.inject('/', function (res) {
-
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
-            });
-        });
-
         it('returns an JSONP response', function (done) {
 
             var handler = function (request, reply) {

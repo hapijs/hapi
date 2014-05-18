@@ -1,4 +1,4 @@
-# 4.0.x API Reference
+# 5.0.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -484,7 +484,7 @@ The following options are available when adding a route:
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the query parameters.
                 - `options` - the server validation options.
-                - `next(err)` - the callback function called when validation is completed.
+                - `next(err, value)` - the callback function called when validation is completed.
 
         - `payload` - validation rules for an incoming request payload (request body). Values allowed:
             - `true` - any payload allowed (no validation performed). This is the default.
@@ -493,9 +493,9 @@ The following options are available when adding a route:
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the payload object.
                 - `options` - the server validation options.
-                - `next(err)` - the callback function called when validation is completed.
+                - `next(err, value)` - the callback function called when validation is completed.
 
-        - `path` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
+        - `params` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
           parameters then stored in `request.params`. Values allowed:
             - `true` - any path parameters allowed (no validation performed).  This is the default.
             - `false` - no path variables allowed.
@@ -503,7 +503,7 @@ The following options are available when adding a route:
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the path parameters.
                 - `options` - the server validation options.
-                - `next(err)` - the callback function called when validation is completed.
+                - `next(err, value)` - the callback function called when validation is completed.
 
         - `errorFields` - an optional object with error fields copied into every validation error response.
         - `failAction` - determines how to handle invalid requests. Allowed values are:
@@ -550,20 +550,19 @@ The following options are available when adding a route:
             - `'log'` - report the error but continue processing the request.
             - `'ignore'` - take no action and continue processing the request.
 
-    - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response. Values allowed:
-        - `true` - any payload allowed (no validation performed). This is the default.
-        - `false` - no payload allowed.
-        - an object with the following options:
-            - `schema` - the response object validation rules expressed as one of:
-                - a [Joi](http://github.com/spumko/joi) validation object.
-                - a validation function using the signature `function(value, options, next)` where:
-                    - `value` - the object containing the response object.
-                    - `options` - the server validation options.
-                    - `next(err)` - the callback function called when validation is completed.
-            - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
-            - `failAction` - defines what to do when a response fails validation. Options are:
-                - `error` - return an Internal Server Error (500) error response. This is the default value.
-                - `log` - log the error but send the response.
+    - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response:
+        - `schema` - the response object validation rules expressed as one of:
+            - `true` - any payload allowed (no validation performed). This is the default.
+            - `false` - no payload allowed.
+            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a validation function using the signature `function(value, options, next)` where:
+                - `value` - the object containing the response object.
+                - `options` - the server validation options.
+                - `next(err)` - the callback function called when validation is completed.
+        - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
+        - `failAction` - defines what to do when a response fails validation. Options are:
+            - `error` - return an Internal Server Error (500) error response. This is the default value.
+            - `log` - log the error but send the response.
 
     - `cache` - if the route method is 'GET', the route can be configured to include caching directives in the response using the following options:
         - `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control' header. Values are:
