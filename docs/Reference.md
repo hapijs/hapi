@@ -183,7 +183,7 @@ When creating a server instance, the following options configure the server's be
     - `credentials` - if `true`, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to `false`.
 
 - `security` - sets some common security related headers. All headers are disabled by default. To enable set `security` to `true` or to an object with
-the following options:
+  the following options:
     - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be set to `max-age=15768000`, if specified as a number
       the maxAge parameter will be set to that number. Defaults to `true`. You may also specify an object with the following fields:
         - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
@@ -262,8 +262,8 @@ the following options:
 - `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use node.js default value.
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
-- `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly` (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to `{ modify: true }` which will cast data to the specified
-  types.
+- `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
+  (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to no options.
 
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
