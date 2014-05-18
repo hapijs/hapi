@@ -182,9 +182,9 @@ describe('Schema', function () {
             expect(function () {
 
                 var config = {
-                    module: "baz",
-                    path: "foo",
-                    defaultExtension: "bar"
+                    module: require('handlebars'),
+                    path: 'foo',
+                    defaultExtension: 'bar'
                 };
                 Schema.assert('view', config);
             }).to.not.throw();

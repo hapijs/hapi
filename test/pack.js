@@ -332,7 +332,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     basePath: __dirname + '/pack/--views',
                     path: './templates'
                 });
@@ -357,20 +357,6 @@ describe('Pack', function () {
             server.inject({ method: 'GET', url: '/view' }, function (res) {
 
                 expect(res.result).to.equal('<h1>steve</h1>');
-                done();
-            });
-        });
-    });
-
-    it('requires plugin with views and loader', function (done) {
-
-        var server = new Hapi.Server();
-        server.pack.require({ './pack/--viewsLoader': { message: 'viewing it' } }, function (err) {
-
-            expect(err).to.not.exist;
-            server.inject({ method: 'GET', url: '/' }, function (res) {
-
-                expect(res.result).to.equal('<h1>{{message}}</h1>|{"message":"viewing it"}');
                 done();
             });
         });

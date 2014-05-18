@@ -8,7 +8,7 @@ var internals = {};
 exports.register = function (plugin, options, next) {
 
     plugin.views({
-        engines: { 'html': 'handlebars' },
+        engines: { 'html': require('handlebars') },
         path: './templates'
     });
 

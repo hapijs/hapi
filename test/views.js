@@ -83,7 +83,7 @@ describe('Views', function () {
         it('allows valid (no layouts)', function (done) {
 
             var testView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: false
             });
@@ -99,7 +99,7 @@ describe('Views', function () {
         it('renders without context', function (done) {
 
             var testView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates'
             });
 
@@ -115,7 +115,7 @@ describe('Views', function () {
 
             var testView = new Views.Manager({
                 defaultExtension: 'html',
-                engines: { html: 'handlebars', jade: 'jade' },
+                engines: { html: require('handlebars'), jade: require('jade') },
                 path: __dirname + '/templates'
             });
 
@@ -130,7 +130,7 @@ describe('Views', function () {
         it('allows relative path with no base', function (done) {
 
             var testView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: './test/templates',
                 layout: false
             });
@@ -146,7 +146,7 @@ describe('Views', function () {
         it('allows valid (with layouts)', function (done) {
 
             var testViewWithLayouts = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: true
             });
@@ -162,7 +162,7 @@ describe('Views', function () {
         it('allows absolute path', function (done) {
 
             var testViewWithLayouts = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: __dirname + '/templates/layout',
                 allowAbsolutePaths: true
@@ -179,7 +179,7 @@ describe('Views', function () {
         it('errors on invalid layout', function (done) {
 
             var views = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: 'badlayout'
             });
@@ -195,7 +195,7 @@ describe('Views', function () {
         it('errors on invalid layout path', function (done) {
 
             var views = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: '/badlayout'
             });
@@ -211,7 +211,7 @@ describe('Views', function () {
         it('allows valid jade layouts', function (done) {
 
             var testViewWithJadeLayouts = new Views.Manager({
-                engines: { 'jade': 'jade' },
+                engines: { 'jade': require('jade') },
                 path: __dirname + '/templates' + '/valid/',
                 layout: true
             });
@@ -226,7 +226,7 @@ describe('Views', function () {
         it('should work and not throw without jade layouts', function (done) {
 
             var testViewWithoutJadeLayouts = new Views.Manager({
-                engines: { 'jade': 'jade' },
+                engines: { 'jade': require('jade') },
                 path: __dirname + '/templates' + '/valid/',
                 layout: false
             });
@@ -240,7 +240,7 @@ describe('Views', function () {
 
         it('allows basePath, template name, and no path', function (done) {
 
-            var views = new Views.Manager({ engines: { html: 'handlebars' } });
+            var views = new Views.Manager({ engines: { html: require('handlebars') } });
             views.render('test', { title: 'test', message: 'Hapi' }, { basePath: __dirname + '/templates/valid' }, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
@@ -252,7 +252,7 @@ describe('Views', function () {
         it('errors when referencing non existant partial (with layouts)', function (done) {
 
             var testViewWithLayouts = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: true
             });
@@ -267,7 +267,7 @@ describe('Views', function () {
         it('errors when referencing non existant partial (no layouts)', function (done) {
 
             var testView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: false
             });
@@ -283,7 +283,7 @@ describe('Views', function () {
         it('errors if context uses layoutKeyword as a key', function (done) {
 
             var testViewWithLayouts = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: true
             });
@@ -299,7 +299,7 @@ describe('Views', function () {
         it('errors on compile error (invalid template code)', function (done) {
 
             var testView = new Views.Manager({
-                engines: { html: 'handlebars' },
+                engines: { html: require('handlebars') },
                 path: __dirname + '/templates',
                 layout: false
             });
@@ -378,7 +378,7 @@ describe('Views', function () {
                 path: __dirname + '/templates/valid',
                 partialsPath: __dirname + '/templates/valid/partials',
                 helpersPath: __dirname + '/templates/valid/helpers',
-                engines: { html: 'jade' }
+                engines: { html: require('jade') }
             });
 
             tempView.render('testPartials', {}, null, function (err, rendered, config) {
@@ -457,7 +457,7 @@ describe('Views', function () {
 
             var options = {
                 views: {
-                    engines: { html: 'handlebars' },
+                    engines: { html: require('handlebars') },
                     path: __dirname + '/templates'
                 }
             };
@@ -479,7 +479,7 @@ describe('Views', function () {
 
            var options = {
                 views: {
-                    engines: { 'jade': 'jade' },
+                    engines: { 'jade': require('jade') },
                     path: __dirname + '/templates'
                 }
             };
@@ -503,7 +503,7 @@ describe('Views', function () {
 
             var options = {
                 views: {
-                    engines: { html: 'handlebars' },
+                    engines: { html: require('handlebars') },
                     path: __dirname + '/templates'
                 }
             };

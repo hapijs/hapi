@@ -633,7 +633,7 @@ describe('Server', function () {
 
         var server = new Hapi.Server({
             views: {
-                engines: { 'html': 'handlebars' }
+                engines: { 'html': require('handlebars') }
             }
         });
         expect(server._views).to.exist;

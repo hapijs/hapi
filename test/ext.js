@@ -71,7 +71,7 @@ describe('Ext', function () {
 
             var server = new Hapi.Server({
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid'
                 }
             });
