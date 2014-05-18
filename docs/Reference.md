@@ -1,4 +1,4 @@
-# 5.1.x API Reference
+# 6.0.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -264,9 +264,9 @@ When creating a server instance, the following options configure the server's be
 
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
-    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module name (string) used for
+    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module used for
       rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
-        - `module` - the npm module name (string) to require or an object with:
+        - `module` - the npm module used for rendering the templates. The module object must contain:
             - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
               `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
               and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
