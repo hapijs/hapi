@@ -1296,4 +1296,148 @@ describe('Pack', function () {
             });
         });
     });
+
+    describe('#compose', function () {
+
+        it('composes pack', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    },
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--test1': [{ ext: true }, {}]
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                pack.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    pack.stop(function () {
+
+                        pack._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
+
+                            expect(res.result).to.equal('testing123special-value');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('composes pack (env)', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    }
+                },
+                servers: [
+                    {
+                        port: '$env.hapi_port',
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: '$env.hapi_host',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--test1': {}
+                }
+            };
+
+            process.env.hapi_port = '0';
+            process.env.hapi_host = 'localhost';
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                pack.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    pack.stop();
+
+                    pack._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
+
+                        expect(res.result).to.equal('testing123');
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('composes pack with ports', function (done) {
+
+            var manifest = {
+                servers: [
+                    {
+                        port: 8000
+                    },
+                    {
+                        port: '8001',
+                    }
+                ],
+                plugins: {}
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it('throws when missing servers', function (done) {
+
+            var manifest = {
+                plugins: {}
+            };
+
+            expect(function () {
+
+                Hapi.Pack.compose(manifest, function (err, pack) { });
+            }).to.throw('Pack missing servers definition');
+            done();
+        });
+
+        it('composes pack with default pack settings', function (done) {
+
+            Hapi.Pack.compose({ servers: [{}], plugins: {} }, { app: 'only here' }, function (err, pack) {
+
+                expect(err).to.not.exist;
+                expect(pack.app).to.equal('only here');
+                done();
+            });
+        });
+    });
 });

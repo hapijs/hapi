@@ -68,11 +68,7 @@
           - [`pack.require(name, options, callback)`](#packrequirename-options-callback)
           - [`pack.require(names, callback)`](#packrequirenames-callback)
           - [`pack.register(plugin, options, callback)`](#packregisterplugin-options-callback)
-- [`Hapi.Composer`](#hapicomposer)
-      - [`new Composer(manifest)`](#new-composermanifest)
-      - [`composer.compose(callback)`](#composercomposecallback)
-      - [`composer.start([callback])`](#composerstartcallback)
-      - [`composer.stop([options], [callback])`](#composerstopoptions-callback)
+      - [`Pack.compose(manifest, [options], callback)`](#Packcomposemanifest-options-callback)
 - [Plugin interface](#plugin-interface)
     - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
     - [Root methods and properties](#root-methods-and-properties)
@@ -2230,21 +2226,24 @@ server.pack.register(plug, { message: 'hello' }, function (err) {
 });
 ```
 
-## `Hapi.Composer`
+### `Pack.compose(manifest, [options], callback)`
 
-The `Composer` provides a simple way to construct a [`Pack`](#hapipack) from a single configuration object, including configuring servers
-and registering plugins.
+Provides a simple way to construct a [`Pack`](#hapipack) from a single configuration object, including configuring servers
+and registering plugins where:
 
-#### `new Composer(manifest)`
-
-Creates a `Composer` object instance where:
-
-- `manifest` - an object or array or objects where:
+- `manifest` - an object with the following keys:
     - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options).
     - `servers` - an array of server configuration objects where:
         - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
-          `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an environment variable by prefixing the variable name with `'$env.'`.
-    - `plugin` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin.
+          `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an
+          environment variable by prefixing the variable name with `'$env.'`.
+    - `plugins` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin.
+- `options` - optional pack configuration used as the baseline configuration for the pack (`manifest.pack` is applied to `options`).
+- `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
+  `function(err, pack)` where:
+    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
+      (e.g. among routes, methods, state) will throw an error and will not return a callback.
+    - `pack` - the composed Pack object.
 
 ```javascript
 var Hapi = require('hapi');
@@ -2277,48 +2276,9 @@ var manifest = {
     }
 };
 
-var composer = new Hapi.Composer(manifest);
-```
+Hapi.Pack.composer(manifest, function (err, pack) {
 
-#### `composer.compose(callback)`
-
-Creates the packs described in the manifest construction where:
-
-- `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
-  `function(err)` where:
-    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-      (e.g. among routes, methods, state) will throw an error and will not return a callback.
-
-```javascript
-composer.compose(function (err) {
-
-    if (err) {
-        console.log('Failed composing');
-    }
-});
-```
-
-#### `composer.start([callback])`
-
-Starts all the servers in all the pack composed where:
-
-- `callback` - the callback method called when all the servers have been started.
-
-```javascript
-composer.start(function () {
-
-    console.log('All servers started');
-});
-```
-
-#### `composer.stop([options], [callback])`
-
-Stops all the servers in all the packs and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
-
-```javascript
-pack.stop({ timeout: 60 * 1000 }, function () {
-
-    console.log('All servers stopped');
+    pack.start();
 });
 ```
 
