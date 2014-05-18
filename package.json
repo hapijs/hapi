@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "4.1.4",
+  "version": "5.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/spumko/hapi"
@@ -20,7 +20,7 @@
   "dependencies": {
     "hoek": "2.x.x",
     "boom": "^2.4.x",
-    "joi": "^3.1.x",
+    "joi": "^4.2.x",
     "catbox": "^2.1.x",
     "catbox-memory": "1.x.x",
     "shot": "1.x.x",
@@ -34,7 +34,7 @@
     "lru-cache": "2.5.x",
     "optimist": "0.6.x",
     "negotiator": "0.4.x",
-    "semver": "2.2.x",
+    "semver": "2.3.x",
     "qs": "0.6.x"
   },
   "devDependencies": {

@@ -170,18 +170,24 @@ describe('Schema', function () {
 
         it('fails on invalid config', function (done) {
 
-            var config = {};
-            expect(Schema.view(config)).to.exist;
+            expect(function () {
+                
+                Schema.assert('view', {});
+            }).to.throw();
             done();
         });
         
         it('succeeds with minimal config', function(done) {
-            var config = {
-                module: "baz",
-                path: "foo",
-                defaultExtension: "bar"
-            };
-            expect(Schema.view(config)).to.not.exist;
+
+            expect(function () {
+
+                var config = {
+                    module: "baz",
+                    path: "foo",
+                    defaultExtension: "bar"
+                };
+                Schema.assert('view', config);
+            }).to.not.throw();
             done();
         });
     });

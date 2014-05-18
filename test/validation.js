@@ -105,7 +105,7 @@ describe('Validation', function () {
             handler: function (request, reply) { reply(request.params.seq + 1); },
             config: {
                 validate: {
-                    path: {
+                    params: {
                         seq: Joi.number()
                     }
                 }
@@ -120,17 +120,17 @@ describe('Validation', function () {
         });
     });
 
-    it('does not cast input to desired type when modify set to false', function (done) {
+    it('uses original value before schema conversion', function (done) {
 
         var server = new Hapi.Server();
         server.route({
             method: 'GET',
             path: '/{seq}',
-            handler: function (request, reply) { reply(request.params.seq + 1); },
+            handler: function (request, reply) { reply(request.orig.params.seq + 1); },
             config: {
                 validate: {
-                    path: {
-                        seq: Joi.number().options({ modify: false })
+                    params: {
+                        seq: Joi.number()
                     }
                 }
             }
@@ -293,7 +293,7 @@ describe('Validation', function () {
         server.inject('/?a=1', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result.data.output.payload.message).to.deep.equal('the length of a must be at least 2 characters long');
+            expect(res.result.data.output.payload.message).to.deep.equal('a length must be at least 2 characters long');
             done();
         });
     });
@@ -351,7 +351,7 @@ describe('Validation', function () {
             expect(res.result).to.deep.equal({
                 statusCode: 400,
                 error: 'Bad Request',
-                message: 'the length of a must be at least 2 characters long',
+                message: 'a length must be at least 2 characters long',
                 validation: {
                     source: 'query',
                     keys: ['a']
@@ -447,7 +447,7 @@ describe('Validation', function () {
             config: {
                 handler: function (request, reply) {
 
-                    reply({ a: 1});
+                    reply({ a: 1 });
                 },
                 response: {
                     sample: 50,
@@ -470,6 +470,77 @@ describe('Validation', function () {
 
             expect(count).to.be.within(200, 300);
             done();
+        });
+    });
+
+    it('validates response', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            reply({ some: i++ ? null : 'value' });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: {
+                        some: Joi.string()
+                    }
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('{"some":"value"}');
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
+    it('validates response using custom validation function', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            reply({ some: i++ ? null : 'value' });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: function (value, options, next) {
+
+                        return next(value.some === 'value' ? null : new Error('Bad response'));
+                    }
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('{"some":"value"}');
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
         });
     });
 
@@ -504,6 +575,54 @@ describe('Validation', function () {
         }, function (err, codes) {
 
             expect(count).to.equal(0);
+            done();
+        });
+    });
+
+    it('skips response validation when schema is true', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    reply({ a: 1 });
+                },
+                response: {
+                    schema: true
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('forbids response when schema is false', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    reply({ a: 1 });
+                },
+                response: {
+                    schema: false
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });
@@ -583,7 +702,7 @@ describe('Validation', function () {
         server.on('request', function (request, event, tags) {
 
             if (tags.validation) {
-                expect(event.data).to.equal('the key a is not allowed');
+                expect(event.data).to.equal('a is not allowed');
             }
         });
 

@@ -209,7 +209,7 @@ describe('Security', function () {
                     reply('Success');
                 },
                 config: {
-                    validate: { path: { name: Joi.number() } }
+                    validate: { params: { name: Joi.number() } }
                 }
             });
 
