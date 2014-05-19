@@ -32,7 +32,7 @@ describe('Validation', function () {
             config: {
                 validate: {
                     query: {
-                        a: Joi.string().min(2)
+                        a: Joi.number()
                     }
                 }
             }
@@ -41,6 +41,90 @@ describe('Validation', function () {
         server.inject('/?a=123', function (res) {
 
             expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('validates valid input using context', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/{user?}',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: {
+                        verbose: Joi.boolean().when('$params.user', { is: Joi.exist(), otherwise: Joi.forbidden() })
+                    }
+                }
+            }
+        });
+
+        server.inject('/?verbose=true', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                server.inject('/steve?verbose=true', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+
+                    server.inject('/steve?verbose=x', function (res) {
+
+                        expect(res.statusCode).to.equal(400);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    it('fails valid input', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number()
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=abc', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
+
+    it('validates valid input with validation options', function (done) {
+
+        var server = new Hapi.Server({ validation: { convert: false } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { reply('ok'); },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number()
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(400);
             done();
         });
     });
@@ -575,6 +659,32 @@ describe('Validation', function () {
         }, function (err, codes) {
 
             expect(count).to.equal(0);
+            done();
+        });
+    });
+
+    it('fails response validation with options', function (done) {
+
+        var server = new Hapi.Server({ debug: false, validation: { convert: false } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    reply({ a: '1' });
+                },
+                response: {
+                    schema: {
+                        a: Joi.number()
+                    }
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });

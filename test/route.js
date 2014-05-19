@@ -30,7 +30,7 @@ describe('Route', function () {
         var server = new Hapi.Server();
         expect(function () {
 
-            server.route({ method: 'GET', path: '/', config: { } });
+            server.route({ method: 'GET', path: '/', config: {} });
         }).to.throw('Missing or undefined handler: /');
         done();
     });
@@ -38,7 +38,7 @@ describe('Route', function () {
     it('sets route plugins and app settings', function (done) {
 
         var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(request.route.app.x + request.route.plugins.x.y); }, app: { x: 'o' }, plugins: { x : { y: 'k' } } } });
+        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(request.route.app.x + request.route.plugins.x.y); }, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('ok');
@@ -51,7 +51,7 @@ describe('Route', function () {
         var server = new Hapi.Server();
         expect(function () {
 
-            server.route({ method: 'POST', path: '/', handler: function () {}, config: { validate: { payload: {} }, payload: { parse: false } } });
+            server.route({ method: 'POST', path: '/', handler: function () { }, config: { validate: { payload: {} }, payload: { parse: false } } });
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: /');
         done();
     });
@@ -383,12 +383,8 @@ describe('Route', function () {
                     '/path/a/b/to': {
                         param: 'a/b/to'
                     },
-                    '/path/': {
-                        param: ''
-                    },
-                    '/path': {
-                        param: ''
-                    }
+                    '/path/': {},
+                    '/path': {}
                 },
                 '/path/{p1}/{p2?}': {
                     '/path/a/c/d': false,
@@ -398,12 +394,10 @@ describe('Route', function () {
                         p2: 'b'
                     },
                     '/path/a': {
-                        p1: 'a',
-                        p2: ''
+                        p1: 'a'
                     },
                     '/path/a/': {
-                        p1: 'a',
-                        p2: ''
+                        p1: 'a'
                     }
                 },
                 '/path/{p1}/{p2?}|false': {
@@ -413,12 +407,10 @@ describe('Route', function () {
                         p2: 'c'
                     },
                     '/path/a': {
-                        p1: 'a',
-                        p2: ''
+                        p1: 'a'
                     },
                     '/path/a/': {
-                        p1: 'a',
-                        p2: ''
+                        p1: 'a'
                     }
                 },
                 '/{p*}': {
@@ -436,9 +428,7 @@ describe('Route', function () {
                     '/abc': {
                         b: 'b'
                     },
-                    '/ac': {
-                        b: ''
-                    },
+                    '/ac': {},
                     '/abC': false,
                     '/Ac': false
                 },
@@ -446,9 +436,7 @@ describe('Route', function () {
                     '/abC': {
                         b: 'b'
                     },
-                    '/Ac': {
-                        b: ''
-                    }
+                    '/Ac': {}
                 },
                 '/%0A': {
                     '/%0A': true,

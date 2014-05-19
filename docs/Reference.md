@@ -473,7 +473,12 @@ The following options are available when adding a route:
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
 
-    - `validate`
+    - `validate` - request input validation rules for various request components. When using a [Joi](http://github.com/spumko/joi)
+      validation object, the values of the other inputs (e.g. `headers`, `query`, and `params` when validating `payload`) are made
+      available under the validation context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is performed in
+      order (i.e. headers, params, query, payload) and if type casting is used (converting a string to number), the value of inputs
+      not yet validated will reflect the raw, unvalidated and unmodified values. The `validate` object supports:
+
         - `headers` - validation rules for incoming request headers. Values allowed:
             - `true` - any headers allowed (no validation performed).  This is the default.
             - `false` - no headers allowed (this will cause all valid HTTP requests to fail).
