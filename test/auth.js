@@ -243,6 +243,26 @@ describe('Auth', function () {
         });
     });
 
+    it('handles errors thrown inside authenticate', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: 'throw' } });
+
+        server.once('internalError', function (request, err) {
+
+            expect(err.message).to.equal('Uncaught error: Boom');
+        });
+
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
     it('ignores a non Error error response when set to try ', function (done) {
 
         var server = new Hapi.Server();
@@ -796,6 +816,10 @@ internals.implementation = function (server, options) {
 
             if (credentials === 'skip') {
                 return reply(Boom.unauthorized(null, 'Custom'));
+            }
+
+            if (credentials === 'throw') {
+                throw new Error('Boom');
             }
 
             if (typeof credentials === 'string') {
