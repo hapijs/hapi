@@ -362,7 +362,7 @@ describe('Proxy', function () {
         upstream.start(function () {
 
             var server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/notfound', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
+            server.route({ method: 'GET', path: '/notfound', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
 
             server.inject('/notfound', function (res) {
 

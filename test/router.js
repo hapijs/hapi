@@ -324,6 +324,36 @@ describe('Router', function () {
 
         server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
 
+            expect(res.statusCode).to.equal(405);
+            done();
+        });
+    });
+
+    it('returns 405 when method is not supported', function (done) {
+
+        var server = new Hapi.Server();
+        var handler = function (request, reply) {
+
+            reply('ok');
+        };
+
+        server.route({ method: 'PUT', path: '/test', handler: handler });
+        server.route({ method: 'POST', path: '/test', handler: handler });
+        server.inject({ method: 'GET', url: '/test' }, function (res) {
+
+            expect(res.headers.allow).to.exist;
+            expect(res.statusCode).to.equal(405);
+            done();
+        });
+    });
+
+    it('returns 404 when route is not defined', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.inject({ method: 'HEAD', url: '/test' }, function (res) {
+
+            expect(res.headers.allow).to.not.exist;
             expect(res.statusCode).to.equal(404);
             done();
         });
