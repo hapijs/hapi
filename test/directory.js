@@ -403,6 +403,19 @@ describe('Directory', function () {
         });
     });
 
+    it('does not redirect to the same path with / appended when server stripTrailingSlash is true', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname }, router: { stripTrailingSlash: true } });
+        server.route({ method: 'GET', path: '/redirect/{path*}', handler: { directory: { path: './', index: true, listing: true } } });
+
+        server.inject('http://example.com/redirect/directory/subdir', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.contain('<html>');
+            done();
+        });
+    });
+
     it('ignores unused path params', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });

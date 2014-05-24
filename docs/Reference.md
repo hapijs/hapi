@@ -236,6 +236,7 @@ When creating a server instance, the following options configure the server's be
 
 - <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
+    - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
 
 - <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to
   the server with every request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
@@ -408,7 +409,8 @@ The following options are available when adding a route:
           Defaults to `false`.
         - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
         - `redirectToSlash` - optional boolean, determines if requests for a directory without a trailing slash are redirected to the same path with
-          the missing slash. Useful for ensuring relative links inside the response are resolved correctly. Defaults to `true`.
+          the missing slash. Useful for ensuring relative links inside the response are resolved correctly. Disabled when the server config
+          `router.stripTrailingSlash` is `true. `Defaults to `true`.
         - `lookupCompressed` - optional boolean, instructs the file processor to look for the same filename with the '.gz' suffix for a precompressed
           version of the file to serve if the request supports content encoding. Defaults to `false`.
         - `defaultExtension` - optional string, appended to file requests if the requested file is not found. Defaults to no extension.

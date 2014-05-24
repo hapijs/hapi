@@ -820,6 +820,28 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('strips trailing slash', function (done) {
+
+            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { reply(); } });
+            server.inject('/test/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        })
+
+        it('does not strip trailing slash on /', function (done) {
+
+            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        })
     });
 
     describe('#log', { parallel: false }, function () {

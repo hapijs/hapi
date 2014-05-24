@@ -35,6 +35,26 @@ describe('Route', function () {
         done();
     });
 
+    it('throws when path has trailing slash and server set to strip', function (done) {
+
+        var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+        expect(function () {
+
+            server.route({ method: 'GET', path: '/test/', handler: function () { } });
+        }).to.throw('Path cannot end with a trailing slash when server configured to strip: /test/');
+        done();
+    });
+
+    it('allows / when path has trailing slash and server set to strip', function (done) {
+
+        var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+        expect(function () {
+
+            server.route({ method: 'GET', path: '/', handler: function () { } });
+        }).to.not.throw();
+        done();
+    });
+
     it('sets route plugins and app settings', function (done) {
 
         var server = new Hapi.Server();
