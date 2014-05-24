@@ -3,6 +3,7 @@
 var Fs = require('fs');
 var Path = require('path');
 var Lab = require('lab');
+var Boom = require('boom');
 var Hapi = require('..');
 
 
@@ -75,6 +76,19 @@ describe('Directory', function () {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: ['./', '../'], listing: true } } });
+
+        server.inject('/multiple/package.json', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.contain('name": "hapi"');
+            done();
+        });
+    });
+
+    it('returns a file when requesting a file from multi directory function response', function (done) {
+
+        var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: function () { return ['./', '../'] }, listing: true } } });
 
         server.inject('/multiple/package.json', function (res) {
 
@@ -553,6 +567,41 @@ describe('Directory', function () {
         server.inject('/test/index.html', function (res) {
 
             expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('returns error when path function returns error', function (done) {
+
+        var path = function () {
+
+            return Boom.badRequest('Really?!');
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/test/{path*}', handler: { directory: { path: path } } });
+
+        server.inject('/test/index.html', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.message).to.equal('Really?!');
+            done();
+        });
+    });
+
+    it('returns error when path function returns invalid response', function (done) {
+
+        var path = function () {
+
+            return 5;
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({ method: 'GET', path: '/test/{path*}', handler: { directory: { path: path } } });
+
+        server.inject('/test/index.html', function (res) {
+
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });

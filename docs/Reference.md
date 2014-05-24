@@ -1,4 +1,4 @@
-# 5.0.x API Reference
+# 5.1.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -401,7 +401,8 @@ The following options are available when adding a route:
           Value can be:
             - a single path string used as the prefix for any resources requested by appending the request path parameter to the provided string.
             - an array of path strings. Each path will be attempted in order until a match is found (by following the same process as the single path string).
-            - a function with the signature `function(request)` which returns the path string.
+            - a function with the signature `function(request)` which returns the path string or an array of path strings. If the function returns an
+              error, the error is passed back to the client in the response.
         - `index` - optional boolean, determines if 'index.html' will be served if found in the folder when requesting a directory. Defaults to `true`.
         - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document.
           Defaults to `false`.
