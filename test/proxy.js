@@ -599,19 +599,91 @@ describe('Proxy', function () {
         });
     });
 
+    it('sets x-forwarded-* headers', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.raw.req.headers);
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: handler });
+        upstream.start(function () {
+
+            var mapUri = function (request, callback) {
+
+                return callback(null, 'http://127.0.0.1:' + upstream.info.port + '/');
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'GET', path: '/', handler: { proxy: { mapUri: mapUri, xforward: true } } });
+
+            server.start(function () {
+
+                Nipple.get('http://127.0.0.1:' + server.info.port + '/', function (err, res, body) {
+
+                    expect(res.statusCode).to.equal(200);
+                    var result = JSON.parse(body);
+                    expect(result['x-forwarded-for']).to.equal('127.0.0.1');
+                    expect(result['x-forwarded-port']).to.match(/\d+/);
+                    expect(result['x-forwarded-proto']).to.equal('http');
+
+                    server.stop();
+                    upstream.stop();
+                    done();
+                });
+            });
+        });
+    });
+
+    it('adds x-forwarded-* headers to existing', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.raw.req.headers);
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: handler });
+        upstream.start(function () {
+
+            var mapUri = function (request, callback) {
+
+                var headers = {
+                    'x-forwarded-for': 'testhost',
+                    'x-forwarded-port': 1337,
+                    'x-forwarded-proto': 'https'
+                };
+
+                return callback(null, 'http://127.0.0.1:' + upstream.info.port + '/', headers);
+            };
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'GET', path: '/', handler: { proxy: { mapUri: mapUri, xforward: true } } });
+
+            server.start(function () {
+
+                Nipple.get('http://127.0.0.1:' + server.info.port + '/', function (err, res, body) {
+
+                    expect(res.statusCode).to.equal(200);
+                    var result = JSON.parse(body);
+                    expect(result['x-forwarded-for']).to.equal('testhost,127.0.0.1');
+                    expect(result['x-forwarded-port']).to.match(/1337\,\d+/);
+                    expect(result['x-forwarded-proto']).to.equal('https,http');
+
+                    server.stop();
+                    upstream.stop();
+                    done();
+                });
+            });
+        });
+    });
+
     it('does not clobber existing x-forwarded-* headers', function (done) {
 
         var handler = function (request, reply) {
 
-            // TODO: fix these bugs
-
-            // trailing commas because remotePort and remoteAddress do not exist
-            expect(request.raw.req.headers['x-forwarded-for']).to.equal('testhost,');
-            expect(request.raw.req.headers['x-forwarded-port']).to.equal('1337,');
-
-            // undefined because settings.protocol isn't set
-            expect(request.raw.req.headers['x-forwarded-proto']).to.equal('https,undefined');
-            reply('ok');
+            reply(request.raw.req.headers);
         };
 
         var upstream = new Hapi.Server(0);
@@ -635,7 +707,10 @@ describe('Proxy', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('ok');
+                var result = JSON.parse(res.payload);
+                expect(result['x-forwarded-for']).to.equal('testhost');
+                expect(result['x-forwarded-port']).to.equal('1337');
+                expect(result['x-forwarded-proto']).to.equal('https');
                 done();
             });
         });
@@ -1091,7 +1166,7 @@ describe('Proxy', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['cache-control']).to.equal('no-cache');
-//                expect(res.headers['cache-control']).to.not.exist;
+                //                expect(res.headers['cache-control']).to.not.exist;
                 done();
             });
         });
