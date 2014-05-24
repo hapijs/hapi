@@ -535,7 +535,7 @@ The following options are available when adding a route:
 
     - `payload` - determines how the request payload is processed:
         - `output` - the type of payload representation requested where:
-            - `data` - the incoming payload is ready fully into memory. If `parse` is `true`, the payload is parsed (JSON, form-decoded,
+            - `data` - the incoming payload is read fully into memory. If `parse` is `true`, the payload is parsed (JSON, form-decoded,
               multipart) based on the 'Content-Type' header. If `parse` is false, the raw `Buffer` is returned. This is the default value
               except when a proxy handler is used.
             - `stream` - the incoming payload is made available via a `Stream.Readable` interface. If the payload is 'multipart/form-data' and
