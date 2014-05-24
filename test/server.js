@@ -310,6 +310,12 @@ describe('Server', function () {
                 reply('ok');
             };
 
+            var logged = null;
+            server.once('log', function (event, tags) {
+
+                logged = (tags.hapi && tags.load && event.data);
+            });
+
             server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function (err) {
 
@@ -322,10 +328,9 @@ describe('Server', function () {
                         server.inject('/', function (res) {
 
                             expect(res.statusCode).to.equal(503);
-                            server.stop(function () {
-
-                                done();
-                            });
+                            expect(logged.rss > 10000).to.equal(true);
+                            server.stop();
+                            done();
                         });
                     });
                 });
