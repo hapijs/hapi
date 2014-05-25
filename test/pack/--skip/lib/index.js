@@ -7,3 +7,8 @@ exports.register = function (plugin, next) {
 
     return next();
 };
+
+
+exports.register.attributes = {
+    pkg: require('../package.json')
+};

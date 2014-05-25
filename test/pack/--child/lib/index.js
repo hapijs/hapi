@@ -7,6 +7,11 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.require('hapi-plugin-test', {}, next);
+    plugin.register(require('../../--test1'), {}, next);
+};
+
+
+exports.register.attributes = {
+    pkg: require('../package.json')
 };
 

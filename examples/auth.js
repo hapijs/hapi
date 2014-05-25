@@ -67,7 +67,7 @@ internals.handler = function (request, reply) {
 internals.main = function () {
 
     var server = new Hapi.Server(8000);
-    server.pack.require(['hapi-auth-basic', 'hapi-auth-hawk'], function (err) {
+    server.pack.register([require('hapi-auth-basic'), require('hapi-auth-hawk')], function (err) {
 
         server.auth.strategy('hawk', 'hawk', { getCredentialsFunc: internals.getCredentials });
         server.auth.strategy('basic', 'basic', { validateFunc: internals.validate });

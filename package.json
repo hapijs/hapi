@@ -41,7 +41,6 @@
     "lab": "3.x.x",
     "handlebars": "1.2.x",
     "jade": "1.0.x",
-    "hapi-plugin-test": "2.x.x",
     "form-data": "0.1.x"
   },
   "bin": {

@@ -1,3 +1,8 @@
+// Load modules
+
+var Path = require('path');
+
+
 // Declare internals
 
 var internals = {};
@@ -6,6 +11,8 @@ var internals = {};
 // Plugin registration
 
 exports.register = function (plugin, options, next) {
+
+    plugin.path(Path.join(__dirname, '..'));
 
     plugin.views({
         engines: { 'html': require('handlebars') },
@@ -34,4 +41,9 @@ exports.register = function (plugin, options, next) {
     });
 
     return next();
+};
+
+
+exports.register.attributes = {
+    pkg: require('../package.json')
 };
