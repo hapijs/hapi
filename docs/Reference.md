@@ -2335,8 +2335,8 @@ Constructing a plugin requires the following:
   names. Typically, private plugin names use a prefix such as the company name or an unusual combination of characters (e.g. `'--'`). When using the
   [`pack.require()`](#packrequirename-options-callback) interface, the name is obtained from the 'package.json' module file. When using the
   [`pack.register()`](#packregisterplugin-options-callback) interface, the name is provided as a required key in `plugin`.
-- version - the plugin version is only used informatively within the framework but plays an important role in the plugin echo-system. The plugin
-  echo-system relies on the [npm peer dependency](http://blog.nodejs.org/2013/02/07/peer-dependencies/) functionality to ensure that plugins can
+- version - the plugin version is only used informatively within the framework but plays an important role in the plugin ecosystem. The plugin
+  ecosystem relies on the [npm peer dependency](http://blog.nodejs.org/2013/02/07/peer-dependencies/) functionality to ensure that plugins can
   specify their dependency on a specific version of **hapi**, as well as on each other. Dependencies are expressed solely within the 'package.json'
   file, and are enforced by **npm**. When using the [`pack.require()`](#packrequirename-options-callback) interface, the version is obtained from
   the 'package.json' module file. When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the version is provided as
