@@ -60,7 +60,7 @@ describe('Composer', function () {
                 expect(err).to.not.exist;
                 composer.stop(function () {
 
-                    composer._packs[0]._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
+                    composer._pack._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
 
                         expect(res.result).to.equal('testing123special-value');
                         done();
@@ -110,7 +110,7 @@ describe('Composer', function () {
                 expect(err).to.not.exist;
                 composer.stop();
 
-                composer._packs[0]._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
+                composer._pack._servers[0].inject({ method: 'GET', url: '/test1' }, function (res) {
 
                     expect(res.result).to.equal('testing123');
                     done();
@@ -162,7 +162,7 @@ describe('Composer', function () {
 
             expect(err).to.not.exist;
 
-            expect(composer._packs[0].app).to.equal('only here');
+            expect(composer._pack.app).to.equal('only here');
             done();
         });
     });
