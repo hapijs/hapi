@@ -2150,9 +2150,12 @@ Registers a plugin where:
     - a module plugin object.
     - a manually constructed plugin object.
 - `options` - optional registration options (used by **hapi** and is not passed to the plugin):
+    - `labels` - string or array of strings of labels or pre-select for plugin registration.
     - `route` - apply modifiers to any routes added by the plugin:
-        - `prefix` - string added as prefix to any route path (must begin with `'/'`).
-        - `vhost` - virtual host value set to every route.
+        - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin registers a child plugin
+          the `prefix` is passed on to the child or is added in front of the child-specific prefix.
+        - `vhost` - virtual host string (or array of strings) applied to every route. The outter-most `vhost` overrides the any
+          nested configuration.
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
       (e.g. among routes, methods, state) will throw an error and will not return a callback.

@@ -521,7 +521,7 @@ describe('Pack', function () {
         server.pack.register({ plugin: require('./pack/--child'), options: { route: { vhost: 'example.net' } } }, { route: { vhost: 'example.com' } }, function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ url: '/test1', headers: { host: 'example.net' } }, function (res) {
+            server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
 
                 expect(res.result).to.equal('testing123');
                 done();
@@ -1180,6 +1180,78 @@ describe('Pack', function () {
                 pack.stop();
                 done();
             }, 10);
+        });
+    });
+
+    it('registers plugins with pre-selected label', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['a'] });
+        pack.server({ labels: ['b'] });
+
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                next();
+            }
+        };
+
+        pack.register(plugin, { labels: 'a' }, function (err) {
+
+            expect(err).to.not.exist;
+            server1.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                server2.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(404);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('registers plugins with pre-selected labels', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['a'] });
+        pack.server({ labels: ['b'] });
+        pack.server({ labels: ['c'] });
+
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+        var server3 = pack._servers[2];
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                next();
+            }
+        };
+
+        pack.register(plugin, { labels: ['a', 'c'] }, function (err) {
+
+            expect(err).to.not.exist;
+            server1.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                server2.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(404);
+                    server3.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+            });
         });
     });
 
