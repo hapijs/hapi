@@ -7,7 +7,13 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.register(require('../../--test1'), {}, next);
+    if (options) {
+
+        plugin.register(require('../../--test1'), options, next);
+    }
+    else {
+        plugin.register(require('../../--test1'), next);
+    }
 };
 
 

@@ -473,6 +473,62 @@ describe('Pack', function () {
         });
     });
 
+    it('registers a child plugin with parent route path prefix', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--child'), { route: { prefix: '/xyz' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/xyz/test1', function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
+    it('registers a child plugin with parent route vhost prefix', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--child'), { route: { vhost: 'example.com' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
+    it('registers a child plugin with parent route path prefix and inner register prefix', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register({ plugin: require('./pack/--child'), options: { route: { prefix: '/inner' } } }, { route: { prefix: '/xyz' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/xyz/inner/test1', function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
+    it('registers a child plugin with parent route vhost prefix and inner register vhost', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register({ plugin: require('./pack/--child'), options: { route: { vhost: 'example.net' } } }, { route: { vhost: 'example.com' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ url: '/test1', headers: { host: 'example.net' } }, function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
     it('registers a plugin with route vhost', function (done) {
 
         var server = new Hapi.Server({ labels: 'test' });
