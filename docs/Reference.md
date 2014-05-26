@@ -65,9 +65,7 @@
           - [`pack.server([host], [port], [options])`](#packserverhost-port-options)
           - [`pack.start([callback])`](#packstartcallback)
           - [`pack.stop([options], [callback])`](#packstopoptions-callback)
-          - [`pack.require(name, options, callback)`](#packrequirename-options-callback)
-          - [`pack.require(names, callback)`](#packrequirenames-callback)
-          - [`pack.register(plugin, options, callback)`](#packregisterplugin-options-callback)
+          - [`pack.register(plugins, options, callback)`](#packregisterplugins-options-callback)
       - [`Pack.compose(manifest, [options], callback)`](#Packcomposemanifest-options-callback)
 - [Plugin interface](#plugin-interface)
     - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
@@ -88,7 +86,6 @@
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
         - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
-        - [`plugin.loader(require)`](#pluginloader-require)
         - [`plugin.bind(bind)`](#pluginbind-bind)
         - [`plugin.handler(name, method)`](#pluginhandlername-method)
     - [Selectable methods and properties](#selectable-methods-and-properties)
@@ -2072,7 +2069,7 @@ Creates a new `Pack` object instance where:
 - `options` - optional configuration:
     - `app` - an object used to initialize the application-specific data stored in `pack.app`.
     - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
-    - `requirePath` - sets the path from which node module plugins are loaded. Applies only when using [`pack.require()`](#packrequirename-options-callback)
+    - `requirePath` - sets the path from which node module plugins are loaded. Applies only when using [`pack.register()`](#packregisterplugins-options-callback)
       with module names that do no include a relative or absolute path (e.g. 'lout'). Defaults to the node module behaviour described in
       [node modules](http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders). Note that if the modules
       are located inside a 'node_modules' sub-directory, `requirePath` must end with `'/node_modules'`.
@@ -2095,6 +2092,8 @@ Each `Pack` object instance has the following properties:
     - `version` - plugin version.
     - `path` - the plugin root path (where 'package.json' is located).
     - `register()` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
+- `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using
+  [`plugin.expose()`](#pluginexposekey-value).
 
 ### `Pack` methods
 
@@ -2167,7 +2166,7 @@ pack.require('furball', { version: '/v' }, function (err) {
 
 Registers a list of plugins where:
 
-- `names` - an array of plugins names as described in [`pack.require()`](#packrequirename-options-callback), or an object in which
+- `names` - an array of plugins names as described in [`pack.register()`](#packregisterplugins-options-callback), or an object in which
   each key is a plugin name, and each value is the `options` object used to register that plugin.
 - `callback` - the callback function with signature `function(err)` where:
       - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
@@ -2192,38 +2191,61 @@ pack.require({ furball: null, lout: { endpoint: '/docs' } }, function (err) {
 });
 ```
 
-#### `pack.register(plugin, options, callback)`
+#### `pack.register(plugins, [options], callback)`
 
-Registers a plugin object (without using `require()`) where:
+Registers a plugin where:
 
-- `plugin` - the plugin object which requires:
-    - `name` - plugin name.
-    - `version` - plugin version.
-    - `path` - optional plugin path for resolving relative paths used by the plugin. Defaults to current working directory.
-    - `register()` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
-- `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next).
+- `plugins` - an object or array of objects with the following:
+    - `name` - plugin name. Required unless the `register()` function has `attributes` as described in
+      [Plugin interface](#Plugin-interface).
+    - `version` - an optional plugin version. Defaults to `'0.0.0'`.
+    - `register` - the [`register()`](#exportsregisterplugin-options-next) function. Cannot appear together with `plugin` but
+      one is required.
+    - `plugin` - an object (usually obtained by calling node's `require()`) with:
+        - `register` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
+    - `options` - optional configuration object which is passed to the plugin via the `options` argument in
+      [`exports.register()`](#exportsregisterplugin-options-next).
+- `options` - optional registration options (used by **hapi** and is not passed to the plugin).
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
       (e.g. among routes, methods, state) will throw an error and will not return a callback.
 
 ```javascript
-var plug = {
+// Manually constructed plugin object
+
+var plugin = {
     name: 'test',
     version: '2.0.0',
     register: function (plugin, options, next) {
 
         plugin.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } } );
         next();
+    },
+    options: {
+        message: 'hello'
     }
 };
 
-server.pack.register(plug, { message: 'hello' }, function (err) {
+server.pack.register(plug, function (err) {
 
     if (err) {
         console.log('Failed loading plugin');
     }
 });
+
+// Module plugin object
+
+server.pack.register({
+    plugin: require('plugin_name'),
+    options: {
+        message: 'hello'
+    }
+ }, function (err) {
+
+     if (err) {
+         console.log('Failed loading plugin');
+     }
+ });
 ```
 
 ### `Pack.compose(manifest, [options], callback)`
@@ -2238,7 +2260,11 @@ and registering plugins where:
           `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an
           environment variable by prefixing the variable name with `'$env.'`.
     - `plugins` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin.
-- `options` - optional pack configuration used as the baseline configuration for the pack (`manifest.pack` is applied to `options`).
+- `options` - optional compose configuration:
+    - `relativeTo` - path prefix used when loading plugins using node's `require()`. The `relativeTo` path prefix is added to any
+      relative plugin name (i.e. beings with `'./'`). All other module names are required as-is and will be looked up from the location
+      of the **hapi** module path (e.g. if **hapi** resides outside of your project `node_modules` path, it will not find your project
+      dependencies - you should specify them as relative and use the `relativeTo` option).
 - `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
   `function(err, pack)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
@@ -2284,28 +2310,21 @@ Hapi.Pack.composer(manifest, function (err, pack) {
 
 ## Plugin interface
 
-Plugins provide an extensibility platform for both general purpose utilities such as [batch requests](https://github.com/spumko/bassmaster) and for
-application business logic. Instead of thinking about a web server as a single entity with a unified routing table, plugins enable developers to
-break their application into logical units, assembled together in different combinations to fit the development, testing, and deployment needs.
+Plugins provide an extensibility platform for both general purpose utilities such as [batch requests](https://github.com/spumko/bassmaster)
+and for application business logic. Instead of thinking about a web server as a single entity with a unified routing table, plugins enable
+developers to break their application into logical units, assembled together in different combinations to fit the development, testing, and
+deployment needs.
 
 Constructing a plugin requires the following:
 
-- name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive their name
-  from the registry name. This ensures uniqueness. Private plugin names should be picked carefully to avoid conflicts with both private and public
-  names. Typically, private plugin names use a prefix such as the company name or an unusual combination of characters (e.g. `'--'`). When using the
-  [`pack.require()`](#packrequirename-options-callback) interface, the name is obtained from the 'package.json' module file. When using the
-  [`pack.register()`](#packregisterplugin-options-callback) interface, the name is provided as a required key in `plugin`.
-- version - the plugin version is only used informatively within the framework but plays an important role in the plugin echo-system. The plugin
-  echo-system relies on the [npm peer dependency](http://blog.nodejs.org/2013/02/07/peer-dependencies/) functionality to ensure that plugins can
-  specify their dependency on a specific version of **hapi**, as well as on each other. Dependencies are expressed solely within the 'package.json'
-  file, and are enforced by **npm**. When using the [`pack.require()`](#packrequirename-options-callback) interface, the version is obtained from
-  the 'package.json' module file. When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the version is provided as
-  a required key in `plugin`.
-- `exports.register()` - the registration function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
-  The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the single entry
-  point into the plugin functionality. When using the [`pack.require()`](#packrequirename-options-callback) interface, the function is obtained by
-  [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id)'ing the plugin module and invoking the exported `register()` method.
-  When using the [`pack.register()`](#packregisterplugin-options-callback) interface, the function is provided as a required key in `plugin`.
+- name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive
+  their name from the registry name to ensure uniqueness. Private plugin names should be picked carefully to avoid conflicts with both
+  private and public names.
+- registeration function - the function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
+  The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the
+  single entry point into the plugin's functionality.
+- version - the optional plugin version is only used informatively to enable other plugins to find out the verions loaded. The version
+  should be the same as the one specified in the plugin's 'package.json' file.
 
 **package.json**
 
@@ -2669,51 +2688,6 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.require(name, [options], callback)`
-
-Registers a plugin with the same pack as the current plugin following the syntax of [`pack.require()`](#packrequirename-options-callback).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.require('furball', { version: '/v' }, function (err) {
-
-        next(err);
-    });
-};
-```
-
-#### `plugin.require(names, callback)`
-
-Registers a list of plugins with the same pack following the syntax of [`pack.require()`](#packrequirename-callback).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.require(['furball', 'lout'], function (err) {
-
-        next(err);
-    });
-};
-```
-
-#### `plugin.loader(require)`
-
-Forces using the local `require()` method provided by node when calling `plugin.require()`. This sets the module path relative
-to the plugin instead of relative to the hapi framework module location. This is needed to work around the limitations in node's
-`require()`.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.loader(require);
-    plugin.require('furball', { version: '/v' }, function (err) {
-
-        next(err);
-    });
-};
-```
-
 #### `plugin.bind(bind)`
 
 Sets a global plugin bind used as the default bind when adding a route or an extension using the plugin interface (if no
@@ -2968,16 +2942,18 @@ console.log(Hapi.version);
 
 ## `Hapi CLI`
 
-The **hapi** command line interface allows a pack of servers to be composed and started from a configuration file only from the command line.
-When installing **hapi** with the global flag the **hapi** binary script will be installed in the path.  The following arguments are available to the
-**hapi** CLI:
+The **hapi** command line interface allows a pack of servers to be composed and started from a configuration file
+only from the command line. When installing **hapi** with the global flag the **hapi** binary script will be
+installed in the path.  The following arguments are available to the **hapi** CLI:
 
 - '-c' - the path to configuration json file (required)
 - '-p' - the path to the node_modules folder to load plugins from (optional)
 - '--require' - a module the cli will require before hapi is required (optional) ex. loading a metrics library
 
-Note that `--require` will require from node_modules, an absolute path, a relative path, or from the node_modules set by `-p` if available.
+Note that `--require` will require from node_modules, an absolute path, a relative path, or from the node_modules
+set by `-p` if available.
 
-In order to help with A/B testing there is [confidence](https://github.com/spumko/confidence).  Confidence is a configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c). In addition, confidence defines special $-prefixed keys used to filter values for a given criteria.
-
-
+In order to help with A/B testing there is [confidence](https://github.com/spumko/confidence). Confidence is a
+configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to
+work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c).
+In addition, confidence defines special $-prefixed keys used to filter values for a given criteria.
