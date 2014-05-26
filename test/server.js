@@ -30,6 +30,30 @@ var it = Lab.test;
 
 describe('Server', function () {
 
+    it('shallow clones app config', function (done) {
+
+        var item = {};
+        var server = new Hapi.Server({ app: item });
+        expect(server.settings.app).to.equal(item);
+        done();
+    });
+
+    it('shallow clones plugins config', function (done) {
+
+        var item = {};
+        var server = new Hapi.Server({ plugins: item });
+        expect(server.settings.plugins).to.equal(item);
+        done();
+    });
+
+    it('shallow clones views config', function (done) {
+
+        var views = { engines: { html: require('handlebars') } };
+        var server = new Hapi.Server({ views: views });
+        expect(server.settings.views).to.equal(views);
+        done();
+    });
+
     it('calls start twice', function (done) {
 
         var server = new Hapi.Server(0);
