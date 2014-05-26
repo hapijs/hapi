@@ -70,12 +70,12 @@
 - [Plugin interface](#plugin-interface)
     - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
     - [Root methods and properties](#root-methods-and-properties)
-        - [`plugin.version`](#pluginversion)
-        - [`plugin.path`](#pluginpath)
         - [`plugin.hapi`](#pluginhapi)
+        - [`plugin.version`](#pluginversion)
         - [`plugin.app`](#pluginapp)
         - [`plugin.events`](#pluginevents)
         - [`plugin.plugins`](#pluginplugins)
+        - [`plugin.path(path)`](#pluginpathpath)
         - [`plugin.log(tags, [data, [timestamp]])`](#pluginlogtags-data-timestamp)
         - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
         - [`plugin.after(method)`](#pluginaftermethod)
@@ -84,8 +84,7 @@
         - [`plugin.method(method)`](#pluginmethodmethod)
         - [`plugin.methods`](#pluginmethods)
         - [`plugin.cache(options)`](#plugincacheoptions)
-        - [`plugin.require(name, options, callback)`](#pluginrequirename-options-callback)
-        - [`plugin.require(names, callback)`](#pluginrequirenames-callback)
+        - [`plugin.register(plugins, options, callback)`](#pluginregisterplugins-options-callback)
         - [`plugin.bind(bind)`](#pluginbind-bind)
         - [`plugin.handler(name, method)`](#pluginhandlername-method)
     - [Selectable methods and properties](#selectable-methods-and-properties)
@@ -111,9 +110,10 @@
 
 Creates a new server instance with the following arguments:
 
-- `host` - the hostname, IP address, or path to UNIX domain socket the server is bound to. Defaults to `0.0.0.0` which means any available network
-  interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from the same machine. If `host` contains a '/' character, it
-  is used as a UNIX domain socket path and if it starts with '\\.\pipe' as a Windows named pipe.
+- `host` - the hostname, IP address, or path to UNIX domain socket the server is bound to. Defaults to `0.0.0.0` which
+  means any available network interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from
+  the same machine. If `host` contains a '/' character, it is used as a UNIX domain socket path and if it starts with
+  '\\.\pipe' as a Windows named pipe.
 - `port` - the TPC port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
   To use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
 - `options` - An object with the server configuration as described in [server options](#server-options).
@@ -136,29 +136,32 @@ var server = Hapi.createServer('localhost', 8000, { cors: true });
 
 When creating a server instance, the following options configure the server's behavior:
 
-- `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which should use `plugins[name]`. Note the difference between
-  `server.settings.app` which is used to store configuration value and `server.app` which is meant for storing run-time state.
+- `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe
+  place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which
+  should use `plugins[name]`. Note the difference between `server.settings.app` which is used to store configuration value
+  and `server.app` which is meant for storing run-time state.
 
-- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a default cache for storing and
-  application state. By default, a simple memory-based cache is created which has a limited capacity. **hapi** uses
-  [**catbox** module documentation](https://github.com/spumko/catbox#client) as its cache implementation which includes support for Redis, MongoDB,
-  Memcached, and Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache configuration
-  only defines the store itself. `cache` can be assigned:
+- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a default
+  cache for storing and application state. By default, a simple memory-based cache is created which has a limited capacity.
+  **hapi** uses [**catbox** module documentation](https://github.com/spumko/catbox#client) as its cache implementation which
+  includes support for Redis, MongoDB, Memcached, and Riak. Caching is only utilized if methods and plugins explicitly store
+  their state in the cache. The server cache configuration only defines the store itself. `cache` can be assigned:
     - a string with the cache engine module name (e.g. `'catbox-memory'`, `'catbox-redis'`).
     - a configuration object with the following options:
         - `engine` - 
-  cache options. The cache options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client). When an array
-  of options is provided, multiple cache connections are established and each array item (except one) must include an additional option:
-    - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each connection name must be unique. A
-      single item may omit the `name` option which defines the default cache. If every connection includes a `name`, a default memory cache is provisions
-      as well as the default.
-    - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same route and cache.
-      Default to not shared.
+  cache options. The cache options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
+  When an array of options is provided, multiple cache connections are established and each array item (except one) must
+  include an additional option:
+    - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each
+      connection name must be unique. A single item may omit the `name` option which defines the default cache. If every
+      connection includes a `name`, a default memory cache is provisions as well as the default.
+    - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using
+      the same route and cache. Default to not shared.
     - an array of the above types for configuring multiple cache instances, each with a unqiue name.
 
-- `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API calls. CORS is
-  required by web applications running inside a browser which are loaded from a different domain than the API server. CORS headers are disabled by
-  default. To enable, set `cors` to `true`, or to an object with the following options:
+- `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API
+  calls. CORS is required by web applications running inside a browser which are loaded from a different domain than the API
+  server. CORS headers are disabled by default. To enable, set `cors` to `true`, or to an object with the following options:
     - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The array can contain any combination of fully qualified origins
       along with origin strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin `['*']`.
     - `isOriginExposed` - if `false`, prevents the server from returning the full list of non-wildcard `origin` values if the incoming origin header
@@ -2195,46 +2198,22 @@ pack.require({ furball: null, lout: { endpoint: '/docs' } }, function (err) {
 
 Registers a plugin where:
 
-- `plugins` - an object or array of objects with the following:
-    - `name` - plugin name. Required unless the `register()` function has `attributes` as described in
-      [Plugin interface](#Plugin-interface).
-    - `version` - an optional plugin version. Defaults to `'0.0.0'`.
-    - `register` - the [`register()`](#exportsregisterplugin-options-next) function. Cannot appear together with `plugin` but
-      one is required.
-    - `plugin` - an object (usually obtained by calling node's `require()`) with:
-        - `register` - the [`exports.register()`](#exportsregisterplugin-options-next) function.
-    - `options` - optional configuration object which is passed to the plugin via the `options` argument in
-      [`exports.register()`](#exportsregisterplugin-options-next).
+- `plugins` - a plugin object or array of plugin objects. The objects can use one of two formats:
+    - a module plugin object.
+    - a manually constructed plugin object.
 - `options` - optional registration options (used by **hapi** and is not passed to the plugin).
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
       (e.g. among routes, methods, state) will throw an error and will not return a callback.
 
+Module plugin is registered by passing the following object (or array of object) as `plugins`:
+- `plugin` - an object (usually obtained by calling node's `require()`) with:
+    - `register` - the [`exports.register()`](#exportsregisterplugin-options-next) function. The function must have an `attributes`
+      property with either `name` (and optional `version`) keys or `pkg` with the content of the module's 'package.json'.
+- `options` - optional configuration object which is passed to the plugin via the `options` argument in
+  [`exports.register()`](#exportsregisterplugin-options-next).
+
 ```javascript
-// Manually constructed plugin object
-
-var plugin = {
-    name: 'test',
-    version: '2.0.0',
-    register: function (plugin, options, next) {
-
-        plugin.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } } );
-        next();
-    },
-    options: {
-        message: 'hello'
-    }
-};
-
-server.pack.register(plug, function (err) {
-
-    if (err) {
-        console.log('Failed loading plugin');
-    }
-});
-
-// Module plugin object
-
 server.pack.register({
     plugin: require('plugin_name'),
     options: {
@@ -2246,6 +2225,33 @@ server.pack.register({
          console.log('Failed loading plugin');
      }
  });
+```
+
+Manually constructed plugin is an object containing:
+- `name` - plugin name.
+- `version` - an optional plugin version. Defaults to `'0.0.0'`.
+- `register` - the [`register()`](#exportsregisterplugin-options-next) function.
+- `options` - optional configuration object which is passed to the plugin via the `options` argument in
+  [`exports.register()`](#exportsregisterplugin-options-next).
+
+```javascript
+server.pack.register({
+    name: 'test',
+    version: '2.0.0',
+    register: function (plugin, options, next) {
+
+        plugin.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } });
+        next();
+    },
+    options: {
+        message: 'hello'
+    }
+}, function (err) {
+
+    if (err) {
+        console.log('Failed loading plugin');
+    }
+});
 ```
 
 ### `Pack.compose(manifest, [options], callback)`
@@ -2315,7 +2321,7 @@ and for application business logic. Instead of thinking about a web server as a 
 developers to break their application into logical units, assembled together in different combinations to fit the development, testing, and
 deployment needs.
 
-Constructing a plugin requires the following:
+A plugin is constructed with the following:
 
 - name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive
   their name from the registry name to ensure uniqueness. Private plugin names should be picked carefully to avoid conflicts with both
@@ -2326,80 +2332,35 @@ Constructing a plugin requires the following:
 - version - the optional plugin version is only used informatively to enable other plugins to find out the verions loaded. The version
   should be the same as the one specified in the plugin's 'package.json' file.
 
-**package.json**
-
-```json
-{
-  "name": "furball",
-  "description": "Plugin utilities and endpoints",
-  "version": "0.3.0",
-  "main": "index",
-  "dependencies": {
-    "hoek": "0.8.x"
-  },
-  "peerDependencies": {
-    "hapi": "1.x.x"
-  }
-}
-```
-
-**index.js**
+The name and versions are included by attaching an `attributes` property to the `exports.register()` function:
 
 ```javascript
-var Hoek = require('hoek');
-
-var internals = {
-    defaults: {
-        version: '/version',
-        plugins: '/plugins'
-    }
-};
-
-internals.version = 1.1;
-
 exports.register = function (plugin, options, next) {
 
-    var settings = Hoek.applyToDefaults(internals.defaults, options);
+    plugin.route({
+        method: 'GET',
+        path: '/version',
+        handler: function (request, reply) {
 
-    if (settings.version) {
-        plugin.route({
-            method: 'GET',
-            path: settings.version,
-            handler: function (request, reply) {
+            reply('1.0.0');
+        }
+    });
 
-                reply(internals.version);
-            }
-        });
-    }
-
-    if (settings.plugins) {
-        plugin.route({
-            method: 'GET',
-            path: settings.plugins,
-            handler: function (request, reply) {
-
-                reply(listPlugins(request.server));
-            }
-        });
-    }
-
-    var listPlugins = function (server) {
-
-        var plugins = [];
-        Object.keys(server.pack.list).forEach(function (name) {
-
-            var item = server.pack.list[name];
-            plugins.push({
-                name: item.name,
-                version: item.version
-            });
-        });
-
-        return plugins;
-    };
-
-    plugin.expose('plugins', listPlugins);
     next();
+};
+
+exports.register.attributes = {
+    name: 'example',
+    version: '1.0.0'
+};
+```
+
+Alternatively, the name and version can be included via the `pkg` attribute containing the 'package.json' file for the module which
+already has the name and version included:
+
+```javascript
+exports.register.attributes = {
+    pkg: require('./package.json')
 };
 ```
 
@@ -2428,32 +2389,6 @@ The plugin interface root methods and properties are those available only on the
 [`exports.register()`](#exportsregisterplugin-options-next) interface. They are not available on the object received by calling
 [`plugin.select()`](#pluginselectlabels).
 
-#### `plugin.version`
-
-The plugin version information.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    console.log(plugin.version);
-    next();
-};
-```
-
-#### `plugin.path`
-
-The plugin root path (where 'package.json' resides).
-
-```javascript
-var Fs = require('fs');
-
-exports.register = function (plugin, options, next) {
-
-    var file = Fs.readFileSync(plugin.path + '/resources/image.png');
-    next();
-};
-```
-
 #### `plugin.hapi`
 
 A reference to the **hapi** module used to create the pack and server instances. Removes the need to add a dependency on **hapi** within the plugin.
@@ -2469,6 +2404,18 @@ exports.register = function (plugin, options, next) {
     };
 
     plugin.route({ method: 'GET', path: '/', handler: handler });
+    next();
+};
+```
+
+#### `plugin.version`
+
+The **hapi** version used to load the plugin.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    console.log(plugin.version);
     next();
 };
 ```
@@ -2510,6 +2457,21 @@ when called at the plugin root level (without calling `plugin.select()`).
 exports.register = function (plugin, options, next) {
 
     console.log(plugin.plugins.example.key);
+    next();
+};
+```
+
+#### `plugin.path(path)`
+
+Sets the path prefix used to locate static resources (files and view templates) when relative paths are used by the plugin:
+- `path` - the path prefix added to any relative file path starting with `'.'`. The value has the same effect as using the server's
+  configuration `files.relativeTo` option but only within the plugin.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.path(__dirname + '../static');
+    plugin.route({ path: '/file', method: 'GET', handler: { file: './test.html' } });
     next();
 };
 ```

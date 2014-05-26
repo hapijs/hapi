@@ -256,9 +256,10 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
+            expect(server.pack.list['--steve'].version).to.equal('0.0.0');
             server.inject('/', function (res) {
 
-                expect(res.result).to.equal('0.0.0');
+                expect(res.result).to.equal(Hapi.version);
                 done();
             });
         });
