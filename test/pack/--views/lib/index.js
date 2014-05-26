@@ -14,10 +14,15 @@ exports.register = function (plugin, options, next) {
 
     plugin.path(Path.join(__dirname, '..'));
 
-    plugin.views({
+    var views = {
         engines: { 'html': require('handlebars') },
         path: './templates'
-    });
+    };
+
+    plugin.views(views);
+    if (Object.keys(views).length !== 2) {
+        return next(new Error('plugin.view() modified options'));
+    }
 
     plugin.route([
         {

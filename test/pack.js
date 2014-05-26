@@ -459,6 +459,39 @@ describe('Pack', function () {
         });
     });
 
+    it('registers a plugin with route path prefix', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--test1'), { route: { prefix: '/xyz' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/xyz/test1', function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
+    it('registers a plugin with route vhost', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--test1'), { route: { vhost: 'example.com' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/test1', function (res) {
+
+                expect(res.statusCode).to.equal(404);
+
+                server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
+
+                    expect(res.result).to.equal('testing123');
+                    done();
+                });
+            });
+        });
+    });
+
     it('fails to require missing module', function (done) {
 
         var pack = new Hapi.Pack();

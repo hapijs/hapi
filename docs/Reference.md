@@ -2142,58 +2142,6 @@ pack.stop({ timeout: 60 * 1000 }, function () {
 });
 ```
 
-#### `pack.require(name, [options], callback)`
-
-Registers a plugin where:
-
-- `name` - the node module name as expected by node's [`require()`](http://nodejs.org/api/modules.html#modules_module_require_id). If `name` is a relative
-  path it is relative to the location of the file requiring it. If `name` is not a relative or absolute path (e.g. 'furball'), it is prefixed with the
-  value of the pack `requirePath` configuration option when present. Note that node's `require()` is invoked by hapi which means, the `'node_modules'` path
-  is relative to the location of the hapi module.
-- `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next).
-- `callback` - the callback function with signature `function(err)` where:
-      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-        (e.g. among routes, methods, state) will throw an error and will not return a callback.
-
-```javascript
-pack.require('furball', { version: '/v' }, function (err) {
-
-    if (err) {
-        console.log('Failed loading plugin: furball');
-    }
-});
-```
-
-#### `pack.require(names, callback)`
-
-Registers a list of plugins where:
-
-- `names` - an array of plugins names as described in [`pack.register()`](#packregisterplugins-options-callback), or an object in which
-  each key is a plugin name, and each value is the `options` object used to register that plugin.
-- `callback` - the callback function with signature `function(err)` where:
-      - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-        (e.g. among routes, methods, state) will throw an error and will not return a callback.
-
-Batch registration is required when plugins declare a [dependency](#plugindependencydeps-after), so that all the required dependencies are loaded in
-a single transaction (internal order does not matter).
-
-```javascript
-pack.require(['furball', 'lout'], function (err) {
-
-    if (err) {
-        console.log('Failed loading plugin: furball');
-    }
-});
-
-pack.require({ furball: null, lout: { endpoint: '/docs' } }, function (err) {
-
-    if (err) {
-        console.log('Failed loading plugins');
-    }
-});
-```
-
 #### `pack.register(plugins, [options], callback)`
 
 Registers a plugin where:
@@ -2201,7 +2149,10 @@ Registers a plugin where:
 - `plugins` - a plugin object or array of plugin objects. The objects can use one of two formats:
     - a module plugin object.
     - a manually constructed plugin object.
-- `options` - optional registration options (used by **hapi** and is not passed to the plugin).
+- `options` - optional registration options (used by **hapi** and is not passed to the plugin):
+    - `route` - apply modifiers to any routes added by the plugin:
+        - `prefix` - string added as prefix to any route path (must begin with `'/'`).
+        - `vhost` - virtual host value set to every route.
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
       (e.g. among routes, methods, state) will throw an error and will not return a callback.
