@@ -597,4 +597,31 @@ describe('Method', function () {
             });
         });
     });
+
+    it('shallow copies bind config', function (done) {
+
+        var bind = { gen: 7 };
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: this.gen++, bound: (this === bind) });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method, { bind: bind, cache: { expiresIn: 1000 } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(7);
+                expect(result.bound).to.equal(true);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(7);
+                    done();
+                });
+            });
+        });
+    });
 });

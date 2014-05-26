@@ -76,6 +76,42 @@ describe('Route', function () {
         done();
     });
 
+    it('shallow copies route config bind', function (done) {
+
+        var server = new Hapi.Server();
+        var context = { key: 'is ' };
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(this.key + (this === context)); }, config: { bind: context } });
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('is true');
+            done();
+        });
+    });
+
+    it('shallow copies route config app', function (done) {
+
+        var server = new Hapi.Server();
+        var app = { key: 'is ' };
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.route.app.key + (request.route.app === app)); }, config: { app: app } });
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('is true');
+            done();
+        });
+    });
+
+    it('shallow copies route config plugins', function (done) {
+
+        var server = new Hapi.Server();
+        var plugins = { key: 'is ' };
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.route.plugins.key + (request.route.plugins === plugins)); }, config: { plugins: plugins } });
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('is true');
+            done();
+        });
+    });
+
     describe('#sort', function () {
 
         var paths = [
