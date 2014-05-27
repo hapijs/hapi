@@ -7,8 +7,7 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    if (options) {
-
+    if (options.route) {
         plugin.register(require('../../--test1'), options, next);
     }
     else {
