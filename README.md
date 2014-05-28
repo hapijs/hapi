@@ -11,7 +11,7 @@ For the latest updates and release information follow [@hapijs](https://twitter.
 Current version: **5.1.x** ([release notes](https://github.com/spumko/hapi/issues?labels=release+notes&page=1&state=closed))
 
 
-[![Build Status](https://secure.travis-ci.org/spumko/hapi.png)](http://travis-ci.org/spumko/hapi)
+[![Build Status](https://secure.travis-ci.org/spumko/hapi.svg)](http://travis-ci.org/spumko/hapi)
 
 [![NPM](https://nodei.co/npm/hapi.png?downloads=true&stars=true)](https://nodei.co/npm/hapi/)
 
