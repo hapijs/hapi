@@ -754,7 +754,7 @@ describe('Pack', function () {
         expect(function () {
 
             server.pack.register(require('./pack/--deps1'), function (err) { });
-        }).to.throw('Plugin --deps1 missing dependency --deps2 in server: http://monterey:80');
+        }).to.throw('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
         done();
     });
 
@@ -773,7 +773,7 @@ describe('Pack', function () {
         expect(function () {
 
             server.pack.register(plugin, function (err) { });
-        }).to.throw('Plugin test missing dependency none in server: http://monterey:80');
+        }).to.throw('Plugin test missing dependency none in server: ' + server.info.uri);
         done();
     });
 
@@ -784,7 +784,7 @@ describe('Pack', function () {
         var domain = Domain.create();
         domain.on('error', function (err) {
 
-            expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: http://monterey:80');
+            expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
             done();
         });
 
