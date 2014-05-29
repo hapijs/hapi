@@ -18,7 +18,7 @@
     "node": ">=0.10.22"
   },
   "dependencies": {
-    "hoek": "2.x.x",
+    "hoek": "^2.3.x",
     "boom": "^2.4.x",
     "joi": "^4.4.x",
     "catbox": "^2.1.x",
