@@ -1232,6 +1232,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                plugin.expose('super', 'trooper');
                 next();
             }
         };
@@ -1239,6 +1240,11 @@ describe('Pack', function () {
         pack.register(plugin, { labels: ['a', 'c'] }, function (err) {
 
             expect(err).to.not.exist;
+            expect(pack.plugins.test).to.not.exist;
+            expect(server1.plugins.test.super).to.equal('trooper');
+            expect(server2.plugins.test).to.not.exist;
+            expect(server3.plugins.test.super).to.equal('trooper');
+
             server1.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
