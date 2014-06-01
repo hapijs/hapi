@@ -1255,6 +1255,42 @@ describe('Pack', function () {
         });
     });
 
+    it('listens to events on selected servers', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['a'] });
+        pack.server({ labels: ['b'] });
+        pack.server({ labels: ['c'] });
+
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+        var server3 = pack._servers[2];
+
+        var counter = 0;
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.select(['a', 'b']).events.on('test', function () {
+
+                    ++counter;
+                });
+
+                next();
+            }
+        };
+
+        pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server1.emit('test');
+            server2.emit('test');
+            server3.emit('test');
+            expect(counter).to.equal(2);
+            done();
+        });
+    });
+
     describe('#_provisionCache ', function () {
 
         it('throws when missing options', function (done) {

@@ -73,7 +73,6 @@
         - [`plugin.hapi`](#pluginhapi)
         - [`plugin.version`](#pluginversion)
         - [`plugin.app`](#pluginapp)
-        - [`plugin.events`](#pluginevents)
         - [`plugin.plugins`](#pluginplugins)
         - [`plugin.path(path)`](#pluginpathpath)
         - [`plugin.log(tags, [data, [timestamp]])`](#pluginlogtags-data-timestamp)
@@ -91,6 +90,7 @@
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
         - [`plugin.servers`](#pluginservers)
+        - [`plugin.events`](#pluginevents)
         - [`plugin.expose(key, value)`](#pluginexposekey-value)
         - [`plugin.expose(obj)`](#pluginexposeobj)
         - [`plugin.route(options)`](#pluginrouteoptions)
@@ -2386,22 +2386,6 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.events`
-
-The `pack.events' emitter.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.events.on('internalError', function (request, err) {
-
-        console.log(err);
-    });
-
-    next();
-};
-```
-
 #### `plugin.plugins`
 
 An object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value)
@@ -2697,6 +2681,22 @@ exports.register = function (plugin, options, next) {
     selection.servers.forEach(function (server) {
 
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+    });
+
+    next();
+};
+```
+
+#### `plugin.events`
+
+An emitter containing the events of all the selected servers.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.events.on('internalError', function (request, err) {
+
+        console.log(err);
     });
 
     next();
