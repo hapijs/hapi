@@ -98,7 +98,7 @@ describe('Pack', function () {
         });
     });
 
-    it('registers plugins with options', function (done) {
+    it('registers plugin with options', function (done) {
 
         var pack = new Hapi.Pack();
         pack.server({ labels: ['a', 'b'] });
@@ -120,7 +120,7 @@ describe('Pack', function () {
         });
     });
 
-    it('registers plugin via server plugin interface', function (done) {
+    it('registers plugin via server pack interface', function (done) {
 
         var plugin = {
             name: 'test',
@@ -256,7 +256,7 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            expect(server.pack._list['--steve'].version).to.equal('0.0.0');
+            expect(server._registrations['--steve'].version).to.equal('0.0.0');
             server.inject('/', function (res) {
 
                 expect(res.result).to.equal(Hapi.version);
@@ -284,7 +284,7 @@ describe('Pack', function () {
         done();
     });
 
-    it('registers required plugin', function (done) {
+    it('registers plugin with exposed api', function (done) {
 
         var pack = new Hapi.Pack();
         pack.server({ labels: ['s1', 'a', 'b'] });
@@ -308,19 +308,7 @@ describe('Pack', function () {
         });
     });
 
-    it('registers a plugin with options', function (done) {
-
-        var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
-
-        pack.register({ plugin: require('./pack/--test1'), options: { something: true } }, function (err) {
-
-            expect(err).to.not.exist;
-            done();
-        });
-    });
-
-    it('requires plugin via server plugin interface', function (done) {
+    it('prevents plugin from multiple registrations', function (done) {
 
         var plugin = {
             name: 'test',
@@ -335,14 +323,63 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            expect(routesList(server)).to.deep.equal(['/a']);
-
             expect(function () {
 
                 server.pack.register(plugin, function (err) { });
-            }).to.throw();
+            }).to.throw('Plugin test already registered in: ' + server.info.uri);
 
             done();
+        });
+    });
+
+    it('allows plugin multiple registrations (attributes)', function (done) {
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
+                next();
+            }
+        };
+
+        plugin.register.attributes = { multiple: true };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                expect(server.pack.app.x).to.equal(2);
+                done();
+            });
+        });
+    });
+
+    it('allows plugin multiple registrations (property)', function (done) {
+
+        var plugin = {
+            name: 'test',
+            multiple: true,
+            register: function (plugin, options, next) {
+
+                plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                expect(server.pack.app.x).to.equal(2);
+                done();
+            });
         });
     });
 
@@ -548,16 +585,46 @@ describe('Pack', function () {
         });
     });
 
-    it('fails to require missing module', function (done) {
+    it('registers a plugin on selection inside a plugin', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
+        pack.server({ labels: ['a'] });
+        pack.server({ labels: ['b'] });
+        pack.server({ labels: ['c'] });
 
-        expect(function () {
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+        var server3 = pack._servers[2];
 
-            pack.register(require('./pack/none'), function (err) { });
-        }).to.throw('Cannot find module');
-        done();
+        var child = {
+            name: 'child',
+            register: function (plugin, options, next) {
+
+                plugin.expose('key2', 2);
+                next();
+            }
+        };
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.expose('key1', 1);
+                plugin.select('a').register(child, next);
+            }
+        };
+
+        pack.register(plugin, { labels: ['a', 'b'] }, function (err) {
+
+            expect(err).to.not.exist;
+            expect(server1.plugins.test.key1).to.equal(1);
+            expect(server1.plugins.child.key2).to.equal(2);
+            expect(server2.plugins.test.key1).to.equal(1);
+            expect(server2.plugins.child).to.not.exist;
+            expect(server3.plugins.test).to.not.exist;
+            expect(server3.plugins.child).to.not.exist;
+            done();
+        });
     });
 
     it('starts and stops', function (done) {
@@ -687,7 +754,7 @@ describe('Pack', function () {
         expect(function () {
 
             server.pack.register(require('./pack/--deps1'), function (err) { });
-        }).to.throw('Plugin --deps1 missing dependencies: --deps2');
+        }).to.throw('Plugin --deps1 missing dependency --deps2 in server: http://monterey:80');
         done();
     });
 
@@ -706,7 +773,7 @@ describe('Pack', function () {
         expect(function () {
 
             server.pack.register(plugin, function (err) { });
-        }).to.throw('Plugin test missing dependencies: none');
+        }).to.throw('Plugin test missing dependency none in server: http://monterey:80');
         done();
     });
 
@@ -717,7 +784,7 @@ describe('Pack', function () {
         var domain = Domain.create();
         domain.on('error', function (err) {
 
-            expect(err.message).to.equal('Plugin --deps1 missing dependencies: --deps2');
+            expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: http://monterey:80');
             done();
         });
 

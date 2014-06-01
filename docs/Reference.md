@@ -76,14 +76,12 @@
         - [`plugin.plugins`](#pluginplugins)
         - [`plugin.path(path)`](#pluginpathpath)
         - [`plugin.log(tags, [data, [timestamp]])`](#pluginlogtags-data-timestamp)
-        - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
         - [`plugin.after(method)`](#pluginaftermethod)
         - [`plugin.views(options)`](#pluginviewsoptions)
         - [`plugin.method(name, fn, [options])`](#pluginmethodname-fn-options)
         - [`plugin.method(method)`](#pluginmethodmethod)
         - [`plugin.methods`](#pluginmethods)
         - [`plugin.cache(options)`](#plugincacheoptions)
-        - [`plugin.register(plugins, options, callback)`](#pluginregisterplugins-options-callback)
         - [`plugin.bind(bind)`](#pluginbind-bind)
         - [`plugin.handler(name, method)`](#pluginhandlername-method)
     - [Selectable methods and properties](#selectable-methods-and-properties)
@@ -99,6 +97,8 @@
         - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
         - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
+        - [`plugin.register(plugins, options, callback)`](#pluginregisterplugins-options-callback)
+        - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
 - [`Hapi.state`](#hapistate)
       - [`prepareValue(name, value, options, callback)`](#preparevaluename-value-options-callback)
 - [`Hapi.version`](#hapiversion)
@@ -2421,36 +2421,6 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.dependency(deps, [after])`
-
-Declares a required dependency upon other plugins where:
-
-- `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
-  must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
-  should be implemented using [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
-- `after` - an optional function called after all the specified dependencies have been registered and before the servers start. The function is only
-  called if the pack servers are started. If a circular dependency is created, the call will assert (e.g. two plugins each has an `after` function
-  to be called after the other). The function signature is `function(plugin, next)` where:
-    - `plugin` - the [plugin interface](#plugin-interface) object.
-    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
-      signature is `function(err)` where:
-        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
-          registration error is considered an unrecoverable event which should terminate the application.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.dependency('yar', after);
-    next();
-};
-
-var after = function (plugin, next) {
-
-    // Additional plugin registration logic
-    next();
-};
-```
-
 #### `plugin.after(method)`
 
 Add a method to be called after all the required plugins have been registered and before the servers start. The function is only
@@ -2792,6 +2762,45 @@ exports.register = function (plugin, options, next) {
         extNext();
     });
 
+    next();
+};
+```
+
+#### `plugin.require(plugins, [options], callback)`
+
+Registers a plugin with the current selection following the syntax of `pack.register()`.
+
+exports.register = function (plugin, options, next) {
+
+    plugin.register({ plugin: require('furball'), options: { version: '/v' } }, next);
+};
+
+#### `plugin.dependency(deps, [after])`
+
+Declares a required dependency upon other plugins where:
+
+- `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
+  must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
+  should be implemented using [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
+- `after` - an optional function called after all the specified dependencies have been registered and before the servers start. The function is only
+  called if the pack servers are started. If a circular dependency is created, the call will assert (e.g. two plugins each has an `after` function
+  to be called after the other). The function signature is `function(plugin, next)` where:
+    - `plugin` - the [plugin interface](#plugin-interface) object.
+    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
+      signature is `function(err)` where:
+        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
+          registration error is considered an unrecoverable event which should terminate the application.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.dependency('yar', after);
+    next();
+};
+
+var after = function (plugin, next) {
+
+    // Additional plugin registration logic
     next();
 };
 ```
