@@ -29,6 +29,7 @@
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
         - [`server.handler(name, method)`](#serverhandlername-method)
+        - [`server.location(uri, [request])`](#serverlocationuri-request)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -1300,6 +1301,20 @@ server.route({
 
 server.start();
 ```
+
+#### `server.location(uri, [request])`
+
+Converts the provided URI to an absolute URI using the server or request configuration where:
+- `uri` - the relative URI.
+- `request` - an optional request object for using the request host header if no server location has been configured.
+
+```javascript
+var Hapi = require('hapi');
+var server = Hapi.createServer('localhost', 8000);
+
+console.log(server.location('/relative'));
+```
+
 
 ### `Server` events
 
