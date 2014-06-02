@@ -614,7 +614,7 @@ describe('Pack', function () {
             }
         };
 
-        pack.register(plugin, { labels: ['a', 'b'] }, function (err) {
+        pack.register(plugin, { select: ['a', 'b'] }, function (err) {
 
             expect(err).to.not.exist;
             expect(server1.plugins.test.key1).to.equal(1);
@@ -1268,7 +1268,7 @@ describe('Pack', function () {
             }
         };
 
-        pack.register(plugin, { labels: 'a' }, function (err) {
+        pack.register(plugin, { select: 'a' }, function (err) {
 
             expect(err).to.not.exist;
             server1.inject('/', function (res) {
@@ -1304,7 +1304,7 @@ describe('Pack', function () {
             }
         };
 
-        pack.register(plugin, { labels: ['a', 'c'] }, function (err) {
+        pack.register(plugin, { select: ['a', 'c'] }, function (err) {
 
             expect(err).to.not.exist;
             expect(pack.plugins.test).to.not.exist;
@@ -1659,6 +1659,119 @@ describe('Pack', function () {
                 Hapi.Pack.compose(manifest, function (err, pack) { });
             }).to.throw('Manifest missing servers definition');
             done();
+        });
+
+        it('composes pack with plugin registration options', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    },
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['a', 'b']
+                        }
+                    },
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['b', 'c']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--custom': [
+                        {
+                            options: {
+                                path: '/'
+                            }
+                        },
+                        {
+                            select: 'a',
+                            options: {
+                                path: '/a'
+                            }
+                        },
+                        {
+                            select: 'b',
+                            options: {
+                                path: '/b'
+                            }
+                        },
+                        {
+                            route: {
+                                prefix: '/steve'
+                            },
+                            options: {
+                                path: '/a'
+                            }
+                        }
+                    ]
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+
+                var server1 = pack._servers[0];
+                var server2 = pack._servers[1];
+
+                server1.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('/');
+
+                    server2.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        expect(res.result).to.equal('/');
+
+                        server1.inject('/a', function (res) {
+
+                            expect(res.statusCode).to.equal(200);
+                            expect(res.result).to.equal('/a');
+
+                            server2.inject('/a', function (res) {
+
+                                expect(res.statusCode).to.equal(404);
+
+                                server1.inject('/b', function (res) {
+
+                                    expect(res.statusCode).to.equal(200);
+                                    expect(res.result).to.equal('/b');
+
+                                    server2.inject('/b', function (res) {
+
+                                        expect(res.statusCode).to.equal(200);
+                                        expect(res.result).to.equal('/b');
+
+                                        server1.inject('/steve/a', function (res) {
+
+                                            expect(res.statusCode).to.equal(200);
+                                            expect(res.result).to.equal('/a');
+
+                                            server2.inject('/steve/a', function (res) {
+
+                                                expect(res.statusCode).to.equal(200);
+                                                expect(res.result).to.equal('/a');
+                                                done();
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
         });
     });
 });

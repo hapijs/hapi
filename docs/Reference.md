@@ -2145,7 +2145,7 @@ Registers a plugin where:
     - a module plugin object.
     - a manually constructed plugin object.
 - `options` - optional registration options (used by **hapi** and is not passed to the plugin):
-    - `labels` - string or array of strings of labels or pre-select for plugin registration.
+    - `select` - string or array of strings of labels to pre-select for plugin registration.
     - `route` - apply modifiers to any routes added by the plugin:
         - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin registers a child plugin
           the `prefix` is passed on to the child or is added in front of the child-specific prefix.
@@ -2179,6 +2179,8 @@ server.pack.register({
 Manually constructed plugin is an object containing:
 - `name` - plugin name.
 - `version` - an optional plugin version. Defaults to `'0.0.0'`.
+- `multiple` - an optional boolean indicating if the plugin is safe to register multiple time with the same server.
+  Defaults to `false`.
 - `register` - the [`register()`](#exportsregisterplugin-options-next) function.
 - `options` - optional configuration object which is passed to the plugin via the `options` argument in
   [`exports.register()`](#exportsregisterplugin-options-next).
@@ -2214,7 +2216,11 @@ and registering plugins where:
         - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
           `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an
           environment variable by prefixing the variable name with `'$env.'`.
-    - `plugins` - an object where each key is a plugin name, and each value is the `options` object used to register that plugin.
+    - `plugins` - an object where each key is a plugin name, and each value is one of:
+        - the `options` object passed to the plugin on registration.
+        - an array of object where:
+            - `options` - the object passed to the plugin on registration.
+            - any key supported by the `pack.register()` options used for registration (e.g. `select`).
 - `options` - optional compose configuration:
     - `relativeTo` - path prefix used when loading plugins using node's `require()`. The `relativeTo` path prefix is added to any
       relative plugin name (i.e. beings with `'./'`). All other module names are required as-is and will be looked up from the location
@@ -2253,7 +2259,15 @@ var manifest = {
             cookieOptions: {
                 password: 'secret'
             }
-        }
+        },
+        'furball': [
+            {
+                select: 'web',
+                options: {
+                    version: '/v'
+                }
+            }
+        ]
     }
 };
 
@@ -2309,6 +2323,15 @@ already has the name and version included:
 
 ```javascript
 exports.register.attributes = {
+    pkg: require('./package.json')
+};
+```
+
+The `multiple` attributes specifies that a plugin is safe to register multiple times with the same server.
+
+```javascript
+exports.register.attributes = {
+    multiple: true,
     pkg: require('./package.json')
 };
 ```
