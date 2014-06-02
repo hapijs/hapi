@@ -1331,9 +1331,9 @@ describe('Pack', function () {
     it('listens to events on selected servers', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a'] });
-        pack.server({ labels: ['b'] });
-        pack.server({ labels: ['c'] });
+        pack.server(0, { labels: ['a'] });
+        pack.server(0, { labels: ['b'] });
+        pack.server(0, { labels: ['c'] });
 
         var server1 = pack._servers[0];
         var server2 = pack._servers[1];
@@ -1349,6 +1349,11 @@ describe('Pack', function () {
                     ++counter;
                 });
 
+                plugin.select(['a']).events.on('start', function () {
+
+                    ++counter;
+                });
+
                 next();
             }
         };
@@ -1359,8 +1364,15 @@ describe('Pack', function () {
             server1.emit('test');
             server2.emit('test');
             server3.emit('test');
-            expect(counter).to.equal(2);
-            done();
+
+            pack.start(function () {
+
+                pack.stop(function () {
+
+                    expect(counter).to.equal(3);
+                    done();
+                });
+            });
         });
     });
 
