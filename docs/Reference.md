@@ -925,6 +925,9 @@ can be registered with the server using the `server.state()` method, where:
         - `password` - password used for HMAC key generation.
     - `password` - password used for `'iron'` encoding.
     - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
+    - `failAction` - overrides the default server `state.cookies.failAction` setting.
+    - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
+    - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
 
 ```javascript
 // Set cookie definition
