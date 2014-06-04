@@ -121,7 +121,7 @@ Creates a new server instance with the following arguments:
 - `host` - the hostname, IP address, or path to UNIX domain socket the server is bound to. Defaults to `0.0.0.0` which means any available network
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from the same machine. If `host` contains a '/' character, it
   is used as a UNIX domain socket path and if it starts with '\\.\pipe' as a Windows named pipe.
-- `port` - the TPC port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
+- `port` - the TCP port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
   To use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
 - `options` - An object with the server configuration as described in [server options](#server-options).
 
