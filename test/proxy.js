@@ -248,32 +248,98 @@ describe('Proxy', function () {
         });
     });
 
-    it('does not forward upstream headers without passThrough', function (done) {
+    it('should maintain Accept-Encoding header if requested', function (done) {
 
-        var headers = function (request, reply) {
+      var response = '{"status":  "success" }';
 
-            reply({ status: 'success' })
-                .header('Custom1', 'custom header value 1')
-                .header('X-Custom2', 'custom header value 2')
-                .header('access-control-allow-headers', 'Invalid, List, Of, Values');
+      var gzipStreamHandler = function (request, reply) {
+        reply(response);
+      };
+
+      var upstream = new Hapi.Server(0);
+      upstream.route({ method: 'GET', path: '/gzipstream', handler: gzipStreamHandler });
+      upstream.start(function () {
+
+        var onResponse = function(err, res, request, reply, settings, ttl) {
+          Nipple.read(res, function (err, body) {
+
+            Zlib.unzip(new Buffer(body, 'binary'), function (err, unzipped) {
+              expect(err).to.not.exist;
+              expect(unzipped.toString('utf8')).to.deep.equal(response);
+              done();
+            });
+          });
+
+          reply("{}");
+
         };
 
-        var upstream = new Hapi.Server(0);
-        upstream.route({ method: 'GET', path: '/noHeaders', handler: headers });
-        upstream.start(function () {
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true, onResponse: onResponse, keepAcceptEncoding: true } } });
 
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
+        server.inject({ url: '/gzipstream', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
-            server.inject('/noHeaders', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('{\"status\":\"success\"}');
-                expect(res.headers.custom1).to.not.exist;
-                expect(res.headers['x-custom2']).to.not.exist;
-                done();
-            });
+          expect(res.statusCode).to.equal(200);
         });
+      });
+    });
+
+    it('should not maintain Accept-Encoding header in default config', function (done) {
+
+      var response = '{"status":  "success" }';
+
+      var gzipStreamHandler = function (request, reply) {
+        reply(response);
+      };
+
+      var upstream = new Hapi.Server(0);
+      upstream.route({ method: 'GET', path: '/gzipstream', handler: gzipStreamHandler });
+      upstream.start(function () {
+
+        var onResponse = function (err, res, request, reply, settings, ttl) {
+          Nipple.read(res, function (err, body) {
+            expect(err).to.not.exist;
+            expect(body.toString()).to.deep.equal(response);
+          });
+          reply("{}");
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/gzipstream', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true, onResponse: onResponse} } });
+
+        server.inject({ url: '/gzipstream', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+          expect(res.statusCode).to.equal(200);
+          done();
+        });
+      });
+    });
+
+    it('does not forward upstream headers without passThrough', function (done) {
+
+          var headers = function (request, reply) {
+
+              reply({ status: 'success' })
+                  .header('Custom1', 'custom header value 1')
+                  .header('X-Custom2', 'custom header value 2')
+                  .header('access-control-allow-headers', 'Invalid, List, Of, Values');
+          };
+
+          var upstream = new Hapi.Server(0);
+          upstream.route({ method: 'GET', path: '/noHeaders', handler: headers });
+          upstream.start(function () {
+
+              var server = new Hapi.Server();
+              server.route({ method: 'GET', path: '/noHeaders', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
+
+              server.inject('/noHeaders', function (res) {
+
+                  expect(res.statusCode).to.equal(200);
+                  expect(res.payload).to.equal('{\"status\":\"success\"}');
+                  expect(res.headers.custom1).to.not.exist;
+                  expect(res.headers['x-custom2']).to.not.exist;
+                  done();
+              });
+          });
     });
 
     it('request a cached proxy route', function (done) {
