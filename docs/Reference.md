@@ -104,7 +104,7 @@
 - [`Hapi.state`](#hapistate)
       - [`prepareValue(name, value, options, callback)`](#preparevaluename-value-options-callback)
 - [`Hapi.version`](#hapiversion)
-- [Hapi CLI](#hapi-cli)
+- [hapi CLI](#hapi-cli)
 
 ## `Hapi.Server`
 
@@ -2920,7 +2920,7 @@ var Hapi = require('hapi');
 console.log(Hapi.version);
 ```
 
-## `Hapi CLI`
+## `hapi CLI`
 
 The **hapi** command line interface allows a pack of servers to be composed and started from a configuration file
 only from the command line. When installing **hapi** with the global flag the **hapi** binary script will be
