@@ -765,7 +765,7 @@ describe('Proxy', function () {
 
         var redirectHandler = function (request, reply) {
 
-            reply().redirect('/redirect?x=1');
+            reply.redirect('/redirect?x=1');
         };
 
         var upstream = new Hapi.Server(0);
@@ -833,7 +833,7 @@ describe('Proxy', function () {
 
         var redirectHandler = function (request, reply) {
 
-            reply().redirect('/profile');
+            reply.redirect('/profile');
         };
 
         var profile = function (request, reply) {
@@ -894,7 +894,7 @@ describe('Proxy', function () {
     it('redirects to a post endpoint with stream', function (done) {
 
         var upstream = new Hapi.Server(0);
-        upstream.route({ method: 'POST', path: '/post1', handler: function (request, reply) { reply().redirect('/post2').rewritable(false); } });
+        upstream.route({ method: 'POST', path: '/post1', handler: function (request, reply) { reply.redirect('/post2').rewritable(false); } });
         upstream.route({ method: 'POST', path: '/post2', handler: function (request, reply) { reply(request.payload); } });
         upstream.start(function () {
 

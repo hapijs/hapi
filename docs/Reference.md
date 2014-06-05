@@ -47,6 +47,7 @@
     - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
     - [`reply.close([options])`](#replycloseoptions)
     - [`reply.proxy(options)`](#replyproxyoptions)
+    - [`reply.redirect(location)`](#replyredirectlocation)
 - [Response object](#response-object)
     - [Response events](#response-events)
 - [`Hapi.error`](#hapierror)
@@ -1632,7 +1633,7 @@ var pre = function (request, reply) {
 ### `reply([result])`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
+`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Concludes the handler activity by returning control over to the router where:
 
@@ -1673,7 +1674,7 @@ Note that if `result` is a `Stream` with a `statusCode` property, that status co
 ### `reply.file(path, [options])`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
+`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension.:
 
@@ -1700,7 +1701,7 @@ var handler = function (request, reply) {
 ### `reply.view(template, [context, [options]])`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
+`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Concludes the handler activity by returning control over to the router with a templatized view response where:
 
@@ -1753,7 +1754,7 @@ server.route({ method: 'GET', path: '/', handler: handler });
 ### `reply.close([options])`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
+`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
 directly via `request.raw.res` and that no further response action is needed. Supports the following optional options:
@@ -1766,7 +1767,7 @@ The [response flow control rules](#flow-control) **do not** apply.
 ### `reply.proxy(options)`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, or `reply.proxy()`  is called._
+`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Proxies the request to an upstream endpoint where:
 - `options` - an object including the same keys and restrictions defined by the [route `proxy` handler options](#route.config.proxy).
@@ -1779,6 +1780,24 @@ The [response flow control rules](#flow-control) **do not** apply.
 var handler = function (request, reply) {
 
     reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
+};
+```
+
+### `reply.redirect(location)`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
+`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
+
+Redirects the client to the specified location. Same as calling `reply().redirect(location)`.
+
+Returns a response object.
+
+The [response flow control rules](#flow-control) apply.
+
+```javascript
+var handler = function (request, reply) {
+
+    reply.redirect('http://example.com');
 };
 ```
 
