@@ -23,6 +23,7 @@
         - [`server.cache(name, options)`](#servercachename-options)
         - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
         - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
+        - [`server.auth.test(strategy, request, next)`](#serverauthteststrategy-request-next)
         - [`server.ext(event, method, [options])`](#serverextevent-method-options)
             - [Request lifecycle](#request-lifecycle)
         - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
@@ -1043,6 +1044,15 @@ Registers an authentication strategy where:
   assigned to a single server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode
   (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
 - `options` - scheme options based on the scheme requirements.
+
+#### `server.auth.test(strategy, request, next)`
+
+Tests a request against an authentication strategy where:
+- `strategy` - the strategy name registered with `server.auth.strategy()`.
+- `request` - the request object. The request route authentication configuration is not used.
+- `next` - the callback function with signature `function(err, credentials)` where:
+    - `err` - the error if authentication failed.
+    - `credentials` - the authentication credentials object if authentication was successful.
 
 #### `server.ext(event, method, [options])`
 

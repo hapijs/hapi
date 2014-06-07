@@ -786,6 +786,40 @@ describe('Auth', function () {
             });
         });
     });
+
+    it('tests a request', function (done) {
+
+        var handler = function (request, reply) {
+
+            request.server.auth.test('default', request, function (err, credentials) {
+
+                if (err) {
+                    return reply({ status: false });
+                }
+
+                return reply({ status: true, user: credentials.name });
+            });
+        };
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' } } });
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.status).to.equal(false);
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.status).to.equal(true);
+                expect(res.result.user).to.equal('steve');
+                done();
+            });
+        });
+    });
 });
 
 
