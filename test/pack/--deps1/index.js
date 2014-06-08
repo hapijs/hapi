@@ -20,6 +20,11 @@ exports.register = function (plugin, options, next) {
 };
 
 
+exports.register.attributes = {
+    pkg: require('./package.json')
+};
+
+
 internals.after = function (plugin, next) {
 
     plugin.expose('breaking', plugin.plugins['--deps2'].breaking);

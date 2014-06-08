@@ -7,15 +7,14 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.after(function (plugin, finish) {
-
-        finish(new Error('Not in the mood'));
-    });
-
+    plugin.route({ method: 'GET', path: options.path, handler: function (request, reply) { reply(options.path); } });
     return next();
 };
 
 
 exports.register.attributes = {
-    pkg: require('./package.json')
+    name: '--custom',
+    version: '1.0.0',
+    multiple: true
 };
+

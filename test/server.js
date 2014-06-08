@@ -30,6 +30,30 @@ var it = Lab.test;
 
 describe('Server', function () {
 
+    it('shallow clones app config', function (done) {
+
+        var item = {};
+        var server = new Hapi.Server({ app: item });
+        expect(server.settings.app).to.equal(item);
+        done();
+    });
+
+    it('shallow clones plugins config', function (done) {
+
+        var item = {};
+        var server = new Hapi.Server({ plugins: item });
+        expect(server.settings.plugins).to.equal(item);
+        done();
+    });
+
+    it('shallow clones views config', function (done) {
+
+        var views = { engines: { html: require('handlebars') } };
+        var server = new Hapi.Server({ views: views });
+        expect(server.settings.views).to.equal(views);
+        done();
+    });
+
     it('calls start twice', function (done) {
 
         var server = new Hapi.Server(0);
@@ -633,7 +657,7 @@ describe('Server', function () {
 
         var server = new Hapi.Server({
             views: {
-                engines: { 'html': 'handlebars' }
+                engines: { 'html': require('handlebars') }
             }
         });
         expect(server._views).to.exist;
@@ -1540,5 +1564,36 @@ describe('Server', function () {
             }).to.not.throw();
             done();
         })
+    });
+
+    describe('#location', function () {
+
+        it('returns back the same absolute location', function (done) {
+
+            var server = new Hapi.Server({ location: 'http://example.net' });
+            expect(server.location('http://example.com/test')).to.equal('http://example.com/test');
+            done();
+        });
+
+        it('returns back the an absolute location using server config', function (done) {
+
+            var server = new Hapi.Server({ location: 'http://example.net' });
+            expect(server.location('/test')).to.equal('http://example.net/test');
+            done();
+        });
+
+        it('returns back the an absolute location using request host', function (done) {
+
+            var server = new Hapi.Server();
+            expect(server.location('/test', { info: { host: 'example.edu' } })).to.equal('http://example.edu/test');
+            done();
+        });
+
+        it('returns back the an absolute location using server info', function (done) {
+
+            var server = new Hapi.Server();
+            expect(server.location('/test')).to.equal('http://0.0.0.0:80/test');
+            done();
+        });
     });
 });

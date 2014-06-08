@@ -46,7 +46,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '5.0.0',
             register: function (plugin, options, next) {
 
                 var a = plugin.select('a');
@@ -95,51 +94,67 @@ describe('Pack', function () {
             expect(routesList(pack._servers[1])).to.deep.equal(['/a', '/all', '/sodd']);
             expect(routesList(pack._servers[2])).to.deep.equal(['/a', '/ab', '/all']);
             expect(routesList(pack._servers[3])).to.deep.equal(['/all', '/sodd', '/memoryx']);
-
-            expect(pack._servers[0].pack.list.test.version).to.equal('5.0.0');
-
             done();
         });
     });
 
-    it('registers plugins with options', function (done) {
+    it('registers plugin with options', function (done) {
 
         var pack = new Hapi.Pack();
         pack.server({ labels: ['a', 'b'] });
 
         var plugin = {
             name: 'test',
-            version: '5.0.0',
             register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
                 next();
-            }
+            },
+            options: { something: true }
         };
 
-        pack.register(plugin, { something: true }, function (err) {
+        pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
             done();
         });
     });
 
-    it('registers plugin via server plugin interface', function (done) {
+    it('registers plugin via server pack interface', function (done) {
 
         var plugin = {
             name: 'test',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
                 next();
+            },
+            options: { something: true }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
+    it('returns plugin error', function (done) {
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                next(new Error('from plugin'));
             }
         };
 
         var server = new Hapi.Server();
-        server.pack.register(plugin, { something: true }, function (err) {
+        server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.exist;
+            expect(err.message).to.equal('from plugin');
             done();
         });
     });
@@ -147,15 +162,14 @@ describe('Pack', function () {
     it('throws when plugin missing register', function (done) {
 
         var plugin = {
-            name: 'test',
-            version: '2.0.0'
+            name: 'test'
         };
 
         var server = new Hapi.Server();
         expect(function () {
 
             server.pack.register(plugin, { something: true }, function (err) { });
-        }).to.throw('Plugin missing register() method');
+        }).to.throw('One of plugin or register required but cannot include both');
         done();
     });
 
@@ -169,71 +183,135 @@ describe('Pack', function () {
         done();
     });
 
-    it('requires plugin', function (done) {
-
-        var pack = new Hapi.Pack();
-        pack.server({ labels: ['s1', 'a', 'b'] });
-        pack.server({ labels: ['s2', 'a', 'test'] });
-        pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
-        pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
-
-        pack.require('./pack/--test1', {}, function (err) {
-
-            expect(err).to.not.exist;
-
-            expect(pack._servers[0]._router.routes['get']).to.not.exist;
-            expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
-            expect(pack._servers[2]._router.routes['get']).to.not.exist;
-            expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
-
-            expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
-            expect(pack._servers[0].plugins['--test1'].glue('1', '3')).to.equal('13');
-
-            done();
-        });
-    });
-
-    it('requires plugin with absolute path', function (done) {
-
-        var pack = new Hapi.Pack();
-        pack.server({ labels: ['s1', 'a', 'b'] });
-        pack.server({ labels: ['s2', 'a', 'test'] });
-        pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
-        pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
-
-        pack.require(__dirname + '/pack/--test1', {}, function (err) {
-
-            expect(err).to.not.exist;
-
-            expect(pack._servers[0]._router.routes['get']).to.not.exist;
-            expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
-            expect(pack._servers[2]._router.routes['get']).to.not.exist;
-            expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
-
-            expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
-            expect(pack._servers[0].plugins['--test1'].glue('1', '3')).to.equal('13');
-
-            done();
-        });
-    });
-
-    it('requires a plugin with options', function (done) {
-
-        var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
-
-        pack.require('./pack/--test1', { something: true }, function (err) {
-
-            expect(err).to.not.exist;
-            done();
-        });
-    });
-
-    it('requires plugin via server plugin interface', function (done) {
+    it('throws when plugin contains non object plugin property', function (done) {
 
         var plugin = {
             name: 'test',
-            version: '2.0.0',
+            plugin: 5
+        };
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.register(plugin, function (err) { });
+        }).to.throw('Plugin register must be a function or a required plugin module');
+        done();
+    });
+
+    it('throws when plugin contains an object plugin property with invalid register', function (done) {
+
+        var plugin = {
+            name: 'test',
+            plugin: {
+                register: 5
+            }
+        };
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.register(plugin, function (err) { });
+        }).to.throw('Plugin register must be a function or a required plugin module');
+        done();
+    });
+
+    it('throws when plugin contains a pkg attribute without a name', function (done) {
+
+        var plugin = {
+            register: function () { }
+        };
+
+        plugin.register.attributes = {
+            pkg: {
+
+            }
+        };
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.register(plugin, function (err) { });
+        }).to.throw('Missing plugin name');
+        done();
+    });
+
+    it('sets version to 0.0.0 if missing', function (done) {
+
+        var plugin = {
+            register: function (plugin, options, next) {
+
+                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(plugin.version); } });
+                next();
+            }
+        };
+
+        plugin.register.attributes = {
+            pkg: {
+                name: '--steve'
+            }
+        };
+
+        var server = new Hapi.Server();
+
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            expect(server._registrations['--steve'].version).to.equal('0.0.0');
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal(Hapi.version);
+                done();
+            });
+        });
+    });
+
+    it('throws when plugin sets undefined path', function (done) {
+
+        var plugin = {
+            name: '--steve',
+            register: function (plugin, options, next) {
+
+                plugin.path();
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.register(plugin, function (err) { });
+        }).to.throw('path must be a non-empty string');
+        done();
+    });
+
+    it('registers plugin with exposed api', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['s1', 'a', 'b'] });
+        pack.server({ labels: ['s2', 'a', 'test'] });
+        pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+        pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
+
+        pack.register(require('./pack/--test1'), function (err) {
+
+            expect(err).to.not.exist;
+
+            expect(pack._servers[0]._router.routes['get']).to.not.exist;
+            expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
+            expect(pack._servers[2]._router.routes['get']).to.not.exist;
+            expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
+
+            expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
+            expect(pack._servers[0].plugins['--test1'].glue('1', '3')).to.equal('13');
+
+            done();
+        });
+    });
+
+    it('prevents plugin from multiple registrations', function (done) {
+
+        var plugin = {
+            name: 'test',
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('a'); } });
@@ -245,18 +323,67 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            expect(routesList(server)).to.deep.equal(['/a']);
-
             expect(function () {
 
                 server.pack.register(plugin, function (err) { });
-            }).to.throw();
+            }).to.throw('Plugin test already registered in: ' + server.info.uri);
 
             done();
         });
     });
 
-    it('requires multiple plugins using array', function (done) {
+    it('allows plugin multiple registrations (attributes)', function (done) {
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
+                next();
+            }
+        };
+
+        plugin.register.attributes = { multiple: true };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                expect(server.pack.app.x).to.equal(2);
+                done();
+            });
+        });
+    });
+
+    it('allows plugin multiple registrations (property)', function (done) {
+
+        var plugin = {
+            name: 'test',
+            multiple: true,
+            register: function (plugin, options, next) {
+
+                plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
+                next();
+            }
+        };
+
+        var server = new Hapi.Server();
+        server.pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                expect(server.pack.app.x).to.equal(2);
+                done();
+            });
+        });
+    });
+
+    it('registers multiple plugins', function (done) {
 
         var server = new Hapi.Server({ labels: 'test' });
         var log = null;
@@ -265,56 +392,50 @@ describe('Pack', function () {
             log = [event, tags];
         });
 
-        server.pack.require(['./pack/--test1', './pack/--test2'], function (err) {
+        server.pack.register([require('./pack/--test1'), require('./pack/--test2')], function (err) {
 
             expect(err).to.not.exist;
-            expect(routesList(server)).to.deep.equal(['/test1', '/test2', '/test2/path']);
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
             expect(log[1].test).to.equal(true);
             expect(log[0].data).to.equal('abc');
             done();
         });
     });
 
-    it('requires multiple plugins using object', function (done) {
+    it('registers multiple plugins (verbose)', function (done) {
 
         var server = new Hapi.Server({ labels: 'test' });
-        server.pack.require({ './pack/--test1': {}, './pack/--test2': {} }, function (err) {
+        var log = null;
+        server.pack.events.once('log', function (event, tags) {
 
-            expect(err).to.not.exist;
-            expect(routesList(server)).to.deep.equal(['/test1', '/test2', '/test2/path']);
-            done();
+            log = [event, tags];
         });
-    });
 
-    it('exposes the plugin path', function (done) {
-
-        var server = new Hapi.Server({ labels: 'test' });
-        server.pack.require('./pack/--test2', function (err) {
+        server.pack.register([{ plugin: require('./pack/--test1') }, { plugin: require('./pack/--test2') }], function (err) {
 
             expect(err).to.not.exist;
-            server.inject('/test2/path', function (res) {
-
-                expect(res.result).to.equal(Path.join(process.cwd(), 'test', 'pack', '--test2'));
-                done();
-            });
+            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
+            expect(log[1].test).to.equal(true);
+            expect(log[0].data).to.equal('abc');
+            done();
         });
     });
 
     it('requires plugin with views', function (done) {
 
         var server = new Hapi.Server();
-        server.pack.require({ './pack/--views': { message: 'viewing it' } }, function (err) {
+        server.pack.register({ plugin: require('./pack/--views'), options: { message: 'viewing it' } }, function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ method: 'GET', url: '/view' }, function (res) {
+            server.inject('/view', function (res) {
 
                 expect(res.result).to.equal('<h1>viewing it</h1>');
 
-                server.inject({ method: 'GET', url: '/file' }, function (res) {
+                server.inject('/file', function (res) {
 
                     expect(res.result).to.equal('<h1>{{message}}</h1>');
 
-                    server.inject({ method: 'GET', url: '/ext' }, function (res) {
+                    server.inject('/ext', function (res) {
 
                         expect(res.result).to.equal('<h1>grabbed</h1>');
                         done();
@@ -328,11 +449,10 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '3.0.0',
             register: function (plugin, options, next) {
 
                 plugin.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     basePath: __dirname + '/pack/--views',
                     path: './templates'
                 });
@@ -354,7 +474,7 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ method: 'GET', url: '/view' }, function (res) {
+            server.inject('/view', function (res) {
 
                 expect(res.result).to.equal('<h1>steve</h1>');
                 done();
@@ -362,72 +482,149 @@ describe('Pack', function () {
         });
     });
 
-    it('requires plugin with views and loader', function (done) {
+    it('registers a child plugin', function (done) {
 
-        var server = new Hapi.Server();
-        server.pack.require({ './pack/--viewsLoader': { message: 'viewing it' } }, function (err) {
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--child'), function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/test1', function (res) {
 
-                expect(res.result).to.equal('<h1>{{message}}</h1>|{"message":"viewing it"}');
+                expect(res.result).to.equal('testing123');
                 done();
             });
         });
     });
 
-    it('requires module', function (done) {
+    it('registers a plugin with route path prefix', function (done) {
 
-        var server = new Hapi.Server();
-        server.pack.require('hapi-plugin-test', function (err) {
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--test1'), { route: { prefix: '/xyz' } }, function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
+            server.inject('/xyz/test1', function (res) {
 
-                expect(res.result).to.equal('hapi-plugin-test');
-                expect(server.plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
+                expect(res.result).to.equal('testing123');
                 done();
             });
         });
     });
 
-    it('requires a child plugin', function (done) {
+    it('registers a child plugin with parent route path prefix', function (done) {
 
-        var server = new Hapi.Server();
-        server.pack.require('./pack/--child', function (err) {
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--child'), { route: { prefix: '/xyz' } }, function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
+            server.inject('/xyz/test1', function (res) {
 
-                expect(res.result).to.equal('hapi-plugin-test');
-                expect(server.plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
+                expect(res.result).to.equal('testing123');
                 done();
             });
         });
     });
 
-    it('fails to require missing module', function (done) {
+    it('registers a child plugin with parent route vhost prefix', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--child'), { route: { vhost: 'example.com' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
+    it('registers a child plugin with parent route path prefix and inner register prefix', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register({ plugin: require('./pack/--child'), options: { route: { prefix: '/inner' } } }, { route: { prefix: '/xyz' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/xyz/inner/test1', function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
+    it('registers a child plugin with parent route vhost prefix and inner register vhost', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register({ plugin: require('./pack/--child'), options: { route: { vhost: 'example.net' } } }, { route: { vhost: 'example.com' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
+    it('registers a plugin with route vhost', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--test1'), { route: { vhost: 'example.com' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/test1', function (res) {
+
+                expect(res.statusCode).to.equal(404);
+
+                server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
+
+                    expect(res.result).to.equal('testing123');
+                    done();
+                });
+            });
+        });
+    });
+
+    it('registers a plugin on selection inside a plugin', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
+        pack.server({ labels: ['a'] });
+        pack.server({ labels: ['b'] });
+        pack.server({ labels: ['c'] });
 
-        expect(function () {
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+        var server3 = pack._servers[2];
 
-            pack.require('./pack/none', function (err) { });
-        }).to.throw('Cannot find module');
-        done();
-    });
+        var child = {
+            name: 'child',
+            register: function (plugin, options, next) {
 
-    it('fails to require missing module in default route', function (done) {
+                plugin.expose('key2', 2);
+                next();
+            }
+        };
 
-        var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
 
-        expect(function () {
+                plugin.expose('key1', 1);
+                plugin.select('a').register(child, next);
+            }
+        };
 
-            pack.require('none', function (err) { });
-        }).to.throw('Cannot find module');
-        done();
+        pack.register(plugin, { select: ['a', 'b'] }, function (err) {
+
+            expect(err).to.not.exist;
+            expect(server1.plugins.test.key1).to.equal(1);
+            expect(server1.plugins.child.key2).to.equal(2);
+            expect(server2.plugins.test.key1).to.equal(1);
+            expect(server2.plugins.child).to.not.exist;
+            expect(server3.plugins.test).to.not.exist;
+            expect(server3.plugins.child).to.not.exist;
+            done();
+        });
     });
 
     it('starts and stops', function (done) {
@@ -470,8 +667,8 @@ describe('Pack', function () {
         var pack = new Hapi.Pack();
         expect(function () {
 
-            pack.register({ version: '0.0.0', register: function (plugin, options, next) { next(); } }, function (err) { });
-        }).to.throw('Plugin missing name');
+            pack.register({ register: function (plugin, options, next) { next(); } }, function (err) { });
+        }).to.throw('Missing plugin name');
 
         done();
     });
@@ -480,7 +677,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '3.0.0',
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/b', handler: function (request, reply) { reply('b'); } });
@@ -500,7 +696,7 @@ describe('Pack', function () {
             expect(err).to.not.exist;
             expect(routesList(server)).to.deep.equal(['/b']);
 
-            server.inject({ method: 'GET', url: '/a' }, function (res) {
+            server.inject('/a', function (res) {
 
                 expect(res.result).to.equal('b');
                 done();
@@ -524,7 +720,7 @@ describe('Pack', function () {
         pack._servers[1].route({ method: 'GET', path: '/', handler: handler });
         pack._servers[2].route({ method: 'GET', path: '/', handler: handler });
 
-        pack.require(['./pack/--deps1', './pack/--deps2', './pack/--deps3'], function (err) {
+        pack.register([require('./pack/--deps1'), require('./pack/--deps2'), require('./pack/--deps3')], function (err) {
 
             expect(err).to.not.exist;
 
@@ -533,15 +729,15 @@ describe('Pack', function () {
                 expect(err).to.not.exist;
                 expect(pack.plugins['--deps1'].breaking).to.equal('bad');
 
-                pack._servers[0].inject({ method: 'GET', url: '/' }, function (res) {
+                pack._servers[0].inject('/', function (res) {
 
                     expect(res.result).to.equal('|2|1|')
 
-                    pack._servers[1].inject({ method: 'GET', url: '/' }, function (res) {
+                    pack._servers[1].inject('/', function (res) {
 
                         expect(res.result).to.equal('|3|1|')
 
-                        pack._servers[2].inject({ method: 'GET', url: '/' }, function (res) {
+                        pack._servers[2].inject('/', function (res) {
 
                             expect(res.result).to.equal('|3|2|')
                             done();
@@ -552,68 +748,13 @@ describe('Pack', function () {
         });
     });
 
-    it('automatically resolves the requirePath if specified (relative)', function (done) {
-
-        var pack = new Hapi.Pack({ requirePath: './pack' });
-        pack.server({ labels: 'c' });
-
-        var handler = function (request, reply) {
-
-            return reply(request.app.deps);
-        };
-
-        pack._servers[0].route({ method: 'GET', path: '/', handler: handler });
-
-        pack.require(['./pack/--deps3'], function (err) {
-
-            expect(err).to.not.exist;
-            pack._servers[0].inject({ method: 'GET', url: '/' }, function (res) {
-
-                expect(res.result).to.equal('|3|');
-                done();
-            });
-        });
-    });
-
-    it('automatically resolves the requirePath if specified (node_modules)', function (done) {
-
-        var pack = new Hapi.Pack({ requirePath: process.cwd() + '/node_modules' });
-        pack.server();
-        pack.require('hapi-plugin-test', function (err) {
-
-            expect(err).to.not.exist;
-            pack._servers[0].inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
-
-                expect(res.result).to.equal('hapi-plugin-test');
-                expect(pack._servers[0].plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
-                done();
-            });
-        });
-    });
-
-    it('resolves relative path', function (done) {
-
-        var pack = new Hapi.Pack();
-        pack.server();
-        pack.require('../node_modules/hapi-plugin-test', function (err) {
-
-            expect(err).to.not.exist;
-            pack._servers[0].inject({ method: 'GET', url: '/hapi/plugin/test' }, function (res) {
-
-                expect(res.result).to.equal('hapi-plugin-test');
-                expect(pack._servers[0].plugins['hapi-plugin-test'].path).to.equal(Path.join(process.cwd(), 'node_modules', 'hapi-plugin-test'));
-                done();
-            });
-        });
-    });
-
     it('fails to require single plugin with dependencies', function (done) {
 
         var server = new Hapi.Server();
         expect(function () {
 
-            server.pack.require('./pack/--deps1', function (err) { });
-        }).to.throw('Plugin --deps1 missing dependencies: --deps2');
+            server.pack.register(require('./pack/--deps1'), function (err) { });
+        }).to.throw('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
         done();
     });
 
@@ -621,7 +762,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '3.0.0',
             register: function (plugin, options, next) {
 
                 plugin.dependency('none');
@@ -633,7 +773,7 @@ describe('Pack', function () {
         expect(function () {
 
             server.pack.register(plugin, function (err) { });
-        }).to.throw('Plugin test missing dependencies: none');
+        }).to.throw('Plugin test missing dependency none in server: ' + server.info.uri);
         done();
     });
 
@@ -644,20 +784,20 @@ describe('Pack', function () {
         var domain = Domain.create();
         domain.on('error', function (err) {
 
-            expect(err.message).to.equal('Plugin --deps1 missing dependencies: --deps2');
+            expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
             done();
         });
 
         domain.run(function () {
 
-            server.pack.require(['./pack/--deps1', './pack/--deps3'], function (err) { });
+            server.pack.register([require('./pack/--deps1'), require('./pack/--deps3')], function (err) { });
         });
     });
 
     it('fails to start server when after method fails', function (done) {
 
         var server = new Hapi.Server();
-        server.pack.require('./pack/--afterErr', function (err) {
+        server.pack.register(require('./pack/--afterErr'), function (err) {
 
             expect(err).to.not.exist;
             server.start(function (err) {
@@ -672,7 +812,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
             register: function (plugin, options, next) {
 
                 var cache = plugin.cache({ expiresIn: 10 });
@@ -725,11 +864,11 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!') } });
 
-        server.pack.require('./pack/--auth', function (err) {
+        server.pack.register(require('./pack/--auth'), function (err) {
 
             expect(err).to.not.exist;
 
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(401);
                 server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } }, function (res) {
@@ -748,20 +887,9 @@ describe('Pack', function () {
         pack.server(0, { labels: 'a' });
         pack.server(0, { labels: 'b' });
 
-        pack.require('./pack/--auth', function (err) {
+        pack.register(require('./pack/--auth'), function (err) {
 
             expect(err).to.not.exist;
-            done();
-        });
-    });
-
-    it('requires a plugin using loader', function (done) {
-
-        var server = new Hapi.Server();
-        server.pack.require('./pack/--loader', function (err) {
-
-            expect(err).to.not.exist;
-            expect(server.plugins['--inner']['way-down']).to.equal(42);
             done();
         });
     });
@@ -769,10 +897,10 @@ describe('Pack', function () {
     it('sets plugin context', function (done) {
 
         var server = new Hapi.Server();
-        server.pack.require('./pack/--context', function (err) {
+        server.pack.register(require('./pack/--context'), function (err) {
 
             expect(err).to.not.exist;
-            server.inject({ method: 'GET', url: '/' }, function (res) {
+            server.inject('/', function (res) {
 
                 expect(res.result).to.equal('in context throughout');
                 done();
@@ -784,7 +912,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 plugin.events.once('request', function (request, event, tags) {
@@ -818,20 +945,18 @@ describe('Pack', function () {
         });
     });
 
-    it('sets route handler', function (done) {
+    it('sets directory route handler', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
-        server.pack.require('./pack/--handler', function (err) {
+        server.pack.register(require('./pack/--handler'), function (err) {
 
             expect(err).to.not.exist;
-            var table = server.table();
-            table.filter(function (route) {
-                if (route.path === '/handler/{file*}') {
-                    expect(route.settings.handler).to.be.an('function');
-                }
-            });
+            server.inject('/handler/package.json', function (res) {
 
-            done();
+                expect(res.statusCode).to.equal(200);
+                expect(JSON.parse(res.result).name).to.equal('--handler');
+                done();
+            });
         });
     });
 
@@ -950,7 +1075,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
             register: function (plugin, options, next) {
 
                 plugin.method('log', function () { });
@@ -971,7 +1095,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
             register: function (plugin, options, next) {
 
                 plugin.bind({ x: 1 });
@@ -994,7 +1117,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
             register: function (plugin, options, next) {
 
                 plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
@@ -1016,7 +1138,6 @@ describe('Pack', function () {
 
         var plugin = {
             name: 'test',
-            version: '1.0.0',
             register: function (plugin, options, next) {
 
                 plugin.bind({ x: 1 });
@@ -1037,7 +1158,6 @@ describe('Pack', function () {
 
         var a = {
             name: 'a',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 plugin.dependency(['b', 'c']);
@@ -1047,7 +1167,6 @@ describe('Pack', function () {
 
         var b = {
             name: 'b',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 next();
@@ -1056,7 +1175,6 @@ describe('Pack', function () {
 
         var c = {
             name: 'c',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 next();
@@ -1080,7 +1198,6 @@ describe('Pack', function () {
 
         var a = {
             name: 'a',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 plugin.dependency('b');
@@ -1091,7 +1208,6 @@ describe('Pack', function () {
 
         var b = {
             name: 'b',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 next();
@@ -1100,7 +1216,6 @@ describe('Pack', function () {
 
         var c = {
             name: 'c',
-            version: '2.0.0',
             register: function (plugin, options, next) {
 
                 next();
@@ -1120,59 +1235,11 @@ describe('Pack', function () {
         });
     });
 
-    it('sets a loader then undo it', function (done) {
-
-        var server = new Hapi.Server();
-
-        var plugin = {
-            name: 'test',
-            version: '1.0.0',
-            register: function (plugin, options, next) {
-
-                plugin.loader(function () { throw new Error('bad'); });
-                plugin.loader();
-                plugin.require('./pack/--test2', next);
-            }
-        };
-
-        server.pack.register(plugin, function (err) {
-
-            expect(err).to.not.exist;
-            server.inject('/test2/path', function (res) {
-
-                expect(res.result).to.equal(Path.join(process.cwd(), 'test', 'pack', '--test2'));
-                done();
-            });
-        });
-    });
-
-    it('throws when name is missing', function (done) {
-
-        var server = new Hapi.Server();
-
-        expect(function () {
-
-            server.pack.require(null, function (err) { });
-        }).to.throw('Invalid plugin name(s) object: must be string, object, or array');
-        done();
-    });
-
-    it('throws when name is invalid type', function (done) {
-
-        var server = new Hapi.Server();
-
-        expect(function () {
-
-            server.pack.require(45, function (err) { });
-        }).to.throw('Invalid plugin name(s) object: must be string, object, or array');
-        done();
-    });
-
     it('starts a pack without callback', function (done) {
 
         var pack = new Hapi.Pack();
         pack.server(0);
-        pack.require('./pack/--afterErr', function (err) {
+        pack.register(require('./pack/--afterErr'), function (err) {
 
             pack.start();
             setTimeout(function () {
@@ -1180,6 +1247,132 @@ describe('Pack', function () {
                 pack.stop();
                 done();
             }, 10);
+        });
+    });
+
+    it('registers plugins with pre-selected label', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['a'] });
+        pack.server({ labels: ['b'] });
+
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                next();
+            }
+        };
+
+        pack.register(plugin, { select: 'a' }, function (err) {
+
+            expect(err).to.not.exist;
+            server1.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                server2.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(404);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('registers plugins with pre-selected labels', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['a'] });
+        pack.server({ labels: ['b'] });
+        pack.server({ labels: ['c'] });
+
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+        var server3 = pack._servers[2];
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                plugin.expose('super', 'trooper');
+                next();
+            }
+        };
+
+        pack.register(plugin, { select: ['a', 'c'] }, function (err) {
+
+            expect(err).to.not.exist;
+            expect(pack.plugins.test).to.not.exist;
+            expect(server1.plugins.test.super).to.equal('trooper');
+            expect(server2.plugins.test).to.not.exist;
+            expect(server3.plugins.test.super).to.equal('trooper');
+
+            server1.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                server2.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(404);
+                    server3.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    it('listens to events on selected servers', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server(0, { labels: ['a'] });
+        pack.server(0, { labels: ['b'] });
+        pack.server(0, { labels: ['c'] });
+
+        var server1 = pack._servers[0];
+        var server2 = pack._servers[1];
+        var server3 = pack._servers[2];
+
+        var counter = 0;
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                plugin.select(['a', 'b']).events.on('test', function () {
+
+                    ++counter;
+                });
+
+                plugin.select(['a']).events.on('start', function () {
+
+                    ++counter;
+                });
+
+                next();
+            }
+        };
+
+        pack.register(plugin, function (err) {
+
+            expect(err).to.not.exist;
+            server1.emit('test');
+            server2.emit('test');
+            server3.emit('test');
+
+            pack.start(function () {
+
+                pack.stop(function () {
+
+                    expect(counter).to.equal(3);
+                    done();
+                });
+            });
         });
     });
 
@@ -1265,7 +1458,6 @@ describe('Pack', function () {
             var server = new Hapi.Server();
             var plugin = {
                 name: 'foo',
-                version: '0.0.1',
                 register: function (plugin, options, next) {
 
                     plugin.handler('bar', function (route, options) {
@@ -1292,6 +1484,304 @@ describe('Pack', function () {
                 server.inject('/', function (res) {
                     expect(res.payload).to.equal('success');
                     done();
+                });
+            });
+        });
+    });
+
+    describe('#compose', function () {
+
+        it('composes pack', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    },
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--test1': null
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                pack.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    pack.stop(function () {
+
+                        pack._servers[0].inject('/test1', function (res) {
+
+                            expect(res.result).to.equal('testing123special-value');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('composes pack (env)', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    }
+                },
+                servers: [
+                    {
+                        port: '$env.hapi_port',
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: '$env.hapi_host',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--test1': {}
+                }
+            };
+
+            process.env.hapi_port = '0';
+            process.env.hapi_host = 'localhost';
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                pack.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    pack.stop();
+
+                    pack._servers[0].inject('/test1', function (res) {
+
+                        expect(res.result).to.equal('testing123');
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('composes pack (relative and absolute paths)', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    },
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    './--test2': null
+                }
+            };
+
+            manifest.plugins[__dirname + '/pack/--test1'] = null;
+
+            Hapi.Pack.compose(manifest, { relativeTo: __dirname + '/pack' }, function (err, pack) {
+
+                expect(err).to.not.exist;
+                pack.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    pack.stop(function () {
+
+                        pack._servers[0].inject('/test1', function (res) {
+
+                            expect(res.result).to.equal('testing123special-value');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('composes pack with ports', function (done) {
+
+            var manifest = {
+                servers: [
+                    {
+                        port: 8000
+                    },
+                    {
+                        port: '8001',
+                    }
+                ],
+                plugins: {}
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it('throws when missing servers', function (done) {
+
+            var manifest = {
+                plugins: {}
+            };
+
+            expect(function () {
+
+                Hapi.Pack.compose(manifest, function (err, pack) { });
+            }).to.throw('Manifest missing servers definition');
+            done();
+        });
+
+        it('composes pack with plugin registration options', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    },
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['a', 'b']
+                        }
+                    },
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['b', 'c']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--custom': [
+                        {
+                            options: {
+                                path: '/'
+                            }
+                        },
+                        {
+                            select: 'a',
+                            options: {
+                                path: '/a'
+                            }
+                        },
+                        {
+                            select: 'b',
+                            options: {
+                                path: '/b'
+                            }
+                        },
+                        {
+                            route: {
+                                prefix: '/steve'
+                            },
+                            options: {
+                                path: '/a'
+                            }
+                        }
+                    ]
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+
+                var server1 = pack._servers[0];
+                var server2 = pack._servers[1];
+
+                server1.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('/');
+
+                    server2.inject('/', function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        expect(res.result).to.equal('/');
+
+                        server1.inject('/a', function (res) {
+
+                            expect(res.statusCode).to.equal(200);
+                            expect(res.result).to.equal('/a');
+
+                            server2.inject('/a', function (res) {
+
+                                expect(res.statusCode).to.equal(404);
+
+                                server1.inject('/b', function (res) {
+
+                                    expect(res.statusCode).to.equal(200);
+                                    expect(res.result).to.equal('/b');
+
+                                    server2.inject('/b', function (res) {
+
+                                        expect(res.statusCode).to.equal(200);
+                                        expect(res.result).to.equal('/b');
+
+                                        server1.inject('/steve/a', function (res) {
+
+                                            expect(res.statusCode).to.equal(200);
+                                            expect(res.result).to.equal('/a');
+
+                                            server2.inject('/steve/a', function (res) {
+
+                                                expect(res.statusCode).to.equal(200);
+                                                expect(res.result).to.equal('/a');
+                                                done();
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });

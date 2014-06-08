@@ -15,6 +15,12 @@ exports.register = function (plugin, options, next) {
 };
 
 
+exports.register.attributes = {
+    name: '--test1',
+    version: '1.0.0'
+};
+
+
 internals.math = {
     add: function (a, b) {
 

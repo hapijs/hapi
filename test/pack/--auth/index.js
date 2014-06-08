@@ -32,6 +32,11 @@ exports.register = function (plugin, options, next) {
 };
 
 
+exports.register.attributes = {
+    pkg: require('./package.json')
+};
+
+
 internals.implementation = function (server, options) {
 
     var settings = Hoek.clone(options);

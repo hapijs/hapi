@@ -60,7 +60,7 @@ describe('Hapi command line', function () {
                 }
             ],
             plugins: {
-                '--loaded': {}
+                './--loaded': {}
             }
         };
 
@@ -114,7 +114,7 @@ describe('Hapi command line', function () {
                 }
             ],
             plugins: {
-                '--loaded': {}
+                './--loaded': {}
             }
         };
 
@@ -172,7 +172,7 @@ describe('Hapi command line', function () {
                 }
             ],
             plugins: {
-                '--loaded': {}
+                './--loaded': {}
             }
         };
 
@@ -200,7 +200,7 @@ describe('Hapi command line', function () {
         });
     });
 
-    it('errors when it can\'t require the extra module', function (done) {
+    it('errors when it cannot require the extra module', function (done) {
 
         var manifest = {
             pack: {
@@ -227,7 +227,7 @@ describe('Hapi command line', function () {
                 }
             ],
             plugins: {
-                '--loaded': {}
+                './--loaded': {}
             }
         };
 
@@ -256,7 +256,7 @@ describe('Hapi command line', function () {
             done();
         });
     });
-    it('errors when it can\'t require the extra module from absolute path', function (done) {
+    it('errors when it cannot require the extra module from absolute path', function (done) {
 
         var manifest = {
             pack: {
@@ -283,7 +283,7 @@ describe('Hapi command line', function () {
                 }
             ],
             plugins: {
-                '--loaded': {}
+                './--loaded': {}
             }
         };
 
@@ -340,7 +340,7 @@ describe('Hapi command line', function () {
                 }
             ],
             plugins: {
-                '--loaded': {}
+                './--loaded': {}
             }
         };
 

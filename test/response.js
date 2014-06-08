@@ -1147,7 +1147,7 @@ describe('Response', function () {
             var options = {
                 debug: false,
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname
                 }
             };
@@ -2488,7 +2488,7 @@ describe('Response', function () {
                 views: {
                     engines: {
                         html: {
-                            module: 'handlebars',
+                            module: require('handlebars'),
                             path: __dirname + '/templates/valid'
                         }
                     }
@@ -2516,7 +2516,7 @@ describe('Response', function () {
                 views: {
                     engines: {
                         html: {
-                            module: 'handlebars',
+                            module: require('handlebars'),
                             path: __dirname + '/templates/valid',
                             contentType: 'something/else'
                         }
@@ -2539,57 +2539,12 @@ describe('Response', function () {
             });
         });
 
-        it('should throw if view module not found', function (done) {
-
-            var fn = function () {
-
-                var failServer = new Hapi.Server({
-                    views: {
-                        path: __dirname + '/templates/valid',
-                        engines: {
-                            'html': 'handlebars',
-                            'jade': 'jade',
-                            'hbar': {
-                                module: require('handlebars'),
-                                compile: function (engine) { return engine.compile; }
-                            },
-                            'err': {
-                                module: 'hapi-module-that-does-not-exist'
-                            }
-                        }
-                    }
-                });
-            };
-            expect(fn).to.throw();
-            done();
-        });
-
-        it('should work if view engine module is a pre-required module', function (done) {
-
-            var options = {
-                views: {
-                    path: __dirname + '/templates/valid',
-                    engines: {
-                        'test': {
-                            module: require('jade')
-                        }
-                    }
-                }
-            };
-            var fn = function () {
-
-                var passServer = new Hapi.Server(options);
-            };
-            expect(fn).to.not.throw();
-            done();
-        });
-
         it('returns error on invalid template path', function (done) {
 
             var server = new Hapi.Server({
                 debug: false,
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/invalid'
                 }
             });
@@ -2616,7 +2571,7 @@ describe('Response', function () {
 
             var server = new Hapi.Server({
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid'
                 }
             });
@@ -2642,7 +2597,7 @@ describe('Response', function () {
             var server = new Hapi.Server({
                 debug: false,
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid'
                 }
             });
@@ -2667,7 +2622,7 @@ describe('Response', function () {
             var server = new Hapi.Server({
                 debug: false,
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid'
                 }
             });
@@ -2692,7 +2647,7 @@ describe('Response', function () {
             var server = new Hapi.Server({
                 debug: false,
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     allowInsecureAccess: true,
                     path: __dirname + '/templates/valid/helpers'
                 }
@@ -2719,7 +2674,7 @@ describe('Response', function () {
             var server = new Hapi.Server({
                 debug: false,
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid'
                 }
             });
@@ -2744,7 +2699,7 @@ describe('Response', function () {
             var server = new Hapi.Server({
                 debug: false,
                 views: {
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid'
                 }
             });
@@ -2770,7 +2725,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server();
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates',
                     layout: true
                 });
@@ -2795,7 +2750,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server();
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     basePath: '/none/shall/pass',
                     path: __dirname + '/templates',
                     layout: true
@@ -2821,7 +2776,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server();
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates',
                     layout: true
                 });
@@ -2846,7 +2801,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server();
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates',
                     layout: 'otherLayout'
                 });
@@ -2871,7 +2826,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server();
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     basePath: __dirname,
                     path: 'templates',
                     layoutPath: 'templates/layout',
@@ -2898,7 +2853,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server({ debug: false });
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates',
                     layout: 'missingLayout'
                 });
@@ -2921,7 +2876,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server({ debug: false });
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates',
                     layout: 'invalidLayout'
                 });
@@ -2944,7 +2899,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server();
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates',
                     layout: true
                 });
@@ -2969,7 +2924,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server({ debug: false });
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid',
                     layout: true
                 });
@@ -2993,7 +2948,7 @@ describe('Response', function () {
 
                 var layoutServer = new Hapi.Server({ debug: false });
                 layoutServer.views({
-                    engines: { 'html': 'handlebars' },
+                    engines: { 'html': require('handlebars') },
                     path: __dirname + '/templates/valid',
                     layout: true
                 });
@@ -3022,7 +2977,7 @@ describe('Response', function () {
 
                     var testServer = new Hapi.Server({
                         views: {
-                            engines: { 'html': 'handlebars' },
+                            engines: { 'html': require('handlebars') },
                             path: __dirname + '/templates/valid'
                         }
                     });
@@ -3053,7 +3008,7 @@ describe('Response', function () {
 
                 var testServer = new Hapi.Server({
                     views: {
-                        engines: { 'html': 'handlebars' },
+                        engines: { 'html': require('handlebars') },
                         path: __dirname + '/templates/valid',
                         isCached: true
                     }
@@ -3082,7 +3037,7 @@ describe('Response', function () {
 
                 var testServer = new Hapi.Server({
                     views: {
-                        engines: { 'html': 'handlebars' },
+                        engines: { 'html': require('handlebars') },
                         path: __dirname + '/templates/valid',
                         isCached: false
                     }
@@ -3112,8 +3067,8 @@ describe('Response', function () {
                     views: {
                         path: __dirname + '/templates/valid',
                         engines: {
-                            'html': 'handlebars',
-                            'jade': 'jade',
+                            'html': require('handlebars'),
+                            'jade': require('jade'),
                             'hbar': {
                                 module: {
                                     compile: function (engine) { return engine.compile; }
@@ -3145,8 +3100,8 @@ describe('Response', function () {
                     views: {
                         path: __dirname + '/templates/valid',
                         engines: {
-                            'html': 'handlebars',
-                            'jade': 'jade',
+                            'html': require('handlebars'),
+                            'jade': require('jade'),
                             'hbar': {
                                 module: {
                                     compile: function (engine) { return engine.compile; }
@@ -3178,8 +3133,8 @@ describe('Response', function () {
                     views: {
                         path: __dirname + '/templates/valid',
                         engines: {
-                            'html': 'handlebars',
-                            'jade': 'jade',
+                            'html': require('handlebars'),
+                            'jade': require('jade'),
                             'hbar': {
                                 module: {
                                     compile: function (engine) { return engine.compile; }
@@ -3210,8 +3165,8 @@ describe('Response', function () {
                     views: {
                         path: __dirname + '/templates/valid',
                         engines: {
-                            'html': 'handlebars',
-                            'jade': 'jade',
+                            'html': require('handlebars'),
+                            'jade': require('jade'),
                             'hbar': {
                                 module: {
                                     compile: function (engine) { return engine.compile; }

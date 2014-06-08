@@ -586,11 +586,26 @@ describe('Payload', function () {
                     }
                 };
 
-                Nipple.post('http://localhost:' + server.info.port + '/?x=3', options, function (err, res, body) {
+                var options = {
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    path: '/?x=3',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': '1'
+                    }
+                };
 
-                    expect(err.message).to.equal('Client request error: socket hang up');
+                var req = Http.request(options, function (res) { });
+
+                req.once('error', function (err) {
+
+                    expect(err.message).to.equal('socket hang up');
                     done();
                 });
+
+                req.end('{ "key": "value" }');
             });
         });
 

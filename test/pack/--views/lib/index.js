@@ -1,3 +1,8 @@
+// Load modules
+
+var Path = require('path');
+
+
 // Declare internals
 
 var internals = {};
@@ -7,10 +12,17 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.views({
-        engines: { 'html': 'handlebars' },
+    plugin.path(Path.join(__dirname, '..'));
+
+    var views = {
+        engines: { 'html': require('handlebars') },
         path: './templates'
-    });
+    };
+
+    plugin.views(views);
+    if (Object.keys(views).length !== 2) {
+        return next(new Error('plugin.view() modified options'));
+    }
 
     plugin.route([
         {
@@ -34,4 +46,9 @@ exports.register = function (plugin, options, next) {
     });
 
     return next();
+};
+
+
+exports.register.attributes = {
+    pkg: require('../package.json')
 };

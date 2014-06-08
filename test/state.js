@@ -173,6 +173,7 @@ describe('State', function () {
             pass('key=Fe26.2**f3fc42242467f7a97c042be866a32c1e7645045c2cc085124eadc66d25fc8395*URXpH8k-R0d4O5bnY23fRQ*uq9rd8ZzdjZqUrq9P2Ci0yZ-EEUikGzxTLn6QTcJ0bc**3880c0ac8bab054f529afec8660ebbbbc8050e192e39e5d622e7ac312b9860d0*r_g7N9kJYqXDrFlvOnuKpfpEWwrJLOKMXEI43LAGeFg', { key: { a: 1, b: 2, c: 3 } }, null, { key: { encoding: 'iron', password: 'password', iron: Iron.defaults } });
             pass('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', { sid: { a: '1', b: '2', c: '3 x' } }, null, { sid: { encoding: 'form', sign: { password: 'password' } } });
             pass('sid=a=1&b=2&c=3%20x.2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8*xGhc6WvkE55V-TzucCl0NVFmbijeCwgs5Hf5tAVbSUo', { sid: { a: '1', b: '2', c: '3 x' } }, null, { sid: { encoding: 'form', sign: { password: 'password', integrity: Iron.defaults.integrity } } });
+            pass('a="1', { a: '"1' }, null, { a: { strictHeader: false } });
 
             var loose = Hoek.clone(Defaults.server.state);
             loose.cookies.strictHeader = false;
@@ -257,6 +258,35 @@ describe('State', function () {
             var clearInvalid = Hoek.clone(Defaults.server.state);
             clearInvalid.cookies.clearInvalid = true;
             fail('sid=a=1&b=2&c=3%20x', clearInvalid, { sid: { encoding: 'form', sign: { password: 'password' } } });
+        });
+
+        it('uses cookie failAction override', function (done) {
+
+            var server = new Hapi.Server();
+            server.state('test', { failAction: 'log' });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.state.test); } });
+
+            server.inject({ method: 'GET', url: '/', headers: { cookie: 'test="a' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('"a');
+                done();
+            });
+        });
+
+        it('uses cookie clearInvalid override', function (done) {
+
+            var server = new Hapi.Server();
+            server.state('test', { clearInvalid: true, failAction: 'ignore', encoding: 'base64json' });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.state.test); } });
+
+            server.inject({ method: 'GET', url: '/', headers: { cookie: 'test=a' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(null);
+                expect(res.headers['set-cookie'][0]).to.equal('test=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+                done();
+            });
         });
     });
 
