@@ -23,6 +23,7 @@
         - [`server.cache(name, options)`](#servercachename-options)
         - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
         - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
+        - [`server.auth.default(options)`](#serverauthdefault-options)
         - [`server.auth.test(strategy, request, next)`](#serverauthteststrategy-request-next)
         - [`server.ext(event, method, [options])`](#serverextevent-method-options)
             - [Request lifecycle](#request-lifecycle)
@@ -590,10 +591,9 @@ The following options are available when adding a route:
         - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
           expire. Cannot be used together with `expiresIn`.
 
-    - `auth` - authentication configuration. Value can be:
+    - <a name="route.config.auth"></a>`auth` - authentication configuration. Value can be:
+        - `false` to disable authentication if a default strategy is set.
         - a string with the name of an authentication strategy registered with `server.auth.strategy()`.
-        - a boolean where `false` means no authentication, and `true` sets to the default authentication strategy which is available only
-          when a single strategy is configured.
         - an object with:
             - `mode` - the authentication mode. Defaults to `'required'` if a server authentication strategy is configured, otherwise defaults
               to no authentication. Available values:
@@ -1044,6 +1044,13 @@ Registers an authentication strategy where:
   assigned to a single server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode
   (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
 - `options` - scheme options based on the scheme requirements.
+
+#### `server.auth.default(options)`
+
+Sets a default startegy which is applied to every route. The default does not apply when the route config specifies `auth` as `false`,
+or has an authentication strategy configured. Otherwise, the route authentication config is applied to the defaults. The function requires:
+- `options` - a string with the default strategy name or an object with a specified strategy or strategies using the same format as the
+  [route `auth` handler options](#route.config.auth).
 
 #### `server.auth.test(strategy, request, next)`
 

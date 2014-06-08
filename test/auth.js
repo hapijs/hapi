@@ -41,6 +41,71 @@ describe('Auth', function () {
         });
     });
 
+    it('sets default', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', { users: { steve: {} } });
+        server.auth.default('default');
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(401);
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
+
+    it('sets default with object', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', { users: { steve: {} } });
+        server.auth.default({ strategy: 'default' });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(401);
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
+
+    it('throws when setting default twice', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', { users: { steve: {} } });
+        expect(function () {
+
+            server.auth.default('default');
+            server.auth.default('default');
+        }).to.throw('Cannot set default strategy more than once');
+        done();
+    });
+
+    it('throws when setting default without strategy', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', { users: { steve: {} } });
+        expect(function () {
+
+            server.auth.default({ mode: 'required' });
+        }).to.throw('Default authentication strategy missing strategy name');
+        done();
+    });
+
     it('authenticates using multiple strategies', function (done) {
 
         var server = new Hapi.Server();
@@ -132,44 +197,6 @@ describe('Auth', function () {
 
             expect(res.statusCode).to.equal(200);
             done();
-        });
-    });
-
-    it('enables individual route authentications', function (done) {
-
-        var server = new Hapi.Server();
-        server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', { users: { steve: {} } });
-        server.route({
-            method: 'GET',
-            path: '/1',
-            config: {
-                handler: function (request, reply) { reply(request.auth.credentials.user); },
-                auth: true
-            }
-        });
-        server.route({
-            method: 'GET',
-            path: '/2',
-            config: {
-                handler: function (request, reply) { reply('ok'); }
-            }
-        });
-
-        server.inject('/1', function (res) {
-
-            expect(res.statusCode).to.equal(401);
-
-            server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, function (res) {
-
-                expect(res.statusCode).to.equal(200);
-
-                server.inject('/2', function (res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    done();
-                });
-            });
         });
     });
 
@@ -577,6 +604,78 @@ describe('Auth', function () {
         });
     });
 
+    it('throws when strategy does not support payload authentication', function (done) {
+
+        var server = new Hapi.Server();
+        var implementation = function () { return { authenticate: internals.implementation.authenticate } };
+
+        server.auth.scheme('custom', implementation);
+        server.auth.strategy('default', 'custom', true, {});
+        expect(function () {
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    auth: {
+                        payload: 'required'
+                    }
+                }
+            });
+        }).to.throw('Payload validation can only be required when all strategies support it in path: /');
+        done();
+    });
+
+    it('throws when no strategy supports optional payload authentication', function (done) {
+
+        var server = new Hapi.Server();
+        var implementation = function () { return { authenticate: internals.implementation.authenticate } };
+
+        server.auth.scheme('custom', implementation);
+        server.auth.strategy('default', 'custom', true, {});
+        expect(function () {
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    auth: {
+                        payload: 'optional'
+                    }
+                }
+            });
+        }).to.throw('Payload authentication requires at least one strategy with payload support in path: /');
+        done();
+    });
+
+    it('allows one strategy to supports optional payload authentication while another does not', function (done) {
+
+        var server = new Hapi.Server();
+        var implementation = function () { return { authenticate: internals.implementation.authenticate } };
+
+        server.auth.scheme('custom1', implementation);
+        server.auth.scheme('custom2', internals.implementation);
+        server.auth.strategy('default1', 'custom1', {});
+        server.auth.strategy('default2', 'custom2', {});
+        expect(function () {
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    auth: {
+                        strategies: ['default2', 'default1'],
+                        payload: 'optional'
+                    }
+                }
+            });
+        }).to.not.throw();
+        done();
+    });
+
     it('skips request payload by default', function (done) {
 
         var server = new Hapi.Server();
@@ -601,7 +700,7 @@ describe('Auth', function () {
 
         var server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', { users: { skip: { } } });
+        server.auth.strategy('default', 'custom', true, { users: { skip: { } } });
         server.route({
             method: 'POST',
             path: '/',
@@ -765,7 +864,7 @@ describe('Auth', function () {
 
         var server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', { users: { steve: {} } });
+        server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
 
         var handler = function (request, reply) {
 
