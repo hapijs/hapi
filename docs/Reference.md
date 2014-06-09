@@ -150,18 +150,17 @@ When creating a server instance, the following options configure the server's be
   uses [**catbox**](https://github.com/spumko/catbox) for its cache which includes support for Redis, MongoDB, Memcached, and
   Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache
   configuration only defines the storage container itself. `cache` can be assigned:
-    - a string with the cache engine module name (e.g. `'catbox-memory'`, `'catbox-redis'`).
+    - a prototype function (usually obtained by calling `require()` on a **cabox** strategy such as `require('catbox-redis')`).
     - a configuration object with the following options:
-        - `engine` - 
-  cache options. The cache options are described in the [**catbox** module documentation](https://github.com/spumko/catbox#client).
-  When an array of options is provided, multiple cache connections are established and each array item (except one) must
-  include an additional option:
-    - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each
-      connection name must be unique. A single item may omit the `name` option which defines the default cache. If every
-      connection includes a `name`, a default memory cache is provisions as well as the default.
-    - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using
-      the same route and cache. Default to not shared.
-    - an array of the above types for configuring multiple cache instances, each with a unqiue name.
+        - `engine` - a prototype function or **catbox** engine object.
+        - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each
+          connection name must be unique. A single item may omit the `name` option which defines the default cache. If every
+          connection includes a `name`, a default memory cache is provisions as well as the default.
+        - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using
+          the same route and cache. Default to not shared.
+        - other options required by the **catbox** strategy used.
+    - an array of the above object for configuring multiple cache instances, each with a unqiue name. When an array of objects
+      is provided, multiple cache connections are established and each array item (except one) must include a `name`.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API
   calls. CORS is required by web applications running inside a browser which are loaded from a different domain than the API
@@ -2268,7 +2267,9 @@ Provides a simple way to construct a [`Pack`](#hapipack) from a single configura
 and registering plugins where:
 
 - `manifest` - an object with the following keys:
-    - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options).
+    - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options). In order to support loading JSON documents,
+      The `compose()` function supports passing a module name string as the value of `pack.cache` or `pack.cache.engine`. These strings are
+      resolved the same way the `plugins` keys are (using `options.relativeTo`).
     - `servers` - an array of server configuration objects where:
         - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
           `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an
