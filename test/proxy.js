@@ -1217,5 +1217,51 @@ describe('Proxy', function () {
             });
         });
     });
+
+    it('retails accept-encoding header', function (done) {
+
+        var profile = function (request, reply) {
+
+            reply(request.headers['accept-encoding']);
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: profile, config: { cache: { expiresIn: 2000 } } });
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, acceptEncoding: true, passThrough: true } } });
+
+            server.inject({ url: '/', headers: { 'accept-encoding': '*/*' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('*/*');
+                done();
+            });
+        });
+    });
+
+    it('removes accept-encoding header', function (done) {
+
+        var profile = function (request, reply) {
+
+            reply(request.headers['accept-encoding']);
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: profile, config: { cache: { expiresIn: 2000 } } });
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, acceptEncoding: false, passThrough: true } } });
+
+            server.inject({ url: '/', headers: { 'accept-encoding': '*/*' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('');
+                done();
+            });
+        });
+    });
 });
 

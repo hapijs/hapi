@@ -423,6 +423,8 @@ The following options are available when adding a route:
             - `'https'`
         - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
+        - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header which is useful when using an `onResponse` post-processing
+          to avoid receiving an encoded response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true` (passing header).
         - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
           making the request. This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js `rejectUnauthorized` property.
           If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.
