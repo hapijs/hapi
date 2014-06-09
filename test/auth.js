@@ -202,21 +202,35 @@ describe('Auth', function () {
 
     it('tries to authenticate a request', function (done) {
 
+        var handler = function (request, reply) {
+
+            reply({ status: request.auth.isAuthenticated, error: request.auth.error });
+        };
+
         var server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', 'try', { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.isAuthenticated); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(false);
+            expect(res.result.status).to.equal(false);
+            expect(res.result.error.message).to.equal('Missing authentication');
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+            server.inject({ url: '/', headers: { authorization: 'Custom john' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal(true);
-                done();
+                expect(res.result.status).to.equal(false);
+                expect(res.result.error.message).to.equal('Missing credentials');
+
+                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result.status).to.equal(true);
+                    expect(res.result.error).to.not.exist;
+                    done();
+                });
             });
         });
     });

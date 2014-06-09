@@ -1412,6 +1412,7 @@ Each request object has the following properties:
     - `credentials` - the `credential` object received during the authentication process. The presence of an object does not mean
       successful authentication.
     - `artifacts` - an artifact object received from the authentication strategy and used in authentication-related actions.
+    - `error` - the authentication error is failed and mode set to `'try'`.
     - `session` - an object used by the [`'cookie'` authentication scheme](https://github.com/spumko/hapi-auth-cookie).
 - `domain` - the node domain object used to protect against exceptions thrown in extentions, handlers and prerequisites. Can be used to
   manually bind callback functions otherwise bound to other domains.
