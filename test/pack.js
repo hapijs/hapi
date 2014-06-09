@@ -960,6 +960,12 @@ describe('Pack', function () {
         });
     });
 
+    it('errors on bad cache start', function (done) {
+
+        var server = new Hapi.Server(0, { cache: {  } });
+        server
+    });
+
     describe('#log', { parallel: false }, function () {
 
         it('outputs log data to debug console', function (done) {
