@@ -455,7 +455,7 @@ The following options are available when adding a route:
               - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and the upstream response included a valid
                 'Cache-Control' header with 'max-age'.
         - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the response using the `response.ttl()` method (or passed
-          as an argument to the `postResponse` method if provided).
+          as an argument to the `onResponse` method if provided).
 
     - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` option can be set to one of:
         - a string with the template file name.
