@@ -962,8 +962,21 @@ describe('Pack', function () {
 
     it('errors on bad cache start', function (done) {
 
-        var server = new Hapi.Server(0, { cache: {  } });
-        server
+        var cache = {
+            engine: {
+                start: function (callback) {
+
+                    return callback(new Error('oops'));
+                }
+            }
+        };
+
+        var server = new Hapi.Server(0, { cache: cache });
+        server.start(function (err) {
+
+            expect(err.message).to.equal('oops');
+            done();
+        });
     });
 
     describe('#log', { parallel: false }, function () {
