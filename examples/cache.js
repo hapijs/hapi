@@ -20,9 +20,7 @@ internals.profile = function (request, reply) {
 internals.main = function () {
 
     var config = {
-        cache: {
-            engine: 'catbox-memory'
-        }
+        cache: require('catbox-memory')
     };
 
     var server = new Hapi.Server(8000, config);

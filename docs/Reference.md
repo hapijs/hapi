@@ -145,11 +145,11 @@ When creating a server instance, the following options configure the server's be
   should use `plugins[name]`. Note the difference between `server.settings.app` which is used to store configuration value
   and `server.app` which is meant for storing run-time state.
 
-- <a name="server.config.cache"></a>`cache` - determines the type of server-side cache used. Every server includes a default
-  cache for storing and application state. By default, a simple memory-based cache is created which has a limited capacity.
-  **hapi** uses [**catbox** module documentation](https://github.com/spumko/catbox#client) as its cache implementation which
-  includes support for Redis, MongoDB, Memcached, and Riak. Caching is only utilized if methods and plugins explicitly store
-  their state in the cache. The server cache configuration only defines the store itself. `cache` can be assigned:
+- <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server includes a default cache for storing
+  application state. By default, a simple memory-based cache is created which has limited capacity and capabilities. **hapi**
+  uses [**catbox**](https://github.com/spumko/catbox) for its cache which includes support for Redis, MongoDB, Memcached, and
+  Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache
+  configuration only defines the storage container itself. `cache` can be assigned:
     - a string with the cache engine module name (e.g. `'catbox-memory'`, `'catbox-redis'`).
     - a configuration object with the following options:
         - `engine` - 

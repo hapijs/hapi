@@ -232,7 +232,7 @@ describe('Server', function () {
 
     it('provisions a server cache with custom partition', function (done) {
 
-        var server = new Hapi.Server(0, { cache: { engine: 'catbox-memory', partition: 'hapi-test-other' } });
+        var server = new Hapi.Server(0, { cache: { engine: require('catbox-memory'), partition: 'hapi-test-other' } });
         var cache = server.cache('test', { expiresIn: 1000 });
         server.start(function () {
 
@@ -460,7 +460,7 @@ describe('Server', function () {
 
     it('reuses the same cache segment', function (done) {
 
-        var server = new Hapi.Server({ cache: { engine: 'catbox-memory', shared: true } });
+        var server = new Hapi.Server({ cache: { engine: require('catbox-memory'), shared: true } });
         expect(function () {
 
             var a1 = server.cache('a', { expiresIn: 1000 });
@@ -586,7 +586,7 @@ describe('Server', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server({ cache: 'catbox-memory', something: false });
+            var server = new Hapi.Server({ cache: require('catbox-memory'), something: false });
         };
 
         expect(fn).throws(Error);
