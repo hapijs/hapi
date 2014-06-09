@@ -304,7 +304,7 @@ describe('Auth', function () {
         });
     });
 
-    it('ignores a non Error error response when set to try ', function (done) {
+    it('passes non Error error response when set to try ', function (done) {
 
         var server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
@@ -314,7 +314,7 @@ describe('Auth', function () {
         server.inject({ url: '/', headers: { authorization: 'Custom message' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('ok');
+            expect(res.result).to.equal('in a bottle');
             done();
         });
     });
