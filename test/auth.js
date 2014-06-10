@@ -106,6 +106,33 @@ describe('Auth', function () {
         done();
     });
 
+    it('throws when route refers to nonexistent strategy', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('a', 'custom', { users: { steve: {} } });
+        server.auth.strategy('b', 'custom', { users: { steve: {} } });
+
+        expect(function () {
+
+            server.route({
+                path: '/',
+                method: 'GET',
+                config: {
+                    auth: {
+                        strategy: 'c'
+                    },
+                    handler: function (request, reply) {
+
+                        reply('ok');
+                    }
+                }
+            });
+        }).to.throw();
+
+        done();
+    });
+
     it('authenticates using multiple strategies', function (done) {
 
         var server = new Hapi.Server();
