@@ -70,7 +70,7 @@
           - [`pack.start([callback])`](#packstartcallback)
           - [`pack.stop([options], [callback])`](#packstopoptions-callback)
           - [`pack.register(plugins, options, callback)`](#packregisterplugins-options-callback)
-      - [`Pack.compose(manifest, [options], callback)`](#Packcomposemanifest-options-callback)
+      - [`Pack.compose(manifest, [options], callback)`](#packcomposemanifest-options-callback)
 - [Plugin interface](#plugin-interface)
     - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
     - [Root methods and properties](#root-methods-and-properties)
