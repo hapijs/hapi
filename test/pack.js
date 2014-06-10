@@ -1523,7 +1523,10 @@ describe('Pack', function () {
                     {
                         port: 0,
                         options: {
-                            labels: ['api', 'nasty', 'test']
+                            labels: ['api', 'nasty', 'test'],
+                            views: {
+                                engines: { html: 'handlebars' }
+                            }
                         }
                     },
                     {
@@ -1606,7 +1609,7 @@ describe('Pack', function () {
             });
         });
 
-        it('composes pack (cache.engine function)', function (done) {
+        it('composes pack (engine function)', function (done) {
 
             var manifest = {
                 pack: {
@@ -1628,7 +1631,10 @@ describe('Pack', function () {
                         host: 'localhost',
                         port: 0,
                         options: {
-                            labels: ['api', 'nice']
+                            labels: ['api', 'nice'],
+                            views: {
+                                engines: { html: require('handlebars') }
+                            }
                         }
                     }
                 ],
@@ -1720,7 +1726,10 @@ describe('Pack', function () {
                         host: 'localhost',
                         port: 0,
                         options: {
-                            labels: ['api', 'nice']
+                            labels: ['api', 'nice'],
+                            views: {
+                                engines: { html: '../../node_modules/handlebars' }
+                            }
                         }
                     }
                 ],
