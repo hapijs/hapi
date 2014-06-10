@@ -1049,7 +1049,9 @@ Registers an authentication strategy where:
 #### `server.auth.default(options)`
 
 Sets a default startegy which is applied to every route. The default does not apply when the route config specifies `auth` as `false`,
-or has an authentication strategy configured. Otherwise, the route authentication config is applied to the defaults. The function requires:
+or has an authentication strategy configured. Otherwise, the route authentication config is applied to the defaults. Note that the default
+only applies at time of route configuration, not at runtime. Calling `default()` after adding a route will have no impact on that route.
+The function requires:
 - `options` - a string with the default strategy name or an object with a specified strategy or strategies using the same format as the
   [route `auth` handler options](#route.config.auth).
 
@@ -2128,10 +2130,7 @@ Creates a new `Pack` object instance where:
 - `options` - optional configuration:
     - `app` - an object used to initialize the application-specific data stored in `pack.app`.
     - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
-    - `requirePath` - sets the path from which node module plugins are loaded. Applies only when using [`pack.register()`](#packregisterplugins-options-callback)
-      with module names that do no include a relative or absolute path (e.g. 'lout'). Defaults to the node module behaviour described in
-      [node modules](http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders). Note that if the modules
-      are located inside a 'node_modules' sub-directory, `requirePath` must end with `'/node_modules'`.
+    - `debug` - same as the server `debug` config option but applied to the entire pack.
 
 ```javascript
 var Hapi = require('hapi');
