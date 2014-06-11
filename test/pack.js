@@ -168,8 +168,18 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         expect(function () {
 
-            server.pack.register(plugin, { something: true }, function (err) { });
+            server.pack.register(plugin, function (err) { });
         }).to.throw('One of plugin or register required but cannot include both');
+        done();
+    });
+
+    it('throws when register is not a function', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.pack.register({ register: 'x' }, function (err) { });
+        }).to.throw('Plugin register must be a function or a required plugin module');
         done();
     });
 
