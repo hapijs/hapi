@@ -3,6 +3,7 @@
 var Lab = require('lab');
 var Iron = require('iron');
 var Hoek = require('hoek');
+var Cryptiles = require('cryptiles');
 var Hapi = require('..');
 var State = require('../lib/state');
 var Defaults = require('../lib/defaults');
@@ -294,7 +295,15 @@ describe('State', function () {
 
         var generateSetCookieHeader = function (cookies, definition, callback) {
 
-            var server = { _stateDefinitions: definition, settings: Defaults.server };
+            var server = new Hapi.Server();
+            if (definition) {
+                var names = Object.keys(definition);
+                names.forEach(function (item) {
+
+                    server.state(item, definition[item]);
+                });
+            }
+
             State.generateSetCookieHeader(cookies, server, callback);
         };
 
@@ -423,6 +432,31 @@ describe('State', function () {
             });
         });
 
+        it('formats a header with server definition (form+sign, buffer password)', function (done) {
+
+            var buffer = new Buffer('fa4321e8c21b44a49d382fa7709226855f40eb23a32b2f642c3fd797c958718e', 'base64');
+            var definitions = {
+                sid: {
+                    encoding: 'form',
+                    sign: {
+                        password: buffer,
+                        integrity: {
+                            saltBits: 256,
+                            algorithm: 'sha256',
+                            iterations: 1,
+                            salt: '2d75635d74c1a987f84f3ee7f3113b9a2ff71f89d6692b1089f19d5d11d140f8'
+                        }
+                    }
+                }
+            };
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: '3 x' } }, definitions, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header[0]).to.equal('sid=a=1&b=2&c=3%20x.*4wjD4tIxyiNW-rC3xBqL56TxUbb_aQT5PMykruWlR0Q');
+                done();
+            });
+        });
+
         it('fails a header with bad server definition (form+sign)', function (done) {
 
             var definitions = {
@@ -453,6 +487,17 @@ describe('State', function () {
         it('formats a header with server definition (iron + options)', function (done) {
 
             var definitions = { sid: { encoding: 'iron', password: 'password', iron: Iron.defaults } };
+            generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header[0]).to.have.string('sid=Fe26.2*');
+                done();
+            });
+        });
+
+        it('formats a header with server definition (iron + options, buffer password)', function (done) {
+
+            var definitions = { sid: { encoding: 'iron', password: Cryptiles.randomBits(256), iron: Iron.defaults } };
             generateSetCookieHeader({ name: 'sid', value: { a: 1, b: 2, c: 3 } }, definitions, function (err, header) {
 
                 expect(err).to.not.exist;
