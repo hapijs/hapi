@@ -54,16 +54,16 @@
 - [**#1633**](https://github.com/spumko/hapi/issues/1633) Rework domains to single entry
 - [**#1632**](https://github.com/spumko/hapi/issues/1632) Clean response objects for aborted requests
 
+## [**4.1.0**](https://github.com/spumko/hapi/issues?milestone=93&state=closed)
+- [**#1461**](https://github.com/spumko/hapi/issues/1461) Security headers
+- [**#1583**](https://github.com/spumko/hapi/issues/1583) Support JSON-derived media types
+
 ## [**4.0.3**](https://github.com/spumko/hapi/issues?milestone=95&state=closed)
 - [**#1604**](https://github.com/spumko/hapi/issues/1604) response emitter fails to retain custom event listeners once sent
 - [**#1597**](https://github.com/spumko/hapi/issues/1597) Template helpers fail on relative paths
 
 ## [**4.0.2**](https://github.com/spumko/hapi/issues?milestone=94&state=closed)
 - [**#1598**](https://github.com/spumko/hapi/issues/1598) Throws when response does not have _close()
-
-## [**4.1.0**](https://github.com/spumko/hapi/issues?milestone=93&state=closed)
-- [**#1461**](https://github.com/spumko/hapi/issues/1461) Security headers
-- [**#1583**](https://github.com/spumko/hapi/issues/1583) Support JSON-derived media types
 
 ## [**4.0.1**](https://github.com/spumko/hapi/issues?milestone=92&state=closed)
 - [**#1594**](https://github.com/spumko/hapi/issues/1594) Can jsonp be optional?
@@ -185,30 +185,6 @@
 - [**#1336**](https://github.com/spumko/hapi/issues/1336) Allow custom view layout folder
 - [**#1335**](https://github.com/spumko/hapi/issues/1335) Allow view layout to contain a string and boolean
 
-## [**1.20.0**](https://github.com/spumko/hapi/issues?milestone=77&state=closed)
-- [**#1175**](https://github.com/spumko/hapi/issues/1175) Allow disabling CORS for individual route
-- [**#1174**](https://github.com/spumko/hapi/issues/1174) Adjust CORS origin header options
-- [**#1171**](https://github.com/spumko/hapi/issues/1171) Only emit vary origin for CORS wildcard mode
-
-## [**1.19.5**](https://github.com/spumko/hapi/issues?milestone=76&state=closed)
-- [**#1169**](https://github.com/spumko/hapi/issues/1169) Remove load samples and add protection against interval sample falling behind
-- [**#1165**](https://github.com/spumko/hapi/issues/1165) Switch benchmarks to use Hoek.Bench instead of Date.now()
-
-## [**1.19.4**](https://github.com/spumko/hapi/issues?milestone=75&state=closed)
-- [**#1163**](https://github.com/spumko/hapi/issues/1163) CORS response doesn&#39;t set Vary header in all cases
-
-## [**1.19.3**](https://github.com/spumko/hapi/issues?milestone=74&state=closed)
-- [**#1161**](https://github.com/spumko/hapi/issues/1161) Schema issues
-
-## [**1.19.0**](https://github.com/spumko/hapi/issues?milestone=71&state=closed)
-- [**#1157**](https://github.com/spumko/hapi/issues/1157) route cache config does not allow specifying name
-- [**#1156**](https://github.com/spumko/hapi/issues/1156) Honor upstream ttl when proxying
-
-## [**1.18.0**](https://github.com/spumko/hapi/issues?milestone=70&state=closed)
-- [**#1152**](https://github.com/spumko/hapi/issues/1152) Load sampling and limits
-- [**#1150**](https://github.com/spumko/hapi/issues/1150) Support multiple cache instances
-- [**#1148**](https://github.com/spumko/hapi/issues/1148) Return 401 when allowEmptyUsername is false and username missing
-
 ## [**2.0.0**](https://github.com/spumko/hapi/issues?milestone=69&state=closed)
 - [**#1322**](https://github.com/spumko/hapi/issues/1322) Does Hapi support multiple view templates?
 - [**#1317**](https://github.com/spumko/hapi/issues/1317) Cannot Parse form-encoded arrays
@@ -300,6 +276,30 @@
 - [**#1182**](https://github.com/spumko/hapi/issues/1182) Error transformation does not work when serving static files
 - [**#1185**](https://github.com/spumko/hapi/issues/1185) be more careful about options in _provisionCache
 - [**#1176**](https://github.com/spumko/hapi/issues/1176) Unify stream and buffer responses
+
+## [**1.20.0**](https://github.com/spumko/hapi/issues?milestone=77&state=closed)
+- [**#1175**](https://github.com/spumko/hapi/issues/1175) Allow disabling CORS for individual route
+- [**#1174**](https://github.com/spumko/hapi/issues/1174) Adjust CORS origin header options
+- [**#1171**](https://github.com/spumko/hapi/issues/1171) Only emit vary origin for CORS wildcard mode
+
+## [**1.19.5**](https://github.com/spumko/hapi/issues?milestone=76&state=closed)
+- [**#1169**](https://github.com/spumko/hapi/issues/1169) Remove load samples and add protection against interval sample falling behind
+- [**#1165**](https://github.com/spumko/hapi/issues/1165) Switch benchmarks to use Hoek.Bench instead of Date.now()
+
+## [**1.19.4**](https://github.com/spumko/hapi/issues?milestone=75&state=closed)
+- [**#1163**](https://github.com/spumko/hapi/issues/1163) CORS response doesn&#39;t set Vary header in all cases
+
+## [**1.19.3**](https://github.com/spumko/hapi/issues?milestone=74&state=closed)
+- [**#1161**](https://github.com/spumko/hapi/issues/1161) Schema issues
+
+## [**1.19.0**](https://github.com/spumko/hapi/issues?milestone=71&state=closed)
+- [**#1157**](https://github.com/spumko/hapi/issues/1157) route cache config does not allow specifying name
+- [**#1156**](https://github.com/spumko/hapi/issues/1156) Honor upstream ttl when proxying
+
+## [**1.18.0**](https://github.com/spumko/hapi/issues?milestone=70&state=closed)
+- [**#1152**](https://github.com/spumko/hapi/issues/1152) Load sampling and limits
+- [**#1150**](https://github.com/spumko/hapi/issues/1150) Support multiple cache instances
+- [**#1148**](https://github.com/spumko/hapi/issues/1148) Return 401 when allowEmptyUsername is false and username missing
 
 ## [**1.17.0**](https://github.com/spumko/hapi/issues?milestone=68&state=closed)
 - [**#1147**](https://github.com/spumko/hapi/issues/1147) Add request.reply.proxy()
@@ -524,21 +524,6 @@
 - [**#820**](https://github.com/spumko/hapi/issues/820) Clarified the format of payload in server.inject in the Reference doc
 - [**#824**](https://github.com/spumko/hapi/issues/824) Issue/821
 
-## [**0.15.8**](https://github.com/spumko/hapi/issues?milestone=31&state=closed)
-- [**#723**](https://github.com/spumko/hapi/issues/723) Global autoValue cookie overwrites other cookies
-- [**#722**](https://github.com/spumko/hapi/issues/722) Proxy shares cookies across different sessions
-
-## [**0.15.7**](https://github.com/spumko/hapi/issues?milestone=30&state=closed)
-- [**#717**](https://github.com/spumko/hapi/issues/717) Auto cookie value
-
-## [**0.15.4**](https://github.com/spumko/hapi/issues?milestone=28&state=closed)
-- [**#682**](https://github.com/spumko/hapi/issues/682) Bypass node http bug in writeHead
-- [**#678**](https://github.com/spumko/hapi/issues/678) Updating tutorials and adding a plugins list doc
-- [**#674**](https://github.com/spumko/hapi/issues/674) Adding missing branch tests
-
-## [**0.15.3**](https://github.com/spumko/hapi/issues?milestone=27&state=closed)
-- [**#677**](https://github.com/spumko/hapi/issues/677) Fix ext() with function array bug
-
 ## [**1.0.0**](https://github.com/spumko/hapi/issues?milestone=26&state=closed)
 - [**#796**](https://github.com/spumko/hapi/issues/796) Allow unencoded double quote and backslash in the cookie value
 - [**#793**](https://github.com/spumko/hapi/issues/793) Use new assert with passed parameters instead of concat string
@@ -568,10 +553,6 @@
 - [**#738**](https://github.com/spumko/hapi/issues/738) Support for Access-Control-Expose-Headers in the CORS options
 - [**#736**](https://github.com/spumko/hapi/issues/736) Node v0.10
 
-## [**0.15.2**](https://github.com/spumko/hapi/issues?milestone=25&state=closed)
-- [**#670**](https://github.com/spumko/hapi/issues/670) internalError event
-- [**#669**](https://github.com/spumko/hapi/issues/669) Optimize prerequisites and protect
-
 ## [**0.16.0**](https://github.com/spumko/hapi/issues?milestone=24&state=closed)
 - [**#656**](https://github.com/spumko/hapi/issues/656) Support for virtual hosts
 - [**#727**](https://github.com/spumko/hapi/issues/727) Fix hawk response header edge cases
@@ -584,6 +565,25 @@
 - [**#700**](https://github.com/spumko/hapi/issues/700) Adding security tests and fixing security bugs
 - [**#686**](https://github.com/spumko/hapi/issues/686) Pack auth api
 - [**#683**](https://github.com/spumko/hapi/issues/683) Pack and cache API refactor
+
+## [**0.15.8**](https://github.com/spumko/hapi/issues?milestone=31&state=closed)
+- [**#723**](https://github.com/spumko/hapi/issues/723) Global autoValue cookie overwrites other cookies
+- [**#722**](https://github.com/spumko/hapi/issues/722) Proxy shares cookies across different sessions
+
+## [**0.15.7**](https://github.com/spumko/hapi/issues?milestone=30&state=closed)
+- [**#717**](https://github.com/spumko/hapi/issues/717) Auto cookie value
+
+## [**0.15.4**](https://github.com/spumko/hapi/issues?milestone=28&state=closed)
+- [**#682**](https://github.com/spumko/hapi/issues/682) Bypass node http bug in writeHead
+- [**#678**](https://github.com/spumko/hapi/issues/678) Updating tutorials and adding a plugins list doc
+- [**#674**](https://github.com/spumko/hapi/issues/674) Adding missing branch tests
+
+## [**0.15.3**](https://github.com/spumko/hapi/issues?milestone=27&state=closed)
+- [**#677**](https://github.com/spumko/hapi/issues/677) Fix ext() with function array bug
+
+## [**0.15.2**](https://github.com/spumko/hapi/issues?milestone=25&state=closed)
+- [**#670**](https://github.com/spumko/hapi/issues/670) internalError event
+- [**#669**](https://github.com/spumko/hapi/issues/669) Optimize prerequisites and protect
 
 ## [**0.15.1**](https://github.com/spumko/hapi/issues?milestone=23&state=closed)
 - [**#663**](https://github.com/spumko/hapi/issues/663) Full plugin deps
@@ -668,6 +668,11 @@
 - [**#406**](https://github.com/spumko/hapi/issues/406) Update auth dependencies
 - [**#402**](https://github.com/spumko/hapi/issues/402) Use fixed time password comparison
 
+## [**0.10.0**](https://github.com/spumko/hapi/issues?milestone=9&state=closed)
+- [**#329**](https://github.com/spumko/hapi/issues/329) Add redirection response
+- [**#314**](https://github.com/spumko/hapi/issues/314) Multiple auth schemes
+- [**#322**](https://github.com/spumko/hapi/issues/322) Docs handler refactor
+
 ## [**0.9.3**](https://github.com/spumko/hapi/issues?milestone=12&state=closed)
 - [**#317**](https://github.com/spumko/hapi/issues/317) Test helpers, mongo auth test
 - [**#312**](https://github.com/spumko/hapi/issues/312) Misc cleanup
@@ -680,11 +685,6 @@
 - [**#297**](https://github.com/spumko/hapi/issues/297) Refactor request path normalization
 - [**#294**](https://github.com/spumko/hapi/issues/294) Refactor responses, auth, payload
 
-## [**0.10.0**](https://github.com/spumko/hapi/issues?milestone=9&state=closed)
-- [**#329**](https://github.com/spumko/hapi/issues/329) Add redirection response
-- [**#314**](https://github.com/spumko/hapi/issues/314) Multiple auth schemes
-- [**#322**](https://github.com/spumko/hapi/issues/322) Docs handler refactor
-
 ## [**0.9.1**](https://github.com/spumko/hapi/issues?milestone=8&state=closed)
 - [**#277**](https://github.com/spumko/hapi/issues/277) Changed matching rule of {param*}, Oz tests
 - [**#275**](https://github.com/spumko/hapi/issues/275) Prevent basic routes collision
@@ -692,6 +692,13 @@
 - [**#258**](https://github.com/spumko/hapi/issues/258) Adding support for etag and last-modified headers
 - [**#255**](https://github.com/spumko/hapi/issues/255) Adding support for gzip responses
 - [**#262**](https://github.com/spumko/hapi/issues/262) Support /path/{param*} syntax
+
+## [**0.9.0**](https://github.com/spumko/hapi/issues?milestone=3&state=closed)
+- [**#250**](https://github.com/spumko/hapi/issues/250) Direct response support
+- [**#245**](https://github.com/spumko/hapi/issues/245) Basic auth
+- [**#237**](https://github.com/spumko/hapi/issues/237) Response refactor
+- [**#234**](https://github.com/spumko/hapi/issues/234) Oz
+- [**#229**](https://github.com/spumko/hapi/issues/229) Initial 0.9.0
 
 ## [**0.8.4**](https://github.com/spumko/hapi/issues?milestone=7&state=closed)
 - [**#221**](https://github.com/spumko/hapi/issues/221) Adding parsing of multipart form-data content-type
@@ -709,13 +716,6 @@
 ## [**0.8.1**](https://github.com/spumko/hapi/issues?milestone=4&state=closed)
 - [**#204**](https://github.com/spumko/hapi/issues/204) Add postResponse method to proxy
 - [**#200**](https://github.com/spumko/hapi/issues/200) Fix tls config settings
-
-## [**0.9.0**](https://github.com/spumko/hapi/issues?milestone=3&state=closed)
-- [**#250**](https://github.com/spumko/hapi/issues/250) Direct response support
-- [**#245**](https://github.com/spumko/hapi/issues/245) Basic auth
-- [**#237**](https://github.com/spumko/hapi/issues/237) Response refactor
-- [**#234**](https://github.com/spumko/hapi/issues/234) Oz
-- [**#229**](https://github.com/spumko/hapi/issues/229) Initial 0.9.0
 
 ## [**0.8.0**](https://github.com/spumko/hapi/issues?milestone=2&state=closed)
 - [**#183**](https://github.com/spumko/hapi/issues/183) Cache segment validation
