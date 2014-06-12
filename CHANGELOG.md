@@ -1,4 +1,7 @@
 
+## [**6.0.1**](https://github.com/spumko/hapi/issues?milestone=103&state=closed)
+- [**#1710**](https://github.com/spumko/hapi/issues/1710) Buffer based passwords fail schema validation (6.0 regression)
+
 ## [**6.0.0**](https://github.com/spumko/hapi/issues?milestone=102&state=closed)
 - [**#1708**](https://github.com/spumko/hapi/issues/1708) Hapi 6.0 no longer invalidates auth strategy on registration of route
 - [**#1703**](https://github.com/spumko/hapi/issues/1703) Catbox 3.0 and drop internal require support
@@ -498,17 +501,6 @@
 - [**#844**](https://github.com/spumko/hapi/issues/844) Proxy to outside site fails due to request&#39;s old stream api and node 0.10 wrap()
 - [**#843**](https://github.com/spumko/hapi/issues/843) Allow setting custom headers via proxy mapUri
 
-## [**1.0.3**](https://github.com/spumko/hapi/issues?milestone=35&state=closed)
-- [**#823**](https://github.com/spumko/hapi/issues/823) Issue/822
-- [**#822**](https://github.com/spumko/hapi/issues/822) JSONP doesn&#39;t seem to be working
-- [**#817**](https://github.com/spumko/hapi/issues/817) Payload bugfix for PATCH method
-- [**#818**](https://github.com/spumko/hapi/issues/818) Tiny composer documentation fix
-- [**#814**](https://github.com/spumko/hapi/issues/814) Fixed jade compile issues and updated tests to verify fix.
-- [**#804**](https://github.com/spumko/hapi/issues/804) Remove restriction on params in path for static file handler
-
-## [**1.0.2**](https://github.com/spumko/hapi/issues?milestone=34&state=closed)
-- [**#813**](https://github.com/spumko/hapi/issues/813) text/* content-type always echo back the received content
-
 ## [**1.1.0**](https://github.com/spumko/hapi/issues?milestone=32&state=closed)
 - [**#839**](https://github.com/spumko/hapi/issues/839) Cleanup listeners
 - [**#838**](https://github.com/spumko/hapi/issues/838) Issue/808
@@ -523,6 +515,17 @@
 - [**#827**](https://github.com/spumko/hapi/issues/827) request debug printout format and condition
 - [**#820**](https://github.com/spumko/hapi/issues/820) Clarified the format of payload in server.inject in the Reference doc
 - [**#824**](https://github.com/spumko/hapi/issues/824) Issue/821
+
+## [**1.0.3**](https://github.com/spumko/hapi/issues?milestone=35&state=closed)
+- [**#823**](https://github.com/spumko/hapi/issues/823) Issue/822
+- [**#822**](https://github.com/spumko/hapi/issues/822) JSONP doesn&#39;t seem to be working
+- [**#817**](https://github.com/spumko/hapi/issues/817) Payload bugfix for PATCH method
+- [**#818**](https://github.com/spumko/hapi/issues/818) Tiny composer documentation fix
+- [**#814**](https://github.com/spumko/hapi/issues/814) Fixed jade compile issues and updated tests to verify fix.
+- [**#804**](https://github.com/spumko/hapi/issues/804) Remove restriction on params in path for static file handler
+
+## [**1.0.2**](https://github.com/spumko/hapi/issues?milestone=34&state=closed)
+- [**#813**](https://github.com/spumko/hapi/issues/813) text/* content-type always echo back the received content
 
 ## [**1.0.0**](https://github.com/spumko/hapi/issues?milestone=26&state=closed)
 - [**#796**](https://github.com/spumko/hapi/issues/796) Allow unencoded double quote and backslash in the cookie value
@@ -624,12 +627,6 @@
 - [**#587**](https://github.com/spumko/hapi/issues/587) Composer config options
 - [**#577**](https://github.com/spumko/hapi/issues/577) Beef up file etag tests
 
-## [**0.13.2**](https://github.com/spumko/hapi/issues?milestone=20&state=closed)
-- [**#474**](https://github.com/spumko/hapi/issues/474) 0.13.2
-- [**#466**](https://github.com/spumko/hapi/issues/466) Directory listing at top level folders now link correctly
-- [**#472**](https://github.com/spumko/hapi/issues/472) Fix matching of wildcard path param with trailing /
-- [**#463**](https://github.com/spumko/hapi/issues/463) Typo: req.session.used -&gt; req.session.user
-
 ## [**0.14.0**](https://github.com/spumko/hapi/issues?milestone=18&state=closed)
 - [**#563**](https://github.com/spumko/hapi/issues/563) Using memory instead of redis for test
 - [**#561**](https://github.com/spumko/hapi/issues/561) Composer
@@ -652,6 +649,12 @@
 - [**#480**](https://github.com/spumko/hapi/issues/480) Cleaning up this. use
 - [**#478**](https://github.com/spumko/hapi/issues/478) Cleanup ext options and error handling
 - [**#475**](https://github.com/spumko/hapi/issues/475) Simplify path regex
+
+## [**0.13.2**](https://github.com/spumko/hapi/issues?milestone=20&state=closed)
+- [**#474**](https://github.com/spumko/hapi/issues/474) 0.13.2
+- [**#466**](https://github.com/spumko/hapi/issues/466) Directory listing at top level folders now link correctly
+- [**#472**](https://github.com/spumko/hapi/issues/472) Fix matching of wildcard path param with trailing /
+- [**#463**](https://github.com/spumko/hapi/issues/463) Typo: req.session.used -&gt; req.session.user
 
 ## [**0.13.0**](https://github.com/spumko/hapi/issues?milestone=17&state=closed)
 - [**#448**](https://github.com/spumko/hapi/issues/448) Fixed typos
