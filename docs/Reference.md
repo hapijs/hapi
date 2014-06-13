@@ -979,8 +979,8 @@ The `options` object is the same as the server [`views`](#server.config.views) c
 ```javascript
 server.views({
     engines: {
-        html: 'handlebars',
-        jade: 'jade'
+        html: require('handlebars'),
+        jade: require('jade')
     },
     path: '/static/templates'
 });
@@ -1738,7 +1738,7 @@ The [response flow control rules](#flow-control) apply.
 var Hapi = require('hapi');
 var server = new Hapi.Server({
     views: {
-        engines: { html: 'handlebars' },
+        engines: { html: require('handlebars') },
         path: __dirname + '/templates'
     }
 });
@@ -1995,7 +1995,7 @@ response object.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
+var server = new Hapi.Server({ views: { engines: { html: require('handlebars') } } });
 
 server.ext('onPreResponse', function (request, reply) {
 
@@ -2542,7 +2542,7 @@ exports.register = function (plugin, options, next) {
     plugin.views({
         engines: {
             html: { 
-              module: require('handlebars') 
+              module: Handlebars.create()
             }
         },
         path: './templates'
