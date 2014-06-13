@@ -393,9 +393,9 @@ The following options are available when adding a route:
               serve if the request supports content encoding. Defaults to `false`.
 
     - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the
-      directory handler must include a path parameter at the end of the path string (e.g. '/path/to/somewhere/{param}' where the parameter name does
-      not matter). The path parameter can use any of the parameter options (e.g. '{param}' for one level files only, '{param?}' for one level files or
-      the directory root, '{param*}' for any level, or '{param*3}' for a specific level). If additional path parameters are present, they are ignored for
+      directory handler must include a path parameter at the end of the path string (e.g. `/path/to/somewhere/{param}` where the parameter name does
+      not matter). The path parameter can use any of the parameter options (e.g. `{param}` for one level files only, `{param?}` for one level files or
+      the directory root, `{param*}` for any level, or `{param*3}` for a specific level). If additional path parameters are present, they are ignored for
       the purpose of selecting the file system resource. The directory handler is an object with the following options:
         - `path` - (required) the directory root path (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
           Value can be:
@@ -979,8 +979,8 @@ The `options` object is the same as the server [`views`](#server.config.views) c
 ```javascript
 server.views({
     engines: {
-        html: 'handlebars',
-        jade: 'jade'
+        html: require('handlebars'),
+        jade: require('jade')
     },
     path: '/static/templates'
 });
@@ -1738,7 +1738,7 @@ The [response flow control rules](#flow-control) apply.
 var Hapi = require('hapi');
 var server = new Hapi.Server({
     views: {
-        engines: { html: 'handlebars' },
+        engines: { html: require('handlebars') },
         path: __dirname + '/templates'
     }
 });
@@ -1995,7 +1995,7 @@ response object.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server({ views: { engines: { html: 'handlebars' } } });
+var server = new Hapi.Server({ views: { engines: { html: require('handlebars') } } });
 
 server.ext('onPreResponse', function (request, reply) {
 
@@ -2542,7 +2542,7 @@ exports.register = function (plugin, options, next) {
     plugin.views({
         engines: {
             html: { 
-              module: require('handlebars') 
+              module: Handlebars.create()
             }
         },
         path: './templates'
@@ -2950,7 +2950,7 @@ installed in the path.  The following arguments are available to the **hapi** CL
 - '-p' - the path to the node_modules folder to load plugins from (optional)
 - '--require' - a module the cli will require before hapi is required (optional) ex. loading a metrics library
 
-Note that `--require` will require from node_modules, an absolute path, a relative path, or from the node_modules
+Note that `--require` will require from `node_modules`, an absolute path, a relative path, or from the `node_modules`
 set by `-p` if available.
 
 In order to help with A/B testing there is [confidence](https://github.com/spumko/confidence). Confidence is a
