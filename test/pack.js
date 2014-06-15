@@ -510,6 +510,29 @@ describe('Pack', function () {
         });
     });
 
+    it('registers a plugin with route path prefix and plugin root route', function (done) {
+
+        var a = {
+            name: 'a',
+            register: function (plugin, options, next) {
+
+                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                next();
+            }
+        };
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(a, { route: { prefix: '/xyz' } }, function (err) {
+
+            expect(err).to.not.exist;
+            server.inject('/xyz', function (res) {
+
+                expect(res.result).to.equal('ok');
+                done();
+            });
+        });
+    });
+
     it('registers a child plugin with parent route path prefix', function (done) {
 
         var server = new Hapi.Server({ labels: 'test' });
