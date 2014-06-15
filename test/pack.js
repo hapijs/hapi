@@ -794,6 +794,75 @@ describe('Pack', function () {
         });
     });
 
+    it('recognizes dependencies from peer plugins', function (done) {
+
+        var a = {
+            name: 'a',
+            register: function (plugin, options, next) {
+
+                plugin.register(b, next);
+            }
+        };
+
+        var b = {
+            name: 'b',
+            register: function (plugin, options, next) {
+
+                next();
+            }
+        };
+
+        var c = {
+            name: 'c',
+            register: function (plugin, options, next) {
+
+                plugin.dependency('b');
+                next();
+            }
+        };
+
+        var server = new Hapi.Server(0);
+        server.pack.register([a, c], function (err) {
+
+            expect(err).to.not.exist;
+            done();
+        });
+    });
+
+    it('errors when missing inner dependencies', function (done) {
+
+        var a = {
+            name: 'a',
+            register: function (plugin, options, next) {
+
+                plugin.register(b, next);
+            }
+        };
+
+        var b = {
+            name: 'b',
+            register: function (plugin, options, next) {
+
+                plugin.dependency('c');
+                next();
+            }
+        };
+
+        var domain = Domain.create();
+        domain.on('error', function (err) {
+
+            expect(err.message).to.equal('Plugin b missing dependency c in server: ' + server.info.uri);
+            done();
+        });
+
+        var server = new Hapi.Server();
+
+        domain.run(function () {
+
+            server.pack.register(a, function (err) { });
+        });
+    });
+
     it('fails to start server when after method fails', function (done) {
 
         var server = new Hapi.Server();
