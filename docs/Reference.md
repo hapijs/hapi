@@ -2328,7 +2328,7 @@ var manifest = {
     }
 };
 
-Hapi.Pack.composer(manifest, function (err, pack) {
+Hapi.Pack.compose(manifest, function (err, pack) {
 
     pack.start();
 });
