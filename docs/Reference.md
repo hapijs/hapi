@@ -2846,15 +2846,6 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.require(plugins, [options], callback)`
-
-Registers a plugin with the current selection following the syntax of `pack.register()`.
-
-exports.register = function (plugin, options, next) {
-
-    plugin.register({ plugin: require('furball'), options: { version: '/v' } }, next);
-};
-
 #### `plugin.dependency(deps, [after])`
 
 Declares a required dependency upon other plugins where:
