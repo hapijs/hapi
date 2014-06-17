@@ -544,7 +544,7 @@ The following options are available when adding a route:
               except when a proxy handler is used.
             - `stream` - the incoming payload is made available via a `Stream.Readable` interface. If the payload is 'multipart/form-data' and
               `parse` is `true`, fields values are presented as text while files are provided as streams. File streams from a
-              'multipart/form-data' upload will also have a property `.hapi` containing `filename` and `headers` properties.
+              'multipart/form-data' upload will also have a property `hapi` containing `filename` and `headers` properties.
             - `file` - the incoming payload in written to temporary file in the directory specified by the server's `payload.uploads` settings.
               If the payload is 'multipart/form-data' and `parse` is `true`, fields values are presented as text while files are saved.
         - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip`
