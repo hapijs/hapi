@@ -2349,7 +2349,7 @@ A plugin is constructed with the following:
 - registeration function - the function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
   The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the
   single entry point into the plugin's functionality.
-- version - the optional plugin version is only used informatively to enable other plugins to find out the verions loaded. The version
+- version - the optional plugin version is only used informatively to enable other plugins to find out the versions loaded. The version
   should be the same as the one specified in the plugin's 'package.json' file.
 
 The name and versions are included by attaching an `attributes` property to the `exports.register()` function:
