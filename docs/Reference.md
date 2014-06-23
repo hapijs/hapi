@@ -762,7 +762,7 @@ var handler = function (request, reply) {
 It is often necessary to perform prerequisite actions before the handler is called (e.g. load required reference data from a database).
 The route `pre` option allows defining such pre-handler methods. The methods are called in order. If the `pre` array contains another array,
 those methods are called in parallel. `pre` can be assigned a mixed array of:
-- arrays containing the elemets listed below, which are executed in parallel.
+- arrays containing the elements listed below, which are executed in parallel.
 - objects with:
     - `method` - the function to call (or short-hand method string as described below). the function signature is identical to a route handler
       as describer in [Route handler](#route-handler).
