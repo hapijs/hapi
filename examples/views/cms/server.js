@@ -54,7 +54,7 @@ internals.main = function () {
 
     var options = {
         views: {
-            engines: { html: 'handlebars' },
+            engines: { html: require('handlebars') },
             path: Path.join(__dirname, 'views'),
             layout: true,
             partialsPath: Path.join(__dirname, 'views', 'partials')
