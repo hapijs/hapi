@@ -28,8 +28,8 @@ internals.main = function () {
     var options = {
         views: {
             engines: {
-                'html': 'handlebars',
-                'jade': 'jade'
+                'html': require('handlebars'),
+                'jade': require('jade')
             },
             path: __dirname + '/templates',
         }
