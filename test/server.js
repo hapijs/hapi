@@ -1582,6 +1582,13 @@ describe('Server', function () {
             done();
         });
 
+        it('returns back the an absolute location using server config when trustProxy is true', function (done) {
+
+            var server = new Hapi.Server({ location: 'http://example.net', trustProxy: true });
+            expect(server.location('/test')).to.equal('http://example.net/test');
+            done();
+        });
+
         it('returns back the an absolute location using request host', function (done) {
 
             var server = new Hapi.Server();
@@ -1589,9 +1596,23 @@ describe('Server', function () {
             done();
         });
 
+        it('returns back the an absolute location using request host when trustProxy is true', function (done) {
+
+            var server = new Hapi.Server({trustProxy: true});
+            expect(server.location('/test', { info: { host: 'example.edu' } })).to.equal('http://example.edu/test');
+            done();
+        });
+
         it('returns back the an absolute location using server info', function (done) {
 
             var server = new Hapi.Server();
+            expect(server.location('/test')).to.equal('http://0.0.0.0:80/test');
+            done();
+        });
+
+        it('returns back the an absolute location using server info when trustProxy is true', function (done) {
+
+            var server = new Hapi.Server({trustProxy: true});
             expect(server.location('/test')).to.equal('http://0.0.0.0:80/test');
             done();
         });
