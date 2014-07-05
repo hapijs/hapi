@@ -2100,6 +2100,22 @@ describe('Pack', function () {
             });
         });
 
+        it('errors on invalid plugin', function (done) {
+
+            var manifest = {
+                servers: [{}],
+                plugins: {
+                    '../test/pack/--fail': null
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+
         it('throws on pack with missing inner deps', function (done) {
 
             var manifest = {
