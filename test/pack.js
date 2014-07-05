@@ -2099,5 +2099,27 @@ describe('Pack', function () {
                 done();
             });
         });
+
+        it('throws on pack with missing inner deps', function (done) {
+
+            var manifest = {
+                servers: [{ host: 'localhost' }],
+                plugins: {
+                    '../test/pack/--deps1': null
+                }
+            };
+
+            var domain = Domain.create();
+            domain.on('error', function (err) {
+
+                expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: http://localhost:80');
+                done();
+            });
+
+            domain.run(function () {
+
+                Hapi.Pack.compose(manifest, function (err, pack) {});
+            });
+        });
     });
 });
