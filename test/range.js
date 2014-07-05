@@ -103,6 +103,40 @@ describe('Response Range', function () {
         });
     });
 
+    it('returns a subset of a file (if-range)', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+
+        server.inject('/file', function (res) {
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': res1.headers.etag } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(206);
+                    expect(res2.headers['content-length']).to.equal(5);
+                    expect(res2.headers['content-range']).to.equal('bytes 42005-42009/42010');
+                    expect(res2.headers['accept-ranges']).to.equal('bytes');
+                    expect(res2.payload).to.equal('D\xAEB\x60\x82');
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns 200 on incorrect if-range', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+
+        server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } }, function (res2) {
+
+            expect(res2.statusCode).to.equal(200);
+            done();
+        });
+    });
+
     it('returns 416 on invalid range (unit)', function (done) {
 
         var server = new Hapi.Server();
