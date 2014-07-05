@@ -192,7 +192,7 @@ When creating a server instance, the following options configure the server's be
         - `rule` - either 'deny', 'sameorigin', or 'allow-from'
         - `source` - when `rule` is 'allow-from' this is used to form the rest of the header, otherwise this field is ignored. If `rule` is 'allow-from'
           but `source` is unset, the rule will be automatically changed to 'sameorigin'.
-    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which sets the header to equal '1; mode=block'.
+    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which sets the header to equal '1; mode=block'. NOTE: This setting can create a security vulnerability in versions of IE below 8, as well as unpatched versions of IE8. See [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/) and [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If you actively support old versions of IE, it may be wise to explicitly set this flag to `false`.
     - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing downloads from executing in your context. Defaults to `true` setting
       the header to 'noopen'.
     - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting the header to its only and default option, 'nosniff'.
