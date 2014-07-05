@@ -1664,7 +1664,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 304 when the request has if-modified-since and the response has not been modified since', function (done) {
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', function (done) {
 
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -1673,6 +1673,24 @@ describe('Response', function () {
 
                 var last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
                 server.inject({ url: '/file', headers: { 'if-modified-since': last.toString() } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    expect(res2.headers).to.not.have.property('content-length');
+                    expect(res2.headers).to.not.have.property('etag');
+                    expect(res2.headers).to.not.have.property('last-modified');
+                    done();
+                });
+            });
+        });
+
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers).to.not.have.property('content-length');
