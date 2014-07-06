@@ -88,7 +88,7 @@ describe('Directory', function () {
     it('returns a file when requesting a file from multi directory function response', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
-        server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: function () { return ['./', '../'] }, listing: true } } });
+        server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: function () { return ['./', '../']; }, listing: true } } });
 
         server.inject('/multiple/package.json', function (res) {
 

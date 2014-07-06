@@ -576,7 +576,7 @@ describe('Request', function () {
             });
         });
     });
-    
+
     it('does not fail on abort', function (done) {
 
         var clientRequest;
@@ -663,10 +663,10 @@ describe('Request', function () {
                 stream.close = function () {
 
                     done();
-                }
+                };
 
                 reply(stream);
-            }, 10)
+            }, 10);
         };
 
         var server = new Hapi.Server({ timeout: { server: 5 } });
@@ -689,7 +689,7 @@ describe('Request', function () {
             setTimeout(function () {
 
                 reply(new Error('after'));
-            }, 10)
+            }, 10);
         };
 
         var server = new Hapi.Server({ timeout: { server: 5 } });
@@ -830,7 +830,7 @@ describe('Request', function () {
                 expect(res.statusCode).to.equal(200);
                 done();
             });
-        })
+        });
 
         it('does not strip trailing slash on /', function (done) {
 
@@ -841,7 +841,7 @@ describe('Request', function () {
                 expect(res.statusCode).to.equal(200);
                 done();
             });
-        })
+        });
     });
 
     describe('#log', { parallel: false }, function () {

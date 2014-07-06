@@ -166,6 +166,6 @@ describe('Client Timeout', function () {
 
                 req.end();
             }, 100);
-        })
+        });
     });
 });
