@@ -1011,7 +1011,7 @@ describe('Response', function () {
 
             server.inject('/?callback=me', function (res) {
 
-                expect(res.payload).to.equal('me({"some":"value"});');
+                expect(res.payload).to.equal('/**/me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(21);
                 done();
             });
@@ -1060,7 +1060,7 @@ describe('Response', function () {
                 Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, result) {
 
                     expect(err).to.not.exist;
-                    expect(result.toString()).to.equal('docall({"first":"1","last":"2"});');
+                    expect(result.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
                     done();
                 });
             });
@@ -1078,7 +1078,7 @@ describe('Response', function () {
 
             server.inject('/?callback=me', function (res) {
 
-                expect(res.payload).to.equal('me(value);');
+                expect(res.payload).to.equal('/**/me(value);');
                 expect(res.headers['content-length']).to.equal(10);
                 done();
             });
