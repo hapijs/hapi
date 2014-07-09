@@ -276,6 +276,56 @@ describe('Router', function () {
         });
     });
 
+    it('adds routes using single and array methods', function (done) {
+
+        var server = new Hapi.Server();
+        server.route([
+            {
+                method: 'GET',
+                path: '/api/products',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: 'GET',
+                path: '/api/products/{id}',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: 'POST',
+                path: '/api/products',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: ['PUT', 'PATCH'],
+                path: '/api/products/{id}',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: 'DELETE',
+                path: '/api/products/{id}',
+                handler: function (request, reply) { reply(); }
+            }
+        ]);
+
+        var table = server.table();
+        var paths = table.map(function(route) {
+            var obj = {
+                method: route.method,
+                path: route.path
+            };
+            return obj;
+        });
+
+        expect(table).to.have.length(6);
+        expect(paths).to.include({method: 'get', path: '/api/products'});
+        expect(paths).to.include({method: 'get', path: '/api/products/{id}'});
+        expect(paths).to.include({method: 'post', path: '/api/products'});
+        expect(paths).to.include({method: 'put', path: '/api/products/{id}'});
+        expect(paths).to.include({method: 'patch', path: '/api/products/{id}'});
+        expect(paths).to.include({method: 'delete', path: '/api/products/{id}'});
+        done();
+    });
+
     it('does not allow invalid paths', function (done) {
 
         var server = new Hapi.Server();
