@@ -10,7 +10,7 @@
   ```javascript
   // Right
   console.log('even when not required');
-  
+
   // Wrong
   console.log('even when not required')
   ```
@@ -37,13 +37,13 @@
   if (condition) {
       return;
   }
-  
+
   // Wrong
-  
+
   if (condition) return;
-  
+
   if (condition)
-      return;      
+      return;
   ```
 
 #### For loops
@@ -52,7 +52,7 @@
   - Use `for` with arrays, `for...in` for objects (and always check `hasOwnProperty()`)
   - When iterating over a fixed or calculated size, assign size to a variable inside the `for` declaration and use iterator variable name with `l` suffix
   - Always `++i`, never `i++`
-  
+
   ```javascript
   // Right
 
@@ -63,7 +63,7 @@
   }
 
   // Wrong
-  
+
   var position;
   var name = 'john' ;
 
@@ -82,20 +82,20 @@
       this._private = 'internal';
   };
   ```
-  
+
   - Define `self` for passing `this` into nested functions
   ```javascript
   Example.prototype.method = function () {
 
       var self = this;
-      
+
       call(123, function (err) {
-      
+
           self.display(err);
       });
   };
   ```
-  
+
 #### Function declaration
 
   - Declare functions via assignment
@@ -103,23 +103,23 @@
   // Right
 
   var method = function () {
-  
+
   };
-  
+
   // Wrong
-  
+
   function method() {
-  
+
   }
   ```
-  
+
 #### Enforcing new on Constructor
 
   - Use this.constructor === to check if a constructor function was called with new
   ```javascript
   // Right
   Utils.assert(this.constructor === Server, 'Server must be instantiated using new');
-  
+
   // Wrong
   Utils.assert(this instanceof Server, 'Server must be instantiated using new');
   ```
@@ -134,7 +134,7 @@
 
   ```javascript
   // Right
-  
+
   if (test) {
         if (value === 12) {
           console.log('result');
@@ -142,7 +142,7 @@
   }
 
   // Wrong
-  
+
   if (test) {
     if (value === 12) {
       console.log('result');
@@ -156,7 +156,7 @@
   ```javascript
   // Right
   var string = 'text in single quotes';
-  
+
   // Wrong
   var string = "text in single quotes";
   ```
@@ -168,8 +168,8 @@
   exports.get = function () {
 
       // Some code
-  };  
-                                                              // 1    
+  };
+                                                              // 1
                                                               // 2
   /**
    * jsDoc comment
@@ -179,7 +179,7 @@
       //Some code
   };
   ```
-  
+
   - Newline after `{` except for inlined or empty objects
     - Inline an object when it improves readability and unlikely to change often
     - No inline object in assignment unless empty
@@ -197,7 +197,7 @@
       };
       execute(value, options);
   }
-  
+
   var empty = {};
 
   // Wrong
@@ -208,11 +208,11 @@
       var options = { strict: true };
       execute(value, options);
   }
-  
+
   var empty = {
   };
   ```
-  
+
   - Newline after `}`
     - Only exception is when followed by `,`, `;`, `);` which must be followed by a newline
     - Includes before `else`, `catch`, etc.
@@ -221,37 +221,37 @@
   ```javascript
   // Right
 
-  if (condition) {  
+  if (condition) {
       value = {
           func: function () {
-          
+
               console.log('example');
           },
           message: 'hello'
       };
-      
+
       execute(value, function (err) {
-      
+
           console.log(err);
       });
   }
   else {
       console.log('otherwise');
   }
-  
+
   // Wrong
 
-  if (condition) {  
+  if (condition) {
       value = {
           func: function () {
-          
+
               console.log('example');
           }, message: 'hello'
       };
       execute(value, function (err) {
-      
+
           console.log(err); }
-      ); 
+      );
   } else {
       console.log('otherwise');
   }
@@ -265,47 +265,47 @@
   // Right
 
   exports.method = function () {
-  
-      if (condition) {  
+
+      if (condition) {
           if (otherCondition) {
               console.log('sometimes');
           }
-  
+
           if (result &&
               result.statusCode === 200) {
-          
+
               console.log('special case');
           }
-      
+
           console.log('always');
       }
-      
+
       execute(123, function (err) {
-      
+
           console.log(err);
       });
-      
+
       var empty = {};
   };
-  
+
   // Wrong
 
   exports.method = function () {
         if (condition) {
-        
+
           if (otherCondition) {
-      
+
               console.log('sometimes');
           }
-   
+
           if (result &&
               result.statusCode === 200) {
               console.log('special case');
           }
-     
+
           console.log('always');
       }
-        
+
       execute(123, function (err) {
           console.log(err);
       });
@@ -314,7 +314,7 @@
       };
   };
   ```
-  
+
   - No empty line before end of scope
   ```javascript
   // Right
@@ -324,25 +324,25 @@
           console.log('done');
       }
   }
-  
+
   // Wrong
 
-  if (condition) {  
+  if (condition) {
       if (otherCondition) {
           console.log('done');
-          
+
       }
-      
+
   }
   ```
-  
+
 #### Spaces
 
   - Use one and only one space (when required)
   ```javascript
   // Right
   var value = calculate(1, 3);
-  
+
   // Wrong
   var  value =  calculate(1,  3);
   ```
@@ -352,18 +352,18 @@
   // Right
 
   var example = function () {
-  
+
       return value;
   }
 
   // Wrong
-  
+
   var example = function() {
-  
+
       return value;
   }
   ```
-  
+
   - No space between function name and `(` when invoking a function
   ```javascript
   // Right
@@ -386,7 +386,7 @@
   }
 
   // Wrong
-  
+
   execute( 'order', 34 );
 
   if ( result === 'ok' ) {
@@ -405,8 +405,8 @@
   };
 
   // Wrong
-  
-  var obj = {  
+
+  var obj = {
       a : 1,
       b :2,
       c:3
@@ -424,40 +424,40 @@
   }
 
   // Wrong
-  
+
   var name = 'john' ;
 
   for (var i = 0, il = name.length;i < il ;++i) {
       console.log(name[i]) ;
   }
   ```
-  
+
   - Always space after reserved keywords (`if`, `else`, `for`, `return`, `function`, etc.)
   ```javascript
   // Right
 
-  for (var book in books) {  
+  for (var book in books) {
       if (books.hasOwnProperty(book)) {
           console.log(book.name);
       }
   }
-  
+
   // Wrong
-  
-  for(var book in books) {  
+
+  for(var book in books) {
       if(books.hasOwnProperty(book)) {
           console.log(book.name);
       }
   }
   ```
-  
+
   - Always space after `{` and before `}` in inlined object
     - No space for empty objects `{}`
     - One space for empty functions `{ }`
 
   ```javascript
   // Right
-  
+
   var user = { name: 'john', email: 'john@example.com' };
   var empty = {};
   var callback = function () { };
@@ -468,7 +468,7 @@
   var empty = {  };
   var callback = function () {};
   ```
-  
+
   - No space after `[` and before `]` in inlined arrays
   ```javascript
   // Right
@@ -499,7 +499,7 @@
   }
 
   // Wrong
-  
+
   var numbers = [1,2 ,3];
   var user = { name: 'john',email: 'john@example.com' };
 
@@ -512,20 +512,20 @@
 
   ```javascript
   // Right
-  
+
   var a = 1 + 3;
   var b = 'john' +
           ' ' +
           'doe';
 
   // Wrong
-  
+
   var a=1+3;
   var b='john'+
         ' '+
         'doe';
   ```
-  
+
 #### Commas
 
   - Never begin a line with `,` (always at the end of the previous line)
@@ -553,7 +553,7 @@
 
   if (value === 'hello' &&
       result === 'ok') {
-      
+
       console.log('yes');
   }
 
@@ -565,7 +565,7 @@
 
   if (value === 'hello'
       && result === 'ok') {
-      
+
       console.log('yes');
   }
   ```
@@ -578,19 +578,19 @@
   - Formal style, consistent voice, no humor, present tense
   - No developer name or other personal notes
   - No TODOs
-  
+
   - Line
     - Provides narrative for the following single code line (or single statement broken for readability)
     - One line of comment only
     - One empty line before and none after the comment line
     - No empty line before when following `{` unless other rules require it
-    
+
   ```javascript
   function execute() {
 
       // Initialize state
       var position = 0;
-      
+
       if (condition) {
           // Return message
           return 'hello';
@@ -602,16 +602,16 @@
     - Provides narrative for the following code section (one or more lines of code, with or without line breaks)
     - One or more lines of comments
     - One empty line before and one after comments block
-    
+
   ```javascript
   function execute() {
 
       // Print each book's name
-      
+
       for (var book in books) {
-      
+
           // Check for valid properties
-          
+
           if (books.hasOwnProperty(book)) {
               console.log(book.name);
           }
@@ -623,13 +623,13 @@
     - Explains the behaviour of a single code statement (can be broken into multiple lines)
     - Used to document unexpected behaviour or non-standard practice
     - Appears immediately at the end of the line (or statement) it describes, following whitespace to separate it from code block
-    
+
   ```javascript
   function execute(value) {
 
       if (value !== null &&
           value !== undefined) {      // Explicit check as 'value' can be 0
-          
+
           console.log(value);
       }
   }
@@ -641,7 +641,7 @@
   - Break statements if they are longer than 150 characters long
   - No empty lines in the middle of a single statement
   - Indent multi-line statements
-  
+
   - Conditions should be indented to the first character of the condition in the first line
 
   ```javascript
@@ -652,17 +652,17 @@
       console.log('success');
   }
   ```
-  
+
   - Variable should be indented to the first character of the value in the first line
   ```javascript
   var message = "hello" +
                 " and welcome";
   ```
-  
+
 ## Node
-  
+
 ### Require
-  
+
   - Use uppercase variable names for imported modules
   - All require statements must be declared at the top of the module
   - Always use relative paths
@@ -674,7 +674,7 @@
     - `internals` - must be declared as an object at the top of each module immediate following the `require` section
   - Any variable global to the module must be a property of `internals`, including constants
   - If a module has automatically executing code, it must be contained within a function (using the `internals` namespace) and called at the top of the module after the `internals` declaration
-    
+
 ### Variable names
 
   - `err` is reserved for errors received via a callback. Use `error` for local function variables
