@@ -120,6 +120,27 @@ describe('Pack', function () {
         });
     });
 
+    it('throws when register is missing a callback function', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['a', 'b'] });
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                next();
+            },
+            options: { something: true }
+        };
+
+        expect(function () {
+            
+            pack.register(plugin);
+        }).to.throw('A callback function is required to register a plugin');
+        done();
+    });
+
     it('registers plugin via server pack interface', function (done) {
 
         var plugin = {
