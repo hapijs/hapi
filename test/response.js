@@ -1646,6 +1646,23 @@ describe('Response', function () {
             });
         });
 
+        it('retains etag header on head', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ method: 'HEAD', url: '/file' }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers).to.have.property('etag');
+                    expect(res2.headers).to.have.property('last-modified');
+                    done();
+                });
+            });
+        });
+
         it('returns 200 if if-modified-since is invalid', function (done) {
 
             var server = new Hapi.Server();
