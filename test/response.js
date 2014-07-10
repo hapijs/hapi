@@ -1704,6 +1704,40 @@ describe('Response', function () {
             });
         });
 
+        it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: function (request, reply) { reply(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc'); } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ url: '/file', headers: { 'if-none-match': res1.headers.etag } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    var cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                    var lsof = '';
+                    cmd.stdout.on('data', function (buffer) {
+
+                        lsof += buffer.toString();
+                    });
+
+                    cmd.stdout.on('end', function () {
+
+                        var count = 0;
+                        var lines = lsof.split('\n');
+                        for (var i = 0, il = lines.length; i < il; ++i) {
+                            count += !!lines[i].match(/package.json/);
+                        }
+
+                        expect(count).to.equal(0);
+                        done();
+                    });
+
+                    cmd.stdin.end();
+                });
+            });
+        });
+
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: __dirname } });
