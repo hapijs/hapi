@@ -158,7 +158,7 @@ describe('Client Timeout', function () {
             var req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(timer.elapsed()).to.be.at.least(99);
+                expect(timer.elapsed()).to.be.at.least(90);
                 done();
             });
 
