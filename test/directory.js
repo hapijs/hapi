@@ -618,4 +618,21 @@ describe('Directory', function () {
             done();
         });
     });
+
+    it('returns a gzipped file using precompressed file', function (done) {
+
+        var content = Fs.readFileSync('./test/file/image.png.gz');
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/{p*}', handler: { directory: { path: './test/file', lookupCompressed: true } } });
+
+        server.inject({ url: '/image.png', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+            expect(res.headers['content-type']).to.equal('image/png');
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            expect(res.headers['content-length']).to.equal(content.length);
+            expect(res.payload.length).to.equal(content.length);
+            done();
+        });
+    });
 });
