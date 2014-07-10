@@ -1341,7 +1341,7 @@ describe('Server', function () {
             var timer = new Hoek.Bench();
             server.inject('/slow', function (res) {
 
-                expect(timer.elapsed()).to.be.at.least(29);
+                expect(timer.elapsed()).to.be.at.least(20);
                 expect(res.statusCode).to.equal(200);
                 done();
             });
