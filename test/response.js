@@ -1861,6 +1861,27 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('does not open file stream on 304', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.ext('onPreResponse', function (request, reply) {
+
+                    request.response._marshall = function () { throw new Error('not called'); };
+                    reply();
+                });
+
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    done();
+                });
+            });
+        });
     });
 
     describe('Stream', function () {
