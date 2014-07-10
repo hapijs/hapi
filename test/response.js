@@ -1755,7 +1755,7 @@ describe('Response', function () {
 
                 expect(res.headers['content-type']).to.equal('image/png');
                 expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['content-length']).to.not.exist;
+                expect(res.headers['content-length']).to.equal(content.length);
                 expect(res.payload.length).to.equal(content.length);
                 done();
             });
