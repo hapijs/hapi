@@ -842,6 +842,17 @@ describe('Request', function () {
                 done();
             });
         })
+        
+        it('does not strip trailing slash when a query string is present', function (done) {
+           
+            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { reply(); } });
+            server.inject( '/test/?queryString1=test', function (res) {
+               
+               expect(res.statusCode).to.equal(200);
+               done(); 
+            });
+        });
     });
 
     describe('#log', { parallel: false }, function () {
