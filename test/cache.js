@@ -27,7 +27,7 @@ describe('Cache', function () {
 
         server.method('profile', function (id, next) {
 
-            next(null, {
+            return next(null, {
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
             });
@@ -55,7 +55,7 @@ describe('Cache', function () {
 
         server.method('profile', function (id, next) {
 
-            next(null, {
+            return next(null, {
                 'id': 'fa0dbda9b1b',
                 'name': 'John Doe'
             });

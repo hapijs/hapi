@@ -521,7 +521,7 @@ describe('Directory', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/test/{path*}', config: { handler: { directory: { path: './directory', index: false, listing: false } } } });
-                next();
+                return next();
             }
         };
 
@@ -546,7 +546,7 @@ describe('Directory', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/test/{path*}', config: { handler: { directory: { path: './test/directory', index: false, listing: false } } } });
-                next();
+                return next();
             }
         };
 

@@ -84,7 +84,7 @@ describe('State', function () {
 
         var present = function (request, next) {
 
-            next(null, request.params.x)
+            return next(null, request.params.x)
         };
 
         var server = new Hapi.Server();
@@ -103,7 +103,7 @@ describe('State', function () {
 
         var present = function (request, next) {
 
-            next(new Error())
+            return next(new Error())
         };
 
         var server = new Hapi.Server();

@@ -286,7 +286,7 @@ describe('Route', function () {
                 server.inject({ method: 'GET', url: request[0] }, function (res) {
 
                     expect(res.result).to.equal(request[1]);
-                    next();
+                    return next();
                 });
             },
             function (err) {

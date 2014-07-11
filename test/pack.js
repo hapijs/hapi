@@ -69,7 +69,7 @@ describe('Pack', function () {
                 plugin.method({
                     name: 'testMethod', fn: function (next) {
 
-                        next(null, '123');
+                        return next(null, '123');
                     }, options: { cache: { expiresIn: 1000 } }
                 });
 
@@ -80,7 +80,7 @@ describe('Pack', function () {
                     plugin.methods.testMethod(function (err, result) {
 
                         expect(result).to.equal('123');
-                        next();
+                        return next();
                     });
                 });
             }
@@ -108,7 +108,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
-                next();
+                return next();
             },
             options: { something: true }
         };
@@ -129,7 +129,7 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             },
             options: { something: true }
         };
@@ -148,7 +148,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
-                next();
+                return next();
             },
             options: { something: true }
         };
@@ -167,7 +167,7 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                next(new Error('from plugin'));
+                return next(new Error('from plugin'));
             }
         };
 
@@ -272,7 +272,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(plugin.version); } });
-                next();
+                return next();
             }
         };
 
@@ -303,7 +303,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.path();
-                next();
+                return next();
             }
         };
 
@@ -346,7 +346,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('a'); } });
-                next();
+                return next();
             }
         };
 
@@ -370,7 +370,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
-                next();
+                return next();
             }
         };
 
@@ -397,7 +397,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
-                next();
+                return next();
             }
         };
 
@@ -548,7 +548,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-                next();
+                return next();
             }
         };
 
@@ -570,7 +570,7 @@ describe('Pack', function () {
         a.register = function (plugin, options, next) {
 
             plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-            next();
+            return next();
         };
 
         a.register.attributes = { name: 'a' };
@@ -678,7 +678,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.expose('key2', 2);
-                next();
+                return next();
             }
         };
 
@@ -744,7 +744,7 @@ describe('Pack', function () {
         var pack = new Hapi.Pack();
         expect(function () {
 
-            pack.register({ register: function (plugin, options, next) { next(); } }, function (err) { });
+            pack.register({ register: function (plugin, options, next) { return next(); } }, function (err) { });
         }).to.throw('Missing plugin name');
 
         done();
@@ -763,7 +763,7 @@ describe('Pack', function () {
                     cont();
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -842,7 +842,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency('none');
-                next();
+                return next();
             }
         };
 
@@ -885,7 +885,7 @@ describe('Pack', function () {
             name: 'b',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -894,7 +894,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency('b');
-                next();
+                return next();
             }
         };
 
@@ -921,7 +921,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency('c');
-                next();
+                return next();
             }
         };
 
@@ -973,7 +973,7 @@ describe('Pack', function () {
                     }
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -1066,7 +1066,7 @@ describe('Pack', function () {
                     done();
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -1243,7 +1243,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.method('log', function () { });
-                next();
+                return next();
             }
         };
 
@@ -1264,7 +1264,7 @@ describe('Pack', function () {
 
                 plugin.bind({ x: 1 });
                 plugin.method('log', function () { return this.x; });
-                next();
+                return next();
             }
         };
 
@@ -1285,7 +1285,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
-                next();
+                return next();
             }
         };
 
@@ -1307,7 +1307,7 @@ describe('Pack', function () {
 
                 plugin.bind({ x: 1 });
                 plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
-                next();
+                return next();
             }
         };
 
@@ -1326,7 +1326,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency(['b', 'c']);
-                next();
+                return next();
             }
         };
 
@@ -1334,7 +1334,7 @@ describe('Pack', function () {
             name: 'b',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1342,7 +1342,7 @@ describe('Pack', function () {
             name: 'c',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1367,7 +1367,7 @@ describe('Pack', function () {
 
                 plugin.dependency('b');
                 plugin.dependency('c');
-                next();
+                return next();
             }
         };
 
@@ -1375,7 +1375,7 @@ describe('Pack', function () {
             name: 'b',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1383,7 +1383,7 @@ describe('Pack', function () {
             name: 'c',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1429,7 +1429,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-                next();
+                return next();
             }
         };
 
@@ -1465,7 +1465,7 @@ describe('Pack', function () {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
                 plugin.expose('super', 'trooper');
-                next();
+                return next();
             }
         };
 
@@ -1519,7 +1519,7 @@ describe('Pack', function () {
                     ++counter;
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -1632,7 +1632,7 @@ describe('Pack', function () {
                             reply('success');
                         };
                     });
-                    next();
+                    return next();
                 }
             };
 
