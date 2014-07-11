@@ -189,6 +189,35 @@ describe('Proxy', function () {
         });
     });
 
+    it('merges upstream headers', function (done) {
+
+        var headers = function (request, reply) {
+
+            reply({ status: 'success' })
+                .vary('X-Custom3');
+        };
+
+        var onResponse = function (err, res, request, reply, settings, ttl) {
+
+            reply(res).vary('Something');
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/headers', handler: headers });
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true, onResponse: onResponse } } });
+
+            server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('X-Custom3,accept-encoding,Something');
+                done();
+            });
+        });
+    });
+
     it('forwards gzipped content', function (done) {
 
         var gzipHandler = function (request, reply) {
