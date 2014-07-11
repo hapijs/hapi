@@ -165,7 +165,7 @@ describe('Security', function () {
                 method: 'POST',
                 url: '/',
                 payload: '{"something":"something"}',
-                headers: { 'cookie': 'encoded="<script></script>";' }
+                headers: { cookie: 'encoded="<script></script>";' }
             },
             function (res) {
 
@@ -189,7 +189,7 @@ describe('Security', function () {
                 method: 'POST',
                 url: '/',
                 payload: '{"something":"something"}',
-                headers: { 'cookie': '<script></script>=value;' }
+                headers: { cookie: '<script></script>=value;' }
             },
             function (res) {
 
