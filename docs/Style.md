@@ -683,4 +683,4 @@
 
   - First argument must always be `err`
   - If a function takes a `callback` argument, it **must** be called on `process.nextTick()`. Otherwise, the argument name **must** be `next` to clearly declare that it may get called on same tick
-  - Callbacks should always be called with explicit `return`;
+  - Callbacks should always be called with explicit `return`
