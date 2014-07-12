@@ -1563,7 +1563,7 @@ describe('Server', function () {
                 var server = new Hapi.Server({ timeout: { server: 50, socket: false } });
             }).to.not.throw();
             done();
-        })
+        });
     });
 
     describe('#location', function () {
