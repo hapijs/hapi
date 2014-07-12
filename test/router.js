@@ -360,7 +360,7 @@ describe('Router', function () {
             expect(res.statusCode).to.equal(404);
             done();
         });
-    })
+    });
 
     it('fails to return OPTIONS when cors disabled', function (done) {
 

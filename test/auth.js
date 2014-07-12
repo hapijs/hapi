@@ -648,7 +648,7 @@ describe('Auth', function () {
     it('throws when strategy does not support payload authentication', function (done) {
 
         var server = new Hapi.Server();
-        var implementation = function () { return { authenticate: internals.implementation.authenticate } };
+        var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
 
         server.auth.scheme('custom', implementation);
         server.auth.strategy('default', 'custom', true, {});
@@ -671,7 +671,7 @@ describe('Auth', function () {
     it('throws when no strategy supports optional payload authentication', function (done) {
 
         var server = new Hapi.Server();
-        var implementation = function () { return { authenticate: internals.implementation.authenticate } };
+        var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
 
         server.auth.scheme('custom', implementation);
         server.auth.strategy('default', 'custom', true, {});
@@ -694,7 +694,7 @@ describe('Auth', function () {
     it('allows one strategy to supports optional payload authentication while another does not', function (done) {
 
         var server = new Hapi.Server();
-        var implementation = function () { return { authenticate: internals.implementation.authenticate } };
+        var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
 
         server.auth.scheme('custom1', implementation);
         server.auth.scheme('custom2', internals.implementation);
@@ -862,7 +862,7 @@ describe('Auth', function () {
 
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('test'); } });
 
-        var result = undefined;
+        var result;
         server.on('request', function (request, event, tags) {
 
             if (tags.unauthenticated) {
@@ -1014,5 +1014,3 @@ internals.implementation = function (server, options) {
 
     return scheme;
 };
-
-

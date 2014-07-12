@@ -28,7 +28,7 @@ describe('State', function () {
     it('skips parsing cookies', function (done) {
 
         var server = new Hapi.Server({ state: { cookies: { parse: false } } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.state) } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.state); } });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
@@ -84,7 +84,7 @@ describe('State', function () {
 
         var present = function (request, next) {
 
-            next(null, request.params.x)
+            next(null, request.params.x);
         };
 
         var server = new Hapi.Server();
@@ -103,7 +103,7 @@ describe('State', function () {
 
         var present = function (request, next) {
 
-            next(new Error())
+            next(new Error());
         };
 
         var server = new Hapi.Server();

@@ -199,7 +199,7 @@ describe('Validation', function () {
         server.inject('/10', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(11)
+            expect(res.result).to.equal(11);
             done();
         });
     });
@@ -223,7 +223,7 @@ describe('Validation', function () {
         server.inject('/10', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('101')
+            expect(res.result).to.equal('101');
             done();
         });
     });
@@ -489,7 +489,7 @@ describe('Validation', function () {
         server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result.validation.source).to.equal('payload')
+            expect(res.result.validation.source).to.equal('payload');
             done();
         });
     });

@@ -808,15 +808,15 @@ describe('Pack', function () {
 
                 pack._servers[0].inject('/', function (res) {
 
-                    expect(res.result).to.equal('|2|1|')
+                    expect(res.result).to.equal('|2|1|');
 
                     pack._servers[1].inject('/', function (res) {
 
-                        expect(res.result).to.equal('|3|1|')
+                        expect(res.result).to.equal('|3|1|');
 
                         pack._servers[2].inject('/', function (res) {
 
-                            expect(res.result).to.equal('|3|2|')
+                            expect(res.result).to.equal('|3|2|');
                             done();
                         });
                     });
@@ -1008,7 +1008,7 @@ describe('Pack', function () {
     it('adds auth strategy via plugin', function (done) {
 
         var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!') } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!'); } });
 
         server.pack.register(require('./pack/--auth'), function (err) {
 
