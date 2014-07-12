@@ -82,6 +82,18 @@ describe('Response', function () {
         });
     });
 
+    it('sends empty payload on 204', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').code(204); } });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(204);
+            expect(res.result).to.equal(null);
+            done();
+        });
+    });
+
     describe('Text', function () {
 
         it('returns a reply', function (done) {
