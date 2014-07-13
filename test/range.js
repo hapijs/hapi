@@ -211,4 +211,48 @@ describe('Response Range', function () {
             done();
         });
     });
+
+    it('returns a consolidated range', function (done) {
+
+        var TestStream = function () {
+
+            Stream.Readable.call(this);
+            this._count = -1;
+        };
+
+        Hoek.inherits(TestStream, Stream.Readable);
+
+        TestStream.prototype._read = function (size) {
+
+            this._count++;
+
+            if (this._count > 10) {
+                return;
+            }
+
+            if (this._count === 10) {
+                return this.push(null);
+            }
+
+            this.push(this._count.toString());
+        };
+
+        TestStream.prototype.size = function () {
+
+            return 10;
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(new TestStream()); } });
+
+        server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, function (res) {
+
+            expect(res.statusCode).to.equal(206);
+            expect(res.headers['content-length']).to.equal(6);
+            expect(res.headers['content-range']).to.equal('bytes 0-5/10');
+            expect(res.headers['accept-ranges']).to.equal('bytes');
+            expect(res.payload).to.equal('012345');
+            done();
+        });
+    });
 });
