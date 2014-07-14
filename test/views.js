@@ -211,7 +211,7 @@ describe('Views', function () {
         it('allows valid jade layouts', function (done) {
 
             var testViewWithJadeLayouts = new Views.Manager({
-                engines: { 'jade': require('jade') },
+                engines: { jade: require('jade') },
                 path: __dirname + '/templates' + '/valid/',
                 layout: true
             });
@@ -226,7 +226,7 @@ describe('Views', function () {
         it('should work and not throw without jade layouts', function (done) {
 
             var testViewWithoutJadeLayouts = new Views.Manager({
-                engines: { 'jade': require('jade') },
+                engines: { jade: require('jade') },
                 path: __dirname + '/templates' + '/valid/',
                 layout: false
             });
@@ -479,7 +479,7 @@ describe('Views', function () {
 
             var options = {
                 views: {
-                    engines: { 'jade': require('jade') },
+                    engines: { jade: require('jade') },
                     path: __dirname + '/templates'
                 }
             };

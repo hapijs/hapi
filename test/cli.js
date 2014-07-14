@@ -352,9 +352,9 @@ describe('Hapi command line', function () {
         var modulePath = Path.join(__dirname, 'pack');
 
         Fs.writeFileSync(configPath, JSON.stringify(manifest));
-        Fs.writeFileSync(extraPath, extra);        
+        Fs.writeFileSync(extraPath, extra);
 
-        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath,'-p', modulePath, '--require', extraPath]);
+        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath, '--require', extraPath]);
 
         hapi.stdout.on('data', function (data) {
 

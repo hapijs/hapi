@@ -110,7 +110,7 @@ describe('Request', function () {
 
         var ext = function (request, next) {
 
-            next(Hapi.error.badRequest());
+            return next(Hapi.error.badRequest());
         };
 
         server.ext('onPostHandler', ext);

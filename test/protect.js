@@ -105,7 +105,7 @@ describe('Protect', function () {
                     }
                 });
 
-                next();
+                return next();
             }
         };
 

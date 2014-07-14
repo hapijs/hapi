@@ -499,7 +499,7 @@ describe('Proxy', function () {
                     };
 
                     plugin.route({ method: 'GET', path: '/', config: { handler: handler, bind: { c: 6 } } });
-                    next();
+                    return next();
                 }
             };
 
@@ -543,7 +543,7 @@ describe('Proxy', function () {
 
                     plugin.bind({ c: 7 });
                     plugin.route({ method: 'GET', path: '/', config: { handler: handler } });
-                    next();
+                    return next();
                 }
             };
 
@@ -587,7 +587,7 @@ describe('Proxy', function () {
 
                     plugin.bind({ c: 7 });
                     plugin.route({ method: 'GET', path: '/', config: { handler: handler, bind: { c: 4 } } });
-                    next();
+                    return next();
                 }
             };
 

@@ -239,12 +239,12 @@ describe('Ext', function () {
                 function (request, next) {
 
                     request.app.x = '1';
-                    next();
+                    return next();
                 },
                 function (request, next) {
 
                     request.app.x += '2';
-                    next();
+                    return next();
                 }
             ]);
 
@@ -263,7 +263,7 @@ describe('Ext', function () {
             server.ext('onPreHandler', function (request, next) {
 
                 request.app.x = this.y;
-                next();
+                return next();
             }, { bind: { y: 42 } });
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });

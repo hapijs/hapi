@@ -29,5 +29,5 @@ internals.after = function (plugin, next) {
 
     plugin.expose('breaking', plugin.plugins['--deps2'].breaking);
 
-    next();
+    return next();
 };
