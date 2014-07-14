@@ -1231,6 +1231,41 @@ describe('Pack', function () {
             console.error = orig;
             done();
         });
+
+        it('emits server log events once', function (done) {
+
+            var pc = 0;
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.events.on('log', function (event, tags) {
+
+                        ++pc;
+                    });
+
+                    next();
+                }
+            };
+
+            var server = new Hapi.Server();
+
+            var sc = 0;
+            server.on('log', function (event, tags) {
+
+                ++sc;
+            });
+
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.log('test');
+                expect(sc).to.equal(1);
+                expect(pc).to.equal(1);
+                done();
+            });
+        })
     });
 
     it('adds server method using arguments', function (done) {
