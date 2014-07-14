@@ -463,7 +463,7 @@ describe('Validation', function () {
             }
         });
 
-        server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' }}, function (res) {
+        server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } }, function (res) {
 
             expect(res.statusCode).to.equal(415);
             done();
@@ -486,7 +486,7 @@ describe('Validation', function () {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' }}, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation.source).to.equal('payload');
@@ -665,7 +665,7 @@ describe('Validation', function () {
 
     it('fails response validation with options', function (done) {
 
-        var server = new Hapi.Server({ debug: false, validation: { convert: false }});
+        var server = new Hapi.Server({ debug: false, validation: { convert: false } });
         server.route({
             method: 'GET',
             path: '/',
