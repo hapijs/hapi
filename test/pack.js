@@ -455,7 +455,7 @@ describe('Pack', function () {
     it('requires plugin with views', function (done) {
 
         var server = new Hapi.Server();
-        server.pack.register({ plugin: require('./pack/--views'), options: { message: 'viewing it' }}, function (err) {
+        server.pack.register({ plugin: require('./pack/--views'), options: { message: 'viewing it' } }, function (err) {
 
             expect(err).to.not.exist;
             server.inject('/view', function (res) {
