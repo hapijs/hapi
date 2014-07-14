@@ -477,7 +477,7 @@ describe('Views', function () {
 
         it('handles custom context', function (done) {
 
-           var options = {
+            var options = {
                 views: {
                     engines: { 'jade': require('jade') },
                     path: __dirname + '/templates'
@@ -530,7 +530,7 @@ describe('Views', function () {
             });
         });
 
-        it('handles without Content-Type overriding', function (done) {
+        it('does not override Content-Type', function (done) {
 
             var options = {
                 views: {
@@ -540,16 +540,8 @@ describe('Views', function () {
             };
 
             var server = new Hapi.Server(options);
-
-            server.route({ method: 'GET', path: '/', handler: function(request, reply) {
-                    reply.view('valid/index', {}).type('text/plain');
-                }
-            });
-
-            server.inject({
-                method: 'GET',
-                url: '/'
-            }, function (res) {
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.view('valid/index').type('text/plain'); } });
+            server.inject('/', function (res) {
 
                 expect(res.headers['content-type']).to.contain('text/plain');
                 done();
