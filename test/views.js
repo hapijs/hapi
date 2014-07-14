@@ -240,7 +240,7 @@ describe('Views', function () {
 
         it('allows basePath, template name, and no path', function (done) {
 
-            var views = new Views.Manager({ engines: { html: require('handlebars') }});
+            var views = new Views.Manager({ engines: { html: require('handlebars') } });
             views.render('test', { title: 'test', message: 'Hapi' }, { basePath: __dirname + '/templates/valid' }, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
@@ -314,7 +314,7 @@ describe('Views', function () {
         it('loads partials and be able to render them', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 partialsPath: __dirname + '/templates/valid/partials'
             });
@@ -329,7 +329,7 @@ describe('Views', function () {
         it('loads partials from relative path without base', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 partialsPath: './test/templates/valid/partials'
             });
@@ -344,7 +344,7 @@ describe('Views', function () {
         it('loads partials from relative path without base (no dot)', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 partialsPath: 'test/templates/valid/partials'
             });
@@ -359,7 +359,7 @@ describe('Views', function () {
         it('loads partials and render them EVEN if viewsPath has trailing slash', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 partialsPath: __dirname + '/templates/valid/partials/'
             });
@@ -391,7 +391,7 @@ describe('Views', function () {
         it('loads helpers and render them', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 helpersPath: __dirname + '/templates/valid/helpers'
             });
@@ -406,7 +406,7 @@ describe('Views', function () {
         it('loads helpers and render them when helpersPath ends with a slash', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 path: __dirname + '/templates/valid',
                 helpersPath: __dirname + '/templates/valid/helpers/'
             });
@@ -421,7 +421,7 @@ describe('Views', function () {
         it('loads helpers using relative paths', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 basePath: './test/templates',
                 path: './valid',
                 helpersPath: './valid/helpers'
@@ -437,7 +437,7 @@ describe('Views', function () {
         it('loads helpers using relative paths (without dots)', function (done) {
 
             var tempView = new Views.Manager({
-                engines: { html: { module: Handlebars.create() }},    // Clear environment from other tests
+                engines: { html: { module: Handlebars.create() } },    // Clear environment from other tests
                 basePath: 'test/templates',
                 path: 'valid',
                 helpersPath: 'valid/helpers'
@@ -464,7 +464,7 @@ describe('Views', function () {
 
             var server = new Hapi.Server(options);
 
-            server.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' }});
+            server.route({ method: 'GET', path: '/{param}', handler: { view: 'valid/handler' } });
             server.inject({
                 method: 'GET',
                 url: '/hello'
@@ -486,7 +486,7 @@ describe('Views', function () {
 
             var server = new Hapi.Server(options);
 
-            server.route({ method: 'GET', path: '/', handler: { view: { template: 'valid/index', context: { message: 'heyloo' }}}});
+            server.route({ method: 'GET', path: '/', handler: { view: { template: 'valid/index', context: { message: 'heyloo' } } } });
             server.inject('/', function (res) {
 
                 expect(res.result).to.contain('heyloo');
