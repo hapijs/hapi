@@ -1048,7 +1048,7 @@ describe('Response', function () {
             server.inject('/?callback=me', function (res) {
 
                 expect(res.payload).to.equal('/**/me({"some":"value"});');
-                expect(res.headers['content-length']).to.equal(21);
+                expect(res.headers['content-length']).to.equal(25);
                 done();
             });
         });
@@ -1115,7 +1115,7 @@ describe('Response', function () {
             server.inject('/?callback=me', function (res) {
 
                 expect(res.payload).to.equal('/**/me(value);');
-                expect(res.headers['content-length']).to.equal(10);
+                expect(res.headers['content-length']).to.equal(14);
                 done();
             });
         });
