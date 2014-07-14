@@ -842,6 +842,17 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('strips trailing slash with query', function (done) {
+
+            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { reply(); } });
+            server.inject('/test/?a=b', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
     });
 
     describe('#log', { parallel: false }, function () {
