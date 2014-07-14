@@ -808,15 +808,15 @@ describe('Pack', function () {
 
                 pack._servers[0].inject('/', function (res) {
 
-                    expect(res.result).to.equal('|2|1|')
+                    expect(res.result).to.equal('|2|1|');
 
                     pack._servers[1].inject('/', function (res) {
 
-                        expect(res.result).to.equal('|3|1|')
+                        expect(res.result).to.equal('|3|1|');
 
                         pack._servers[2].inject('/', function (res) {
 
-                            expect(res.result).to.equal('|3|2|')
+                            expect(res.result).to.equal('|3|2|');
                             done();
                         });
                     });
@@ -1008,7 +1008,7 @@ describe('Pack', function () {
     it('adds auth strategy via plugin', function (done) {
 
         var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!') } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!'); } });
 
         server.pack.register(require('./pack/--auth'), function (err) {
 
@@ -1231,6 +1231,41 @@ describe('Pack', function () {
             console.error = orig;
             done();
         });
+
+        it('emits server log events once', function (done) {
+
+            var pc = 0;
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.events.on('log', function (event, tags) {
+
+                        ++pc;
+                    });
+
+                    next();
+                }
+            };
+
+            var server = new Hapi.Server();
+
+            var sc = 0;
+            server.on('log', function (event, tags) {
+
+                ++sc;
+            });
+
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.log('test');
+                expect(sc).to.equal(1);
+                expect(pc).to.equal(1);
+                done();
+            });
+        })
     });
 
     it('adds server method using arguments', function (done) {

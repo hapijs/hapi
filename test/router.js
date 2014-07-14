@@ -25,7 +25,7 @@ describe('Router', function () {
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/head', handler: function (request, reply) { reply('ok-common'); } });
         server.route({ method: 'GET', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok-vhost'); } });
-        server.route({ method: 'GET', path: '/get', vhost: 'special.example.com', handler: function (request, reply) { reply('just-get'); } });
+        server.route({ method: 'GET', path: '/get', vhost: 'special.example.com', handler: function (request, reply) { reply('just-get').header('x2', '789'); } });
         server.route({ method: 'HEAD', path: '/head', handler: function (request, reply) { reply('ok').header('x1', '123'); } });
         server.route({ method: 'HEAD', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok').header('x1', '456'); } });
 
@@ -50,7 +50,8 @@ describe('Router', function () {
                         server.inject({ method: 'HEAD', url: 'http://special.example.com/get' }, function (res) {
 
                             expect(res.payload).to.equal('');
-                            expect(res.result).to.equal('just-get');
+                            expect(res.result).to.equal(null);
+                            expect(res.headers.x2).to.equal('789');
                             done();
                         });
                     });
@@ -89,12 +90,13 @@ describe('Router', function () {
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
-        server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain'); } });
+        server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain').header('x1', '123'); } });
 
         server.inject({ method: 'HEAD', url: '/a', headers: { host: 'special.example.com' } }, function (res) {
 
             expect(res.payload).to.equal('');
-            expect(res.result).to.equal('plain');
+            expect(res.result).to.equal(null);
+            expect(res.headers.x1).to.equal('123');
             done();
         });
     });
@@ -360,7 +362,7 @@ describe('Router', function () {
             expect(res.statusCode).to.equal(404);
             done();
         });
-    })
+    });
 
     it('fails to return OPTIONS when cors disabled', function (done) {
 

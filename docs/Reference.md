@@ -1,4 +1,4 @@
-# 6.0.x API Reference
+# 6.1.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -1841,20 +1841,39 @@ Every response includes the following properties:
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
   key is a plugin name and the value is the state.
 - `settings` - response handling flags:
+    - `charset` -  the 'Content-Type' HTTP header 'charset' property. Defaults to `'utf-8'`.
     - `encoding` - the string encoding scheme used to serial data into the HTTP payload when `source` is a string or marshalls into a string.
       Defaults to `'utf8'`.
-    - `charset` -  the 'Content-Type' HTTP header 'charset' property. Defaults to `'utf-8'`.
     - `location` - the raw value used to set the HTTP 'Location' header (actual value set depends on the server
       [`location`](#server.config.location) configuration option). Defaults to no header.
-    - `ttl` -  if set, overrides the route cache expiration milliseconds value set in the route config. Defaults to no override.
-    - `stringify`: options used for `source` value requiring stringification. Defaults to no replacer and no space padding.
-    - `passThrough`: if `true` and `source` is a `Stream`, copies the `statusCode` and `headers` of the stream to the outbound response.
+    - `passThrough` - if `true` and `source` is a `Stream`, copies the `statusCode` and `headers` of the stream to the outbound response.
       Defaults to `true`.
+    - `stringify` - options used for `source` value requiring stringification. Defaults to no replacer and no space padding.
+    - `ttl` -  if set, overrides the route cache expiration milliseconds value set in the route config. Defaults to no override.
+    - `varyEtag` - if `true`, a suffix will be automatically added to the 'ETag' header at transmission time (separated by a `'-'` character)
+      when the HTTP 'Vary' header is present.
 
 It provides the following methods:
 
+- `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
+    - `length` - the header value. Must match the actual payload size.
+- `charset(charset)` - sets the 'Content-Type' HTTP header 'charset' property where:
+    `charset` - the charset property value.
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
+- `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
+    `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
+      the server [`location`](#server.config.location) configuration option is used as prefix. Not available for methods other than PUT and POST.
+- `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload where:
+    `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
+- `etag(tag, options)` - sets the representation [entity tag](http://tools.ietf.org/html/rfc7232#section-2.3) where:
+    - `tag` - the entity tag string without the double-quote.
+    - `options` - optional settings where:
+        - `weak` - if `true`, the tag will be prefixed with the `'W/'` weak signifier. Weak tags will fail to match identical tags for the
+          purpose of determining 304 response status. Defaults to `false`.
+        - `vary` - if `true`, a suffix will be automatically added to the tag at transmission time (separated by a `'-'` character) when the
+          HTTP 'Vary' header is present. Ignored when `weak` is `true`. Defaults to `true` when a tag is set using this method and when using
+          the internal file or directory handlers, otherwise `false`.
 - `header(name, value, options)` - sets an HTTP header where:
     - `name` - the header name.
     - `value` - the header value.
@@ -1862,34 +1881,25 @@ It provides the following methods:
         - `append` - if `true`, the value is appended to any existing header value using `separator`. Defaults to `false`.
         - `separator` - string used as separator when appending to an exiting value. Defaults to `','`.
         - `override` - if `false`, the header value is not set if an existing value present. Defaults to `true`.
-- `type(mimeType)` - sets the HTTP 'Content-Type' header where:
-    - `value` - is the mime type. Should only be used to override the built-in default for each response type.
-- `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
-    - `length` - the header value. Must match the actual payload size.
-- `vary(header)` - adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
-    - `header` - the HTTP request header name.
 - `location(location)` - sets the HTTP 'Location' header where:
     - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of the server
       [`location`](#server.config.location) configuration option is used as prefix.
-- `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
-    `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
-      the server [`location`](#server.config.location) configuration option is used as prefix. Not available for methods other than PUT and POST.
 - `redirect(location)` - sets an HTTP redirection response (302) and decorates the response with additional methods listed below, where:
     - `location` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
       the server [`location`](#server.config.location) configuration option is used as prefix.
-- `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload where:
-    `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
-- `charset(charset)` - sets the 'Content-Type' HTTP header 'charset' property where:
-    `charset` - the charset property value.
-- `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
-    - `msec` - the time-to-live value in milliseconds.
 - `state(name, value, [options])` - sets an HTTP cookie where:
     - `name` - the cookie name.
     - `value` - the cookie value. If no `encoding` is defined, must be a string.
     - `options` - optional configuration. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
       the specified keys in `options` override those same keys in the server definition (but not others).
+- `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
+    - `msec` - the time-to-live value in milliseconds.
+- `type(mimeType)` - sets the HTTP 'Content-Type' header where:
+    - `value` - is the mime type. Should only be used to override the built-in default for each response type.
 - `unstate(name)` - clears the HTTP cookie by setting an expired value where:
     - `name` - the cookie name.
+- `vary(header)` - adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
+    - `header` - the HTTP request header name.
 
 When the value provided by `reply()` requires stringification before transmission, the following methods are provided:
 

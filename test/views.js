@@ -529,5 +529,23 @@ describe('Views', function () {
                 done();
             });
         });
+
+        it('does not override Content-Type', function (done) {
+
+            var options = {
+                views: {
+                    engines: { jade: require('jade') },
+                    path: __dirname + '/templates'
+                }
+            };
+
+            var server = new Hapi.Server(options);
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.view('valid/index').type('text/plain'); } });
+            server.inject('/', function (res) {
+
+                expect(res.headers['content-type']).to.contain('text/plain');
+                done();
+            });
+        });
     });
 });
