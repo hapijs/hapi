@@ -916,6 +916,30 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('sets etag', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').etag('abc'); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.etag).to.equal('"abc"');
+                done();
+            });
+        });
+
+        it('sets weak etag', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').etag('abc', { weak: true }); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.etag).to.equal('W/"abc"');
+                done();
+            });
+        });
     });
 
     describe('Buffer', function () {
@@ -1671,6 +1695,32 @@ describe('Response', function () {
                     expect(res2.headers).to.have.property('etag');
                     expect(res2.headers).to.have.property('last-modified');
                     done();
+                });
+            });
+        });
+
+        it('changes etag when content encoding is used', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject('/file', function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers).to.have.property('etag');
+                    expect(res2.headers).to.have.property('last-modified');
+
+                    server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res3) {
+
+                        expect(res3.statusCode).to.equal(200);
+                        expect(res3.headers.vary).to.equal('accept-encoding');
+                        expect(res3.headers.etag).to.not.equal(res2.headers.etag);
+                        expect(res3.headers.etag).to.contain(res2.headers.etag.slice(0, -1) + '-');
+                        expect(res3.headers['last-modified']).to.equal(res2.headers['last-modified']);
+                        done();
+                    });
                 });
             });
         });
