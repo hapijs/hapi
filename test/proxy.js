@@ -1292,5 +1292,24 @@ describe('Proxy', function () {
             });
         });
     });
+
+    it('does not send multiple Content-Type headers on passthrough', function (done) {
+
+        var server = new Hapi.Server();
+        var requestFn = Nipple.request;
+
+        Nipple.request = function (method, url, options, cb) {
+
+            Nipple.request = requestFn;
+            expect(options.headers['content-type']).to.equal('application/json');
+            expect(options.headers['Content-Type']).to.not.exist;
+            cb(new Error('placeholder'));
+        };
+        server.route({ method: 'GET', path: '/test', handler: { proxy: { uri: 'http://localhost', passThrough: true } } });
+        server.inject({ method: 'GET', url: '/test', headers: { 'Content-Type': 'application/json' } }, function (res) {
+
+            done();
+        });
+    });
 });
 
