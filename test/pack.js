@@ -135,7 +135,7 @@ describe('Pack', function () {
         };
 
         expect(function () {
-            
+
             pack.register(plugin);
         }).to.throw('A callback function is required to register a plugin');
         done();
@@ -566,7 +566,7 @@ describe('Pack', function () {
 
     it('ignores the type of the plugin value', function (done) {
 
-        var a = function () {};
+        var a = function () { };
         a.register = function (plugin, options, next) {
 
             plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
@@ -2080,6 +2080,23 @@ describe('Pack', function () {
                         });
                     });
                 });
+            });
+        });
+
+        it('composes pack with inner deps', function (done) {
+
+            var manifest = {
+                servers: [{}],
+                plugins: {
+                    '../test/pack/--deps1': null,
+                    '../test/pack/--deps2': null
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                done();
             });
         });
     });
