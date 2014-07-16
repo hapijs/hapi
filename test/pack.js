@@ -532,6 +532,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register(require('./pack/--test1'), { route: { prefix: '/xyz' } }, function (err) {
 
+            expect(server.plugins['--test1'].prefix).to.equal('/xyz');
             expect(err).to.not.exist;
             server.inject('/xyz/test1', function (res) {
 
