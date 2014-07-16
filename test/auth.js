@@ -41,6 +41,21 @@ describe('Auth', function () {
         });
     });
 
+    it('exposes mode', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.mode); } });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('required');
+            done();
+        });
+    });
+
     it('sets default', function (done) {
 
         var server = new Hapi.Server();
