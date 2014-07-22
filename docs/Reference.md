@@ -1630,7 +1630,7 @@ var handler = function (request, reply) {
 
     var response = reply('success').hold();
 
-    onTimeout(function () {
+    setTimeout(function () {
 
         response.send();
     }, 1000);
