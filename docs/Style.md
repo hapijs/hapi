@@ -136,7 +136,7 @@
   // Right
 
   if (test) {
-        if (value === 12) {
+      if (value === 12) {
           console.log('result');
       }
   }
