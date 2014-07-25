@@ -1991,7 +1991,7 @@ var handler = function (request, reply) {
     var error = Hapi.error.badRequest('Cannot feed after midnight');
     error.output.statusCode = 499;    // Assign a custom error code
     error.reformat();
-    
+
     error.output.payload.custom = 'abc_123'; // Add custom key
 
     reply(error);
@@ -2357,7 +2357,7 @@ A plugin is constructed with the following:
 - name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive
   their name from the registry name to ensure uniqueness. Private plugin names should be picked carefully to avoid conflicts with both
   private and public names.
-- registeration function - the function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
+- registration function - the function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
   The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the
   single entry point into the plugin's functionality.
 - version - the optional plugin version is only used informatively to enable other plugins to find out the versions loaded. The version
@@ -2565,7 +2565,7 @@ exports.register = function (plugin, options, next) {
 
     plugin.views({
         engines: {
-            html: { 
+            html: {
               module: Handlebars.create()
             }
         },
