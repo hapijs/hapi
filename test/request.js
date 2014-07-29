@@ -110,7 +110,7 @@ describe('Request', function () {
 
         var ext = function (request, next) {
 
-            next(Hapi.error.badRequest());
+            return next(Hapi.error.badRequest());
         };
 
         server.ext('onPostHandler', ext);
@@ -576,7 +576,7 @@ describe('Request', function () {
             });
         });
     });
-    
+
     it('does not fail on abort', function (done) {
 
         var clientRequest;
@@ -663,10 +663,10 @@ describe('Request', function () {
                 stream.close = function () {
 
                     done();
-                }
+                };
 
                 reply(stream);
-            }, 10)
+            }, 10);
         };
 
         var server = new Hapi.Server({ timeout: { server: 5 } });
@@ -689,7 +689,7 @@ describe('Request', function () {
             setTimeout(function () {
 
                 reply(new Error('after'));
-            }, 10)
+            }, 10);
         };
 
         var server = new Hapi.Server({ timeout: { server: 5 } });
@@ -830,7 +830,7 @@ describe('Request', function () {
                 expect(res.statusCode).to.equal(200);
                 done();
             });
-        })
+        });
 
         it('does not strip trailing slash on /', function (done) {
 
@@ -841,7 +841,18 @@ describe('Request', function () {
                 expect(res.statusCode).to.equal(200);
                 done();
             });
-        })
+        });
+
+        it('strips trailing slash with query', function (done) {
+
+            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { reply(); } });
+            server.inject('/test/?a=b', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
     });
 
     describe('#log', { parallel: false }, function () {

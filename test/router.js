@@ -25,7 +25,7 @@ describe('Router', function () {
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/head', handler: function (request, reply) { reply('ok-common'); } });
         server.route({ method: 'GET', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok-vhost'); } });
-        server.route({ method: 'GET', path: '/get', vhost: 'special.example.com', handler: function (request, reply) { reply('just-get'); } });
+        server.route({ method: 'GET', path: '/get', vhost: 'special.example.com', handler: function (request, reply) { reply('just-get').header('x2', '789'); } });
         server.route({ method: 'HEAD', path: '/head', handler: function (request, reply) { reply('ok').header('x1', '123'); } });
         server.route({ method: 'HEAD', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok').header('x1', '456'); } });
 
@@ -50,7 +50,8 @@ describe('Router', function () {
                         server.inject({ method: 'HEAD', url: 'http://special.example.com/get' }, function (res) {
 
                             expect(res.payload).to.equal('');
-                            expect(res.result).to.equal('just-get');
+                            expect(res.result).to.equal(null);
+                            expect(res.headers.x2).to.equal('789');
                             done();
                         });
                     });
@@ -89,12 +90,13 @@ describe('Router', function () {
         var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
-        server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain'); } });
+        server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain').header('x1', '123'); } });
 
         server.inject({ method: 'HEAD', url: '/a', headers: { host: 'special.example.com' } }, function (res) {
 
             expect(res.payload).to.equal('');
-            expect(res.result).to.equal('plain');
+            expect(res.result).to.equal(null);
+            expect(res.headers.x1).to.equal('123');
             done();
         });
     });
@@ -276,6 +278,56 @@ describe('Router', function () {
         });
     });
 
+    it('adds routes using single and array methods', function (done) {
+
+        var server = new Hapi.Server();
+        server.route([
+            {
+                method: 'GET',
+                path: '/api/products',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: 'GET',
+                path: '/api/products/{id}',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: 'POST',
+                path: '/api/products',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: ['PUT', 'PATCH'],
+                path: '/api/products/{id}',
+                handler: function (request, reply) { reply(); }
+            },
+            {
+                method: 'DELETE',
+                path: '/api/products/{id}',
+                handler: function (request, reply) { reply(); }
+            }
+        ]);
+
+        var table = server.table();
+        var paths = table.map(function(route) {
+            var obj = {
+                method: route.method,
+                path: route.path
+            };
+            return obj;
+        });
+
+        expect(table).to.have.length(6);
+        expect(paths).to.include({method: 'get', path: '/api/products'});
+        expect(paths).to.include({method: 'get', path: '/api/products/{id}'});
+        expect(paths).to.include({method: 'post', path: '/api/products'});
+        expect(paths).to.include({method: 'put', path: '/api/products/{id}'});
+        expect(paths).to.include({method: 'patch', path: '/api/products/{id}'});
+        expect(paths).to.include({method: 'delete', path: '/api/products/{id}'});
+        done();
+    });
+
     it('does not allow invalid paths', function (done) {
 
         var server = new Hapi.Server();
@@ -310,7 +362,7 @@ describe('Router', function () {
             expect(res.statusCode).to.equal(404);
             done();
         });
-    })
+    });
 
     it('fails to return OPTIONS when cors disabled', function (done) {
 

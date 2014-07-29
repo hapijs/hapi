@@ -88,7 +88,7 @@ describe('Directory', function () {
     it('returns a file when requesting a file from multi directory function response', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
-        server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: function () { return ['./', '../'] }, listing: true } } });
+        server.route({ method: 'GET', path: '/multiple/{path*}', handler: { directory: { path: function () { return ['./', '../']; }, listing: true } } });
 
         server.inject('/multiple/package.json', function (res) {
 
@@ -521,7 +521,7 @@ describe('Directory', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/test/{path*}', config: { handler: { directory: { path: './directory', index: false, listing: false } } } });
-                next();
+                return next();
             }
         };
 
@@ -546,7 +546,7 @@ describe('Directory', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/test/{path*}', config: { handler: { directory: { path: './test/directory', index: false, listing: false } } } });
-                next();
+                return next();
             }
         };
 
@@ -615,6 +615,23 @@ describe('Directory', function () {
         server.inject('/test/index.html', function (res) {
 
             expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
+    it('returns a gzipped file using precompressed file', function (done) {
+
+        var content = Fs.readFileSync('./test/file/image.png.gz');
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/{p*}', handler: { directory: { path: './test/file', lookupCompressed: true } } });
+
+        server.inject({ url: '/image.png', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+            expect(res.headers['content-type']).to.equal('image/png');
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            expect(res.headers['content-length']).to.equal(content.length);
+            expect(res.payload.length).to.equal(content.length);
             done();
         });
     });

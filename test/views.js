@@ -211,7 +211,7 @@ describe('Views', function () {
         it('allows valid jade layouts', function (done) {
 
             var testViewWithJadeLayouts = new Views.Manager({
-                engines: { 'jade': require('jade') },
+                engines: { jade: require('jade') },
                 path: __dirname + '/templates' + '/valid/',
                 layout: true
             });
@@ -226,7 +226,7 @@ describe('Views', function () {
         it('should work and not throw without jade layouts', function (done) {
 
             var testViewWithoutJadeLayouts = new Views.Manager({
-                engines: { 'jade': require('jade') },
+                engines: { jade: require('jade') },
                 path: __dirname + '/templates' + '/valid/',
                 layout: false
             });
@@ -477,9 +477,9 @@ describe('Views', function () {
 
         it('handles custom context', function (done) {
 
-           var options = {
+            var options = {
                 views: {
-                    engines: { 'jade': require('jade') },
+                    engines: { jade: require('jade') },
                     path: __dirname + '/templates'
                 }
             };
@@ -526,6 +526,24 @@ describe('Views', function () {
             server.inject('/', function (res) {
 
                 expect(res.result).to.contain('PreHello');
+                done();
+            });
+        });
+
+        it('does not override Content-Type', function (done) {
+
+            var options = {
+                views: {
+                    engines: { jade: require('jade') },
+                    path: __dirname + '/templates'
+                }
+            };
+
+            var server = new Hapi.Server(options);
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.view('valid/index').type('text/plain'); } });
+            server.inject('/', function (res) {
+
+                expect(res.headers['content-type']).to.contain('text/plain');
                 done();
             });
         });

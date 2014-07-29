@@ -706,7 +706,7 @@ describe('Handler', function () {
         var server = new Hapi.Server();
         server.method('handler.get', function (request, next) {
 
-            next(null, request.params.x + request.params.y);
+            return next(null, request.params.x + request.params.y);
         });
 
         server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });

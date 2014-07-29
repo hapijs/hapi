@@ -418,7 +418,6 @@ describe('Payload', function () {
 
             var path = Path.join(__dirname, './file/image.jpg');
             var sourceContents = Fs.readFileSync(path);
-            var stats = Fs.statSync(path);
 
             Zlib.gzip(sourceContents, function (err, compressed) {
 
@@ -577,14 +576,6 @@ describe('Payload', function () {
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.start(function () {
-
-                var options = {
-                    payload: '{ "key": "value" }',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Content-Length': '1'
-                    }
-                };
 
                 var options = {
                     hostname: 'localhost',
@@ -984,7 +975,7 @@ describe('Payload', function () {
             var keys = Object.keys(request.payload);
             for (var i = 0, il = keys.length; i < il; ++i) {
                 var key = keys[i];
-                var value = request.payload[key]
+                var value = request.payload[key];
                 result[key] = value._readableState ? true : value;
             }
 
@@ -1401,7 +1392,7 @@ describe('Payload', function () {
             var handler = function (request, reply) {
 
                 reply(request.payload.a.b + request.payload.a.c);
-            }
+            };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', handler: handler });
@@ -1433,7 +1424,7 @@ describe('Payload', function () {
             var handler = function (request, reply) {
 
                 reply(request.payload.a.b + request.payload.file + request.payload.a.c);
-            }
+            };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', handler: handler });

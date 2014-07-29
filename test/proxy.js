@@ -189,6 +189,35 @@ describe('Proxy', function () {
         });
     });
 
+    it('merges upstream headers', function (done) {
+
+        var headers = function (request, reply) {
+
+            reply({ status: 'success' })
+                .vary('X-Custom3');
+        };
+
+        var onResponse = function (err, res, request, reply, settings, ttl) {
+
+            reply(res).vary('Something');
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/headers', handler: headers });
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/headers', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true, onResponse: onResponse } } });
+
+            server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('X-Custom3,accept-encoding,Something');
+                done();
+            });
+        });
+    });
+
     it('forwards gzipped content', function (done) {
 
         var gzipHandler = function (request, reply) {
@@ -470,7 +499,7 @@ describe('Proxy', function () {
                     };
 
                     plugin.route({ method: 'GET', path: '/', config: { handler: handler, bind: { c: 6 } } });
-                    next();
+                    return next();
                 }
             };
 
@@ -514,7 +543,7 @@ describe('Proxy', function () {
 
                     plugin.bind({ c: 7 });
                     plugin.route({ method: 'GET', path: '/', config: { handler: handler } });
-                    next();
+                    return next();
                 }
             };
 
@@ -558,7 +587,7 @@ describe('Proxy', function () {
 
                     plugin.bind({ c: 7 });
                     plugin.route({ method: 'GET', path: '/', config: { handler: handler, bind: { c: 4 } } });
-                    next();
+                    return next();
                 }
             };
 
@@ -1261,6 +1290,25 @@ describe('Proxy', function () {
                 expect(res.payload).to.equal('');
                 done();
             });
+        });
+    });
+
+    it('does not send multiple Content-Type headers on passthrough', function (done) {
+
+        var server = new Hapi.Server();
+        var requestFn = Nipple.request;
+
+        Nipple.request = function (method, url, options, cb) {
+
+            Nipple.request = requestFn;
+            expect(options.headers['content-type']).to.equal('application/json');
+            expect(options.headers['Content-Type']).to.not.exist;
+            cb(new Error('placeholder'));
+        };
+        server.route({ method: 'GET', path: '/test', handler: { proxy: { uri: 'http://localhost', passThrough: true } } });
+        server.inject({ method: 'GET', url: '/test', headers: { 'Content-Type': 'application/json' } }, function (res) {
+
+            done();
         });
     });
 });

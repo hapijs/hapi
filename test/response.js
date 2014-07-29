@@ -82,6 +82,18 @@ describe('Response', function () {
         });
     });
 
+    it('sends empty payload on 204', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').code(204); } });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(204);
+            expect(res.result).to.equal(null);
+            done();
+        });
+    });
+
     describe('Text', function () {
 
         it('returns a reply', function (done) {
@@ -904,6 +916,30 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('sets etag', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').etag('abc'); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.etag).to.equal('"abc"');
+                done();
+            });
+        });
+
+        it('sets weak etag', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').etag('abc', { weak: true }); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.etag).to.equal('W/"abc"');
+                done();
+            });
+        });
     });
 
     describe('Buffer', function () {
@@ -1011,8 +1047,8 @@ describe('Response', function () {
 
             server.inject('/?callback=me', function (res) {
 
-                expect(res.payload).to.equal('me({"some":"value"});');
-                expect(res.headers['content-length']).to.equal(21);
+                expect(res.payload).to.equal('/**/me({"some":"value"});');
+                expect(res.headers['content-length']).to.equal(25);
                 done();
             });
         });
@@ -1060,7 +1096,7 @@ describe('Response', function () {
                 Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, result) {
 
                     expect(err).to.not.exist;
-                    expect(result.toString()).to.equal('docall({"first":"1","last":"2"});');
+                    expect(result.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
                     done();
                 });
             });
@@ -1078,8 +1114,8 @@ describe('Response', function () {
 
             server.inject('/?callback=me', function (res) {
 
-                expect(res.payload).to.equal('me(value);');
-                expect(res.headers['content-length']).to.equal(10);
+                expect(res.payload).to.equal('/**/me(value);');
+                expect(res.headers['content-length']).to.equal(14);
                 done();
             });
         });
@@ -1628,20 +1664,82 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 304 when the request has if-modified-since and the response has not been modified since', function (done) {
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', function (done) {
 
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
+                var last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
+                server.inject({ url: '/file', headers: { 'if-modified-since': last.toString() } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers).to.not.have.property('content-length');
                     expect(res2.headers).to.not.have.property('etag');
                     expect(res2.headers).to.not.have.property('last-modified');
                     done();
+                });
+            });
+        });
+
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    expect(res2.headers).to.not.have.property('content-length');
+                    expect(res2.headers).to.not.have.property('etag');
+                    expect(res2.headers).to.not.have.property('last-modified');
+                    done();
+                });
+            });
+        });
+
+        it('retains etag header on head', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ method: 'HEAD', url: '/file' }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers).to.have.property('etag');
+                    expect(res2.headers).to.have.property('last-modified');
+                    done();
+                });
+            });
+        });
+
+        it('changes etag when content encoding is used', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject('/file', function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers).to.have.property('etag');
+                    expect(res2.headers).to.have.property('last-modified');
+
+                    server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res3) {
+
+                        expect(res3.statusCode).to.equal(200);
+                        expect(res3.headers.vary).to.equal('accept-encoding');
+                        expect(res3.headers.etag).to.not.equal(res2.headers.etag);
+                        expect(res3.headers.etag).to.contain(res2.headers.etag.slice(0, -1) + '-');
+                        expect(res3.headers['last-modified']).to.equal(res2.headers['last-modified']);
+                        done();
+                    });
                 });
             });
         });
@@ -1678,6 +1776,40 @@ describe('Response', function () {
             server.inject('/file', function (res1) {
 
                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    var cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                    var lsof = '';
+                    cmd.stdout.on('data', function (buffer) {
+
+                        lsof += buffer.toString();
+                    });
+
+                    cmd.stdout.on('end', function () {
+
+                        var count = 0;
+                        var lines = lsof.split('\n');
+                        for (var i = 0, il = lines.length; i < il; ++i) {
+                            count += !!lines[i].match(/package.json/);
+                        }
+
+                        expect(count).to.equal(0);
+                        done();
+                    });
+
+                    cmd.stdin.end();
+                });
+            });
+        });
+
+        it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: function (request, reply) { reply(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc'); } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ url: '/file', headers: { 'if-none-match': res1.headers.etag } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
                     var cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
@@ -1755,7 +1887,7 @@ describe('Response', function () {
 
                 expect(res.headers['content-type']).to.equal('image/png');
                 expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['content-length']).to.not.exist;
+                expect(res.headers['content-length']).to.equal(content.length);
                 expect(res.payload.length).to.equal(content.length);
                 done();
             });
@@ -1859,6 +1991,27 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(500);
                 done();
+            });
+        });
+
+        it('does not open file stream on 304', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.ext('onPreResponse', function (request, reply) {
+
+                    request.response._marshall = function () { throw new Error('not called'); };
+                    reply();
+                });
+
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    done();
+                });
             });
         });
     });

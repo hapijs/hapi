@@ -69,7 +69,7 @@ describe('Pack', function () {
                 plugin.method({
                     name: 'testMethod', fn: function (next) {
 
-                        next(null, '123');
+                        return next(null, '123');
                     }, options: { cache: { expiresIn: 1000 } }
                 });
 
@@ -80,7 +80,7 @@ describe('Pack', function () {
                     plugin.methods.testMethod(function (err, result) {
 
                         expect(result).to.equal('123');
-                        next();
+                        return next();
                     });
                 });
             }
@@ -108,7 +108,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
-                next();
+                return next();
             },
             options: { something: true }
         };
@@ -120,6 +120,27 @@ describe('Pack', function () {
         });
     });
 
+    it('throws when register is missing a callback function', function (done) {
+
+        var pack = new Hapi.Pack();
+        pack.server({ labels: ['a', 'b'] });
+
+        var plugin = {
+            name: 'test',
+            register: function (plugin, options, next) {
+
+                return next();
+            },
+            options: { something: true }
+        };
+
+        expect(function () {
+
+            pack.register(plugin);
+        }).to.throw('A callback function is required to register a plugin');
+        done();
+    });
+
     it('registers plugin via server pack interface', function (done) {
 
         var plugin = {
@@ -127,7 +148,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 expect(options.something).to.be.true;
-                next();
+                return next();
             },
             options: { something: true }
         };
@@ -146,7 +167,7 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                next(new Error('from plugin'));
+                return next(new Error('from plugin'));
             }
         };
 
@@ -251,7 +272,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(plugin.version); } });
-                next();
+                return next();
             }
         };
 
@@ -282,7 +303,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.path();
-                next();
+                return next();
             }
         };
 
@@ -325,7 +346,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('a'); } });
-                next();
+                return next();
             }
         };
 
@@ -349,7 +370,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
-                next();
+                return next();
             }
         };
 
@@ -376,7 +397,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
-                next();
+                return next();
             }
         };
 
@@ -511,6 +532,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register(require('./pack/--test1'), { route: { prefix: '/xyz' } }, function (err) {
 
+            expect(server.plugins['--test1'].prefix).to.equal('/xyz');
             expect(err).to.not.exist;
             server.inject('/xyz/test1', function (res) {
 
@@ -527,7 +549,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-                next();
+                return next();
             }
         };
 
@@ -545,11 +567,11 @@ describe('Pack', function () {
 
     it('ignores the type of the plugin value', function (done) {
 
-        var a = function () {};
+        var a = function () { };
         a.register = function (plugin, options, next) {
 
             plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-            next();
+            return next();
         };
 
         a.register.attributes = { name: 'a' };
@@ -657,7 +679,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.expose('key2', 2);
-                next();
+                return next();
             }
         };
 
@@ -723,7 +745,7 @@ describe('Pack', function () {
         var pack = new Hapi.Pack();
         expect(function () {
 
-            pack.register({ register: function (plugin, options, next) { next(); } }, function (err) { });
+            pack.register({ register: function (plugin, options, next) { return next(); } }, function (err) { });
         }).to.throw('Missing plugin name');
 
         done();
@@ -742,7 +764,7 @@ describe('Pack', function () {
                     cont();
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -787,15 +809,15 @@ describe('Pack', function () {
 
                 pack._servers[0].inject('/', function (res) {
 
-                    expect(res.result).to.equal('|2|1|')
+                    expect(res.result).to.equal('|2|1|');
 
                     pack._servers[1].inject('/', function (res) {
 
-                        expect(res.result).to.equal('|3|1|')
+                        expect(res.result).to.equal('|3|1|');
 
                         pack._servers[2].inject('/', function (res) {
 
-                            expect(res.result).to.equal('|3|2|')
+                            expect(res.result).to.equal('|3|2|');
                             done();
                         });
                     });
@@ -821,7 +843,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency('none');
-                next();
+                return next();
             }
         };
 
@@ -864,7 +886,7 @@ describe('Pack', function () {
             name: 'b',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -873,7 +895,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency('b');
-                next();
+                return next();
             }
         };
 
@@ -900,7 +922,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency('c');
-                next();
+                return next();
             }
         };
 
@@ -952,7 +974,7 @@ describe('Pack', function () {
                     }
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -987,7 +1009,7 @@ describe('Pack', function () {
     it('adds auth strategy via plugin', function (done) {
 
         var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!') } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('authenticated!'); } });
 
         server.pack.register(require('./pack/--auth'), function (err) {
 
@@ -1045,7 +1067,7 @@ describe('Pack', function () {
                     done();
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -1210,6 +1232,41 @@ describe('Pack', function () {
             console.error = orig;
             done();
         });
+
+        it('emits server log events once', function (done) {
+
+            var pc = 0;
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.events.on('log', function (event, tags) {
+
+                        ++pc;
+                    });
+
+                    next();
+                }
+            };
+
+            var server = new Hapi.Server();
+
+            var sc = 0;
+            server.on('log', function (event, tags) {
+
+                ++sc;
+            });
+
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.log('test');
+                expect(sc).to.equal(1);
+                expect(pc).to.equal(1);
+                done();
+            });
+        })
     });
 
     it('adds server method using arguments', function (done) {
@@ -1222,7 +1279,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.method('log', function () { });
-                next();
+                return next();
             }
         };
 
@@ -1243,7 +1300,7 @@ describe('Pack', function () {
 
                 plugin.bind({ x: 1 });
                 plugin.method('log', function () { return this.x; });
-                next();
+                return next();
             }
         };
 
@@ -1264,7 +1321,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
-                next();
+                return next();
             }
         };
 
@@ -1286,7 +1343,7 @@ describe('Pack', function () {
 
                 plugin.bind({ x: 1 });
                 plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
-                next();
+                return next();
             }
         };
 
@@ -1305,7 +1362,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.dependency(['b', 'c']);
-                next();
+                return next();
             }
         };
 
@@ -1313,7 +1370,7 @@ describe('Pack', function () {
             name: 'b',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1321,7 +1378,7 @@ describe('Pack', function () {
             name: 'c',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1346,7 +1403,7 @@ describe('Pack', function () {
 
                 plugin.dependency('b');
                 plugin.dependency('c');
-                next();
+                return next();
             }
         };
 
@@ -1354,7 +1411,7 @@ describe('Pack', function () {
             name: 'b',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1362,7 +1419,7 @@ describe('Pack', function () {
             name: 'c',
             register: function (plugin, options, next) {
 
-                next();
+                return next();
             }
         };
 
@@ -1408,7 +1465,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-                next();
+                return next();
             }
         };
 
@@ -1444,7 +1501,7 @@ describe('Pack', function () {
 
                 plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
                 plugin.expose('super', 'trooper');
-                next();
+                return next();
             }
         };
 
@@ -1498,7 +1555,7 @@ describe('Pack', function () {
                     ++counter;
                 });
 
-                next();
+                return next();
             }
         };
 
@@ -1611,7 +1668,7 @@ describe('Pack', function () {
                             reply('success');
                         };
                     });
-                    next();
+                    return next();
                 }
             };
 
@@ -2024,6 +2081,61 @@ describe('Pack', function () {
                         });
                     });
                 });
+            });
+        });
+
+        it('composes pack with inner deps', function (done) {
+
+            var manifest = {
+                servers: [{}],
+                plugins: {
+                    '../test/pack/--deps1': null,
+                    '../test/pack/--deps2': null
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it('errors on invalid plugin', function (done) {
+
+            var manifest = {
+                servers: [{}],
+                plugins: {
+                    '../test/pack/--fail': null
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.exist;
+                done();
+            });
+        });
+
+        it('throws on pack with missing inner deps', function (done) {
+
+            var manifest = {
+                servers: [{ host: 'localhost' }],
+                plugins: {
+                    '../test/pack/--deps1': null
+                }
+            };
+
+            var domain = Domain.create();
+            domain.on('error', function (err) {
+
+                expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: http://localhost:80');
+                done();
+            });
+
+            domain.run(function () {
+
+                Hapi.Pack.compose(manifest, function (err, pack) {});
             });
         });
     });

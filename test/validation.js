@@ -199,7 +199,7 @@ describe('Validation', function () {
         server.inject('/10', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(11)
+            expect(res.result).to.equal(11);
             done();
         });
     });
@@ -223,7 +223,7 @@ describe('Validation', function () {
         server.inject('/10', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('101')
+            expect(res.result).to.equal('101');
             done();
         });
     });
@@ -396,7 +396,7 @@ describe('Validation', function () {
                     },
                     failAction: function (source, error, next) {
 
-                        next('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad');
+                        return next('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad');
                     }
                 }
             }
@@ -489,7 +489,7 @@ describe('Validation', function () {
         server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result.validation.source).to.equal('payload')
+            expect(res.result.validation.source).to.equal('payload');
             done();
         });
     });
@@ -548,7 +548,7 @@ describe('Validation', function () {
             server.inject('/', function (res) {
 
                 count += (res.statusCode === 500 ? 1 : 0);
-                next(null, res.statusCode);
+                return next(null, res.statusCode);
             });
         }, function (err, codes) {
 
@@ -654,7 +654,7 @@ describe('Validation', function () {
             server.inject('/', function (res) {
 
                 count += (res.statusCode === 500 ? 1 : 0);
-                next(null, res.statusCode);
+                return next(null, res.statusCode);
             });
         }, function (err, codes) {
 
@@ -844,7 +844,7 @@ describe('Validation', function () {
             url: '/',
             method: 'GET',
             headers: {
-                'Accept': 'application/json'
+                Accept: 'application/json'
             }
         }, function (res) {
 
@@ -874,7 +874,7 @@ describe('Validation', function () {
             url: '/',
             method: 'GET',
             headers: {
-                'Accept': 'application/json'
+                Accept: 'application/json'
             }
         }, function (res) {
 
