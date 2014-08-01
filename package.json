@@ -2,10 +2,10 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "6.2.1",
+  "version": "6.2.2",
   "repository": {
     "type": "git",
-    "url": "git://github.com/spumko/hapi"
+    "url": "git://github.com/hapijs/hapi"
   },
   "main": "index",
   "keywords": [
@@ -15,7 +15,7 @@
     "router"
   ],
   "engines": {
-    "node": ">=0.10.22"
+    "node": ">=0.10.30"
   },
   "dependencies": {
     "hoek": "^2.3.x",
@@ -53,7 +53,7 @@
   "licenses": [
     {
       "type": "BSD",
-      "url": "http://github.com/spumko/hapi/raw/master/LICENSE"
+      "url": "http://github.com/hapijs/hapi/raw/master/LICENSE"
     }
   ]
 }
