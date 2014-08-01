@@ -10,6 +10,8 @@ Current version: **6.2.x** ([release notes](https://github.com/hapijs/hapi/issue
 
 For the latest updates and release information visit [hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter.
 
+Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
+
 ### Additional information
 
 - Any **issues or questions** (no matter how basic), open an issue.
