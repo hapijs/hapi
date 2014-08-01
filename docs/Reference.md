@@ -150,7 +150,7 @@ When creating a server instance, the following options configure the server's be
   uses [**catbox**](https://github.com/spumko/catbox) for its cache which includes support for Redis, MongoDB, Memcached, and
   Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache
   configuration only defines the storage container itself. `cache` can be assigned:
-    - a prototype function (usually obtained by calling `require()` on a **cabox** strategy such as `require('catbox-redis')`).
+    - a prototype function (usually obtained by calling `require()` on a **catbox** strategy such as `require('catbox-redis')`).
     - a configuration object with the following options:
         - `engine` - a prototype function or **catbox** engine object.
         - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each
