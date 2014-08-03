@@ -1,7 +1,8 @@
 ## Current Documentation
-  [v6.2.x](https://github.com/hapijs/hapi/blob/master/docs/Reference.md)  
+  [v6.3.x](https://github.com/hapijs/hapi/blob/master/docs/Reference.md)  
 
 ## Previous Documentation
+  [v6.2.x](https://github.com/hapijs/hapi/blob/v6.2.0/docs/Reference.md)
   [v6.1.x](https://github.com/hapijs/hapi/blob/v6.1.0/docs/Reference.md)
   [v6.0.x](https://github.com/hapijs/hapi/blob/v6.0.0/docs/Reference.md)
   [v5.1.x](https://github.com/hapijs/hapi/blob/v5.1.0/docs/Reference.md)  

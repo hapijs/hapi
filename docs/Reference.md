@@ -1,4 +1,4 @@
-# 6.2.x API Reference
+# 6.3.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -997,6 +997,8 @@ Provisions a server cache segment within the common caching facility where:
       expire. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+      method is taking too long.
     - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
 
 ```javascript
@@ -1171,6 +1173,8 @@ Methods are registered via `server.method(name, fn, [options])` where:
           expire. Cannot be used together with `expiresIn`.
         - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
         - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+        - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+          method is taking too long.
         - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' where 'name' is the
           method name. When setting segment manually, it must begin with '##'.
         - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
@@ -2643,6 +2647,8 @@ Provisions a plugin cache segment within the pack's common caching facility wher
       expire. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+      method is taking too long.
     - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '!name' where 'name' is the
       plugin name. When setting segment manually, it must begin with '!!'.
     - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.

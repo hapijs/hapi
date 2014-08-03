@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "6.2.2",
+  "version": "6.3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -21,7 +21,7 @@
     "hoek": "^2.3.x",
     "boom": "^2.4.x",
     "joi": "^4.4.x",
-    "catbox": "3.x.x",
+    "catbox": "^3.1.x",
     "catbox-memory": "1.x.x",
     "shot": "1.x.x",
     "nipple": "^2.4.x",
