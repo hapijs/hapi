@@ -1300,7 +1300,7 @@ describe('Server', function () {
             server.inject('/timeout', function (res) {
 
                 expect(res.statusCode).to.equal(503);
-                expect(timer.elapsed()).to.be.at.least(49);
+                expect(timer.elapsed()).to.be.at.least(45);
                 done();
             });
         });
@@ -1427,7 +1427,7 @@ describe('Server', function () {
                 var req = Http.request(options, function (res) {
 
                     expect([503, 408]).to.contain(res.statusCode);
-                    expect(timer.elapsed()).to.be.at.least(49);
+                    expect(timer.elapsed()).to.be.at.least(45);
                     done();
                 });
 
@@ -1469,7 +1469,7 @@ describe('Server', function () {
                 var req1 = Http.request(options, function (res1) {
 
                     expect([503, 408]).to.contain(res1.statusCode);
-                    expect(timer.elapsed()).to.be.at.least(49);
+                    expect(timer.elapsed()).to.be.at.least(45);
 
                     var req2 = Http.request(options, function (res2) {
 

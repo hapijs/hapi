@@ -40,7 +40,7 @@ describe('Client Timeout', function () {
             var req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(408);
-                expect(timer.elapsed()).to.be.at.least(49);
+                expect(timer.elapsed()).to.be.at.least(45);
                 done();
             });
 
