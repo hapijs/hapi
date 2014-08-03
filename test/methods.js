@@ -469,6 +469,41 @@ describe('Method', function () {
         });
     });
 
+    it('returns timeout when method taking too long using the cache', function (done) {
+
+        var server = new Hapi.Server(0, { cache: require('catbox-memory') });
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            setTimeout(function () {
+
+                return next(null, { id: id, gen: ++gen });
+            }, 5);
+        };
+
+        server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 3 } });
+
+        server.start(function () {
+
+            var id = Math.random();
+            server.methods.user(id, function (err, result1) {
+
+                expect(err.output.statusCode).to.equal(503);
+
+                setTimeout(function () {
+
+                    server.methods.user(id, function (err, result2) {
+
+                        expect(result2.id).to.equal(id);
+                        expect(result2.gen).to.equal(1);
+                        done();
+                    });
+                }, 3);
+            });
+        });
+    });
+
     it('supports empty key method', function (done) {
 
         var server = new Hapi.Server(0, { cache: require('catbox-memory') });

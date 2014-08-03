@@ -1,4 +1,4 @@
-# 6.2.x API Reference
+# 6.3.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -147,7 +147,7 @@ When creating a server instance, the following options configure the server's be
 
 - <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server includes a default cache for storing
   application state. By default, a simple memory-based cache is created which has limited capacity and capabilities. **hapi**
-  uses [**catbox**](https://github.com/spumko/catbox) for its cache which includes support for Redis, MongoDB, Memcached, and
+  uses [**catbox**](https://github.com/hapijs/catbox) for its cache which includes support for Redis, MongoDB, Memcached, and
   Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache
   configuration only defines the storage container itself. `cache` can be assigned:
     - a prototype function (usually obtained by calling `require()` on a **cabox** strategy such as `require('catbox-redis')`).
@@ -262,8 +262,8 @@ When creating a server instance, the following options configure the server's be
 - `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use node.js default value.
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
-- `validation` - options to pass to [Joi](http://github.com/spumko/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
-  (the complete list is available [here](https://github.com/spumko/joi#validatevalue-schema-options)). Defaults to no options.
+- `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
+  (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options)). Defaults to no options.
 
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
@@ -447,7 +447,7 @@ The following options are available when adding a route:
           `function(err, res, request, reply, settings, ttl)` where:
               - `err` - internal or upstream error returned from attempting to contact the upstream proxy.
               - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
-                [**nipple**](https://github.com/spumko/nipple) module `read` method to easily convert it to a Buffer or string).
+                [**nipple**](https://github.com/hapijs/nipple) module `read` method to easily convert it to a Buffer or string).
               - `request` - is the incoming `request` object.
               - `reply()` - the continuation function.
               - `settings` - the proxy handler configuration.
@@ -477,7 +477,7 @@ The following options are available when adding a route:
     - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
       described in [Route prerequisites](#route-prerequisites).
 
-    - `validate` - request input validation rules for various request components. When using a [Joi](http://github.com/spumko/joi)
+    - `validate` - request input validation rules for various request components. When using a [Joi](http://github.com/hapijs/joi)
       validation object, the values of the other inputs (e.g. `headers`, `query`, and `params` when validating `payload`) are made
       available under the validation context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is performed in
       order (i.e. headers, params, query, payload) and if type casting is used (converting a string to number), the value of inputs
@@ -486,7 +486,7 @@ The following options are available when adding a route:
         - `headers` - validation rules for incoming request headers. Values allowed:
             - `true` - any headers allowed (no validation performed).  This is the default.
             - `false` - no headers allowed (this will cause all valid HTTP requests to fail).
-            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a [Joi](http://github.com/hapijs/joi) validation object.
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the request headers.
                 - `options` - the server validation options.
@@ -496,7 +496,7 @@ The following options are available when adding a route:
           parameters then stored in `request.params`. Values allowed:
             - `true` - any path parameters allowed (no validation performed).  This is the default.
             - `false` - no path variables allowed.
-            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a [Joi](http://github.com/hapijs/joi) validation object.
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the path parameters.
                 - `options` - the server validation options.
@@ -508,7 +508,7 @@ The following options are available when adding a route:
           `request.query` prior to validation. Values allowed:
             - `true` - any query parameters allowed (no validation performed). This is the default.
             - `false` - no query parameters allowed.
-            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a [Joi](http://github.com/hapijs/joi) validation object.
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the query parameters.
                 - `options` - the server validation options.
@@ -517,7 +517,7 @@ The following options are available when adding a route:
         - `payload` - validation rules for an incoming request payload (request body). Values allowed:
             - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
-            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a [Joi](http://github.com/hapijs/joi) validation object.
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the payload object.
                 - `options` - the server validation options.
@@ -572,7 +572,7 @@ The following options are available when adding a route:
         - `schema` - the response object validation rules expressed as one of:
             - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
-            - a [Joi](http://github.com/spumko/joi) validation object.
+            - a [Joi](http://github.com/hapijs/joi) validation object.
             - a validation function using the signature `function(value, options, next)` where:
                 - `value` - the object containing the response object.
                 - `options` - the server validation options.
@@ -990,13 +990,15 @@ server.views({
 
 Provisions a server cache segment within the common caching facility where:
 
-- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy):
+- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy):
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
       expire. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+      method is taking too long.
     - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
 
 ```javascript
@@ -1164,13 +1166,15 @@ Methods are registered via `server.method(name, fn, [options])` where:
 - `options` - optional configuration:
     - `bind` - an object passed back to the provided method function (via `this`) when called. Defaults to `null` unless added via a plugin, in which
       case it defaults to the plugin bind object.
-    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy) with a few additions:
+    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy) with a few additions:
         - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
           together with `expiresAt`.
         - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
           expire. Cannot be used together with `expiresIn`.
         - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
         - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+        - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+          method is taking too long.
         - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' where 'name' is the
           method name. When setting segment manually, it must begin with '##'.
         - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
@@ -1249,7 +1253,7 @@ server.method([{ name: 'also', fn: add }]);
 
 Injects a request into the server simulating an incoming HTTP request without making an actual socket connection. Injection is useful for
 testing purposes as well as for invoking routing logic internally without the overhead or limitations of the network stack. Utilizes the
-[**shot**](https://github.com/spumko/shot) module for performing injections, with some additional options and response properties:
+[**shot**](https://github.com/hapijs/shot) module for performing injections, with some additional options and response properties:
 
 - `options` - can be assign a string with the requested URI, or an object with:
     - `method` - the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
@@ -1417,7 +1421,7 @@ Each request object has the following properties:
     - `artifacts` - an artifact object received from the authentication strategy and used in authentication-related actions.
     - `mode` - the route authentication mode.
     - `error` - the authentication error is failed and mode set to `'try'`.
-    - `session` - an object used by the [`'cookie'` authentication scheme](https://github.com/spumko/hapi-auth-cookie).
+    - `session` - an object used by the [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
 - `domain` - the node domain object used to protect against exceptions thrown in extentions, handlers and prerequisites. Can be used to
   manually bind callback functions otherwise bound to other domains.
 - `headers` - the raw request headers (references `request.raw.headers`).
@@ -1964,7 +1968,7 @@ server.ext('onPreResponse', function (request, reply) {
 
 ## `Hapi.error`
 
-Provides a set of utilities for returning HTTP errors. An alias of the [**boom**](https://github.com/spumko/boom) module (can be also accessed
+Provides a set of utilities for returning HTTP errors. An alias of the [**boom**](https://github.com/hapijs/boom) module (can be also accessed
 `Hapi.boom`). Each utility returns a `Boom` error response object (instance of `Error`) which includes the following properties:
 
 - `isBoom` - if `true`, indicates this is a `Boom` object instance.
@@ -2347,7 +2351,7 @@ Hapi.Pack.compose(manifest, function (err, pack) {
 
 ## Plugin interface
 
-Plugins provide an extensibility platform for both general purpose utilities such as [batch requests](https://github.com/spumko/bassmaster)
+Plugins provide an extensibility platform for both general purpose utilities such as [batch requests](https://github.com/hapijs/bassmaster)
 and for application business logic. Instead of thinking about a web server as a single entity with a unified routing table, plugins enable
 developers to break their application into logical units, assembled together in different combinations to fit the development, testing, and
 deployment needs.
@@ -2636,13 +2640,15 @@ exports.register = function (plugin, options, next) {
 
 Provisions a plugin cache segment within the pack's common caching facility where:
 
-- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/spumko/catbox#policy) with a few additions:
+- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy) with a few additions:
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
       expire. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+      method is taking too long.
     - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '!name' where 'name' is the
       plugin name. When setting segment manually, it must begin with '!!'.
     - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
@@ -2968,7 +2974,7 @@ installed in the path.  The following arguments are available to the **hapi** CL
 Note that `--require` will require from `node_modules`, an absolute path, a relative path, or from the `node_modules`
 set by `-p` if available.
 
-In order to help with A/B testing there is [confidence](https://github.com/spumko/confidence). Confidence is a
+In order to help with A/B testing there is [confidence](https://github.com/hapijs/confidence). Confidence is a
 configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to
 work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c).
 In addition, confidence defines special $-prefixed keys used to filter values for a given criteria.
