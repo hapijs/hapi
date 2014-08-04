@@ -979,6 +979,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
+                expect(res.headers['content-length']).to.equal(13)
                 done();
             });
         });
