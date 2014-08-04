@@ -1054,6 +1054,24 @@ describe('Response', function () {
             });
         });
 
+        it('returns a X-Content-Type-Options: nosniff header on JSONP responses', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject('/?callback=me', function (res) {
+
+                expect(res.payload).to.equal('/**/me({"some":"value"});');
+                expect(res.headers['x-content-type-options']).to.equal('nosniff');
+                done();
+            });
+        });
+
         it('returns a normal response when JSONP enabled but not requested', function (done) {
 
             var handler = function (request, reply) {
