@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "6.4.0",
+  "version": "6.5.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -29,14 +29,14 @@
     "iron": "2.x.x",
     "topo": "1.x.x",
     "kilt": "^1.1.x",
+    "qs": "1.x.x",
     "async": "0.9.x",
     "multiparty": "3.2.x",
-    "mime": "1.2.x",
+    "mime-types": "1.0.x",
     "lru-cache": "2.5.x",
     "optimist": "0.6.x",
     "negotiator": "0.4.x",
-    "semver": "2.3.x",
-    "qs": "1.x.x"
+    "semver": "2.3.x"
   },
   "devDependencies": {
     "lab": "3.x.x",
