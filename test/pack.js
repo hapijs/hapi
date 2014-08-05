@@ -2162,4 +2162,85 @@ describe('Pack', function () {
             done();
         });
     });
+
+    describe('#render', function () {
+
+        it('renders view', function (done) {
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.views({
+                        engines: { 'html': require('handlebars') },
+                        basePath: __dirname + '/pack/--views',
+                        path: './templates'
+                    });
+
+                    var view = plugin.render('test', { message: 'steve' }, function (err, rendered, config) {
+
+                        plugin.route([
+                            {
+                                path: '/view', method: 'GET', handler: function (request, reply) {
+
+                                    return reply(rendered);
+                                }
+                            }
+                        ]);
+
+                        return next();
+                    });
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.inject('/view', function (res) {
+
+                    expect(res.result).to.equal('<h1>steve</h1>');
+                    done();
+                });
+            });
+        });
+
+        it('renders view (with options)', function (done) {
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.views({
+                        engines: { 'html': require('handlebars') }
+                    });
+
+                    var view = plugin.render('test', { message: 'steve' }, { basePath: __dirname + '/pack/--views', path: './templates' }, function (err, rendered, config) {
+
+                        plugin.route([
+                            {
+                                path: '/view', method: 'GET', handler: function (request, reply) {
+
+                                    return reply(rendered);
+                                }
+                            }
+                        ]);
+
+                        return next();
+                    });
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.inject('/view', function (res) {
+
+                    expect(res.result).to.equal('<h1>steve</h1>');
+                    done();
+                });
+            });
+        });
+    });
 });

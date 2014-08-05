@@ -1596,4 +1596,38 @@ describe('Server', function () {
             done();
         });
     });
+
+    describe('#render', function () {
+
+        it('renders view', function (done) {
+
+            var server = new Hapi.Server();
+            server.views({
+                engines: { html: require('handlebars') },
+                path: __dirname + '/templates'
+            });
+
+            server.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
+        });
+
+        it('renders view (options)', function (done) {
+
+            var server = new Hapi.Server();
+            server.views({
+                engines: { html: require('handlebars') }
+            });
+
+            server.render('valid/test', { title: 'test', message: 'Hapi' }, { path: __dirname + '/templates' }, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
+        });
+    });
 });

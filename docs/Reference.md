@@ -1,4 +1,4 @@
-# 6.3.x API Reference
+# 6.5.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -32,6 +32,7 @@
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
         - [`server.handler(name, method)`](#serverhandlername-method)
         - [`server.location(uri, [request])`](#serverlocationuri-request)
+        - [`server.render(template, context, [options], callback)`](#serverrendertemplate-context-options-callback)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
     - [`request` properties](#request-properties)
@@ -88,6 +89,7 @@
         - [`plugin.cache(options)`](#plugincacheoptions)
         - [`plugin.bind(bind)`](#pluginbind-bind)
         - [`plugin.handler(name, method)`](#pluginhandlername-method)
+        - [`plugin.render(template, context, [options], callback)`](#pluginrendertemplate-context-options-callback)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.length`](#pluginlength)
@@ -1343,6 +1345,36 @@ var server = Hapi.createServer('localhost', 8000);
 console.log(server.location('/relative'));
 ```
 
+#### `server.render(template, context, [options], callback)`
+
+Utilizes the server views engine configured to render a template where:
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the server's [`views`](#server.config.views) configuration.
+- `callback` - the callback function with signature `function (err, rendered, config)` where:
+    - `err` - the rendering error if any.
+    - `rendered` - the result view string.
+    - `config` - the configuration used to render the template.
+
+```javascript
+var Hapi = require('hapi');
+var server = new Hapi.Server({
+    views: {
+        engines: { html: require('handlebars') },
+        path: __dirname + '/templates'
+    }
+});
+
+var context = {
+    title: 'Views Example',
+    message: 'Hello, World'
+};
+
+server.render('hello', context, function (err, rendered, config) {
+  
+    console.log(rendered);
+});
+```
 
 ### `Server` events
 
@@ -2704,6 +2736,37 @@ exports.register = function (plugin, options, next) {
     plugin.handler('testHandler', handlerFunc);
     next();
 }
+```
+
+#### `plugin.render(template, context, [options], callback)`
+
+Utilizes the plugin views engine configured to render a template where:
+- `template` - the template filename and path, relative to the templates path configured via ['plugin.views()`](#pluginviewsoptions).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the plugin's ['plugin.views()`](#pluginviewsoptions) configuration.
+- `callback` - the callback function with signature `function (err, rendered, config)` where:
+    - `err` - the rendering error if any.
+    - `rendered` - the result view string.
+    - `config` - the configuration used to render the template.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.views({
+        engines: {
+            html: {
+              module: Handlebars.create()
+            }
+        },
+        path: './templates'
+    });
+
+    plugin.render('hello', context, function (err, rendered, config) {
+      
+        console.log(rendered);
+        next();
+    });
+};
 ```
 
 ### Selectable methods and properties
