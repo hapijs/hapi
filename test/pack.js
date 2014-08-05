@@ -1961,19 +1961,6 @@ describe('Pack', function () {
             });
         });
 
-        it('throws when missing servers', function (done) {
-
-            var manifest = {
-                plugins: {}
-            };
-
-            expect(function () {
-
-                Hapi.Pack.compose(manifest, function (err, pack) { });
-            }).to.throw('Manifest missing servers definition');
-            done();
-        });
-
         it('composes pack with plugin registration options', function (done) {
 
             var manifest = {
@@ -2137,6 +2124,42 @@ describe('Pack', function () {
 
                 Hapi.Pack.compose(manifest, function (err, pack) {});
             });
+        });
+
+        it('throws on invalid manifest options', function (done) {
+
+            var manifest = {
+                pack: {
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test'],
+                            cache: 'catbox-memory'
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    './--loaded': {}
+                }
+            };
+
+            expect(function() {
+
+                Hapi.Pack.compose(manifest, function () {});
+            }).to.throw('Invalid manifest options');
+            done();
         });
     });
 });
