@@ -8,15 +8,6 @@ var Hapi = require('../lib');
 var internals = {};
 
 
-internals.profile = function (request, reply) {
-
-    reply({
-        'id': 'fa0dbda9b1b',
-        'name': 'John Doe'
-    });
-};
-
-
 internals.main = function () {
 
     var config = {
@@ -24,8 +15,6 @@ internals.main = function () {
     };
 
     var server = new Hapi.Server(8000, config);
-
-    server.route({ method: 'GET', path: '/profile', config: { handler: internals.profile, cache: { expiresIn: 30000 } } });
 
     server.method('user', function (id, next) {
 
