@@ -1,4 +1,55 @@
 
+## [**6.5.0**](https://github.com/hapijs/hapi/issues?milestone=111&state=open)
+- [**#1795**](https://github.com/hapijs/hapi/issues/1795) request.server._views in plugin
+- [**#1832**](https://github.com/hapijs/hapi/issues/1832) Replace mime with mime-type
+- [**#1822**](https://github.com/hapijs/hapi/issues/1822) Added joi validation to manifest.
+
+## [**6.4.0**](https://github.com/hapijs/hapi/issues?milestone=110&state=closed)
+- [**#1810**](https://github.com/hapijs/hapi/issues/1810) set X-Content-Type-Options to nosnif for jsonp responses
+
+## [**6.3.0**](https://github.com/hapijs/hapi/issues?milestone=109&state=closed)
+- [**#1827**](https://github.com/hapijs/hapi/issues/1827) Cannot call setTimeout with non-integer msec value
+- [**#1826**](https://github.com/hapijs/hapi/issues/1826) Support cache generateTimeout setting
+
+## [**6.2.2**](https://github.com/hapijs/hapi/issues?milestone=108&state=closed)
+- [**#1820**](https://github.com/hapijs/hapi/issues/1820) Rename spumko to hapijs
+
+## [**6.2.1**](https://github.com/hapijs/hapi/issues?milestone=107&state=closed)
+- [**#1801**](https://github.com/hapijs/hapi/issues/1801) Stale dependencies
+
+## [**6.2.0**](https://github.com/hapijs/hapi/issues?milestone=106&state=closed)
+- [**#1767**](https://github.com/hapijs/hapi/issues/1767) plugin.location
+- [**#1790**](https://github.com/hapijs/hapi/issues/1790) Expose authentication mode
+
+## [**6.1.0**](https://github.com/hapijs/hapi/issues?milestone=105&state=closed)
+- [**#1769**](https://github.com/hapijs/hapi/issues/1769) Plugin X missing dependency Y in server if manifest.plugins key order not carefully managed
+- [**#1754**](https://github.com/hapijs/hapi/issues/1754) File handler to handle 206 Partial Content?
+- [**#1788**](https://github.com/hapijs/hapi/issues/1788) Last-Modified comparison needs to account for 1 second precision
+- [**#1778**](https://github.com/hapijs/hapi/issues/1778) Do not create a duplicate Content-Type header on proxy passthrough
+- [**#1774**](https://github.com/hapijs/hapi/issues/1774) Style fixes
+- [**#1766**](https://github.com/hapijs/hapi/issues/1766) prepend jsonp callbacks with a comment to prevent the rosetta-flash vulnerability
+- [**#1763**](https://github.com/hapijs/hapi/issues/1763) fixes #1755 - stripTrailingSlash doesn&#39;t work when query variables are used
+- [**#1760**](https://github.com/hapijs/hapi/issues/1760) How can I set Content-Type header to the content generated from reply.view?
+- [**#1762**](https://github.com/hapijs/hapi/issues/1762) fix content-type overriding issue #1760.
+- [**#1733**](https://github.com/hapijs/hapi/issues/1733) log function should only emit once if _server object
+- [**#1783**](https://github.com/hapijs/hapi/issues/1783) Change etag when content-encoding is used
+- [**#1782**](https://github.com/hapijs/hapi/issues/1782) server.inject() res.result does not reflect actual payload sent on 304/204
+- [**#1781**](https://github.com/hapijs/hapi/issues/1781) Send empty payload on 204
+- [**#1756**](https://github.com/hapijs/hapi/issues/1756) Follow coding conventions concerning semicolons; Don&#39;t initialize variab...
+- [**#1776**](https://github.com/hapijs/hapi/issues/1776) Proxy pass-through with onResponse fails to preserve vary header values
+- [**#1773**](https://github.com/hapijs/hapi/issues/1773) Windows path fails on trailing slash on view helpers
+- [**#1676**](https://github.com/hapijs/hapi/issues/1676) Problem serving precompressed files with directory handler
+- [**#1772**](https://github.com/hapijs/hapi/issues/1772) HEAD requests should retail etag header
+- [**#1771**](https://github.com/hapijs/hapi/issues/1771) Open open one file stream when using precompressed file
+- [**#1407**](https://github.com/hapijs/hapi/issues/1407) Skip opening file or rendering view on head or 304
+- [**#1752**](https://github.com/hapijs/hapi/issues/1752) Adding helpful error message when pack.register is missing a callback
+- [**#1745**](https://github.com/hapijs/hapi/issues/1745) Add joi validation of pack options
+- [**#1728**](https://github.com/hapijs/hapi/issues/1728) 6.x breaks plugin modules exporting functions
+
+## [**6.0.2**](https://github.com/hapijs/hapi/issues?milestone=104&state=closed)
+- [**#1720**](https://github.com/hapijs/hapi/issues/1720) No way to handle root routes with `route: {prefix: &#39;...&#39;}`
+- [**#1719**](https://github.com/hapijs/hapi/issues/1719) Fixes undefined error in `plugin.dependency`
+
 ## [**6.0.1**](https://github.com/hapijs/hapi/issues?milestone=103&state=closed)
 - [**#1710**](https://github.com/hapijs/hapi/issues/1710) Buffer based passwords fail schema validation (6.0 regression)
 
