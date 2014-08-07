@@ -1301,7 +1301,7 @@ describe('Server', function () {
             server.inject('/timeout', function (res) {
 
                 expect(res.statusCode).to.equal(503);
-                expect(timer.elapsed()).to.be.at.least(49);
+                expect(timer.elapsed()).to.be.at.least(45);
                 done();
             });
         });
@@ -1428,7 +1428,7 @@ describe('Server', function () {
                 var req = Http.request(options, function (res) {
 
                     expect([503, 408]).to.contain(res.statusCode);
-                    expect(timer.elapsed()).to.be.at.least(49);
+                    expect(timer.elapsed()).to.be.at.least(45);
                     done();
                 });
 
@@ -1470,7 +1470,7 @@ describe('Server', function () {
                 var req1 = Http.request(options, function (res1) {
 
                     expect([503, 408]).to.contain(res1.statusCode);
-                    expect(timer.elapsed()).to.be.at.least(49);
+                    expect(timer.elapsed()).to.be.at.least(45);
 
                     var req2 = Http.request(options, function (res2) {
 
@@ -1595,6 +1595,40 @@ describe('Server', function () {
             var server = new Hapi.Server();
             expect(server.location('/test')).to.equal('http://0.0.0.0:80/test');
             done();
+        });
+    });
+
+    describe('#render', function () {
+
+        it('renders view', function (done) {
+
+            var server = new Hapi.Server();
+            server.views({
+                engines: { html: require('handlebars') },
+                path: __dirname + '/templates'
+            });
+
+            server.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
+        });
+
+        it('renders view (options)', function (done) {
+
+            var server = new Hapi.Server();
+            server.views({
+                engines: { html: require('handlebars') }
+            });
+
+            server.render('valid/test', { title: 'test', message: 'Hapi' }, { path: __dirname + '/templates' }, function (err, rendered, config) {
+
+                expect(rendered).to.exist;
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
         });
     });
 });

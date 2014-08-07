@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "6.3.0",
+  "version": "6.5.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -18,30 +18,31 @@
     "node": ">=0.10.30"
   },
   "dependencies": {
-    "hoek": "^2.3.x",
     "boom": "^2.4.x",
-    "joi": "^4.4.x",
     "catbox": "^3.1.x",
     "catbox-memory": "1.x.x",
-    "shot": "1.x.x",
-    "nipple": "^2.4.x",
     "cryptiles": "2.x.x",
+    "hoek": "^2.3.x",
     "iron": "2.x.x",
-    "topo": "1.x.x",
+    "joi": "^4.4.x",
     "kilt": "^1.1.x",
+    "nipple": "^2.4.x",
+    "shot": "1.x.x",
+    "topo": "1.x.x",
+    "qs": "1.x.x",
+
     "async": "0.9.x",
-    "multiparty": "3.2.x",
-    "mime": "1.2.x",
     "lru-cache": "2.5.x",
-    "optimist": "0.6.x",
+    "mime-types": "1.0.x",
+    "multiparty": "3.2.x",
     "negotiator": "0.4.x",
-    "semver": "2.3.x",
-    "qs": "0.6.x"
+    "optimist": "0.6.x",
+    "semver": "2.3.x"
   },
   "devDependencies": {
     "lab": "4.x.x",
-    "handlebars": "1.2.x",
-    "jade": "1.0.x",
+    "handlebars": "1.x.x",
+    "jade": "1.x.x",
     "form-data": "0.1.x"
   },
   "bin": {

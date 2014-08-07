@@ -980,6 +980,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
+                expect(res.headers['content-length']).to.equal(13)
                 done();
             });
         });
@@ -1050,6 +1051,24 @@ describe('Response', function () {
 
                 expect(res.payload).to.equal('/**/me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(25);
+                done();
+            });
+        });
+
+        it('returns a X-Content-Type-Options: nosniff header on JSONP responses', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply({ some: 'value' });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject('/?callback=me', function (res) {
+
+                expect(res.payload).to.equal('/**/me({"some":"value"});');
+                expect(res.headers['x-content-type-options']).to.equal('nosniff');
                 done();
             });
         });

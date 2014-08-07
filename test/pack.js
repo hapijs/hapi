@@ -1792,6 +1792,55 @@ describe('Pack', function () {
             });
         });
 
+        it('composes pack (cache array)', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: [{
+                        engine: '../node_modules/catbox-memory'
+                    }],
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--test1': null
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                pack.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    pack.stop(function () {
+
+                        pack._servers[0].inject('/test1', function (res) {
+
+                            expect(res.result).to.equal('testing123special-value');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
         it('composes pack (engine function)', function (done) {
 
             var manifest = {
@@ -1962,19 +2011,6 @@ describe('Pack', function () {
             });
         });
 
-        it('throws when missing servers', function (done) {
-
-            var manifest = {
-                plugins: {}
-            };
-
-            expect(function () {
-
-                Hapi.Pack.compose(manifest, function (err, pack) { });
-            }).to.throw('Manifest missing servers definition');
-            done();
-        });
-
         it('composes pack with plugin registration options', function (done) {
 
             var manifest = {
@@ -2137,6 +2173,123 @@ describe('Pack', function () {
             domain.run(function () {
 
                 Hapi.Pack.compose(manifest, function (err, pack) {});
+            });
+        });
+
+        it('throws on invalid manifest options', function (done) {
+
+            var manifest = {
+                pack: {
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test'],
+                            cache: 'catbox-memory'
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    './--loaded': {}
+                }
+            };
+
+            expect(function() {
+
+                Hapi.Pack.compose(manifest, function () {});
+            }).to.throw('Invalid manifest options');
+            done();
+        });
+    });
+
+    describe('#render', function () {
+
+        it('renders view', function (done) {
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.views({
+                        engines: { 'html': require('handlebars') },
+                        basePath: __dirname + '/pack/--views',
+                        path: './templates'
+                    });
+
+                    var view = plugin.render('test', { message: 'steve' }, function (err, rendered, config) {
+
+                        plugin.route([
+                            {
+                                path: '/view', method: 'GET', handler: function (request, reply) {
+
+                                    return reply(rendered);
+                                }
+                            }
+                        ]);
+
+                        return next();
+                    });
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.inject('/view', function (res) {
+
+                    expect(res.result).to.equal('<h1>steve</h1>');
+                    done();
+                });
+            });
+        });
+
+        it('renders view (with options)', function (done) {
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.views({
+                        engines: { 'html': require('handlebars') }
+                    });
+
+                    var view = plugin.render('test', { message: 'steve' }, { basePath: __dirname + '/pack/--views', path: './templates' }, function (err, rendered, config) {
+
+                        plugin.route([
+                            {
+                                path: '/view', method: 'GET', handler: function (request, reply) {
+
+                                    return reply(rendered);
+                                }
+                            }
+                        ]);
+
+                        return next();
+                    });
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.pack.register(plugin, function (err) {
+
+                expect(err).to.not.exist;
+                server.inject('/view', function (res) {
+
+                    expect(res.result).to.equal('<h1>steve</h1>');
+                    done();
+                });
             });
         });
     });

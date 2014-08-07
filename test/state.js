@@ -119,6 +119,20 @@ describe('State', function () {
         });
     });
 
+    it('sets cookie value with null ttl', function (done) {
+
+        var server = new Hapi.Server();
+        server.state('a', { ttl: null })
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').state('a', 'b'); } });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.deep.equal(['a=b']);
+            done();
+        });
+    });
+
     describe('#parseCookies', function () {
 
         describe('cases', function () {
@@ -335,6 +349,16 @@ describe('State', function () {
                 var expires = new Date(Date.now() + 3600);
                 expect(err).to.not.exist;
                 expect(header[0]).to.equal('sid=fihfieuhr9384hf; Max-Age=3; Expires=' + expires.toUTCString() + '; Secure; HttpOnly; Domain=example.com; Path=/');
+                done();
+            });
+        });
+
+        it('formats a header (with null ttl)', function (done) {
+
+            generateSetCookieHeader({ name: 'sid', value: 'fihfieuhr9384hf', options: { ttl: null, isSecure: true, isHttpOnly: true, path: '/', domain: 'example.com' } }, null, function (err, header) {
+
+                expect(err).to.not.exist;
+                expect(header[0]).to.equal('sid=fihfieuhr9384hf; Secure; HttpOnly; Domain=example.com; Path=/');
                 done();
             });
         });
