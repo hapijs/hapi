@@ -1791,6 +1791,55 @@ describe('Pack', function () {
             });
         });
 
+        it('composes pack (cache array)', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: [{
+                        engine: '../node_modules/catbox-memory'
+                    }],
+                    app: {
+                        my: 'special-value'
+                    }
+                },
+                servers: [
+                    {
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: 'localhost',
+                        port: 0,
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    '../test/pack/--test1': null
+                }
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                pack.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    pack.stop(function () {
+
+                        pack._servers[0].inject('/test1', function (res) {
+
+                            expect(res.result).to.equal('testing123special-value');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
         it('composes pack (engine function)', function (done) {
 
             var manifest = {
