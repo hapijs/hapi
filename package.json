@@ -24,7 +24,7 @@
     "cryptiles": "2.x.x",
     "hoek": "^2.3.x",
     "iron": "2.x.x",
-    "item": "1.x.x",
+    "items": "1.x.x",
     "joi": "^4.4.x",
     "kilt": "^1.1.x",
     "nipple": "^2.4.x",
