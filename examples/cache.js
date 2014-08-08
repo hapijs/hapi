@@ -33,7 +33,7 @@ internals.main = function () {
 
             next(null, {
                 'id': id,
-                'name': 'Item'
+                'name': 'Items'
             });
         }, 600);    // Used to demonstrate stale response
     }, { cache: { expiresIn: 20000, staleIn: 10000, staleTimeout: 500 } });

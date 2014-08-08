@@ -313,7 +313,7 @@ describe('Proxy', function () {
 
             reply({
                 id: '55cf687663',
-                name: 'Active Item',
+                name: 'Active Items',
                 count: activeCount++
             });
         };
@@ -328,7 +328,7 @@ describe('Proxy', function () {
             server.inject('/item', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.contain('Active Item');
+                expect(res.payload).to.contain('Active Items');
                 var counter = res.result.count;
 
                 server.inject('/item', function (res) {
@@ -345,7 +345,7 @@ describe('Proxy', function () {
 
         var item = function (request, reply) {
 
-            reply({ id: '55cf687663', name: 'Item' }).created('http://example.com');
+            reply({ id: '55cf687663', name: 'Items' }).created('http://example.com');
         };
 
         var upstream = new Hapi.Server(0);
@@ -358,7 +358,7 @@ describe('Proxy', function () {
             server.inject({ url: '/item', method: 'POST' }, function (res) {
 
                 expect(res.statusCode).to.equal(201);
-                expect(res.payload).to.contain('Item');
+                expect(res.payload).to.contain('Items');
                 done();
             });
         });

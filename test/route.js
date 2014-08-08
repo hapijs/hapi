@@ -3,7 +3,7 @@
 var Lab = require('lab');
 var Hoek = require('hoek');
 var Hapi = require('..');
-var Item = require('item');
+var Items = require('items');
 var Route = require('../lib/route');
 var Request = require('../lib/request');
 var Defaults = require('../lib/defaults');
@@ -282,7 +282,7 @@ describe('Route', function () {
                 ['/x/y/c/d/e/f/g', '/{p*}']
             ];
 
-            Item.series(requests, function (request, next) {
+            Items.serial(requests, function (request, next) {
 
                 server.inject({ method: 'GET', url: request[0] }, function (res) {
 

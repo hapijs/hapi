@@ -85,7 +85,7 @@ describe('Cache', function () {
 
             reply({
                 'id': '55cf687663',
-                'name': 'Active Item'
+                'name': 'Active Items'
             });
         };
 
