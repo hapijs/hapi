@@ -1,6 +1,5 @@
 // Load modules
 
-var Async = require('async');
 var Lab = require('lab');
 var Joi = require('joi');
 var Hapi = require('..');
@@ -544,7 +543,7 @@ describe('Validation', function () {
         });
 
         var count = 0;
-        Async.times(500, function (n, next) {
+        internals.times(500, function (next) {
 
             server.inject('/', function (res) {
 
@@ -650,7 +649,7 @@ describe('Validation', function () {
         });
 
         var count = 0;
-        Async.times(500, function (n, next) {
+        internals.times(500, function (next) {
 
             server.inject('/', function (res) {
 
@@ -884,3 +883,31 @@ describe('Validation', function () {
         });
     });
 });
+
+
+internals.times = function (count, method, callback) {
+
+    var counter = 0;
+
+    var results = [];
+    var done = function (err, result) {
+
+        if (callback) {
+            results.push(result);
+            if (err) {
+                callback(err);
+                callback = null;
+            }
+            else {
+                counter += 1;
+                if (counter === count) {
+                    callback(null, results);
+                }
+            }
+        }
+    };
+
+    for (var i = 0; i < count; ++i) {
+        method(done);
+    }
+};
