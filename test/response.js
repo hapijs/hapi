@@ -294,7 +294,7 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test, origin');
                 done();
             });
         });
@@ -314,7 +314,7 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test, origin');
                 done();
             });
         });
@@ -334,7 +334,7 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test, origin');
                 done();
             });
         });
@@ -354,7 +354,7 @@ describe('Response', function () {
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test, origin');
                 done();
             });
         });
@@ -821,7 +821,7 @@ describe('Response', function () {
 
                 expect(res.result).to.equal('ok');
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('x,y');
+                expect(res.headers.vary).to.equal('x, y');
                 done();
             });
         });

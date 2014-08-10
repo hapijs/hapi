@@ -212,7 +212,7 @@ describe('Proxy', function () {
             server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('X-Custom3,accept-encoding,Something');
+                expect(res.headers.vary).to.equal('X-Custom3, accept-encoding, Something');
                 done();
             });
         });
