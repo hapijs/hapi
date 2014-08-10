@@ -37,7 +37,8 @@
     "multiparty": "3.2.x",
     "negotiator": "0.4.x",
     "optimist": "0.6.x",
-    "semver": "2.3.x"
+    "semver": "2.3.x",
+    "vary": "1.x.x"
   },
   "devDependencies": {
     "lab": "4.x.x",
