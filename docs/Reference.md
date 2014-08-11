@@ -661,7 +661,7 @@ server.route({ method: 'GET', path: '/user', config: user });
 ##### Path processing
 
 The router iterates through the routing table on each incoming request and executes the first (and only the first) matching route. Route
-matching is done on a combination of the request path and the HTTP verb. The query and other URI components are excluded from the routing logic. Requests are matched in a deterministic order where the order in which routes are added does not matter. The routes are sorted from the most specific to the most generic. The specificiy of a route is a combination of the HTTP verb and the route path. The more specific a route definition is, the higher up in the routing table it will appear. For example, the following path array shows the order in which an incoming request path will be matched against the routes:
+matching is done on a combination of the request path and the HTTP verb. The query is excluded from the routing logic. Requests are matched in a deterministic order where the order in which routes are added does not matter. The routes are sorted from the most specific to the most generic. The specificity of a route is a combination of the HTTP verb and the route path. The more specific a route definition is, the higher up in the routing table it will appear. For example, the following path array shows the order in which an incoming request path will be matched against the routes:
 
 ```javascript
 var paths = [
