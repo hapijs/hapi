@@ -2011,6 +2011,28 @@ describe('Pack', function () {
             });
         });
 
+        it('validates server config after defaults applied', function (done) {
+
+            var manifest = {
+                servers: [
+                    {
+                        options: {
+                            timeout: {
+
+                            }
+                        }
+                    }
+                ],
+                plugins: {}
+            };
+
+            Hapi.Pack.compose(manifest, function (err, pack) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
         it('composes pack with plugin registration options', function (done) {
 
             var manifest = {
@@ -2185,20 +2207,6 @@ describe('Pack', function () {
                     }
                 },
                 servers: [
-                    {
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nasty', 'test'],
-                            cache: 'catbox-memory'
-                        }
-                    },
-                    {
-                        host: 'localhost',
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nice']
-                        }
-                    }
                 ],
                 plugins: {
                     './--loaded': {}
