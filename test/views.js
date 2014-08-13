@@ -495,6 +495,26 @@ describe('Views', function () {
             });
         });
 
+        it('handles custom options', function (done) {
+
+            var options = {
+                views: {
+                    engines: { html: require('handlebars') },
+                    path: __dirname + '/templates',
+                    layoutPath: __dirname + '/templates/layout'
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            server.route({ method: 'GET', path: '/', handler: { view: { template: 'valid/options', options: { layout: 'elsewhere' } } } });
+            server.inject('/', function (res) {
+
+                expect(res.result).to.contain('+hello');
+                done();
+            });
+        });
+
         it('includes prerequisites in the default view context', function (done) {
 
             var pre = function (request, reply) {
