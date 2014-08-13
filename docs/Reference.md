@@ -1765,7 +1765,8 @@ Concludes the handler activity by returning control over to the router with a te
 
 - `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
 - `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response.
+- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response. Cannot override
+  `isCached`, `partialsPath`, or `helpersPath` which are only loaded at initialization.
 
 Returns a response object.
 
