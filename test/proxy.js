@@ -1312,5 +1312,25 @@ describe('Proxy', function () {
             done();
         });
     });
+
+    it('allows passing in an agent through to Nipple', function (done) {
+
+        var server = new Hapi.Server();
+        var requestFn = Nipple.request;
+        var agent = { name : 'myagent' };
+
+        Nipple.request = function (method, url, options, cb) {
+
+            Nipple.request = requestFn;
+            expect(options.agent).to.equal(agent);
+            cb(new Error(''));
+
+        };
+        server.route({ method: 'GET', path: '/agenttest', handler: { proxy: { uri: 'http://localhost', agent: agent} } });
+        server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) {
+            done();
+        });
+    });
+
 });
 
