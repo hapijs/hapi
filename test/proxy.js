@@ -1313,7 +1313,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('allows passing in an agent through to Nipple', function (done) {
+    it('allows passing in an agent through to Nipple', { parallel: false }, function (done) {
 
         var server = new Hapi.Server();
         var requestFn = Nipple.request;
@@ -1323,12 +1323,11 @@ describe('Proxy', function () {
 
             Nipple.request = requestFn;
             expect(options.agent).to.equal(agent);
-            cb(new Error(''));
+            done();
 
         };
         server.route({ method: 'GET', path: '/agenttest', handler: { proxy: { uri: 'http://localhost', agent: agent} } });
         server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) {
-            done();
         });
     });
 
