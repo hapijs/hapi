@@ -1327,8 +1327,7 @@ describe('Proxy', function () {
 
         };
         server.route({ method: 'GET', path: '/agenttest', handler: { proxy: { uri: 'http://localhost', agent: agent} } });
-        server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) {
-        });
+        server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) { });
     });
 
 });
