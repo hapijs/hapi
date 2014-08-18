@@ -242,7 +242,7 @@ When creating a server instance, the following options configure the server's be
 - <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to
   the server with every request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
     - `cookies` - The server automatically parses incoming cookies based on these options:
-        - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the `request.cookies` object. Defaults to `true`.
+        - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the `request.state` object. Defaults to `true`.
         - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
             - `'log'` - report the error but continue processing the request.
