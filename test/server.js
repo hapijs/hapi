@@ -7,7 +7,7 @@ var Https = require('https');
 var Stream = require('stream');
 var Os = require('os');
 var Path = require('path');
-var Nipple = require('nipple');
+var Wreck = require('wreck');
 var Lab = require('lab');
 var Hoek = require('hoek');
 var Hapi = require('..');
@@ -1514,7 +1514,7 @@ describe('Server', function () {
 
             server.start(function () {
 
-                Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+                Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
 
                     server.stop();
                     expect(err).to.exist;
@@ -1547,7 +1547,7 @@ describe('Server', function () {
                     return orig.apply(this, arguments);
                 };
 
-                Nipple.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+                Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
 
                     server.stop();
                     expect(err).to.not.exist;

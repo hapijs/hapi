@@ -7,7 +7,7 @@ var Stream = require('stream');
 var Zlib = require('zlib');
 var FormData = require('form-data');
 var Lab = require('lab');
-var Nipple = require('nipple');
+var Wreck = require('wreck');
 var Hapi = require('..');
 var Hoek = require('hoek');
 
@@ -524,7 +524,7 @@ describe('Payload', function () {
 
             server.start(function () {
 
-                Nipple.post('http://localhost:' + server.info.port + '/?x=1', options, function (err, res, body) {
+                Wreck.post('http://localhost:' + server.info.port + '/?x=1', options, function (err, res, body) {
 
                     expect(res.statusCode).to.equal(200);
                     expect(body).to.equal('value');
@@ -1158,11 +1158,11 @@ describe('Payload', function () {
                 expect(request.payload.files[1].hapi).to.deep.equal({ filename: 'file2.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file2.txt"', 'content-type': 'text/plain' } });
                 expect(request.payload.files[2].hapi).to.deep.equal({ filename: 'file3.txt', headers: { 'content-disposition': 'form-data; name="files"; filename="file3.txt"', 'content-type': 'text/plain' } });
 
-                Nipple.read(request.payload.files[1], function (err, payload2) {
+                Wreck.read(request.payload.files[1], null, function (err, payload2) {
 
-                    Nipple.read(request.payload.files[0], function (err, payload1) {
+                    Wreck.read(request.payload.files[0], null, function (err, payload1) {
 
-                        Nipple.read(request.payload.files[2], function (err, payload3) {
+                        Wreck.read(request.payload.files[2], null, function (err, payload3) {
 
                             reply([payload1, payload2, payload3].join('-'));
                         });
@@ -1203,7 +1203,7 @@ describe('Payload', function () {
 
                 var form = new FormData();
                 form.append('my_file', Fs.createReadStream(path));
-                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+                Wreck.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 
@@ -1226,7 +1226,7 @@ describe('Payload', function () {
                 var form = new FormData();
                 form.append('file1', Fs.createReadStream(path));
                 form.append('file2', Fs.createReadStream(path));
-                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+                Wreck.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 
@@ -1265,7 +1265,7 @@ describe('Payload', function () {
                 var form = new FormData();
                 form.append('file1', Fs.createReadStream(path));
                 form.append('file2', Fs.createReadStream(path));
-                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+                Wreck.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 
@@ -1286,7 +1286,7 @@ describe('Payload', function () {
 
                 var form = new FormData();
                 form.append('my_file', Fs.createReadStream(path));
-                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+                Wreck.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 
@@ -1324,7 +1324,7 @@ describe('Payload', function () {
                     }
                 });
 
-                Nipple.read(request.payload['my_file'], function (err, buffer) {
+                Wreck.read(request.payload['my_file'], null, function (err, buffer) {
 
                     expect(err).to.not.exist;
                     expect(fileContents.length).to.equal(buffer.length);
@@ -1339,7 +1339,7 @@ describe('Payload', function () {
 
                 var form = new FormData();
                 form.append('my_file', fileStream);
-                Nipple.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
+                Wreck.post(server.info.uri + '/file', { payload: form, headers: form.getHeaders() }, function (err, res, payload) { });
             });
         });
 

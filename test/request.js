@@ -4,7 +4,7 @@ var Net = require('net');
 var Stream = require('stream');
 var Http = require('http');
 var Lab = require('lab');
-var Nipple = require('nipple');
+var Wreck = require('wreck');
 var Hoek = require('hoek');
 var Shot = require('shot');
 var Hoek = require('hoek');
@@ -353,7 +353,7 @@ describe('Request', function () {
 
         server.start(function () {
 
-            Nipple.get('http://localhost:' + server.info.port, function (err, res, body) {
+            Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
                 expect(body).to.equal('ok');
                 done();

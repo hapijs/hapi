@@ -2,7 +2,7 @@
 
 var Lab = require('lab');
 var Zlib = require('zlib');
-var Nipple = require('nipple');
+var Wreck = require('wreck');
 var Hapi = require('..');
 
 
@@ -171,7 +171,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
 
-        Nipple.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
+        Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -181,7 +181,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a get request when accept-encoding: gzip is requested', function (done) {
 
-        Nipple.get(uri, { headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -191,7 +191,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a post request when accept-encoding: * is requested', function (done) {
 
-        Nipple.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
+        Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -201,7 +201,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a get request when accept-encoding: * is requested', function (done) {
 
-        Nipple.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -211,7 +211,7 @@ describe('Payload', function () {
 
     it('returns a deflate response on a post request when accept-encoding: deflate is requested', function (done) {
 
-        Nipple.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, function (err, res, body) {
+        Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(ddata);
@@ -221,7 +221,7 @@ describe('Payload', function () {
 
     it('returns a deflate response on a get request when accept-encoding: deflate is requested', function (done) {
 
-        Nipple.get(uri, { headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(ddata);
@@ -231,7 +231,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a post request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
 
-        Nipple.post(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' }, payload: data }, function (err, res, body) {
+        Wreck.post(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -241,7 +241,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a get request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
 
-        Nipple.get(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' } }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -251,7 +251,7 @@ describe('Payload', function () {
 
     it('returns a deflate response on a post request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
 
-        Nipple.post(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' }, payload: data }, function (err, res, body) {
+        Wreck.post(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(ddata);
@@ -261,7 +261,7 @@ describe('Payload', function () {
 
     it('returns a deflate response on a get request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
 
-        Nipple.get(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' } }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(ddata);
@@ -271,7 +271,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', function (done) {
 
-        Nipple.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, function (err, res, body) {
+        Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -281,7 +281,7 @@ describe('Payload', function () {
 
     it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', function (done) {
 
-        Nipple.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -291,7 +291,7 @@ describe('Payload', function () {
 
     it('returns an identity response on a post request when accept-encoding is missing', function (done) {
 
-        Nipple.post(uri, { payload: data }, function (err, res, body) {
+        Wreck.post(uri, { payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(data);
@@ -301,7 +301,7 @@ describe('Payload', function () {
 
     it('returns an identity response on a get request when accept-encoding is missing', function (done) {
 
-        Nipple.get(uri, {}, function (err, res, body) {
+        Wreck.get(uri, {}, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body.toString()).to.equal(data);

@@ -11,7 +11,7 @@ var Path = require('path');
 var Lab = require('lab');
 var Hoek = require('hoek');
 var Joi = require('joi');
-var Nipple = require('nipple');
+var Wreck = require('wreck');
 var Hapi = require('..');
 var Response = require('../lib/response');
 var Payload = require('../lib/response/payload');
@@ -2410,7 +2410,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: fileHandler });
             server.start(function () {
 
-                Nipple.get('http://localhost:' + server.info.port, function (err, res, body) {
+                Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body === expectedBody).to.equal(true);
@@ -2459,7 +2459,7 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: fileHandler });
             server.start(function () {
 
-                Nipple.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, function (err, res, body) {
+                Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, function (err, res, body) {
 
                     expect(err).to.not.exist;
                     expect(body === expectedBody).to.equal(true);
@@ -2508,7 +2508,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Nipple.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
                     res.on('data', function (chunk) {
 
@@ -2553,7 +2553,7 @@ describe('Response', function () {
 
             server.start(function () {
 
-                Nipple.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
                     expect(err).to.not.exist;
                     res.on('data', function (chunk) { });

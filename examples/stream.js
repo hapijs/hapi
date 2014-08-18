@@ -1,7 +1,7 @@
 // Load modules
 
 var Hapi = require('../lib');
-var Nipple = require('nipple');
+var Wreck = require('wreck');
 
 
 // Declare internals
@@ -17,7 +17,7 @@ internals.echo = function (request, reply) {
 
 internals.request = function (request, reply) {
 
-    Nipple.request('GET', 'http://google.com', {}, reply);
+    Wreck.request('GET', 'http://google.com', {}, reply);
 };
 
 

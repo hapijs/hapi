@@ -4,7 +4,7 @@ var Lab = require('lab');
 var Fs = require('fs');
 var Http = require('http');
 var Zlib = require('zlib');
-var Nipple = require('nipple');
+var Wreck = require('wreck');
 var Hapi = require('..');
 
 
@@ -650,7 +650,7 @@ describe('Proxy', function () {
 
             server.start(function () {
 
-                Nipple.get('http://127.0.0.1:' + server.info.port + '/', function (err, res, body) {
+                Wreck.get('http://127.0.0.1:' + server.info.port + '/', function (err, res, body) {
 
                     expect(res.statusCode).to.equal(200);
                     var result = JSON.parse(body);
@@ -693,7 +693,7 @@ describe('Proxy', function () {
 
             server.start(function () {
 
-                Nipple.get('http://127.0.0.1:' + server.info.port + '/', function (err, res, body) {
+                Wreck.get('http://127.0.0.1:' + server.info.port + '/', function (err, res, body) {
 
                     expect(res.statusCode).to.equal(200);
                     var result = JSON.parse(body);
@@ -1297,11 +1297,11 @@ describe('Proxy', function () {
     it('does not send multiple Content-Type headers on passthrough', function (done) {
 
         var server = new Hapi.Server();
-        var requestFn = Nipple.request;
+        var requestFn = Wreck.request;
 
-        Nipple.request = function (method, url, options, cb) {
+        Wreck.request = function (method, url, options, cb) {
 
-            Nipple.request = requestFn;
+            Wreck.request = requestFn;
             expect(options.headers['content-type']).to.equal('application/json');
             expect(options.headers['Content-Type']).to.not.exist;
             cb(new Error('placeholder'));
