@@ -457,6 +457,7 @@ The following options are available when adding a route:
                 'Cache-Control' header with 'max-age'.
         - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the response using the `response.ttl()` method (or passed
           as an argument to the `onResponse` method if provided).
+        - `agent` - a node [http(s) agent](http://nodejs.org/api/http.html#http_class_http_agent) to be used for connections to upstream server.
 
     - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` option can be set to one of:
         - a string with the template file name.
