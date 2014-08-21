@@ -362,18 +362,18 @@ describe('Auth', function () {
         });
     });
 
-    it('matches scope', function (done) {
+    it('matches scope (array to single)', function (done) {
 
         var server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['a'] } } });
+        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) { reply(request.auth.credentials.user); },
                 auth: {
-                    scope: 'a'
+                    scope: 'one'
                 }
             }
         });
@@ -385,18 +385,18 @@ describe('Auth', function () {
         });
     });
 
-    it('matches array scope', function (done) {
+    it('matches scope (array to array)', function (done) {
 
         var server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['a', 'b'] } } });
+        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one', 'two'] } } });
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) { reply(request.auth.credentials.user); },
                 auth: {
-                    scope: ['a', 'c']
+                    scope: ['one', 'three']
                 }
             }
         });
@@ -404,6 +404,75 @@ describe('Auth', function () {
         server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('matches scope (single to array)', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    scope: ['one', 'three']
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('matches scope (single to single)', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    scope: 'one'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('does not match scope (single to single)', function (done) {
+
+        var server = new Hapi.Server();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) { reply(request.auth.credentials.user); },
+                auth: {
+                    scope: 'onex'
+                }
+            }
+        });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+            expect(res.statusCode).to.equal(403);
             done();
         });
     });
