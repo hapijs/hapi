@@ -1313,15 +1313,15 @@ describe('Proxy', function () {
         });
     });
 
-    it('allows passing in an agent through to Nipple', { parallel: false }, function (done) {
+    it('allows passing in an agent through to Wreck', { parallel: false }, function (done) {
 
         var server = new Hapi.Server();
-        var requestFn = Nipple.request;
+        var requestFn = Wreck.request;
         var agent = { name : 'myagent' };
 
-        Nipple.request = function (method, url, options, cb) {
+        Wreck.request = function (method, url, options, cb) {
 
-            Nipple.request = requestFn;
+            Wreck.request = requestFn;
             expect(options.agent).to.equal(agent);
             done();
 
