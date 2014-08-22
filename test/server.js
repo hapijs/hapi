@@ -1206,27 +1206,6 @@ describe('Server', function () {
         });
     });
 
-    describe('#state', function () {
-
-        it('uses default options', function (done) {
-
-            var server = new Hapi.Server();
-            server.state('steve');
-            expect(server._stateDefinitions['steve']).deep.equal(Defaults.state);
-            done();
-        });
-
-        it('throws when missing name', function (done) {
-
-            var server = new Hapi.Server();
-            expect(function () {
-
-                server.state();
-            }).to.throw('Invalid name');
-            done();
-        });
-    });
-
     describe('Timeouts', { parallel: false }, function () {
 
         var slowHandler = function (request, reply) {
