@@ -48,6 +48,43 @@ describe('State', function () {
         });
     });
 
+    it('ignores invalid cookies (state level config)', function (done) {
+
+        var handler = function (request, reply) {
+
+            var log = request.getLog('state');
+            reply(log.length);
+        };
+
+        var server = new Hapi.Server();
+        server.state('a', { failAction: 'ignore', encoding: 'base64json' });
+        server.route({ path: '/', method: 'GET', handler: handler });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(0);
+            done();
+        });
+    });
+
+    it('clears invalid cookies (state level config)', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply();
+        };
+
+        var server = new Hapi.Server();
+        server.state('a', { failAction: 'ignore', encoding: 'base64json', clearInvalid: true });
+        server.route({ path: '/', method: 'GET', handler: handler });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+            done();
+        });
+    });
+
     it('sets cookie value automatically', function (done) {
 
         var server = new Hapi.Server();
