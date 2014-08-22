@@ -2713,7 +2713,7 @@ exports.register = function (plugin, options, next) {
     };
 
     plugin.bind(bind);
-    plugin.route({ method: 'GET', path: '/', handler: internals.handler });
+    plugin.route({ method: 'GET', path: '/', handler: handler });
     next();
 };
 ```
