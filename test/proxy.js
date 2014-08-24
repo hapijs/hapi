@@ -1312,5 +1312,23 @@ describe('Proxy', function () {
             done();
         });
     });
+
+    it('allows passing in an agent through to Wreck', { parallel: false }, function (done) {
+
+        var server = new Hapi.Server();
+        var requestFn = Wreck.request;
+        var agent = { name : 'myagent' };
+
+        Wreck.request = function (method, url, options, cb) {
+
+            Wreck.request = requestFn;
+            expect(options.agent).to.equal(agent);
+            done();
+
+        };
+        server.route({ method: 'GET', path: '/agenttest', handler: { proxy: { uri: 'http://localhost', agent: agent} } });
+        server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) { });
+    });
+
 });
 
