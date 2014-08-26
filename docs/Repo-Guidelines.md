@@ -8,7 +8,7 @@ Every [hapijs](https://github.com/hapijs) repository should make generous use of
 
 - `breaking change` - tag issues and pull requests with this change if, when the code is merged, it will cause a breaking change in the current version. `breaking change` issues should be attached to the appropriate milestone.
 - `bug` - issues that have been *confirmed* (with reproducible steps) to be bugs in the code should be tagged with `bug`.
-- `community ask` - issues where the hapijs team is actively requesting community feedback should be tagged with `community ask`. Issues like, "who is using hapi" or "should this module be renamed" are recent examples of `community ask` issues.
+- `community ask` - issues where the hapijs team is actively requesting community feedback should be tagged with `community ask`. Issues like, [who is using hapi](https://github.com/hapijs/hapi/issues/1613) or [the joi bug hunt](https://github.com/hapijs/joi/issues/281) are recent examples of `community ask` issues.
 - `dependency` - if the issue or pull request addresses a dependency issue, it should have the `dependency` tag. Any module that is running in production should have a version >= 1.0.0 and all of it's dependencies should follow suite.
 - `discussion` - this tag gets applied to issues that are ideas or requests from the community that need active input from other community members and possibly the Lead Maintainer.
 - `enhancement` - non-breaking changes that would generally require a bump in the minor version number.
@@ -16,7 +16,7 @@ Every [hapijs](https://github.com/hapijs) repository should make generous use of
 - `question` - generic label for user questions.
 - `release notes` - if the changes to a module are really broad, a new issue should be created and labeled with `release notes`. The issue should document what the changes are, how it impacts existing code and how to migrate to the next version.
 - `request` - issues that are asking for specific changes and have been approved by the community or hapijs team, should have the `request` label applied to them. This label can be useful for people looking for ways to contribute to the hapijs ecosystem.
-- `security` - issues that have any impact on security either improving existing or fixing an existing security deficiency.
+- `security` - issues that improve or fix existing security deficiencies should be labeled with `security`.
 
 ## Milestones
 
@@ -26,10 +26,10 @@ Milestones are used to keep track of future releases. Both issues and pull reque
 
 In the [hapijs](https://github.com/hapijs) universe, we take releases very seriously because we are maintaining enterprise-grade software. We strictly adhere to [semantic versioning](http://semver.org/) for all versions. When a milestone is completed, the Lead Maintainer will go through the following steps:
 
-1. Make sure the local master branch is 100% up to date with `upstream:master`
-2. Run `npm publish` in the command line to update the npm registry
-3. Tag the version just published to npm. Run `git tag -a vx.y.z -m "version x.y.z”` where `x.y.z` matches the `version` key in `upstream:master`/"package.json" file. The format of the tag and the message should match exactly as in the example.
-4. Update the tags in the `upstream` remote via `git push upstream --tags`
+1. Make sure the local master branch is 100% up to date with `upstream:master`.
+2. Run `npm publish` in the command line to update the npm registry.
+3. Tag the version just published to npm. Run `git tag -a vx.y.z -m "version x.y.z"` where `x.y.z` matches the `version` key in "package.json". The format of the tag and the message should match exactly as in the example.
+4. Update the tags in the `upstream` remote via `git push upstream --tags`.
 
 ## Issues
 
@@ -41,13 +41,13 @@ Be mindful when closing issues as it is one of the primary ways we, as an organi
 
 ## Retiring
 
-Sometimes one of the [hapijs](https://github.com/hapijs) modules becomes severely outdated or obsolete. At that time, the team will decide the next steps to take with the module. If the team has decided that the module is no longer useful, it will be immediately retired. If the module is still useful by the general community, a request for a new maintainer will be sent through the normal communication channels. If no one volunteers to take over the project after one week, it is retired.
+Sometimes one of the [hapijs](https://github.com/hapijs) modules becomes outdated or obsolete. At that time, the team will decide the next steps to take with the module. If the team has decided that the module is no longer useful, it will be immediately retired. If the module is still useful by the general community, a request for a new maintainer will be sent through the normal communication channels. If no one volunteers to take over the project after one week, it is retired.
 
-If a new maintainer does volunteer, the repository ownership is transfered out of the hapijs to the new maintainer. The license must be updated to remove any mention of Walmart or hapijs.
+If a new maintainer does volunteer, the repository ownership is transfered out of the hapijs organization to the new maintainer. The license must be updated to remove any mention of Walmart or hapijs.
 
 ### Steps to Retire
-1. README.md is updated with the "Retired" image and the message "No longer being maintained" and a link to the last versions' README.md.
-2. Close and tag (with "deprecated") all open issues. Disable issues globally in the repository settings.
+1. "README.md" is updated with the "Retired" image and the message "No longer being maintained". A link should also be added that points to the last version's "README.md".
+2. Tag all open issues with the "deprecated" tag and then close them. Disable issues globally in the repository settings.
 3. Bump the minor version of the module in "package.json".
-4. The Lead Maintainer should then follow the steps for [releases](#releases)
-5. Finally the Lead Maintainer should issue an `npm deprecate` command and deprecate all versions of the module and provide an informative message.
+4. The Lead Maintainer should then follow the steps for [releases](#releases).
+5. The Lead Maintainer should issue an `npm deprecate` command and deprecate all versions of the module.
