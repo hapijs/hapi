@@ -1313,6 +1313,27 @@ describe('Server', function () {
             });
         });
 
+        it('handles server handler timeout with onPreResponse ext', function (done) {
+
+            var handler = function (request, reply) {
+
+                setTimeout(reply, 20);
+            };
+
+            var serverExt = new Hapi.Server({ timeout: { server: 10 } });
+            serverExt.route({ method: 'GET', path: '/', config: { handler: handler } });
+            serverExt.ext('onPreResponse', function (request, next) {
+
+                next();
+            });
+
+            serverExt.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                done();
+            });
+        });
+
         it('does not return an error response when server is slow but faster than timeout', function (done) {
 
             var server = new Hapi.Server({ timeout: { server: 50 } });
