@@ -2946,16 +2946,19 @@ Adds a plugin to the selected pack's servers as described in [`pack.register()`]
 
 ```javascript
 exports.register = function (plugin, options, next) {
+
     plugin.register({
         plugin: require('plugin_name'),
         options: {
             message: 'hello'
         }
     }, function (err) {
+
         if (err) {
             console.log('Failed loading plugin');
         }
     });
+
     next();
 };
 ```
