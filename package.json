@@ -50,7 +50,8 @@
     "hapi": "./bin/hapi"
   },
   "scripts": {
-    "test": "make test-cov"
+    "test": "make test-cov",
+    "test-tap": "make test-tap"
   },
   "licenses": [
     {
