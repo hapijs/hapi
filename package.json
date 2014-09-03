@@ -27,7 +27,7 @@
     "items": "1.x.x",
     "joi": "^4.4.x",
     "kilt": "^1.1.x",
-    "wreck": "4.x.x",
+    "wreck": "5.x.x",
     "shot": "1.x.x",
     "statehood": "1.x.x",
     "topo": "1.x.x",
