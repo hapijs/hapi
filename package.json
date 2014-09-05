@@ -27,18 +27,17 @@
     "items": "1.x.x",
     "joi": "^4.4.x",
     "kilt": "^1.1.x",
-    "wreck": "3.x.x",
-    "shot": "1.x.x",
-    "statehood": "1.x.x",
-    "topo": "1.x.x",
-    "qs": "2.x.x",
-
     "lru-cache": "2.5.x",
-    "mime-types": "1.0.x",
+    "mime-db": "^1.x.x",
     "multiparty": "3.2.x",
     "negotiator": "0.4.x",
     "optimist": "0.6.x",
-    "semver": "2.3.x"
+    "qs": "2.x.x",
+    "semver": "2.3.x",
+    "shot": "1.x.x",
+    "statehood": "1.x.x",
+    "topo": "1.x.x",
+    "wreck": "3.x.x"
   },
   "devDependencies": {
     "lab": "4.x.x",
