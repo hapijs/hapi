@@ -1343,5 +1343,67 @@ describe('Proxy', function () {
         server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) { });
     });
 
+    it('removes cookie from whitelist when passed as a string', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var on = function (err, res, request, reply, settings, ttl) {
+
+                expect(request.headers.cookie).to.equal('first=cookie');
+                reply(res);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: on, whitelist: 'first' } } });
+
+            server.inject({ url: '/', headers: { cookie: 'first=cookie; second=cookie'} }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+    });
+
+    it('removes cookie from whitelist when passed an array', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var on = function (err, res, request, reply, settings, ttl) {
+                expect(request.headers.cookie).to.equal('first=cookie; second=cookie')
+                reply(res);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: on, whitelist: ['first', 'second'] } } });
+            server.inject({ url: '/', headers: { cookie: 'first=cookie; second=cookie; third=cookie'} }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+    });
+
+    it('does not proxy cookies', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var on = function (err, res, request, reply, settings, ttl) {
+                expect(request.headers.cookie).to.not.exist;
+                reply(res);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: on } } });
+            server.inject({ url: '/', headers: { cookie: 'first=cookie; second=cookie; third=cookie'} }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+    });
+
 });
 
