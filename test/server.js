@@ -513,12 +513,17 @@ describe('Server', function () {
         done();
     });
 
-    it('defaults to 0.0.0.0 when no host is provided', function (done) {
+    it('defaults to 0.0.0.0 or :: when no host is provided', function (done) {
 
         var server = new Hapi.Server(0);
         server.start(function () {
 
-            expect(server.info.host).to.equal('0.0.0.0');
+            var expectedBoundAddress = '0.0.0.0';
+            if (Net.isIPv6(server.listener.address().address)) {
+                expectedBoundAddress = '::';
+            }
+
+            expect(server.info.host).to.equal(expectedBoundAddress);
             done();
         });
     });
@@ -728,7 +733,12 @@ describe('Server', function () {
             var server = new Hapi.Server(0);
             server.start(function () {
 
-                expect(server.info.host).to.equal('0.0.0.0');
+                var expectedBoundAddress = '0.0.0.0';
+                if (Net.isIPv6(server.listener.address().address)) {
+                    expectedBoundAddress = '::';
+                }
+
+                expect(server.info.host).to.equal(expectedBoundAddress);
                 expect(server.info.port).to.not.equal(0);
                 server.stop();
                 done();
@@ -1304,6 +1314,27 @@ describe('Server', function () {
             serverExt.ext('onRequest', function (request, next) {
 
                 setTimeout(next, 10);
+            });
+
+            serverExt.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                done();
+            });
+        });
+
+        it('handles server handler timeout with onPreResponse ext', function (done) {
+
+            var handler = function (request, reply) {
+
+                setTimeout(reply, 20);
+            };
+
+            var serverExt = new Hapi.Server({ timeout: { server: 10 } });
+            serverExt.route({ method: 'GET', path: '/', config: { handler: handler } });
+            serverExt.ext('onPreResponse', function (request, next) {
+
+                next();
             });
 
             serverExt.inject('/', function (res) {

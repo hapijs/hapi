@@ -1,5 +1,6 @@
 // Load modules
 
+var Net = require('net');
 var Lab = require('lab');
 var Fs = require('fs');
 var Http = require('http');
@@ -654,7 +655,13 @@ describe('Proxy', function () {
 
                     expect(res.statusCode).to.equal(200);
                     var result = JSON.parse(body);
-                    expect(result['x-forwarded-for']).to.equal('127.0.0.1');
+
+                    var expectedClientAddress = '127.0.0.1';
+                    if (Net.isIPv6(server.listener.address().address)) {
+                        expectedClientAddress = '::ffff:127.0.0.1';
+                    }
+
+                    expect(result['x-forwarded-for']).to.equal(expectedClientAddress);
                     expect(result['x-forwarded-port']).to.match(/\d+/);
                     expect(result['x-forwarded-proto']).to.equal('http');
 
@@ -697,7 +704,13 @@ describe('Proxy', function () {
 
                     expect(res.statusCode).to.equal(200);
                     var result = JSON.parse(body);
-                    expect(result['x-forwarded-for']).to.equal('testhost,127.0.0.1');
+
+                    var expectedClientAddress = '127.0.0.1';
+                    if (Net.isIPv6(server.listener.address().address)) {
+                        expectedClientAddress = '::ffff:127.0.0.1';
+                    }
+
+                    expect(result['x-forwarded-for']).to.equal('testhost,' + expectedClientAddress);
                     expect(result['x-forwarded-port']).to.match(/1337\,\d+/);
                     expect(result['x-forwarded-proto']).to.equal('https,http');
 

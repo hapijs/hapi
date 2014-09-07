@@ -1,4 +1,4 @@
-# 6.6.x API Reference
+# 6.7.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -449,7 +449,7 @@ The following options are available when adding a route:
           `function(err, res, request, reply, settings, ttl)` where:
               - `err` - internal or upstream error returned from attempting to contact the upstream proxy.
               - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
-                [**nipple**](https://github.com/hapijs/nipple) module `read` method to easily convert it to a Buffer or string).
+                [**wreck**](https://github.com/hapijs/wreck) module `read` method to easily convert it to a Buffer or string).
               - `request` - is the incoming `request` object.
               - `reply()` - the continuation function.
               - `settings` - the proxy handler configuration.
@@ -1654,7 +1654,7 @@ server.ext('onRequest', function (request, reply) {
 
 When calling `reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
 This enables making changes to the returned response object before the response is sent. This means the router will resume as soon as the handler
-method exists. To suspend this behavior, the returned `response` object includes:
+method exits. To suspend this behavior, the returned `response` object includes:
 
 - `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `reply()` is called and until
   `response.hold()` is invoked once.
