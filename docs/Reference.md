@@ -2952,14 +2952,7 @@ exports.register = function (plugin, options, next) {
         options: {
             message: 'hello'
         }
-    }, function (err) {
-
-        if (err) {
-            console.log('Failed loading plugin');
-        }
-    });
-
-    next();
+    }, next);
 };
 ```
 
