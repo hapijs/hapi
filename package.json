@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "boom": "^2.4.x",
-    "catbox": "^3.1.x",
+    "catbox": "^3.2.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
     "hoek": "^2.3.x",
