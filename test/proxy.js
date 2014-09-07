@@ -1343,5 +1343,47 @@ describe('Proxy', function () {
         server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) { });
     });
 
+    it('removes cookie from blacklist when passed as a string', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var on = function (err, res, request, reply, settings, ttl) {
+
+                expect(request.headers.cookie).to.equal('second=cookie');
+                reply(res);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: on, blacklist: 'first' } } });
+
+            server.inject({ url: '/', headers: { cookie: 'first=cookie; second=cookie'} }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+    });
+
+    it('removes cookie from blacklist when passed an array', function (done) {
+
+        var upstream = new Hapi.Server(0);
+        upstream.start(function () {
+
+            var on = function (err, res, request, reply, settings, ttl) {
+                expect(request.headers.cookie).to.equal('second=cookie; third=cookie')
+                reply(res);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, onResponse: on, blacklist: ['first'] } } });
+            server.inject({ url: '/', headers: { cookie: 'first=cookie; second=cookie; third=cookie'} }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+    });
+
 });
 
