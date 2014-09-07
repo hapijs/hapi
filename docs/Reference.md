@@ -2164,11 +2164,12 @@ var handler = function (request, reply) {
 
 ## `Hapi.Pack`
 
-`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide a unified object
-interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack enables treating them as a single
-entity which can start and stop in sync, as well as enable sharing routes and other facilities. For example, a Single Page Application (SPA)
-often requires a web component and an API component running as two servers using distinct ports; pack consolidates the servers in one plugin
-which allows easy management.
+`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide
+a unified object interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack
+enables treating them as a single entity which can start and stop in sync, as well as enable sharing routes and other
+facilities. For example, a Single Page Application (SPA) often requires a web component and an API component running as two
+servers using distinct ports. Another common example is when plugins register both public routes as well as internal admin
+routes, each on a different port but setup in a single plugin.
 
 The servers in a pack share the same cache. Every server belongs to a pack, even if created directed via
 [`new Server()`](#new-serverhost-port-options), in which case the `server.pack` object is automatically assigned a single-server pack.
