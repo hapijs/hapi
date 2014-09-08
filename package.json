@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "6.7.1",
+  "version": "6.8.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -29,7 +29,7 @@
     "kilt": "^1.1.x",
     "wreck": "3.x.x",
     "shot": "1.x.x",
-    "statehood": "1.x.x",
+    "statehood": "^1.2.x",
     "topo": "1.x.x",
     "qs": "2.x.x",
 
