@@ -163,6 +163,8 @@
 
 #### Newlines
 
+  - all files need to end with a newline (or more accurately end of line).  IDEs will often do a line separator instead.  This is to ensure it is unix friendly.  The "cat" command is a good example of seeing this behavior.  Git does a good job of pointing these out when doing pull requests.  
+
   - Two empty lines between module functions or assignments (end of function to comment about next function)
   ```javascript
   exports.get = function () {
