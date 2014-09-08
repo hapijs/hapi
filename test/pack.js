@@ -1279,7 +1279,7 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                plugin.method('log', function () { });
+                plugin.method('log', function (methodNext) { return methodNext(null); });
                 return next();
             }
         };
@@ -1300,7 +1300,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.bind({ x: 1 });
-                plugin.method('log', function () { return this.x; });
+                plugin.method('log', function (methodNext) { return methodNext(null, this.x); });
                 return next();
             }
         };
@@ -1308,8 +1308,11 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            expect(server.methods.log()).to.equal(1);
-            done();
+            server.methods.log(function (err, result) {
+
+                expect(result).to.equal(1);
+                done();
+            });
         });
     });
 
@@ -1321,7 +1324,7 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
+                plugin.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
                 return next();
             }
         };
@@ -1329,8 +1332,11 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            expect(server.methods.log()).to.equal(2);
-            done();
+            server.methods.log(function (err, result) {
+
+                expect(result).to.equal(2);
+                done();
+            });
         });
     });
 
@@ -1343,7 +1349,7 @@ describe('Pack', function () {
             register: function (plugin, options, next) {
 
                 plugin.bind({ x: 1 });
-                plugin.method('log', function () { return this.x; }, { bind: { x: 2 } });
+                plugin.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
                 return next();
             }
         };
@@ -1351,8 +1357,11 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist;
-            expect(server.methods.log()).to.equal(2);
-            done();
+            server.methods.log(function (err, result) {
+
+                expect(result).to.equal(2);
+                done();
+            });
         });
     });
 

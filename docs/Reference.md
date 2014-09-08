@@ -1166,7 +1166,7 @@ Methods are registered via `server.method(name, fn, [options])` where:
   for the previous example via `server.methods.utils.users.get`.
 - `fn` - the method function with the signature is `function(arg1, arg2, ..., argn, next)` where:
     - `arg1`, `arg2`, etc. - the method function arguments.
-    - `next` - the function called when the method is done with the signature `function(err, result, isUncacheable)` where:
+    - `next` - the function called when the method is done with the signature `function(err, result, ttl)` where:
         - `err` - error response if the method failed.
         - `result` - the return value.
         - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
