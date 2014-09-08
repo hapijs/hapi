@@ -341,14 +341,20 @@ describe('Request', function () {
 
     it('request has client address', function (done) {
 
+        var server = new Hapi.Server(0);
+
         var handler = function (request, reply) {
 
-            expect(request.info.remoteAddress).to.equal('127.0.0.1');
+            var expectedClientAddress = '127.0.0.1';
+            if (Net.isIPv6(server.listener.address().address)) {
+                expectedClientAddress = '::ffff:127.0.0.1';
+            }
+
+            expect(request.info.remoteAddress).to.equal(expectedClientAddress);
             expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
             reply('ok');
         };
 
-        var server = new Hapi.Server(0);
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.start(function () {

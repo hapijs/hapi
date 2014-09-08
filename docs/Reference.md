@@ -1,4 +1,4 @@
-# 6.7.x API Reference
+# 6.8.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -424,6 +424,10 @@ The following options are available when adding a route:
             - `'https'`
         - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
+        - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming requests before being passed upstream. This is
+          a security feature to prevent local state (e.g. authentication cookies) from leaking upstream to other servers along with the cookies intended
+          for those servers. This value can be overridden on a per state basis via the [`server.state()`](#serverstatename-options) `passThrough` option.
+          Defaults to `true` (for backwards compatibility; will be changed in the next major release).
         - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header which is useful when using an `onResponse` post-processing
           to avoid receiving an encoded response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true` (passing header).
         - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
@@ -450,7 +454,7 @@ The following options are available when adding a route:
           `function(err, res, request, reply, settings, ttl)` where:
               - `err` - internal or upstream error returned from attempting to contact the upstream proxy.
               - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
-                [**nipple**](https://github.com/hapijs/nipple) module `read` method to easily convert it to a Buffer or string).
+                [**wreck**](https://github.com/hapijs/wreck) module `read` method to easily convert it to a Buffer or string).
               - `request` - is the incoming `request` object.
               - `reply()` - the continuation function.
               - `settings` - the proxy handler configuration.
@@ -934,6 +938,7 @@ can be registered with the server using the `server.state()` method, where:
     - `failAction` - overrides the default server `state.cookies.failAction` setting.
     - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
     - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
+    - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
 
 ```javascript
 // Set cookie definition
@@ -1655,7 +1660,7 @@ server.ext('onRequest', function (request, reply) {
 
 When calling `reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
 This enables making changes to the returned response object before the response is sent. This means the router will resume as soon as the handler
-method exists. To suspend this behavior, the returned `response` object includes:
+method exits. To suspend this behavior, the returned `response` object includes:
 
 - `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `reply()` is called and until
   `response.hold()` is invoked once.
@@ -2165,9 +2170,12 @@ var handler = function (request, reply) {
 
 ## `Hapi.Pack`
 
-`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide a unified object
-interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack enables treating them as a single
-entity which can start and stop in sync, as well as enable sharing routes and other facilities.
+`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide
+a unified object interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack
+enables treating them as a single entity which can start and stop in sync, as well as enable sharing routes and other
+facilities. For example, a Single Page Application (SPA) often requires a web component and an API component running as two
+servers using distinct ports. Another common example is when plugins register both public routes as well as internal admin
+routes, each on a different port but setup in a single plugin.
 
 The servers in a pack share the same cache. Every server belongs to a pack, even if created directed via
 [`new Server()`](#new-serverhost-port-options), in which case the `server.pack` object is automatically assigned a single-server pack.
@@ -2938,6 +2946,22 @@ exports.register = function (plugin, options, next) {
     });
 
     next();
+};
+```
+
+#### `plugin.register(plugins, [options], callback)`
+
+Adds a plugin to the selected pack's servers as described in [`pack.register()`](#packregisterplugins-options-callback).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.register({
+        plugin: require('plugin_name'),
+        options: {
+            message: 'hello'
+        }
+    }, next);
 };
 ```
 
