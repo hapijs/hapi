@@ -1,4 +1,4 @@
-# 6.7.x API Reference
+# 6.8.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -424,6 +424,10 @@ The following options are available when adding a route:
             - `'https'`
         - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
+        - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming requests before being passed upstream. This is
+          a security feature to prevent local state (e.g. authentication cookies) from leaking upstream to other servers along with the cookies intended
+          for those servers. This value can be overridden on a per state basis via the [`server.state()`](#serverstatename-options) `passThrough` option.
+          Defaults to `true` (for backwards compatibility; will be changed in the next major release).
         - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header which is useful when using an `onResponse` post-processing
           to avoid receiving an encoded response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true` (passing header).
         - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
@@ -933,6 +937,7 @@ can be registered with the server using the `server.state()` method, where:
     - `failAction` - overrides the default server `state.cookies.failAction` setting.
     - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
     - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
+    - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
 
 ```javascript
 // Set cookie definition
