@@ -1330,7 +1330,7 @@ describe('Proxy', function () {
 
         var server = new Hapi.Server();
         var requestFn = Wreck.request;
-        var agent = { name : 'myagent' };
+        var agent = { name: 'myagent' };
 
         Wreck.request = function (method, url, options, cb) {
 
@@ -1339,9 +1339,100 @@ describe('Proxy', function () {
             done();
 
         };
-        server.route({ method: 'GET', path: '/agenttest', handler: { proxy: { uri: 'http://localhost', agent: agent} } });
+        server.route({ method: 'GET', path: '/agenttest', handler: { proxy: { uri: 'http://localhost', agent: agent } } });
         server.inject({ method: 'GET', url: '/agenttest', headers: {} }, function (res) { });
     });
 
+    it('excludes request cookies defined locally', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.state);
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: handler });
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+            server.state('a');
+
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
+
+            server.inject({ url: '/', headers: { cookie: 'a=1;b=2' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                var cookies = JSON.parse(res.payload);
+                expect(cookies).to.deep.equal({ b: '2' });
+                done();
+            });
+        });
+    });
+
+    it('includes request cookies defined locally', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.state);
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: handler });
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+            server.state('a', { passThrough: true });
+
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
+
+            server.inject({ url: '/', headers: { cookie: 'a=1;b=2' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                var cookies = JSON.parse(res.payload);
+                expect(cookies).to.deep.equal({ a: '1', b: '2' });
+                done();
+            });
+        });
+    });
+
+    it('errors on invalid cookie header', function (done) {
+
+        var server = new Hapi.Server();
+        server.state('a', { passThrough: true });
+
+        server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: 8080, passThrough: true } } });
+
+        server.inject({ url: '/', headers: { cookie: 'a' } }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
+
+    it('drops cookies when all defined locally', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply(request.state);
+        };
+
+        var upstream = new Hapi.Server(0);
+        upstream.route({ method: 'GET', path: '/', handler: handler });
+        upstream.start(function () {
+
+            var server = new Hapi.Server();
+            server.state('a');
+
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
+
+            server.inject({ url: '/', headers: { cookie: 'a=1' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                var cookies = JSON.parse(res.payload);
+                expect(cookies).to.deep.equal({});
+                done();
+            });
+        });
+    });
 });
 
