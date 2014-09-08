@@ -2943,6 +2943,22 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
+#### `plugin.register(plugins, [options], callback)`
+
+Adds a plugin to the selected pack's servers as described in [`pack.register()`](#packregisterplugins-options-callback).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.register({
+        plugin: require('plugin_name'),
+        options: {
+            message: 'hello'
+        }
+    }, next);
+};
+```
+
 #### `plugin.dependency(deps, [after])`
 
 Declares a required dependency upon other plugins where:
