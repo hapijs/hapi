@@ -261,7 +261,7 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 
-- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use node.js default value.
+- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use the [wreck](https://www.npmjs.org/package/wreck) default value (`Infinity`).
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
 - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
@@ -432,7 +432,8 @@ The following options are available when adding a route:
           to avoid receiving an encoded response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true` (passing header).
         - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
           making the request. This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js `rejectUnauthorized` property.
-          If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.
+          If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.  This
+          shouldn't be used alongside the `agent` setting as the `agent` will be used instead.
           Defaults to the https agent default value of `true`.
         - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
           proxied upstream endpoint. Defaults to `false`.
