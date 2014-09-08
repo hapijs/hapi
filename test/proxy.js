@@ -1397,7 +1397,7 @@ describe('Proxy', function () {
 
     it('errors on invalid cookie header', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Server({ state: { cookies: { failAction: 'ignore' } } });
         server.state('a', { passThrough: true });
 
         server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: 8080, passThrough: true } } });
