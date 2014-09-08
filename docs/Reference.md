@@ -1,4 +1,4 @@
-# 6.7.x API Reference
+# 6.8.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -261,7 +261,7 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 
-- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use node.js default value.
+- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use the [wreck](https://www.npmjs.org/package/wreck) default value (`Infinity`).
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
 - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
@@ -424,11 +424,16 @@ The following options are available when adding a route:
             - `'https'`
         - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
         - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
+        - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming requests before being passed upstream. This is
+          a security feature to prevent local state (e.g. authentication cookies) from leaking upstream to other servers along with the cookies intended
+          for those servers. This value can be overridden on a per state basis via the [`server.state()`](#serverstatename-options) `passThrough` option.
+          Defaults to `true` (for backwards compatibility; will be changed in the next major release).
         - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header which is useful when using an `onResponse` post-processing
           to avoid receiving an encoded response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true` (passing header).
         - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
           making the request. This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js `rejectUnauthorized` property.
-          If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.
+          If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.  This
+          shouldn't be used alongside the `agent` setting as the `agent` will be used instead.
           Defaults to the https agent default value of `true`.
         - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
           proxied upstream endpoint. Defaults to `false`.
@@ -933,6 +938,7 @@ can be registered with the server using the `server.state()` method, where:
     - `failAction` - overrides the default server `state.cookies.failAction` setting.
     - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
     - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
+    - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
 
 ```javascript
 // Set cookie definition
@@ -1161,7 +1167,7 @@ Methods are registered via `server.method(name, fn, [options])` where:
   for the previous example via `server.methods.utils.users.get`.
 - `fn` - the method function with the signature is `function(arg1, arg2, ..., argn, next)` where:
     - `arg1`, `arg2`, etc. - the method function arguments.
-    - `next` - the function called when the method is done with the signature `function(err, result, isUncacheable)` where:
+    - `next` - the function called when the method is done with the signature `function(err, result, ttl)` where:
         - `err` - error response if the method failed.
         - `result` - the return value.
         - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
@@ -2164,9 +2170,12 @@ var handler = function (request, reply) {
 
 ## `Hapi.Pack`
 
-`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide a unified object
-interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack enables treating them as a single
-entity which can start and stop in sync, as well as enable sharing routes and other facilities.
+`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide
+a unified object interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack
+enables treating them as a single entity which can start and stop in sync, as well as enable sharing routes and other
+facilities. For example, a Single Page Application (SPA) often requires a web component and an API component running as two
+servers using distinct ports. Another common example is when plugins register both public routes as well as internal admin
+routes, each on a different port but setup in a single plugin.
 
 The servers in a pack share the same cache. Every server belongs to a pack, even if created directed via
 [`new Server()`](#new-serverhost-port-options), in which case the `server.pack` object is automatically assigned a single-server pack.
@@ -2937,6 +2946,22 @@ exports.register = function (plugin, options, next) {
     });
 
     next();
+};
+```
+
+#### `plugin.register(plugins, [options], callback)`
+
+Adds a plugin to the selected pack's servers as described in [`pack.register()`](#packregisterplugins-options-callback).
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.register({
+        plugin: require('plugin_name'),
+        options: {
+            message: 'hello'
+        }
+    }, next);
 };
 ```
 

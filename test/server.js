@@ -513,12 +513,17 @@ describe('Server', function () {
         done();
     });
 
-    it('defaults to 0.0.0.0 when no host is provided', function (done) {
+    it('defaults to 0.0.0.0 or :: when no host is provided', function (done) {
 
         var server = new Hapi.Server(0);
         server.start(function () {
 
-            expect(server.info.host).to.equal('0.0.0.0');
+            var expectedBoundAddress = '0.0.0.0';
+            if (Net.isIPv6(server.listener.address().address)) {
+                expectedBoundAddress = '::';
+            }
+
+            expect(server.info.host).to.equal(expectedBoundAddress);
             done();
         });
     });
@@ -728,7 +733,12 @@ describe('Server', function () {
             var server = new Hapi.Server(0);
             server.start(function () {
 
-                expect(server.info.host).to.equal('0.0.0.0');
+                var expectedBoundAddress = '0.0.0.0';
+                if (Net.isIPv6(server.listener.address().address)) {
+                    expectedBoundAddress = '::';
+                }
+
+                expect(server.info.host).to.equal(expectedBoundAddress);
                 expect(server.info.port).to.not.equal(0);
                 server.stop();
                 done();

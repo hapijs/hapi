@@ -753,5 +753,36 @@ describe('Handler', function () {
             done();
         });
     });
+
+    it('logs server method using string notation', function (done) {
+
+        var server = new Hapi.Server();
+
+        server.method('user', function (id, next) {
+
+            return next(null, { id: id, name: 'Bob' });
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/user/{id}',
+            config: {
+                pre: [
+                    'user(params.id)'
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.getLog('method'));
+                }
+            }
+        });
+
+        server.inject('/user/5', function (res) {
+
+            expect(res.result[0].tags).to.deep.equal(['hapi', 'pre', 'method', 'user']);
+            expect(res.result[0].data.msec).to.exist;
+            done();
+        });
+    });
 });
 
