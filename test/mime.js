@@ -22,22 +22,44 @@ describe('Mime', function () {
 
         it('returns the mime type from a file path', function (done) {
 
-            var result = Mime.path('/static/javascript/app.js');
-
-            expect(result).deep.equal({
+            expect(Mime.path('/static/javascript/app.js')).deep.equal({
                 source: 'iana',
                 charset: 'UTF-8',
                 compressible: true,
-                extensions: [ 'js' ],
+                extensions: ['js'],
                 type: 'application/javascript'
             });
             done();
         });
 
-        it('returns false if a match can not be found', function (done) {
+        it('returns empty object if a match can not be found', function (done) {
 
-            var result = Mime.path('/static/javascript');
-            expect(result).to.deep.equal({});
+            expect(Mime.path('/static/javascript')).to.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#type', function () {
+
+        it('returns a found type', function (done) {
+
+            expect(Mime.type('text/plain')).to.deep.equal({
+                source: 'iana',
+                compressible: true,
+                extensions: ['txt', 'text', 'conf', 'def', 'list', 'log', 'in', 'ini'],
+                type: 'text/plain'
+            });
+            done();
+        });
+
+        it('returns a missing type', function (done) {
+
+            expect(Mime.type('hapi/test')).to.deep.equal({
+                source: 'hapi',
+                compressible: false,
+                extensions: [],
+                type: 'hapi/test'
+            });
             done();
         });
     });

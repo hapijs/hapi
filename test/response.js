@@ -1876,6 +1876,26 @@ describe('Response', function () {
             });
         });
 
+        it('returns a plain file when not compressible', function (done) {
+
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+            var handler = function (request, reply) {
+
+                reply.file(__dirname + '/file/image.png');
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.headers['content-type']).to.equal('image/png');
+                expect(res.headers['content-encoding']).to.not.exist;
+                expect(res.headers['content-length']).to.equal(42010);
+                expect(res.payload).to.exist;
+                done();
+            });
+        });
+
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: __dirname } });
@@ -1919,33 +1939,6 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/file/note.txt', lookupCompressed: true } } });
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
-
-                expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['content-length']).to.not.exist;
-                expect(res.payload).to.exist;
-                done();
-            });
-        });
-
-        it('ignores _hapi decoration when missing gzipped child', function (done) {
-
-            var handler = function (request, reply) {
-
-                var stream = new Stream.Readable();
-                stream._hapi = {};
-                stream._read = function (size) {
-
-                    this.push('ok');
-                    this.push(null);
-                };
-
-                reply(stream);
-            };
-
-            var server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: handler });
-
-            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.headers['content-encoding']).to.equal('gzip');
                 expect(res.headers['content-length']).to.not.exist;
