@@ -125,6 +125,32 @@ describe('Method', function () {
         done();
     });
 
+    it('calls non cached method multiple times', function (done) {
+
+        var gen = 0;
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var server = new Hapi.Server(0);
+        server.method('test', method);
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(1);
+                    done();
+                });
+            });
+        });
+    });
+
     it('reuses cached method value', function (done) {
 
         var gen = 0;
