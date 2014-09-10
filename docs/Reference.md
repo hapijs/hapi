@@ -1866,6 +1866,8 @@ var handler = function (request, reply) {
 };
 ```
 
+Changing to a permanent or non-rewriterable redirect is also available see [response object redirect](#response-object-redirect) for more information.
+
 ## Response object
 
 Every response includes the following properties:
@@ -1952,6 +1954,7 @@ When the value provided by `reply()` requires stringification before transmissio
 - `spaces(count)` - sets the `JSON.stringify()` `space` argument where:
     - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
 
+#### Response Object Redirect Methods
 When using the `redirect()` method, the response object provides these additional methods:
 
 - `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
