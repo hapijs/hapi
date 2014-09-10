@@ -1866,25 +1866,7 @@ var handler = function (request, reply) {
 };
 ```
 
-When using the `redirect()` method, the response object provides these additional methods:
-
-- `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
-    - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
-- `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()` setting) where:
-    - `isPermanent` - if `true`, sets status to temporary. Defaults to `false`.
-- `rewritable(isRewritable)` - sets the status code to `301`/`302` for rewritable (allows changing the request method from 'POST' to 'GET') or
-  `307`/`308` for non-rewritable (does not allow changing the request method from 'POST' to 'GET'). Exact code based on the `temporary()` or
-  `permanent()` setting. Arguments:
-    - `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
-
-|                |  Permanent | Temporary |
-| -------------- | ---------- | --------- |
-| Rewritable     | 301        | **302**(1)|
-| Non-rewritable | 308(2)     | 307       |
-
-Notes:
-1. Default value.
-2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
+Changing to a permanent or non-rewriterable redirect is also available see[response object redirect](#response-redirect) for more information.
 
 ## Response object
 
@@ -1972,6 +1954,7 @@ When the value provided by `reply()` requires stringification before transmissio
 - `spaces(count)` - sets the `JSON.stringify()` `space` argument where:
     - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
 
+### Response Object Redirect
 When using the `redirect()` method, the response object provides these additional methods:
 
 - `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
