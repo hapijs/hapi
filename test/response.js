@@ -1711,7 +1711,7 @@ describe('Response', function () {
             server.inject('/file', function (res1) {
 
                 var last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
-                server.inject({ url: '/file', headers: { 'if-modified-since': last.toString() } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers).to.not.have.property('content-length');
@@ -1780,6 +1780,19 @@ describe('Response', function () {
                         done();
                     });
                 });
+            });
+        });
+
+        it('returns valid http date responses in last-modified header', function (done) {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['last-modified']).to.equal(Fs.statSync(__dirname + '/../package.json').mtime.toUTCString());
+                done();
             });
         });
 
