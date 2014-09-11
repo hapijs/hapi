@@ -1,5 +1,43 @@
 
-## [**6.5.0**](https://github.com/hapijs/hapi/issues?milestone=111&state=open)
+## [**6.8.2**](https://github.com/hapijs/hapi/issues?milestone=119&state=open)
+- [**#1934**](https://github.com/hapijs/hapi/issues/1934) Fix non-spec compliant Last-Modified header in response
+- [**#1932**](https://github.com/hapijs/hapi/issues/1932) handle empty CORS expose-headers header response
+
+## [**6.8.1**](https://github.com/hapijs/hapi/issues?milestone=118&state=closed)
+- [**#1922**](https://github.com/hapijs/hapi/issues/1922) Handle server methods without cache as special case
+
+## [**6.8.0**](https://github.com/hapijs/hapi/issues?milestone=116&state=closed)
+- [**#1828**](https://github.com/hapijs/hapi/issues/1828) Disable compression on file types already compressed (png, jpg)
+- [**#1905**](https://github.com/hapijs/hapi/issues/1905) Replaced mime-type with mime.
+- [**#1889**](https://github.com/hapijs/hapi/issues/1889) Upgrade to wreck v5
+- [**#1919**](https://github.com/hapijs/hapi/issues/1919) Log method pre string notation
+- [**#1915**](https://github.com/hapijs/hapi/issues/1915) Issue/1911
+
+## [**6.7.1**](https://github.com/hapijs/hapi/issues?milestone=115&state=closed)
+- [**#1885**](https://github.com/hapijs/hapi/issues/1885) Handler timeout with onPreResponse asserts on bad protect
+
+## [**6.7.0**](https://github.com/hapijs/hapi/issues?milestone=114&state=closed)
+- [**#1884**](https://github.com/hapijs/hapi/issues/1884) Improve protect logging
+- [**#1881**](https://github.com/hapijs/hapi/issues/1881) update qs dependency
+
+## [**6.6.0**](https://github.com/hapijs/hapi/issues?milestone=113&state=closed)
+- [**#1863**](https://github.com/hapijs/hapi/issues/1863) Allow agent to be set on proxy options and passed into Nipple.
+- [**#1878**](https://github.com/hapijs/hapi/issues/1878) Rename private route members
+- [**#1877**](https://github.com/hapijs/hapi/issues/1877) Move state.js to statehood module
+- [**#1875**](https://github.com/hapijs/hapi/issues/1875) Session scope does not match one to many auth.scope on route.
+- [**#1871**](https://github.com/hapijs/hapi/issues/1871) Switch to wreck
+- [**#1856**](https://github.com/hapijs/hapi/issues/1856) Allow view options override on handler object
+- [**#1858**](https://github.com/hapijs/hapi/issues/1858) Fix typo in defaults.js
+
+## [**6.5.1**](https://github.com/hapijs/hapi/issues?milestone=112&state=closed)
+- [**#1857**](https://github.com/hapijs/hapi/issues/1857) Manifest validation tests server config before defaults applies
+
+## [**6.5.0**](https://github.com/hapijs/hapi/issues?milestone=111&state=closed)
+- [**#1851**](https://github.com/hapijs/hapi/issues/1851) Updated route documentation.
+- [**#1844**](https://github.com/hapijs/hapi/issues/1844) Replace async
+- [**#1842**](https://github.com/hapijs/hapi/issues/1842) Lab 4.00
+- [**#1840**](https://github.com/hapijs/hapi/issues/1840) No longer possible to load caches using CLI?
+- [**#1835**](https://github.com/hapijs/hapi/issues/1835) server.state ttl must be a number 
 - [**#1795**](https://github.com/hapijs/hapi/issues/1795) request.server._views in plugin
 - [**#1832**](https://github.com/hapijs/hapi/issues/1832) Replace mime with mime-type
 - [**#1822**](https://github.com/hapijs/hapi/issues/1822) Added joi validation to manifest.
