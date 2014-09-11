@@ -380,6 +380,25 @@ describe('Response', function () {
             });
         });
 
+        it('does not set empty CORS expose headers', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { exposedHeaders: [] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+                expect(res.result).to.exist;
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-methods']).to.exist;
+                expect(res.headers['access-control-expose-headers']).to.not.exist;
+                done();
+            });
+        });
+
         it('does not set security headers by default', function (done) {
 
             var handler = function (request, reply) {
