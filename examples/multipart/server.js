@@ -19,12 +19,13 @@ internals.write = function (request, reply) {
         var out = fs.createWriteStream(file.hapi.filename);
         file.pipe(out);
         file.on('end', function (err) { 
+
             reply('received ' + file.hapi.filename);
         });
-    } else {
+    } 
+    else {
         reply('no file received');
     }
-
 };
 
 
@@ -47,6 +48,5 @@ internals.main = function () {
     
     server.start();
 };
-
 
 internals.main();
