@@ -27,7 +27,7 @@ describe('Directory', function () {
     it('returns a 403 when no index exists and listing is disabled', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
-        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use './' to test path normalization
+        server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: '.' } } });      // Use '.' to test path normalization
 
         server.inject('/directory/', function (res) {
 
