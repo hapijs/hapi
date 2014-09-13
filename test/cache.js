@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Stream = require('stream');
+var Boom = require('boom');
 var Hapi = require('..');
 
 
@@ -21,34 +22,6 @@ var expect = Lab.expect;
 
 
 describe('Cache', function () {
-
-    it('returns max-age value when route uses default cache rules', function (done) {
-
-        var server = new Hapi.Server(0, { cache: [{ engine: require('catbox-memory'), name: 'secondary' }] });
-
-        server.method('profile', function (id, next) {
-
-            return next(null, {
-                'id': 'fa0dbda9b1b',
-                'name': 'John Doe'
-            });
-        }, { cache: { expiresIn: 120000 } });
-
-        var profileHandler = function (request, reply) {
-
-            server.methods.profile(0, reply);
-        };
-
-        server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
-        server.start(function () {
-
-            server.inject('/profile', function (res) {
-
-                expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
-                done();
-            });
-        });
-    });
 
     it('returns max-age value when route uses client cache mode', function (done) {
 
@@ -73,6 +46,27 @@ describe('Cache', function () {
             server.inject('/profile', function (res) {
 
                 expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+                server.stop();
+                done();
+            });
+        });
+    });
+
+    it('returns no-cache on error', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply(Boom.badRequest());
+        };
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
+        server.start(function () {
+
+            server.inject('/', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('no-cache');
+                server.stop();
                 done();
             });
         });
@@ -98,20 +92,8 @@ describe('Cache', function () {
         server.inject('/item2', function (res) {
 
             expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
+            server.stop();
             done();
-        });
-    });
-
-    it('does not send cache headers for responses with status codes other than 200', function (done) {
-
-        var server = new Hapi.Server(0);
-        server.start(function () {
-
-            server.inject('/nocache', function (res) {
-
-                expect(res.headers['cache-control']).to.equal('no-cache');
-                done();
-            });
         });
     });
 
@@ -142,6 +124,7 @@ describe('Cache', function () {
 
                             expect(err).to.not.exist;
                             expect(cached.item).to.equal(2);
+                            server.stop();
                             done();
                         });
                     });
@@ -166,7 +149,7 @@ describe('Cache', function () {
     it('allows allocating a cache segment with empty options', function (done) {
 
         var server = new Hapi.Server();
-        
+
         function fn() {
             server.cache('a', {});
         }

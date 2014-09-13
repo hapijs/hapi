@@ -163,7 +163,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns CORS origin', function (done) {
+        it('returns CORS origin (GET)', function (done) {
 
             var handler = function (request, reply) {
 
@@ -177,6 +177,24 @@ describe('Response', function () {
 
                 expect(res.result).to.exist;
                 expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
+                done();
+            });
+        });
+
+        it('returns CORS origin (OPTIONS)', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('ok');
+            };
+
+            var server = new Hapi.Server({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'options', url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
                 expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
                 done();
             });
