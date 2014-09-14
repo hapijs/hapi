@@ -1,4 +1,4 @@
-# 6.8.x API Reference
+# 6.9.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -1470,6 +1470,7 @@ Each request object has the following properties:
     - `remotePort` - remote client port.
     - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
     - `host` - content of the HTTP 'Host' header.
+    - `hostname` - the hostname part of the 'Host' header.
 - `method` - the request method in lower case (e.g. `'get'`, `'post'`).
 - `mime` - the parsed content-type header. Only available when payload parsing enabled and no payload error occurred.
 - `orig` - an object containing the values of `params`, `query`, and `payload` before any validation modifications made. Only set when
