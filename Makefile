@@ -1,5 +1,7 @@
 test:
 	@node node_modules/lab/bin/lab
+test-tap:
+	@node node_modules/lab/bin/lab -r tap -o tests.tap
 test-cov:
 	@node node_modules/lab/bin/lab -t 100
 test-cov-html:
