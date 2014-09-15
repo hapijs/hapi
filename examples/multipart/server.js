@@ -11,8 +11,9 @@ var internals = {};
 
 internals.write = function (request, reply) {
 
-    if (request.payload.user) 
+    if (request.payload.user) {
         console.log(request.payload.user + ' posted!');
+    }
 
     if (request.payload.file) {
         var file = request.payload.file;
