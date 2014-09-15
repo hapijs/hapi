@@ -1,6 +1,6 @@
 // Load modules
 
-var fs = require('fs');
+var Fs = require('fs');
 var Hapi = require('hapi');
 
 
@@ -17,7 +17,7 @@ internals.write = function (request, reply) {
 
     if (request.payload.file) {
         var file = request.payload.file;
-        var out = fs.createWriteStream(file.hapi.filename);
+        var out = Fs.createWriteStream(file.hapi.filename);
         file.pipe(out);
         file.on('end', function (err) { 
 
