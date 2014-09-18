@@ -1584,6 +1584,23 @@ describe('Response', function () {
             });
         });
 
+        it('returns a file in the response with the correct headers using custom mime type', function (done) {
+
+            var server = new Hapi.Server({ files: { relativeTo: __dirname } });
+            var handler = function (request, reply) {
+
+                reply.file('../bin/hapi').type('application/example');
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.inject('/file', function (res) {
+
+                expect(res.headers['content-type']).to.equal('application/example');
+                done();
+            });
+        });
+
         it('does not cache etags', function (done) {
 
             var server = new Hapi.Server({ files: { relativeTo: __dirname, etagsCacheMaxSize: 0 } });
