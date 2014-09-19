@@ -543,6 +543,21 @@ describe('Pack', function () {
         });
     });
 
+    it.only('registers a plugin with an empty route path prefix', function (done) {
+
+        var server = new Hapi.Server({ labels: 'test' });
+        server.pack.register(require('./pack/--test1'), { route: { prefix: '' } }, function (err) {
+
+            expect(server.plugins['--test1'].prefix).to.equal('');
+            expect(err).to.not.exist;
+            server.inject('/test1', function (res) {
+
+                expect(res.result).to.equal('testing123');
+                done();
+            });
+        });
+    });
+
     it('registers a plugin with route path prefix and plugin root route', function (done) {
 
         var a = {

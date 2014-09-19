@@ -2267,7 +2267,7 @@ Registers a plugin where:
 - `options` - optional registration options (used by **hapi** and is not passed to the plugin):
     - `select` - string or array of strings of labels to pre-select for plugin registration.
     - `route` - apply modifiers to any routes added by the plugin:
-        - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin registers a child plugin
+        - `prefix` - string added as prefix to any route path (must begin with `'/'` or an empty string). If a plugin registers a child plugin
           the `prefix` is passed on to the child or is added in front of the child-specific prefix.
         - `vhost` - virtual host string (or array of strings) applied to every route. The outter-most `vhost` overrides the any
           nested configuration.
