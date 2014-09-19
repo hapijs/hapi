@@ -112,6 +112,7 @@ describe('Views', function () {
             });
         });
 
+
         it('uses specified default ext', function (done) {
 
             var testView = new Views.Manager({
@@ -495,6 +496,48 @@ describe('Views', function () {
             });
         });
 
+        it('handles both custom and default contexts', function (done) {
+
+        	var options = {
+                views: {
+                    engines: { jade: require('jade') },
+                    path: __dirname + '/templates'
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            server.route({ method: 'GET', path: '/', handler: { view: { template: 'valid/testContext', context: { message: 'heyloo' } } } });
+            server.inject('/?test=yes', function (res) {
+
+                expect(res.result).to.contain('heyloo');
+                expect(res.result).to.contain('yes');
+                done();
+            });
+
+        });
+
+        it('overrides default contexts when provided with context of same name', function (done) {
+
+        	var options = {
+                views: {
+                    engines: { jade: require('jade') },
+                    path: __dirname + '/templates'
+                }
+            };
+
+            var server = new Hapi.Server(options);
+
+            server.route({ method: 'GET', path: '/', handler: { view: { template: 'valid/testContext', context: { message: 'heyloo', query: { test: 'no' } } } } });
+            server.inject('/?test=yes', function (res) {
+
+                expect(res.result).to.contain('heyloo');
+                expect(res.result).to.contain('no');
+                done();
+            });
+
+        });
+
         it('handles custom options', function (done) {
 
             var options = {
@@ -509,7 +552,6 @@ describe('Views', function () {
 
             server.route({ method: 'GET', path: '/', handler: { view: { template: 'valid/options', options: { layout: 'elsewhere' } } } });
             server.inject('/', function (res) {
-
                 expect(res.result).to.contain('+hello');
                 done();
             });
