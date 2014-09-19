@@ -3618,6 +3618,49 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('returns a 302 redirection reply using X-Forwarded-Proto header protocol when trustProxy true', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').temporary().rewritable();
+            };
+
+            var server = new Hapi.Server({trustProxy: true});
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            var options = {
+                url: '/',
+                headers: {}
+            };
+
+            options.headers['X-Forwarded-Proto'] = 'https';
+
+            server.inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                expect(res.headers.location).to.equal('https://0.0.0.0:80/example');
+                done();
+            });
+        });
+
+        it('returns a 302 redirection reply normally when trustProxy true', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply().redirect('example').temporary().rewritable();
+            };
+
+            var server = new Hapi.Server({trustProxy: true});
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                expect(res.headers.location).to.equal('http://0.0.0.0:80/example');
+                done();
+            });
+        });
     });
 
     describe('Closed', function () {
