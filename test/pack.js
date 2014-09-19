@@ -1678,6 +1678,7 @@ describe('Pack', function () {
                             reply('success');
                         };
                     });
+
                     return next();
                 }
             };
@@ -1692,7 +1693,9 @@ describe('Pack', function () {
                         bar: {}
                     }
                 });
+
                 server.inject('/', function (res) {
+
                     expect(res.payload).to.equal('success');
                     done();
                 });

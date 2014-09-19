@@ -121,28 +121,6 @@ describe('Proxy', function () {
         done();
     });
 
-    it('overrides maxSockets', function (done) {
-
-        var server = new Hapi.Server({ maxSockets: 1 });
-
-        var upstream = new Hapi.Server(0);
-        upstream.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(Object.keys(server._agents.http.sockets).length); } });
-        upstream.start(function () {
-
-            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port } } });
-
-            expect(Object.keys(server._agents.http.sockets).length).to.equal(0);
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('1');
-
-                done();
-            });
-        });
-    });
-
     it('uses protocol without ":"', function (done) {
 
         var upstream = new Hapi.Server(0);

@@ -23,6 +23,7 @@
     "catbox": "^3.3.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
+    "h2o2": "1.x.x",
     "hoek": "^2.4.x",
     "iron": "2.x.x",
     "items": "1.x.x",

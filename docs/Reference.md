@@ -1316,6 +1316,10 @@ or any previously registered types is not allowed.
     - `route` - the internal route object.
     - `options` - the configuration object provided in the handler config.
 
+The `method` function can have a `defaults` property of an object or function. If the property is set to an object, that object is used as
+the default route config for routes using this handler. If the property is set to a function, the function uses the signature `function(method)`
+and returns the route default configuration.
+
 ```javascript
 var Hapi = require('hapi');
 var server = Hapi.createServer('localhost', 8000);
