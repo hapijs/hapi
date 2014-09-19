@@ -741,7 +741,7 @@ describe('Handler', function () {
             method: 'GET',
             path: '/',
             config: {
-                pre: [ { method: function (request, reply) { reply(this.x); }, assign: 'x' }],
+                pre: [{ method: function (request, reply) { reply(this.x); }, assign: 'x' }],
                 handler: function (request, reply) { reply(request.pre.x); },
                 bind: item
             }
@@ -781,6 +781,104 @@ describe('Handler', function () {
 
             expect(res.result[0].tags).to.deep.equal(['hapi', 'pre', 'method', 'user']);
             expect(res.result[0].data.msec).to.exist;
+            done();
+        });
+    });
+
+    describe('#defaults', function () {
+
+        it('returns handler without defaults', function (done) {
+
+            var handler = function (route, options) {
+
+                return function (request, reply) {
+
+                    return reply(request.route.app);
+                };
+            };
+
+            var server = new Hapi.Server();
+            server.handler('test', handler);
+            server.route({ method: 'get', path: '/', handler: { test: 'value' } });
+            server.inject('/', function (res) {
+
+                expect(res.result).to.deep.equal({});
+                done();
+            });
+        });
+
+        it('returns handler with object defaults', function (done) {
+
+            var handler = function (route, options) {
+
+                return function (request, reply) {
+
+                    return reply(request.route.app);
+                };
+            };
+
+            handler.defaults = {
+                app: {
+                    x: 1
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.handler('test', handler);
+            server.route({ method: 'get', path: '/', handler: { test: 'value' } });
+            server.inject('/', function (res) {
+
+                expect(res.result).to.deep.equal({ x: 1 });
+                done();
+            });
+        });
+
+        it('returns handler with function defaults', function (done) {
+
+            var handler = function (route, options) {
+
+                return function (request, reply) {
+
+                    return reply(request.route.app);
+                };
+            };
+
+            handler.defaults = function (method) {
+                return {
+                    app: {
+                        x: method
+                    }
+                };
+            };
+
+            var server = new Hapi.Server();
+            server.handler('test', handler);
+            server.route({ method: 'get', path: '/', handler: { test: 'value' } });
+            server.inject('/', function (res) {
+
+                expect(res.result).to.deep.equal({ x: 'get' });
+                done();
+            });
+        });
+
+        it('throws on handler with invalid defaults', function (done) {
+
+            var handler = function (route, options) {
+
+                return function (request, reply) {
+
+                    return reply(request.route.app);
+                };
+            };
+
+            handler.defaults = 'invalid';
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.handler('test', handler);
+            }).to.throw('Handler defaults property must be an object or function');
+
             done();
         });
     });

@@ -698,22 +698,6 @@ describe('Server', function () {
         done();
     });
 
-    it('sets maxSockets to node default', function (done) {
-
-        var server = new Hapi.Server({ maxSockets: false });
-
-        expect(Object.keys(server._agents).length).to.equal(0);
-        done();
-    });
-
-    it('sets maxSockets', function (done) {
-
-        var server = new Hapi.Server({ maxSockets: 5 });
-
-        expect(Object.keys(server._agents).length).to.equal(3);
-        done();
-    });
-
     describe('#start', function () {
 
         it('does not throw an error', function (done) {
