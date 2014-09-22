@@ -29,11 +29,12 @@
     "items": "1.x.x",
     "joi": "^4.4.x",
     "kilt": "^1.1.x",
-    "wreck": "5.x.x",
+    "qs": "2.x.x",
     "shot": "1.x.x",
     "statehood": "^1.2.x",
     "topo": "1.x.x",
-    "qs": "2.x.x",
+    "vision": "1.x.x",
+    "wreck": "5.x.x",
 
     "lru-cache": "2.5.x",
     "mime-db": "1.0.x",
@@ -45,7 +46,6 @@
   "devDependencies": {
     "lab": "4.x.x",
     "handlebars": "1.x.x",
-    "jade": "1.x.x",
     "form-data": "0.1.x"
   },
   "bin": {

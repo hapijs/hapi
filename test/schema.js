@@ -166,30 +166,4 @@ describe('Schema', function () {
             done();
         });
     });
-
-    describe('#view', function () {
-
-        it('fails on invalid config', function (done) {
-
-            expect(function () {
-                
-                Schema.assert('view', {});
-            }).to.throw();
-            done();
-        });
-        
-        it('succeeds with minimal config', function(done) {
-
-            expect(function () {
-
-                var config = {
-                    module: require('handlebars'),
-                    path: 'foo',
-                    defaultExtension: 'bar'
-                };
-                Schema.assert('view', config);
-            }).to.not.throw();
-            done();
-        });
-    });
 });
