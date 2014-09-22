@@ -1602,7 +1602,7 @@ describe('Server', function () {
                 path: __dirname + '/templates'
             });
 
-            server.render('valid/test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+            server.render('test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered).to.contain('Hapi');
@@ -1617,7 +1617,7 @@ describe('Server', function () {
                 engines: { html: require('handlebars') }
             });
 
-            server.render('valid/test', { title: 'test', message: 'Hapi' }, { path: __dirname + '/templates' }, function (err, rendered, config) {
+            server.render('test', { title: 'test', message: 'Hapi' }, { path: __dirname + '/templates' }, function (err, rendered, config) {
 
                 expect(rendered).to.exist;
                 expect(rendered).to.contain('Hapi');

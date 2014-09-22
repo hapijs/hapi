@@ -73,7 +73,7 @@ describe('Ext', function () {
             var server = new Hapi.Server({
                 views: {
                     engines: { 'html': require('handlebars') },
-                    path: __dirname + '/templates/valid'
+                    path: __dirname + '/templates'
                 }
             });
 
@@ -287,7 +287,7 @@ describe('Ext', function () {
 
             server.ext('onPreHandler', function (request, reply) {
 
-                reply.view('valid/handler');
+                reply.view('test');
             });
 
             var plugin = {
