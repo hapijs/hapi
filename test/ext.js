@@ -275,5 +275,43 @@ describe('Ext', function () {
                 done();
             });
         });
+
+        it('uses server views for ext added via server', function (done) {
+
+            var server = new Hapi.Server();
+
+            server.views({
+                engines: { html: require('handlebars') },
+                path: __dirname + '/templates'
+            });
+
+            server.ext('onPreHandler', function (request, reply) {
+
+                reply.view('valid/handler');
+            });
+
+            var plugin = {
+                name: 'test',
+                register: function (plugin, options, next) {
+
+                    plugin.views({
+                        engines: { html: require('handlebars') },
+                        path: './no_such_directory_found'
+                    });
+
+                    plugin.route({ path: '/view', method: 'GET', handler: function (request, reply) { } });
+                    return next();
+                }
+            };
+
+            server.pack.register(plugin, function (err) {
+
+                server.inject('/view', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
     });
 });
