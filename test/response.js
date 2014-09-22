@@ -50,7 +50,7 @@ describe('Response', function () {
         var handler = function (request, reply) {
 
             reply.state('bad', {});
-            reply(new Response.Plain('blow', request, { marshall: marshall }));
+            reply(new Response.Message('blow', request, { marshall: marshall }));
         };
 
         var server = new Hapi.Server({ debug: false });
