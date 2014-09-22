@@ -14,6 +14,7 @@ var Joi = require('joi');
 var Wreck = require('wreck');
 var Hapi = require('..');
 var Response = require('../lib/response');
+var Payload = require('../lib/response/payload');
 
 
 // Declare internals
@@ -2935,7 +2936,7 @@ describe('Response', function () {
 
         it('handles undefined data', function (done) {
 
-            var payload = new Response.Payload(undefined, {});
+            var payload = new Payload(undefined, {});
             expect(payload._data).to.equal(null);
             done();
         });

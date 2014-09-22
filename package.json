@@ -38,7 +38,6 @@
     "wreck": "5.x.x",
 
     "lru-cache": "2.5.x",
-    "mime-db": "1.0.x",
     "multiparty": "3.2.x",
     "negotiator": "0.4.x",
     "optimist": "0.6.x",
