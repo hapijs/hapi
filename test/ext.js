@@ -287,7 +287,7 @@ describe('Ext', function () {
 
             server.ext('onPreHandler', function (request, reply) {
 
-                reply.view('valid/handler');
+                reply.view('test');
             });
 
             var plugin = {
