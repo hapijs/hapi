@@ -1,5 +1,10 @@
 
-## [**6.8.2**](https://github.com/hapijs/hapi/issues?milestone=119&state=open)
+## [**6.9.0**](https://github.com/hapijs/hapi/issues?milestone=119&state=open)
+- [**#1968**](https://github.com/hapijs/hapi/issues/1968) Vision / Mimos
+- [**#1959**](https://github.com/hapijs/hapi/issues/1959) Fix server/plugin ext views conflict
+- [**#1958**](https://github.com/hapijs/hapi/issues/1958) Move proxy handler to h2o2
+- [**#1956**](https://github.com/hapijs/hapi/issues/1956) Fix Content-Type overriding
+- [**#1944**](https://github.com/hapijs/hapi/issues/1944) Move router to Call
 - [**#1934**](https://github.com/hapijs/hapi/issues/1934) Fix non-spec compliant Last-Modified header in response
 - [**#1932**](https://github.com/hapijs/hapi/issues/1932) handle empty CORS expose-headers header response
 
