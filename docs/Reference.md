@@ -2176,6 +2176,19 @@ var handler = function (request, reply) {
 };
 ```
 
+#### `create(statusCode, [message, [data]])`
+
+Returns a Boom error response object based on the HTTP status code where:
+
+- `statusCode` - the HTTP status code (>= 400)
+- `message` - the error message.
+- `data` - optional data used for error logging only in Internal Server Error (500).
+
+```javascript
+var Hapi = require('hapi');
+Hapi.error.create(404);
+```
+
 ## `Hapi.Pack`
 
 `Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide
