@@ -87,7 +87,7 @@
         - [`plugin.method(method)`](#pluginmethodmethod)
         - [`plugin.methods`](#pluginmethods)
         - [`plugin.cache(options)`](#plugincacheoptions)
-        - [`plugin.bind(bind)`](#pluginbind-bind)
+        - [`plugin.bind(bind)`](#pluginbindbind)
         - [`plugin.handler(name, method)`](#pluginhandlername-method)
         - [`plugin.render(template, context, [options], callback)`](#pluginrendertemplate-context-options-callback)
     - [Selectable methods and properties](#selectable-methods-and-properties)
