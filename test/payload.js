@@ -66,6 +66,18 @@ describe('Payload', function () {
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) { });
     });
 
+    it('errors on invalid content-type', function (done) {
+
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', handler: Hoek.ignore });
+
+        server.inject({ method: 'POST', url: '/', payload: 'abc', headers: { 'content-type': 'invlaid;a' } }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
+
     it('returns a raw body', function (done) {
 
         var payload = '{"x":"1","y":"2","z":"3"}';
@@ -1405,7 +1417,7 @@ describe('Payload', function () {
             });
         });
 
-        it('parses field names with arrays', function (done) {
+        it('parses field names with arrays and file', function (done) {
 
             var payload = '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n' +
                       'Content-Disposition: form-data; name="a[b]"\r\n' +
@@ -1420,7 +1432,7 @@ describe('Payload', function () {
                       'Content-Type: plain/text\r\n' +
                       '\r\n' +
                       'and\r\n' +
-                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C\r\n';
+                      '----WebKitFormBoundaryE19zNvXGzXaLvS5C--\r\n';
 
             var handler = function (request, reply) {
 

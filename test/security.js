@@ -146,7 +146,7 @@ describe('Security', function () {
             },
             function (res) {
 
-                expect(res.result.message).to.not.exist;
+                expect(res.result.message).to.not.contain('script');
                 done();
             });
         });

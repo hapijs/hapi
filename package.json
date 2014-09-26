@@ -15,7 +15,7 @@
     "router"
   ],
   "engines": {
-    "node": ">=0.10.30"
+    "node": ">=0.10.32"
   },
   "dependencies": {
     "boom": "^2.5.x",
@@ -30,6 +30,7 @@
     "joi": "^4.4.x",
     "kilt": "^1.1.x",
     "mimos": "1.x.x",
+    "pez": "1.x.x",
     "qs": "2.x.x",
     "shot": "1.x.x",
     "statehood": "^1.2.x",
@@ -38,7 +39,6 @@
     "wreck": "5.x.x",
 
     "lru-cache": "2.5.x",
-    "multiparty": "3.2.x",
     "negotiator": "0.4.x",
     "optimist": "0.6.x",
     "semver": "2.3.x"
