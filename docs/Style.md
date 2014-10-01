@@ -510,7 +510,7 @@
   }
   ```
 
-  - Always space before and after operators, unless following ident or end-of-line
+  - Always space before and after operators, unless following an indent or end-of-line
 
   ```javascript
   // Right

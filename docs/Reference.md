@@ -161,7 +161,7 @@ When creating a server instance, the following options configure the server's be
         - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using
           the same route and cache. Default to not shared.
         - other options required by the **catbox** strategy used.
-    - an array of the above object for configuring multiple cache instances, each with a unqiue name. When an array of objects
+    - an array of the above object for configuring multiple cache instances, each with a unique name. When an array of objects
       is provided, multiple cache connections are established and each array item (except one) must include a `name`.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API
@@ -291,7 +291,7 @@ When creating a server instance, the following options configure the server's be
     - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
     - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
       for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
-      Otherwise, the provided filename is suffixed with the engine's extension and laoded. Disable `layout` when using Jade as it will handle
+      Otherwise, the provided filename is suffixed with the engine's extension and loaded. Disable `layout` when using Jade as it will handle
       including any layout files independently. Defaults to `false`.
     - `layoutPath` - the root file path where layout templates are located (relative to `basePath` if present). Defaults to `path`.
     - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
@@ -537,7 +537,7 @@ The following options are available when adding a route:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
             - `'log'` - log the error but continue processing the request.
             - `'ignore'` - take no action.
-            - a custom error handler function with the signature `functon(source, error, next)` where:
+            - a custom error handler function with the signature `function(source, error, next)` where:
                 - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
                 - `error` - the error object prepared for the client response (including the validation function error under `error.data`).
                 - `next` - the continuation method called to resume route processing or return an error response. The function signature
@@ -1147,7 +1147,7 @@ Each incoming request passes through a pre-defined set of steps, along with opti
     - always called.
     - The response contained in `request.response` may be modified (but not assigned a new value). To return a different response type (for
       example, replace an error with an HTML response), return a new response via `next(response)`. Note that any errors generated after
-      `next(response)` is called will not be passed back to the `'onPreResponse'` extention method to prevent an infinite loop.
+      `next(response)` is called will not be passed back to the `'onPreResponse'` extension method to prevent an infinite loop.
 - Send response (may emit `'internalError'` event)
 - Emits `'response'` event
 - Wait for tails
@@ -1464,7 +1464,7 @@ Each request object has the following properties:
     - `mode` - the route authentication mode.
     - `error` - the authentication error is failed and mode set to `'try'`.
     - `session` - an object used by the [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
-- `domain` - the node domain object used to protect against exceptions thrown in extentions, handlers and prerequisites. Can be used to
+- `domain` - the node domain object used to protect against exceptions thrown in extensions, handlers and prerequisites. Can be used to
   manually bind callback functions otherwise bound to other domains.
 - `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier.
