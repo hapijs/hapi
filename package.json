@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "boom": "^2.5.x",
+    "bossy": "1.x.x",
     "call": "1.x.x",
     "catbox": "^3.3.x",
     "catbox-memory": "1.x.x",
@@ -40,7 +41,6 @@
     "lru-cache": "2.5.x",
     "multiparty": "3.2.x",
     "negotiator": "0.4.x",
-    "optimist": "0.6.x",
     "semver": "2.3.x"
   },
   "devDependencies": {

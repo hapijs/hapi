@@ -182,7 +182,7 @@ describe('Hapi command line', function () {
 
         Fs.writeFileSync(configPath, JSON.stringify(manifest));
 
-        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p somethingWrong']);
+        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', 'somethingWrong']);
 
         hapi.stdout.on('data', function (data) {
 
