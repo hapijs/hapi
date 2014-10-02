@@ -1,4 +1,4 @@
-# 6.9.x API Reference
+# 6.10.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -254,7 +254,8 @@ When creating a server instance, the following options configure the server's be
     - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming client request before giving
       up and responding with a Service Unavailable (503) error response. Disabled by default (`false`).
     - `client` - request timeout in milliseconds. Sets the maximum time allowed for the client to transmit the request payload (body) before giving up
-      and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
+      and responding with a Request Timeout (408) error response. Set to `false` to disable. Can be customized on a per-route basis using the route
+      `payload.timeout` configuration. Defaults to `10000` (10 seconds).
     - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to override this behavior. Defaults to `undefined`
       which leaves the node default unchanged. Set to `false` to disable socket timeouts.
 
@@ -571,6 +572,9 @@ The following options are available when adding a route:
           will result in an error response.
         - `override` - a mime type string overriding the 'Content-Type' header value received. Defaults to no override.
         - `maxBytes` - overrides the server [default value](#server.config.payload) for this route.
+        - `timeout` - payload processing timeout in milliseconds. Sets the maximum time allowed for the client to transmit the request payload (body)
+          before giving up and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to the server `timeout.client`
+          configuration.
         - `uploads` - overrides the server [default value](#server.config.payload) for this route.
         - `failAction` - determines how to handle payload parsing errors. Allowed values are:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
