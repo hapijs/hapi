@@ -1,5 +1,10 @@
 
-## [**6.9.0**](https://github.com/hapijs/hapi/issues?milestone=119&state=open)
+## [**6.10.0**](https://github.com/hapijs/hapi/issues?milestone=120&state=closed)
+- [**#1998**](https://github.com/hapijs/hapi/issues/1998) Migrate payload parsing to subtext with multipart support via pez
+- [**#1993**](https://github.com/hapijs/hapi/issues/1993) Replaced optimist with bossy
+- [**#1928**](https://github.com/hapijs/hapi/issues/1928) Handle empty or falsy charset in response
+
+## [**6.9.0**](https://github.com/hapijs/hapi/issues?milestone=119&state=closed)
 - [**#1968**](https://github.com/hapijs/hapi/issues/1968) Vision / Mimos
 - [**#1959**](https://github.com/hapijs/hapi/issues/1959) Fix server/plugin ext views conflict
 - [**#1958**](https://github.com/hapijs/hapi/issues/1958) Move proxy handler to h2o2
