@@ -1239,7 +1239,7 @@ describe('Proxy', function () {
         });
     });
 
-    it('retails accept-encoding header', function (done) {
+    it('retains accept-encoding header', function (done) {
 
         var profile = function (request, reply) {
 
@@ -1253,10 +1253,10 @@ describe('Proxy', function () {
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, acceptEncoding: true, passThrough: true } } });
 
-            server.inject({ url: '/', headers: { 'accept-encoding': '*/*' } }, function (res) {
+            server.inject({ url: '/', headers: { 'accept-encoding': 'something' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('*/*');
+                expect(res.payload).to.equal('something');
                 done();
             });
         });
