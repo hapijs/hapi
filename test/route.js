@@ -23,9 +23,8 @@ describe('Route', function () {
 
         var server = new Hapi.Server();
         expect(function () {
-
             server.route({ method: 'GET', path: '/', config: {} });
-        }).to.throw('Missing or undefined handler: /');
+        }).to.throw('Missing or undefined handler: GET /');
         done();
     });
 
@@ -35,7 +34,7 @@ describe('Route', function () {
         expect(function () {
 
             server.route({ method: 'GET', path: '/test/', handler: function () { } });
-        }).to.throw('Path cannot end with a trailing slash when server configured to strip: /test/');
+        }).to.throw('Path cannot end with a trailing slash when server configured to strip: GET /test/');
         done();
     });
 
@@ -66,7 +65,7 @@ describe('Route', function () {
         expect(function () {
 
             server.route({ method: 'POST', path: '/', handler: function () { }, config: { validate: { payload: {} }, payload: { parse: false } } });
-        }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: /');
+        }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
         done();
     });
 
