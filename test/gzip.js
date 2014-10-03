@@ -194,7 +194,7 @@ describe('Payload', function () {
         Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
-            expect(body).to.equal(zdata);
+            expect(body).to.equal(data);
             done();
         });
     });
@@ -204,7 +204,7 @@ describe('Payload', function () {
         Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
-            expect(body).to.equal(zdata);
+            expect(body).to.equal(data);
             done();
         });
     });
@@ -229,19 +229,9 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a gzip response on a post request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
+    it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
 
-        Wreck.post(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' }, payload: data }, function (err, res, body) {
-
-            expect(err).to.not.exist;
-            expect(body).to.equal(zdata);
-            done();
-        });
-    });
-
-    it('returns a gzip response on a get request when accept-encoding: gzip,q=1; deflate,q=.5 is requested', function (done) {
-
-        Wreck.get(uri, { headers: { 'accept-encoding': 'gzip,q=1; deflate,q=.5' } }, function (err, res, body) {
+        Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(zdata);
@@ -249,9 +239,19 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a deflate response on a post request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
+    it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
 
-        Wreck.post(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' }, payload: data }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, function (err, res, body) {
+
+            expect(err).to.not.exist;
+            expect(body).to.equal(zdata);
+            done();
+        });
+    });
+
+    it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
+
+        Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(ddata);
@@ -259,9 +259,9 @@ describe('Payload', function () {
         });
     });
 
-    it('returns a deflate response on a get request when accept-encoding: deflate,q=1; gzip,q=.5 is requested', function (done) {
+    it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
 
-        Wreck.get(uri, { headers: { 'accept-encoding': 'deflate,q=1; gzip,q=.5' } }, function (err, res, body) {
+        Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, function (err, res, body) {
 
             expect(err).to.not.exist;
             expect(body).to.equal(ddata);

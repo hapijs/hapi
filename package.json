@@ -18,6 +18,7 @@
     "node": ">=0.10.32"
   },
   "dependencies": {
+    "accept": "1.x.x",
     "boom": "^2.5.x",
     "bossy": "1.x.x",
     "call": "1.x.x",
@@ -40,7 +41,6 @@
     "wreck": "5.x.x",
 
     "lru-cache": "2.5.x",
-    "negotiator": "0.4.x",
     "semver": "2.3.x"
   },
   "devDependencies": {
