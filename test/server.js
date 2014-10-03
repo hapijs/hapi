@@ -1209,8 +1209,6 @@ describe('Server', function () {
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            var timer = new Hoek.Bench();
-
             var options = {
                 url: '/',
                 credentials: { foo: 'bar' }
