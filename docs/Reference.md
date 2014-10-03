@@ -1276,7 +1276,7 @@ testing purposes as well as for invoking routing logic internally without the ov
     - `payload` - an optional string or buffer containing the request payload (object must be manually converted to a string first).
       Defaults to no payload. Note that payload processing defaults to `'application/json'` if no 'Content-Type' header provided.
     - `credentials` - an optional credentials object containing authentication information. The `credentials` are used to bypass the default
-      authentication strategies, and are validated directly as if they were received via an authentication scheme. Defaults to no credentials.
+      authentication strategies, and are validated directly as if they were received via an authentication scheme. Defaults to no credentials. Note that credentials object is deleted from the `options` object.
     - `simulate` - an object with options used to simulate client request stream conditions for testing:
         - `error` - if `true`, emits an `'error'` event after payload transmission (if any). Defaults to `false`.
         - `close` - if `true`, emits a `'close'` event after payload transmission (if any). Defaults to `false`.
