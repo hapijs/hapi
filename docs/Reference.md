@@ -588,8 +588,6 @@ The following options are available when adding a route:
                 - `'required'` - payload authentication required.
                 - `'optional'` - payload authentication performed only when the client includes payload authentication information (e.g.
                   `hash` attribute in Hawk).
-            - `tos` - minimum terms-of-service version required (uses the [semver](https://npmjs.org/package/semver) module). If defined, the
-              authentication credentials object must include a `tos` key which satisfies this requirement. Defaults to `false` which means no validation.
             - `scope` - the application scope required to access the route. Value can be a scope string or an array of scope strings. The authenticated
               credentials object `scope` property must contain at least one of the scopes defined to access the route. Defaults to no scope required.
             - `entity` - the required authenticated entity type. If set, must match the `entity` value of the authentication credentials. Available

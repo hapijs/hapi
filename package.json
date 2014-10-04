@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "6.11.0",
+  "version": "7.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -40,8 +40,7 @@
     "vision": "1.x.x",
     "wreck": "5.x.x",
 
-    "lru-cache": "2.5.x",
-    "semver": "2.3.x"
+    "lru-cache": "2.5.x"
   },
   "devDependencies": {
     "lab": "4.x.x",
