@@ -1200,6 +1200,30 @@ describe('Server', function () {
         });
     });
 
+    describe('#inject', function () {
+
+        it('keeps the options.credentials object untouched', function (done) {
+
+            var handler = function (request, reply) { return reply() };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            var options = {
+                url: '/',
+                credentials: { foo: 'bar' }
+            };
+
+            server.inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(options.credentials).to.exist;
+                done();
+            });
+        });
+    });
+
+
     describe('Timeouts', { parallel: false }, function () {
 
         var slowHandler = function (request, reply) {
