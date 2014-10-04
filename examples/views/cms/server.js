@@ -53,12 +53,6 @@ var updatePage = function (request, reply) {
 internals.main = function () {
 
     var options = {
-        views: {
-            engines: { html: require('handlebars') },
-            path: Path.join(__dirname, 'views'),
-            layout: true,
-            partialsPath: Path.join(__dirname, 'views', 'partials')
-        },
         state: {
             cookies: {
                 failAction: 'ignore'
@@ -67,6 +61,14 @@ internals.main = function () {
     };
 
     var server = new Hapi.Server(8000, options);
+
+    server.views({
+        engines: { html: require('handlebars') },
+        path: Path.join(__dirname, 'views'),
+        layout: true,
+        partialsPath: Path.join(__dirname, 'views', 'partials')
+    });
+
     server.route({ method: 'GET', path: '/', handler: getPages });
     server.route({ method: 'GET', path: '/pages/{page}', handler: getPage });
     server.route({ method: 'GET', path: '/create', handler: view('create') });

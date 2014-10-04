@@ -19,15 +19,14 @@ var handler = function (request, reply) {
 
 internals.main = function () {
 
-    var options = {
-        views: {
-            engines: { html: require('handlebars') },
-            path: __dirname + '/templates',
-            partialsPath: __dirname + '/templates/withPartials'
-        }
-    };
-
     var server = new Hapi.Server(8000, options);
+
+    server.views({
+        engines: { html: require('handlebars') },
+        path: __dirname + '/templates',
+        partialsPath: __dirname + '/templates/withPartials'
+    });
+
     server.route({ method: 'GET', path: '/', handler: handler });
     server.start();
 };

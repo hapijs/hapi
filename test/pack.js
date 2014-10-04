@@ -1718,10 +1718,7 @@ describe('Pack', function () {
                     {
                         port: 0,
                         options: {
-                            labels: ['api', 'nasty', 'test'],
-                            views: {
-                                engines: { html: 'handlebars' }
-                            }
+                            labels: ['api', 'nasty', 'test']
                         }
                     },
                     {
@@ -1875,10 +1872,7 @@ describe('Pack', function () {
                         host: 'localhost',
                         port: 0,
                         options: {
-                            labels: ['api', 'nice'],
-                            views: {
-                                engines: { html: require('handlebars') }
-                            }
+                            labels: ['api', 'nice']
                         }
                     }
                 ],
@@ -1970,10 +1964,7 @@ describe('Pack', function () {
                         host: 'localhost',
                         port: 0,
                         options: {
-                            labels: ['api', 'nice'],
-                            views: {
-                                engines: { html: '../../node_modules/handlebars' }
-                            }
+                            labels: ['api', 'nice']
                         }
                     }
                 ],
