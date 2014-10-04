@@ -247,7 +247,8 @@ describe('Router', function () {
 
         var server = new Hapi.Server();
 
-        server.route({ method: ['HEAD', 'GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { reply(request.route.method); } });
+        var config = { method: ['HEAD', 'GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { reply(request.route.method); } };
+        server.route(config);
         server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
             expect(res.statusCode).to.equal(200);
@@ -271,6 +272,7 @@ describe('Router', function () {
 
                             expect(res.statusCode).to.equal(200);
                             expect(res.payload).to.equal('delete');
+                            expect(config.method).to.deep.equal(['HEAD', 'GET', 'PUT', 'POST', 'DELETE']);
                             done();
                         });
                     });
