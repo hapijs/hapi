@@ -1,4 +1,4 @@
-# 6.10.x API Reference
+# 6.11.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -225,6 +225,8 @@ When creating a server instance, the following options configure the server's be
 
 - <a name="server.config.location"></a>`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
   Defaults to the host received in the request HTTP 'Host' header and if missing, to `server.info.uri`.
+
+- `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to include a valid caching directive. Defaults to `[200]`.
 
 - <a name="server.config.payload"></a>`payload` - controls how incoming payloads (request body) are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run

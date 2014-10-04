@@ -59,16 +59,28 @@ describe('Cache', function () {
             return reply(Boom.badRequest());
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Server();
         server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
-        server.start(function () {
+        server.inject('/', function (res) {
 
-            server.inject('/', function (res) {
+            expect(res.headers['cache-control']).to.equal('no-cache');
+            done();
+        });
+    });
 
-                expect(res.headers['cache-control']).to.equal('no-cache');
-                server.stop();
-                done();
-            });
+    it('sets cache-control on error with status override', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply(Boom.badRequest());
+        };
+
+        var server = new Hapi.Server({ cacheControlStatus: [200, 400] });
+        server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
+        server.inject('/', function (res) {
+
+            expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
+            done();
         });
     });
 

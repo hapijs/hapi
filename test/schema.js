@@ -59,17 +59,6 @@ describe('Schema', function () {
             done();
         });
 
-        it('succeeds with default settings returned from server', function (done) {
-
-            var server = new Hapi.Server();
-
-            expect(function () {
-
-                Schema.assert('server', server.settings);
-            }).to.not.throw();
-            done();
-        });
-
         it('succeeds with only a couple of settings provided', function (done) {
 
             expect(function () {
