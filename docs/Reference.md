@@ -268,7 +268,7 @@ When creating a server instance, the following options configure the server's be
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
 - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
-  (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options)). Defaults to no options.
+  (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no options.
 
 - <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
   To enable, set to an object with the following options:
