@@ -372,11 +372,42 @@ describe('Hapi command line', function () {
         });
     });
 
-    describe('using environment variables', function () {
+    it('parses $prefixed values as environment variable values', { parallel: false }, function (done) {
+
+        var manifest = {
+            pack: {
+                cache: {
+                    engine: 'catbox-memory'
+                },
+                app: {
+                    my: '$env.special_value'
+                }
+            },
+            servers: [
+                {
+                    port: '$env.port',
+                    options: {
+                        labels: ['api', 'nasty', 'test']
+                    }
+                },
+                {
+                    host: '$env.host',
+                    port: '$env.port',
+                    options: {
+                        labels: ['api', 'nice']
+                    }
+                }
+            ],
+            plugins: {
+                './--options': {
+                    key: '$env.plugin_option'
+                }
+            }
+        };
 
         var changes = [];
-
         var setEnv = function (key, value) {
+
             var previous = process.env[key];
 
             if (typeof value === 'undefined') {
@@ -389,80 +420,39 @@ describe('Hapi command line', function () {
             return setEnv.bind(null, key, previous);
         };
 
-        before(function (done) {
-            changes.push(setEnv('host', 'localhost'));
-            changes.push(setEnv('plugin_option', 'plugin-option'));
-            changes.push(setEnv('port', 0));
-            changes.push(setEnv('special_value', 'special-value'));
-            done();
-        });
+        changes.push(setEnv('host', 'localhost'));
+        changes.push(setEnv('plugin_option', 'plugin-option'));
+        changes.push(setEnv('port', 0));
+        changes.push(setEnv('special_value', 'special-value'));
 
-        after(function (done) {
+        var configPath = internals.uniqueFilename(Os.tmpDir());
+        var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
+        var modulePath = Path.join(__dirname, 'pack');
+
+        Fs.writeFileSync(configPath, JSON.stringify(manifest));
+
+        var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath]);
+
+        hapi.stdout.setEncoding('utf8');
+        hapi.stdout.on('data', function (data) {
+
+            expect(data).to.equal('app.my: special-value, options.key: plugin-option\n');
+            hapi.kill();
+            Fs.unlinkSync(configPath);
+
             var restore = changes.pop();
-
             while (restore) {
                 restore();
                 restore = changes.pop();
             }
+
             done();
         });
 
-        it('interpolates environment variable values', function (done) {
+        hapi.stderr.setEncoding('utf8');
+        hapi.stderr.on('data', function (data) {
 
-            var manifest = {
-                pack: {
-                    cache: {
-                        engine: 'catbox-memory'
-                    },
-                    app: {
-                        my: '$env.special_value'
-                    }
-                },
-                servers: [
-                    {
-                        port: '$env.port',
-                        options: {
-                            labels: ['api', 'nasty', 'test']
-                        }
-                    },
-                    {
-                        host: '$env.host',
-                        port: '$env.port',
-                        options: {
-                            labels: ['api', 'nice']
-                        }
-                    }
-                ],
-                plugins: {
-                    './--options': {
-                        key : '$env.plugin_option'
-                    }
-                }
-            };
-
-            var configPath = internals.uniqueFilename(Os.tmpDir());
-            var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
-            var modulePath = Path.join(__dirname, 'pack');
-
-            Fs.writeFileSync(configPath, JSON.stringify(manifest));
-
-            var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath]);
-
-            hapi.stdout.setEncoding('utf8');
-            hapi.stdout.on('data', function (data) {
-
-                expect(data).to.equal('app.my: special-value, options.key: plugin-option\n');
-                hapi.kill();
-                Fs.unlinkSync(configPath);
-
-                done();
-            });
-
-            hapi.stderr.setEncoding('utf8');
-            hapi.stderr.on('data', function (data) {
-
-                expect(data).to.not.exist;
-            });
+            expect(data).to.not.exist;
         });
     });
 });

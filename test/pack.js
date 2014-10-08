@@ -1903,18 +1903,18 @@ describe('Pack', function () {
             });
         });
 
-        it('composes pack (env)', function (done) {
+        it('composes pack (string port)', function (done) {
 
             var manifest = {
                 servers: [
                     {
-                        port: '$env.hapiPort',
+                        port: '0',
                         options: {
                             labels: ['api', 'nasty', 'test']
                         }
                     },
                     {
-                        host: '$env.hapiHost',
+                        host: 'localhost',
                         port: 0,
                         options: {
                             labels: ['api', 'nice']
@@ -1925,9 +1925,6 @@ describe('Pack', function () {
                     '../test/pack/--test1': {}
                 }
             };
-
-            process.env.hapiPort = '0';
-            process.env.hapiHost = 'localhost';
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
