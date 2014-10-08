@@ -16,8 +16,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
@@ -104,7 +102,7 @@ describe('Ext', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('ok');
-                expect(res.headers['set-cookie']).to.deep.equal(["a=b"]);
+                expect(res.headers['set-cookie']).to.deep.equal(['a=b']);
                 done();
             });
         });

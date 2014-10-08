@@ -16,8 +16,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
@@ -158,7 +156,7 @@ describe('State', function () {
     it('sets cookie value with null ttl', function (done) {
 
         var server = new Hapi.Server();
-        server.state('a', { ttl: null })
+        server.state('a', { ttl: null });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').state('a', 'b'); } });
 
         server.inject('/', function (res) {

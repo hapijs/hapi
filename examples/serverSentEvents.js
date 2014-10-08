@@ -30,7 +30,7 @@ server.route({
         var data = 0;
         var interval = setInterval(function() {
 
-            channel.write('data: ' + data++ + '\n\n')
+            channel.write('data: ' + data++ + '\n\n');
             console.log('Sending data: ' + data);
         }, 1000);
 

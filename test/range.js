@@ -15,8 +15,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
@@ -222,7 +220,8 @@ describe('Response Range', function () {
             }
 
             if (this._count === 10) {
-                return this.push(null);
+                this.push(null);
+                return;
             }
 
             this.push(this._count.toString());
@@ -266,7 +265,8 @@ describe('Response Range', function () {
             }
 
             if (this._count === 10) {
-                return this.push(null);
+                this.push(null);
+                return;
             }
 
             this.push(this._count.toString());

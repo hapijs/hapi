@@ -7,12 +7,9 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    if (options.route) {
-        plugin.register(require('../../--test1'), options, next);
-    }
-    else {
-        plugin.register(require('../../--test1'), next);
-    }
+    console.log('app.my: %s, options.key: %s', plugin.app.my, options.key);
+
+    return next();
 };
 
 

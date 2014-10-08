@@ -25,8 +25,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
@@ -130,14 +128,50 @@ describe('Response', function () {
                 expect(res.headers['access-control-allow-origin']).to.equal('*');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
                 expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
-                expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
+                expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'always=present']);
                 expect(res.headers.vary).to.equal('x-control');
                 expect(res.headers.combo).to.equal('o-k');
                 done();
             });
         });
 
-        it('overrides cache-control with ttl', function (done) {
+        it('leaves existing cache-control header', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('text').code(400)
+                             .header('cache-control', 'some value');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                expect(res.headers['cache-control']).to.equal('some value');
+                done();
+            });
+        });
+
+        it('sets cache-control header from ttl without policy', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('text').ttl(10000);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
+                done();
+            });
+        });
+
+        it('leaves existing cache-control header (ttl)', function (done) {
 
             var handler = function (request, reply) {
 
@@ -151,7 +185,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['cache-control']).to.equal('none');
                 done();
             });
         });
@@ -1028,7 +1062,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
-                expect(res.headers['content-length']).to.equal(13)
+                expect(res.headers['content-length']).to.equal(13);
                 done();
             });
         });
@@ -1160,7 +1194,7 @@ describe('Response', function () {
 
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['vary']).to.equal('accept-encoding');
+                expect(res.headers.vary).to.equal('accept-encoding');
                 Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, result) {
 
                     expect(err).to.not.exist;
@@ -2944,6 +2978,313 @@ describe('Response', function () {
         server.inject('/', function (res) {
 
             response.emit('special');
+        });
+    });
+    it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+                Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(zipped.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a gzip response on a get request when accept-encoding: gzip is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(data); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+                Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(zipped.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a gzip response on a post request when accept-encoding: * is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(body).to.equal(data);
+                done();
+            });
+        });
+    });
+
+    it('returns a gzip response on a get request when accept-encoding: * is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(data); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(body).to.equal(data);
+                done();
+            });
+        });
+    });
+
+    it('returns a deflate response on a post request when accept-encoding: deflate is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.deflate(new Buffer(data), function (err, deflated) {
+
+                Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(deflated.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a deflate response on a get request when accept-encoding: deflate is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(data); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.deflate(new Buffer(data), function (err, deflated) {
+
+                Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(deflated.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+                Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(zipped.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(data); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+                Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(zipped.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.deflate(new Buffer(data), function (err, deflated) {
+
+                Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(deflated.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(data); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.deflate(new Buffer(data), function (err, deflated) {
+
+                Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(deflated.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+                Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(zipped.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(data); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+                Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
+
+                    expect(err).to.not.exist;
+                    expect(body).to.equal(zipped.toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns an identity response on a post request when accept-encoding is missing', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Wreck.post(uri, { payload: data }, function (err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(body).to.equal(data);
+                done();
+            });
+        });
+    });
+
+    it('returns an identity response on a get request when accept-encoding is missing', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        var server = new Hapi.Server(0);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(data); } });
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Wreck.get(uri, {}, function (err, res, body) {
+
+                expect(err).to.not.exist;
+                expect(body.toString()).to.equal(data);
+                done();
+            });
         });
     });
 

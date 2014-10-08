@@ -13,8 +13,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
@@ -552,6 +550,7 @@ describe('Validation', function () {
             });
         }, function (err, codes) {
 
+            expect(err).to.not.exist;
             expect(count).to.be.within(200, 300);
             done();
         });
@@ -658,6 +657,7 @@ describe('Validation', function () {
             });
         }, function (err, codes) {
 
+            expect(err).to.not.exist;
             expect(count).to.equal(0);
             done();
         });

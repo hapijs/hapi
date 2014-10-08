@@ -14,8 +14,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
@@ -25,7 +23,7 @@ describe('Pack', function () {
 
     var routesList = function (server) {
 
-        var routes = server._router.routes['get'];
+        var routes = server._router.routes.get;
         var list = [];
         for (var i = 0, il = routes.length; i < il; ++i) {
             var route = routes[i];
@@ -328,9 +326,9 @@ describe('Pack', function () {
 
             expect(err).to.not.exist;
 
-            expect(pack._servers[0]._router.routes['get']).to.not.exist;
+            expect(pack._servers[0]._router.routes.get).to.not.exist;
             expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
-            expect(pack._servers[2]._router.routes['get']).to.not.exist;
+            expect(pack._servers[2]._router.routes.get).to.not.exist;
             expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
 
             expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
@@ -1267,7 +1265,7 @@ describe('Pack', function () {
                 expect(pc).to.equal(1);
                 done();
             });
-        })
+        });
     });
 
     it('adds server method using arguments', function (done) {
@@ -1899,18 +1897,18 @@ describe('Pack', function () {
             });
         });
 
-        it('composes pack (env)', function (done) {
+        it('composes pack (string port)', function (done) {
 
             var manifest = {
                 servers: [
                     {
-                        port: '$env.hapi_port',
+                        port: '0',
                         options: {
                             labels: ['api', 'nasty', 'test']
                         }
                     },
                     {
-                        host: '$env.hapi_host',
+                        host: 'localhost',
                         port: 0,
                         options: {
                             labels: ['api', 'nice']
@@ -1921,9 +1919,6 @@ describe('Pack', function () {
                     '../test/pack/--test1': {}
                 }
             };
-
-            process.env.hapi_port = '0';
-            process.env.hapi_host = 'localhost';
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
@@ -2001,7 +1996,7 @@ describe('Pack', function () {
                         port: 8000
                     },
                     {
-                        port: '8001',
+                        port: '8001'
                     }
                 ],
                 plugins: {}

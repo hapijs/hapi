@@ -37,7 +37,7 @@ internals.validate = function (username, password, callback) {
 
     Bcrypt.compare(password, internals.passwords[username], function (err, isValid) {
 
-        callback(null, isValid, internals.users[username]);
+        callback(err, isValid, internals.users[username]);
     });
 };
 
@@ -53,9 +53,8 @@ internals.hawkHeader = function (id, path, server) {
     if (internals.credentials[id]) {
         return Hawk.client.header(server.info.uri + path, 'GET', { credentials: internals.credentials[id] }).field;
     }
-    else {
-        return '';
-    }
+
+    return '';
 };
 
 internals.handler = function (request, reply) {
@@ -68,6 +67,10 @@ internals.main = function () {
 
     var server = new Hapi.Server(8000);
     server.pack.register([require('hapi-auth-basic'), require('hapi-auth-hawk')], function (err) {
+
+        if (err) {
+            throw err;
+        }
 
         server.auth.strategy('hawk', 'hawk', { getCredentialsFunc: internals.getCredentials });
         server.auth.strategy('basic', 'basic', { validateFunc: internals.validate });

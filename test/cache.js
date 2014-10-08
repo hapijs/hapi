@@ -14,8 +14,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
@@ -96,11 +94,6 @@ describe('Cache', function () {
         };
 
         server.route({ method: 'GET', path: '/item2', config: { handler: activeItemHandler } });
-        before(function (done) {
-
-            server.start(done);
-        });
-
         server.inject('/item2', function (res) {
 
             expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
@@ -148,12 +141,10 @@ describe('Cache', function () {
     it('throws when allocating an invalid cache segment', function (done) {
 
         var server = new Hapi.Server();
+        expect(function () {
 
-        function fn() {
             server.cache('a', { expiresAt: '12:00', expiresIn: 1000 });
-        }
-
-        expect(fn).throws(Error);
+        }).throws(Error);
 
         done();
     });
@@ -161,12 +152,10 @@ describe('Cache', function () {
     it('allows allocating a cache segment with empty options', function (done) {
 
         var server = new Hapi.Server();
+        expect(function () {
 
-        function fn() {
             server.cache('a', {});
-        }
-
-        expect(fn).to.not.throw(Error);
+        }).to.not.throw(Error);
 
         done();
     });

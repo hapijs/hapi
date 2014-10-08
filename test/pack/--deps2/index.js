@@ -8,9 +8,9 @@ var internals = {};
 exports.register = function (plugin, options, next) {
 
     plugin.select('b').ext('onRequest', function (request, cont) {
-        
+
         request.app.deps = request.app.deps || '|';
-        request.app.deps += '2|'
+        request.app.deps += '2|';
         cont();
     }, { after: '--deps3', before: '--deps1' });
 

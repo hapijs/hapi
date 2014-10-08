@@ -36,5 +36,3 @@ internals.text = {
         return a + b;
     }
 };
-
-

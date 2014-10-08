@@ -268,7 +268,7 @@ When creating a server instance, the following options configure the server's be
     Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
 - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
-  (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options)). Defaults to no options.
+  (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no options.
 
 ### `Server` properties
 
@@ -389,7 +389,7 @@ The following options are available when adding a route:
             - `'http'`
             - `'https'`
         - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
-        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to. Defaults to `false`.
+        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to, headers sent from the upstream service will also be forwarded to the client. Defaults to `false`.
         - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming requests before being passed upstream. This is
           a security feature to prevent local state (e.g. authentication cookies) from leaking upstream to other servers along with the cookies intended
           for those servers. This value can be overridden on a per state basis via the [`server.state()`](#serverstatename-options) `passThrough` option.
@@ -3076,6 +3076,9 @@ installed in the path.  The following arguments are available to the **hapi** CL
 
 Note that `--require` will require from `node_modules`, an absolute path, a relative path, or from the `node_modules`
 set by `-p` if available.
+
+When using the CLI to compose a pack of servers, all values in the configuration json file can be set to an
+environment variable by prefixing the variable name with`'$env.'`.
 
 In order to help with A/B testing there is [confidence](https://github.com/hapijs/confidence). Confidence is a
 configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to
