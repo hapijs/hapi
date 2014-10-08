@@ -371,4 +371,98 @@ describe('Hapi command line', function () {
             expect(data.toString()).to.not.exist;
         });
     });
+
+    describe('using environment variables', function () {
+
+        var changes = [];
+
+        var setEnv = function (key, value) {
+            var previous = process.env[key];
+
+            if (typeof value === 'undefined') {
+                delete process.env[key];
+            }
+            else {
+                process.env[key] = value;
+            }
+
+            return setEnv.bind(null, key, previous);
+        };
+
+        before(function (done) {
+            changes.push(setEnv('host', 'localhost'));
+            changes.push(setEnv('plugin_option', 'plugin-option'));
+            changes.push(setEnv('port', 0));
+            changes.push(setEnv('special_value', 'special-value'));
+            done();
+        });
+
+        after(function (done) {
+            var restore = changes.pop();
+
+            while (restore) {
+                restore();
+                restore = changes.pop();
+            }
+            done();
+        });
+
+        it('interpolates environment variable values', function (done) {
+
+            var manifest = {
+                pack: {
+                    cache: {
+                        engine: 'catbox-memory'
+                    },
+                    app: {
+                        my: '$env.special_value'
+                    }
+                },
+                servers: [
+                    {
+                        port: '$env.port',
+                        options: {
+                            labels: ['api', 'nasty', 'test']
+                        }
+                    },
+                    {
+                        host: '$env.host',
+                        port: '$env.port',
+                        options: {
+                            labels: ['api', 'nice']
+                        }
+                    }
+                ],
+                plugins: {
+                    './--options': {
+                        key : '$env.plugin_option'
+                    }
+                }
+            };
+
+            var configPath = internals.uniqueFilename(Os.tmpDir());
+            var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
+            var modulePath = Path.join(__dirname, 'pack');
+
+            Fs.writeFileSync(configPath, JSON.stringify(manifest));
+
+            var hapi = ChildProcess.spawn('node', [hapiPath, '-c', configPath, '-p', modulePath]);
+
+            hapi.stdout.setEncoding('utf8');
+            hapi.stdout.on('data', function (data) {
+
+                expect(data).to.equal('app.my: special-value, options.key: plugin-option\n');
+                hapi.kill();
+                Fs.unlinkSync(configPath);
+
+                done();
+            });
+
+            hapi.stderr.setEncoding('utf8');
+            hapi.stderr.on('data', function (data) {
+
+                expect(data).to.not.exist;
+            });
+        });
+    });
 });

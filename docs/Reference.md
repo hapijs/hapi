@@ -3077,6 +3077,9 @@ installed in the path.  The following arguments are available to the **hapi** CL
 Note that `--require` will require from `node_modules`, an absolute path, a relative path, or from the `node_modules`
 set by `-p` if available.
 
+When using the CLI to compose a pack of servers, all values in the configuration json file can be set to an
+environment variable by prefixing the variable name with`'$env.'`.
+
 In order to help with A/B testing there is [confidence](https://github.com/hapijs/confidence). Confidence is a
 configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to
 work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c).
