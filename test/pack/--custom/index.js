@@ -17,4 +17,3 @@ exports.register.attributes = {
     version: '1.0.0',
     multiple: true
 };
-

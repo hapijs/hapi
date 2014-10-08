@@ -1,14 +1,13 @@
 // Load modules
 
+var Http = require('http');
 var Net = require('net');
 var Stream = require('stream');
-var Http = require('http');
-var Lab = require('lab');
-var Wreck = require('wreck');
-var Hoek = require('hoek');
-var Shot = require('shot');
-var Hoek = require('hoek');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Lab = require('lab');
+var Shot = require('shot');
+var Wreck = require('wreck');
 
 
 // Declare internals
@@ -546,7 +545,7 @@ describe('Request', function () {
     it('gunzips when parse=gunzip', function (done) {
 
         var zlib = require('zlib');
-        var msg = "hapi=joi";
+        var msg = 'hapi=joi';
         var buf = new Buffer(msg, 'utf-8');
 
         var handler = function (request, reply) {
@@ -565,9 +564,9 @@ describe('Request', function () {
             }
         });
 
-        zlib.gzip(buf, function (err, gz_data) {
+        zlib.gzip(buf, function (err, gzdata) {
             server.inject({
-                method: 'POST', url: '/', payload: gz_data,
+                method: 'POST', url: '/', payload: gzdata,
                 headers: {
                     'Content-Encoding': 'gzip',
                     'Content-Type': 'application/x-www-form-urlencoded'

@@ -343,7 +343,7 @@ describe('Hapi command line', function () {
             }
         };
 
-        var extra = "console.log('test passed')";
+        var extra = 'console.log(\'test passed\')';
 
         var configPath = internals.uniqueFilename(Os.tmpDir());
         var extraPath = internals.uniqueFilename(Os.tmpDir());

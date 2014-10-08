@@ -322,7 +322,7 @@ describe('Method', function () {
 
         server.start(function () {
 
-            server.methods.dropErrTest.cache.drop(function () {}, function (err) {
+            server.methods.dropErrTest.cache.drop(function () { }, function (err) {
 
                 expect(err).to.exist;
                 done();
@@ -558,7 +558,7 @@ describe('Method', function () {
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
         server.start(function () {
-            
+
             var id1 = Math.random();
             server.methods.user(id1, function (err, result1) {
 

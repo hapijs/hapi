@@ -25,7 +25,7 @@ exports.register = function (plugin, options, next) {
     plugin.auth.scheme('basic', internals.implementation);
     plugin.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
 
-    plugin.auth.scheme('special', function () { return { authenticate: function () { } } });
+    plugin.auth.scheme('special', function () { return { authenticate: function () { } }; });
     plugin.auth.strategy('special', 'special', {});
 
     return next();

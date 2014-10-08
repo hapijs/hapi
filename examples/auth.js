@@ -53,9 +53,8 @@ internals.hawkHeader = function (id, path, server) {
     if (internals.credentials[id]) {
         return Hawk.client.header(server.info.uri + path, 'GET', { credentials: internals.credentials[id] }).field;
     }
-    else {
-        return '';
-    }
+
+    return '';
 };
 
 internals.handler = function (request, reply) {

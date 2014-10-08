@@ -156,7 +156,7 @@ describe('State', function () {
     it('sets cookie value with null ttl', function (done) {
 
         var server = new Hapi.Server();
-        server.state('a', { ttl: null })
+        server.state('a', { ttl: null });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').state('a', 'b'); } });
 
         server.inject('/', function (res) {

@@ -260,7 +260,7 @@ describe('Server', function () {
             var handler = function (request, reply) {
 
                 var start = Date.now();
-                while (Date.now() - start < 5);
+                while (Date.now() - start < 5) { }
                 reply('ok');
             };
 
@@ -302,7 +302,7 @@ describe('Server', function () {
             var handler = function (request, reply) {
 
                 var start = Date.now();
-                while (Date.now() - start < 10);
+                while (Date.now() - start < 10) { }
                 reply('ok');
             };
 
@@ -1079,7 +1079,7 @@ describe('Server', function () {
 
         it('keeps the options.credentials object untouched', function (done) {
 
-            var handler = function (request, reply) { return reply() };
+            var handler = function (request, reply) { return reply(); };
 
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });

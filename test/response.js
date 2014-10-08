@@ -128,7 +128,7 @@ describe('Response', function () {
                 expect(res.headers['access-control-allow-origin']).to.equal('*');
                 expect(res.headers['access-control-allow-credentials']).to.not.exist;
                 expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
-                expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', "test=123", "empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT", "always=present"]);
+                expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'always=present']);
                 expect(res.headers.vary).to.equal('x-control');
                 expect(res.headers.combo).to.equal('o-k');
                 done();
@@ -1062,7 +1062,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
-                expect(res.headers['content-length']).to.equal(13)
+                expect(res.headers['content-length']).to.equal(13);
                 done();
             });
         });
@@ -1194,7 +1194,7 @@ describe('Response', function () {
 
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['vary']).to.equal('accept-encoding');
+                expect(res.headers.vary).to.equal('accept-encoding');
                 Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, result) {
 
                     expect(err).to.not.exist;

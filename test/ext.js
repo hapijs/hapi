@@ -103,7 +103,7 @@ describe('Ext', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('ok');
-                expect(res.headers['set-cookie']).to.deep.equal(["a=b"]);
+                expect(res.headers['set-cookie']).to.deep.equal(['a=b']);
                 done();
             });
         });

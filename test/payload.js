@@ -1285,7 +1285,7 @@ describe('payload', function () {
                         });
                     });
                 });
-            }
+            };
 
             var server = new Hapi.Server();
             server.route({ method: 'POST', path: '/echo', config: { handler: handler, payload: { output: 'stream' } } });
@@ -1308,8 +1308,8 @@ describe('payload', function () {
                 expect(request.payload.my_file.bytes).to.equal(stats.size);
 
                 var sourceContents = Fs.readFileSync(path);
-                var receivedContents = Fs.readFileSync(request.payload['my_file'].path);
-                Fs.unlinkSync(request.payload['my_file'].path);
+                var receivedContents = Fs.readFileSync(request.payload.my_file.path);
+                Fs.unlinkSync(request.payload.my_file.path);
                 expect(sourceContents).to.deep.equal(receivedContents);
                 done();
             };
@@ -1433,7 +1433,7 @@ describe('payload', function () {
             var fileHandler = function (request) {
 
                 expect(request.headers['content-type']).to.contain('multipart/form-data');
-                expect(request.payload['my_file'].hapi).to.deep.equal({
+                expect(request.payload.my_file.hapi).to.deep.equal({
                     filename: 'image.jpg',
                     headers: {
                         'content-disposition': 'form-data; name="my_file"; filename="image.jpg"',
@@ -1441,7 +1441,7 @@ describe('payload', function () {
                     }
                 });
 
-                Wreck.read(request.payload['my_file'], null, function (err, buffer) {
+                Wreck.read(request.payload.my_file, null, function (err, buffer) {
 
                     expect(err).to.not.exist;
                     expect(fileContents.length).to.equal(buffer.length);

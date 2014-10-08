@@ -1437,4 +1437,3 @@ describe('Proxy', function () {
         });
     });
 });
-

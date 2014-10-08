@@ -10,9 +10,9 @@ exports.register = function (plugin, options, next) {
     plugin.dependency('--deps2', internals.after);
 
     plugin.select('a').ext('onRequest', function (request, cont) {
-        
+
         request.app.deps = request.app.deps || '|';
-        request.app.deps += '1|'
+        request.app.deps += '1|';
         cont();
     }, { after: '--deps3' });
 
