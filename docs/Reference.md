@@ -1,4 +1,4 @@
-# 6.11.x API Reference
+# 7.0.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -270,43 +270,6 @@ When creating a server instance, the following options configure the server's be
 - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
   (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no options.
 
-- <a name="server.config.views"></a>`views` - enables support for view rendering (using templates to generate responses). Disabled by default.
-  To enable, set to an object with the following options:
-    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'jade'), mapped to the npm module used for
-      rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
-        - `module` - the npm module used for rendering the templates. The module object must contain:
-            - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
-              `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
-              and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
-              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature
-              `function(context, options, callback)` and `callback` has the signature `function(err, rendered)`.
-        - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
-    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
-      explicit extension is provided for a given template. No default value.
-    - `path` - the root file path used to resolve and load the templates identified when calling `reply.view()`. Defaults to current working
-      directory.
-    - `partialsPath` - the root file path where partials are located. Partials are small segments of template code that can be nested and reused
-      throughout other templates. Defaults to no partials support (empty path).
-    - `helpersPath` - the directory path where helpers are located. Helpers are functions used within templates to perform transformations
-      and other data manipulations using the template context or other inputs. Each '.js' file in the helpers directory is loaded and the file name
-      is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
-      not supported and are ignored. Defaults to no helpers support (empty path). Note that jade does not support loading helpers this way.
-    - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
-    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
-      for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
-      Otherwise, the provided filename is suffixed with the engine's extension and loaded. Disable `layout` when using Jade as it will handle
-      including any layout files independently. Defaults to `false`.
-    - `layoutPath` - the root file path where layout templates are located (relative to `basePath` if present). Defaults to `path`.
-    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
-    - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
-    - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
-    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `reply.view()`. Defaults to `false`.
-    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to contain '../'. Defaults to `false`.
-    - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
-    - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
-    - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
-    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
-
 ### `Server` properties
 
 Each instance of the `Server` object have the following properties:
@@ -476,7 +439,7 @@ The following options are available when adding a route:
                 - `params` - maps to `request.params`.
                 - `query` - maps to `request.query`.
                 - `pre` - maps to `request.pre`.
-            - `options` - optional object used to override the server's [`views`](#server.config.views) configuration.
+            - `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration.
 
 - `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
     - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
@@ -625,8 +588,6 @@ The following options are available when adding a route:
                 - `'required'` - payload authentication required.
                 - `'optional'` - payload authentication performed only when the client includes payload authentication information (e.g.
                   `hash` attribute in Hawk).
-            - `tos` - minimum terms-of-service version required (uses the [semver](https://npmjs.org/package/semver) module). If defined, the
-              authentication credentials object must include a `tos` key which satisfies this requirement. Defaults to `false` which means no validation.
             - `scope` - the application scope required to access the route. Value can be a scope string or an array of scope strings. The authenticated
               credentials object `scope` property must contain at least one of the scopes defined to access the route. Defaults to no scope required.
             - `entity` - the required authenticated entity type. If set, must match the `entity` value of the authentication credentials. Available
@@ -987,8 +948,44 @@ server.on('request', function (request, event, tags) {
 
 #### `server.views(options)`
 
-Initializes the server views manager programmatically instead of via the server [`views`](#server.config.views) configuration option.
-The `options` object is the same as the server [`views`](#server.config.views) config object.
+Initializes the server views manager where:
+
+- `options` - a configuration object with the following:
+    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'hbr'), mapped to the npm module used for
+      rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
+        - `module` - the npm module used for rendering the templates. The module object must contain:
+            - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
+              `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
+              and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
+              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature
+              `function(context, options, callback)` and `callback` has the signature `function(err, rendered)`.
+        - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
+    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
+      explicit extension is provided for a given template. No default value.
+    - `path` - the root file path used to resolve and load the templates identified when calling `reply.view()`. Defaults to current working
+      directory.
+    - `partialsPath` - the root file path where partials are located. Partials are small segments of template code that can be nested and reused
+      throughout other templates. Defaults to no partials support (empty path).
+    - `helpersPath` - the directory path where helpers are located. Helpers are functions used within templates to perform transformations
+      and other data manipulations using the template context or other inputs. Each '.js' file in the helpers directory is loaded and the file name
+      is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
+      not supported and are ignored. Defaults to no helpers support (empty path). Note that jade does not support loading helpers this way.
+    - `basePath` - a base path used as prefix for `path` and `partialsPath`. No default.
+    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
+      for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
+      Otherwise, the provided filename is suffixed with the engine's extension and loaded. Disable `layout` when using Jade as it will handle
+      including any layout files independently. Defaults to `false`.
+    - `layoutPath` - the root file path where layout templates are located (relative to `basePath` if present). Defaults to `path`.
+    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
+    - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
+    - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
+    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `reply.view()`. Defaults to `false`.
+    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to contain '../'. Defaults to `false`.
+    - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
+    - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
+    - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
+    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
+
 
 ```javascript
 server.views({
@@ -1364,9 +1361,9 @@ console.log(server.location('/relative'));
 #### `server.render(template, context, [options], callback)`
 
 Utilizes the server views engine configured to render a template where:
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#serverviewsoptions).
 - `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#server.config.views) configuration.
+- `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration.
 - `callback` - the callback function with signature `function (err, rendered, config)` where:
     - `err` - the rendering error if any.
     - `rendered` - the result view string.
@@ -1374,11 +1371,10 @@ Utilizes the server views engine configured to render a template where:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server({
-    views: {
-        engines: { html: require('handlebars') },
-        path: __dirname + '/templates'
-    }
+var server = new Hapi.Server();
+server.views({
+    engines: { html: require('handlebars') },
+    path: __dirname + '/templates'
 });
 
 var context = {
@@ -1780,9 +1776,9 @@ _Available only within the handler method and only before one of `reply()`, `rep
 
 Concludes the handler activity by returning control over to the router with a templatized view response where:
 
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#server.config.views).
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#serverviewsoptions).
 - `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#server.config.views) configuration for this response. Cannot override
+- `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration for this response. Cannot override
   `isCached`, `partialsPath`, or `helpersPath` which are only loaded at initialization.
 
 Returns a response object.
@@ -1791,11 +1787,10 @@ The [response flow control rules](#flow-control) apply.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server({
-    views: {
-        engines: { html: require('handlebars') },
-        path: __dirname + '/templates'
-    }
+var server = new Hapi.Server();
+server.views({
+    engines: { html: require('handlebars') },
+    path: __dirname + '/templates'
 });
 
 var handler = function (request, reply) {
@@ -2063,7 +2058,12 @@ response object.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server({ views: { engines: { html: require('handlebars') } } });
+var server = new Hapi.Server();
+server.views({
+    engines: {
+        html: require('handlebars')
+    }
+});
 
 server.ext('onPreResponse', function (request, reply) {
 
@@ -2614,7 +2614,7 @@ var after = function (plugin, next) {
 #### `plugin.views(options)`
 
 Generates a plugin-specific views manager for rendering templates where:
-- `options` - the views configuration as described in the server's [`views`](#server.config.views) option. Note that due to the way node
+- `options` - the views configuration as described in the server's [`views`](#serverviewsoptions) option. Note that due to the way node
   `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
 
 Note that relative paths are relative to the plugin root, not the working directory or the application registering the plugin. This allows

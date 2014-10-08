@@ -45,14 +45,6 @@ describe('Server', function () {
         done();
     });
 
-    it('shallow clones views config', function (done) {
-
-        var views = { engines: { html: require('handlebars') } };
-        var server = new Hapi.Server({ views: views });
-        expect(server.settings.views).to.equal(views);
-        done();
-    });
-
     it('calls start twice', function (done) {
 
         var server = new Hapi.Server(0);
@@ -531,17 +523,6 @@ describe('Server', function () {
             var server = new Hapi.Server(true);
         };
         expect(fn).throws(Error);
-        done();
-    });
-
-    it('assigns this.views when config enables views', function (done) {
-
-        var server = new Hapi.Server({
-            views: {
-                engines: { 'html': require('handlebars') }
-            }
-        });
-        expect(server._views).to.exist;
         done();
     });
 

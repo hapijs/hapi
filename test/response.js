@@ -1282,15 +1282,12 @@ describe('Response', function () {
 
         it('emits internalError when view file for handler not found', function (done) {
 
-            var options = {
-                debug: false,
-                views: {
-                    engines: { 'html': require('handlebars') },
-                    path: __dirname
-                }
-            };
+            var server = new Hapi.Server({ debug: false });
 
-            var server = new Hapi.Server(options);
+            server.views({
+                engines: { 'html': require('handlebars') },
+                path: __dirname
+            });
 
             server.once('internalError', function (request, err) {
 

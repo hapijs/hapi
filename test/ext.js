@@ -68,11 +68,10 @@ describe('Ext', function () {
 
         it('replies with a view', function (done) {
 
-            var server = new Hapi.Server({
-                views: {
-                    engines: { 'html': require('handlebars') },
-                    path: __dirname + '/templates'
-                }
+            var server = new Hapi.Server();
+            server.views({
+                engines: { 'html': require('handlebars') },
+                path: __dirname + '/templates'
             });
 
             server.ext('onRequest', function (request, reply) {
