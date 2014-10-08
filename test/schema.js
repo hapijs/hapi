@@ -29,7 +29,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('server', settings);
-            }).to.throw('Invalid server options');
+            }).to.throw(/Invalid server options/);
             done();
         });
 
@@ -41,7 +41,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('server', server.settings);
-            }).to.throw('Invalid server options');
+            }).to.throw(/Invalid server options/);
             done();
         });
 
@@ -53,7 +53,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('server', server.settings);
-            }).to.throw('Invalid server options');
+            }).to.throw(/Invalid server options/);
             done();
         });
 
@@ -86,7 +86,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('route', options, '/');
-            }).to.throw('Invalid route options (/)');
+            }).to.throw(/Invalid route options \(\/\)/);
             done();
         });
 
@@ -96,7 +96,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('route', options, '/');
-            }).to.throw('Invalid route options (/)');
+            }).to.throw(/Invalid route options \(\/\)/);
             done();
         });
 
@@ -130,7 +130,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('routeConfig', config, '/');
-            }).to.throw('Invalid routeConfig options (/)');
+            }).to.throw(/Invalid routeConfig options \(\/\)/);
             done();
         });
 
@@ -145,6 +145,7 @@ describe('Schema', function () {
         });
 
         it('succeeds validating cache config', function (done) {
+
             var config = { handler: internals.item, cache: { expiresIn: 20000 } };
             expect(function () {
 
