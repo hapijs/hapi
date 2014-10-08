@@ -137,7 +137,43 @@ describe('Response', function () {
             });
         });
 
-        it('overrides cache-control with ttl', function (done) {
+        it('leaves existing cache-control header', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('text').code(400)
+                             .header('cache-control', 'some value');
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                expect(res.headers['cache-control']).to.equal('some value');
+                done();
+            });
+        });
+
+        it('sets cache-control header from ttl without policy', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('text').ttl(10000);
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
+                done();
+            });
+        });
+
+        it('leaves existing cache-control header (ttl)', function (done) {
 
             var handler = function (request, reply) {
 
@@ -151,7 +187,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate');
+                expect(res.headers['cache-control']).to.equal('none');
                 done();
             });
         });
