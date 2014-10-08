@@ -351,6 +351,113 @@ describe('payload', function () {
         });
     });
 
+    it('handles gzipped payload', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+
+        Zlib.gzip(JSON.stringify(message), function (err, buf) {
+
+            var request = {
+                method: 'POST',
+                url: '/',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-encoding': 'gzip',
+                    'content-length': buf.length
+                },
+                payload: buf
+            };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result).to.deep.equal(message);
+                done();
+            });
+        });
+    });
+
+    it('errors on wrong encoding', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+
+        Zlib.gzip(JSON.stringify(message), function (err, buf) {
+
+            var request = {
+                method: 'POST',
+                url: '/',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-encoding': 'deflate',
+                    'content-length': buf.length
+                },
+                payload: buf
+            };
+
+            server.inject(request, function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
+            });
+        });
+    });
+
+    it('handles non-gzipped payload', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        var payload = JSON.stringify(message);
+
+        var request = {
+            method: 'POST',
+            url: '/',
+            headers: {
+                'content-type': 'application/json',
+                'content-length': payload.length
+            },
+            payload: payload
+        };
+
+        server.inject(request, function (res) {
+
+            expect(res.result).to.exist;
+            expect(res.result).to.deep.equal(message);
+            done();
+        });
+    });
+
+    it('errors on non-JSON gzipped payload when expecting gzip', function (done) {
+
+        var badMessage = '{ gzip this is just wrong }';
+        var server = new Hapi.Server();
+        server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
+        Zlib.deflate(badMessage, function (err, buf) {
+
+            var request = {
+                method: 'POST',
+                url: '/',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-encoding': 'gzip',
+                    'content-length': buf.length
+                },
+                payload: buf
+            };
+
+            server.inject(request, function (res) {
+
+                expect(res.result).to.exist;
+                expect(res.result.message).to.exist;
+                done();
+            });
+        });
+    });
+
     describe('stream output', function () {
 
         it('does not set the request payload when streaming data in and the connection is interrupted', function (done) {
