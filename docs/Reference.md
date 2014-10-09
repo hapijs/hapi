@@ -1320,7 +1320,7 @@ or any previously registered types is not allowed.
 
 - `name` - string name for the handler being registered.
 - `method` - the function used to generate the route handler using the signature `function(route, options)` where:
-    - `route` - the internal route object.
+    - `route` - the route configuration object.
     - `options` - the configuration object provided in the handler config.
 
 The `method` function can have a `defaults` property of an object or function. If the property is set to an object, that object is used as
