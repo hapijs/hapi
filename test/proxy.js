@@ -1333,7 +1333,7 @@ describe('Proxy', function () {
             var server = new Hapi.Server();
             server.state('a');
 
-            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true, localStatePassThrough: false } } });
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
 
             server.inject({ url: '/', headers: { cookie: 'a=1;b=2' } }, function (res) {
 
@@ -1359,7 +1359,7 @@ describe('Proxy', function () {
             var server = new Hapi.Server();
             server.state('a', { passThrough: true });
 
-            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true, localStatePassThrough: false } } });
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
 
             server.inject({ url: '/', headers: { cookie: 'a=1;b=2' } }, function (res) {
 
@@ -1376,7 +1376,7 @@ describe('Proxy', function () {
         var server = new Hapi.Server({ state: { cookies: { failAction: 'ignore' } } });
         server.state('a', { passThrough: true });
 
-        server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: 8080, passThrough: true, localStatePassThrough: false } } });
+        server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: 8080, passThrough: true } } });
 
         server.inject({ url: '/', headers: { cookie: 'a' } }, function (res) {
 
@@ -1399,7 +1399,7 @@ describe('Proxy', function () {
             var server = new Hapi.Server();
             server.state('a');
 
-            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true, localStatePassThrough: false } } });
+            server.route({ method: 'GET', path: '/', handler: { proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
 
             server.inject({ url: '/', headers: { cookie: 'a=1' } }, function (res) {
 
