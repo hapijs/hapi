@@ -3,7 +3,7 @@ test:
 test-tap:
 	@node node_modules/lab/bin/lab -r tap -o tests.tap
 test-cov:
-	@node node_modules/lab/bin/lab -t 100
+	@node node_modules/lab/bin/lab -t 100 -L
 test-cov-html:
 	@node node_modules/lab/bin/lab -r html -o coverage.html
 changelog:
