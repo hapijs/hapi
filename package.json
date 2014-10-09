@@ -28,6 +28,7 @@
     "h2o2": "2.x.x",
     "heavy": "1.x.x",
     "hoek": "^2.4.x",
+    "inert": "1.x.x",
     "iron": "2.x.x",
     "items": "1.x.x",
     "joi": "^4.4.x",
