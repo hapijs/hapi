@@ -602,6 +602,10 @@ The following options are available when adding a route:
       For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON response is `'{ "a":"b" }'`, the payload will be:
       `'me({ "a":"b" });'`. Does not work with stream responses.
 
+    - `files` - overrides the server settings controling the behavior for serving static resources using the built-in route handlers for files and
+      directories:
+        - `relativeTo` - determines the folder relative paths are resolved against when using the file and directory handlers.
+
     - `description` - route description used for generating documentation (string).
     - `notes` - route notes used for generating documentation (string or array of strings).
     - `tags` - route tags used for generating documentation (array of strings).

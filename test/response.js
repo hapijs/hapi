@@ -1352,6 +1352,23 @@ describe('Response', function () {
             });
         });
 
+        it('returns a file using route relativeTo', function (done) {
+
+            var server = new Hapi.Server();
+            var handler = function (request, reply) {
+
+                reply.file('../package.json');
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler, config: { files: { relativeTo: __dirname } } });
+
+            server.inject('/file', function (res) {
+
+                expect(res.payload).to.contain('hapi');
+                done();
+            });
+        });
+
         it('returns a file in the response with the correct headers using cwd relative paths without content-disposition header', function (done) {
 
             var server = new Hapi.Server();
