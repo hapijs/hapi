@@ -22,7 +22,7 @@
     "boom": "^2.5.x",
     "bossy": "1.x.x",
     "call": "1.x.x",
-    "catbox": "^3.3.x",
+    "catbox": "4.x.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
     "h2o2": "1.x.x",

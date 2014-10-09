@@ -208,9 +208,9 @@ describe('Server', function () {
 
             cache.set('a', 'going in', 0, function (err) {
 
-                cache.get('a', function (err, value) {
+                cache.get('a', function (err, value, cached, report) {
 
-                    expect(value.item).to.equal('going in');
+                    expect(value).to.equal('going in');
 
                     server.stop(function () {
 
@@ -229,10 +229,9 @@ describe('Server', function () {
 
             cache.set('a', 'going in', 0, function (err) {
 
-                cache.get('a', function (err, value) {
+                cache.get('a', function (err, value, cached, report) {
 
-                    expect(value.item).to.equal('going in');
-
+                    expect(value).to.equal('going in');
                     expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
 
                     server.stop(function () {

@@ -963,12 +963,14 @@ describe('Pack', function () {
                 var cache = plugin.cache({ expiresIn: 10 });
                 plugin.expose({
                     get: function (key, callback) {
-                        cache.get(key, function (err, value) {
 
-                            callback(err, value && value.item);
+                        cache.get(key, function (err, value, cached, report) {
+
+                            callback(err, value);
                         });
                     },
                     set: function (key, value, callback) {
+
                         cache.set(key, value, 0, callback);
                     }
                 });

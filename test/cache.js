@@ -120,12 +120,12 @@ describe('Cache', function () {
 
                     expect(err).to.not.exist;
 
-                    defaults.get('b', function (err, cached) {
+                    defaults.get('b', function (err, value, cached, report) {
 
                         expect(err).to.not.exist;
-                        expect(cached.item).to.equal(1);
+                        expect(value).to.equal(1);
 
-                        primary.get('b', function (err, cached) {
+                        primary.get('b', function (err, value, cached, report) {
 
                             expect(err).to.not.exist;
                             expect(cached.item).to.equal(2);
