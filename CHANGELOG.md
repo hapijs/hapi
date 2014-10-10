@@ -1,4 +1,29 @@
 
+## [**7.0.0**](https://github.com/hapijs/hapi/issues?milestone=117&state=open)
+- [**#2022**](https://github.com/hapijs/hapi/issues/2022) Spin off file and directory to inert
+- [**#1913**](https://github.com/hapijs/hapi/issues/1913) Change proxy localStatePassThrough setting default to false
+- [**#2021**](https://github.com/hapijs/hapi/issues/2021) Override server files.relativeTo config per route
+- [**#2020**](https://github.com/hapijs/hapi/issues/2020) h2o2 2.0
+- [**#1941**](https://github.com/hapijs/hapi/issues/1941) Remove route from handler registration arguments
+- [**#2019**](https://github.com/hapijs/hapi/issues/2019) Catbox 4.0
+- [**#1954**](https://github.com/hapijs/hapi/issues/1954) Remove support for catbox getOrGenerate()
+- [**#2017**](https://github.com/hapijs/hapi/issues/2017) Initial 7.0 changes
+- [**#2016**](https://github.com/hapijs/hapi/issues/2016) Remove $env support from pack.compose()
+- [**#1955**](https://github.com/hapijs/hapi/issues/1955) Use environment variables in CLI configuration json file
+- [**#2011**](https://github.com/hapijs/hapi/issues/2011) Hapi should not override `cache-control` header if it&#39;s manually set by user&#39;s code
+- [**#1960**](https://github.com/hapijs/hapi/issues/1960) Remove support for tos authentication setting
+- [**#2007**](https://github.com/hapijs/hapi/issues/2007) Remove server views config
+
+## [**6.11.1**](https://github.com/hapijs/hapi/issues?milestone=122&state=closed)
+- [**#2010**](https://github.com/hapijs/hapi/issues/2010) Heavy
+- [**#2002**](https://github.com/hapijs/hapi/issues/2002) show route method in error message
+
+## [**6.11.0**](https://github.com/hapijs/hapi/issues?milestone=121&state=closed)
+- [**#1984**](https://github.com/hapijs/hapi/issues/1984) All non 200 responses get cache-control=no-cache header
+- [**#1995**](https://github.com/hapijs/hapi/issues/1995) Adding route with multiple methods overrides route config
+- [**#2001**](https://github.com/hapijs/hapi/issues/2001) Keep the options of server.inject untouched #2000
+- [**#2005**](https://github.com/hapijs/hapi/issues/2005) Replace negotiator
+
 ## [**6.10.0**](https://github.com/hapijs/hapi/issues?milestone=120&state=closed)
 - [**#1998**](https://github.com/hapijs/hapi/issues/1998) Migrate payload parsing to subtext with multipart support via pez
 - [**#1993**](https://github.com/hapijs/hapi/issues/1993) Replaced optimist with bossy
