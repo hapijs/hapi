@@ -7,7 +7,12 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    console.log('app.my: %s, options.key: %s', plugin.app.my, options.key);
+    // Need to wait until the server starts to make sure that the port can
+    // be bound to successfully.
+    plugin.events.on('start', function () {
+
+        console.log('app.my: %s, options.key: %s', plugin.app.my, options.key);
+    });
 
     return next();
 };
