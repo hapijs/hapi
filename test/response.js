@@ -1556,7 +1556,7 @@ describe('Response', function () {
 
             var server = new Hapi.Server();
 
-            server.route({ method: 'GET', path: '/filefolder', handler: { file: 'examples' } });
+            server.route({ method: 'GET', path: '/filefolder', handler: { file: 'lib' } });
 
             server.inject('/filefolder', function (res) {
 
