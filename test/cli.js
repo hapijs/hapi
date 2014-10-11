@@ -385,7 +385,7 @@ describe('Hapi command line', function () {
             },
             servers: [
                 {
-                    port: '$env.port',
+                    port: '$env.undefined',
                     options: {
                         labels: ['api', 'nasty', 'test']
                     }
@@ -424,6 +424,8 @@ describe('Hapi command line', function () {
         changes.push(setEnv('plugin_option', 'plugin-option'));
         changes.push(setEnv('port', 0));
         changes.push(setEnv('special_value', 'special-value'));
+        // Ensure that the 'undefined' environment variable is *not* set.
+        changes.push(setEnv('undefined'));
 
         var configPath = internals.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
