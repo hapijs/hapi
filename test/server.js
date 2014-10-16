@@ -192,7 +192,7 @@ describe('Server', function () {
 
                     server.stop(function () {
 
-                        expect(server.listeners('connection').length).to.be.eql(0);
+                        expect(server.listeners('connection').length).to.equal(0);
                         done();
                     });
                 });

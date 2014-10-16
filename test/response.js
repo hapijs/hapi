@@ -1713,9 +1713,9 @@ describe('Response', function () {
                     server.inject({ url: '/note', headers: { 'if-none-match': etag1 } }, function (res3) {
 
                         expect(res3.statusCode).to.equal(304);
-                        expect(res3.headers).to.not.have.property('content-length');
-                        expect(res3.headers).to.not.have.property('etag');
-                        expect(res3.headers).to.not.have.property('last-modified');
+                        expect(res3.headers['content-length']).to.not.exist;
+                        expect(res3.headers.etag).to.not.exist;
+                        expect(res3.headers['last-modified']).to.not.exist;
 
                         var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
                         Fs.writeSync(fd, new Buffer('Test'), 0, 4);
@@ -1808,9 +1808,9 @@ describe('Response', function () {
                 server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers).to.not.have.property('content-length');
-                    expect(res2.headers).to.not.have.property('etag');
-                    expect(res2.headers).to.not.have.property('last-modified');
+                    expect(res2.headers['content-length']).to.not.exist;
+                    expect(res2.headers.etag).to.not.exist;
+                    expect(res2.headers['last-modified']).to.not.exist;
                     done();
                 });
             });
@@ -1826,9 +1826,9 @@ describe('Response', function () {
                  server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers).to.not.have.property('content-length');
-                    expect(res2.headers).to.not.have.property('etag');
-                    expect(res2.headers).to.not.have.property('last-modified');
+                    expect(res2.headers['content-length']).to.not.exist;
+                    expect(res2.headers.etag).to.not.exist;
+                    expect(res2.headers['last-modified']).to.not.exist;
                     done();
                 });
             });
@@ -1844,8 +1844,8 @@ describe('Response', function () {
                 server.inject({ method: 'HEAD', url: '/file' }, function (res2) {
 
                     expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers).to.have.property('etag');
-                    expect(res2.headers).to.have.property('last-modified');
+                    expect(res2.headers.etag).to.exist;
+                    expect(res2.headers['last-modified']).to.exist;
                     done();
                 });
             });
@@ -1861,8 +1861,8 @@ describe('Response', function () {
                 server.inject('/file', function (res2) {
 
                     expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers).to.have.property('etag');
-                    expect(res2.headers).to.have.property('last-modified');
+                    expect(res2.headers.etag).to.exist;
+                    expect(res2.headers['last-modified']).to.exist;
 
                     server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res3) {
 
