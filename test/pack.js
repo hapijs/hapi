@@ -2216,7 +2216,7 @@ describe('Pack', function () {
             expect(function() {
 
                 Hapi.Pack.compose(manifest, function () {});
-            }).to.throw('Invalid manifest options');
+            }).to.throw(/Invalid manifest options/);
             done();
         });
     });
