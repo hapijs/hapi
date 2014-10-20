@@ -6,6 +6,7 @@ var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');
 var FormData = require('form-data');
+var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -22,7 +23,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('payload', function () {

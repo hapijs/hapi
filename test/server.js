@@ -7,10 +7,11 @@ var Https = require('https');
 var Stream = require('stream');
 var Os = require('os');
 var Path = require('path');
-var Wreck = require('wreck');
-var Lab = require('lab');
-var Hoek = require('hoek');
+var Code = require('code');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Lab = require('lab');
+var Wreck = require('wreck');
 var Defaults = require('../lib/defaults');
 
 
@@ -24,7 +25,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Server', function () {

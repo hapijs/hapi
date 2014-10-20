@@ -45,9 +45,10 @@
     "lru-cache": "2.5.x"
   },
   "devDependencies": {
-    "lab": "4.x.x",
+    "code": "1.x.x",
     "handlebars": "1.x.x",
-    "form-data": "0.1.x"
+    "form-data": "0.1.x",
+    "lab": "4.x.x"
   },
   "bin": {
     "hapi": "./bin/hapi"

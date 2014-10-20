@@ -5,6 +5,7 @@ var Fs = require('fs');
 var Os = require('os');
 var Path = require('path');
 var Crypto = require('crypto');
+var Code = require('code');
 var Lab = require('lab');
 var Hapi = require('..');
 var Hoek = require('hoek');
@@ -20,7 +21,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 internals.uniqueFilename = function (path) {

@@ -1,12 +1,13 @@
 // Load modules
 
 var Net = require('net');
-var Lab = require('lab');
 var Fs = require('fs');
 var Http = require('http');
 var Zlib = require('zlib');
-var Wreck = require('wreck');
+var Code = require('code');
 var Hapi = require('..');
+var Lab = require('lab');
+var Wreck = require('wreck');
 
 
 // Declare internals
@@ -19,7 +20,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Proxy', function () {

@@ -3,6 +3,7 @@
 var Http = require('http');
 var Net = require('net');
 var Stream = require('stream');
+var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -20,7 +21,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Request', function () {

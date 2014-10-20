@@ -8,11 +8,12 @@ var Zlib = require('zlib');
 var ChildProcess = require('child_process');
 var Crypto = require('crypto');
 var Path = require('path');
-var Lab = require('lab');
+var Code = require('code');
+var Hapi = require('..');
 var Hoek = require('hoek');
 var Joi = require('joi');
+var Lab = require('lab');
 var Wreck = require('wreck');
-var Hapi = require('..');
 var Response = require('../lib/response');
 var Payload = require('../lib/response/payload');
 
@@ -27,7 +28,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 internals.uniqueFilename = function (path) {
