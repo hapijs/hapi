@@ -778,7 +778,7 @@ describe('Handler', function () {
         server.inject('/user/5', function (res) {
 
             expect(res.result[0].tags).to.deep.equal(['hapi', 'pre', 'method', 'user']);
-            expect(res.result[0].data.msec).to.exist;
+            expect(res.result[0].data.msec).to.exist();
             done();
         });
     });

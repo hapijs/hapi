@@ -297,7 +297,7 @@ describe('Method', function () {
                 expect(result.gen).to.equal(0);
                 server.methods.dropTest.cache.drop(2, function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
 
                     server.methods.dropTest(2, function (err, result) {
 
@@ -324,7 +324,7 @@ describe('Method', function () {
 
             server.methods.dropErrTest.cache.drop(function () { }, function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 done();
             });
         });
@@ -337,7 +337,7 @@ describe('Method', function () {
             var server = new Hapi.Server();
             server.method(0, function () { });
         };
-        expect(fn).to.throw(Error);
+        expect(fn).to.throw();
         done();
     });
 
@@ -347,25 +347,25 @@ describe('Method', function () {
 
             var server = new Hapi.Server();
             server.method('0', function () { });
-        }).to.throw(Error);
+        }).to.throw();
 
         expect(function () {
 
             var server = new Hapi.Server();
             server.method('a..', function () { });
-        }).to.throw(Error);
+        }).to.throw();
 
         expect(function () {
 
             var server = new Hapi.Server();
             server.method('a.0', function () { });
-        }).to.throw(Error);
+        }).to.throw();
 
         expect(function () {
 
             var server = new Hapi.Server();
             server.method('.a', function () { });
-        }).to.throw(Error);
+        }).to.throw();
 
         done();
     });
@@ -377,7 +377,7 @@ describe('Method', function () {
             var server = new Hapi.Server();
             server.method('user', 'function');
         };
-        expect(fn).to.throw(Error);
+        expect(fn).to.throw();
         done();
     });
 
@@ -388,7 +388,7 @@ describe('Method', function () {
             var server = new Hapi.Server();
             server.method('user', function () { }, 'options');
         };
-        expect(fn).to.throw(Error);
+        expect(fn).to.throw();
         done();
     });
 
@@ -399,7 +399,7 @@ describe('Method', function () {
             var server = new Hapi.Server();
             server.method('user', function () { }, { generateKey: 'function' });
         };
-        expect(fn).to.throw(Error);
+        expect(fn).to.throw();
         done();
     });
 
@@ -410,7 +410,7 @@ describe('Method', function () {
             var server = new Hapi.Server({ cache: require('catbox-memory') });
             server.method('user', function () { }, { cache: { x: 'y' } });
         };
-        expect(fn).to.throw(Error);
+        expect(fn).to.throw();
         done();
     });
 
@@ -446,7 +446,7 @@ describe('Method', function () {
         server.method('user', function (id, next) { return next(new Error()); });
         server.methods.user(4, function (err, result) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             done();
         });
     });

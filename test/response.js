@@ -121,12 +121,12 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('text');
                 expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
                 expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
                 expect(res.headers['access-control-allow-origin']).to.equal('*');
-                expect(res.headers['access-control-allow-credentials']).to.not.exist;
+                expect(res.headers['access-control-allow-credentials']).to.not.exist();
                 expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
                 expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'always=present']);
                 expect(res.headers.vary).to.equal('x-control');
@@ -202,7 +202,7 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
                 done();
@@ -239,9 +239,9 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
-                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers['access-control-allow-origin']).to.not.exist();
                 expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
                 done();
             });
@@ -259,7 +259,7 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.equal('something');
                 done();
@@ -278,9 +278,9 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
-                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers['access-control-allow-origin']).to.not.exist();
                 done();
             });
         });
@@ -297,9 +297,9 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
-                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers['access-control-allow-origin']).to.not.exist();
                 expect(res.headers.vary).to.equal('origin');
                 done();
             });
@@ -317,9 +317,9 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
-                expect(res.headers['access-control-allow-origin']).to.not.exist;
+                expect(res.headers['access-control-allow-origin']).to.not.exist();
                 expect(res.headers.vary).to.equal('origin');
                 done();
             });
@@ -337,7 +337,7 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
                 expect(res.headers.vary).to.equal('x-test,origin');
@@ -357,7 +357,7 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
                 expect(res.headers.vary).to.equal('x-test,origin');
@@ -377,7 +377,7 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
                 expect(res.headers.vary).to.equal('x-test,origin');
@@ -397,7 +397,7 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
                 expect(res.headers.vary).to.equal('x-test,origin');
@@ -417,7 +417,7 @@ describe('Response', function () {
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
                 expect(res.headers.vary).to.equal('x-test');
@@ -436,10 +436,10 @@ describe('Response', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
-                expect(res.headers['access-control-allow-methods']).to.exist;
-                expect(res.headers['access-control-expose-headers']).to.not.exist;
+                expect(res.headers['access-control-allow-methods']).to.exist();
+                expect(res.headers['access-control-expose-headers']).to.not.exist();
                 done();
             });
         });
@@ -455,13 +455,13 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.not.exist;
-                expect(res.headers['x-frame-options']).to.not.exist;
-                expect(res.headers['x-xss-protection']).to.not.exist;
-                expect(res.headers['x-download-options']).to.not.exist;
-                expect(res.headers['x-content-type-options']).to.not.exist;
+                expect(res.headers['strict-transport-security']).to.not.exist();
+                expect(res.headers['x-frame-options']).to.not.exist();
+                expect(res.headers['x-xss-protection']).to.not.exist();
+                expect(res.headers['x-download-options']).to.not.exist();
+                expect(res.headers['x-content-type-options']).to.not.exist();
                 done();
             });
         });
@@ -477,7 +477,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
                 expect(res.headers['x-frame-options']).to.equal('DENY');
@@ -503,13 +503,13 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.not.exist;
-                expect(res.headers['x-frame-options']).to.not.exist;
-                expect(res.headers['x-xss-protection']).to.not.exist;
-                expect(res.headers['x-download-options']).to.not.exist;
-                expect(res.headers['x-content-type-options']).to.not.exist;
+                expect(res.headers['strict-transport-security']).to.not.exist();
+                expect(res.headers['x-frame-options']).to.not.exist();
+                expect(res.headers['x-xss-protection']).to.not.exist();
+                expect(res.headers['x-download-options']).to.not.exist();
+                expect(res.headers['x-content-type-options']).to.not.exist();
                 done();
             });
 
@@ -526,9 +526,9 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.not.exist;
+                expect(res.headers['strict-transport-security']).to.not.exist();
                 expect(res.headers['x-frame-options']).to.equal('DENY');
                 expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
                 expect(res.headers['x-download-options']).to.equal('noopen');
@@ -549,7 +549,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
                 done();
@@ -567,7 +567,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
                 done();
@@ -585,7 +585,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=123456789; includeSubdomains');
                 done();
@@ -603,7 +603,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
                 done();
@@ -621,7 +621,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubdomains');
                 done();
@@ -639,9 +639,9 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['x-frame-options']).to.not.exist;
+                expect(res.headers['x-frame-options']).to.not.exist();
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
                 expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
                 expect(res.headers['x-download-options']).to.equal('noopen');
@@ -662,7 +662,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('DENY');
                 done();
@@ -680,7 +680,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
                 done();
@@ -698,7 +698,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('ALLOW-FROM http://example.com');
                 done();
@@ -716,7 +716,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('DENY');
                 done();
@@ -734,7 +734,7 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
                 expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
                 done();
@@ -752,9 +752,9 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['x-download-options']).to.not.exist;
+                expect(res.headers['x-download-options']).to.not.exist();
                 done();
             });
         });
@@ -770,9 +770,9 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['x-content-type-options']).to.not.exist;
+                expect(res.headers['x-content-type-options']).to.not.exist();
                 done();
             });
         });
@@ -788,9 +788,9 @@ describe('Response', function () {
 
             server.inject({ url: '/' }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['x-xss-protection']).to.not.exist;
+                expect(res.headers['x-xss-protection']).to.not.exist();
                 expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
                 expect(res.headers['x-frame-options']).to.equal('DENY');
                 expect(res.headers['x-download-options']).to.equal('noopen');
@@ -828,9 +828,9 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result.message).to.equal('An internal server error occurred');
-                expect(res.headers['set-cookie']).to.not.exist;
+                expect(res.headers['set-cookie']).to.not.exist();
                 done();
             });
         });
@@ -1197,7 +1197,7 @@ describe('Response', function () {
                 expect(res.headers.vary).to.equal('accept-encoding');
                 Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, result) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(result.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
                     done();
                 });
@@ -1234,7 +1234,7 @@ describe('Response', function () {
 
             server.inject('/?callback=me*', function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result.message).to.equal('Invalid JSONP parameter value');
                 done();
             });
@@ -1275,7 +1275,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 done();
             });
         });
@@ -1291,7 +1291,7 @@ describe('Response', function () {
 
             server.once('internalError', function (request, err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err.message).to.contain('View file not found');
                 done();
             });
@@ -1301,7 +1301,7 @@ describe('Response', function () {
             server.inject('/hello', function (res) {
 
                 expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
@@ -1346,8 +1346,8 @@ describe('Response', function () {
                 expect(res.statusCode).to.equal(499);
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
-                expect(res.headers['content-disposition']).to.not.exist;
+                expect(res.headers['content-length']).to.exist();
+                expect(res.headers['content-disposition']).to.not.exist();
                 done();
             });
         });
@@ -1378,8 +1378,8 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
-                expect(res.headers['content-disposition']).to.not.exist;
+                expect(res.headers['content-length']).to.exist();
+                expect(res.headers['content-disposition']).to.not.exist();
                 done();
             });
         });
@@ -1393,7 +1393,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                 done();
             });
@@ -1408,7 +1408,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('inline; filename=attachment.json');
                 done();
             });
@@ -1423,7 +1423,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
                 done();
             });
@@ -1438,7 +1438,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('attachment; filename=attachment.json');
                 done();
             });
@@ -1453,8 +1453,8 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
-                expect(res.headers['content-disposition']).to.not.exist;
+                expect(res.headers['content-length']).to.exist();
+                expect(res.headers['content-disposition']).to.not.exist();
                 done();
             });
         });
@@ -1473,7 +1473,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('attachment; filename=package.json');
                 done();
             });
@@ -1493,7 +1493,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('attachment; filename=attachment.json');
                 done();
             });
@@ -1513,7 +1513,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('inline; filename=package.json');
                 done();
             });
@@ -1533,7 +1533,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 expect(res.headers['content-disposition']).to.equal('inline; filename=attachment.json');
                 done();
             });
@@ -1574,7 +1574,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 done();
             });
         });
@@ -1593,7 +1593,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('./lib');
                 expect(res.headers['content-type']).to.equal('application/javascript; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 done();
             });
         });
@@ -1612,7 +1612,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 done();
             });
         });
@@ -1626,7 +1626,7 @@ describe('Response', function () {
 
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist;
+                expect(res.headers['content-length']).to.exist();
                 done();
             });
         });
@@ -1669,13 +1669,13 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('Test');
-                expect(res.headers.etag).to.not.exist;
+                expect(res.headers.etag).to.not.exist();
 
                 server.inject('/note', function (res) {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result).to.equal('Test');
-                    expect(res.headers.etag).to.not.exist;
+                    expect(res.headers.etag).to.not.exist();
                     done();
                 });
             });
@@ -1693,7 +1693,7 @@ describe('Response', function () {
 
                 expect(res1.statusCode).to.equal(200);
                 expect(res1.result).to.equal('Test');
-                expect(res1.headers.etag).to.not.exist;
+                expect(res1.headers.etag).to.not.exist();
 
                 // No etag, previously requested
 
@@ -1701,7 +1701,7 @@ describe('Response', function () {
 
                     expect(res2.statusCode).to.equal(200);
                     expect(res2.result).to.equal('Test');
-                    expect(res2.headers.etag).to.exist;
+                    expect(res2.headers.etag).to.exist();
 
                     var etag1 = res2.headers.etag;
 
@@ -1713,9 +1713,9 @@ describe('Response', function () {
                     server.inject({ url: '/note', headers: { 'if-none-match': etag1 } }, function (res3) {
 
                         expect(res3.statusCode).to.equal(304);
-                        expect(res3.headers['content-length']).to.not.exist;
-                        expect(res3.headers.etag).to.not.exist;
-                        expect(res3.headers['last-modified']).to.not.exist;
+                        expect(res3.headers['content-length']).to.not.exist();
+                        expect(res3.headers.etag).to.not.exist();
+                        expect(res3.headers['last-modified']).to.not.exist();
 
                         var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
                         Fs.writeSync(fd, new Buffer('Test'), 0, 4);
@@ -1727,7 +1727,7 @@ describe('Response', function () {
 
                             expect(res4.statusCode).to.equal(200);
                             expect(res4.result).to.equal('Test');
-                            expect(res4.headers.etag).to.not.exist;
+                            expect(res4.headers.etag).to.not.exist();
 
                             // No etag, previously requested
 
@@ -1735,7 +1735,7 @@ describe('Response', function () {
 
                                 expect(res5.statusCode).to.equal(200);
                                 expect(res5.result).to.equal('Test');
-                                expect(res5.headers.etag).to.exist;
+                                expect(res5.headers.etag).to.exist();
 
                                 var etag2 = res5.headers.etag;
                                 expect(etag1).to.equal(etag2);
@@ -1750,7 +1750,7 @@ describe('Response', function () {
 
                                     expect(res6.statusCode).to.equal(200);
                                     expect(res6.result).to.equal('Test1');
-                                    expect(res6.headers.etag).to.not.exist;
+                                    expect(res6.headers.etag).to.not.exist();
 
                                     // No etag, previously requested
 
@@ -1758,7 +1758,7 @@ describe('Response', function () {
 
                                         expect(res7.statusCode).to.equal(200);
                                         expect(res7.result).to.equal('Test1');
-                                        expect(res7.headers.etag).to.exist;
+                                        expect(res7.headers.etag).to.exist();
 
                                         var etag3 = res7.headers.etag;
                                         expect(etag1).to.not.equal(etag3);
@@ -1780,7 +1780,7 @@ describe('Response', function () {
 
                                                 expect(res9.statusCode).to.equal(200);
                                                 expect(res9.result).to.equal('Test');
-                                                expect(res9.headers.etag).to.exist;
+                                                expect(res9.headers.etag).to.exist();
 
                                                 var etag4 = res9.headers.etag;
                                                 expect(etag1).to.equal(etag4);
@@ -1808,9 +1808,9 @@ describe('Response', function () {
                 server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers['content-length']).to.not.exist;
-                    expect(res2.headers.etag).to.not.exist;
-                    expect(res2.headers['last-modified']).to.not.exist;
+                    expect(res2.headers['content-length']).to.not.exist();
+                    expect(res2.headers.etag).to.not.exist();
+                    expect(res2.headers['last-modified']).to.not.exist();
                     done();
                 });
             });
@@ -1826,9 +1826,9 @@ describe('Response', function () {
                  server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers['content-length']).to.not.exist;
-                    expect(res2.headers.etag).to.not.exist;
-                    expect(res2.headers['last-modified']).to.not.exist;
+                    expect(res2.headers['content-length']).to.not.exist();
+                    expect(res2.headers.etag).to.not.exist();
+                    expect(res2.headers['last-modified']).to.not.exist();
                     done();
                 });
             });
@@ -1844,8 +1844,8 @@ describe('Response', function () {
                 server.inject({ method: 'HEAD', url: '/file' }, function (res2) {
 
                     expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers.etag).to.exist;
-                    expect(res2.headers['last-modified']).to.exist;
+                    expect(res2.headers.etag).to.exist();
+                    expect(res2.headers['last-modified']).to.exist();
                     done();
                 });
             });
@@ -1861,8 +1861,8 @@ describe('Response', function () {
                 server.inject('/file', function (res2) {
 
                     expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers.etag).to.exist;
-                    expect(res2.headers['last-modified']).to.exist;
+                    expect(res2.headers.etag).to.exist();
+                    expect(res2.headers['last-modified']).to.exist();
 
                     server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res3) {
 
@@ -1996,8 +1996,8 @@ describe('Response', function () {
 
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['content-length']).to.not.exist;
-                expect(res.payload).to.exist;
+                expect(res.headers['content-length']).to.not.exist();
+                expect(res.payload).to.exist();
                 done();
             });
         });
@@ -2015,9 +2015,9 @@ describe('Response', function () {
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.headers['content-type']).to.equal('image/png');
-                expect(res.headers['content-encoding']).to.not.exist;
+                expect(res.headers['content-encoding']).to.not.exist();
                 expect(res.headers['content-length']).to.equal(42010);
-                expect(res.payload).to.exist;
+                expect(res.payload).to.exist();
                 done();
             });
         });
@@ -2036,8 +2036,8 @@ describe('Response', function () {
 
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('deflate');
-                expect(res.headers['content-length']).to.not.exist;
-                expect(res.payload).to.exist;
+                expect(res.headers['content-length']).to.not.exist();
+                expect(res.payload).to.exist();
                 done();
             });
         });
@@ -2067,8 +2067,8 @@ describe('Response', function () {
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['content-length']).to.not.exist;
-                expect(res.payload).to.exist;
+                expect(res.headers['content-length']).to.not.exist();
+                expect(res.payload).to.exist();
                 done();
             });
         });
@@ -2096,7 +2096,7 @@ describe('Response', function () {
             server.inject('/file', function (res) {
 
                 expect(res.headers['content-type']).to.equal('image/png');
-                expect(res.payload).to.exist;
+                expect(res.payload).to.exist();
                 done();
             });
         });
@@ -2109,7 +2109,7 @@ describe('Response', function () {
                 server.route({ method: 'GET', path: '/fileparam/{path}', handler: { file: function () { } } });
             };
 
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
             done();
         });
 
@@ -2354,7 +2354,7 @@ describe('Response', function () {
             server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.not.exist;
+                expect(res.headers['content-length']).to.not.exist();
                 done();
             });
         });
@@ -2372,7 +2372,7 @@ describe('Response', function () {
             server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.not.exist;
+                expect(res.headers['content-length']).to.not.exist();
                 done();
             });
         });
@@ -2531,7 +2531,7 @@ describe('Response', function () {
 
                 Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body === expectedBody).to.equal(true);
                     done();
                 });
@@ -2580,7 +2580,7 @@ describe('Response', function () {
 
                 Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body === expectedBody).to.equal(true);
                     done();
                 });
@@ -2674,7 +2674,7 @@ describe('Response', function () {
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     res.on('data', function (chunk) { });
                 });
             });
@@ -2751,7 +2751,7 @@ describe('Response', function () {
 
             server.inject('http://example.org/', function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.headers.location).to.equal('http://example.org/example');
                 expect(res.statusCode).to.equal(302);
                 done();
@@ -2770,7 +2770,7 @@ describe('Response', function () {
 
             server.inject('/', function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.equal('We moved!');
                 expect(res.headers.location).to.equal('http://0.0.0.0:' + server.info.port + '/examplex');
                 expect(res.statusCode).to.equal(302);
@@ -3012,7 +3012,7 @@ describe('Response', function () {
 
                 Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(zipped.toString());
                     done();
                 });
@@ -3035,7 +3035,7 @@ describe('Response', function () {
 
                 Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(zipped.toString());
                     done();
                 });
@@ -3056,7 +3056,7 @@ describe('Response', function () {
 
             Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(body).to.equal(data);
                 done();
             });
@@ -3076,7 +3076,7 @@ describe('Response', function () {
 
             Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(body).to.equal(data);
                 done();
             });
@@ -3097,7 +3097,7 @@ describe('Response', function () {
 
                 Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(deflated.toString());
                     done();
                 });
@@ -3119,7 +3119,7 @@ describe('Response', function () {
 
                 Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(deflated.toString());
                     done();
                 });
@@ -3142,7 +3142,7 @@ describe('Response', function () {
 
                 Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(zipped.toString());
                     done();
                 });
@@ -3165,7 +3165,7 @@ describe('Response', function () {
 
                 Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(zipped.toString());
                     done();
                 });
@@ -3188,7 +3188,7 @@ describe('Response', function () {
 
                 Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(deflated.toString());
                     done();
                 });
@@ -3211,7 +3211,7 @@ describe('Response', function () {
 
                 Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(deflated.toString());
                     done();
                 });
@@ -3234,7 +3234,7 @@ describe('Response', function () {
 
                 Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(zipped.toString());
                     done();
                 });
@@ -3257,7 +3257,7 @@ describe('Response', function () {
 
                 Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(body).to.equal(zipped.toString());
                     done();
                 });
@@ -3278,7 +3278,7 @@ describe('Response', function () {
 
             Wreck.post(uri, { payload: data }, function (err, res, body) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(body).to.equal(data);
                 done();
             });
@@ -3298,7 +3298,7 @@ describe('Response', function () {
 
             Wreck.get(uri, {}, function (err, res, body) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(body.toString()).to.equal(data);
                 done();
             });

@@ -110,24 +110,24 @@ describe('Cache', function () {
 
         server.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             defaults.set('b', 1, null, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 primary.set('b', 2, null, function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
 
                     defaults.get('b', function (err, value, cached, report) {
 
-                        expect(err).to.not.exist;
+                        expect(err).to.not.exist();
                         expect(value).to.equal(1);
 
                         primary.get('b', function (err, value, cached, report) {
 
-                            expect(err).to.not.exist;
+                            expect(err).to.not.exist();
                             expect(cached.item).to.equal(2);
                             server.stop();
                             done();
@@ -144,7 +144,7 @@ describe('Cache', function () {
         expect(function () {
 
             server.cache('a', { expiresAt: '12:00', expiresIn: 1000 });
-        }).throws(Error);
+        }).throws();
 
         done();
     });
@@ -155,7 +155,7 @@ describe('Cache', function () {
         expect(function () {
 
             server.cache('a', {});
-        }).to.not.throw(Error);
+        }).to.not.throw();
 
         done();
     });

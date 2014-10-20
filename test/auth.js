@@ -269,7 +269,7 @@ describe('Auth', function () {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result.status).to.equal(true);
-                    expect(res.result.error).to.not.exist;
+                    expect(res.result.error).to.not.exist();
                     done();
                 });
             });

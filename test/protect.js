@@ -111,7 +111,7 @@ describe('Protect', function () {
         var server = new Hapi.Server(0, { debug: false });
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             server.start(function () {
 
@@ -138,7 +138,7 @@ describe('Protect', function () {
 
         server.on('log', function (event, tags) {
 
-            expect(tags.implementation).to.exist;
+            expect(tags.implementation).to.exist();
             done();
         });
 

@@ -82,7 +82,7 @@ describe('Hapi command line', function () {
 
         hapi.stderr.once('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
     });
 
@@ -140,7 +140,7 @@ describe('Hapi command line', function () {
 
         hapi.stderr.once('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
     });
 
@@ -184,7 +184,7 @@ describe('Hapi command line', function () {
 
         hapi.stdout.on('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
 
         hapi.stderr.once('data', function (data) {
@@ -241,7 +241,7 @@ describe('Hapi command line', function () {
 
         hapi.stdout.on('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
 
         hapi.stderr.once('data', function (data) {
@@ -297,7 +297,7 @@ describe('Hapi command line', function () {
 
         hapi.stdout.on('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
 
         hapi.stderr.once('data', function (data) {
@@ -368,7 +368,7 @@ describe('Hapi command line', function () {
 
         hapi.stderr.once('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
     });
 
@@ -454,7 +454,7 @@ describe('Hapi command line', function () {
         hapi.stderr.setEncoding('utf8');
         hapi.stderr.once('data', function (data) {
 
-            expect(data).to.not.exist;
+            expect(data).to.not.exist();
         });
     });
 });

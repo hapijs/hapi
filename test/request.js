@@ -323,7 +323,7 @@ describe('Request', function () {
         var handler = function (request, reply) {
 
             expect(arguments.length).to.equal(2);
-            expect(reply.send).to.not.exist;
+            expect(reply.send).to.not.exist();
             reply('ok');
         };
 

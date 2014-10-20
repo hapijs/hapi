@@ -550,7 +550,7 @@ describe('Validation', function () {
             });
         }, function (err, codes) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(count).to.be.within(200, 300);
             done();
         });
@@ -657,7 +657,7 @@ describe('Validation', function () {
             });
         }, function (err, codes) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(count).to.equal(0);
             done();
         });

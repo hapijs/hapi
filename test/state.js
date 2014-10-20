@@ -148,7 +148,7 @@ describe('State', function () {
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(500);
-            expect(res.headers['set-cookie']).to.not.exist;
+            expect(res.headers['set-cookie']).to.not.exist();
             done();
         });
     });
