@@ -7,10 +7,11 @@ var Https = require('https');
 var Stream = require('stream');
 var Os = require('os');
 var Path = require('path');
-var Wreck = require('wreck');
-var Lab = require('lab');
-var Hoek = require('hoek');
+var Code = require('code');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Lab = require('lab');
+var Wreck = require('wreck');
 var Defaults = require('../lib/defaults');
 
 
@@ -24,7 +25,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Server', function () {
@@ -400,7 +401,7 @@ describe('Server', function () {
 
             var server = new Hapi.Server('localhost', 8888);
         };
-        expect(fn).to.not.throw(Error);
+        expect(fn).to.not.throw();
         done();
     });
 
@@ -410,7 +411,7 @@ describe('Server', function () {
 
             var server = new Hapi.Server('localhost', '8888');
         };
-        expect(fn).to.not.throw(Error);
+        expect(fn).to.not.throw();
         done();
     });
 
@@ -420,7 +421,7 @@ describe('Server', function () {
 
             var server = new Hapi.Server('8888');
         };
-        expect(fn).to.not.throw(Error);
+        expect(fn).to.not.throw();
         done();
     });
 
@@ -430,7 +431,7 @@ describe('Server', function () {
 
             var server = new Hapi.Server('8888', 8900);
         };
-        expect(fn).to.throw(Error);
+        expect(fn).to.throw();
         done();
     });
 
@@ -440,7 +441,7 @@ describe('Server', function () {
 
             var server = new Hapi.Server('localhost', '127.0.0.1');
         };
-        expect(fn).to.throw(Error);
+        expect(fn).to.throw();
         done();
     });
 
@@ -563,7 +564,7 @@ describe('Server', function () {
                 server.start();
                 server.stop();
             };
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
             done();
         });
 
@@ -641,7 +642,7 @@ describe('Server', function () {
                     done();
                 });
             };
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
         });
 
         it('ignores repeated calls when the server is not started', function (done) {
@@ -651,7 +652,7 @@ describe('Server', function () {
                 var server = new Hapi.Server(0);
                 server.stop();
             };
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
             done();
         });
 
@@ -670,7 +671,7 @@ describe('Server', function () {
 
                 });
             };
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
         });
     });
 
@@ -684,7 +685,7 @@ describe('Server', function () {
                 var server = new Hapi.Server();
                 server.route(route);
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -698,7 +699,7 @@ describe('Server', function () {
                 var server = new Hapi.Server();
                 server.route(route);
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -713,7 +714,7 @@ describe('Server', function () {
                 var server = new Hapi.Server();
                 server.route(route);
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -739,7 +740,7 @@ describe('Server', function () {
                 server.route({ path: '/test/{p}/{p}/end', method: 'put', handler: function () { } });
                 server.route({ path: '/test/{p*2}/end', method: 'put', handler: function () { } });
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -751,7 +752,7 @@ describe('Server', function () {
                 server.route({ path: '/test/{p}/End', method: 'put', handler: function () { } });
                 server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
             };
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
             done();
         });
 
@@ -763,7 +764,7 @@ describe('Server', function () {
                 server.route({ path: '/test/{p}/End', method: 'put', handler: function () { } });
                 server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -775,7 +776,7 @@ describe('Server', function () {
                 server.route({ path: '/test/{P}/end', method: 'put', handler: function () { } });
                 server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
             };
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -785,7 +786,7 @@ describe('Server', function () {
             server.route({
                 path: '/test/{userId}/end', method: 'put', handler: function (request) {
 
-                    expect(request.params.userId).to.exist;
+                    expect(request.params.userId).to.exist();
                     done();
                 }
             });
@@ -967,7 +968,7 @@ describe('Server', function () {
                 expect(server.pack._handlers.test).to.equal(handler);
             };
 
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
             done();
         });
 
@@ -993,7 +994,7 @@ describe('Server', function () {
                 });
             };
 
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
         });
 
         it('errors on duplicate handler', function (done) {
@@ -1005,7 +1006,7 @@ describe('Server', function () {
                 server.handler('proxy', handler);
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -1024,7 +1025,7 @@ describe('Server', function () {
                 });
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -1037,7 +1038,7 @@ describe('Server', function () {
                 server.handler();
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
 
@@ -1050,7 +1051,7 @@ describe('Server', function () {
                 server.handler('foo', 'bar');
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw();
             done();
         });
     });
@@ -1072,7 +1073,7 @@ describe('Server', function () {
             server.inject(options, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                expect(options.credentials).to.exist;
+                expect(options.credentials).to.exist();
                 done();
             });
         });
@@ -1390,7 +1391,7 @@ describe('Server', function () {
                 Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
 
                     server.stop();
-                    expect(err).to.exist;
+                    expect(err).to.exist();
                     expect(err.message).to.equal('Client request error: socket hang up');
                     done();
                 });
@@ -1423,7 +1424,7 @@ describe('Server', function () {
                 Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
 
                     server.stop();
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(timeout).to.equal('gotcha');
                     done();
                 });
@@ -1483,7 +1484,7 @@ describe('Server', function () {
 
             server.render('test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
 
-                expect(rendered).to.exist;
+                expect(rendered).to.exist();
                 expect(rendered).to.contain('Hapi');
                 done();
             });
@@ -1498,7 +1499,7 @@ describe('Server', function () {
 
             server.render('test', { title: 'test', message: 'Hapi' }, { path: __dirname + '/templates' }, function (err, rendered, config) {
 
-                expect(rendered).to.exist;
+                expect(rendered).to.exist();
                 expect(rendered).to.contain('Hapi');
                 done();
             });

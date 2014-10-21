@@ -1,9 +1,10 @@
 // Load modules
 
 var Events = require('events');
-var Lab = require('lab');
+var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var Lab = require('lab');
 
 
 // Declare internals
@@ -16,7 +17,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Protect', function () {
@@ -111,7 +112,7 @@ describe('Protect', function () {
         var server = new Hapi.Server(0, { debug: false });
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             server.start(function () {
 
@@ -138,7 +139,7 @@ describe('Protect', function () {
 
         server.on('log', function (event, tags) {
 
-            expect(tags.implementation).to.exist;
+            expect(tags.implementation).to.exist();
             done();
         });
 

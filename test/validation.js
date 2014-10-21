@@ -1,5 +1,6 @@
 // Load modules
 
+var Code = require('code');
 var Lab = require('lab');
 var Joi = require('joi');
 var Hapi = require('..');
@@ -15,7 +16,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Validation', function () {
@@ -550,7 +551,7 @@ describe('Validation', function () {
             });
         }, function (err, codes) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(count).to.be.within(200, 300);
             done();
         });
@@ -657,7 +658,7 @@ describe('Validation', function () {
             });
         }, function (err, codes) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(count).to.equal(0);
             done();
         });

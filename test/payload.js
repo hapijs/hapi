@@ -6,6 +6,7 @@ var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');
 var FormData = require('form-data');
+var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -22,7 +23,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('payload', function () {
@@ -39,7 +40,7 @@ describe('payload', function () {
 
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, function (res) {
 
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result.statusCode).to.equal(500);
             done();
         });
@@ -91,7 +92,7 @@ describe('payload', function () {
 
         server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
 
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result).to.equal(payload);
             done();
         });
@@ -103,7 +104,7 @@ describe('payload', function () {
 
         var handler = function (request, reply) {
 
-            expect(request.payload).to.exist;
+            expect(request.payload).to.exist();
             expect(request.payload.z).to.equal('3');
             expect(request.mime).to.equal('application/json');
             reply(request.payload);
@@ -114,7 +115,7 @@ describe('payload', function () {
 
         server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
 
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result.x).to.equal('1');
             done();
         });
@@ -126,7 +127,7 @@ describe('payload', function () {
 
         var handler = function (request, reply) {
 
-            expect(request.payload).to.exist;
+            expect(request.payload).to.exist();
             expect(request.payload.z).to.equal('3');
             expect(request.mime).to.equal('application/json-patch+json');
             reply(request.payload);
@@ -144,7 +145,7 @@ describe('payload', function () {
 
         server.inject(options, function (res) {
 
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result.x).to.equal('1');
             done();
         });
@@ -266,7 +267,7 @@ describe('payload', function () {
 
         server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '5' } }, function (res) {
 
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result).to.equal(payload);
             done();
         });
@@ -287,7 +288,7 @@ describe('payload', function () {
 
         server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '500' } }, function (res) {
 
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result).to.equal(payload);
             done();
         });
@@ -309,7 +310,7 @@ describe('payload', function () {
         server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-length': payload.length } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
             done();
         });
@@ -372,7 +373,7 @@ describe('payload', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result).to.deep.equal(message);
                 done();
             });
@@ -425,7 +426,7 @@ describe('payload', function () {
 
         server.inject(request, function (res) {
 
-            expect(res.result).to.exist;
+            expect(res.result).to.exist();
             expect(res.result).to.deep.equal(message);
             done();
         });
@@ -451,8 +452,8 @@ describe('payload', function () {
 
             server.inject(request, function (res) {
 
-                expect(res.result).to.exist;
-                expect(res.result.message).to.exist;
+                expect(res.result).to.exist();
+                expect(res.result.message).to.exist();
                 done();
             });
         });
@@ -942,7 +943,7 @@ describe('payload', function () {
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result.statusCode).to.equal(400);
                 done();
             });
@@ -962,7 +963,7 @@ describe('payload', function () {
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result.statusCode).to.equal(400);
                 done();
             });
@@ -1104,7 +1105,7 @@ describe('payload', function () {
 
             var invalidHandler = function (request) {
 
-                expect(request).to.not.exist;       // Must not be called
+                expect(request).to.not.exist();       // Must not be called
             };
 
             var server = new Hapi.Server();
@@ -1112,7 +1113,7 @@ describe('payload', function () {
 
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result.statusCode).to.equal(400);
                 done();
             });
@@ -1122,7 +1123,7 @@ describe('payload', function () {
 
             var invalidHandler = function (request) {
 
-                expect(request).to.not.exist;       // Must not be called
+                expect(request).to.not.exist();       // Must not be called
             };
 
             var server = new Hapi.Server();
@@ -1130,7 +1131,7 @@ describe('payload', function () {
 
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
 
-                expect(res.result).to.exist;
+                expect(res.result).to.exist();
                 expect(res.result.statusCode).to.equal(400);
                 done();
             });
@@ -1144,10 +1145,10 @@ describe('payload', function () {
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
 
                 expect(Object.keys(res.result).length).to.equal(3);
-                expect(res.result.field1).to.exist;
+                expect(res.result.field1).to.exist();
                 expect(res.result.field1.length).to.equal(2);
                 expect(res.result.field1[1]).to.equal('Repeated name segment');
-                expect(res.result.pics).to.exist;
+                expect(res.result.pics).to.exist();
                 done();
             });
         });
@@ -1415,10 +1416,10 @@ describe('payload', function () {
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
 
                 expect(Object.keys(res.result).length).to.equal(3);
-                expect(res.result.field1).to.exist;
+                expect(res.result.field1).to.exist();
                 expect(res.result.field1.length).to.equal(2);
                 expect(res.result.field1[1]).to.equal('Repeated name segment');
-                expect(res.result.pics).to.exist;
+                expect(res.result.pics).to.exist();
                 done();
             });
         });
@@ -1443,7 +1444,7 @@ describe('payload', function () {
 
                 Wreck.read(request.payload.my_file, null, function (err, buffer) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(fileContents.length).to.equal(buffer.length);
                     expect(fileContents.toString('binary') === buffer.toString('binary')).to.equal(true);
                     done();

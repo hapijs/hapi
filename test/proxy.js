@@ -1,12 +1,13 @@
 // Load modules
 
 var Net = require('net');
-var Lab = require('lab');
 var Fs = require('fs');
 var Http = require('http');
 var Zlib = require('zlib');
-var Wreck = require('wreck');
+var Code = require('code');
 var Hapi = require('..');
+var Lab = require('lab');
+var Wreck = require('wreck');
 
 
 // Declare internals
@@ -19,7 +20,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Proxy', function () {
@@ -212,7 +213,7 @@ describe('Proxy', function () {
 
             Zlib.gzip(new Buffer('123456789012345678901234567890123456789012345678901234567890'), function (err, zipped) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 server.inject({ url: '/gzip', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
@@ -246,7 +247,7 @@ describe('Proxy', function () {
 
                     Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, unzipped) {
 
-                        expect(err).to.not.exist;
+                        expect(err).to.not.exist();
                         expect(unzipped.toString('utf8')).to.deep.equal(file);
                         done();
                     });
@@ -276,8 +277,8 @@ describe('Proxy', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.payload).to.equal('{\"status\":\"success\"}');
-                expect(res.headers.custom1).to.not.exist;
-                expect(res.headers['x-custom2']).to.not.exist;
+                expect(res.headers.custom1).to.not.exist();
+                expect(res.headers['x-custom2']).to.not.exist();
                 done();
             });
         });
@@ -483,7 +484,7 @@ describe('Proxy', function () {
 
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 server.inject('/', function (res) {
 
@@ -527,7 +528,7 @@ describe('Proxy', function () {
 
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 server.inject('/', function (res) {
 
@@ -571,7 +572,7 @@ describe('Proxy', function () {
 
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 server.inject('/', function (res) {
 
@@ -1185,7 +1186,7 @@ describe('Proxy', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['cache-control']).to.equal('no-cache');
-                //                expect(res.headers['cache-control']).to.not.exist;
+                //                expect(res.headers['cache-control']).to.not.exist();
                 done();
             });
         });
@@ -1292,7 +1293,7 @@ describe('Proxy', function () {
 
             Wreck.request = requestFn;
             expect(options.headers['content-type']).to.equal('application/json');
-            expect(options.headers['Content-Type']).to.not.exist;
+            expect(options.headers['Content-Type']).to.not.exist();
             cb(new Error('placeholder'));
         };
         server.route({ method: 'GET', path: '/test', handler: { proxy: { uri: 'http://localhost', passThrough: true } } });

@@ -1,7 +1,8 @@
 // Load modules
 
-var Lab = require('lab');
+var Code = require('code');
 var Hapi = require('..');
+var Lab = require('lab');
 var Schema = require('../lib/schema');
 
 
@@ -15,7 +16,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Schema', function () {
@@ -29,7 +30,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('server', settings);
-            }).to.throw('Invalid server options');
+            }).to.throw(/Invalid server options/);
             done();
         });
 
@@ -41,7 +42,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('server', server.settings);
-            }).to.throw('Invalid server options');
+            }).to.throw(/Invalid server options/);
             done();
         });
 
@@ -53,7 +54,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('server', server.settings);
-            }).to.throw('Invalid server options');
+            }).to.throw(/Invalid server options/);
             done();
         });
 
@@ -86,7 +87,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('route', options, '/');
-            }).to.throw('Invalid route options (/)');
+            }).to.throw(/Invalid route options \(\/\)/);
             done();
         });
 
@@ -96,7 +97,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('route', options, '/');
-            }).to.throw('Invalid route options (/)');
+            }).to.throw(/Invalid route options \(\/\)/);
             done();
         });
 
@@ -130,7 +131,7 @@ describe('Schema', function () {
             expect(function () {
 
                 Schema.assert('routeConfig', config, '/');
-            }).to.throw('Invalid routeConfig options (/)');
+            }).to.throw(/Invalid routeConfig options \(\/\)/);
             done();
         });
 
@@ -145,6 +146,7 @@ describe('Schema', function () {
         });
 
         it('succeeds validating cache config', function (done) {
+
             var config = { handler: internals.item, cache: { expiresIn: 20000 } };
             expect(function () {
 

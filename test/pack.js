@@ -2,8 +2,9 @@
 
 var Domain = require('domain');
 var Path = require('path');
-var Lab = require('lab');
+var Code = require('code');
 var Hapi = require('..');
+var Lab = require('lab');
 
 
 // Declare internals
@@ -16,7 +17,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Pack', function () {
@@ -87,7 +88,7 @@ describe('Pack', function () {
 
         pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             expect(routesList(pack._servers[0])).to.deep.equal(['/a', '/ab', '/all']);
             expect(routesList(pack._servers[1])).to.deep.equal(['/a', '/all', '/sodd']);
@@ -106,7 +107,7 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                expect(options.something).to.be.true;
+                expect(options.something).to.be.true();
                 return next();
             },
             options: { something: true }
@@ -114,7 +115,7 @@ describe('Pack', function () {
 
         pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             done();
         });
     });
@@ -146,7 +147,7 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                expect(options.something).to.be.true;
+                expect(options.something).to.be.true();
                 return next();
             },
             options: { something: true }
@@ -155,7 +156,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             done();
         });
     });
@@ -173,7 +174,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             expect(err.message).to.equal('from plugin');
             done();
         });
@@ -285,7 +286,7 @@ describe('Pack', function () {
 
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(server._registrations['--steve'].version).to.equal('0.0.0');
             server.inject('/', function (res) {
 
@@ -324,11 +325,11 @@ describe('Pack', function () {
 
         pack.register(require('./pack/--test1'), function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
-            expect(pack._servers[0]._router.routes.get).to.not.exist;
+            expect(pack._servers[0]._router.routes.get).to.not.exist();
             expect(routesList(pack._servers[1])).to.deep.equal(['/test1']);
-            expect(pack._servers[2]._router.routes.get).to.not.exist;
+            expect(pack._servers[2]._router.routes.get).to.not.exist();
             expect(routesList(pack._servers[3])).to.deep.equal(['/test1']);
 
             expect(pack._servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
@@ -352,7 +353,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(function () {
 
                 server.pack.register(plugin, function (err) { });
@@ -378,10 +379,10 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(server.pack.app.x).to.equal(2);
                 done();
             });
@@ -403,10 +404,10 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(server.pack.app.x).to.equal(2);
                 done();
             });
@@ -424,7 +425,7 @@ describe('Pack', function () {
 
         server.pack.register([require('./pack/--test1'), require('./pack/--test2')], function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
             expect(log[1].test).to.equal(true);
             expect(log[0].data).to.equal('abc');
@@ -443,7 +444,7 @@ describe('Pack', function () {
 
         server.pack.register([{ plugin: require('./pack/--test1') }, { plugin: require('./pack/--test2') }], function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
             expect(log[1].test).to.equal(true);
             expect(log[0].data).to.equal('abc');
@@ -456,7 +457,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register({ plugin: require('./pack/--views'), options: { message: 'viewing it' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/view', function (res) {
 
                 expect(res.result).to.equal('<h1>viewing it</h1>');
@@ -503,7 +504,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/view', function (res) {
 
                 expect(res.result).to.equal('<h1>steve</h1>');
@@ -517,7 +518,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register(require('./pack/--child'), function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/test1', function (res) {
 
                 expect(res.result).to.equal('testing123');
@@ -532,7 +533,7 @@ describe('Pack', function () {
         server.pack.register(require('./pack/--test1'), { route: { prefix: '/xyz' } }, function (err) {
 
             expect(server.plugins['--test1'].prefix).to.equal('/xyz');
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/xyz/test1', function (res) {
 
                 expect(res.result).to.equal('testing123');
@@ -555,7 +556,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register(a, { route: { prefix: '/xyz' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/xyz', function (res) {
 
                 expect(res.result).to.equal('ok');
@@ -578,7 +579,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register({ plugin: a }, { route: { prefix: '/xyz' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/xyz', function (res) {
 
                 expect(res.result).to.equal('ok');
@@ -592,7 +593,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register(require('./pack/--child'), { route: { prefix: '/xyz' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/xyz/test1', function (res) {
 
                 expect(res.result).to.equal('testing123');
@@ -606,7 +607,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register(require('./pack/--child'), { route: { vhost: 'example.com' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
 
                 expect(res.result).to.equal('testing123');
@@ -620,7 +621,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register({ plugin: require('./pack/--child'), options: { route: { prefix: '/inner' } } }, { route: { prefix: '/xyz' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/xyz/inner/test1', function (res) {
 
                 expect(res.result).to.equal('testing123');
@@ -634,7 +635,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register({ plugin: require('./pack/--child'), options: { route: { vhost: 'example.net' } } }, { route: { vhost: 'example.com' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
 
                 expect(res.result).to.equal('testing123');
@@ -648,7 +649,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ labels: 'test' });
         server.pack.register(require('./pack/--test1'), { route: { vhost: 'example.com' } }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/test1', function (res) {
 
                 expect(res.statusCode).to.equal(404);
@@ -693,13 +694,13 @@ describe('Pack', function () {
 
         pack.register(plugin, { select: ['a', 'b'] }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(server1.plugins.test.key1).to.equal(1);
             expect(server1.plugins.child.key2).to.equal(2);
             expect(server2.plugins.test.key1).to.equal(1);
-            expect(server2.plugins.child).to.not.exist;
-            expect(server3.plugins.test).to.not.exist;
-            expect(server3.plugins.child).to.not.exist;
+            expect(server2.plugins.child).to.not.exist();
+            expect(server3.plugins.test).to.not.exist();
+            expect(server3.plugins.child).to.not.exist();
             done();
         });
     });
@@ -770,7 +771,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(routesList(server)).to.deep.equal(['/b']);
 
             server.inject('/a', function (res) {
@@ -799,11 +800,11 @@ describe('Pack', function () {
 
         pack.register([require('./pack/--deps1'), require('./pack/--deps2'), require('./pack/--deps3')], function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             pack.start(function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(pack.plugins['--deps1'].breaking).to.equal('bad');
 
                 pack._servers[0].inject('/', function (res) {
@@ -901,7 +902,7 @@ describe('Pack', function () {
         var server = new Hapi.Server(0);
         server.pack.register([a, c], function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             done();
         });
     });
@@ -945,10 +946,10 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(require('./pack/--afterErr'), function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.start(function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 done();
             });
         });
@@ -982,21 +983,21 @@ describe('Pack', function () {
         var server = new Hapi.Server(0);
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.start(function () {
 
                 server.plugins.test.set('a', '1', function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     server.plugins.test.get('a', function (err, value) {
 
-                        expect(err).to.not.exist;
+                        expect(err).to.not.exist();
                         expect(value).to.equal('1');
                         setTimeout(function () {
 
                             server.plugins.test.get('a', function (err, value) {
 
-                                expect(err).to.not.exist;
+                                expect(err).to.not.exist();
                                 expect(value).to.equal(null);
                                 done();
                             });
@@ -1014,7 +1015,7 @@ describe('Pack', function () {
 
         server.pack.register(require('./pack/--auth'), function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             server.inject('/', function (res) {
 
@@ -1037,7 +1038,7 @@ describe('Pack', function () {
 
         pack.register(require('./pack/--auth'), function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             done();
         });
     });
@@ -1047,7 +1048,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(require('./pack/--context'), function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/', function (res) {
 
                 expect(res.result).to.equal('in context throughout');
@@ -1064,7 +1065,7 @@ describe('Pack', function () {
 
                 plugin.events.once('request', function (request, event, tags) {
 
-                    expect(tags).to.exist;
+                    expect(tags).to.exist();
                     done();
                 });
 
@@ -1075,7 +1076,7 @@ describe('Pack', function () {
         var server = new Hapi.Server();
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject({ url: '/' }, function () { });
         });
     });
@@ -1085,7 +1086,7 @@ describe('Pack', function () {
         var pack = new Hapi.Pack();
         var server = pack.server();
 
-        expect(server).to.exist;
+        expect(server).to.exist();
         server.inject({ url: '/' }, function (res) {
 
             expect(res.statusCode).to.equal(404);
@@ -1098,7 +1099,7 @@ describe('Pack', function () {
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });
         server.pack.register(require('./pack/--handler'), function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.inject('/handler/package.json', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -1261,7 +1262,7 @@ describe('Pack', function () {
 
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 server.log('test');
                 expect(sc).to.equal(1);
                 expect(pc).to.equal(1);
@@ -1286,7 +1287,7 @@ describe('Pack', function () {
 
         pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             done();
         });
     });
@@ -1307,7 +1308,7 @@ describe('Pack', function () {
 
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.methods.log(function (err, result) {
 
                 expect(result).to.equal(1);
@@ -1331,7 +1332,7 @@ describe('Pack', function () {
 
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.methods.log(function (err, result) {
 
                 expect(result).to.equal(2);
@@ -1356,7 +1357,7 @@ describe('Pack', function () {
 
         server.pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server.methods.log(function (err, result) {
 
                 expect(result).to.equal(2);
@@ -1481,7 +1482,7 @@ describe('Pack', function () {
 
         pack.register(plugin, { select: 'a' }, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server1.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -1517,10 +1518,10 @@ describe('Pack', function () {
 
         pack.register(plugin, { select: ['a', 'c'] }, function (err) {
 
-            expect(err).to.not.exist;
-            expect(pack.plugins.test).to.not.exist;
+            expect(err).to.not.exist();
+            expect(pack.plugins.test).to.not.exist();
             expect(server1.plugins.test.super).to.equal('trooper');
-            expect(server2.plugins.test).to.not.exist;
+            expect(server2.plugins.test).to.not.exist();
             expect(server3.plugins.test.super).to.equal('trooper');
 
             server1.inject('/', function (res) {
@@ -1571,7 +1572,7 @@ describe('Pack', function () {
 
         pack.register(plugin, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             server1.emit('test');
             server2.emit('test');
             server3.emit('test');
@@ -1685,7 +1686,7 @@ describe('Pack', function () {
 
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 server.route({
                     method: 'GET',
                     path: '/',
@@ -1736,10 +1737,10 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 pack.start(function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     pack.stop(function () {
 
                         pack._servers[0].inject('/test1', function (res) {
@@ -1785,10 +1786,10 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 pack.start(function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     pack.stop(function () {
 
                         pack._servers[0].inject('/test1', function (res) {
@@ -1834,10 +1835,10 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 pack.start(function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     pack.stop(function () {
 
                         pack._servers[0].inject('/test1', function (res) {
@@ -1883,10 +1884,10 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 pack.start(function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     pack.stop(function () {
 
                         pack._servers[0].inject('/test1', function (res) {
@@ -1924,10 +1925,10 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 pack.start(function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     pack.stop();
 
                     pack._servers[0].inject('/test1', function (res) {
@@ -1974,10 +1975,10 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, { relativeTo: __dirname + '/pack' }, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 pack.start(function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     pack.stop(function () {
 
                         pack._servers[0].inject('/test1', function (res) {
@@ -2006,7 +2007,7 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 done();
             });
         });
@@ -2028,7 +2029,7 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 done();
             });
         });
@@ -2088,7 +2089,7 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 var server1 = pack._servers[0];
                 var server2 = pack._servers[1];
@@ -2155,7 +2156,7 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 done();
             });
         });
@@ -2171,7 +2172,7 @@ describe('Pack', function () {
 
             Hapi.Pack.compose(manifest, function (err, pack) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 done();
             });
         });
@@ -2216,7 +2217,7 @@ describe('Pack', function () {
             expect(function() {
 
                 Hapi.Pack.compose(manifest, function () {});
-            }).to.throw('Invalid manifest options');
+            }).to.throw(/Invalid manifest options/);
             done();
         });
     });
@@ -2254,7 +2255,7 @@ describe('Pack', function () {
             var server = new Hapi.Server();
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 server.inject('/view', function (res) {
 
                     expect(res.result).to.equal('<h1>steve</h1>');
@@ -2292,7 +2293,7 @@ describe('Pack', function () {
             var server = new Hapi.Server();
             server.pack.register(plugin, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 server.inject('/view', function (res) {
 
                     expect(res.result).to.equal('<h1>steve</h1>');

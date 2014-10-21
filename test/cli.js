@@ -5,6 +5,7 @@ var Fs = require('fs');
 var Os = require('os');
 var Path = require('path');
 var Crypto = require('crypto');
+var Code = require('code');
 var Lab = require('lab');
 var Hapi = require('..');
 var Hoek = require('hoek');
@@ -20,7 +21,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 internals.uniqueFilename = function (path) {
@@ -82,7 +83,7 @@ describe('Hapi command line', function () {
 
         hapi.stderr.once('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
     });
 
@@ -140,7 +141,7 @@ describe('Hapi command line', function () {
 
         hapi.stderr.once('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
     });
 
@@ -184,7 +185,7 @@ describe('Hapi command line', function () {
 
         hapi.stdout.on('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
 
         hapi.stderr.once('data', function (data) {
@@ -241,7 +242,7 @@ describe('Hapi command line', function () {
 
         hapi.stdout.on('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
 
         hapi.stderr.once('data', function (data) {
@@ -297,7 +298,7 @@ describe('Hapi command line', function () {
 
         hapi.stdout.on('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
 
         hapi.stderr.once('data', function (data) {
@@ -368,7 +369,7 @@ describe('Hapi command line', function () {
 
         hapi.stderr.once('data', function (data) {
 
-            expect(data.toString()).to.not.exist;
+            expect(data.toString()).to.not.exist();
         });
     });
 
@@ -454,7 +455,7 @@ describe('Hapi command line', function () {
         hapi.stderr.setEncoding('utf8');
         hapi.stderr.once('data', function (data) {
 
-            expect(data).to.not.exist;
+            expect(data).to.not.exist();
         });
     });
 });

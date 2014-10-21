@@ -1,10 +1,11 @@
 // Load modules
 
-var Lab = require('lab');
 var Iron = require('iron');
-var Hoek = require('hoek');
+var Code = require('code');
 var Cryptiles = require('cryptiles');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Lab = require('lab');
 var Defaults = require('../lib/defaults');
 
 
@@ -18,7 +19,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('State', function () {
@@ -148,7 +149,7 @@ describe('State', function () {
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(500);
-            expect(res.headers['set-cookie']).to.not.exist;
+            expect(res.headers['set-cookie']).to.not.exist();
             done();
         });
     });

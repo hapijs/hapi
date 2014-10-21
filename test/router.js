@@ -1,7 +1,8 @@
 // Load modules
 
-var Lab = require('lab');
+var Code = require('code');
 var Hapi = require('..');
+var Lab = require('lab');
 
 
 // Declare internals
@@ -14,7 +15,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Router', function () {
@@ -35,7 +36,7 @@ describe('Router', function () {
             server.inject('http://special.example.com/head', function (res) {
 
                 expect(res.result).to.equal('ok-vhost');
-                expect(res.headers.x1).to.not.exist;
+                expect(res.headers.x1).to.not.exist();
 
                 server.inject({ method: 'HEAD', url: '/head' }, function (res) {
 
@@ -44,7 +45,7 @@ describe('Router', function () {
                     server.inject('/head', function (res) {
 
                         expect(res.result).to.equal('ok-common');
-                        expect(res.headers.x1).to.not.exist;
+                        expect(res.headers.x1).to.not.exist();
 
                         server.inject({ method: 'HEAD', url: 'http://special.example.com/get' }, function (res) {
 
@@ -311,7 +312,7 @@ describe('Router', function () {
         ]);
 
         var table = server.table();
-        var paths = table.map(function(route) {
+        var paths = table.map(function (route) {
             var obj = {
                 method: route.method,
                 path: route.path
@@ -320,12 +321,14 @@ describe('Router', function () {
         });
 
         expect(table).to.have.length(6);
-        expect(paths).to.include({method: 'get', path: '/api/products'});
-        expect(paths).to.include({method: 'get', path: '/api/products/{id}'});
-        expect(paths).to.include({method: 'post', path: '/api/products'});
-        expect(paths).to.include({method: 'put', path: '/api/products/{id}'});
-        expect(paths).to.include({method: 'patch', path: '/api/products/{id}'});
-        expect(paths).to.include({method: 'delete', path: '/api/products/{id}'});
+        expect(paths).to.only.deep.include([
+            { method: 'get', path: '/api/products' },
+            { method: 'get', path: '/api/products/{id}' },
+            { method: 'post', path: '/api/products' },
+            { method: 'put', path: '/api/products/{id}' },
+            { method: 'patch', path: '/api/products/{id}' },
+            { method: 'delete', path: '/api/products/{id}' }
+        ]);
         done();
     });
 

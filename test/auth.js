@@ -1,9 +1,10 @@
 // Load modules
 
-var Lab = require('lab');
 var Boom = require('boom');
+var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var Lab = require('lab');
 
 
 // Declare internals
@@ -16,7 +17,7 @@ var internals = {};
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
+var expect = Code.expect;
 
 
 describe('Auth', function () {
@@ -269,7 +270,7 @@ describe('Auth', function () {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result.status).to.equal(true);
-                    expect(res.result.error).to.not.exist;
+                    expect(res.result.error).to.not.exist();
                     done();
                 });
             });
