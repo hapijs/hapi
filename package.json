@@ -48,7 +48,7 @@
     "code": "1.x.x",
     "handlebars": "1.x.x",
     "form-data": "0.1.x",
-    "lab": "4.x.x"
+    "lab": "5.x.x"
   },
   "bin": {
     "hapi": "./bin/hapi"

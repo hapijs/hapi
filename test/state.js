@@ -42,7 +42,7 @@ describe('State', function () {
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.headers['set-cookie']).to.not.exists;
+            expect(res.headers['set-cookie']).to.not.exists();
             done();
         });
     });
