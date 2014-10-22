@@ -6,7 +6,7 @@
 and other essential facilities for building web applications and services. **hapi** enables developers to focus on writing reusable
 application logic instead of spending time building infrastructure, without getting in the way.
 
-Current version: **7.0.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
+Current version: **7.1.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
 
 [![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg)](http://travis-ci.org/hapijs/hapi)
 
