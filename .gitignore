@@ -5,7 +5,6 @@ dump.rdb
 node_modules
 results.tap
 results.xml
-npm-shrinkwrap.json
 config.json
 .DS_Store
 */.DS_Store
@@ -14,5 +13,3 @@ config.json
 */._*
 */*/._*
 coverage.*
-lib-cov
-complexity.md
