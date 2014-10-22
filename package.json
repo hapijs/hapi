@@ -28,7 +28,7 @@
     "h2o2": "2.x.x",
     "heavy": "1.x.x",
     "hoek": "^2.4.x",
-    "inert": "1.x.x",
+    "inert": "^1.1.x",
     "iron": "2.x.x",
     "items": "1.x.x",
     "joi": "^4.4.x",
@@ -40,9 +40,7 @@
     "subtext": "1.x.x",
     "topo": "1.x.x",
     "vision": "1.x.x",
-    "wreck": "5.x.x",
-
-    "lru-cache": "2.5.x"
+    "wreck": "5.x.x"
   },
   "devDependencies": {
     "code": "1.x.x",
