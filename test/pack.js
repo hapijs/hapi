@@ -1,7 +1,5 @@
 // Load modules
 
-var Domain = require('domain');
-var Path = require('path');
 var Code = require('code');
 var Hapi = require('..');
 var Lab = require('lab');
@@ -829,11 +827,14 @@ describe('Pack', function () {
     it('fails to require single plugin with dependencies', function (done) {
 
         var server = new Hapi.Server();
-        expect(function () {
+        server.pack.register(require('./pack/--deps1'), function (err) {
 
-            server.pack.register(require('./pack/--deps1'), function (err) { });
-        }).to.throw('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
-        done();
+            expect(function () {
+
+                server.start();
+            }).to.throw('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
+            done();
+        });
     });
 
     it('fails to register single plugin with dependencies', function (done) {
@@ -848,27 +849,26 @@ describe('Pack', function () {
         };
 
         var server = new Hapi.Server();
-        expect(function () {
+        server.pack.register(plugin, function (err) {
 
-            server.pack.register(plugin, function (err) { });
-        }).to.throw('Plugin test missing dependency none in server: ' + server.info.uri);
-        done();
+            expect(function () {
+
+                server.start();
+            }).to.throw('Plugin test missing dependency none in server: ' + server.info.uri);
+            done();
+        });
     });
 
     it('fails to require multiple plugins with dependencies', function (done) {
 
         var server = new Hapi.Server();
+        server.pack.register([require('./pack/--deps1'), require('./pack/--deps3')], function (err) {
 
-        var domain = Domain.create();
-        domain.on('error', function (err) {
+            expect(function () {
 
-            expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
+                server.start();
+            }).to.throw('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
             done();
-        });
-
-        domain.run(function () {
-
-            server.pack.register([require('./pack/--deps1'), require('./pack/--deps3')], function (err) { });
         });
     });
 
@@ -926,18 +926,14 @@ describe('Pack', function () {
             }
         };
 
-        var domain = Domain.create();
-        domain.on('error', function (err) {
-
-            expect(err.message).to.equal('Plugin b missing dependency c in server: ' + server.info.uri);
-            done();
-        });
-
         var server = new Hapi.Server();
+        server.pack.register(a, function (err) {
 
-        domain.run(function () {
+            expect(function () {
 
-            server.pack.register(a, function (err) { });
+                server.start();
+            }).to.throw('Plugin b missing dependency c in server: ' + server.info.uri);
+            done();
         });
     });
 
@@ -1710,240 +1706,6 @@ describe('Pack', function () {
 
             var manifest = {
                 pack: {
-                    cache: '../node_modules/catbox-memory',
-                    app: {
-                        my: 'special-value'
-                    }
-                },
-                servers: [
-                    {
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nasty', 'test']
-                        }
-                    },
-                    {
-                        host: 'localhost',
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nice']
-                        }
-                    }
-                ],
-                plugins: {
-                    '../test/pack/--test1': null
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                pack.start(function (err) {
-
-                    expect(err).to.not.exist();
-                    pack.stop(function () {
-
-                        pack.servers[0].inject('/test1', function (res) {
-
-                            expect(res.result).to.equal('testing123special-value');
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-
-        it('composes pack (cache.engine)', function (done) {
-
-            var manifest = {
-                pack: {
-                    cache: {
-                        engine: '../node_modules/catbox-memory'
-                    },
-                    app: {
-                        my: 'special-value'
-                    }
-                },
-                servers: [
-                    {
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nasty', 'test']
-                        }
-                    },
-                    {
-                        host: 'localhost',
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nice']
-                        }
-                    }
-                ],
-                plugins: {
-                    '../test/pack/--test1': null
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                pack.start(function (err) {
-
-                    expect(err).to.not.exist();
-                    pack.stop(function () {
-
-                        pack.servers[0].inject('/test1', function (res) {
-
-                            expect(res.result).to.equal('testing123special-value');
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-
-        it('composes pack (cache array)', function (done) {
-
-            var manifest = {
-                pack: {
-                    cache: [{
-                        engine: '../node_modules/catbox-memory'
-                    }],
-                    app: {
-                        my: 'special-value'
-                    }
-                },
-                servers: [
-                    {
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nasty', 'test']
-                        }
-                    },
-                    {
-                        host: 'localhost',
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nice']
-                        }
-                    }
-                ],
-                plugins: {
-                    '../test/pack/--test1': null
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                pack.start(function (err) {
-
-                    expect(err).to.not.exist();
-                    pack.stop(function () {
-
-                        pack.servers[0].inject('/test1', function (res) {
-
-                            expect(res.result).to.equal('testing123special-value');
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-
-        it('composes pack (engine function)', function (done) {
-
-            var manifest = {
-                pack: {
-                    cache: {
-                        engine: require('catbox-memory')
-                    },
-                    app: {
-                        my: 'special-value'
-                    }
-                },
-                servers: [
-                    {
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nasty', 'test']
-                        }
-                    },
-                    {
-                        host: 'localhost',
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nice']
-                        }
-                    }
-                ],
-                plugins: {
-                    '../test/pack/--test1': null
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                pack.start(function (err) {
-
-                    expect(err).to.not.exist();
-                    pack.stop(function () {
-
-                        pack.servers[0].inject('/test1', function (res) {
-
-                            expect(res.result).to.equal('testing123special-value');
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-
-        it('composes pack (string port)', function (done) {
-
-            var manifest = {
-                servers: [
-                    {
-                        port: '0',
-                        options: {
-                            labels: ['api', 'nasty', 'test']
-                        }
-                    },
-                    {
-                        host: 'localhost',
-                        port: 0,
-                        options: {
-                            labels: ['api', 'nice']
-                        }
-                    }
-                ],
-                plugins: {
-                    '../test/pack/--test1': {}
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                pack.start(function (err) {
-
-                    expect(err).to.not.exist();
-                    pack.stop();
-
-                    pack.servers[0].inject('/test1', function (res) {
-
-                        expect(res.result).to.equal('testing123');
-                        done();
-                    });
-                });
-            });
-        });
-
-        it('composes pack (relative and absolute paths)', function (done) {
-
-            var manifest = {
-                pack: {
                     cache: {
                         engine: '../../node_modules/catbox-memory'
                     },
@@ -1989,236 +1751,6 @@ describe('Pack', function () {
                     });
                 });
             });
-        });
-
-        it('composes pack with ports', function (done) {
-
-            var manifest = {
-                servers: [
-                    {
-                        port: 8000
-                    },
-                    {
-                        port: '8001'
-                    }
-                ],
-                plugins: {}
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                done();
-            });
-        });
-
-        it('validates server config after defaults applied', function (done) {
-
-            var manifest = {
-                servers: [
-                    {
-                        options: {
-                            timeout: {
-
-                            }
-                        }
-                    }
-                ],
-                plugins: {}
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                done();
-            });
-        });
-
-        it('composes pack with plugin registration options', function (done) {
-
-            var manifest = {
-                pack: {
-                    app: {
-                        my: 'special-value'
-                    }
-                },
-                servers: [
-                    {
-                        port: 0,
-                        options: {
-                            labels: ['a', 'b']
-                        }
-                    },
-                    {
-                        port: 0,
-                        options: {
-                            labels: ['b', 'c']
-                        }
-                    }
-                ],
-                plugins: {
-                    '../test/pack/--custom': [
-                        {
-                            options: {
-                                path: '/'
-                            }
-                        },
-                        {
-                            select: 'a',
-                            options: {
-                                path: '/a'
-                            }
-                        },
-                        {
-                            select: 'b',
-                            options: {
-                                path: '/b'
-                            }
-                        },
-                        {
-                            route: {
-                                prefix: '/steve'
-                            },
-                            options: {
-                                path: '/a'
-                            }
-                        }
-                    ]
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-
-                var server1 = pack.servers[0];
-                var server2 = pack.servers[1];
-
-                server1.inject('/', function (res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result).to.equal('/');
-
-                    server2.inject('/', function (res) {
-
-                        expect(res.statusCode).to.equal(200);
-                        expect(res.result).to.equal('/');
-
-                        server1.inject('/a', function (res) {
-
-                            expect(res.statusCode).to.equal(200);
-                            expect(res.result).to.equal('/a');
-
-                            server2.inject('/a', function (res) {
-
-                                expect(res.statusCode).to.equal(404);
-
-                                server1.inject('/b', function (res) {
-
-                                    expect(res.statusCode).to.equal(200);
-                                    expect(res.result).to.equal('/b');
-
-                                    server2.inject('/b', function (res) {
-
-                                        expect(res.statusCode).to.equal(200);
-                                        expect(res.result).to.equal('/b');
-
-                                        server1.inject('/steve/a', function (res) {
-
-                                            expect(res.statusCode).to.equal(200);
-                                            expect(res.result).to.equal('/a');
-
-                                            server2.inject('/steve/a', function (res) {
-
-                                                expect(res.statusCode).to.equal(200);
-                                                expect(res.result).to.equal('/a');
-                                                done();
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-
-        it('composes pack with inner deps', function (done) {
-
-            var manifest = {
-                servers: [{}],
-                plugins: {
-                    '../test/pack/--deps1': null,
-                    '../test/pack/--deps2': null
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.not.exist();
-                done();
-            });
-        });
-
-        it('errors on invalid plugin', function (done) {
-
-            var manifest = {
-                servers: [{}],
-                plugins: {
-                    '../test/pack/--fail': null
-                }
-            };
-
-            Hapi.Pack.compose(manifest, function (err, pack) {
-
-                expect(err).to.exist();
-                done();
-            });
-        });
-
-        it('throws on pack with missing inner deps', function (done) {
-
-            var manifest = {
-                servers: [{ host: 'localhost' }],
-                plugins: {
-                    '../test/pack/--deps1': null
-                }
-            };
-
-            var domain = Domain.create();
-            domain.on('error', function (err) {
-
-                expect(err.message).to.equal('Plugin --deps1 missing dependency --deps2 in server: http://localhost:80');
-                done();
-            });
-
-            domain.run(function () {
-
-                Hapi.Pack.compose(manifest, function (err, pack) {});
-            });
-        });
-
-        it('throws on invalid manifest options', function (done) {
-
-            var manifest = {
-                pack: {
-                    app: {
-                        my: 'special-value'
-                    }
-                },
-                servers: [
-                ],
-                plugins: {
-                    './--loaded': {}
-                }
-            };
-
-            expect(function() {
-
-                Hapi.Pack.compose(manifest, function () {});
-            }).to.throw(/Invalid manifest options/);
-            done();
         });
     });
 
