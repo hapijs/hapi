@@ -208,7 +208,7 @@ describe('Pack', function () {
 
             var pack = new Hapi.Pack();
             pack.server({ cache: require('catbox-memory'), labels: ['a', 'b', 'c'] });
-        }).to.throw('Cannot configure server cache in a pack member');
+        }).to.throw('Cannot configure cache when adding a connection to a pack');
         done();
     });
 
