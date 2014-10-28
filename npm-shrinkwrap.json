@@ -20,6 +20,9 @@
     "cryptiles": {
       "version": "2.0.4"
     },
+    "glue": {
+      "version": "1.0.0"
+    },
     "h2o2": {
       "version": "2.0.1"
     },
