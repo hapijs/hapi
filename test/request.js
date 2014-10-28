@@ -41,7 +41,7 @@ describe('Request', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result.id).to.match(/\d+\-\d+\-\d+/);
+                expect(res.result.id).to.match(/^\d+\-\d+\-\d+$/);
                 done();
             });
         });
@@ -58,7 +58,7 @@ describe('Request', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result.id).to.match(/\d+\-\d+\-\d+/);
+                expect(res.result.id).to.match(/^\d+\-\d+\-\d+$/);
                 done();
             });
         });
@@ -75,7 +75,7 @@ describe('Request', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result.id).to.match(/\d+\-\S+\-\d+\-\d+/);
+                expect(res.result.id).to.match(/^\d+\-\S+\-\d+\-\d+$/);
                 done();
             });
         });
@@ -96,7 +96,7 @@ describe('Request', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result.id).to.match(/\d+\-\S+\-\d+\-10000/);
+                expect(res.result.id).to.match(/^\d+\-\S+\-\d+\-10000$/);
                 done();
             });
         });
@@ -118,11 +118,10 @@ describe('Request', function () {
 
             server.inject({ method: 'GET', url: '/' }, function (res) {
 
-                expect(res.result.id).to.match(/\d+\-123/);
+                expect(res.result.id).to.match(/^\d+\-123$/);
                 done();
             });
         });
-
 
     });
 
