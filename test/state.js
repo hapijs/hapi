@@ -6,7 +6,6 @@ var Cryptiles = require('cryptiles');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
-var Defaults = require('../lib/defaults');
 
 
 // Declare internals

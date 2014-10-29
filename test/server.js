@@ -12,7 +12,6 @@ var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
 var Wreck = require('wreck');
-var Defaults = require('../lib/defaults');
 
 
 // Declare internals
@@ -965,7 +964,7 @@ describe('Server', function () {
                 var server = new Hapi.Server();
 
                 server.handler('test', handler);
-                expect(server.pack._handlers.test).to.equal(handler);
+                expect(server.pack._core._handlers.test).to.equal(handler);
             };
 
             expect(fn).to.not.throw();
