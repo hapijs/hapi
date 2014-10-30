@@ -1,5 +1,25 @@
 
-## [**7.0.0**](https://github.com/hapijs/hapi/issues?milestone=117&state=open)
+## [**7.2.0**](https://github.com/hapijs/hapi/issues?milestone=126&state=closed)
+- [**#2069**](https://github.com/hapijs/hapi/issues/2069) Isolate server in its own pack
+- [**#2061**](https://github.com/hapijs/hapi/issues/2061) Second phase of server/pack/plugin refactor
+- [**#2057**](https://github.com/hapijs/hapi/issues/2057) Pack refactor
+
+## [**7.1.1**](https://github.com/hapijs/hapi/issues?milestone=125&state=closed)
+- [**#2046**](https://github.com/hapijs/hapi/issues/2046) Fix shrinkwrap
+
+## [**7.1.0**](https://github.com/hapijs/hapi/issues?milestone=124&state=closed)
+- [**#2039**](https://github.com/hapijs/hapi/issues/2039) Added npm-shrinkwrap
+
+## [**7.0.1**](https://github.com/hapijs/hapi/issues?milestone=123&state=closed)
+- [**#2038**](https://github.com/hapijs/hapi/issues/2038) Move cli logic to rejoice
+- [**#2036**](https://github.com/hapijs/hapi/issues/2036) Move lru-cache to inert
+- [**#2034**](https://github.com/hapijs/hapi/issues/2034) Lab 5.0
+- [**#2035**](https://github.com/hapijs/hapi/issues/2035) lab 5.0 features. Closes #2034
+- [**#2028**](https://github.com/hapijs/hapi/issues/2028) Improve error message when auth scope is insufficient
+- [**#2029**](https://github.com/hapijs/hapi/issues/2029) Fixes #2028. Updated error message for invalid scope to explain that any of the specified are sufficient
+- [**#2024**](https://github.com/hapijs/hapi/issues/2024) Resolve undefined environment variables to the empty string in the cli.
+
+## [**7.0.0**](https://github.com/hapijs/hapi/issues?milestone=117&state=closed)
 - [**#2022**](https://github.com/hapijs/hapi/issues/2022) Spin off file and directory to inert
 - [**#1913**](https://github.com/hapijs/hapi/issues/1913) Change proxy localStatePassThrough setting default to false
 - [**#2021**](https://github.com/hapijs/hapi/issues/2021) Override server files.relativeTo config per route
