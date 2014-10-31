@@ -1077,19 +1077,6 @@ describe('Pack', function () {
         });
     });
 
-    it('returns a reference to the new server when adding one to the pack', function (done) {
-
-        var pack = new Hapi.Pack();
-        var server = pack.server();
-
-        expect(server).to.exist();
-        server.inject({ url: '/' }, function (res) {
-
-            expect(res.statusCode).to.equal(404);
-            done();
-        });
-    });
-
     it('sets directory route handler', function (done) {
 
         var server = new Hapi.Server({ files: { relativeTo: __dirname } });

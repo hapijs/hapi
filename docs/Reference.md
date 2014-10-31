@@ -1,4 +1,4 @@
-# 7.2.x API Reference
+# 8.0.x API Reference
 
 - [`Hapi.Server`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
@@ -264,9 +264,6 @@ When creating a server instance, the following options configure the server's be
 - `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
 
-- `maxSockets` - sets the number of sockets available per outgoing proxy host connection. `false` means use the [wreck](https://www.npmjs.org/package/wreck) default value (`Infinity`).
-    Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
-
 - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
   (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no options.
 
@@ -429,6 +426,8 @@ The following options are available when adding a route:
         - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the response using the `response.ttl()` method (or passed
           as an argument to the `onResponse` method if provided).
         - `agent` - a node [http(s) agent](http://nodejs.org/api/http.html#http_class_http_agent) to be used for connections to upstream server.
+        - `maxSockets` - sets the maximum number of sockets available per outgoing proxy host connection. `false` means use the **wreck** module
+          default value (Infinity). Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
     - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` option can be set to one of:
         - a string with the template file name.

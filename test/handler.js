@@ -881,4 +881,57 @@ describe('Handler', function () {
             done();
         });
     });
+
+    describe('proxy', function () {
+
+        it('forwards on the response when making a GET request', function (done) {
+
+            var profile = function (request, reply) {
+
+                reply({ id: 'fa0dbda9b1b', name: 'John Doe' }).state('test', '123');
+            };
+
+            var upstream = new Hapi.Server(0);
+            upstream.route({ method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } });
+            upstream.start(function () {
+
+                var server = new Hapi.Server();
+                server.route({ method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: upstream.info.port, xforward: true, passThrough: true } } });
+                server.state('auto', { autoValue: 'xyz' });
+
+                server.inject('/profile', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.payload).to.contain('John Doe');
+                    expect(res.headers['set-cookie']).to.deep.equal(['test=123', 'auto=xyz']);
+                    expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate, private');
+
+                    server.inject('/profile', function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        expect(res.payload).to.contain('John Doe');
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('proxies via reply.proxy()', function (done) {
+
+            var upstream = new Hapi.Server(0);
+            upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { reply({ a: 1 }); } });
+            upstream.start(function () {
+
+                var server = new Hapi.Server();
+                server.route({ method: 'GET', path: '/handler', handler: function (request, reply) { reply.proxy({ uri: 'http://localhost:' + upstream.info.port + '/item' }); } });
+
+                server.inject('/handler', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.payload).to.contain('"a":1');
+                    done();
+                });
+            });
+        });
+    });
 });

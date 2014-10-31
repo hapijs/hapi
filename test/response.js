@@ -1824,7 +1824,7 @@ describe('Response', function () {
 
             server.inject('/file', function (res1) {
 
-                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['content-length']).to.not.exist();
@@ -2998,6 +2998,7 @@ describe('Response', function () {
             response.emit('special');
         });
     });
+
     it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
 
         var message = { 'msg': 'This message is going to be gzipped.' };
@@ -3302,6 +3303,29 @@ describe('Response', function () {
                 expect(err).to.not.exist();
                 expect(body.toString()).to.equal(data);
                 done();
+            });
+        });
+    });
+
+    it('returns a gzip response when forced by the handler', function (done) {
+
+        var message = { 'msg': 'This message is going to be gzipped.' };
+        var data = '{"test":"true"}';
+
+        Zlib.gzip(new Buffer(data), function (err, zipped) {
+
+            var server = new Hapi.Server(0);
+            server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(zipped).type('text/plain').header('content-encoding', 'gzip'); } });
+            server.start(function () {
+
+                var uri = 'http://localhost:' + server.info.port;
+
+                Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
+
+                    expect(err).to.not.exist();
+                    expect(body).to.equal(zipped.toString());
+                    done();
+                });
             });
         });
     });
