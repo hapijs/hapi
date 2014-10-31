@@ -247,7 +247,9 @@ describe('Server', function () {
 
         it('measures loop delay', function (done) {
 
-            var server = new Hapi.Server(0, { load: { sampleInterval: 4 } });
+            var pack = new Hapi.Pack({ load: { sampleInterval: 4 } });
+            pack.connection(0);
+
             var handler = function (request, reply) {
 
                 var start = Date.now();
@@ -255,27 +257,28 @@ describe('Server', function () {
                 reply('ok');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            pack.route({ method: 'GET', path: '/', handler: handler });
+            pack.start(function (err) {
 
+                var server = pack.connections[0];
                 server.inject('/', function (res) {
 
-                    expect(server.load.eventLoopDelay).to.equal(0);
+                    expect(pack.load.eventLoopDelay).to.equal(0);
 
                     setImmediate(function () {
 
                         server.inject('/', function (res) {
 
-                            expect(server.load.eventLoopDelay).to.be.above(0);
+                            expect(pack.load.eventLoopDelay).to.be.above(0);
 
                             setImmediate(function () {
 
                                 server.inject('/', function (res) {
 
-                                    expect(server.load.eventLoopDelay).to.be.above(0);
-                                    expect(server.load.heapUsed).to.be.above(1024 * 1024);
-                                    expect(server.load.rss).to.be.above(1024 * 1024);
-                                    server.stop(function () {
+                                    expect(pack.load.eventLoopDelay).to.be.above(0);
+                                    expect(pack.load.heapUsed).to.be.above(1024 * 1024);
+                                    expect(pack.load.rss).to.be.above(1024 * 1024);
+                                    pack.stop(function () {
 
                                         done();
                                     });
@@ -289,7 +292,10 @@ describe('Server', function () {
 
         it('rejects request due to high rss load', function (done) {
 
-            var server = new Hapi.Server(0, { load: { sampleInterval: 5, maxRssBytes: 1 } });
+            var pack = new Hapi.Pack({ load: { sampleInterval: 5 } });
+            pack.connection(0, { load: { maxRssBytes: 1 } });
+            var server = pack.connections[0];
+
             var handler = function (request, reply) {
 
                 var start = Date.now();

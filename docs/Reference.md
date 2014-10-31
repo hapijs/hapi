@@ -198,12 +198,6 @@ When creating a server instance, the following options configure the server's be
       the header to 'noopen'.
     - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting the header to its only and default option, 'nosniff'.
 
-- `debug` - controls the error types sent to the console:
-    - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
-      to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response) or
-      runtime errors due to incorrect implementation of the hapi API. For example, to display all errors, change the option to `['error']`.
-      To turn off all console debug messages set it to `false`.
-
 - <a name="server.config.files"></a>`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines the folder relative paths are resolved against when using the file and directory handlers.
     - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the cache. Defaults to `10000`.
@@ -215,12 +209,11 @@ When creating a server instance, the following options configure the server's be
 - `labels` - a string array of labels used when registering plugins to [`plugin.select()`](#pluginselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 
-- `load` - server load monitoring and limits configuration (stored under `server.load` when enabled) where:
+- `load` - server load limits configuration where:
     - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
     - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
     - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response.
       Defaults to `0` (no limit).
-    - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no sampling).
 
 - <a name="server.config.location"></a>`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
   Defaults to the host received in the request HTTP 'Host' header and if missing, to `server.info.uri`.
@@ -279,10 +272,6 @@ Each instance of the `Server` object have the following properties:
     - `protocol` - the protocol used (e.g. `'http'` or `'https'`).
     - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
 - `listener` - the node HTTP server object.
-- `load` - server load metrics (when `server.load.sampleInterval` is enabled):
-    - `eventLoopDelay` - event loop delay milliseconds.
-    - `heapUsed` - V8 heap usage.
-    - `rss` - RSS memory usage.
 - `pack` - the [`Pack`](#hapipack) object the server belongs to (automatically assigned when creating a server instance directly).
 - `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value).
 - `settings` - an object containing the [server options](#server-options) after applying the defaults.
@@ -2203,7 +2192,13 @@ Creates a new `Pack` object instance where:
 - `options` - optional configuration:
     - `app` - an object used to initialize the application-specific data stored in `pack.app`.
     - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
-    - `debug` - same as the server `debug` config option but applied to the entire pack.
+    - `debug` - controls the error types sent to the console:
+        - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
+          to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response) or
+          runtime errors due to incorrect implementation of the hapi API. For example, to display all errors, change the option to `['error']`.
+          To turn off all console debug messages set it to `false`.
+    - `load` - process load monitoring (stored under `pack.load` when enabled) where:
+        - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no sampling).
 
 ```javascript
 var Hapi = require('hapi');
@@ -2220,6 +2215,10 @@ Each `Pack` object instance has the following properties:
   the `'start'` and `'stop'` pack events.
 - `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using
   [`plugin.expose()`](#pluginexposekey-value).
+- `load` - process load metrics (when `load.sampleInterval` is enabled):
+    - `eventLoopDelay` - event loop delay milliseconds.
+    - `heapUsed` - V8 heap usage.
+    - `rss` - RSS memory usage.
 
 ### `Pack` methods
 
