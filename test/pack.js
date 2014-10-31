@@ -40,7 +40,7 @@ describe('Pack', function () {
         pack.server({ labels: ['s3', 'a', 'b', 'd'] });
         pack.server({ labels: ['s4', 'b', 'x'] });
 
-        var server2 = pack.servers[2];
+        var server2 = pack.connections[2];
 
         var plugin = {
             name: 'test',
@@ -51,11 +51,11 @@ describe('Pack', function () {
                 var memoryx = plugin.select('x', 's4');
                 var sodd = plugin.select(['s2', 's4']);
 
-                expect(plugin.length).to.equal(4);
-                expect(a.length).to.equal(3);
-                expect(ab.length).to.equal(2);
-                expect(memoryx.length).to.equal(1);
-                expect(sodd.length).to.equal(2);
+                expect(plugin.connections.length).to.equal(4);
+                expect(a.connections.length).to.equal(3);
+                expect(ab.connections.length).to.equal(2);
+                expect(memoryx.connections.length).to.equal(1);
+                expect(sodd.connections.length).to.equal(2);
 
                 plugin.route({ method: 'GET', path: '/all', handler: function (request, reply) { reply('all'); } });
                 a.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('a'); } });
@@ -88,10 +88,10 @@ describe('Pack', function () {
 
             expect(err).to.not.exist();
 
-            expect(routesList(pack.servers[0])).to.deep.equal(['/a', '/ab', '/all']);
-            expect(routesList(pack.servers[1])).to.deep.equal(['/a', '/all', '/sodd']);
-            expect(routesList(pack.servers[2])).to.deep.equal(['/a', '/ab', '/all']);
-            expect(routesList(pack.servers[3])).to.deep.equal(['/all', '/sodd', '/memoryx']);
+            expect(routesList(pack.connections[0])).to.deep.equal(['/a', '/ab', '/all']);
+            expect(routesList(pack.connections[1])).to.deep.equal(['/a', '/all', '/sodd']);
+            expect(routesList(pack.connections[2])).to.deep.equal(['/a', '/ab', '/all']);
+            expect(routesList(pack.connections[3])).to.deep.equal(['/all', '/sodd', '/memoryx']);
             done();
         });
     });
@@ -325,13 +325,13 @@ describe('Pack', function () {
 
             expect(err).to.not.exist();
 
-            expect(pack.servers[0]._router.routes.get).to.not.exist();
-            expect(routesList(pack.servers[1])).to.deep.equal(['/test1']);
-            expect(pack.servers[2]._router.routes.get).to.not.exist();
-            expect(routesList(pack.servers[3])).to.deep.equal(['/test1']);
+            expect(pack.connections[0]._router.routes.get).to.not.exist();
+            expect(routesList(pack.connections[1])).to.deep.equal(['/test1']);
+            expect(pack.connections[2]._router.routes.get).to.not.exist();
+            expect(routesList(pack.connections[3])).to.deep.equal(['/test1']);
 
-            expect(pack.servers[0].plugins['--test1'].add(1, 3)).to.equal(4);
-            expect(pack.servers[0].plugins['--test1'].glue('1', '3')).to.equal('13');
+            expect(pack.connections[0].plugins['--test1'].add(1, 3)).to.equal(4);
+            expect(pack.connections[0].plugins['--test1'].glue('1', '3')).to.equal('13');
 
             done();
         });
@@ -668,9 +668,9 @@ describe('Pack', function () {
         pack.server({ labels: ['b'] });
         pack.server({ labels: ['c'] });
 
-        var server1 = pack.servers[0];
-        var server2 = pack.servers[1];
-        var server3 = pack.servers[2];
+        var server1 = pack.connections[0];
+        var server2 = pack.connections[1];
+        var server3 = pack.connections[2];
 
         var child = {
             name: 'child',
@@ -719,14 +719,14 @@ describe('Pack', function () {
 
         pack.start(function () {
 
-            pack.servers.forEach(function (server) {
+            pack.connections.forEach(function (server) {
 
                 expect(server._started).to.equal(true);
             });
 
             pack.stop(function () {
 
-                pack.servers.forEach(function (server) {
+                pack.connections.forEach(function (server) {
 
                     expect(server._started).to.equal(false);
                 });
@@ -792,9 +792,9 @@ describe('Pack', function () {
             return reply(request.app.deps);
         };
 
-        pack.servers[0].route({ method: 'GET', path: '/', handler: handler });
-        pack.servers[1].route({ method: 'GET', path: '/', handler: handler });
-        pack.servers[2].route({ method: 'GET', path: '/', handler: handler });
+        pack.connections[0].route({ method: 'GET', path: '/', handler: handler });
+        pack.connections[1].route({ method: 'GET', path: '/', handler: handler });
+        pack.connections[2].route({ method: 'GET', path: '/', handler: handler });
 
         pack.register([require('./pack/--deps1'), require('./pack/--deps2'), require('./pack/--deps3')], function (err) {
 
@@ -805,15 +805,15 @@ describe('Pack', function () {
                 expect(err).to.not.exist();
                 expect(pack.plugins['--deps1'].breaking).to.equal('bad');
 
-                pack.servers[0].inject('/', function (res) {
+                pack.connections[0].inject('/', function (res) {
 
                     expect(res.result).to.equal('|2|1|');
 
-                    pack.servers[1].inject('/', function (res) {
+                    pack.connections[1].inject('/', function (res) {
 
                         expect(res.result).to.equal('|3|1|');
 
-                        pack.servers[2].inject('/', function (res) {
+                        pack.connections[2].inject('/', function (res) {
 
                             expect(res.result).to.equal('|3|2|');
                             done();
@@ -1026,7 +1026,7 @@ describe('Pack', function () {
         });
     });
 
-    it('adds auth strategy via plugin to multiple servers', function (done) {
+    it('adds auth strategy via plugin to multiple connections', function (done) {
 
         var pack = new Hapi.Pack();
         pack.server(0, { labels: 'a' });
@@ -1451,8 +1451,8 @@ describe('Pack', function () {
         pack.server({ labels: ['a'] });
         pack.server({ labels: ['b'] });
 
-        var server1 = pack.servers[0];
-        var server2 = pack.servers[1];
+        var server1 = pack.connections[0];
+        var server2 = pack.connections[1];
 
         var plugin = {
             name: 'test',
@@ -1485,9 +1485,9 @@ describe('Pack', function () {
         pack.server({ labels: ['b'] });
         pack.server({ labels: ['c'] });
 
-        var server1 = pack.servers[0];
-        var server2 = pack.servers[1];
-        var server3 = pack.servers[2];
+        var server1 = pack.connections[0];
+        var server2 = pack.connections[1];
+        var server3 = pack.connections[2];
 
         var plugin = {
             name: 'test',
@@ -1523,16 +1523,16 @@ describe('Pack', function () {
         });
     });
 
-    it('listens to events on selected servers', function (done) {
+    it('listens to events on selected connections', function (done) {
 
         var pack = new Hapi.Pack();
         pack.server(0, { labels: ['a'] });
         pack.server(0, { labels: ['b'] });
         pack.server(0, { labels: ['c'] });
 
-        var server1 = pack.servers[0];
-        var server2 = pack.servers[1];
-        var server3 = pack.servers[2];
+        var server1 = pack.connections[0];
+        var server2 = pack.connections[1];
+        var server3 = pack.connections[2];
 
         var counter = 0;
         var plugin = {
@@ -1730,7 +1730,7 @@ describe('Pack', function () {
                     expect(err).to.not.exist();
                     pack.stop(function () {
 
-                        pack.servers[0].inject('/test1', function (res) {
+                        pack.connections[0].inject('/test1', function (res) {
 
                             expect(res.result).to.equal('testing123special-value');
                             done();

@@ -92,8 +92,7 @@
         - [`plugin.render(template, context, [options], callback)`](#pluginrendertemplate-context-options-callback)
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
-        - [`plugin.length`](#pluginlength)
-        - [`plugin.servers`](#pluginservers)
+        - [`plugin.connections`](#pluginconnections)
         - [`plugin.events`](#pluginevents)
         - [`plugin.expose(key, value)`](#pluginexposekey-value)
         - [`plugin.expose(obj)`](#pluginexposeobj)
@@ -2822,30 +2821,17 @@ exports.register = function (plugin, options, next) {
 };
 ```
 
-#### `plugin.length`
+#### `plugin.connections`
 
-The number of selected servers.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var count = plugin.length;
-    var selectedCount = plugin.select('web').length;
-    next();
-};
-```
-
-#### `plugin.servers`
-
-The selected servers array.
+The selected connections array.
 
 ```javascript
 exports.register = function (plugin, options, next) {
 
     var selection = plugin.select('web');
-    selection.servers.forEach(function (server) {
+    selection.connections.forEach(function (connection) {
 
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+        connection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
     });
 
     next();
