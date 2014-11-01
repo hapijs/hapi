@@ -311,7 +311,7 @@ describe('Router', function () {
             }
         ]);
 
-        var table = server.table();
+        var table = server.table()[server.info.uri];
         var paths = table.map(function (route) {
             var obj = {
                 method: route.method,

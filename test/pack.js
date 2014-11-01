@@ -22,9 +22,8 @@ describe('Pack', function () {
 
     var routesList = function (server, label) {
 
-        var table = server.select(label).table();
+        var table = server.select(label || []).table();
         var connections = Object.keys(table);
-        console.log(server.select().connections.length)
 
         var list = [];
         for (var c = 0, cl = connections.length; c < cl; ++c) {

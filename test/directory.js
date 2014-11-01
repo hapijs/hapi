@@ -235,7 +235,7 @@ describe('Directory', function () {
         server.inject('/directorylist/test/', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.contain('server.js');
+            expect(res.payload).to.contain('connection.js');
             done();
         });
     });
