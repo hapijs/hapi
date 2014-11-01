@@ -42,10 +42,10 @@ describe('Pack', function () {
     it('registers plugins', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['s1', 'a', 'b'] });
-        pack.server({ labels: ['s2', 'a', 'c'] });
-        pack.server({ labels: ['s3', 'a', 'b', 'd'] });
-        pack.server({ labels: ['s4', 'b', 'x'] });
+        pack.connection({ labels: ['s1', 'a', 'b'] });
+        pack.connection({ labels: ['s2', 'a', 'c'] });
+        pack.connection({ labels: ['s3', 'a', 'b', 'd'] });
+        pack.connection({ labels: ['s4', 'b', 'x'] });
 
         var server2 = pack.connections[2];
 
@@ -106,7 +106,7 @@ describe('Pack', function () {
     it('registers plugin with options', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
+        pack.connection({ labels: ['a', 'b'] });
 
         var plugin = {
             name: 'test',
@@ -128,7 +128,7 @@ describe('Pack', function () {
     it('throws when register is missing a callback function', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a', 'b'] });
+        pack.connection({ labels: ['a', 'b'] });
 
         var plugin = {
             name: 'test',
@@ -214,7 +214,7 @@ describe('Pack', function () {
         expect(function () {
 
             var pack = new Hapi.Pack();
-            pack.server({ cache: require('catbox-memory'), labels: ['a', 'b', 'c'] });
+            pack.connection({ cache: require('catbox-memory'), labels: ['a', 'b', 'c'] });
         }).to.throw('Cannot configure cache when adding a connection to a pack');
         done();
     });
@@ -323,10 +323,10 @@ describe('Pack', function () {
     it('registers plugin with exposed api', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['s1', 'a', 'b'] });
-        pack.server({ labels: ['s2', 'a', 'test'] });
-        pack.server({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
-        pack.server({ labels: ['s4', 'b', 'test', 'cache'] });
+        pack.connection({ labels: ['s1', 'a', 'b'] });
+        pack.connection({ labels: ['s2', 'a', 'test'] });
+        pack.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+        pack.connection({ labels: ['s4', 'b', 'test', 'cache'] });
 
         pack.register(require('./pack/--test1'), function (err) {
 
@@ -671,9 +671,9 @@ describe('Pack', function () {
     it('registers a plugin on selection inside a plugin', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a'] });
-        pack.server({ labels: ['b'] });
-        pack.server({ labels: ['c'] });
+        pack.connection({ labels: ['a'] });
+        pack.connection({ labels: ['b'] });
+        pack.connection({ labels: ['c'] });
 
         var server1 = pack.connections[0];
         var server2 = pack.connections[1];
@@ -713,10 +713,10 @@ describe('Pack', function () {
     it('starts and stops', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server(0, { labels: ['s1', 'a', 'b'] });
-        pack.server(0, { labels: ['s2', 'a', 'test'] });
-        pack.server(0, { labels: ['s3', 'a', 'b', 'd', 'cache'] });
-        pack.server(0, { labels: ['s4', 'b', 'test', 'cache'] });
+        pack.connection(0, { labels: ['s1', 'a', 'b'] });
+        pack.connection(0, { labels: ['s2', 'a', 'test'] });
+        pack.connection(0, { labels: ['s3', 'a', 'b', 'd', 'cache'] });
+        pack.connection(0, { labels: ['s4', 'b', 'test', 'cache'] });
 
         var started = 0;
         var stopped = 0;
@@ -790,9 +790,9 @@ describe('Pack', function () {
     it('adds multiple ext functions with dependencies', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server(0, { labels: ['a', 'b', '0'] });
-        pack.server(0, { labels: ['a', 'c', '1'] });
-        pack.server(0, { labels: ['c', 'b', '2'] });
+        pack.connection(0, { labels: ['a', 'b', '0'] });
+        pack.connection(0, { labels: ['a', 'c', '1'] });
+        pack.connection(0, { labels: ['c', 'b', '2'] });
 
         var handler = function (request, reply) {
 
@@ -839,7 +839,7 @@ describe('Pack', function () {
             expect(function () {
 
                 server.start();
-            }).to.throw('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
+            }).to.throw('Plugin --deps1 missing dependency --deps2 in connection: ' + server.info.uri);
             done();
         });
     });
@@ -861,7 +861,7 @@ describe('Pack', function () {
             expect(function () {
 
                 server.start();
-            }).to.throw('Plugin test missing dependency none in server: ' + server.info.uri);
+            }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
             done();
         });
     });
@@ -874,7 +874,7 @@ describe('Pack', function () {
             expect(function () {
 
                 server.start();
-            }).to.throw('Plugin --deps1 missing dependency --deps2 in server: ' + server.info.uri);
+            }).to.throw('Plugin --deps1 missing dependency --deps2 in connection: ' + server.info.uri);
             done();
         });
     });
@@ -939,7 +939,7 @@ describe('Pack', function () {
             expect(function () {
 
                 server.start();
-            }).to.throw('Plugin b missing dependency c in server: ' + server.info.uri);
+            }).to.throw('Plugin b missing dependency c in connection: ' + server.info.uri);
             done();
         });
     });
@@ -1036,8 +1036,8 @@ describe('Pack', function () {
     it('adds auth strategy via plugin to multiple connections', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server(0, { labels: 'a' });
-        pack.server(0, { labels: 'b' });
+        pack.connection(0, { labels: 'a' });
+        pack.connection(0, { labels: 'b' });
 
         pack.register(require('./pack/--auth'), function (err) {
 
@@ -1066,9 +1066,9 @@ describe('Pack', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                plugin.events.once('request', function (request, event, tags) {
+                plugin.events.once('request', function () {
 
-                    expect(tags).to.exist();
+                    expect(arguments).to.have.length(3);
                     done();
                 });
 
@@ -1264,7 +1264,7 @@ describe('Pack', function () {
     it('adds server method using arguments', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server();
+        pack.connection();
 
         var plugin = {
             name: 'test',
@@ -1440,7 +1440,7 @@ describe('Pack', function () {
     it('starts a pack without callback', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server(0);
+        pack.connection(0);
         pack.register(require('./pack/--afterErr'), function (err) {
 
             pack.start();
@@ -1455,8 +1455,8 @@ describe('Pack', function () {
     it('registers plugins with pre-selected label', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a'] });
-        pack.server({ labels: ['b'] });
+        pack.connection({ labels: ['a'] });
+        pack.connection({ labels: ['b'] });
 
         var server1 = pack.connections[0];
         var server2 = pack.connections[1];
@@ -1488,9 +1488,9 @@ describe('Pack', function () {
     it('registers plugins with pre-selected labels', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server({ labels: ['a'] });
-        pack.server({ labels: ['b'] });
-        pack.server({ labels: ['c'] });
+        pack.connection({ labels: ['a'] });
+        pack.connection({ labels: ['b'] });
+        pack.connection({ labels: ['c'] });
 
         var server1 = pack.connections[0];
         var server2 = pack.connections[1];
@@ -1533,9 +1533,9 @@ describe('Pack', function () {
     it('listens to events on selected connections', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server(0, { labels: ['a'] });
-        pack.server(0, { labels: ['b'] });
-        pack.server(0, { labels: ['c'] });
+        pack.connection(0, { labels: ['a'] });
+        pack.connection(0, { labels: ['b'] });
+        pack.connection(0, { labels: ['c'] });
 
         var server1 = pack.connections[0];
         var server2 = pack.connections[1];

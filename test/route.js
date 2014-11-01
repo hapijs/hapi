@@ -35,7 +35,7 @@ describe('Route', function () {
         expect(function () {
 
             server.route({ method: 'GET', path: '/test/', handler: function () { } });
-        }).to.throw('Path cannot end with a trailing slash when server configured to strip: GET /test/');
+        }).to.throw('Path cannot end with a trailing slash when connection configured to strip: GET /test/');
         done();
     });
 

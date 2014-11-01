@@ -27,7 +27,7 @@
     "h2o2": "3.x.x",
     "heavy": "2.x.x",
     "hoek": "^2.4.x",
-    "glue": "1.x.x",
+    "glue": "2.x.x",
     "inert": "2.0.x",
     "iron": "2.x.x",
     "items": "1.x.x",
