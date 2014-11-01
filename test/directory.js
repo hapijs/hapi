@@ -509,12 +509,12 @@ describe('Directory', function () {
         });
     });
 
-    it('resolves windows path name from pack using root path', { skip: process.platform !== 'win32' }, function (done) {
+    it('resolves windows path name from plugin using root path', { skip: process.platform !== 'win32' }, function (done) {
 
-        // Note: This uses a root path of where the test file lives (to simulate requiring a pack), which is why the
+        // Note: This uses a root path of where the test file lives (to simulate requiring a plugin), which is why the
         //       directory handler path is ./directory instead of ./test/directory like the other test below
 
-        var pack = {
+        var plugin = {
             name: 'directory test',
             version: '1.0',
             path: __dirname,
@@ -526,7 +526,7 @@ describe('Directory', function () {
         };
 
         var server = new Hapi.Server();
-        server.pack.register(pack, {}, function () { });
+        server.register(plugin, {}, function () { });
 
         server.inject('/test/index.html', function (res) {
 
@@ -535,12 +535,12 @@ describe('Directory', function () {
         });
     });
 
-    it('resolves windows path name from pack using relative path', { skip: process.platform !== 'win32' }, function (done) {
+    it('resolves windows path name from plugin using relative path', { skip: process.platform !== 'win32' }, function (done) {
 
-        // Note: This simulates a pack which is not "required", and therefore doesn't have a path set. This will use
+        // Note: This simulates a plugin which is not "required", and therefore doesn't have a path set. This will use
         //       the process' root directory then, so the directory handler needs to specify the path relative to that
 
-        var pack = {
+        var plugin = {
             name: 'directory test',
             version: '1.0',
             register: function (plugin, options, next) {
@@ -551,7 +551,7 @@ describe('Directory', function () {
         };
 
         var server = new Hapi.Server();
-        server.pack.register(pack, {}, function () { });
+        server.register(plugin, {}, function () { });
 
         server.inject('/test/index.html', function (res) {
 

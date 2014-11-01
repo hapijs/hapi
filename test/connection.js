@@ -922,7 +922,7 @@ describe('Server', function () {
                 expect(event.data).to.equal('log event 1');
             });
 
-            server.pack.events.once('log', function (event) {
+            server.events.once('log', function (event) {
 
                 ++count;
                 expect(event.data).to.equal('log event 1');
@@ -982,7 +982,7 @@ describe('Server', function () {
                 var server = new Hapi.Server();
 
                 server.handler('test', handler);
-                expect(server.pack._core._handlers.test).to.equal(handler);
+                expect(server._core._handlers.test).to.equal(handler);
             };
 
             expect(fn).to.not.throw();

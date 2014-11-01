@@ -302,7 +302,7 @@ describe('Ext', function () {
                 }
             };
 
-            server.pack.register(plugin, function (err) {
+            server.register(plugin, function (err) {
 
                 server.inject('/view', function (res) {
 

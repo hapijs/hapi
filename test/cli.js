@@ -24,7 +24,7 @@ var expect = Code.expect;
 
 describe('bin/hapi', function () {
 
-    it('composes pack with absolute path', function (done) {
+    it('composes server with absolute path', function (done) {
 
         var manifest = {
             pack: {
@@ -57,7 +57,7 @@ describe('bin/hapi', function () {
 
         var configPath = Hoek.uniqueFilename(Os.tmpDir());
         var hapiPath = Path.join(__dirname, '..', 'bin', 'hapi');
-        var modulePath = Path.join(__dirname, 'pack');
+        var modulePath = Path.join(__dirname, 'plugins');
 
         Fs.writeFileSync(configPath, JSON.stringify(manifest));
 
