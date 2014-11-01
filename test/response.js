@@ -1663,7 +1663,8 @@ describe('Response', function () {
 
         it('does not cache etags', function (done) {
 
-            var server = new Hapi.Server({ files: { relativeTo: __dirname, etagsCacheMaxSize: 0 } });
+            var server = new Hapi.Pack({ files: { etagsCacheMaxSize: 0 } });
+            server.connection({ files: { relativeTo: __dirname } });
             server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
 
             server.inject('/note', function (res) {

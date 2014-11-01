@@ -200,7 +200,6 @@ When creating a server instance, the following options configure the server's be
 
 - <a name="server.config.files"></a>`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
     - `relativeTo` - determines the folder relative paths are resolved against when using the file and directory handlers.
-    - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the cache. Defaults to `10000`.
 
 - `json` - optional arguments passed to `JSON.stringify()` when converting an object or error response to a string payload. Supports the following:
     - `replacer` - the replacer function or array. Defaults to no action.
@@ -2199,6 +2198,8 @@ Creates a new `Pack` object instance where:
           To turn off all console debug messages set it to `false`.
     - `load` - process load monitoring (stored under `pack.load` when enabled) where:
         - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no sampling).
+    - `files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
+        - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the cache. Defaults to `10000`.
 
 ```javascript
 var Hapi = require('hapi');
