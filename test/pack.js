@@ -20,13 +20,21 @@ var expect = Code.expect;
 
 describe('Pack', function () {
 
-    var routesList = function (server) {
+    var routesList = function (server, label) {
 
-        var routes = server._router.routes.get;
+        var table = server.select(label).table();
+        var connections = Object.keys(table);
+        console.log(server.select().connections.length)
+
         var list = [];
-        for (var i = 0, il = routes.length; i < il; ++i) {
-            var route = routes[i];
-            list.push(route.path);
+        for (var c = 0, cl = connections.length; c < cl; ++c) {
+            var routes = table[connections[c]];
+            for (var i = 0, il = routes.length; i < il; ++i) {
+                var route = routes[i];
+                if (route.method === 'get') {
+                    list.push(route.path);
+                }
+            }
         }
 
         return list;
@@ -88,10 +96,10 @@ describe('Pack', function () {
 
             expect(err).to.not.exist();
 
-            expect(routesList(pack.connections[0])).to.deep.equal(['/a', '/ab', '/all']);
-            expect(routesList(pack.connections[1])).to.deep.equal(['/a', '/all', '/sodd']);
-            expect(routesList(pack.connections[2])).to.deep.equal(['/a', '/ab', '/all']);
-            expect(routesList(pack.connections[3])).to.deep.equal(['/all', '/sodd', '/memoryx']);
+            expect(routesList(pack, 's1')).to.deep.equal(['/a', '/ab', '/all']);
+            expect(routesList(pack, 's2')).to.deep.equal(['/a', '/all', '/sodd']);
+            expect(routesList(pack, 's3')).to.deep.equal(['/a', '/ab', '/all']);
+            expect(routesList(pack, 's4')).to.deep.equal(['/all', '/sodd', '/memoryx']);
             done();
         });
     });
@@ -285,7 +293,7 @@ describe('Pack', function () {
         server.pack.register(plugin, function (err) {
 
             expect(err).to.not.exist();
-            expect(server._registrations['--steve'].version).to.equal('0.0.0');
+            expect(server.connections[0]._registrations['--steve'].version).to.equal('0.0.0');
             server.inject('/', function (res) {
 
                 expect(res.result).to.equal(Hapi.version);
@@ -326,9 +334,9 @@ describe('Pack', function () {
             expect(err).to.not.exist();
 
             expect(pack.connections[0]._router.routes.get).to.not.exist();
-            expect(routesList(pack.connections[1])).to.deep.equal(['/test1']);
+            expect(routesList(pack, 's2')).to.deep.equal(['/test1']);
             expect(pack.connections[2]._router.routes.get).to.not.exist();
-            expect(routesList(pack.connections[3])).to.deep.equal(['/test1']);
+            expect(routesList(pack, 's4')).to.deep.equal(['/test1']);
 
             expect(pack.connections[0].plugins['--test1'].add(1, 3)).to.equal(4);
             expect(pack.connections[0].plugins['--test1'].glue('1', '3')).to.equal('13');
@@ -416,12 +424,12 @@ describe('Pack', function () {
 
         var server = new Hapi.Server({ labels: 'test' });
         var log = null;
-        server.pack.events.once('log', function (event, tags) {
+        server.events.once('log', function (event, tags) {
 
             log = [event, tags];
         });
 
-        server.pack.register([require('./pack/--test1'), require('./pack/--test2')], function (err) {
+        server.register([require('./pack/--test1'), require('./pack/--test2')], function (err) {
 
             expect(err).to.not.exist();
             expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
@@ -783,18 +791,18 @@ describe('Pack', function () {
     it('adds multiple ext functions with dependencies', function (done) {
 
         var pack = new Hapi.Pack();
-        pack.server(0, { labels: ['a', 'b'] });
-        pack.server(0, { labels: ['a', 'c'] });
-        pack.server(0, { labels: ['c', 'b'] });
+        pack.server(0, { labels: ['a', 'b', '0'] });
+        pack.server(0, { labels: ['a', 'c', '1'] });
+        pack.server(0, { labels: ['c', 'b', '2'] });
 
         var handler = function (request, reply) {
 
             return reply(request.app.deps);
         };
 
-        pack.connections[0].route({ method: 'GET', path: '/', handler: handler });
-        pack.connections[1].route({ method: 'GET', path: '/', handler: handler });
-        pack.connections[2].route({ method: 'GET', path: '/', handler: handler });
+        pack.select('0').route({ method: 'GET', path: '/', handler: handler });
+        pack.select('1').route({ method: 'GET', path: '/', handler: handler });
+        pack.select('2').route({ method: 'GET', path: '/', handler: handler });
 
         pack.register([require('./pack/--deps1'), require('./pack/--deps2'), require('./pack/--deps3')], function (err) {
 
@@ -1730,7 +1738,7 @@ describe('Pack', function () {
                     expect(err).to.not.exist();
                     pack.stop(function () {
 
-                        pack.connections[0].inject('/test1', function (res) {
+                        pack.inject('/test1', function (res) {
 
                             expect(res.result).to.equal('testing123special-value');
                             done();

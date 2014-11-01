@@ -33,7 +33,7 @@ describe('Server', function () {
 
         var item = {};
         var server = new Hapi.Server({ app: item });
-        expect(server.settings.app).to.equal(item);
+        expect(server.connections[0].settings.app).to.equal(item);
         done();
     });
 
@@ -41,7 +41,7 @@ describe('Server', function () {
 
         var item = {};
         var server = new Hapi.Server({ plugins: item });
-        expect(server.settings.plugins).to.equal(item);
+        expect(server.connections[0].settings.plugins).to.equal(item);
         done();
     });
 
@@ -113,9 +113,9 @@ describe('Server', function () {
                 expect(err.errno).to.equal('ECONNRESET');
             });
 
-            socket1.connect(server.info.port, server.settings.host, function () {
+            socket1.connect(server.info.port, server.connections[0].settings.host, function () {
 
-                socket2.connect(server.info.port, server.settings.host, function () {
+                socket2.connect(server.info.port, server.connections[0].settings.host, function () {
 
                     server.listener.getConnections(function (err, count) {
 
@@ -151,9 +151,9 @@ describe('Server', function () {
                 expect(err.errno).to.equal('ECONNRESET');
             });
 
-            socket1.connect(server.info.port, server.settings.host, function () {
+            socket1.connect(server.info.port, server.connections[0].settings.host, function () {
 
-                socket2.connect(server.info.port, server.settings.host, function () {
+                socket2.connect(server.info.port, server.connections[0].settings.host, function () {
 
                     server.listener.getConnections(function (err, count) {
 
@@ -247,8 +247,8 @@ describe('Server', function () {
 
         it('measures loop delay', function (done) {
 
-            var pack = new Hapi.Pack({ load: { sampleInterval: 4 } });
-            pack.connection(0);
+            var server = new Hapi.Pack({ load: { sampleInterval: 4 } });
+            server.connection(0);
 
             var handler = function (request, reply) {
 
@@ -257,28 +257,27 @@ describe('Server', function () {
                 reply('ok');
             };
 
-            pack.route({ method: 'GET', path: '/', handler: handler });
-            pack.start(function (err) {
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start(function (err) {
 
-                var server = pack.connections[0];
                 server.inject('/', function (res) {
 
-                    expect(pack.load.eventLoopDelay).to.equal(0);
+                    expect(server.load.eventLoopDelay).to.equal(0);
 
                     setImmediate(function () {
 
                         server.inject('/', function (res) {
 
-                            expect(pack.load.eventLoopDelay).to.be.above(0);
+                            expect(server.load.eventLoopDelay).to.be.above(0);
 
                             setImmediate(function () {
 
                                 server.inject('/', function (res) {
 
-                                    expect(pack.load.eventLoopDelay).to.be.above(0);
-                                    expect(pack.load.heapUsed).to.be.above(1024 * 1024);
-                                    expect(pack.load.rss).to.be.above(1024 * 1024);
-                                    pack.stop(function () {
+                                    expect(server.load.eventLoopDelay).to.be.above(0);
+                                    expect(server.load.heapUsed).to.be.above(1024 * 1024);
+                                    expect(server.load.rss).to.be.above(1024 * 1024);
+                                    server.stop(function () {
 
                                         done();
                                     });
@@ -292,9 +291,8 @@ describe('Server', function () {
 
         it('rejects request due to high rss load', function (done) {
 
-            var pack = new Hapi.Pack({ load: { sampleInterval: 5 } });
-            pack.connection(0, { load: { maxRssBytes: 1 } });
-            var server = pack.connections[0];
+            var server = new Hapi.Pack({ load: { sampleInterval: 5 } });
+            server.connection(0, { load: { maxRssBytes: 1 } });
 
             var handler = function (request, reply) {
 
@@ -486,8 +484,8 @@ describe('Server', function () {
         var host = Path.join(__dirname, 'hapi-server.socket');
         var server = new Hapi.Server(host);
 
-        expect(server._unixDomainSocket).to.equal(true);
-        expect(server._host).to.equal(host);
+        expect(server.connections[0]._unixDomainSocket).to.equal(true);
+        expect(server.connections[0]._host).to.equal(host);
 
         server.start(function () {
 
@@ -508,8 +506,8 @@ describe('Server', function () {
         var host = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
         var server = new Hapi.Server(host);
 
-        expect(server._windowsNamedPipe).to.equal(true);
-        expect(server._host).to.equal(host);
+        expect(server.connections[0]._windowsNamedPipe).to.equal(true);
+        expect(server.connections[0]._host).to.equal(host);
 
         server.start(function () {
 
@@ -541,7 +539,7 @@ describe('Server', function () {
     it('removes duplicate labels', function (done) {
 
         var server = new Hapi.Server({ labels: ['a', 'b', 'a', 'c', 'b'] });
-        expect(server.settings.labels).to.deep.equal(['a', 'b', 'c']);
+        expect(server.connections[0].settings.labels).to.deep.equal(['a', 'b', 'c']);
         done();
     });
 
@@ -612,7 +610,7 @@ describe('Server', function () {
             };
 
             var server = new Hapi.Server(0);
-            expect(server._host).to.equal('');
+            expect(server.connections[0]._host).to.equal('');
 
             var address = server.listener.address;
             server.listener.address = function () {

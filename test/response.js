@@ -2392,7 +2392,7 @@ describe('Response', function () {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(201);
-                expect(res.headers.location).to.equal(server.settings.location + '/special');
+                expect(res.headers.location).to.equal(server.connections[0].settings.location + '/special');
                 expect(res.headers['cache-control']).to.equal('no-cache');
                 done();
             });

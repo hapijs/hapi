@@ -37,11 +37,12 @@ describe('Schema', function () {
         it('fails when unknown properties exist', function (done) {
 
             var server = new Hapi.Server();
-            server.settings.unknown = true;
+            var settings = server.connections[0].settings;
+            settings.unknown = true;
 
             expect(function () {
 
-                Schema.assert('server', server.settings);
+                Schema.assert('server', settings);
             }).to.throw(/Invalid server options/);
             done();
         });
@@ -49,11 +50,12 @@ describe('Schema', function () {
         it('fails when unknown child properties exist', function (done) {
 
             var server = new Hapi.Server();
-            server.settings.router = { unknown: true };
+            var settings = server.connections[0].settings;
+            settings.router = { unknown: true };
 
             expect(function () {
 
-                Schema.assert('server', server.settings);
+                Schema.assert('server', settings);
             }).to.throw(/Invalid server options/);
             done();
         });
