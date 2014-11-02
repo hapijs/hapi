@@ -1,5 +1,6 @@
 // Load modules
 
+var Boom = require('boom');
 var Code = require('code');
 var Lab = require('lab');
 var Joi = require('joi');
@@ -774,7 +775,7 @@ describe('Validation', function () {
             config: {
                 handler: function (request, reply) {
 
-                    reply(Hapi.error.badRequest());
+                    reply(Boom.badRequest());
                 },
                 response: {
                     schema: {

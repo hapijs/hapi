@@ -3,6 +3,7 @@
 var Http = require('http');
 var Net = require('net');
 var Stream = require('stream');
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
@@ -285,7 +286,7 @@ describe('Request', function () {
 
         var handler = function (request, reply) {
 
-            reply(Hapi.error.badRequest());
+            reply(Boom.badRequest());
         };
 
         var server = new Hapi.Server();
@@ -368,7 +369,7 @@ describe('Request', function () {
 
         var ext = function (request, next) {
 
-            return next(Hapi.error.badRequest());
+            return next(Boom.badRequest());
         };
 
         server.ext('onPostHandler', ext);
@@ -689,7 +690,7 @@ describe('Request', function () {
 
         var handler = function (request, reply) {
 
-            reply(Hapi.error.forbidden('Unauthorized content'));
+            reply(Boom.forbidden('Unauthorized content'));
         };
 
         var server = new Hapi.Server();

@@ -45,7 +45,7 @@ describe('response', function () {
 
         var marshall = function (response, callback) {
 
-            callback(Hapi.error.badRequest());
+            callback(Boom.badRequest());
         };
 
         var handler = function (request, reply) {
@@ -1156,7 +1156,7 @@ describe('response', function () {
 
             var server = new Hapi.Server();
         server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, Hapi.error.badRequest()); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, Boom.badRequest()); } });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(400);
@@ -1168,7 +1168,7 @@ describe('response', function () {
 
             var server = new Hapi.Server();
         server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(Hapi.error.badRequest(), 'steve'); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(Boom.badRequest(), 'steve'); } });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(400);

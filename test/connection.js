@@ -6,6 +6,7 @@ var Https = require('https');
 var Net = require('net');
 var Os = require('os');
 var Path = require('path');
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
@@ -732,7 +733,7 @@ describe('Connection', function () {
                 server.connection();
                 server.ext('onRequest', function (request, next) {
 
-                    return next(Hapi.error.badRequest('boom'));
+                    return next(Boom.badRequest('boom'));
                 });
 
                 server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
@@ -750,7 +751,7 @@ describe('Connection', function () {
                 server.connection();
                 server.ext('onRequest', function (request, next) {
 
-                    return next(null, Hapi.error.badRequest('boom'));
+                    return next(null, Boom.badRequest('boom'));
                 });
 
                 server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
@@ -814,7 +815,7 @@ describe('Connection', function () {
                 server.connection();
                 server.ext('onPreResponse', function (request, next) {
 
-                    return next(typeof request.response.source === 'string' ? Hapi.error.badRequest('boom') : undefined);
+                    return next(typeof request.response.source === 'string' ? Boom.badRequest('boom') : undefined);
                 });
 
                 server.route({ method: 'GET', path: '/text', handler: function (request, reply) { reply('ok'); } });

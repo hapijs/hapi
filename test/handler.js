@@ -1,5 +1,6 @@
 // Load modules
 
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
 var Lab = require('lab');
@@ -211,7 +212,7 @@ describe('handler', function () {
 
         var pre2 = function (request, reply) {
 
-            reply(Hapi.error.internal('boom'));
+            reply(Boom.internal('boom'));
         };
 
         var handler = function (request, reply) {
@@ -630,7 +631,7 @@ describe('handler', function () {
                     {
                         method: function (request, reply) {
 
-                            reply(Hapi.error.forbidden());
+                            reply(Boom.forbidden());
                         },
                         failAction: 'error'
                     }
@@ -661,7 +662,7 @@ describe('handler', function () {
                     {
                         method: function (request, reply) {
 
-                            reply(Hapi.error.forbidden());
+                            reply(Boom.forbidden());
                         },
                         failAction: 'ignore'
                     }
@@ -693,7 +694,7 @@ describe('handler', function () {
                         assign: 'before',
                         method: function (request, reply) {
 
-                            reply(Hapi.error.forbidden());
+                            reply(Boom.forbidden());
                         },
                         failAction: 'log'
                     }

@@ -53,16 +53,6 @@
     - [`reply.redirect(location)`](#replyredirectlocation)
 - [Response object](#response-object)
     - [Response events](#response-events)
-- [`Hapi.error`](#hapierror)
-      - [Error transformation](#error-transformation)
-      - [`badRequest([message])`](#badrequestmessage)
-      - [`unauthorized(message, [scheme, [attributes]])`](#unauthorizedmessage-scheme-attributes)
-      - [`unauthorized(message, wwwAuthenticate)`](#unauthorizedmessage-wwwauthenticate)
-      - [`clientTimeout([message])`](#clienttimeoutmessage)
-      - [`serverTimeout([message])`](#servertimeoutmessage)
-      - [`forbidden([message])`](#forbiddenmessage)
-      - [`notFound([message])`](#notfoundmessage)
-      - [`internal([message, [data]])`](#internalmessage-data)
 - [`Hapi.Server`](#hapipack)
       - [`new Pack([options])`](#new-packoptions)
       - [`Pack` properties](#pack-properties)
@@ -2024,7 +2014,7 @@ server.ext('onPreResponse', function (request, reply) {
 });
 ```
 
-## `Hapi.error`
+## `Boom`
 
 Provides a set of utilities for returning HTTP errors. An alias of the [**boom**](https://github.com/hapijs/boom) module (can be also accessed
 `Hapi.boom`). Each utility returns a `Boom` error response object (instance of `Error`) which includes the following properties:
@@ -2050,7 +2040,7 @@ var Hapi = require('hapi');
 
 var handler = function (request, reply) {
 
-    var error = Hapi.error.badRequest('Cannot feed after midnight');
+    var error = Boom.badRequest('Cannot feed after midnight');
     error.output.statusCode = 499;    // Assign a custom error code
     error.reformat();
 
@@ -2100,7 +2090,7 @@ Returns an HTTP Bad Request (400) error response object with the provided `messa
 
 ```javascript
 var Hapi = require('hapi');
-Hapi.error.badRequest('Invalid parameter value');
+Boom.badRequest('Invalid parameter value');
 ```
 
 #### `unauthorized(message, [scheme, [attributes]])`
@@ -2114,7 +2104,7 @@ Returns an HTTP Unauthorized (401) error response object where:
 
 ```javascript
 var Hapi = require('hapi');
-Hapi.error.unauthorized('Stale timestamp', 'Hawk', { ts: fresh, tsm: tsm });
+Boom.unauthorized('Stale timestamp', 'Hawk', { ts: fresh, tsm: tsm });
 ```
 
 #### `unauthorized(message, wwwAuthenticate)`
@@ -2126,7 +2116,7 @@ Returns an HTTP Unauthorized (401) error response object where:
 
 ```javascript
 var Hapi = require('hapi');
-Hapi.error.unauthorized('Missing authentication', ['Hawk', 'Basic']);
+Boom.unauthorized('Missing authentication', ['Hawk', 'Basic']);
 ```
 
 #### `clientTimeout([message])`
@@ -2135,7 +2125,7 @@ Returns an HTTP Request Timeout (408) error response object with the provided `m
 
 ```javascript
 var Hapi = require('hapi');
-Hapi.error.clientTimeout('This is taking too long');
+Boom.clientTimeout('This is taking too long');
 ```
 
 #### `serverTimeout([message])`
@@ -2144,7 +2134,7 @@ Returns an HTTP Service Unavailable (503) error response object with the provide
 
 ```javascript
 var Hapi = require('hapi');
-Hapi.error.serverTimeout('Too busy, come back later');
+Boom.serverTimeout('Too busy, come back later');
 ```
 
 #### `forbidden([message])`
@@ -2153,7 +2143,7 @@ Returns an HTTP Forbidden (403) error response object with the provided `message
 
 ```javascript
 var Hapi = require('hapi');
-Hapi.error.forbidden('Missing permissions');
+Boom.forbidden('Missing permissions');
 ```
 
 #### `notFound([message])`
@@ -2162,7 +2152,7 @@ Returns an HTTP Not Found (404) error response object with the provided `message
 
 ```javascript
 var Hapi = require('hapi');
-Hapi.error.notFound('Wrong number');
+Boom.notFound('Wrong number');
 ```
 
 #### `internal([message, [data]])`
@@ -2186,7 +2176,7 @@ var handler = function (request, reply) {
         result = JSON.parse(request.query.value);
     }
     catch (err) {
-        result = Hapi.error.internal('Failed parsing JSON input', err);
+        result = Boom.internal('Failed parsing JSON input', err);
     }
 
     reply(result);
@@ -2523,7 +2513,7 @@ exports.register = function (plugin, options, next) {
 
     var handler = function (request, reply) {
 
-        reply(Hapi.error.internal('Not implemented yet'));
+        reply(Boom.internal('Not implemented yet'));
     };
 
     plugin.route({ method: 'GET', path: '/', handler: handler });

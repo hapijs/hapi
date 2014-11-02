@@ -1,5 +1,6 @@
 // Load modules
 
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
 var Lab = require('lab');
@@ -460,7 +461,7 @@ describe('Router', function () {
 
         var handler = function (request, reply) {
 
-            reply(Hapi.error.badRequest());
+            reply(Boom.badRequest());
         };
 
         var server = new Hapi.Server();
@@ -495,7 +496,7 @@ describe('Router', function () {
 
             var server = new Hapi.Server();
             server.connection(0);
-            server.route({ method: 'GET', path: '/exists/not', handler: function (request, reply) { reply(Hapi.error.notFound()); } });
+            server.route({ method: 'GET', path: '/exists/not', handler: function (request, reply) { reply(Boom.notFound()); } });
             server.route({ method: 'GET', path: '/exists/{p*}', handler: function (request, reply) { reply('OK'); } });
 
             it('returns 404 when making a request to a notFound route', function (done) {
@@ -525,7 +526,7 @@ describe('Router', function () {
             server.route({
                 method: '*', path: '/{p*}', handler: function (request, reply) {
 
-                    reply(Hapi.error.notFound('These these are not the pages you are looking for.'));
+                    reply(Boom.notFound('These these are not the pages you are looking for.'));
                 }
             });
 
