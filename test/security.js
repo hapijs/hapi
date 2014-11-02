@@ -25,7 +25,8 @@ describe('Security', function () {
 
         it('isn\'t allowed through the request.create method', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
 
             var createItemHandler = function (request, reply) {
 
@@ -50,7 +51,8 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed with null byte injection', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
             server.inject('/%00/../security.js', function (res) {
@@ -62,7 +64,8 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
             server.inject('/../security.js', function (res) {
@@ -74,7 +77,8 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed with encoded slash', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
             server.inject('/..%2Fsecurity.js', function (res) {
@@ -86,7 +90,8 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed with double encoded slash', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
             server.inject('/..%252Fsecurity.js', function (res) {
@@ -98,7 +103,8 @@ describe('Security', function () {
 
         it('to files outside of hosted directory is not allowed with unicode encoded slash', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
             server.inject('/..\u2216security.js', function (res) {
@@ -113,7 +119,8 @@ describe('Security', function () {
 
         it('isn\'t allowed when serving a file', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './directory' } } });
 
             server.inject('/index%00.html', function (res) {
@@ -133,7 +140,8 @@ describe('Security', function () {
                 reply('Success');
             };
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.state('encoded', { encoding: 'iron' });
             server.route({ method: 'POST', path: '/', handler: handler });
 
@@ -157,7 +165,8 @@ describe('Security', function () {
                 reply('Success');
             };
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.state('encoded', { encoding: 'iron' });
             server.route({ method: 'POST', path: '/', handler: handler });
 
@@ -181,7 +190,8 @@ describe('Security', function () {
                 reply('Success');
             };
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.state('encoded', { encoding: 'iron' });
             server.route({ method: 'POST', path: '/', handler: handler });
 
@@ -200,7 +210,8 @@ describe('Security', function () {
 
         it('does not exist in path validation response message', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.state('encoded', { encoding: 'iron' });
 
             server.route({
@@ -226,7 +237,8 @@ describe('Security', function () {
 
         it('does not exist in payload validation response message', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({
                 method: 'POST', path: '/fail/payload', handler: function (request, reply) {
 
@@ -252,7 +264,8 @@ describe('Security', function () {
 
         it('does not exist in query validation response message', function (done) {
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+        server.connection();
             server.route({
                 method: 'GET', path: '/fail/query', handler: function (request, reply) {
 

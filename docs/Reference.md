@@ -125,7 +125,8 @@ Creates a new server instance with the following arguments:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection('localhost', 8000, { cors: true });
+var server = new Hapi.Server();
+server.connection('localhost', 8000, { cors: true });
 ```
 
 ### `createServer([host], [port], [options])`
@@ -134,7 +135,8 @@ An alternative method for creating a server instance using the same arguments as
 
 ```javascript
 var Hapi = require('hapi');
-var server = Hapi.createServer('localhost', 8000, { cors: true });
+var server = new Hapi.Server();
+        server.connection('localhost', 8000, { cors: true });
 ```
 
 ### Server options
@@ -284,7 +286,8 @@ ready for new connections. If the server is already started, the `callback()` is
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 server.start(function () {
 
     console.log('Server started at: ' + server.info.uri);
@@ -598,7 +601,8 @@ The following options are available when adding a route:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 // Handler in top level
 
@@ -743,7 +747,8 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 var pre1 = function (request, reply) {
 
@@ -787,7 +792,8 @@ method or all methods. Only one catch-all route can be defined per server instan
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 var handler = function (request, reply) {
 
@@ -852,7 +858,8 @@ event which can be used by other listeners or plugins to record the information 
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 server.on('log', function (event, tags) {
 
@@ -1089,7 +1096,8 @@ Registers an extension function in one of the available [extension points](#requ
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 server.ext('onRequest', function (request, next) {
 
@@ -1188,7 +1196,8 @@ Methods are registered via `server.method(name, fn, [options])` where:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 // Simple arguments
 
@@ -1284,7 +1293,8 @@ testing purposes as well as for invoking routing logic internally without the ov
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 var get = function (request, reply) {
 
@@ -1315,7 +1325,8 @@ and returns the route default configuration.
 
 ```javascript
 var Hapi = require('hapi');
-var server = Hapi.createServer('localhost', 8000);
+var server = new Hapi.Server();
+        server.connection('localhost', 8000);
 
 // Defines new handler for routes on this server
 server.handler('test', function (route, options) {
@@ -1343,7 +1354,8 @@ Converts the provided URI to an absolute URI using the server or request configu
 
 ```javascript
 var Hapi = require('hapi');
-var server = Hapi.createServer('localhost', 8000);
+var server = new Hapi.Server();
+        server.connection('localhost', 8000);
 
 console.log(server.location('/relative'));
 ```
@@ -1361,7 +1373,8 @@ Utilizes the server views engine configured to render a template where:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 server.views({
     engines: { html: require('handlebars') },
     path: __dirname + '/templates'
@@ -1505,7 +1518,8 @@ _Available only in `'onRequest'` extension methods._
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 server.ext('onRequest', function (request, next) {
 
@@ -1525,7 +1539,8 @@ Changes the request method before the router begins processing the request where
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 server.ext('onRequest', function (request, next) {
 
@@ -1550,7 +1565,8 @@ arguments are:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 server.on('request', function (request, event, tags) {
 
@@ -1596,7 +1612,8 @@ When all tails completed, the server emits a `'tail'` event.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 var get = function (request, reply) {
 
@@ -1629,7 +1646,8 @@ The request object supports the following events:
 ```javascript
 var Crypto = require('crypto');
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 server.ext('onRequest', function (request, reply) {
 
@@ -1777,7 +1795,8 @@ The [response flow control rules](#flow-control) apply.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 server.views({
     engines: { html: require('handlebars') },
     path: __dirname + '/templates'
@@ -1982,7 +2001,8 @@ The response object supports the following events:
 ```javascript
 var Crypto = require('crypto');
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 
 server.ext('onPreResponse', function (request, reply) {
 
@@ -2048,7 +2068,8 @@ response object.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Connection();
+var server = new Hapi.Server();
+server.connection();
 server.views({
     engines: {
         html: require('handlebars')

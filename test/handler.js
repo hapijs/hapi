@@ -18,115 +18,7 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('Handler', function () {
-
-    describe('#handler', function () {
-
-        var handler = function (route, options) {
-
-            return function (request, reply) {
-
-                reply(options.message);
-            };
-        };
-
-        it('adds handler', function (done) {
-
-            var fn = function () {
-
-                var server = Hapi.createServer();
-
-                server.handler('test', handler);
-                expect(server._core._handlers.test).to.equal(handler);
-            };
-
-            expect(fn).to.not.throw();
-            done();
-        });
-
-        it('call new handler', function (done) {
-
-            var fn = function () {
-
-                var server = Hapi.createServer();
-
-                server.handler('test', handler);
-                server.route({
-                    method: 'GET',
-                    path: '/',
-                    handler: {
-                        test: {
-                            message: 'success'
-                        }
-                    }
-                });
-                server.inject('/', function (res) {
-                    expect(res.payload).to.equal('success');
-                    done();
-                });
-            };
-
-            expect(fn).to.not.throw();
-        });
-
-        it('errors on duplicate handler', function (done) {
-
-            var fn = function () {
-
-                var server = Hapi.createServer();
-
-                server.handler('proxy', handler);
-            };
-
-            expect(fn).to.throw();
-            done();
-        });
-
-        it('errors on unknown handler', function (done) {
-
-            var fn = function () {
-
-                var server = Hapi.createServer();
-
-                server.route({
-                    method: 'GET',
-                    path: '/',
-                    handler: {
-                        test: {}
-                    }
-                });
-            };
-
-            expect(fn).to.throw();
-            done();
-        });
-
-        it('errors on non-string name', function (done) {
-
-            var fn = function () {
-
-                var server = Hapi.createServer();
-
-                server.handler();
-            };
-
-            expect(fn).to.throw();
-            done();
-        });
-
-        it('errors on non-function handler', function (done) {
-
-            var fn = function () {
-
-                var server = Hapi.createServer();
-
-                server.handler('foo', 'bar');
-            };
-
-            expect(fn).to.throw();
-            done();
-        });
-    });
+describe('handler', function () {
 
     it('shows the complete prerequisite pipeline in the response', function (done) {
 
@@ -164,7 +56,8 @@ describe('Handler', function () {
             reply(request.pre.m5);
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -201,7 +94,8 @@ describe('Handler', function () {
             reply(request.pre.p);
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.route({
             method: 'GET',
@@ -228,7 +122,8 @@ describe('Handler', function () {
             reply('Hello');
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.route({
             method: 'GET',
@@ -281,7 +176,8 @@ describe('Handler', function () {
             reply(request.pre.m5);
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -323,7 +219,8 @@ describe('Handler', function () {
             reply(request.pre.m1);
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -355,7 +252,8 @@ describe('Handler', function () {
             reply(request.responses.p);
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -392,7 +290,8 @@ describe('Handler', function () {
         };
 
 
-        var server = new Hapi.Connection({ debug: false });
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -414,7 +313,8 @@ describe('Handler', function () {
 
     it('returns a user record using server method', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (id, next) {
 
@@ -444,7 +344,8 @@ describe('Handler', function () {
 
     it('returns a user record using server method in object', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (id, next) {
 
@@ -477,7 +378,8 @@ describe('Handler', function () {
 
     it('returns a user name using multiple server methods', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (id, next) {
 
@@ -513,7 +415,8 @@ describe('Handler', function () {
 
     it('returns a user record using server method with trailing space', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (id, next) {
 
@@ -543,7 +446,8 @@ describe('Handler', function () {
 
     it('returns a user record using server method with leading space', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (id, next) {
 
@@ -573,7 +477,8 @@ describe('Handler', function () {
 
     it('returns a user record using server method with zero args', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (next) {
 
@@ -603,7 +508,8 @@ describe('Handler', function () {
 
     it('returns a user record using server method with no args', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (request, next) {
 
@@ -633,7 +539,8 @@ describe('Handler', function () {
 
     it('returns a user record using server method with nested name', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user.get', function (next) {
 
@@ -663,7 +570,8 @@ describe('Handler', function () {
 
     it('fails on bad method name', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         var test = function () {
 
             server.route({
@@ -687,7 +595,8 @@ describe('Handler', function () {
 
     it('fails on bad method syntax name', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         var test = function () {
 
             server.route({
@@ -711,7 +620,8 @@ describe('Handler', function () {
 
     it('sets pre failAction to error', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -741,7 +651,8 @@ describe('Handler', function () {
 
     it('sets pre failAction to ignore', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -771,7 +682,8 @@ describe('Handler', function () {
 
     it('sets pre failAction to log', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -811,7 +723,8 @@ describe('Handler', function () {
 
     it('uses string handler', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.method('handler.get', function (request, next) {
 
             return next(null, request.params.x + request.params.y);
@@ -829,7 +742,8 @@ describe('Handler', function () {
 
         var item = { x: 123 };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(this.x); }, bind: item } });
 
         server.inject('/', function (res) {
@@ -843,7 +757,8 @@ describe('Handler', function () {
 
         var item = { x: 123 };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -863,7 +778,8 @@ describe('Handler', function () {
 
     it('logs server method using string notation', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
 
         server.method('user', function (id, next) {
 
@@ -892,7 +808,7 @@ describe('Handler', function () {
         });
     });
 
-    describe('#defaults', function () {
+    describe('defaults()', function () {
 
         it('returns handler without defaults', function (done) {
 
@@ -904,7 +820,8 @@ describe('Handler', function () {
                 };
             };
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+            server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -930,7 +847,8 @@ describe('Handler', function () {
                 }
             };
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+            server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -958,7 +876,8 @@ describe('Handler', function () {
                 };
             };
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+            server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -980,7 +899,8 @@ describe('Handler', function () {
 
             handler.defaults = 'invalid';
 
-            var server = Hapi.createServer();
+            var server = new Hapi.Server();
+            server.connection();
             expect(function () {
 
                 server.handler('test', handler);
@@ -999,11 +919,13 @@ describe('Handler', function () {
                 reply({ id: 'fa0dbda9b1b', name: 'John Doe' }).state('test', '123');
             };
 
-            var upstream = new Hapi.Connection(0);
+            var upstream = new Hapi.Server();
+            upstream.connection(0);
             upstream.route({ method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } });
             upstream.start(function () {
 
-                var server = Hapi.createServer();
+                var server = new Hapi.Server();
+                server.connection();
                 server.route({ method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: upstream.info.port, xforward: true, passThrough: true } } });
                 server.state('auto', { autoValue: 'xyz' });
 
@@ -1026,11 +948,13 @@ describe('Handler', function () {
 
         it('proxies via reply.proxy()', function (done) {
 
-            var upstream = new Hapi.Connection(0);
+            var upstream = new Hapi.Server();
+            upstream.connection(0);
             upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { reply({ a: 1 }); } });
             upstream.start(function () {
 
-                var server = Hapi.createServer();
+                var server = new Hapi.Server();
+                server.connection();
                 server.route({ method: 'GET', path: '/handler', handler: function (request, reply) { reply.proxy({ uri: 'http://localhost:' + upstream.info.port + '/item' }); } });
 
                 server.inject('/handler', function (res) {
@@ -1039,6 +963,22 @@ describe('Handler', function () {
                     expect(res.payload).to.contain('"a":1');
                     done();
                 });
+            });
+        });
+    });
+
+    describe('replyInterface()', function () {
+
+        it('redirects from handler', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ location: 'http://example.com' });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.redirect('elsewhere'); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                expect(res.headers.location).to.equal('http://example.com/elsewhere');
+                done();
             });
         });
     });

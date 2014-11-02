@@ -25,7 +25,8 @@ describe('Response Range', function () {
 
     it('returns a subset of a file (start)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, function (res) {
@@ -41,7 +42,8 @@ describe('Response Range', function () {
 
     it('returns a subset of a file (middle)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } }, function (res) {
@@ -57,7 +59,8 @@ describe('Response Range', function () {
 
     it('returns a subset of a file (-to)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } }, function (res) {
@@ -73,7 +76,8 @@ describe('Response Range', function () {
 
     it('returns a subset of a file (from-)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } }, function (res) {
@@ -89,7 +93,8 @@ describe('Response Range', function () {
 
     it('returns a subset of a file (beyond end)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } }, function (res) {
@@ -105,7 +110,8 @@ describe('Response Range', function () {
 
     it('returns a subset of a file (if-range)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject('/file', function (res) {
@@ -127,7 +133,8 @@ describe('Response Range', function () {
 
     it('returns 200 on incorrect if-range', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } }, function (res2) {
@@ -139,7 +146,8 @@ describe('Response Range', function () {
 
     it('returns 416 on invalid range (unit)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } }, function (res) {
@@ -152,7 +160,8 @@ describe('Response Range', function () {
 
     it('returns 416 on invalid range (inversed)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } }, function (res) {
@@ -165,7 +174,8 @@ describe('Response Range', function () {
 
     it('returns 416 on invalid range (format)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } }, function (res) {
@@ -178,7 +188,8 @@ describe('Response Range', function () {
 
     it('returns 416 on invalid range (empty range)', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=-' } }, function (res) {
@@ -191,7 +202,8 @@ describe('Response Range', function () {
 
     it('returns 200 on multiple ranges', function (done) {
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
 
         server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } }, function (res) {
@@ -233,7 +245,8 @@ describe('Response Range', function () {
             return 10;
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(new TestStream()); } });
 
         server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } }, function (res) {
@@ -278,7 +291,8 @@ describe('Response Range', function () {
             return 10;
         };
 
-        var server = Hapi.createServer();
+        var server = new Hapi.Server();
+        server.connection();
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(new TestStream()); } });
 
         server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, function (res) {
