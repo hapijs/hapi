@@ -35,7 +35,7 @@ describe('Ext', function () {
 
         it('replies with custom response', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.ext('onRequest', function (request, next) {
 
                 return next(Hapi.error.badRequest('boom'));
@@ -52,7 +52,7 @@ describe('Ext', function () {
 
         it('replies with error using reply(null, result)', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.ext('onRequest', function (request, next) {
 
                 return next(null, Hapi.error.badRequest('boom'));
@@ -69,7 +69,7 @@ describe('Ext', function () {
 
         it('replies with a view', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.views({
                 engines: { 'html': require('handlebars') },
                 path: __dirname + '/templates'
@@ -91,7 +91,7 @@ describe('Ext', function () {
 
         it('continues when result is null', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.ext('onRequest', function (request, reply) {
 
                 return reply(null).state('a', 'b');
@@ -113,7 +113,7 @@ describe('Ext', function () {
 
         it('replies with custom response', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.ext('onPreResponse', function (request, next) {
 
                 return next(typeof request.response.source === 'string' ? Hapi.error.badRequest('boom') : undefined);
@@ -135,7 +135,7 @@ describe('Ext', function () {
 
         it('intercepts 404 responses', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.ext('onPreResponse', function (request, next) {
 
                 return next(null, request.response.output.statusCode);
@@ -151,7 +151,7 @@ describe('Ext', function () {
 
         it('intercepts 404 when using directory handler and file is missing', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.ext('onPreResponse', function (request, next) {
 
@@ -171,7 +171,7 @@ describe('Ext', function () {
 
         it('intercepts 404 when using file handler and file is missing', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.ext('onPreResponse', function (request, next) {
 
@@ -191,7 +191,7 @@ describe('Ext', function () {
 
         it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.ext('onPreResponse', function (request, reply) {
 
@@ -233,7 +233,7 @@ describe('Ext', function () {
 
         it('supports adding an array of ext methods', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.ext('onPreHandler', [
                 function (request, next) {
 
@@ -258,7 +258,7 @@ describe('Ext', function () {
 
         it('sets bind via options', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.ext('onPreHandler', function (request, next) {
 
                 request.app.x = this.y;
@@ -276,7 +276,7 @@ describe('Ext', function () {
 
         it('uses server views for ext added via server', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.views({
                 engines: { html: require('handlebars') },

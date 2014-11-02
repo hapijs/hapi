@@ -65,7 +65,7 @@ describe('Response', function () {
 
     it('returns null', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, null); } });
         server.inject('/', function (res) {
 
@@ -77,7 +77,7 @@ describe('Response', function () {
 
     it('sends empty payload on 204', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').code(204); } });
         server.inject('/', function (res) {
 
@@ -144,7 +144,7 @@ describe('Response', function () {
                              .header('cache-control', 'some value');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -162,7 +162,7 @@ describe('Response', function () {
                 reply('text').ttl(10000);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -180,7 +180,7 @@ describe('Response', function () {
                              .header('cache-control', 'none');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -451,7 +451,7 @@ describe('Response', function () {
                 reply('Test');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -843,7 +843,7 @@ describe('Response', function () {
                 reply('text').type('text/plain; charset=ISO-8859-1');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -861,7 +861,7 @@ describe('Response', function () {
                 reply('text').type('text/plain').charset();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -879,7 +879,7 @@ describe('Response', function () {
                 reply('ok').vary('x');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -898,7 +898,7 @@ describe('Response', function () {
                 reply('ok').vary('x').vary('y');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -917,7 +917,7 @@ describe('Response', function () {
                 reply('ok').vary('*');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -936,7 +936,7 @@ describe('Response', function () {
                 reply('ok').vary('*').vary('x');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -955,7 +955,7 @@ describe('Response', function () {
                 reply('ok').vary('x').vary('*');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -969,7 +969,7 @@ describe('Response', function () {
 
         it('uses reply(null, result) for result', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, 'steve'); } });
             server.inject('/', function (res) {
 
@@ -981,7 +981,7 @@ describe('Response', function () {
 
         it('uses reply(null, err) for err', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(null, Hapi.error.badRequest()); } });
             server.inject('/', function (res) {
 
@@ -992,7 +992,7 @@ describe('Response', function () {
 
         it('ignores result when err provided in reply(err, result)', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(Hapi.error.badRequest(), 'steve'); } });
             server.inject('/', function (res) {
 
@@ -1003,7 +1003,7 @@ describe('Response', function () {
 
         it('sets etag', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').etag('abc'); } });
             server.inject('/', function (res) {
 
@@ -1015,7 +1015,7 @@ describe('Response', function () {
 
         it('sets weak etag', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').etag('abc', { weak: true }); } });
             server.inject('/', function (res) {
 
@@ -1035,7 +1035,7 @@ describe('Response', function () {
                 reply(new Buffer('Tada1')).code(299);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -1057,7 +1057,7 @@ describe('Response', function () {
                 reply({ a: 1, b: 2 });
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -1075,7 +1075,7 @@ describe('Response', function () {
                 reply(false);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -1109,7 +1109,7 @@ describe('Response', function () {
                 reply({ a: 1, b: 2 }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -1127,7 +1127,7 @@ describe('Response', function () {
                 reply({ some: 'value' });
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
             server.inject('/?callback=me', function (res) {
@@ -1145,7 +1145,7 @@ describe('Response', function () {
                 reply({ some: 'value' });
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
             server.inject('/?callback=me', function (res) {
@@ -1163,7 +1163,7 @@ describe('Response', function () {
                 reply({ some: 'value' });
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
             server.inject('/', function (res) {
@@ -1181,7 +1181,7 @@ describe('Response', function () {
                 reply({ first: parts[0], last: parts[1] });
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({
                 method: 'GET',
                 path: '/user/{name*2}',
@@ -1212,7 +1212,7 @@ describe('Response', function () {
                 reply(new Buffer('value'));
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
             server.inject('/?callback=me', function (res) {
@@ -1230,7 +1230,7 @@ describe('Response', function () {
                 reply({ some: 'value' });
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
             server.inject('/?callback=me*', function (res) {
@@ -1250,7 +1250,7 @@ describe('Response', function () {
                 reply(obj);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -1355,7 +1355,7 @@ describe('Response', function () {
 
         it('returns a file using route relativeTo', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             var handler = function (request, reply) {
 
                 reply.file('../package.json');
@@ -1372,7 +1372,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the correct headers using cwd relative paths without content-disposition header', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: { file: './package.json' } });
 
             server.inject('/', function (res) {
@@ -1417,7 +1417,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the attachment content-disposition header when using route config', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment' } } });
 
             server.inject('/', function (res) {
@@ -1432,7 +1432,7 @@ describe('Response', function () {
 
         it('returns a file in the response with the attachment content-disposition header when using route config and overriding filename', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: 'attachment', filename: 'attachment.json' } } });
 
             server.inject('/', function (res) {
@@ -1447,7 +1447,7 @@ describe('Response', function () {
 
         it('returns a file in the response without the content-disposition header when using route config mode false', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: { file: { path: './package.json', mode: false } } });
 
             server.inject('/', function (res) {
@@ -1555,7 +1555,7 @@ describe('Response', function () {
 
         it('returns a 403 when the file is a directory', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.route({ method: 'GET', path: '/filefolder', handler: { file: 'lib' } });
 
@@ -1634,7 +1634,7 @@ describe('Response', function () {
 
         it('returns a file with default mime type', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../bin/hapi' } });
 
             server.inject('/', function (res) {
@@ -1801,7 +1801,7 @@ describe('Response', function () {
 
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
@@ -1820,7 +1820,7 @@ describe('Response', function () {
 
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
@@ -1838,7 +1838,7 @@ describe('Response', function () {
 
         it('retains etag header on head', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
@@ -1855,7 +1855,7 @@ describe('Response', function () {
 
         it('changes etag when content encoding is used', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
@@ -1881,7 +1881,7 @@ describe('Response', function () {
 
         it('returns valid http date responses in last-modified header', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res) {
@@ -1894,7 +1894,7 @@ describe('Response', function () {
 
         it('returns 200 if if-modified-since is invalid', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject({ url: '/file', headers: { 'if-modified-since': 'some crap' } }, function (res) {
@@ -1906,7 +1906,7 @@ describe('Response', function () {
 
         it('returns 200 if last-modified is invalid', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').header('last-modified', 'some crap'); } });
 
             server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } }, function (res2) {
@@ -1918,7 +1918,7 @@ describe('Response', function () {
 
         it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
@@ -1952,7 +1952,7 @@ describe('Response', function () {
 
         it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: function (request, reply) { reply(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc'); } });
 
             server.inject('/file', function (res1) {
@@ -2048,7 +2048,7 @@ describe('Response', function () {
 
             var content = Fs.readFileSync('./test/file/image.png.gz');
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/file/image.png', lookupCompressed: true } } });
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
@@ -2063,7 +2063,7 @@ describe('Response', function () {
 
         it('returns a gzipped file when precompressed file not found', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/file/note.txt', lookupCompressed: true } } });
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
@@ -2077,7 +2077,7 @@ describe('Response', function () {
 
         it('returns a 304 when using precompressed file and if-modified-since set', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/file/image.png', lookupCompressed: true } } });
 
             server.inject('/file', function (res1) {
@@ -2092,7 +2092,7 @@ describe('Response', function () {
 
         it('ignores precompressed file when content-encoding not requested', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: { path: './test/file/image.png', lookupCompressed: true } } });
 
             server.inject('/file', function (res) {
@@ -2120,7 +2120,7 @@ describe('Response', function () {
             var filename = internals.uniqueFilename(Os.tmpDir());
             Fs.writeFileSync(filename, 'data');
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', handler: { file: filename } });
             server.ext('onPreResponse', function (request, reply) {
 
@@ -2137,7 +2137,7 @@ describe('Response', function () {
 
         it('does not open file stream on 304', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
@@ -2213,7 +2213,7 @@ describe('Response', function () {
                 reply(new TestStream());
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
             server.on('response', function (request) {
@@ -2236,7 +2236,7 @@ describe('Response', function () {
                 reply(new TestStream());
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
             server.inject({ url: '/stream', headers: { 'content-encoding': '', 'accept-encoding': 't=1,' } }, function (res) {
@@ -2273,7 +2273,7 @@ describe('Response', function () {
                 reply(new HeadersStream());
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
             server.inject('/stream', function (res) {
@@ -2310,7 +2310,7 @@ describe('Response', function () {
                 reply(new HeadersStream());
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
             server.inject('/stream', function (res) {
@@ -2350,7 +2350,7 @@ describe('Response', function () {
                 reply(new TimerStream());
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
             server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (res) {
@@ -2368,7 +2368,7 @@ describe('Response', function () {
                 reply(new TimerStream());
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
             server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (res) {
@@ -2443,7 +2443,7 @@ describe('Response', function () {
                 reply(new ErrStream()).bytes(0);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
             server.inject('/stream', function (res) {
@@ -2488,7 +2488,7 @@ describe('Response', function () {
                 reply(new ErrStream(request)).bytes(0);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
             server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } }, function (res) {
@@ -2748,7 +2748,7 @@ describe('Response', function () {
                 return reply('Please wait while we send your elsewhere').redirect('example');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('http://example.org/', function (res) {
@@ -2767,7 +2767,7 @@ describe('Response', function () {
                 return reply('We moved!').redirect().location('examplex');
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2787,7 +2787,7 @@ describe('Response', function () {
                 return reply().redirect('example').permanent().rewritable();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2804,7 +2804,7 @@ describe('Response', function () {
                 return reply().redirect('example').temporary().rewritable();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2821,7 +2821,7 @@ describe('Response', function () {
                 return reply().redirect('example').temporary().rewritable(false);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2838,7 +2838,7 @@ describe('Response', function () {
                 return reply().redirect('example').permanent().rewritable(false);
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2855,7 +2855,7 @@ describe('Response', function () {
                 return reply().redirect('example').rewritable().permanent();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2872,7 +2872,7 @@ describe('Response', function () {
                 return reply().redirect('example').rewritable().temporary();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2889,7 +2889,7 @@ describe('Response', function () {
                 return reply().redirect('example').rewritable(false).temporary();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2906,7 +2906,7 @@ describe('Response', function () {
                 return reply().redirect('example').rewritable(false).permanent();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2923,7 +2923,7 @@ describe('Response', function () {
                 return reply().redirect('example').permanent().temporary();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2944,7 +2944,7 @@ describe('Response', function () {
                 reply.close({ end: false });
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2961,7 +2961,7 @@ describe('Response', function () {
                 reply.close();
             };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             server.inject('/', function (res) {
@@ -2979,7 +2979,7 @@ describe('Response', function () {
             reply('ok');
         };
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         var response;

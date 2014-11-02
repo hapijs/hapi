@@ -463,7 +463,7 @@ describe('Directory', function () {
 
     it('appends default extension', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
 
         server.inject('/directory/directory/index', function (res) {
@@ -475,7 +475,7 @@ describe('Directory', function () {
 
     it('appends default extension when resource ends with /', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
 
         server.inject('/directory/directory/index/', function (res) {
@@ -487,7 +487,7 @@ describe('Directory', function () {
 
     it('appends default extension and fails to find file', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
 
         server.inject('/directory/directory/none', function (res) {
@@ -499,7 +499,7 @@ describe('Directory', function () {
 
     it('does not append default extension when directory exists', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/directory/{path*}', handler: { directory: { path: __dirname, defaultExtension: 'html' } } });
 
         server.inject('/directory/directory', function (res) {
@@ -525,7 +525,7 @@ describe('Directory', function () {
             }
         };
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.register(plugin, {}, function () { });
 
         server.inject('/test/index.html', function (res) {
@@ -550,7 +550,7 @@ describe('Directory', function () {
             }
         };
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.register(plugin, {}, function () { });
 
         server.inject('/test/index.html', function (res) {
@@ -562,7 +562,7 @@ describe('Directory', function () {
 
     it('resolves root pathnames on windows', { skip: process.platform !== 'win32' }, function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/test/{path*}', handler: { directory: { path: Path.join(__dirname, 'directory') } } });
 
         server.inject('/test/index.html', function (res) {
@@ -574,7 +574,7 @@ describe('Directory', function () {
 
     it('resolves relative pathnames on windows', { skip: process.platform !== 'win32' }, function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/test/{path*}', handler: { directory: { path: './test/directory' } } });
 
         server.inject('/test/index.html', function (res) {
@@ -591,7 +591,7 @@ describe('Directory', function () {
             return Boom.badRequest('Really?!');
         };
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/test/{path*}', handler: { directory: { path: path } } });
 
         server.inject('/test/index.html', function (res) {
@@ -623,7 +623,7 @@ describe('Directory', function () {
 
         var content = Fs.readFileSync('./test/file/image.png.gz');
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/{p*}', handler: { directory: { path: './test/file', lookupCompressed: true } } });
 
         server.inject({ url: '/image.png', headers: { 'accept-encoding': 'gzip' } }, function (res) {

@@ -27,7 +27,7 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('Server', function () {
+describe('Connection', function () {
 
     it('shallow clones app config', function (done) {
 
@@ -357,7 +357,7 @@ describe('Server', function () {
 
     it('defaults to port 80 when no port is provided', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         expect(server.info.port).to.be.equal(80);
         done();
     });
@@ -685,7 +685,7 @@ describe('Server', function () {
             var fn = function () {
 
                 var route = {};
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
                 server.route(route);
             };
             expect(fn).to.throw();
@@ -699,7 +699,7 @@ describe('Server', function () {
                 var route = {
                     path: '/test'
                 };
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
                 server.route(route);
             };
             expect(fn).to.throw();
@@ -714,7 +714,7 @@ describe('Server', function () {
                     path: '/test',
                     method: 'put'
                 };
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
                 server.route(route);
             };
             expect(fn).to.throw();
@@ -728,7 +728,7 @@ describe('Server', function () {
                 method: 'put',
                 handler: function () { }
             };
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route(route);
 
             expect(server.connections[0]._router.routes.put[0].path).to.equal('/test');
@@ -739,7 +739,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
                 server.route({ path: '/test/{p}/{p}/end', method: 'put', handler: function () { } });
                 server.route({ path: '/test/{p*2}/end', method: 'put', handler: function () { } });
             };
@@ -810,7 +810,7 @@ describe('Server', function () {
                 method: 'post',
                 handler: function () { }
             }];
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route(routes);
 
             expect(server.connections[0]._router.routes.put[0].path).to.equal('/test');
@@ -822,7 +822,7 @@ describe('Server', function () {
 
         it('returns an array of the current routes', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
@@ -836,7 +836,7 @@ describe('Server', function () {
 
         it('returns an array of the current routes (connection)', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
@@ -850,7 +850,7 @@ describe('Server', function () {
 
         it('combines global and vhost routes', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -865,7 +865,7 @@ describe('Server', function () {
 
         it('combines global and vhost routes and filters based on host', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -880,7 +880,7 @@ describe('Server', function () {
 
         it('accepts a list of hosts', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -895,7 +895,7 @@ describe('Server', function () {
 
         it('ignores unknown host', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -913,7 +913,7 @@ describe('Server', function () {
 
         it('emits a log event', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             var count = 0;
             server.once('log', function (event) {
@@ -944,7 +944,7 @@ describe('Server', function () {
 
         it('emits a log event and print to console', { parallel: false }, function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
 
             server.once('log', function (event) {
 
@@ -979,7 +979,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
 
                 server.handler('test', handler);
                 expect(server._core._handlers.test).to.equal(handler);
@@ -993,7 +993,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
 
                 server.handler('test', handler);
                 server.route({
@@ -1018,7 +1018,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
 
                 server.handler('proxy', handler);
             };
@@ -1031,7 +1031,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
 
                 server.route({
                     method: 'GET',
@@ -1050,7 +1050,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
 
                 server.handler();
             };
@@ -1063,7 +1063,7 @@ describe('Server', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Connection();
+                var server = Hapi.createServer();
 
                 server.handler('foo', 'bar');
             };
@@ -1079,7 +1079,7 @@ describe('Server', function () {
 
             var handler = function (request, reply) { return reply(); };
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
             var options = {
@@ -1476,14 +1476,14 @@ describe('Server', function () {
 
         it('returns back the an absolute location using request host', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             expect(server.location('/test', { info: { host: 'example.edu' } })).to.equal('http://example.edu/test');
             done();
         });
 
         it('returns back the an absolute location using server info', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             expect(server.location('/test')).to.equal('http://0.0.0.0:80/test');
             done();
         });
@@ -1493,7 +1493,7 @@ describe('Server', function () {
 
         it('renders view', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.views({
                 engines: { html: require('handlebars') },
                 path: __dirname + '/templates'
@@ -1509,7 +1509,7 @@ describe('Server', function () {
 
         it('renders view (options)', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.views({
                 engines: { html: require('handlebars') }
             });

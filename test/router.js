@@ -22,7 +22,7 @@ describe('Router', function () {
 
     it('matches HEAD routes', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/head', handler: function (request, reply) { reply('ok-common'); } });
         server.route({ method: 'GET', path: '/head', vhost: 'special.example.com', handler: function (request, reply) { reply('ok-vhost'); } });
         server.route({ method: 'GET', path: '/get', vhost: 'special.example.com', handler: function (request, reply) { reply('just-get').header('x2', '789'); } });
@@ -62,7 +62,7 @@ describe('Router', function () {
 
     it('fails to match head request', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
 
         server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
@@ -73,7 +73,7 @@ describe('Router', function () {
 
     it('matches vhost route', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('plain'); } });
@@ -87,7 +87,7 @@ describe('Router', function () {
 
     it('matches global route when vhost is present but not matching', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
         server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain').header('x1', '123'); } });
@@ -103,7 +103,7 @@ describe('Router', function () {
 
     it('fails to match route when vhost is present but not matching', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
         server.route({ method: 'GET', path: '/a', handler: function (request, reply) { reply('plain'); } });
@@ -117,7 +117,7 @@ describe('Router', function () {
 
     it('matches vhost route for route with array of vhosts', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('plain'); } });
@@ -131,7 +131,7 @@ describe('Router', function () {
 
     it('matches default host route', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('plain'); } });
@@ -145,7 +145,7 @@ describe('Router', function () {
 
     it('matches vhost to common route', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/common', handler: function (request, reply) { reply('common'); } });
 
         server.inject({ method: 'GET', url: '/common', headers: { host: 'special.example.com' } }, function (res) {
@@ -157,7 +157,7 @@ describe('Router', function () {
 
     it('does not allow duplicate routes with the same vhost', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('plain'); } });
@@ -173,7 +173,7 @@ describe('Router', function () {
 
     it('does not allow conflicting routes different in trailing path (optional param in new)', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/conflict1', handler: function () { } });
 
         var fn = function () {
@@ -187,7 +187,7 @@ describe('Router', function () {
 
     it('does not allow conflicting routes different in trailing path (optional param in existing)', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/conflict2/{p?}', handler: function () { } });
 
         var fn = function () {
@@ -201,7 +201,7 @@ describe('Router', function () {
 
     it('does allow duplicate routes with a different vhost', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', vhost: 'special.example.com', handler: function (request, reply) { reply('special'); } });
         server.route({ method: 'GET', path: '/', vhost: ['special1.example.com', 'special2.example.com', 'special3.example.com'], handler: function (request, reply) { reply('special array'); } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('plain'); } });
@@ -217,7 +217,7 @@ describe('Router', function () {
 
     it('matches wildcard method', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
 
         server.route({ method: '*', path: '/', handler: function (request, reply) { reply('ok'); } });
         server.inject('/', function (res) {
@@ -230,7 +230,7 @@ describe('Router', function () {
 
     it('matches wildcard vhost method', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
 
         server.route({ method: '*', path: '/', handler: function (request, reply) { reply('global'); } });
         server.route({ method: '*', vhost: 'special.example.com', path: '/', handler: function (request, reply) { reply('vhost'); } });
@@ -244,7 +244,7 @@ describe('Router', function () {
 
     it('allows methods array', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
 
         var config = { method: ['HEAD', 'GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { reply(request.route.method); } };
         server.route(config);
@@ -282,7 +282,7 @@ describe('Router', function () {
 
     it('adds routes using single and array methods', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route([
             {
                 method: 'GET',
@@ -334,7 +334,7 @@ describe('Router', function () {
 
     it('does not allow invalid paths', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
 
         var fn = function () {
 
@@ -347,7 +347,7 @@ describe('Router', function () {
 
     it('returns 400 on invalid path', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/{p*}', handler: function (request, reply) { reply('ok'); } });
         server.inject('/%/%', function (res) {
 
@@ -358,7 +358,7 @@ describe('Router', function () {
 
     it('fails matching a required missing param', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/a/{b}', handler: function (request, reply) { reply(request.params.b); } });
 
         server.inject('/a/', function (res) {

@@ -335,7 +335,7 @@ describe('Method', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method(0, function () { });
         };
         expect(fn).to.throw();
@@ -346,25 +346,25 @@ describe('Method', function () {
 
         expect(function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method('0', function () { });
         }).to.throw();
 
         expect(function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method('a..', function () { });
         }).to.throw();
 
         expect(function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method('a.0', function () { });
         }).to.throw();
 
         expect(function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method('.a', function () { });
         }).to.throw();
 
@@ -375,7 +375,7 @@ describe('Method', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method('user', 'function');
         };
         expect(fn).to.throw();
@@ -386,7 +386,7 @@ describe('Method', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method('user', function () { }, 'options');
         };
         expect(fn).to.throw();
@@ -397,7 +397,7 @@ describe('Method', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             server.method('user', function () { }, { generateKey: 'function' });
         };
         expect(fn).to.throw();
@@ -417,7 +417,7 @@ describe('Method', function () {
 
     it('returns a valid result when calling a method without using the cache', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.method('user', function (id, next) { return next(null, { id: id }); });
         server.methods.user(4, function (err, result) {
 
@@ -443,7 +443,7 @@ describe('Method', function () {
 
     it('returns an error result when calling a method that returns an error', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.method('user', function (id, next) { return next(new Error()); });
         server.methods.user(4, function (err, result) {
 
@@ -454,7 +454,7 @@ describe('Method', function () {
 
     it('returns a different result when calling a method without using the cache', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); });
         server.methods.user(4, function (err, result1) {

@@ -7,7 +7,12 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.select('test').route({ path: '/test1', method: 'GET', handler: function (request, reply) { reply('testing123' + ((plugin.app && plugin.app.my) || '')); } });
+    var handler = function (request, reply) {
+
+        reply('testing123' + ((plugin.settings.app && plugin.settings.app.my) || ''));
+    };
+
+    plugin.select('test').route({ path: '/test1', method: 'GET', handler: handler });
     plugin.expose(internals.math);
     plugin.expose('glue', internals.text.glue);
     plugin.expose('prefix', plugin.config.route.prefix);

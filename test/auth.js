@@ -24,7 +24,7 @@ describe('Auth', function () {
 
     it('requires and authenticates a request', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
@@ -43,7 +43,7 @@ describe('Auth', function () {
 
     it('exposes mode', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.mode); } });
@@ -58,7 +58,7 @@ describe('Auth', function () {
 
     it('sets default', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: {} } });
         server.auth.default('default');
@@ -78,7 +78,7 @@ describe('Auth', function () {
 
     it('sets default with object', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: {} } });
         server.auth.default({ strategy: 'default' });
@@ -98,7 +98,7 @@ describe('Auth', function () {
 
     it('throws when setting default twice', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: {} } });
         expect(function () {
@@ -111,7 +111,7 @@ describe('Auth', function () {
 
     it('throws when setting default without strategy', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: {} } });
         expect(function () {
@@ -123,7 +123,7 @@ describe('Auth', function () {
 
     it('throws when route refers to nonexistent strategy', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('a', 'custom', { users: { steve: {} } });
         server.auth.strategy('b', 'custom', { users: { steve: {} } });
@@ -150,7 +150,7 @@ describe('Auth', function () {
 
     it('authenticates using multiple strategies', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('first', 'custom', { users: { steve: 'skip' } });
         server.auth.strategy('second', 'custom', { users: { steve: {} } });
@@ -175,7 +175,7 @@ describe('Auth', function () {
 
     it('authenticates using credentials object', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
 
@@ -200,7 +200,7 @@ describe('Auth', function () {
 
     it('authenticates a request with custom auth settings', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({
@@ -223,7 +223,7 @@ describe('Auth', function () {
 
     it('authenticates a request with auth strategy name config', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: {} } });
         server.route({
@@ -249,7 +249,7 @@ describe('Auth', function () {
             reply({ status: request.auth.isAuthenticated, error: request.auth.error });
         };
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', 'try', { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler: handler });
@@ -279,7 +279,8 @@ describe('Auth', function () {
 
     it('errors on invalid authenticate callback missing both error and credentials', function (done) {
 
-        var server = new Hapi.Connection({ debug: false });
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
@@ -293,7 +294,7 @@ describe('Auth', function () {
 
     it('errors with log option', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
@@ -313,7 +314,7 @@ describe('Auth', function () {
 
     it('returns a non Error error response', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { message: 'in a bottle' } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
@@ -328,7 +329,8 @@ describe('Auth', function () {
 
     it('handles errors thrown inside authenticate', function (done) {
 
-        var server = new Hapi.Connection({ debug: false });
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: 'throw' } });
 
@@ -348,7 +350,7 @@ describe('Auth', function () {
 
     it('passes non Error error response when set to try ', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', 'try', { users: { message: 'in a bottle' } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
@@ -363,7 +365,7 @@ describe('Auth', function () {
 
     it('matches scope (array to single)', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
         server.route({
@@ -386,7 +388,7 @@ describe('Auth', function () {
 
     it('matches scope (array to array)', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one', 'two'] } } });
         server.route({
@@ -409,7 +411,7 @@ describe('Auth', function () {
 
     it('matches scope (single to array)', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
         server.route({
@@ -432,7 +434,7 @@ describe('Auth', function () {
 
     it('matches scope (single to single)', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
         server.route({
@@ -455,7 +457,7 @@ describe('Auth', function () {
 
     it('does not match scope (single to single)', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
         server.route({
@@ -478,7 +480,7 @@ describe('Auth', function () {
 
     it('errors on missing scope', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['a'] } } });
         server.route({
@@ -501,7 +503,7 @@ describe('Auth', function () {
 
     it('errors on missing scope property', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({
@@ -524,7 +526,7 @@ describe('Auth', function () {
 
     it('errors on missing scope using arrays', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['a', 'b'] } } });
         server.route({
@@ -547,7 +549,7 @@ describe('Auth', function () {
 
     it('matches user entity', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
         server.route({
@@ -570,7 +572,7 @@ describe('Auth', function () {
 
     it('errors on missing user entity', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { client: {} } });
         server.route({
@@ -593,7 +595,7 @@ describe('Auth', function () {
 
     it('matches app entity', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { client: {} } });
         server.route({
@@ -616,7 +618,7 @@ describe('Auth', function () {
 
     it('errors on missing app entity', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
         server.route({
@@ -639,7 +641,7 @@ describe('Auth', function () {
 
     it('authenticates request payload', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } } });
         server.route({
@@ -662,7 +664,7 @@ describe('Auth', function () {
 
     it('throws when strategy does not support payload authentication', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
 
         server.auth.scheme('custom', implementation);
@@ -685,7 +687,7 @@ describe('Auth', function () {
 
     it('throws when no strategy supports optional payload authentication', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
 
         server.auth.scheme('custom', implementation);
@@ -708,7 +710,7 @@ describe('Auth', function () {
 
     it('allows one strategy to supports optional payload authentication while another does not', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
 
         server.auth.scheme('custom1', implementation);
@@ -734,7 +736,7 @@ describe('Auth', function () {
 
     it('skips request payload by default', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { skip: {} } });
         server.route({
@@ -754,7 +756,7 @@ describe('Auth', function () {
 
     it('skips request payload when unauthenticated', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { skip: { } } });
         server.route({
@@ -778,7 +780,7 @@ describe('Auth', function () {
 
     it('skips optional payload', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: false } } });
         server.route({
@@ -801,7 +803,7 @@ describe('Auth', function () {
 
     it('errors on missing payload auth when required', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: false } } });
         server.route({
@@ -824,7 +826,7 @@ describe('Auth', function () {
 
     it('errors on invalid request payload', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { invalidPayload: { payload: Boom.unauthorized('Payload is invalid') } } });
         server.route({
@@ -847,7 +849,7 @@ describe('Auth', function () {
 
     it('defaults cache to private if request authenticated', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').ttl(1000); } });
@@ -862,7 +864,7 @@ describe('Auth', function () {
 
     it('logs error code when authenticate returns a non-error error', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('test', function (server, options) {
 
             return {
@@ -894,7 +896,8 @@ describe('Auth', function () {
 
     it('fails when options default to null', function (done) {
 
-        var server = new Hapi.Connection({ debug: false });
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true);
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
@@ -908,7 +911,7 @@ describe('Auth', function () {
 
     it('throws when strategy missing scheme', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         expect(function () {
 
             server.auth.strategy('none');
@@ -918,7 +921,7 @@ describe('Auth', function () {
 
     it('setups route with optional authentication', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
 
@@ -956,7 +959,7 @@ describe('Auth', function () {
             });
         };
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' } } });
         server.route({ method: 'GET', path: '/', handler: handler });

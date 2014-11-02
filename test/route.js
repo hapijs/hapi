@@ -22,7 +22,7 @@ describe('Route', function () {
 
     it('throws when handler is missing in config', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         expect(function () {
             server.route({ method: 'GET', path: '/', config: {} });
         }).to.throw('Missing or undefined handler: GET /');
@@ -51,7 +51,7 @@ describe('Route', function () {
 
     it('sets route plugins and app settings', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(request.route.app.x + request.route.plugins.x.y); }, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         server.inject('/', function (res) {
 
@@ -62,7 +62,7 @@ describe('Route', function () {
 
     it('throws when validation is set without payload parsing', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         expect(function () {
 
             server.route({ method: 'POST', path: '/', handler: function () { }, config: { validate: { payload: {} }, payload: { parse: false } } });
@@ -72,7 +72,7 @@ describe('Route', function () {
 
     it('shallow copies route config bind', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         var context = { key: 'is ' };
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(this.key + (this === context)); }, config: { bind: context } });
         server.inject('/', function (res) {
@@ -84,7 +84,7 @@ describe('Route', function () {
 
     it('shallow copies route config app', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         var app = { key: 'is ' };
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.route.app.key + (request.route.app === app)); }, config: { app: app } });
         server.inject('/', function (res) {
@@ -96,7 +96,7 @@ describe('Route', function () {
 
     it('shallow copies route config plugins', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         var plugins = { key: 'is ' };
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.route.plugins.key + (request.route.plugins === plugins)); }, config: { plugins: plugins } });
         server.inject('/', function (res) {

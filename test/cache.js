@@ -24,7 +24,7 @@ describe('Cache', function () {
 
     it('returns max-age value when route uses client cache mode', function (done) {
 
-        var server = new Hapi.Connection(0);
+        var server = Hapi.createServer(0);
 
         server.method('profile', function (id, next) {
 
@@ -58,7 +58,7 @@ describe('Cache', function () {
             return reply(Boom.badRequest());
         };
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
         server.inject('/', function (res) {
 
@@ -74,7 +74,7 @@ describe('Cache', function () {
             return reply(Boom.badRequest());
         };
 
-        var server = new Hapi.Connection({ cacheControlStatus: [200, 400] });
+        var server = Hapi.createServer({ cacheControlStatus: [200, 400] });
         server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
         server.inject('/', function (res) {
 
@@ -85,7 +85,7 @@ describe('Cache', function () {
 
     it('does not return max-age value when route is not cached', function (done) {
 
-        var server = new Hapi.Connection(0);
+        var server = Hapi.createServer(0);
         var activeItemHandler = function (request, reply) {
 
             reply({
@@ -105,7 +105,8 @@ describe('Cache', function () {
 
     it('caches using non default cache', function (done) {
 
-        var server = new Hapi.Connection(0, { cache: { name: 'primary', engine: require('catbox-memory') } });
+        var server = new Hapi.Server({ cache: { name: 'primary', engine: require('catbox-memory') } });
+        server.connection(0);
         var defaults = server.cache('a', { expiresIn: 2000 });
         var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });
 
@@ -141,7 +142,7 @@ describe('Cache', function () {
 
     it('throws when allocating an invalid cache segment', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         expect(function () {
 
             server.cache('a', { expiresAt: '12:00', expiresIn: 1000 });
@@ -152,7 +153,7 @@ describe('Cache', function () {
 
     it('allows allocating a cache segment with empty options', function (done) {
 
-        var server = new Hapi.Connection();
+        var server = Hapi.createServer();
         expect(function () {
 
             server.cache('a', {});

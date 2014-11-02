@@ -36,7 +36,7 @@ describe('Schema', function () {
 
         it('fails when unknown properties exist', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             var settings = server.connections[0].settings;
             settings.unknown = true;
 
@@ -49,7 +49,7 @@ describe('Schema', function () {
 
         it('fails when unknown child properties exist', function (done) {
 
-            var server = new Hapi.Connection();
+            var server = Hapi.createServer();
             var settings = server.connections[0].settings;
             settings.router = { unknown: true };
 
