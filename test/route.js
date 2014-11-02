@@ -20,6 +20,47 @@ var expect = Code.expect;
 
 describe('Route', function () {
 
+    it('throws an error when a route is passed in that is missing a path', function (done) {
+
+        var fn = function () {
+
+            var route = {};
+            var server = Hapi.createServer();
+            server.route(route);
+        };
+        expect(fn).to.throw();
+        done();
+    });
+
+    it('throws an error when a route is passed in that is missing a method', function (done) {
+
+        var fn = function () {
+
+            var route = {
+                path: '/test'
+            };
+            var server = Hapi.createServer();
+            server.route(route);
+        };
+        expect(fn).to.throw();
+        done();
+    });
+
+    it('throws an error when a route is passed in that is missing a handler', function (done) {
+
+        var fn = function () {
+
+            var route = {
+                path: '/test',
+                method: 'put'
+            };
+            var server = Hapi.createServer();
+            server.route(route);
+        };
+        expect(fn).to.throw();
+        done();
+    });
+
     it('throws when handler is missing in config', function (done) {
 
         var server = Hapi.createServer();

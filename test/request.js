@@ -26,6 +26,252 @@ var expect = Code.expect;
 
 describe('Request', function () {
 
+    describe('timeout', { parallel: false }, function () {
+
+        it('returns server error message when server taking too long', function (done) {
+
+            var timeoutHandler = function (request, reply) { };
+
+            var server = new Hapi.Connection({ timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
+
+            var timer = new Hoek.Bench();
+
+            server.inject('/timeout', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                expect(timer.elapsed()).to.be.at.least(45);
+                done();
+            });
+        });
+
+        it('returns server error message when server timeout happens during request execution (and handler yields)', function (done) {
+
+            var slowHandler = function (request, reply) {
+
+                setTimeout(function () {
+
+                    reply('Slow');
+                }, 30);
+            };
+
+            var serverShort = new Hapi.Connection({ timeout: { server: 2 } });
+            serverShort.route({ method: 'GET', path: '/', config: { handler: slowHandler } });
+
+            serverShort.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                done();
+            });
+        });
+
+        it('returns server error message when server timeout is short and already occurs when request executes', function (done) {
+
+            var serverExt = new Hapi.Connection({ timeout: { server: 2 } });
+            serverExt.route({ method: 'GET', path: '/', config: { handler: function () { } } });
+            serverExt.ext('onRequest', function (request, next) {
+
+                setTimeout(next, 10);
+            });
+
+            serverExt.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                done();
+            });
+        });
+
+        it('handles server handler timeout with onPreResponse ext', function (done) {
+
+            var handler = function (request, reply) {
+
+                setTimeout(reply, 20);
+            };
+
+            var serverExt = new Hapi.Connection({ timeout: { server: 10 } });
+            serverExt.route({ method: 'GET', path: '/', config: { handler: handler } });
+            serverExt.ext('onPreResponse', function (request, next) {
+
+                next();
+            });
+
+            serverExt.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(503);
+                done();
+            });
+        });
+
+        it('does not return an error response when server is slow but faster than timeout', function (done) {
+
+            var slowHandler = function (request, reply) {
+
+                setTimeout(function () {
+
+                    reply('Slow');
+                }, 30);
+            };
+
+            var server = new Hapi.Connection({ timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/slow', config: { handler: slowHandler } });
+
+            var timer = new Hoek.Bench();
+            server.inject('/slow', function (res) {
+
+                expect(timer.elapsed()).to.be.at.least(20);
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('does not return an error when server is responding when the timeout occurs', function (done) {
+
+            var respondingHandler = function (request, reply) {
+
+                var s = new Stream.PassThrough();
+                reply(s);
+
+                for (var i = 10000; i > 0; --i) {
+                    s.write(i.toString());
+                }
+
+                setTimeout(function () {
+
+                    s.emit('end');
+                }, 40);
+            };
+
+            var timer = new Hoek.Bench();
+
+            var server = new Hapi.Connection(0, { timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/responding', config: { handler: respondingHandler } });
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/responding',
+                    method: 'GET'
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect(timer.elapsed()).to.be.at.least(70);
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+
+                req.write('\n');
+            });
+        });
+
+        it('does not return an error response when server is slower than timeout but response has started', function (done) {
+
+            var streamHandler = function (request, reply) {
+
+                var TestStream = function () {
+
+                    Stream.Readable.call(this);
+                };
+
+                Hoek.inherits(TestStream, Stream.Readable);
+
+                TestStream.prototype._read = function (size) {
+
+                    var self = this;
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    setTimeout(function () {
+
+                        self.push('Hello');
+                    }, 30);
+
+                    setTimeout(function () {
+
+                        self.push(null);
+                    }, 60);
+                };
+
+                reply(new TestStream());
+            };
+
+            var server = new Hapi.Connection(0, { timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
+            server.start(function () {
+
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/stream',
+                    method: 'GET'
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+                req.end();
+            });
+        });
+
+        it('does not return an error response when server takes less than timeout to respond', function (done) {
+
+            var fastHandler = function (request, reply) {
+
+                reply('Fast');
+            };
+
+            var server = new Hapi.Connection({ timeout: { server: 50 } });
+            server.route({ method: 'GET', path: '/fast', config: { handler: fastHandler } });
+
+            server.inject('/fast', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('handles race condition between equal client and server timeouts', function (done) {
+
+            var timeoutHandler = function (request, reply) { };
+
+            var server = new Hapi.Connection(0, { timeout: { server: 50, client: 50 } });
+            server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
+
+            server.start(function () {
+
+                var timer = new Hoek.Bench();
+                var options = {
+                    hostname: '127.0.0.1',
+                    port: server.info.port,
+                    path: '/timeout',
+                    method: 'POST'
+                };
+
+                var req = Http.request(options, function (res) {
+
+                    expect([503, 408]).to.contain(res.statusCode);
+                    expect(timer.elapsed()).to.be.at.least(45);
+                    done();
+                });
+
+                req.on('error', function (err) {
+
+                });
+
+                req.write('\n');
+                setTimeout(function () {
+
+                    req.end();
+                }, 100);
+            });
+        });
+    });
     it('returns valid OPTIONS response', function (done) {
 
         var handler = function (request, reply) {

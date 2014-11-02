@@ -1,21 +1,22 @@
 // Load modules
 
-var Fs = require('fs');
-var Os = require('os');
-var Http = require('http');
-var Stream = require('stream');
-var Zlib = require('zlib');
 var ChildProcess = require('child_process');
 var Crypto = require('crypto');
+var Fs = require('fs');
+var Http = require('http');
+var Os = require('os');
 var Path = require('path');
+var Stream = require('stream');
+var Zlib = require('zlib');
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Joi = require('joi');
 var Lab = require('lab');
 var Wreck = require('wreck');
-var Response = require('../lib/response');
 var Payload = require('../lib/response/payload');
+var Response = require('../lib/response');
 
 
 // Declare internals
@@ -38,7 +39,7 @@ internals.uniqueFilename = function (path) {
 };
 
 
-describe('Response', function () {
+describe('response', function () {
 
     it('returns last known error on error response loop', function (done) {
 
@@ -84,6 +85,126 @@ describe('Response', function () {
             expect(res.statusCode).to.equal(204);
             expect(res.result).to.equal(null);
             done();
+        });
+    });
+    describe('caching', function () {
+
+        it('returns max-age value when route sets cache', function (done) {
+
+            var server = Hapi.createServer(0);
+
+            server.method('profile', function (id, next) {
+
+                return next(null, {
+                    'id': 'fa0dbda9b1b',
+                    'name': 'John Doe'
+                });
+            }, { cache: { expiresIn: 120000 } });
+
+            var profileHandler = function (request, reply) {
+
+                server.methods.profile(0, reply);
+            };
+
+            server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
+            server.start(function () {
+
+                server.inject('/profile', function (res) {
+
+                    expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+                    server.stop();
+                    done();
+                });
+            });
+        });
+
+        it('returns no-cache on error', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(Boom.badRequest());
+            };
+
+            var server = Hapi.createServer();
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
+            server.inject('/', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('no-cache');
+                done();
+            });
+        });
+
+        it('sets cache-control on error with status override', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(Boom.badRequest());
+            };
+
+            var server = Hapi.createServer({ cacheControlStatus: [200, 400] });
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
+            server.inject('/', function (res) {
+
+                expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
+                done();
+            });
+        });
+
+        it('does not return max-age value when route is not cached', function (done) {
+
+            var server = Hapi.createServer(0);
+            var activeItemHandler = function (request, reply) {
+
+                reply({
+                    'id': '55cf687663',
+                    'name': 'Active Items'
+                });
+            };
+
+            server.route({ method: 'GET', path: '/item2', config: { handler: activeItemHandler } });
+            server.inject('/item2', function (res) {
+
+                expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
+                server.stop();
+                done();
+            });
+        });
+
+        it('caches using non default cache', function (done) {
+
+            var server = new Hapi.Server({ cache: { name: 'primary', engine: require('catbox-memory') } });
+            server.connection(0);
+            var defaults = server.cache('a', { expiresIn: 2000 });
+            var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+
+                defaults.set('b', 1, null, function (err) {
+
+                    expect(err).to.not.exist();
+
+                    primary.set('b', 2, null, function (err) {
+
+                        expect(err).to.not.exist();
+
+                        defaults.get('b', function (err, value, cached, report) {
+
+                            expect(err).to.not.exist();
+                            expect(value).to.equal(1);
+
+                            primary.get('b', function (err, value, cached, report) {
+
+                                expect(err).to.not.exist();
+                                expect(cached.item).to.equal(2);
+                                server.stop();
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
         });
     });
 

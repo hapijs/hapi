@@ -20,6 +20,70 @@ var expect = Code.expect;
 
 describe('Router', function () {
 
+    it('throws an error when a new route conflicts with an existing route', function (done) {
+
+        var fn = function () {
+
+            var server = Hapi.createServer();
+            server.route({ path: '/test/{p}/{p}/end', method: 'put', handler: function () { } });
+            server.route({ path: '/test/{p*2}/end', method: 'put', handler: function () { } });
+        };
+        expect(fn).to.throw();
+        done();
+    });
+
+    it('does not throw an error when routes differ in case and case is sensitive', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Connection({ router: { isCaseSensitive: true } });
+            server.route({ path: '/test/{p}/End', method: 'put', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
+        };
+        expect(fn).to.not.throw();
+        done();
+    });
+
+    it('throws an error when routes differ in case and case is insensitive', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Connection({ router: { isCaseSensitive: false } });
+            server.route({ path: '/test/{p}/End', method: 'put', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
+        };
+        expect(fn).to.throw();
+        done();
+    });
+
+    it('throws an error when route params differ in case and case is sensitive', function (done) {
+
+        var fn = function () {
+
+            var server = new Hapi.Connection({ router: { isCaseSensitive: true } });
+            server.route({ path: '/test/{P}/end', method: 'put', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'put', handler: function () { } });
+        };
+        expect(fn).to.throw();
+        done();
+    });
+
+    it('does not lowercase params when case is insensitive', function (done) {
+
+        var server = new Hapi.Connection({ router: { isCaseSensitive: false } });
+        server.route({
+            path: '/test/{userId}/end', method: 'put', handler: function (request) {
+
+                expect(request.params.userId).to.exist();
+                done();
+            }
+        });
+
+        server.inject({ url: '/test/2100/end', method: 'PUT' }, function () {
+
+        });
+    });
+
     it('matches HEAD routes', function (done) {
 
         var server = Hapi.createServer();

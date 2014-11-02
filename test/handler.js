@@ -20,6 +20,114 @@ var expect = Code.expect;
 
 describe('Handler', function () {
 
+    describe('#handler', function () {
+
+        var handler = function (route, options) {
+
+            return function (request, reply) {
+
+                reply(options.message);
+            };
+        };
+
+        it('adds handler', function (done) {
+
+            var fn = function () {
+
+                var server = Hapi.createServer();
+
+                server.handler('test', handler);
+                expect(server._core._handlers.test).to.equal(handler);
+            };
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('call new handler', function (done) {
+
+            var fn = function () {
+
+                var server = Hapi.createServer();
+
+                server.handler('test', handler);
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {
+                            message: 'success'
+                        }
+                    }
+                });
+                server.inject('/', function (res) {
+                    expect(res.payload).to.equal('success');
+                    done();
+                });
+            };
+
+            expect(fn).to.not.throw();
+        });
+
+        it('errors on duplicate handler', function (done) {
+
+            var fn = function () {
+
+                var server = Hapi.createServer();
+
+                server.handler('proxy', handler);
+            };
+
+            expect(fn).to.throw();
+            done();
+        });
+
+        it('errors on unknown handler', function (done) {
+
+            var fn = function () {
+
+                var server = Hapi.createServer();
+
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: {
+                        test: {}
+                    }
+                });
+            };
+
+            expect(fn).to.throw();
+            done();
+        });
+
+        it('errors on non-string name', function (done) {
+
+            var fn = function () {
+
+                var server = Hapi.createServer();
+
+                server.handler();
+            };
+
+            expect(fn).to.throw();
+            done();
+        });
+
+        it('errors on non-function handler', function (done) {
+
+            var fn = function () {
+
+                var server = Hapi.createServer();
+
+                server.handler('foo', 'bar');
+            };
+
+            expect(fn).to.throw();
+            done();
+        });
+    });
+
     it('shows the complete prerequisite pipeline in the response', function (done) {
 
         var pre1 = function (request, reply) {

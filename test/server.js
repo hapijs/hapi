@@ -36,24 +36,297 @@ describe('Server', function () {
         done();
     });
 
-    var routesList = function (server, label) {
+    describe('_args()', function () {
 
-        var table = server.select(label || []).table();
-        var connections = Object.keys(table);
 
-        var list = [];
-        for (var c = 0, cl = connections.length; c < cl; ++c) {
-            var routes = table[connections[c]];
-            for (var i = 0, il = routes.length; i < il; ++i) {
-                var route = routes[i];
-                if (route.method === 'get') {
-                    list.push(route.path);
-                }
-            }
-        }
+        it('does not throw an error when host and port are provided and port is a string', function (done) {
 
-        return list;
-    };
+            var fn = function () {
+
+                var server = new Hapi.Connection('localhost', '8888');
+            };
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('does not throw an error when port is a string', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Connection('8888');
+            };
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('errors when two ports and one is a string is provided', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Connection('8888', 8900);
+            };
+            expect(fn).to.throw();
+            done();
+        });
+
+        it('errors when two hosts are provided', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Connection('localhost', '127.0.0.1');
+            };
+            expect(fn).to.throw();
+            done();
+        });
+
+        it('throws an error when double port config is provided', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Connection(8080, 8084);
+            };
+            expect(fn).throws(Error);
+            done();
+        });
+
+        it('throws an error when double host config is provided', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Connection('0.0.0.0', 'localhost');
+            };
+            expect(fn).throws(Error);
+            done();
+        });
+
+        it('throws an error when unknown arg type is provided', function (done) {
+
+            var fn = function () {
+
+                var server = new Hapi.Connection(true);
+            };
+            expect(fn).throws(Error);
+            done();
+        });
+    });
+
+    describe('cache()', function () {
+
+        it('provisions a server cache', function (done) {
+
+            var server = new Hapi.Connection(0);
+            var cache = server.cache('test', { expiresIn: 1000 });
+            server.start(function () {
+
+                cache.set('a', 'going in', 0, function (err) {
+
+                    cache.get('a', function (err, value, cached, report) {
+
+                        expect(value).to.equal('going in');
+
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('provisions a server cache with custom partition', function (done) {
+
+            var server = new Hapi.Connection(0, { cache: { engine: require('catbox-memory'), partition: 'hapi-test-other' } });
+            var cache = server.cache('test', { expiresIn: 1000 });
+            server.start(function () {
+
+                cache.set('a', 'going in', 0, function (err) {
+
+                    cache.get('a', function (err, value, cached, report) {
+
+                        expect(value).to.equal('going in');
+                        expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
+
+                        server.stop(function () {
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('throws when allocating an invalid cache segment', function (done) {
+
+            var server = Hapi.createServer();
+            expect(function () {
+
+                server.cache('a', { expiresAt: '12:00', expiresIn: 1000 });
+            }).throws();
+
+            done();
+        });
+
+        it('allows allocating a cache segment with empty options', function (done) {
+
+            var server = Hapi.createServer();
+            expect(function () {
+
+                server.cache('a', {});
+            }).to.not.throw();
+
+            done();
+        });
+
+        it('allows reusing the same cache segment', function (done) {
+
+            var server = new Hapi.Connection({ cache: { engine: require('catbox-memory'), shared: true } });
+            expect(function () {
+
+                var a1 = server.cache('a', { expiresIn: 1000 });
+                var a2 = server.cache('a', { expiresIn: 1000 });
+            }).to.not.throw();
+            done();
+        });
+    });
+
+    describe('log()', function () {
+
+        it('emits a log event', function (done) {
+
+            var server = Hapi.createServer();
+
+            var count = 0;
+            server.once('log', function (event) {
+
+                ++count;
+                expect(event.data).to.equal('log event 1');
+            });
+
+            server.events.once('log', function (event) {
+
+                ++count;
+                expect(event.data).to.equal('log event 1');
+            });
+
+            server.log('1', 'log event 1', Date.now());
+
+            server.once('log', function (event) {
+
+                ++count;
+                expect(event.data).to.equal('log event 2');
+            });
+
+            server.log(['2'], 'log event 2', new Date(Date.now()));
+
+            expect(count).to.equal(3);
+            done();
+        });
+
+        it('emits a log event and print to console', { parallel: false }, function (done) {
+
+            var server = Hapi.createServer();
+
+            server.once('log', function (event) {
+
+                expect(event.data).to.equal('log event 1');
+            });
+
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('hapi, internal, implementation, error');
+
+                done();
+            };
+
+            server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
+        });
+    });
+
+    describe('render()', function () {
+
+        it('renders view', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.views({
+                engines: { html: require('handlebars') },
+                path: __dirname + '/templates'
+            });
+
+            server.render('test', { title: 'test', message: 'Hapi' }, function (err, rendered, config) {
+
+                expect(rendered).to.exist();
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
+        });
+
+        it('renders view (options)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.views({
+                engines: { html: require('handlebars') }
+            });
+
+            server.render('test', { title: 'test', message: 'Hapi' }, { path: __dirname + '/templates' }, function (err, rendered, config) {
+
+                expect(rendered).to.exist();
+                expect(rendered).to.contain('Hapi');
+                done();
+            });
+        });
+    });
+
+    describe('load', { parallel: false }, function () {
+
+        it('measures loop delay', function (done) {
+
+            var server = new Hapi.Server({ load: { sampleInterval: 4 } });
+            server.connection(0);
+
+            var handler = function (request, reply) {
+
+                var start = Date.now();
+                while (Date.now() - start < 5) { }
+                reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start(function (err) {
+
+                server.inject('/', function (res) {
+
+                    expect(server.load.eventLoopDelay).to.equal(0);
+
+                    setImmediate(function () {
+
+                        server.inject('/', function (res) {
+
+                            expect(server.load.eventLoopDelay).to.be.above(0);
+
+                            setImmediate(function () {
+
+                                server.inject('/', function (res) {
+
+                                    expect(server.load.eventLoopDelay).to.be.above(0);
+                                    expect(server.load.heapUsed).to.be.above(1024 * 1024);
+                                    expect(server.load.rss).to.be.above(1024 * 1024);
+                                    server.stop(function () {
+
+                                        done();
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
 
     it('registers plugins', function (done) {
 
@@ -111,10 +384,10 @@ describe('Server', function () {
 
             expect(err).to.not.exist();
 
-            expect(routesList(server, 's1')).to.deep.equal(['/a', '/ab', '/all']);
-            expect(routesList(server, 's2')).to.deep.equal(['/a', '/all', '/sodd']);
-            expect(routesList(server, 's3')).to.deep.equal(['/a', '/ab', '/all']);
-            expect(routesList(server, 's4')).to.deep.equal(['/all', '/sodd', '/memoryx']);
+            expect(internals.routesList(server, 's1')).to.deep.equal(['/a', '/ab', '/all']);
+            expect(internals.routesList(server, 's2')).to.deep.equal(['/a', '/all', '/sodd']);
+            expect(internals.routesList(server, 's3')).to.deep.equal(['/a', '/ab', '/all']);
+            expect(internals.routesList(server, 's4')).to.deep.equal(['/all', '/sodd', '/memoryx']);
             done();
         });
     });
@@ -349,9 +622,9 @@ describe('Server', function () {
             expect(err).to.not.exist();
 
             expect(server.connections[0]._router.routes.get).to.not.exist();
-            expect(routesList(server, 's2')).to.deep.equal(['/test1']);
+            expect(internals.routesList(server, 's2')).to.deep.equal(['/test1']);
             expect(server.connections[2]._router.routes.get).to.not.exist();
-            expect(routesList(server, 's4')).to.deep.equal(['/test1']);
+            expect(internals.routesList(server, 's4')).to.deep.equal(['/test1']);
 
             expect(server.connections[0].plugins['--test1'].add(1, 3)).to.equal(4);
             expect(server.connections[0].plugins['--test1'].glue('1', '3')).to.equal('13');
@@ -447,7 +720,7 @@ describe('Server', function () {
         server.register([require('./plugins/--test1'), require('./plugins/--test2')], function (err) {
 
             expect(err).to.not.exist();
-            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
+            expect(internals.routesList(server)).to.deep.equal(['/test1', '/test2']);
             expect(log[1].test).to.equal(true);
             expect(log[0].data).to.equal('abc');
             done();
@@ -466,7 +739,7 @@ describe('Server', function () {
         server.register([{ plugin: require('./plugins/--test1') }, { plugin: require('./plugins/--test2') }], function (err) {
 
             expect(err).to.not.exist();
-            expect(routesList(server)).to.deep.equal(['/test1', '/test2']);
+            expect(internals.routesList(server)).to.deep.equal(['/test1', '/test2']);
             expect(log[1].test).to.equal(true);
             expect(log[0].data).to.equal('abc');
             done();
@@ -793,7 +1066,7 @@ describe('Server', function () {
         server.register(plugin, function (err) {
 
             expect(err).to.not.exist();
-            expect(routesList(server)).to.deep.equal(['/b']);
+            expect(internals.routesList(server)).to.deep.equal(['/b']);
 
             server.inject('/a', function (res) {
 
@@ -1845,3 +2118,23 @@ describe('Server', function () {
         });
     });
 });
+
+
+internals.routesList = function (server, label) {
+
+    var table = server.select(label || []).table();
+    var connections = Object.keys(table);
+
+    var list = [];
+    for (var c = 0, cl = connections.length; c < cl; ++c) {
+        var routes = table[connections[c]];
+        for (var i = 0, il = routes.length; i < il; ++i) {
+            var route = routes[i];
+            if (route.method === 'get') {
+                list.push(route.path);
+            }
+        }
+    }
+
+    return list;
+};
