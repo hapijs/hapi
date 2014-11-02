@@ -56,7 +56,7 @@ describe('Handler', function () {
             reply(request.pre.m5);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -93,7 +93,7 @@ describe('Handler', function () {
             reply(request.pre.p);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.route({
             method: 'GET',
@@ -120,7 +120,7 @@ describe('Handler', function () {
             reply('Hello');
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.route({
             method: 'GET',
@@ -173,7 +173,7 @@ describe('Handler', function () {
             reply(request.pre.m5);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -215,7 +215,7 @@ describe('Handler', function () {
             reply(request.pre.m1);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -247,7 +247,7 @@ describe('Handler', function () {
             reply(request.responses.p);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -284,7 +284,7 @@ describe('Handler', function () {
         };
 
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -306,7 +306,7 @@ describe('Handler', function () {
 
     it('returns a user record using server method', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (id, next) {
 
@@ -336,7 +336,7 @@ describe('Handler', function () {
 
     it('returns a user record using server method in object', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (id, next) {
 
@@ -369,7 +369,7 @@ describe('Handler', function () {
 
     it('returns a user name using multiple server methods', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (id, next) {
 
@@ -405,7 +405,7 @@ describe('Handler', function () {
 
     it('returns a user record using server method with trailing space', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (id, next) {
 
@@ -435,7 +435,7 @@ describe('Handler', function () {
 
     it('returns a user record using server method with leading space', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (id, next) {
 
@@ -465,7 +465,7 @@ describe('Handler', function () {
 
     it('returns a user record using server method with zero args', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (next) {
 
@@ -495,7 +495,7 @@ describe('Handler', function () {
 
     it('returns a user record using server method with no args', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (request, next) {
 
@@ -525,7 +525,7 @@ describe('Handler', function () {
 
     it('returns a user record using server method with nested name', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user.get', function (next) {
 
@@ -555,7 +555,7 @@ describe('Handler', function () {
 
     it('fails on bad method name', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         var test = function () {
 
             server.route({
@@ -579,7 +579,7 @@ describe('Handler', function () {
 
     it('fails on bad method syntax name', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         var test = function () {
 
             server.route({
@@ -603,7 +603,7 @@ describe('Handler', function () {
 
     it('sets pre failAction to error', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -633,7 +633,7 @@ describe('Handler', function () {
 
     it('sets pre failAction to ignore', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -663,7 +663,7 @@ describe('Handler', function () {
 
     it('sets pre failAction to log', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -703,7 +703,7 @@ describe('Handler', function () {
 
     it('uses string handler', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.method('handler.get', function (request, next) {
 
             return next(null, request.params.x + request.params.y);
@@ -721,7 +721,7 @@ describe('Handler', function () {
 
         var item = { x: 123 };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(this.x); }, bind: item } });
 
         server.inject('/', function (res) {
@@ -735,7 +735,7 @@ describe('Handler', function () {
 
         var item = { x: 123 };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -755,7 +755,7 @@ describe('Handler', function () {
 
     it('logs server method using string notation', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         server.method('user', function (id, next) {
 
@@ -796,7 +796,7 @@ describe('Handler', function () {
                 };
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -822,7 +822,7 @@ describe('Handler', function () {
                 }
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -850,7 +850,7 @@ describe('Handler', function () {
                 };
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -872,7 +872,7 @@ describe('Handler', function () {
 
             handler.defaults = 'invalid';
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             expect(function () {
 
                 server.handler('test', handler);
@@ -891,11 +891,11 @@ describe('Handler', function () {
                 reply({ id: 'fa0dbda9b1b', name: 'John Doe' }).state('test', '123');
             };
 
-            var upstream = new Hapi.Server(0);
+            var upstream = new Hapi.Connection(0);
             upstream.route({ method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } });
             upstream.start(function () {
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'GET', path: '/profile', handler: { proxy: { host: 'localhost', port: upstream.info.port, xforward: true, passThrough: true } } });
                 server.state('auto', { autoValue: 'xyz' });
 
@@ -918,11 +918,11 @@ describe('Handler', function () {
 
         it('proxies via reply.proxy()', function (done) {
 
-            var upstream = new Hapi.Server(0);
+            var upstream = new Hapi.Connection(0);
             upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { reply({ a: 1 }); } });
             upstream.start(function () {
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'GET', path: '/handler', handler: function (request, reply) { reply.proxy({ uri: 'http://localhost:' + upstream.info.port + '/item' }); } });
 
                 server.inject('/handler', function (res) {

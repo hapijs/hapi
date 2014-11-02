@@ -33,7 +33,7 @@ describe('Request', function () {
             reply(Hapi.error.badRequest());
         };
 
-        var server = new Hapi.Server({ cors: true });
+        var server = new Hapi.Connection({ cors: true });
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
@@ -57,7 +57,7 @@ describe('Request', function () {
             setTimeout(t2, 10);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         var result = null;
@@ -83,7 +83,7 @@ describe('Request', function () {
             tail();
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         var result = null;
@@ -105,7 +105,7 @@ describe('Request', function () {
             reply('OK');
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         var ext = function (request, next) {
 
@@ -129,7 +129,7 @@ describe('Request', function () {
             reply('unknown-reply');
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: '*', path: '/{p*}', handler: unknownRouteHandler });
 
         server.inject('/', function (res) {
@@ -154,7 +154,7 @@ describe('Request', function () {
             };
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
@@ -196,7 +196,7 @@ describe('Request', function () {
             reply(stream);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
@@ -208,7 +208,7 @@ describe('Request', function () {
 
     it('returns 500 on handler exception (same tick)', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
 
         var handler = function (request) {
 
@@ -234,7 +234,7 @@ describe('Request', function () {
             });
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
         server.on('internalError', function (request, err) {
 
@@ -258,7 +258,7 @@ describe('Request', function () {
 
     it('ignores second call to onReply()', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         var handler = function (request, reply) {
 
@@ -276,7 +276,7 @@ describe('Request', function () {
 
     it('sends reply after handler timeout', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         var handler = function (request, reply) {
 
@@ -297,7 +297,7 @@ describe('Request', function () {
 
     it('returns 500 on ext method exception (same tick)', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.ext('onRequest', function (request, next) {
 
             var x = a.b.c;
@@ -319,7 +319,7 @@ describe('Request', function () {
 
     it('invokes handler with right arguments', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         var handler = function (request, reply) {
 
@@ -339,7 +339,7 @@ describe('Request', function () {
 
     it('request has client address', function (done) {
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Connection(0);
 
         var handler = function (request, reply) {
 
@@ -367,7 +367,7 @@ describe('Request', function () {
 
     it('request has referrer', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         var handler = function (request, reply) {
 
@@ -386,7 +386,7 @@ describe('Request', function () {
 
     it('request has referer', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
 
         var handler = function (request, reply) {
 
@@ -405,7 +405,7 @@ describe('Request', function () {
 
     it('returns 400 on invalid path', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.inject('invalid', function (res) {
 
             expect(res.statusCode).to.equal(400);
@@ -420,7 +420,7 @@ describe('Request', function () {
             reply(Hapi.error.forbidden('Unauthorized content'));
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
@@ -456,7 +456,7 @@ describe('Request', function () {
             reply(stream);
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Connection(0);
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.start(function () {
@@ -499,7 +499,7 @@ describe('Request', function () {
             reply(request.headers['user-agent']);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
@@ -516,7 +516,7 @@ describe('Request', function () {
             reply(request.query);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/?a[b]=5&d[ff]=ok', function (res) {
@@ -533,7 +533,7 @@ describe('Request', function () {
             reply(request.params);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
@@ -556,7 +556,7 @@ describe('Request', function () {
             });
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'POST', path: '/',
             config: {
@@ -597,7 +597,7 @@ describe('Request', function () {
             }, 10);
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Connection(0);
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.start(function () {
@@ -626,7 +626,7 @@ describe('Request', function () {
             }, 10);
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Connection(0);
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.ext('onPreResponse', function (request, reply) {
@@ -674,7 +674,7 @@ describe('Request', function () {
             }, 10);
         };
 
-        var server = new Hapi.Server({ timeout: { server: 5 } });
+        var server = new Hapi.Connection({ timeout: { server: 5 } });
         server.route({
             method: 'GET',
             path: '/',
@@ -697,7 +697,7 @@ describe('Request', function () {
             }, 10);
         };
 
-        var server = new Hapi.Server({ timeout: { server: 5 } });
+        var server = new Hapi.Connection({ timeout: { server: 5 } });
         server.route({
             method: 'GET',
             path: '/',
@@ -715,7 +715,7 @@ describe('Request', function () {
 
         it('changes method with a lowercase version of the value passed in', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -733,7 +733,7 @@ describe('Request', function () {
 
         it('errors on missing method', function (done) {
 
-            var server = new Hapi.Server({ debug: false });
+            var server = new Hapi.Connection({ debug: false });
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -750,7 +750,7 @@ describe('Request', function () {
 
         it('errors on invalid method type', function (done) {
 
-            var server = new Hapi.Server({ debug: false });
+            var server = new Hapi.Connection({ debug: false });
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -771,7 +771,7 @@ describe('Request', function () {
         it('sets url, path, and query', function (done) {
 
             var url = 'http://localhost/page?param1=something';
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -794,7 +794,7 @@ describe('Request', function () {
 
             var url = 'http://localhost' + rawPath + '?param1=something';
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -812,7 +812,7 @@ describe('Request', function () {
 
         it('allows missing path', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.ext('onRequest', function (request, reply) {
 
                 request.setUrl('');
@@ -828,7 +828,7 @@ describe('Request', function () {
 
         it('strips trailing slash', function (done) {
 
-            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            var server = new Hapi.Connection({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/test', handler: function (request, reply) { reply(); } });
             server.inject('/test/', function (res) {
 
@@ -839,7 +839,7 @@ describe('Request', function () {
 
         it('does not strip trailing slash on /', function (done) {
 
-            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            var server = new Hapi.Connection({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(); } });
             server.inject('/', function (res) {
 
@@ -850,7 +850,7 @@ describe('Request', function () {
 
         it('strips trailing slash with query', function (done) {
 
-            var server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            var server = new Hapi.Connection({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/test', handler: function (request, reply) { reply(); } });
             server.inject('/test/?a=b', function (res) {
 
@@ -870,7 +870,7 @@ describe('Request', function () {
                 reply();
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             var orig = console.error;
@@ -897,7 +897,7 @@ describe('Request', function () {
                 reply();
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             var orig = console.error;
@@ -927,7 +927,7 @@ describe('Request', function () {
                 reply();
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             var orig = console.error;
@@ -961,7 +961,7 @@ describe('Request', function () {
                 reply([request.getLog('1').length, request.getLog('4').length, request.getLog(['4']).length, request.getLog('0').length, request.getLog(['1', '2', '3', '4']).length, request.getLog().length >= 7].join('|'));
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -973,7 +973,7 @@ describe('Request', function () {
 
         it('does not output events when debug disabled', function (done) {
 
-            var server = new Hapi.Server({ debug: false });
+            var server = new Hapi.Connection({ debug: false });
 
             var i = 0;
             var orig = console.error;
@@ -1001,7 +1001,7 @@ describe('Request', function () {
 
         it('does not output events when debug.request disabled', function (done) {
 
-            var server = new Hapi.Server({ debug: { request: false } });
+            var server = new Hapi.Connection({ debug: { request: false } });
 
             var i = 0;
             var orig = console.error;
@@ -1029,7 +1029,7 @@ describe('Request', function () {
 
         it('does not output non-implementation events by default', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
 
             var i = 0;
             var orig = console.error;
@@ -1060,7 +1060,7 @@ describe('Request', function () {
 
         it('leaves the response open when the same response is set again', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.ext('onPostHandler', function (request, reply) {
 
                 reply(request.response);
@@ -1089,7 +1089,7 @@ describe('Request', function () {
 
         it('leaves the response open when the same response source is set again', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.ext('onPostHandler', function (request, reply) {
 
                 reply(request.response.source);

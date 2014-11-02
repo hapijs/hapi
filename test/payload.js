@@ -35,7 +35,7 @@ describe('payload', function () {
             throw new Error('never called');
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, function (res) {
@@ -53,7 +53,7 @@ describe('payload', function () {
             throw new Error('never called');
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
         server.once('response', function (request) {
@@ -67,7 +67,7 @@ describe('payload', function () {
 
     it('errors on invalid content-type', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', handler: Hoek.ignore });
 
         server.inject({ method: 'POST', url: '/', payload: 'abc', headers: { 'content-type': 'invlaid;a' } }, function (res) {
@@ -87,7 +87,7 @@ describe('payload', function () {
             reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
         server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
@@ -110,7 +110,7 @@ describe('payload', function () {
             reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
         server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
@@ -133,7 +133,7 @@ describe('payload', function () {
             reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
         var options = {
@@ -162,7 +162,7 @@ describe('payload', function () {
             reply('Success');
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Connection(0);
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
         var extCalled = false;
         server.ext('onPreResponse', function (request, reply) {
@@ -218,7 +218,7 @@ describe('payload', function () {
             reply('Success');
         };
 
-        var server = new Hapi.Server(0);
+        var server = new Hapi.Connection(0);
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
         server.start(function () {
@@ -262,7 +262,7 @@ describe('payload', function () {
             reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
         server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '5' } }, function (res) {
@@ -283,7 +283,7 @@ describe('payload', function () {
             reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
         server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'Content-Length': '500' } }, function (res) {
@@ -304,7 +304,7 @@ describe('payload', function () {
             reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 10 } } });
 
         server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-length': payload.length } }, function (res) {
@@ -340,7 +340,7 @@ describe('payload', function () {
             reply(data);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.ext('onRequest', ext);
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
@@ -355,7 +355,7 @@ describe('payload', function () {
     it('handles gzipped payload', function (done) {
 
         var message = { 'msg': 'This message is going to be gzipped.' };
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
 
         Zlib.gzip(JSON.stringify(message), function (err, buf) {
@@ -383,7 +383,7 @@ describe('payload', function () {
     it('errors on wrong encoding', function (done) {
 
         var message = { 'msg': 'This message is going to be gzipped.' };
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
 
         Zlib.gzip(JSON.stringify(message), function (err, buf) {
@@ -410,7 +410,7 @@ describe('payload', function () {
     it('handles non-gzipped payload', function (done) {
 
         var message = { 'msg': 'This message is going to be gzipped.' };
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
         var payload = JSON.stringify(message);
 
@@ -435,7 +435,7 @@ describe('payload', function () {
     it('errors on non-JSON gzipped payload when expecting gzip', function (done) {
 
         var badMessage = '{ gzip this is just wrong }';
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply(request.payload); } });
         Zlib.deflate(badMessage, function (err, buf) {
 
@@ -468,7 +468,7 @@ describe('payload', function () {
                 reply('Success');
             };
 
-            var server = new Hapi.Server('localhost', 0);
+            var server = new Hapi.Connection('localhost', 0);
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { output: 'stream' } } });
             server.start(function () {
 
@@ -523,7 +523,7 @@ describe('payload', function () {
                     reply(request.payload.bytes);
                 };
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
                 server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
@@ -548,7 +548,7 @@ describe('payload', function () {
                     reply(request.payload.bytes);
                 };
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false } } });
                 server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
 
@@ -562,7 +562,7 @@ describe('payload', function () {
 
             var handler = function (request, reply) { };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', uploads: '/a/b/c/d/not' } } });
             server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, function (res) {
 
@@ -575,7 +575,7 @@ describe('payload', function () {
 
             var handler = function (request, reply) { };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
             server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, function (res) {
 
@@ -594,7 +594,7 @@ describe('payload', function () {
                 reply(request.payload.key);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: '*', path: '/any', handler: handler });
 
             server.inject({ url: '/any', method: 'POST', payload: { key: '09876' } }, function (res) {
@@ -630,7 +630,7 @@ describe('payload', function () {
                 reply(request.payload.key);
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             var options = {
@@ -658,7 +658,7 @@ describe('payload', function () {
                 reply(request.payload.key);
             };
 
-            var server = new Hapi.Server(0, { timeout: { client: 50 } });
+            var server = new Hapi.Connection(0, { timeout: { client: 50 } });
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.start(function () {
@@ -691,7 +691,7 @@ describe('payload', function () {
                 reply(request.payload.key);
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.start(function () {
@@ -726,7 +726,7 @@ describe('payload', function () {
                 reply(request.payload.key);
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.start(function () {
@@ -754,7 +754,7 @@ describe('payload', function () {
 
         it('ignores unsupported mime type', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/', config: { handler: function (request, reply) { reply(request.payload); }, payload: { failAction: 'ignore' } } });
 
             server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, function (res) {
@@ -767,7 +767,7 @@ describe('payload', function () {
 
         it('returns 200 on octet mime type', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/', handler: function (request, reply) { reply('ok'); } });
 
             server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
@@ -785,7 +785,7 @@ describe('payload', function () {
                 reply(request.payload + '+456');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
 
             server.inject({ method: 'POST', url: '/text', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
@@ -803,7 +803,7 @@ describe('payload', function () {
                 reply(request.payload.key);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
 
             server.inject({ method: 'POST', url: '/override', payload: '{"key":"cool"}', headers: { 'content-type': 'text/plain' } }, function (res) {
@@ -821,7 +821,7 @@ describe('payload', function () {
                 reply(request.payload + '+456');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
 
             server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
@@ -839,7 +839,7 @@ describe('payload', function () {
                 reply(request.payload + '+456');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
 
             server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
@@ -856,7 +856,7 @@ describe('payload', function () {
                 reply(request.payload + '+456');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
             server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
@@ -874,7 +874,7 @@ describe('payload', function () {
                 reply(request.payload + '+456');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
             server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
@@ -886,7 +886,7 @@ describe('payload', function () {
 
         it('parses application/x-www-form-urlencoded', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
 
             server.route({
                 method: 'POST',
@@ -907,7 +907,7 @@ describe('payload', function () {
 
         it('parses application/x-www-form-urlencoded with arrays', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
 
             server.route({
                 method: 'POST',
@@ -938,7 +938,7 @@ describe('payload', function () {
                 throw new Error('never called');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-encoding': 'gzip' } }, function (res) {
@@ -958,7 +958,7 @@ describe('payload', function () {
                 throw new Error('never called');
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: 'gunzip' } } });
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-encoding': 'gzip' } }, function (res) {
@@ -980,7 +980,7 @@ describe('payload', function () {
                     reply('Success');
                 };
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
                 server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'gzip' } }, function (res) {
@@ -1002,7 +1002,7 @@ describe('payload', function () {
                     reply('Success');
                 };
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
                 server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'deflate' } }, function (res) {
@@ -1024,7 +1024,7 @@ describe('payload', function () {
                     reply('Success');
                 };
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: 'gunzip' } } });
 
                 server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'gzip' } }, function (res) {
@@ -1046,7 +1046,7 @@ describe('payload', function () {
                     reply('Success');
                 };
 
-                var server = new Hapi.Server();
+                var server = new Hapi.Connection();
                 server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: 'gunzip' } } });
 
                 server.inject({ method: 'POST', url: '/', payload: result, headers: { 'content-encoding': 'deflate' } }, function (res) {
@@ -1108,7 +1108,7 @@ describe('payload', function () {
                 expect(request).to.not.exist();       // Must not be called
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/invalid', config: { handler: invalidHandler } });
 
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data' } }, function (res) {
@@ -1126,7 +1126,7 @@ describe('payload', function () {
                 expect(request).to.not.exist();       // Must not be called
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/invalid', config: { handler: invalidHandler } });
 
             server.inject({ method: 'POST', url: '/invalid', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=' } }, function (res) {
@@ -1139,7 +1139,7 @@ describe('payload', function () {
 
         it('returns parsed multipart data', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/echo', config: { handler: echo } });
 
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
@@ -1162,7 +1162,7 @@ describe('payload', function () {
                     '... contents of file1.txt ...\r\r\n' +
                     '--AaB03x--\r\n';
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/echo', config: { handler: function (request, reply) { reply(request.payload.pics); } } });
 
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
@@ -1182,7 +1182,7 @@ describe('payload', function () {
                     '\r\n' +
                     '--AaB03x--\r\n';
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/echo', config: { handler: function (request, reply) { reply(request.payload); } } });
 
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
@@ -1202,7 +1202,7 @@ describe('payload', function () {
                     'something to fail with\r\n' +
                     '--AaB03x--\r\n';
 
-            var server = new Hapi.Server({ payload: { uploads: '/a/b/c/d/e/f/g/not' } });
+            var server = new Hapi.Connection({ payload: { uploads: '/a/b/c/d/e/f/g/not' } });
             server.route({ method: 'POST', path: '/echo', config: { handler: function (request, reply) { reply(request.payload); }, payload: { output: 'file' } } });
 
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
@@ -1219,7 +1219,7 @@ describe('payload', function () {
                           'Content-Type: text/plain\r\n' +
                           '\r\n';
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/', handler: function () { } });
             server.ext('onPreResponse', function (request, reply) {
 
@@ -1288,7 +1288,7 @@ describe('payload', function () {
                 });
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/echo', config: { handler: handler, payload: { output: 'stream' } } });
 
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
@@ -1315,7 +1315,7 @@ describe('payload', function () {
                 done();
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
             server.start(function () {
 
@@ -1337,7 +1337,7 @@ describe('payload', function () {
                 done();
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
             server.start(function () {
 
@@ -1376,7 +1376,7 @@ describe('payload', function () {
                 done();
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
             server.start(function () {
 
@@ -1398,7 +1398,7 @@ describe('payload', function () {
                 done();
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'data' } } });
             server.start(function () {
 
@@ -1410,7 +1410,7 @@ describe('payload', function () {
 
         it('returns fields when multipart is set to stream mode', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/echo', config: { handler: echo, payload: { output: 'stream' } } });
 
             server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
@@ -1451,7 +1451,7 @@ describe('payload', function () {
                 });
             };
 
-            var server = new Hapi.Server(0);
+            var server = new Hapi.Connection(0);
             server.route({ method: 'POST', path: '/file', config: { handler: fileHandler, payload: { output: 'stream' } } });
             server.start(function () {
 
@@ -1485,7 +1485,7 @@ describe('payload', function () {
                 reply(data);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.ext('onRequest', ext);
             server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
@@ -1513,7 +1513,7 @@ describe('payload', function () {
                 reply(request.payload.a.b + request.payload.a.c);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/', handler: handler });
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-Type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
@@ -1545,7 +1545,7 @@ describe('payload', function () {
                 reply(request.payload.a.b + request.payload.file + request.payload.a.c);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             server.route({ method: 'POST', path: '/', handler: handler });
 
             server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-Type': 'multipart/form-data; boundary=--WebKitFormBoundaryE19zNvXGzXaLvS5C' } }, function (res) {
@@ -1560,7 +1560,7 @@ describe('payload', function () {
 
         it('returns client error message when client request taking too long', function (done) {
 
-            var server = new Hapi.Server(0, { timeout: { client: 50 } });
+            var server = new Hapi.Connection(0, { timeout: { client: 50 } });
             server.route({ method: 'POST', path: '/fast', config: { handler: function (request, reply) { reply('fast'); } } });
             server.start(function () {
 
@@ -1592,7 +1592,7 @@ describe('payload', function () {
 
         it('returns client error message when client request taking too long (route override', function (done) {
 
-            var server = new Hapi.Server(0, { timeout: { client: false } });
+            var server = new Hapi.Connection(0, { timeout: { client: false } });
             server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: function (request, reply) { reply('fast'); } } });
             server.start(function () {
 
@@ -1624,7 +1624,7 @@ describe('payload', function () {
 
         it('does not return a client error message when client request is fast', function (done) {
 
-            var server = new Hapi.Server(0, { timeout: { client: 50 } });
+            var server = new Hapi.Connection(0, { timeout: { client: 50 } });
             server.route({ method: 'POST', path: '/fast', config: { handler: function (request, reply) { reply('fast'); } } });
             server.start(function () {
 
@@ -1679,7 +1679,7 @@ describe('payload', function () {
                 reply(new TestStream());
             };
 
-            var server = new Hapi.Server(0, { timeout: { client: 50 } });
+            var server = new Hapi.Connection(0, { timeout: { client: 50 } });
             server.route({ method: 'GET', path: '/', config: { handler: streamHandler } });
             server.start(function () {
 
@@ -1709,7 +1709,7 @@ describe('payload', function () {
 
         it('does not return an error with timeout disabled', function (done) {
 
-            var server = new Hapi.Server(0, { timeout: { client: false } });
+            var server = new Hapi.Connection(0, { timeout: { client: false } });
             server.route({ method: 'POST', path: '/', config: { handler: function (request, reply) { reply('fast'); } } });
 
             server.start(function () {

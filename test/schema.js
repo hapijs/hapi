@@ -36,7 +36,7 @@ describe('Schema', function () {
 
         it('fails when unknown properties exist', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             var settings = server.connections[0].settings;
             settings.unknown = true;
 
@@ -49,7 +49,7 @@ describe('Schema', function () {
 
         it('fails when unknown child properties exist', function (done) {
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Connection();
             var settings = server.connections[0].settings;
             settings.router = { unknown: true };
 
@@ -64,7 +64,7 @@ describe('Schema', function () {
 
             expect(function () {
 
-                var server = new Hapi.Server({ cache: require('catbox-memory') });
+                var server = new Hapi.Connection({ cache: require('catbox-memory') });
             }).to.not.throw();
             done();
         });
@@ -73,7 +73,7 @@ describe('Schema', function () {
 
             var fn = function () {
 
-                var server = new Hapi.Server({ cache: { engine: {}, partition: 'gilden-yak' } });
+                var server = new Hapi.Connection({ cache: { engine: {}, partition: 'gilden-yak' } });
             };
 
             expect(fn).to.not.throw();

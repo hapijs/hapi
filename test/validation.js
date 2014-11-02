@@ -23,7 +23,7 @@ describe('Validation', function () {
 
     it('validates valid input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -46,7 +46,7 @@ describe('Validation', function () {
 
     it('validates valid input using context', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/{user?}',
@@ -84,7 +84,7 @@ describe('Validation', function () {
 
     it('fails valid input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -107,7 +107,7 @@ describe('Validation', function () {
 
     it('validates valid input with validation options', function (done) {
 
-        var server = new Hapi.Server({ validation: { convert: false } });
+        var server = new Hapi.Connection({ validation: { convert: false } });
         server.route({
             method: 'GET',
             path: '/',
@@ -130,7 +130,7 @@ describe('Validation', function () {
 
     it('allows any input when set to null', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -151,7 +151,7 @@ describe('Validation', function () {
 
     it('validates using custom validator', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -181,7 +181,7 @@ describe('Validation', function () {
 
     it('casts input to desired type', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/{seq}',
@@ -205,7 +205,7 @@ describe('Validation', function () {
 
     it('uses original value before schema conversion', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/{seq}',
@@ -229,7 +229,7 @@ describe('Validation', function () {
 
     it('invalidates forbidden input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -250,7 +250,7 @@ describe('Validation', function () {
 
     it('retains the validation error', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -277,7 +277,7 @@ describe('Validation', function () {
 
     it('validates valid input (Object root)', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -300,7 +300,7 @@ describe('Validation', function () {
 
     it('fails on invalid input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -328,7 +328,7 @@ describe('Validation', function () {
 
     it('ignores on invalid input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -358,7 +358,7 @@ describe('Validation', function () {
             reply(item);
         };
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -383,7 +383,7 @@ describe('Validation', function () {
 
     it('replaces error with message on invalid input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -411,7 +411,7 @@ describe('Validation', function () {
 
     it('customizes error on invalid input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -448,7 +448,7 @@ describe('Validation', function () {
 
     it('fails on text input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'POST',
             path: '/',
@@ -471,7 +471,7 @@ describe('Validation', function () {
 
     it('fails on null input', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'POST',
             path: '/',
@@ -495,7 +495,7 @@ describe('Validation', function () {
 
     it('fails on no payload', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'POST',
             path: '/',
@@ -523,7 +523,7 @@ describe('Validation', function () {
 
     it('samples responses', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -565,7 +565,7 @@ describe('Validation', function () {
             reply({ some: i++ ? null : 'value' });
         };
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -600,7 +600,7 @@ describe('Validation', function () {
             reply({ some: i++ ? null : 'value' });
         };
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -630,7 +630,7 @@ describe('Validation', function () {
 
     it('skips response validation when sample is zero', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -666,7 +666,7 @@ describe('Validation', function () {
 
     it('fails response validation with options', function (done) {
 
-        var server = new Hapi.Server({ debug: false, validation: { convert: false } });
+        var server = new Hapi.Connection({ debug: false, validation: { convert: false } });
         server.route({
             method: 'GET',
             path: '/',
@@ -692,7 +692,7 @@ describe('Validation', function () {
 
     it('skips response validation when schema is true', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -716,7 +716,7 @@ describe('Validation', function () {
 
     it('forbids response when schema is false', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -740,7 +740,7 @@ describe('Validation', function () {
 
     it('ignores error responses', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -766,7 +766,7 @@ describe('Validation', function () {
 
     it('errors on non-plain-object responses', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -792,7 +792,7 @@ describe('Validation', function () {
 
     it('logs invalid responses', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
         server.route({
             method: 'GET',
             path: '/',
@@ -826,7 +826,7 @@ describe('Validation', function () {
 
     it('validates valid header', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -856,7 +856,7 @@ describe('Validation', function () {
 
     it('rejects invalid header', function (done) {
 
-        var server = new Hapi.Server();
+        var server = new Hapi.Connection();
         server.route({
             method: 'GET',
             path: '/',

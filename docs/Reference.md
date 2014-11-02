@@ -1,6 +1,6 @@
 # 8.0.x API Reference
 
-- [`Hapi.Server`](#hapiserver)
+- [`Hapi.Connection`](#hapiserver)
     - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
     - [`createServer([host], [port], [options])`](#createserverhost-port-options)
     - [Server options](#server-options)
@@ -63,7 +63,7 @@
       - [`forbidden([message])`](#forbiddenmessage)
       - [`notFound([message])`](#notfoundmessage)
       - [`internal([message, [data]])`](#internalmessage-data)
-- [`Hapi.Pack`](#hapipack)
+- [`Hapi.Server`](#hapipack)
       - [`new Pack([options])`](#new-packoptions)
       - [`Pack` properties](#pack-properties)
       - [`Pack` methods](#pack-methods)
@@ -109,7 +109,7 @@
 - [`Hapi.version`](#hapiversion)
 - [hapi CLI](#hapi-cli)
 
-## `Hapi.Server`
+## `Hapi.Connection`
 
 ### `new Server([host], [port], [options])`
 
@@ -125,7 +125,7 @@ Creates a new server instance with the following arguments:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server('localhost', 8000, { cors: true });
+var server = new Hapi.Connection('localhost', 8000, { cors: true });
 ```
 
 ### `createServer([host], [port], [options])`
@@ -284,7 +284,7 @@ ready for new connections. If the server is already started, the `callback()` is
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 server.start(function () {
 
     console.log('Server started at: ' + server.info.uri);
@@ -598,7 +598,7 @@ The following options are available when adding a route:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 // Handler in top level
 
@@ -743,7 +743,7 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 var pre1 = function (request, reply) {
 
@@ -787,7 +787,7 @@ method or all methods. Only one catch-all route can be defined per server instan
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 var handler = function (request, reply) {
 
@@ -852,7 +852,7 @@ event which can be used by other listeners or plugins to record the information 
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 server.on('log', function (event, tags) {
 
@@ -1089,7 +1089,7 @@ Registers an extension function in one of the available [extension points](#requ
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 server.ext('onRequest', function (request, next) {
 
@@ -1188,7 +1188,7 @@ Methods are registered via `server.method(name, fn, [options])` where:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 // Simple arguments
 
@@ -1284,7 +1284,7 @@ testing purposes as well as for invoking routing logic internally without the ov
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 var get = function (request, reply) {
 
@@ -1361,7 +1361,7 @@ Utilizes the server views engine configured to render a template where:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 server.views({
     engines: { html: require('handlebars') },
     path: __dirname + '/templates'
@@ -1505,7 +1505,7 @@ _Available only in `'onRequest'` extension methods._
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 server.ext('onRequest', function (request, next) {
 
@@ -1525,7 +1525,7 @@ Changes the request method before the router begins processing the request where
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 server.ext('onRequest', function (request, next) {
 
@@ -1550,7 +1550,7 @@ arguments are:
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 server.on('request', function (request, event, tags) {
 
@@ -1596,7 +1596,7 @@ When all tails completed, the server emits a `'tail'` event.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 var get = function (request, reply) {
 
@@ -1629,7 +1629,7 @@ The request object supports the following events:
 ```javascript
 var Crypto = require('crypto');
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 server.ext('onRequest', function (request, reply) {
 
@@ -1777,7 +1777,7 @@ The [response flow control rules](#flow-control) apply.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 server.views({
     engines: { html: require('handlebars') },
     path: __dirname + '/templates'
@@ -1982,7 +1982,7 @@ The response object supports the following events:
 ```javascript
 var Crypto = require('crypto');
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 
 server.ext('onPreResponse', function (request, reply) {
 
@@ -2048,7 +2048,7 @@ response object.
 
 ```javascript
 var Hapi = require('hapi');
-var server = new Hapi.Server();
+var server = new Hapi.Connection();
 server.views({
     engines: {
         html: require('handlebars')
@@ -2172,7 +2172,7 @@ var handler = function (request, reply) {
 };
 ```
 
-## `Hapi.Pack`
+## `Hapi.Server`
 
 `Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide
 a unified object interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack
@@ -2203,7 +2203,7 @@ Creates a new `Pack` object instance where:
 
 ```javascript
 var Hapi = require('hapi');
-var pack = new Hapi.Pack();
+var pack = new Hapi.Server();
 ```
 
 ### `Pack` properties
@@ -2231,7 +2231,7 @@ configured via the pack `cache` option.
 
 ```javascript
 var Hapi = require('hapi');
-var pack = new Hapi.Pack();
+var pack = new Hapi.Server();
 
 pack.server(8000, { labels: ['web'] });
 pack.server(8001, { labels: ['admin'] });
@@ -2243,7 +2243,7 @@ Starts all the servers in the pack and used as described in [`server.start([call
 
 ```javascript
 var Hapi = require('hapi');
-var pack = new Hapi.Pack();
+var pack = new Hapi.Server();
 
 pack.server(8000, { labels: ['web'] });
 pack.server(8001, { labels: ['admin'] });
@@ -2401,7 +2401,7 @@ var manifest = {
     }
 };
 
-Hapi.Pack.compose(manifest, function (err, pack) {
+Hapi.Server.compose(manifest, function (err, pack) {
 
     pack.start();
 });

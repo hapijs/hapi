@@ -24,7 +24,7 @@ describe('Protect', function () {
 
     it('catches error when handler throws after reply() is called', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
 
         var handler = function (request, reply) {
 
@@ -45,7 +45,7 @@ describe('Protect', function () {
 
     it('catches error when handler throws twice after reply() is called', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
 
         var handler = function (request, reply) {
 
@@ -109,7 +109,7 @@ describe('Protect', function () {
             }
         };
 
-        var server = new Hapi.Server(0, { debug: false });
+        var server = new Hapi.Connection(0, { debug: false });
         server.register(plugin, function (err) {
 
             expect(err).to.not.exist();
@@ -135,7 +135,7 @@ describe('Protect', function () {
             }, 10);
         };
 
-        var server = new Hapi.Server({ debug: false });
+        var server = new Hapi.Connection({ debug: false });
 
         server.on('log', function (event, tags) {
 
