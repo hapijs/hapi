@@ -78,7 +78,7 @@ describe('Connection', function () {
         var server = new Hapi.Server();
         server.connection(host);
 
-        expect(server.connections[0]._unixDomainSocket).to.equal(true);
+        expect(server.connections[0].type).to.equal('unix');
         expect(server.connections[0]._host).to.equal(host);
 
         server.start(function () {
@@ -101,7 +101,7 @@ describe('Connection', function () {
         var server = new Hapi.Server();
         server.connection(host);
 
-        expect(server.connections[0]._windowsNamedPipe).to.equal(true);
+        expect(server.connections[0].type).to.equal('windows');
         expect(server.connections[0]._host).to.equal(host);
 
         server.start(function () {

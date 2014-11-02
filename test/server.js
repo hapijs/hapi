@@ -367,7 +367,7 @@ describe('Server', function () {
                     }, options: { cache: { expiresIn: 1000 } }
                 });
 
-                server2.methods.testMethod(function (err, result) {
+                server.methods.testMethod(function (err, result) {
 
                     expect(result).to.equal('123');
 
