@@ -94,8 +94,6 @@
         - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
         - [`plugin.register(plugins, options, callback)`](#pluginregisterplugins-options-callback)
         - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
-- [`Hapi.state`](#hapistate)
-      - [`prepareValue(name, value, options, callback)`](#preparevaluename-value-options-callback)
 - [`Hapi.version`](#hapiversion)
 - [hapi CLI](#hapi-cli)
 
@@ -3006,52 +3004,6 @@ var after = function (plugin, next) {
 
     // Additional plugin registration logic
     next();
-};
-```
-
-## `Hapi.state`
-
-#### `prepareValue(name, value, options, callback)`
-
-Prepares a cookie value manually outside of the normal outgoing cookies processing flow. Used when decisions have to be made about
-the use of cookie values when certain conditions are met (e.g. stringified object string too long). Arguments:
-
-- `name` - the cookie name.
-- `value` - the cookie value. If no `encoding` is defined, must be a string.
-- `options` - configuration override. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
-  the specified keys in `options` override those same keys in the server definition (but not others).
-- `callback` - the callback function with signature `function(err, value)` where:
-    - `err` - internal error condition.
-    - `value` - the prepared cookie value.
-
-Returns the cookie value via callback without making any changes to the response.
-
-```javascript
-var Hapi = require('hapi');
-
-var handler = function (request, reply) {
-
-    var maxCookieSize = 512;
-
-    var cookieOptions = {
-        encoding: 'iron',
-        password: 'secret'
-    };
-
-    var content = request.pre.user;
-
-    Hapi.state.prepareValue('user', content, cookieOptions, function (err, value) {
-
-        if (err) {
-            return reply(err);
-        }
-
-        if (value.length < maxCookieSize) {
-            reply.state('user', value, { encoding: 'none' } );   // Already encoded
-        }
-
-        reply('success');
-    });
 };
 ```
 
