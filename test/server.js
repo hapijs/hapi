@@ -1805,6 +1805,16 @@ describe('Server', function () {
         });
     });
 
+    it('fails to start server without connections', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.start();
+        }).to.throw('No connections to start');
+        done();
+    });
+
     it('registers plugins with pre-selected label', function (done) {
 
         var server = new Hapi.Server();
