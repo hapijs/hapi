@@ -27,7 +27,7 @@ describe('bin/hapi', function () {
     it('composes server with absolute path', function (done) {
 
         var manifest = {
-            pack: {
+            server: {
                 cache: {
                     engine: 'catbox-memory'
                 },
@@ -35,7 +35,7 @@ describe('bin/hapi', function () {
                     my: 'special-value'
                 }
             },
-            servers: [
+            connections: [
                 {
                     port: 0,
                     labels: ['api', 'nasty', 'test']

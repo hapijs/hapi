@@ -1979,7 +1979,7 @@ describe('Server', function () {
         it('composes server', function (done) {
 
             var manifest = {
-                pack: {
+                server: {
                     cache: {
                         engine: '../../node_modules/catbox-memory'
                     },
@@ -1987,7 +1987,7 @@ describe('Server', function () {
                         my: 'special-value'
                     }
                 },
-                servers: [
+                connections: [
                     {
                         labels: ['api', 'nasty', 'test']
                     },
