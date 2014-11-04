@@ -2,6 +2,7 @@
 
 var ChildProcess = require('child_process');
 var Fs = require('fs');
+var Http = require('http');
 var Https = require('https');
 var Net = require('net');
 var Os = require('os');
@@ -28,6 +29,27 @@ var expect = Code.expect;
 
 
 describe('Connection', function () {
+
+    it('throws when disabling autoListen and providing a port', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.connection({ port: 80, autoListen: false });
+        }).to.throw('Cannot specify port when autoListen is false');
+        done();
+    });
+
+    it('throws when disabling autoListen and providing special host', function (done) {
+
+        var server = new Hapi.Server();
+        var host = Path.join(__dirname, 'hapi-server.socket');
+        expect(function () {
+
+            server.connection({ host: host, autoListen: false });
+        }).to.throw('Cannot specify a UNIX domain socket or a Windows named pipe when autoListen is false');
+        done();
+    });
 
     it('defaults to 0.0.0.0 or :: when no host is provided', function (done) {
 
@@ -98,6 +120,47 @@ describe('Connection', function () {
         server.connection({ tls: tlsOptions });
         expect(server.listener instanceof Https.Server).to.equal(true);
         done();
+    });
+
+    it('uses a provided listener', function (done) {
+
+        var listener = Http.createServer();
+        var server = new Hapi.Server();
+        server.connection({ listener: listener });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+
+        server.start(function () {
+
+            Wreck.get('http://localhost:' + server.info.port + '/', {}, function (err, res, body) {
+
+                server.stop();
+                expect(err).to.not.exist();
+                expect(body.toString()).to.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('uses a provided listener with manual listen', function (done) {
+
+        var listener = Http.createServer();
+        var server = new Hapi.Server();
+        server.connection({ listener: listener, autoListen: false });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+
+        listener.listen(0, 'localhost', function () {
+
+            server.start(function () {
+
+                Wreck.get('http://localhost:' + server.info.port + '/', {}, function (err, res, body) {
+
+                    server.stop();
+                    expect(err).to.not.exist();
+                    expect(body.toString()).to.equal('ok');
+                    done();
+                });
+            });
+        });
     });
 
     it('sets info.uri with default localhost when no hostname', { parallel: false }, function (done) {
