@@ -86,5 +86,15 @@ describe('Realm', function () {
             }).to.not.throw();
             done();
         });
+
+        it('allows null port and host', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.connection({ host: null, port: null });
+            }).to.not.throw();
+            done();
+        });
     });
 });

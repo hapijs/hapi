@@ -112,7 +112,7 @@ describe('Protect', function () {
         };
 
         var server = new Hapi.Server({ debug: false });
-        server.connection(0);
+        server.connection();
         server.register(plugin, function (err) {
 
             expect(err).to.not.exist();

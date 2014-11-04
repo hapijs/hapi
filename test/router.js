@@ -26,7 +26,7 @@ describe('Router', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ path: '/test/{p}/{p}/end', method: 'put', handler: function () { } });
             server.route({ path: '/test/{p*2}/end', method: 'put', handler: function () { } });
         };
@@ -480,7 +480,7 @@ describe('Router', function () {
         describe('using default settings', function () {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
 
             it('returns 404 when making a request to a route that does not exist', function (done) {
 
@@ -495,7 +495,7 @@ describe('Router', function () {
         describe('using notFound routes', function () {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.route({ method: 'GET', path: '/exists/not', handler: function (request, reply) { reply(Boom.notFound()); } });
             server.route({ method: 'GET', path: '/exists/{p*}', handler: function (request, reply) { reply('OK'); } });
 
@@ -521,7 +521,7 @@ describe('Router', function () {
         describe('can override the server notFound route', function () {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.route({ method: 'GET', path: '/exists/{p*}', handler: function (request, reply) { reply('OK'); } });
             server.route({
                 method: '*', path: '/{p*}', handler: function (request, reply) {

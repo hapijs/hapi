@@ -32,7 +32,7 @@ describe('Connection', function () {
     it('defaults to 0.0.0.0 or :: when no host is provided', function (done) {
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.start(function () {
 
             var expectedBoundAddress = '0.0.0.0';
@@ -49,7 +49,7 @@ describe('Connection', function () {
 
         var host = Path.join(__dirname, 'hapi-server.socket');
         var server = new Hapi.Server();
-        server.connection(host);
+        server.connection({ host: host });
 
         expect(server.connections[0].type).to.equal('unix');
         expect(server.connections[0]._host).to.equal(host);
@@ -72,7 +72,7 @@ describe('Connection', function () {
 
         var host = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
         var server = new Hapi.Server();
-        server.connection(host);
+        server.connection({ host: host } );
 
         expect(server.connections[0].type).to.equal('windows');
         expect(server.connections[0]._host).to.equal(host);
@@ -110,7 +110,7 @@ describe('Connection', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(80);
+        server.connection({ port: 80 });
         expect(server.info.uri).to.equal('http://localhost:80');
         done();
     });
@@ -118,7 +118,7 @@ describe('Connection', function () {
     it('closes connection on socket timeout', { parallel: false }, function (done) {
 
         var server = new Hapi.Server();
-        server.connection(0, { timeout: { client: 45, socket: 50 } });
+        server.connection({ timeout: { client: 45, socket: 50 } });
         server.route({
             method: 'GET', path: '/', config: {
                 handler: function (request, reply) {
@@ -146,7 +146,7 @@ describe('Connection', function () {
     it('disables node socket timeout', { parallel: false }, function (done) {
 
         var server = new Hapi.Server();
-        server.connection(0, { timeout: { socket: false } });
+        server.connection({ timeout: { socket: false } });
         server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(); } } });
 
         server.start(function () {
@@ -175,7 +175,7 @@ describe('Connection', function () {
         it('starts connection', function (done) {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.start(function () {
 
                 var expectedBoundAddress = '0.0.0.0';
@@ -198,7 +198,7 @@ describe('Connection', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection('0.0.0.0', 0, { tls: tlsOptions });
+            server.connection({ host: '0.0.0.0', port: 0, tls: tlsOptions });
             server.start(function () {
 
                 expect(server.info.host).to.equal('0.0.0.0');
@@ -221,7 +221,7 @@ describe('Connection', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             expect(server.connections[0]._host).to.equal('');
 
             var address = server.listener.address;
@@ -245,7 +245,7 @@ describe('Connection', function () {
         it('ignored repeated calls', function (done) {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.start(function () {
 
                 server.start(function () {
@@ -264,7 +264,7 @@ describe('Connection', function () {
         it('waits to stop until all connections are closed', function (done) {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.start(function () {
 
                 var socket1 = new Net.Socket();
@@ -300,7 +300,7 @@ describe('Connection', function () {
         it('waits to destroy connections until after the timeout', function (done) {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.start(function () {
 
                 var socket1 = new Net.Socket();
@@ -339,7 +339,7 @@ describe('Connection', function () {
         it('waits to destroy connections if they close by themselves', function (done) {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.start(function () {
 
                 var socket1 = new Net.Socket();
@@ -388,7 +388,7 @@ describe('Connection', function () {
         it('removes connection event listeners after it stops', function (done) {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.start(function () {
 
                 server.stop(function () {
@@ -408,7 +408,7 @@ describe('Connection', function () {
         it('ignores repeated calls', function (done) {
 
             var server = new Hapi.Server();
-            server.connection(0);
+            server.connection();
             server.stop();
             server.stop();
             done();
@@ -420,7 +420,7 @@ describe('Connection', function () {
         it('rejects request due to high rss load', { parallel: false }, function (done) {
 
             var server = new Hapi.Server({ load: { sampleInterval: 5 } });
-            server.connection(0, { load: { maxRssBytes: 1 } });
+            server.connection({ load: { maxRssBytes: 1 } });
 
             var handler = function (request, reply) {
 

@@ -38,16 +38,12 @@ describe('bin/hapi', function () {
             servers: [
                 {
                     port: 0,
-                    options: {
-                        labels: ['api', 'nasty', 'test']
-                    }
+                    labels: ['api', 'nasty', 'test']
                 },
                 {
                     host: 'localhost',
                     port: 0,
-                    options: {
-                        labels: ['api', 'nice']
-                    }
+                    labels: ['api', 'nice']
                 }
             ],
             plugins: {

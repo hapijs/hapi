@@ -921,7 +921,7 @@ describe('handler', function () {
             };
 
             var upstream = new Hapi.Server();
-            upstream.connection(0);
+            upstream.connection();
             upstream.route({ method: 'GET', path: '/profile', handler: profile, config: { cache: { expiresIn: 2000 } } });
             upstream.start(function () {
 
@@ -950,7 +950,7 @@ describe('handler', function () {
         it('proxies via reply.proxy()', function (done) {
 
             var upstream = new Hapi.Server();
-            upstream.connection(0);
+            upstream.connection();
             upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { reply({ a: 1 }); } });
             upstream.start(function () {
 

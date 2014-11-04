@@ -28,7 +28,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('add', add);
 
         server.start(function () {
@@ -49,7 +49,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('tools.add', add);
 
         server.start(function () {
@@ -75,7 +75,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('tools.add', add);
         server.method('tools.sub', sub);
 
@@ -101,7 +101,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('tools.add', add);
         expect(function () {
 
@@ -119,7 +119,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('add', add);
         expect(function () {
 
@@ -138,7 +138,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method);
 
         server.start(function () {
@@ -165,7 +165,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000 } });
 
         server.start(function () {
@@ -192,7 +192,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return '' + (id + 1); } });
 
         server.start(function () {
@@ -219,7 +219,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return null; } });
 
         server.start(function () {
@@ -246,7 +246,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return id + 1; } });
 
         server.start(function () {
@@ -273,7 +273,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000 } });
 
         server.start(function () {
@@ -300,7 +300,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('dropTest', method, { cache: { expiresIn: 1000 } });
 
         server.start(function () {
@@ -331,7 +331,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('dropErrTest', method, { cache: { expiresIn: 1000 } });
 
         server.start(function () {
@@ -349,7 +349,7 @@ describe('Method', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method(0, function () { });
         };
         expect(fn).to.throw();
@@ -361,28 +361,28 @@ describe('Method', function () {
         expect(function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method('0', function () { });
         }).to.throw();
 
         expect(function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method('a..', function () { });
         }).to.throw();
 
         expect(function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method('a.0', function () { });
         }).to.throw();
 
         expect(function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method('.a', function () { });
         }).to.throw();
 
@@ -394,7 +394,7 @@ describe('Method', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method('user', 'function');
         };
         expect(fn).to.throw();
@@ -406,7 +406,7 @@ describe('Method', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method('user', function () { }, 'options');
         };
         expect(fn).to.throw();
@@ -418,7 +418,7 @@ describe('Method', function () {
         var fn = function () {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.method('user', function () { }, { generateKey: 'function' });
         };
         expect(fn).to.throw();
@@ -452,7 +452,7 @@ describe('Method', function () {
     it('returns a valid result when calling a method when using the cache', function (done) {
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.start(function () {
 
             server.method('user', function (id, str, next) { return next(null, { id: id, str: str }); }, { cache: { expiresIn: 1000 } });
@@ -499,7 +499,7 @@ describe('Method', function () {
     it('returns a valid result when calling a method using the cache', function (done) {
 
         var server = new Hapi.Server({ cache: require('catbox-memory') });
-        server.connection(0);
+        server.connection();
 
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
@@ -524,7 +524,7 @@ describe('Method', function () {
     it('returns timeout when method taking too long using the cache', function (done) {
 
         var server = new Hapi.Server({ cache: require('catbox-memory') });
-        server.connection(0);
+        server.connection();
 
         var gen = 0;
         var method = function (id, next) {
@@ -560,7 +560,7 @@ describe('Method', function () {
     it('supports empty key method', function (done) {
 
         var server = new Hapi.Server({ cache: require('catbox-memory') });
-        server.connection(0);
+        server.connection();
 
         var gen = 0;
         var terms = 'I agree to give my house';
@@ -585,7 +585,7 @@ describe('Method', function () {
     it('returns valid results when calling a method (with different keys) using the cache', function (done) {
 
         var server = new Hapi.Server({ cache: require('catbox-memory') });
-        server.connection(0);
+        server.connection();
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
         server.start(function () {
@@ -609,7 +609,7 @@ describe('Method', function () {
     it('returns new object (not cached) when second key generation fails when using the cache', function (done) {
 
         var server = new Hapi.Server({ cache: require('catbox-memory') });
-        server.connection(0);
+        server.connection();
         var id1 = Math.random();
         var gen = 0;
         var method = function (id, next) {
@@ -648,7 +648,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { bind: { gen: 7 } });
 
         server.start(function () {
@@ -674,7 +674,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { bind: { gen: 7 }, cache: { expiresIn: 1000 } });
 
         server.start(function () {
@@ -701,7 +701,7 @@ describe('Method', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.method('test', method, { bind: bind, cache: { expiresIn: 1000 } });
 
         server.start(function () {

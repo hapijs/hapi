@@ -150,7 +150,7 @@ describe('Request', function () {
             var timer = new Hoek.Bench();
 
             var server = new Hapi.Server();
-            server.connection(0, { timeout: { server: 50 } });
+            server.connection({ timeout: { server: 50 } });
             server.route({ method: 'GET', path: '/responding', config: { handler: respondingHandler } });
             server.start(function () {
 
@@ -207,7 +207,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection(0, { timeout: { server: 50 } });
+            server.connection({ timeout: { server: 50 } });
             server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
             server.start(function () {
 
@@ -250,7 +250,7 @@ describe('Request', function () {
             var timeoutHandler = function (request, reply) { };
 
             var server = new Hapi.Server();
-            server.connection(0, { timeout: { server: 50, client: 50 } });
+            server.connection({ timeout: { server: 50, client: 50 } });
             server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
 
             server.start(function () {
@@ -609,7 +609,7 @@ describe('Request', function () {
     it('request has client address', function (done) {
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
 
         var handler = function (request, reply) {
 
@@ -731,7 +731,7 @@ describe('Request', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.start(function () {
@@ -877,7 +877,7 @@ describe('Request', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.start(function () {
@@ -907,7 +907,7 @@ describe('Request', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection(0);
+        server.connection();
         server.route({ method: 'GET', path: '/', handler: handler });
 
         server.ext('onPreResponse', function (request, reply) {
@@ -999,7 +999,7 @@ describe('Request', function () {
         it('changes method with a lowercase version of the value passed in', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -1058,7 +1058,7 @@ describe('Request', function () {
 
             var url = 'http://localhost/page?param1=something';
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -1082,7 +1082,7 @@ describe('Request', function () {
             var url = 'http://localhost' + rawPath + '?param1=something';
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
 
             server.ext('onRequest', function (request, reply) {
@@ -1101,7 +1101,7 @@ describe('Request', function () {
         it('allows missing path', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.ext('onRequest', function (request, reply) {
 
                 request.setUrl('');
@@ -1163,7 +1163,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             var orig = console.error;
@@ -1191,7 +1191,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             var orig = console.error;
@@ -1222,7 +1222,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             var orig = console.error;
@@ -1257,7 +1257,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -1328,7 +1328,7 @@ describe('Request', function () {
         it('does not output non-implementation events by default', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             var i = 0;
             var orig = console.error;
@@ -1360,7 +1360,7 @@ describe('Request', function () {
         it('leaves the response open when the same response is set again', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.ext('onPostHandler', function (request, reply) {
 
                 reply(request.response);
@@ -1390,7 +1390,7 @@ describe('Request', function () {
         it('leaves the response open when the same response source is set again', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.ext('onPostHandler', function (request, reply) {
 
                 reply(request.response.source);
