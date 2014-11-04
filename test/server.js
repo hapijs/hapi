@@ -799,7 +799,7 @@ describe('Server', function () {
         });
     });
 
-    it('requires plugin with views with specific basePath', function (done) {
+    it('requires plugin with views with specific relativeTo', function (done) {
 
         var plugin = {
             name: 'test',
@@ -807,7 +807,7 @@ describe('Server', function () {
 
                 plugin.views({
                     engines: { 'html': require('handlebars') },
-                    basePath: __dirname + '/plugins/--views',
+                    relativeTo: __dirname + '/plugins/--views',
                     path: './templates'
                 });
 
@@ -2119,7 +2119,7 @@ describe('Server', function () {
 
                     plugin.views({
                         engines: { 'html': require('handlebars') },
-                        basePath: __dirname + '/plugins/--views',
+                        relativeTo: __dirname + '/plugins/--views',
                         path: './templates'
                     });
 
@@ -2162,7 +2162,7 @@ describe('Server', function () {
                         engines: { 'html': require('handlebars') }
                     });
 
-                    var view = plugin.render('test', { message: 'steve' }, { basePath: __dirname + '/plugins/--views', path: './templates' }, function (err, rendered, config) {
+                    var view = plugin.render('test', { message: 'steve' }, { relativeTo: __dirname + '/plugins/--views', path: './templates' }, function (err, rendered, config) {
 
                         plugin.route([
                             {
