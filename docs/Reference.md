@@ -1132,7 +1132,7 @@ Each incoming request passes through a pre-defined set of steps, along with opti
       (for example, replace an error with an HTML response), return a new response via `next(response)`.
 - Validate response payload
 - **`'onPreResponse'`** extension point
-    - always called.
+    - always called (except when `reply.close()` is called or the client terminates the connection prematurely).
     - The response contained in `request.response` may be modified (but not assigned a new value). To return a different response type (for
       example, replace an error with an HTML response), return a new response via `next(response)`. Note that any errors generated after
       `next(response)` is called will not be passed back to the `'onPreResponse'` extension method to prevent an infinite loop.

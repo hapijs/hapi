@@ -203,7 +203,7 @@ describe('payload', function () {
                 setTimeout(function () {
 
                     expect(handlerCalled).to.equal(false);
-                    expect(extCalled).to.equal(true);
+                    expect(extCalled).to.equal(false);
                     done();
                 }, 25);
             });
