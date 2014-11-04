@@ -27,7 +27,6 @@
     "h2o2": "3.x.x",
     "heavy": "2.x.x",
     "hoek": "^2.4.x",
-    "glue": "2.x.x",
     "inert": "2.0.x",
     "iron": "2.x.x",
     "items": "1.x.x",
@@ -35,7 +34,6 @@
     "kilt": "^1.1.x",
     "mimos": "1.x.x",
     "qs": "2.x.x",
-    "rejoice": "1.x.x",
     "shot": "1.x.x",
     "statehood": "^1.2.x",
     "subtext": "1.x.x",
@@ -48,9 +46,6 @@
     "handlebars": "1.x.x",
     "form-data": "0.1.x",
     "lab": "5.x.x"
-  },
-  "bin": {
-    "hapi": "./bin/hapi"
   },
   "scripts": {
     "test": "make test-cov",

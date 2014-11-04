@@ -20,9 +20,6 @@
     "cryptiles": {
       "version": "2.0.4"
     },
-    "glue": {
-      "version": "2.0.0"
-    },
     "h2o2": {
       "version": "3.0.0"
     },
@@ -67,14 +64,6 @@
     },
     "qs": {
       "version": "2.2.4"
-    },
-    "rejoice": {
-      "version": "1.0.0",
-      "dependencies": {
-        "bossy": {
-          "version": "1.0.2"
-        }
-      }
     },
     "shot": {
       "version": "1.3.5"

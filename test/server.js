@@ -1974,54 +1974,6 @@ describe('Server', function () {
         });
     });
 
-    describe('#compose', function () {
-
-        it('composes server', function (done) {
-
-            var manifest = {
-                server: {
-                    cache: {
-                        engine: '../../node_modules/catbox-memory'
-                    },
-                    app: {
-                        my: 'special-value'
-                    }
-                },
-                connections: [
-                    {
-                        labels: ['api', 'nasty', 'test']
-                    },
-                    {
-                        host: 'localhost',
-                        labels: ['api', 'nice']
-                    }
-                ],
-                plugins: {
-                    './--test2': null
-                }
-            };
-
-            manifest.plugins[__dirname + '/plugins/--test1'] = null;
-
-            Hapi.Server.compose(manifest, { relativeTo: __dirname + '/plugins' }, function (err, server) {
-
-                expect(err).to.not.exist();
-                server.start(function (err) {
-
-                    expect(err).to.not.exist();
-                    server.stop(function () {
-
-                        server.inject('/test1', function (res) {
-
-                            expect(res.result).to.equal('testing123special-value');
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-    });
-
     describe('#render', function () {
 
         it('renders view', function (done) {

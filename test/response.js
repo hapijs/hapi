@@ -1846,7 +1846,7 @@ describe('response', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../bin/hapi' } });
+            server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../Makefile' } });
 
             server.inject('/', function (res) {
 
@@ -1861,7 +1861,7 @@ describe('response', function () {
             server.connection({ files: { relativeTo: __dirname } });
             var handler = function (request, reply) {
 
-                reply.file('../bin/hapi').type('application/example');
+                reply.file('../Makefile').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
