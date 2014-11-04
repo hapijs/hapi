@@ -66,7 +66,6 @@
     - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
     - [Root methods and properties](#root-methods-and-properties)
         - [`plugin.hapi`](#pluginhapi)
-        - [`plugin.version`](#pluginversion)
         - [`plugin.app`](#pluginapp)
         - [`plugin.plugins`](#pluginplugins)
         - [`plugin.path(path)`](#pluginpathpath)
@@ -2528,18 +2527,6 @@ exports.register = function (plugin, options, next) {
     };
 
     plugin.route({ method: 'GET', path: '/', handler: handler });
-    next();
-};
-```
-
-#### `plugin.version`
-
-The **hapi** version used to load the plugin.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    console.log(plugin.version);
     next();
 };
 ```

@@ -167,7 +167,7 @@ describe('Server', function () {
         it('throws when allocating an invalid cache segment', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server.cache('a', { expiresAt: '12:00', expiresIn: 1000 });
@@ -179,7 +179,7 @@ describe('Server', function () {
         it('allows allocating a cache segment with empty options', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server.cache('a', {});
@@ -206,7 +206,7 @@ describe('Server', function () {
         it('emits a log event', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             var count = 0;
             server.once('log', function (event) {
@@ -238,7 +238,7 @@ describe('Server', function () {
         it('emits a log event and print to console', { parallel: false }, function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             server.once('log', function (event) {
 
@@ -586,7 +586,7 @@ describe('Server', function () {
         var plugin = {
             register: function (plugin, options, next) {
 
-                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(plugin.version); } });
+                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(plugin.hapi.version); } });
                 return next();
             }
         };
@@ -1464,7 +1464,7 @@ describe('Server', function () {
         it('outputs log data to debug console', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             var orig = console.error;
             console.error = function () {
@@ -1482,7 +1482,7 @@ describe('Server', function () {
         it('outputs log error data to debug console', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             var orig = console.error;
             console.error = function () {
@@ -1500,7 +1500,7 @@ describe('Server', function () {
         it('outputs log data to debug console without data', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             var orig = console.error;
             console.error = function () {
@@ -1556,7 +1556,7 @@ describe('Server', function () {
         it('does not output non-implementation events by default', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             var i = 0;
             var orig = console.error;
@@ -1590,7 +1590,7 @@ describe('Server', function () {
             };
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
 
             var sc = 0;
             server.on('log', function (event, tags) {
@@ -1936,7 +1936,7 @@ describe('Server', function () {
         it('throws when missing options', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server._provisionCache();
@@ -1947,7 +1947,7 @@ describe('Server', function () {
         it('throws when creating method cache with invalid segment', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server._provisionCache({ expiresIn: 1000 }, 'method', 'steve', 'bad');
@@ -1958,7 +1958,7 @@ describe('Server', function () {
         it('throws when creating plugin cache with invalid segment', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', 'bad');
@@ -1969,7 +1969,7 @@ describe('Server', function () {
         it('uses custom method cache segment', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server._provisionCache({ expiresIn: 1000 }, 'method', 'steve', '##method');
@@ -1980,7 +1980,7 @@ describe('Server', function () {
         it('uses custom plugin cache segment', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
@@ -1991,7 +1991,7 @@ describe('Server', function () {
         it('throws when creating the same cache twice', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
@@ -2003,7 +2003,7 @@ describe('Server', function () {
         it('allows creating the same cache twice via cache options', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             expect(function () {
 
                 server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
@@ -2018,7 +2018,7 @@ describe('Server', function () {
         it('add new handler', function (done) {
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             var plugin = {
                 name: 'foo',
                 register: function (plugin, options, next) {
@@ -2140,7 +2140,7 @@ describe('Server', function () {
             };
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.register(plugin, function (err) {
 
                 expect(err).to.not.exist();
@@ -2179,7 +2179,7 @@ describe('Server', function () {
             };
 
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.register(plugin, function (err) {
 
                 expect(err).to.not.exist();
