@@ -83,7 +83,6 @@
     - [Selectable methods and properties](#selectable-methods-and-properties)
         - [`plugin.select(labels)`](#pluginselectlabels)
         - [`plugin.connections`](#pluginconnections)
-        - [`plugin.events`](#pluginevents)
         - [`plugin.expose(key, value)`](#pluginexposekey-value)
         - [`plugin.expose(obj)`](#pluginexposeobj)
         - [`plugin.route(options)`](#pluginrouteoptions)
@@ -2500,6 +2499,20 @@ The plugin interface root methods and properties are those available only on the
 [`exports.register()`](#exportsregisterplugin-options-next) interface. They are not available on the object received by calling
 [`plugin.select()`](#pluginselectlabels).
 
+The plugin interface is an emitter containing the events of all the selected servers.
+
+```javascript
+exports.register = function (plugin, options, next) {
+
+    plugin.on('internalError', function (request, err) {
+
+        console.log(err);
+    });
+
+    next();
+};
+```
+
 #### `plugin.hapi`
 
 A reference to the **hapi** module used to create the pack and server instances. Removes the need to add a dependency on **hapi** within the plugin.
@@ -2586,7 +2599,7 @@ exports.register = function (plugin, options, next) {
 
 #### `plugin.log(tags, [data, [timestamp]])`
 
-Emits a `'log'` event on the `pack.events` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
+Emits a `'log'` event on the `pack` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
 
 ```javascript
 exports.register = function (plugin, options, next) {
@@ -2841,22 +2854,6 @@ exports.register = function (plugin, options, next) {
     selection.connections.forEach(function (connection) {
 
         connection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    });
-
-    next();
-};
-```
-
-#### `plugin.events`
-
-An emitter containing the events of all the selected servers.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.events.on('internalError', function (request, err) {
-
-        console.log(err);
     });
 
     next();

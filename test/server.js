@@ -215,7 +215,7 @@ describe('Server', function () {
                 expect(event.data).to.equal('log event 1');
             });
 
-            server.events.once('log', function (event) {
+            server.once('log', function (event) {
 
                 ++count;
                 expect(event.data).to.equal('log event 1');
@@ -739,7 +739,7 @@ describe('Server', function () {
         var server = new Hapi.Server();
         server.connection({ labels: 'test' });
         var log = null;
-        server.events.once('log', function (event, tags) {
+        server.once('log', function (event, tags) {
 
             log = [event, tags];
         });
@@ -759,7 +759,7 @@ describe('Server', function () {
         var server = new Hapi.Server();
         server.connection({ labels: 'test' });
         var log = null;
-        server.events.once('log', function (event, tags) {
+        server.once('log', function (event, tags) {
 
             log = [event, tags];
         });
@@ -1049,8 +1049,8 @@ describe('Server', function () {
         var started = 0;
         var stopped = 0;
 
-        server.events.on('start', function () { ++started; });
-        server.events.on('stop', function () { ++stopped; });
+        server.on('start', function () { ++started; });
+        server.on('stop', function () { ++stopped; });
 
         server.start(function () {
 
@@ -1404,7 +1404,7 @@ describe('Server', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                plugin.events.once('request', function () {
+                plugin.once('request', function () {
 
                     expect(arguments).to.have.length(3);
                     done();
@@ -1580,7 +1580,7 @@ describe('Server', function () {
                 name: 'test',
                 register: function (plugin, options, next) {
 
-                    plugin.events.on('log', function (event, tags) {
+                    plugin.on('log', function (event, tags) {
 
                         ++pc;
                     });
@@ -1899,12 +1899,12 @@ describe('Server', function () {
             name: 'test',
             register: function (plugin, options, next) {
 
-                plugin.select(['a', 'b']).events.on('test', function () {
+                plugin.select(['a', 'b']).on('test', function () {
 
                     ++counter;
                 });
 
-                plugin.select(['a']).events.on('start', function () {
+                plugin.select(['a']).on('start', function () {
 
                     ++counter;
                 });
