@@ -538,6 +538,7 @@ The following options are available when adding a route:
         - `failAction` - defines what to do when a response fails validation. Options are:
             - `error` - return an Internal Server Error (500) error response. This is the default value.
             - `log` - log the error but send the response.
+        - `modify` - if `true`, applies the validation rule changes to the response. Defaults to `false`.
 
     - `cache` - if the route method is 'GET', the route can be configured to include caching directives in the response using the following options:
         - `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control' header. Values are:

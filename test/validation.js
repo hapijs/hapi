@@ -614,6 +614,66 @@ describe('Validation', function () {
         });
     });
 
+    it('validates and modifies response', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply({ a: 1, b: 2 });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: Joi.object({
+                        a: Joi.number()
+                    }).options({ stripUnknown: true }),
+                    modify: true
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.deep.equal({ a: 1 });
+            done();
+        });
+    });
+
+    it('throws on sample with response modify', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply({ a: 1, b: 2 });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        expect(function () {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    response: {
+                        schema: Joi.object({
+                            a: Joi.number()
+                        }).options({ stripUnknown: true }),
+                        modify: true,
+                        sample: 90
+                    }
+                },
+                handler: handler
+            });
+        }).to.throw(/modify conflict with forbidden peer sample/);
+        done();
+    });
+
     it('validates response using custom validation function', function (done) {
 
         var i = 0;
