@@ -1132,7 +1132,7 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Route prerequisites
 - Route handler
 - **`'onPostHandler'`** extension point
-    - The response object contained in `request.response` may be modified (but not assigned a new value). To return a different response type
+    - The [response object](#response-object) contained in `request.response` may be modified (but not assigned a new value). To return a different response type
       (for example, replace an error with an HTML response), return a new response via `next(response)`.
 - Validate response payload
 - **`'onPreResponse'`** extension point
@@ -1665,8 +1665,8 @@ server.ext('onRequest', function (request, reply) {
 ### Flow control
 
 When calling `reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
-This enables making changes to the returned response object before the response is sent. This means the router will resume as soon as the handler
-method exits. To suspend this behavior, the returned `response` object includes:
+This enables making changes to the returned [response object](#response-object) before the response is sent. This means the router
+will resume as soon as the handler method exits. To suspend this behavior, the returned `response` object includes:
 
 - `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `reply()` is called and until
   `response.hold()` is invoked once.
@@ -1686,8 +1686,8 @@ var handler = function (request, reply) {
 ```
 
 When calling `reply()` in a prerequisite, it is sometimes necessary to take over the handler execution and return a non-error response back
-to the client. The response object provides the `takeover()` method to indicate the value provided via `reply()` should be used as the final
-response and skip any other prerequisites and the handler.
+to the client. The [response object](#response-object) provides the `takeover()` method to indicate the value provided via `reply()` should
+be used as the final response and skip any other prerequisites and the handler.
 
 ```javascript
 var pre = function (request, reply) {
@@ -1780,7 +1780,7 @@ Concludes the handler activity by returning control over to the router with a te
 - `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration for this response. Cannot override
   `isCached`, `partialsPath`, or `helpersPath` which are only loaded at initialization.
 
-Returns a response object.
+Returns a [response object](#response-object).
 
 The [response flow control rules](#flow-control) apply.
 
@@ -1861,7 +1861,7 @@ _Available only within the handler method and only before one of `reply()`, `rep
 
 Redirects the client to the specified location. Same as calling `reply().redirect(location)`.
 
-Returns a response object.
+Returns a [response object](#response-object).
 
 The [response flow control rules](#flow-control) apply.
 
