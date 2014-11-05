@@ -614,6 +614,98 @@ describe('Validation', function () {
         });
     });
 
+    it('validates error response', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            var error = Boom.badRequest('Kaboom');
+            error.output.payload.custom = i++;
+            reply(error);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    status: {
+                        400: {
+                            statusCode: Joi.number(),
+                            error: Joi.string(),
+                            message: Joi.string(),
+                            custom: 0
+                        }
+                    }
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
+    it('validates error response and ignore 200', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            if (i === 0) {
+                ++i;
+                return reply({ a: 1, b: 2 });
+            }
+
+            var error = Boom.badRequest('Kaboom');
+            error.output.payload.custom = i++;
+            return reply(error);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: true,
+                    status: {
+                        400: {
+                            statusCode: Joi.number(),
+                            error: Joi.string(),
+                            message: Joi.string(),
+                            custom: 1
+                        }
+                    }
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+        });
+    });
+
     it('validates and modifies response', function (done) {
 
         var handler = function (request, reply) {
@@ -641,6 +733,44 @@ describe('Validation', function () {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.deep.equal({ a: 1 });
+            done();
+        });
+    });
+
+    it('validates and modifies error response', function (done) {
+
+        var handler = function (request, reply) {
+
+            var error = Boom.badRequest('Kaboom');
+            error.output.payload.custom = '123';
+            reply(error);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    status: {
+                        400: {
+                            statusCode: Joi.number(),
+                            error: Joi.string(),
+                            message: Joi.string(),
+                            custom: Joi.number()
+                        }
+                    },
+                    modify: true
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.custom).to.equal(123);
             done();
         });
     });
@@ -789,6 +919,31 @@ describe('Validation', function () {
                 },
                 response: {
                     schema: true
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('skips response validation when status is empty', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    reply({ a: 1 });
+                },
+                response: {
+                    status: {}
                 }
             }
         });

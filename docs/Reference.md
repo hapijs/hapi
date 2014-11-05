@@ -526,7 +526,7 @@ The following options are available when adding a route:
             - `'ignore'` - take no action and continue processing the request.
 
     - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response:
-        - `schema` - the response object validation rules expressed as one of:
+        - `schema` - the default response object validation rules (for all non-error responses) expressed as one of:
             - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
             - a [Joi](http://github.com/hapijs/joi) validation object.
@@ -534,6 +534,9 @@ The following options are available when adding a route:
                 - `value` - the object containing the response object.
                 - `options` - the server validation options.
                 - `next(err)` - the callback function called when validation is completed.
+        - `status` - HTTP status-code-specific validation rules. The `status` key is set to an object where each key is a 3 digit HTTP
+          status code and the value has the same definition as `schema`. If a response status code is not present in the `status` object,
+          the `schema` definition is used, expect for errors which are not validated by default.
         - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
         - `failAction` - defines what to do when a response fails validation. Options are:
             - `error` - return an Internal Server Error (500) error response. This is the default value.
