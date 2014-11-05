@@ -992,6 +992,7 @@ Initializes the server views manager where:
     - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
     - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
     - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
+    - `context` - a global context used with all templates. The global context option can be either an object or a function that takes no arguments and returns a context object. When rendering views, the global context will be merged with any context object specified on the handler or using `reply.view()`. When multiple context objects are used, values from the global context always have lowest precedence.
 
 
 ```javascript
