@@ -7,11 +7,11 @@ var internals = {};
 
 exports.register = function (plugin, options, next) {
 
-    plugin.select('c').ext('onRequest', function (request, cont) {
+    plugin.select('c').ext('onRequest', function (request, reply) {
 
         request.app.deps = request.app.deps || '|';
         request.app.deps += '3|';
-        cont();
+        return reply.continue();
     });
 
     return next();

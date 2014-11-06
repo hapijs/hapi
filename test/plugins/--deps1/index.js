@@ -9,11 +9,11 @@ exports.register = function (plugin, options, next) {
 
     plugin.dependency('--deps2', internals.after);
 
-    plugin.select('a').ext('onRequest', function (request, cont) {
+    plugin.select('a').ext('onRequest', function (request, reply) {
 
         request.app.deps = request.app.deps || '|';
         request.app.deps += '1|';
-        cont();
+        return reply.continue();
     }, { after: '--deps3' });
 
     return next();

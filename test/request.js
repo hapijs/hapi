@@ -73,9 +73,12 @@ describe('Request', function () {
             var server = new Hapi.Server();
             server.connection({ timeout: { server: 2 } });
             server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
-            server.ext('onRequest', function (request, next) {
+            server.ext('onRequest', function (request, reply) {
 
-                setTimeout(next, 10);
+                setTimeout(function () {
+
+                    return reply.continue();
+                }, 10);
             });
 
             server.inject('/', function (res) {
@@ -95,9 +98,9 @@ describe('Request', function () {
             var server = new Hapi.Server();
             server.connection({ timeout: { server: 10 } });
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
-            server.ext('onPreResponse', function (request, next) {
+            server.ext('onPreResponse', function (request, reply) {
 
-                next();
+                return reply.continue();
             });
 
             server.inject('/', function (res) {
@@ -388,9 +391,9 @@ describe('Request', function () {
         var server = new Hapi.Server();
         server.connection();
 
-        var ext = function (request, next) {
+        var ext = function (request, reply) {
 
-            return next(Boom.badRequest());
+            return reply(Boom.badRequest());
         };
 
         server.ext('onPostHandler', ext);
@@ -933,7 +936,7 @@ describe('Request', function () {
 
         server.ext('onPreResponse', function (request, reply) {
 
-            return reply();
+            return reply.continue();
         });
 
         server.on('tail', function () {
@@ -1026,7 +1029,7 @@ describe('Request', function () {
             server.ext('onRequest', function (request, reply) {
 
                 request.setMethod('POST');
-                reply(request.method);
+                return reply(request.method);
             });
 
             server.inject('/', function (res) {
@@ -1126,7 +1129,7 @@ describe('Request', function () {
             server.ext('onRequest', function (request, reply) {
 
                 request.setUrl('');
-                reply();
+                return reply.continue();
             });
 
             server.inject('/', function (res) {

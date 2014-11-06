@@ -175,7 +175,7 @@ describe('payload', function () {
         server.ext('onPreResponse', function (request, reply) {
 
             extCalled = true;
-            reply();
+            reply.continue();
         });
 
         var s = new Stream.PassThrough();
@@ -343,7 +343,7 @@ describe('payload', function () {
                 data = Buffer.concat(chunks);
             });
 
-            reply();
+            reply.continue();
         };
 
         var handler = function (request, reply) {
@@ -1533,7 +1533,7 @@ describe('payload', function () {
                     data = Buffer.concat(chunks);
                 });
 
-                reply();
+                reply.continue();
             };
 
             var handler = function (request, reply) {

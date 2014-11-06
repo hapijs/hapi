@@ -245,7 +245,7 @@ describe('response', function () {
 
                 reply.state('test', '123');
                 reply.unstate('empty');
-                reply();
+                return reply.continue();
             });
 
             server.inject('/', function (res) {
@@ -2356,7 +2356,7 @@ describe('response', function () {
             server.ext('onPreResponse', function (request, reply) {
 
                 Fs.unlinkSync(filename);
-                reply();
+                return reply.continue();
             });
 
             server.inject('/', function (res) {
@@ -2377,7 +2377,7 @@ describe('response', function () {
                 server.ext('onPreResponse', function (request, reply) {
 
                     request.response._marshall = function () { throw new Error('not called'); };
-                    reply();
+                    return reply.continue();
                 });
 
                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
@@ -3253,7 +3253,7 @@ describe('response', function () {
                 done();
             });
 
-            reply();
+            return reply.continue();
         });
 
         server.inject('/', function (res) {

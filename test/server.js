@@ -1000,10 +1000,10 @@ describe('Server', function () {
             register: function (plugin, options, next) {
 
                 plugin.route({ method: 'GET', path: '/b', handler: function (request, reply) { reply('b'); } });
-                plugin.ext('onRequest', function (request, cont) {
+                plugin.ext('onRequest', function (request, reply) {
 
                     request.setUrl('/b');
-                    cont();
+                    return reply.continue();
                 });
 
                 return next();

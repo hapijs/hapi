@@ -683,15 +683,15 @@ describe('Connection', function () {
             var server = new Hapi.Server();
             server.connection();
             server.ext('onPreHandler', [
-                function (request, next) {
+                function (request, reply) {
 
                     request.app.x = '1';
-                    return next();
+                    return reply.continue();
                 },
-                function (request, next) {
+                function (request, reply) {
 
                     request.app.x += '2';
-                    return next();
+                    return reply.continue();
                 }
             ]);
 
@@ -708,10 +708,10 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.ext('onPreHandler', function (request, next) {
+            server.ext('onPreHandler', function (request, reply) {
 
                 request.app.x = this.y;
-                return next();
+                return reply.continue();
             }, { bind: { y: 42 } });
 
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });
@@ -735,7 +735,7 @@ describe('Connection', function () {
 
             server.ext('onPreHandler', function (request, reply) {
 
-                reply.view('test');
+                return reply.view('test');
             });
 
             var plugin = {
@@ -762,21 +762,54 @@ describe('Connection', function () {
             });
         });
 
+        it('supports reply decorators on empty result', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onRequest', function (request, reply) {
+
+                return reply().redirect('/elsewhere');
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                expect(res.headers.location).to.equal('http://0.0.0.0:0/elsewhere');
+                done();
+            });
+        });
+
+        it('supports direct reply decorators', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onRequest', function (request, reply) {
+
+                return reply.redirect('/elsewhere');
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(302);
+                expect(res.headers.location).to.equal('http://0.0.0.0:0/elsewhere');
+                done();
+            });
+        });
+
         describe('onRequest', function (done) {
 
             it('replies with custom response', function (done) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.ext('onRequest', function (request, next) {
+                server.ext('onRequest', function (request, reply) {
 
-                    return next(Boom.badRequest('boom'));
+                    return reply(Boom.badRequest('boom'));
                 });
-
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
 
                 server.inject('/', function (res) {
 
+                    expect(res.statusCode).to.equal(400);
                     expect(res.result.message).to.equal('boom');
                     done();
                 });
@@ -786,9 +819,9 @@ describe('Connection', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.ext('onRequest', function (request, next) {
+                server.ext('onRequest', function (request, reply) {
 
-                    return next(null, Boom.badRequest('boom'));
+                    return reply(null, Boom.badRequest('boom'));
                 });
 
                 server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
@@ -822,26 +855,6 @@ describe('Connection', function () {
                     done();
                 });
             });
-
-            it('continues when result is null', function (done) {
-
-                var server = new Hapi.Server();
-                server.connection();
-                server.ext('onRequest', function (request, reply) {
-
-                    return reply(null).state('a', 'b');
-                });
-
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-
-                server.inject('/', function (res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result).to.equal('ok');
-                    expect(res.headers['set-cookie']).to.deep.equal(['a=b']);
-                    done();
-                });
-            });
         });
 
         describe('onPreResponse', function (done) {
@@ -850,9 +863,13 @@ describe('Connection', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.ext('onPreResponse', function (request, next) {
+                server.ext('onPreResponse', function (request, reply) {
 
-                    return next(typeof request.response.source === 'string' ? Boom.badRequest('boom') : undefined);
+                    if (typeof request.response.source === 'string') {
+                        return reply(Boom.badRequest('boom'));
+                    }
+
+                    return reply.continue();
                 });
 
                 server.route({ method: 'GET', path: '/text', handler: function (request, reply) { reply('ok'); } });
@@ -873,9 +890,9 @@ describe('Connection', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.ext('onPreResponse', function (request, next) {
+                server.ext('onPreResponse', function (request, reply) {
 
-                    return next(null, request.response.output.statusCode);
+                    return reply(null, request.response.output.statusCode);
                 });
 
                 server.inject({ method: 'GET', url: '/missing' }, function (res) {
@@ -891,10 +908,10 @@ describe('Connection', function () {
                 var server = new Hapi.Server();
                 server.connection();
 
-                server.ext('onPreResponse', function (request, next) {
+                server.ext('onPreResponse', function (request, reply) {
 
                     var response = request.response;
-                    return next({ isBoom: response.isBoom });
+                    return reply({ isBoom: response.isBoom });
                 });
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './somewhere', listing: false, index: true } } });
@@ -912,10 +929,10 @@ describe('Connection', function () {
                 var server = new Hapi.Server();
                 server.connection();
 
-                server.ext('onPreResponse', function (request, next) {
+                server.ext('onPreResponse', function (request, reply) {
 
                     var response = request.response;
-                    return next({ isBoom: response.isBoom });
+                    return reply({ isBoom: response.isBoom });
                 });
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { file: './somewhere/something.txt' } });

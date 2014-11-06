@@ -42,7 +42,7 @@ exports.register = function (plugin, options, next) {
             return reply.view('test', { message: 'grabbed' });
         }
 
-        return reply();
+        return reply.continue();
     });
 
     return next();

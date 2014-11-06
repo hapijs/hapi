@@ -21,9 +21,9 @@ exports.register = function (plugin, options, next) {
         }
     });
 
-    plugin.ext('onPreResponse', function (request, next) {
+    plugin.ext('onPreResponse', function (request, reply) {
 
-        return next(request.response.source + this.suffix);
+        return reply(request.response.source + this.suffix);
     });
 
     plugin.bind(bind);        // Call last to test late binding
