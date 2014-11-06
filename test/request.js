@@ -521,7 +521,7 @@ describe('Request', function () {
         });
     });
 
-    it('ignores second call to onReply()', function (done) {
+    it('ignores scheduled next tick in reply interface', function (done) {
 
         var server = new Hapi.Server();
         server.connection();

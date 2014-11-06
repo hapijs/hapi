@@ -26,7 +26,6 @@ describe('handler', function () {
         var pre1 = function (request, reply) {
 
             reply('Hello').code(444);
-            reply();    // Ignored
         };
 
         var pre2 = function (request, reply) {
@@ -977,6 +976,18 @@ describe('handler', function () {
 
             expect(res.statusCode).to.equal(302);
             expect(res.headers.location).to.equal('http://example.com/elsewhere');
+            done();
+        });
+    });
+
+    it('throws when reply called twice', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); reply('not ok'); } });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });
