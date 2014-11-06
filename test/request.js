@@ -282,6 +282,27 @@ describe('Request', function () {
             });
         });
     });
+
+    it('generate response event', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+        server.once('response', function (request) {
+
+            expect(request.info.responded).to.be.above(request.info.received);
+            done();
+        });
+
+        server.inject('/', function (res) { });
+    });
+
     it('returns valid OPTIONS response', function (done) {
 
         var handler = function (request, reply) {

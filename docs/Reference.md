@@ -1469,6 +1469,7 @@ Each request object has the following properties:
 - `id` - a unique request identifier.
 - `info` - request information:
     - `received` - request reception timestamp.
+    - `responded` - request response timestamp (`0` is not responded yet).
     - `remoteAddress` - remote client IP address.
     - `remotePort` - remote client port.
     - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
