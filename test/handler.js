@@ -968,19 +968,16 @@ describe('handler', function () {
         });
     });
 
-    describe('replyInterface()', function () {
+    it('redirects from handler', function (done) {
 
-        it('redirects from handler', function (done) {
+        var server = new Hapi.Server();
+        server.connection({ location: 'http://example.com' });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.redirect('elsewhere'); } });
+        server.inject('/', function (res) {
 
-            var server = new Hapi.Server();
-            server.connection({ location: 'http://example.com' });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.redirect('elsewhere'); } });
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(302);
-                expect(res.headers.location).to.equal('http://example.com/elsewhere');
-                done();
-            });
+            expect(res.statusCode).to.equal(302);
+            expect(res.headers.location).to.equal('http://example.com/elsewhere');
+            done();
         });
     });
 });
