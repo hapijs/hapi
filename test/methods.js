@@ -210,12 +210,11 @@ describe('Method', function () {
         });
     });
 
-    it('does not cache when custom key function return null', function (done) {
+    it('errors when custom key function return null', function (done) {
 
-        var gen = 0;
         var method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ });
+            return next(null, { id: id });
         };
 
         var server = new Hapi.Server();
@@ -226,40 +225,31 @@ describe('Method', function () {
 
             server.methods.test(1, function (err, result) {
 
-                expect(result.gen).to.equal(0);
-
-                server.methods.test(1, function (err, result) {
-
-                    expect(result.gen).to.equal(1);
-                    done();
-                });
+                expect(err).to.exist();
+                expect(err.message).to.equal('Invalid method key when invoking: test');
+                done();
             });
         });
     });
 
     it('does not cache when custom key function returns a non-string', function (done) {
 
-        var gen = 0;
         var method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ });
+            return next(null, { id: id });
         };
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return id + 1; } });
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return 123; } });
 
         server.start(function () {
 
             server.methods.test(1, function (err, result) {
 
-                expect(result.gen).to.equal(0);
-
-                server.methods.test(1, function (err, result) {
-
-                    expect(result.gen).to.equal(1);
-                    done();
-                });
+                expect(err).to.exist();
+                expect(err.message).to.equal('Invalid method key when invoking: test');
+                done();
             });
         });
     });
@@ -606,34 +596,28 @@ describe('Method', function () {
         });
     });
 
-    it('returns new object (not cached) when second key generation fails when using the cache', function (done) {
+    it('errors when key generation fails', function (done) {
 
         var server = new Hapi.Server({ cache: require('catbox-memory') });
         server.connection();
-        var id1 = Math.random();
-        var gen = 0;
+
         var method = function (id, next) {
 
-            if (typeof id === 'function') {
-                id = id1;
-            }
-
-            return next(null, { id: id, gen: ++gen });
+            return next(null, { id: id });
         };
 
         server.method([{ name: 'user', fn: method, options: { cache: { expiresIn: 2000 } } }]);
 
         server.start(function () {
 
-            server.methods.user(id1, function (err, result1) {
+            server.methods.user(1, function (err, result1) {
 
-                expect(result1.id).to.equal(id1);
-                expect(result1.gen).to.equal(1);
+                expect(result1.id).to.equal(1);
 
                 server.methods.user(function () { }, function (err, result2) {
 
-                    expect(result2.id).to.equal(id1);
-                    expect(result2.gen).to.equal(2);
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Invalid method key when invoking: user');
                     done();
                 });
             });
