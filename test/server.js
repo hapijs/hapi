@@ -261,6 +261,35 @@ describe('Server', function () {
         });
     });
 
+    describe('stop()', function () {
+
+        it('stops the cache', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            var cache = server.cache('test', { expiresIn: 1000 });
+            server.start(function () {
+
+                cache.set('a', 'going in', 0, function (err) {
+
+                    cache.get('a', function (err, value, cached, report) {
+
+                        expect(value).to.equal('going in');
+
+                        server.stop(function () {
+
+                            cache.get('a', function (err, value, cached, report) {
+
+                                expect(value).to.equal(null);
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+
     it('registers plugins', function (done) {
 
         var server = new Hapi.Server();
