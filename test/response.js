@@ -3306,6 +3306,24 @@ describe('Response', function () {
         });
     });
 
+    it('allows options into unstage()', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply().unstate('session', { path: '/unset', isSecure: true });
+        };
+
+        var server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (unset) {
+
+            expect(unset.statusCode).to.equal(200);
+            expect(unset.headers['set-cookie']).to.deep.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
+            done();
+        });
+    });
+
     describe('Payload', function () {
 
         it('handles undefined data', function (done) {
