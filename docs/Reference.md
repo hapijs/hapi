@@ -31,7 +31,6 @@
         - [`server.method(method)`](#servermethodmethod)
         - [`server.inject(options, callback)`](#serverinjectoptions-callback)
         - [`server.handler(name, method)`](#serverhandlername-method)
-        - [`server.location(uri, [request])`](#serverlocationuri-request)
         - [`server.render(template, context, [options], callback)`](#serverrendertemplate-context-options-callback)
     - [`Server` events](#server-events)
 - [Request object](#request-object)
@@ -50,7 +49,7 @@
     - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
     - [`reply.close([options])`](#replycloseoptions)
     - [`reply.proxy(options)`](#replyproxyoptions)
-    - [`reply.redirect(location)`](#replyredirectlocation)
+    - [`reply.redirect(uri)`](#replyredirecturi)
 - [Response object](#response-object)
     - [Response events](#response-events)
 - [`Hapi.Server`](#hapipack)
@@ -202,9 +201,6 @@ When creating a server instance, the following options configure the server's be
     - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
     - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response.
       Defaults to `0` (no limit).
-
-- <a name="server.config.location"></a>`location` - used to convert relative 'Location' header URIs to absolute, by adding this value as prefix. Value must not contain a trailing `'/'`.
-  Defaults to the host received in the request HTTP 'Host' header and if missing, to `server.info.uri`.
 
 - `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to include a valid caching directive. Defaults to `[200]`.
 
@@ -1341,20 +1337,6 @@ server.route({
 server.start();
 ```
 
-#### `server.location(uri, [request])`
-
-Converts the provided URI to an absolute URI using the server or request configuration where:
-- `uri` - the relative URI.
-- `request` - an optional request object for using the request host header if no server location has been configured.
-
-```javascript
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-        server.connection('localhost', 8000);
-
-console.log(server.location('/relative'));
-```
-
 #### `server.render(template, context, [options], callback)`
 
 Utilizes the server views engine configured to render a template where:
@@ -1859,12 +1841,12 @@ var handler = function (request, reply) {
 };
 ```
 
-### `reply.redirect(location)`
+### `reply.redirect(uri)`
 
 _Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
-Redirects the client to the specified location. Same as calling `reply().redirect(location)`.
+Redirects the client to the specified uri. Same as calling `reply().redirect(uri)`.
 
 Returns a [response object](#response-object).
 
@@ -1901,8 +1883,6 @@ Every response includes the following properties:
     - `charset` -  the 'Content-Type' HTTP header 'charset' property. Defaults to `'utf-8'`.
     - `encoding` - the string encoding scheme used to serial data into the HTTP payload when `source` is a string or marshalls into a string.
       Defaults to `'utf8'`.
-    - `location` - the raw value used to set the HTTP 'Location' header (actual value set depends on the server
-      [`location`](#server.config.location) configuration option). Defaults to no header.
     - `passThrough` - if `true` and `source` is a `Stream`, copies the `statusCode` and `headers` of the stream to the outbound response.
       Defaults to `true`.
     - `stringify` - options used for `source` value requiring stringification. Defaults to no replacer and no space padding.
@@ -1918,9 +1898,8 @@ It provides the following methods:
     `charset` - the charset property value.
 - `code(statusCode)` - sets the HTTP status code where:
     - `statusCode` - the HTTP status code.
-- `created(location)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
-    `location` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of
-      the server [`location`](#server.config.location) configuration option is used as prefix. Not available for methods other than PUT and POST.
+- `created(uri)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
+    `uri` - an absolute or relative URI used as the 'Location' header value.
 - `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload where:
     `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
 - `etag(tag, options)` - sets the representation [entity tag](http://tools.ietf.org/html/rfc7232#section-2.3) where:
@@ -1938,12 +1917,10 @@ It provides the following methods:
         - `append` - if `true`, the value is appended to any existing header value using `separator`. Defaults to `false`.
         - `separator` - string used as separator when appending to an exiting value. Defaults to `','`.
         - `override` - if `false`, the header value is not set if an existing value present. Defaults to `true`.
-- `location(location)` - sets the HTTP 'Location' header where:
-    - `uri` - an absolute or relative URI used as the 'Location' header value. If a relative URI is provided, the value of the server
-      [`location`](#server.config.location) configuration option is used as prefix.
-- `redirect(location)` - sets an HTTP redirection response (302) and decorates the response with additional methods listed below, where:
-    - `location` - an absolute or relative URI used to redirect the client to another resource. If a relative URI is provided, the value of
-      the server [`location`](#server.config.location) configuration option is used as prefix.
+- `location(uri)` - sets the HTTP 'Location' header where:
+    - `uri` - an absolute or relative URI used as the 'Location' header value.
+- `redirect(uri)` - sets an HTTP redirection response (302) and decorates the response with additional methods listed below, where:
+    - `uri` - an absolute or relative URI used to redirect the client to another resource.
 - `state(name, value, [options])` - sets an HTTP cookie where:
     - `name` - the cookie name.
     - `value` - the cookie value. If no `encoding` is defined, must be a string.

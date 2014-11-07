@@ -2626,14 +2626,14 @@ describe('response', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ location: 'http://example.com:8080' });
+            server.connection();
             server.route({ method: 'POST', path: '/stream', handler: handler });
 
             server.inject({ method: 'POST', url: '/stream' }, function (res) {
 
                 expect(res.result).to.equal('xy');
                 expect(res.statusCode).to.equal(201);
-                expect(res.headers.location).to.equal(server.connections[0].settings.location + '/special');
+                expect(res.headers.location).to.equal('/special');
                 expect(res.headers['cache-control']).to.equal('no-cache');
                 done();
             });
@@ -2993,7 +2993,7 @@ describe('response', function () {
 
             var handler = function (request, reply) {
 
-                return reply('Please wait while we send your elsewhere').redirect('example');
+                return reply('Please wait while we send your elsewhere').redirect('/example');
             };
 
             var server = new Hapi.Server();
@@ -3003,7 +3003,7 @@ describe('response', function () {
             server.inject('http://example.org/', function (res) {
 
                 expect(res.result).to.exist();
-                expect(res.headers.location).to.equal('http://example.org/example');
+                expect(res.headers.location).to.equal('/example');
                 expect(res.statusCode).to.equal(302);
                 done();
             });
@@ -3013,7 +3013,7 @@ describe('response', function () {
 
             var handler = function (request, reply) {
 
-                return reply('We moved!').redirect().location('examplex');
+                return reply('We moved!').redirect().location('/examplex');
             };
 
             var server = new Hapi.Server();
@@ -3024,7 +3024,7 @@ describe('response', function () {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('We moved!');
-                expect(res.headers.location).to.equal('http://0.0.0.0:' + server.info.port + '/examplex');
+                expect(res.headers.location).to.equal('/examplex');
                 expect(res.statusCode).to.equal(302);
                 done();
             });

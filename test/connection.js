@@ -641,41 +641,6 @@ describe('Connection', function () {
         });
     });
 
-    describe('location()', function () {
-
-        it('returns back the same absolute location', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection({ location: 'http://example.net' });
-            expect(server.location('http://example.com/test')).to.equal('http://example.com/test');
-            done();
-        });
-
-        it('returns back the an absolute location using server config', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection({ location: 'http://example.net' });
-            expect(server.location('/test')).to.equal('http://example.net/test');
-            done();
-        });
-
-        it('returns back the an absolute location using request host', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(server.location('/test', { info: { host: 'example.edu' } })).to.equal('http://example.edu/test');
-            done();
-        });
-
-        it('returns back the an absolute location using server info', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(server.location('/test')).to.equal('http://0.0.0.0:0/test');
-            done();
-        });
-    });
-
     describe('ext()', function () {
 
         it('supports adding an array of methods', function (done) {
@@ -774,7 +739,7 @@ describe('Connection', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(302);
-                expect(res.headers.location).to.equal('http://0.0.0.0:0/elsewhere');
+                expect(res.headers.location).to.equal('/elsewhere');
                 done();
             });
         });
@@ -791,7 +756,7 @@ describe('Connection', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(302);
-                expect(res.headers.location).to.equal('http://0.0.0.0:0/elsewhere');
+                expect(res.headers.location).to.equal('/elsewhere');
                 done();
             });
         });

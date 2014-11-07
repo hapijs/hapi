@@ -299,7 +299,7 @@ describe('Request', function () {
 
         server.once('response', function (request) {
 
-            expect(request.info.responded).to.be.above(request.info.received);
+            expect(request.info.responded).to.be.min(request.info.received);
             done();
         });
 

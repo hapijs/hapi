@@ -970,12 +970,12 @@ describe('handler', function () {
     it('redirects from handler', function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ location: 'http://example.com' });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.redirect('elsewhere'); } });
+        server.connection();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply.redirect('/elsewhere'); } });
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(302);
-            expect(res.headers.location).to.equal('http://example.com/elsewhere');
+            expect(res.headers.location).to.equal('/elsewhere');
             done();
         });
     });
