@@ -94,7 +94,7 @@ describe('Connection', function () {
 
         var port = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
         var server = new Hapi.Server();
-        server.connection({ port: port } );
+        server.connection({ port: port });
 
         expect(server.connections[0].type).to.equal('socket');
         expect(server.connections[0]._port).to.equal(port);
@@ -274,34 +274,17 @@ describe('Connection', function () {
         it('sets info with defaults when missing hostname and address', { parallel: false }, function (done) {
 
             var hostname = Os.hostname;
-            var count = 0;
             Os.hostname = function () {
 
-                if (count++ === 1) {
-                    Os.hostname = hostname;
-                }
+                Os.hostname = hostname;
                 return '';
             };
 
             var server = new Hapi.Server();
             server.connection();
-
-            var address = server.listener.address;
-            server.listener.address = function () {
-
-                server.listener.address = address;
-                var add = address.call(this);
-                add.address = '';
-                return add;
-            };
-
-            server.start(function () {
-
-                expect(server.info.host).to.equal('localhost');
-                expect(server.info.uri).to.equal('http://localhost:' + server.info.port);
-                server.stop();
-                done();
-            });
+            expect(server.info.host).to.equal('localhost');
+            expect(server.info.uri).to.equal('http://localhost:' + server.info.port);
+            done();
         });
 
         it('ignored repeated calls', function (done) {

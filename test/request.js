@@ -1018,6 +1018,27 @@ describe('Request', function () {
         });
     });
 
+    it('generates unique request id', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.connections[0]._requestCounter = { value: 10, min: 10, max: 11 };
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.id); } });
+        server.inject('/', function (res1) {
+
+            server.inject('/', function (res2) {
+
+                server.inject('/', function (res3) {
+
+                    expect(res1.result).to.match(/10$/);
+                    expect(res2.result).to.match(/11$/);
+                    expect(res3.result).to.match(/10$/);
+                    done();
+                });
+            });
+        });
+    });
+
     describe('#setMethod', function () {
 
         it('changes method with a lowercase version of the value passed in', function (done) {

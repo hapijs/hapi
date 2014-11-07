@@ -251,6 +251,9 @@ Each instance of the `Server` object have the following properties:
   Should not be used by plugins which should use `plugins[name]`.
 - `methods` - methods registered with [`server.method()`](#servermethodname-fn-options).
 - `info` - server information:
+    - `id` - a unique connection identifier (using the format '{hostname}:{pid}:{now base36}').
+    - `created` - the connection creation timestamp.
+    - `started` - the connection start timestamp (`0` when stopped).
     - `port` - the port the server was configured to (before `start()`) or bound to (after `start()`).
     - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
     - `protocol` - the protocol used (e.g. `'http'` or `'https'`).
@@ -1449,7 +1452,7 @@ Each request object has the following properties:
 - `domain` - the node domain object used to protect against exceptions thrown in extensions, handlers and prerequisites. Can be used to
   manually bind callback functions otherwise bound to other domains.
 - `headers` - the raw request headers (references `request.raw.headers`).
-- `id` - a unique request identifier.
+- `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
 - `info` - request information:
     - `received` - request reception timestamp.
     - `responded` - request response timestamp (`0` is not responded yet).
