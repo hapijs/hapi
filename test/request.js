@@ -6,6 +6,7 @@ var Stream = require('stream');
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var IdGenerators = require('../lib/id-generators');
 var Lab = require('lab');
 var Shot = require('shot');
 var Wreck = require('wreck');
@@ -25,6 +26,105 @@ var expect = Code.expect;
 
 
 describe('Request', function () {
+
+    describe('.id', function () {
+
+        it('default generates an id with epochms, pid, and random', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply({ id: request.id });
+            };
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.id).to.match(/^\d+\-\d+\-\d+$/);
+                done();
+            });
+        });
+
+        it('idGenerator = "epochms-pid-random" - generates an id with epochms, pid, and random', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply({ id: request.id });
+            };
+
+            var server = new Hapi.Server({ idGenerator: 'epochms-pid-random' });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.id).to.match(/^\d+\-\d+\-\d+$/);
+                done();
+            });
+        });
+
+        it('idGenerator = "epochms-hostname-pid-counter" - generates an id with epochms, hostname, pid, and a counter', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply({ id: request.id });
+            };
+
+            var server = new Hapi.Server({ idGenerator: 'epochms-hostname-pid-counter' });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.id).to.match(/^\d+\-\S+\-\d+\-\d+$/);
+                done();
+            });
+        });
+
+
+        it('idGenerator = "epochms-hostname-pid-counter", counter rolls over - generates an id with epochms, hostname, pid, and a counter', function (done) {
+
+            // increment counter to END, so we can test roll over
+            while (IdGenerators._incrementCounter() !== 99999) { }
+
+            var handler = function (request, reply) {
+
+                reply({ id: request.id });
+            };
+
+            var server = new Hapi.Server({ idGenerator: 'epochms-hostname-pid-counter' });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.id).to.match(/^\d+\-\S+\-\d+\-10000$/);
+                done();
+            });
+        });
+
+        it('idGenerator = fn() - uses result of custom function as id', function (done) {
+
+            var counter = 123;
+            var customIDGenerator = function (now) {
+                return now + '-' + counter++;
+            };
+
+            var handler = function (request, reply) {
+
+                reply({ id: request.id });
+            };
+
+            var server = new Hapi.Server({ idGenerator: customIDGenerator });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                expect(res.result.id).to.match(/^\d+\-123$/);
+                done();
+            });
+        });
+
+    });
+
 
     it('returns valid OPTIONS response', function (done) {
 
