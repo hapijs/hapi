@@ -43,11 +43,11 @@ describe('Connection', function () {
     it('throws when disabling autoListen and providing special host', function (done) {
 
         var server = new Hapi.Server();
-        var host = Path.join(__dirname, 'hapi-server.socket');
+        var port = Path.join(__dirname, 'hapi-server.socket');
         expect(function () {
 
-            server.connection({ host: host, autoListen: false });
-        }).to.throw('Cannot specify a UNIX domain socket or a Windows named pipe when autoListen is false');
+            server.connection({ port: port, autoListen: false });
+        }).to.throw('Cannot specify port when autoListen is false');
         done();
     });
 
@@ -69,21 +69,21 @@ describe('Connection', function () {
 
     it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, function (done) {
 
-        var host = Path.join(__dirname, 'hapi-server.socket');
+        var port = Path.join(__dirname, 'hapi-server.socket');
         var server = new Hapi.Server();
-        server.connection({ host: host });
+        server.connection({ port: port });
 
-        expect(server.connections[0].type).to.equal('unix');
-        expect(server.connections[0]._host).to.equal(host);
+        expect(server.connections[0].type).to.equal('socket');
+        expect(server.connections[0]._port).to.equal(port);
 
         server.start(function () {
 
-            var absSocketPath = Path.resolve(host);
-            expect(server.info.host).to.equal(absSocketPath);
+            var absSocketPath = Path.resolve(port);
+            expect(server.info.port).to.equal(absSocketPath);
             server.stop(function () {
 
-                if (Fs.existsSync(host)) {
-                    Fs.unlinkSync(host);
+                if (Fs.existsSync(port)) {
+                    Fs.unlinkSync(port);
                 }
                 done();
             });
@@ -92,16 +92,16 @@ describe('Connection', function () {
 
     it('creates a server listening on a windows named pipe', function (done) {
 
-        var host = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
+        var port = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
         var server = new Hapi.Server();
-        server.connection({ host: host } );
+        server.connection({ port: port } );
 
-        expect(server.connections[0].type).to.equal('windows');
-        expect(server.connections[0]._host).to.equal(host);
+        expect(server.connections[0].type).to.equal('socket');
+        expect(server.connections[0]._port).to.equal(port);
 
         server.start(function () {
 
-            expect(server.info.host).to.equal(host);
+            expect(server.info.port).to.equal(port);
             server.stop(function () {
 
                 done();
@@ -285,7 +285,6 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            expect(server.connections[0]._host).to.equal('');
 
             var address = server.listener.address;
             server.listener.address = function () {
@@ -298,7 +297,7 @@ describe('Connection', function () {
 
             server.start(function () {
 
-                expect(server.info.host).to.equal('0.0.0.0');
+                expect(server.info.host).to.equal('localhost');
                 expect(server.info.uri).to.equal('http://localhost:' + server.info.port);
                 server.stop();
                 done();
