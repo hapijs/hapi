@@ -30,7 +30,7 @@
     "inert": "2.0.x",
     "iron": "2.x.x",
     "items": "1.x.x",
-    "joi": "^4.4.x",
+    "joi": "^4.8.x",
     "kilt": "^1.1.x",
     "mimos": "1.x.x",
     "peekaboo": "1.x.x",
