@@ -1,5 +1,6 @@
 // Load modules
 
+var Path = require('path');
 var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
@@ -297,7 +298,7 @@ describe('Plugin', function () {
 
             plugin.register.attributes = {
                 pkg: {
-                    name: '--steve'
+                    name: 'steve'
                 }
             };
 
@@ -307,7 +308,7 @@ describe('Plugin', function () {
             server.register(plugin, function (err) {
 
                 expect(err).to.not.exist();
-                expect(server.connections[0]._registrations['--steve'].version).to.equal('0.0.0');
+                expect(server.connections[0]._registrations.steve.version).to.equal('0.0.0');
                 server.inject('/', function (res) {
 
                     expect(res.result).to.equal(Hapi.version);
@@ -404,7 +405,7 @@ describe('Plugin', function () {
                 log = [event, tags];
             });
 
-            server.register([require('./plugins/--test1'), require('./plugins/--test2')], function (err) {
+            server.register([internals.plugins.test1, internals.plugins.test2], function (err) {
 
                 expect(err).to.not.exist();
                 expect(internals.routesList(server)).to.deep.equal(['/test1', '/test2']);
@@ -424,7 +425,7 @@ describe('Plugin', function () {
                 log = [event, tags];
             });
 
-            server.register([{ plugin: require('./plugins/--test1') }, { plugin: require('./plugins/--test2') }], function (err) {
+            server.register([{ plugin: internals.plugins.test1 }, { plugin: internals.plugins.test2 }], function (err) {
 
                 expect(err).to.not.exist();
                 expect(internals.routesList(server)).to.deep.equal(['/test1', '/test2']);
@@ -453,9 +454,9 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(require('./plugins/--test1'), { route: { prefix: '/xyz' } }, function (err) {
+            server.register(internals.plugins.test1, { route: { prefix: '/xyz' } }, function (err) {
 
-                expect(server.plugins['--test1'].prefix).to.equal('/xyz');
+                expect(server.plugins.test1.prefix).to.equal('/xyz');
                 expect(err).to.not.exist();
                 server.inject('/xyz/test1', function (res) {
 
@@ -577,7 +578,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(require('./plugins/--test1'), { route: { vhost: 'example.com' } }, function (err) {
+            server.register(internals.plugins.test1, { route: { vhost: 'example.com' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/test1', function (res) {
@@ -822,9 +823,38 @@ describe('Plugin', function () {
 
         it('sets plugin context', function (done) {
 
+            var plugin = {
+                name: 'plugin',
+                register: function (plugin, options, next) {
+
+                    var bind = {
+                        value: 'in context',
+                        suffix: ' throughout'
+                    };
+
+                    plugin.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: function (request, reply) {
+
+                            return reply(this.value);
+                        }
+                    });
+
+                    plugin.ext('onPreResponse', function (request, reply) {
+
+                        return reply(request.response.source + this.suffix);
+                    });
+
+                    plugin.bind(bind);        // Call last to test late binding
+
+                    return next();
+                }
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.register(require('./plugins/--context'), function (err) {
+            server.register(plugin, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/', function (res) {
@@ -1085,12 +1115,12 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.register([require('./plugins/--deps1'), require('./plugins/--deps3')], function (err) {
+            server.register([internals.plugins.deps1, internals.plugins.deps3], function (err) {
 
                 expect(function () {
 
                     server.start();
-                }).to.throw('Plugin --deps1 missing dependency --deps2 in connection: ' + server.info.uri);
+                }).to.throw('Plugin deps1 missing dependency deps2 in connection: ' + server.info.uri);
                 done();
             });
         });
@@ -1249,7 +1279,7 @@ describe('Plugin', function () {
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
             server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
 
-            server.register(require('./plugins/--test1'), function (err) {
+            server.register(internals.plugins.test1, function (err) {
 
                 expect(err).to.not.exist();
 
@@ -1258,8 +1288,8 @@ describe('Plugin', function () {
                 expect(server.connections[2]._router.routes.get).to.not.exist();
                 expect(internals.routesList(server, 's4')).to.deep.equal(['/test1']);
 
-                expect(server.connections[0].plugins['--test1'].add(1, 3)).to.equal(4);
-                expect(server.connections[0].plugins['--test1'].glue('1', '3')).to.equal('13');
+                expect(server.connections[0].plugins.test1.add(1, 3)).to.equal(4);
+                expect(server.connections[0].plugins.test1.glue('1', '3')).to.equal('13');
 
                 done();
             });
@@ -1316,14 +1346,14 @@ describe('Plugin', function () {
             server.select('1').route({ method: 'GET', path: '/', handler: handler });
             server.select('2').route({ method: 'GET', path: '/', handler: handler });
 
-            server.register([require('./plugins/--deps1'), require('./plugins/--deps2'), require('./plugins/--deps3')], function (err) {
+            server.register([internals.plugins.deps1, internals.plugins.deps2, internals.plugins.deps3], function (err) {
 
                 expect(err).to.not.exist();
 
                 server.start(function (err) {
 
                     expect(err).to.not.exist();
-                    expect(server.plugins['--deps1'].breaking).to.equal('bad');
+                    expect(server.plugins.deps1.breaking).to.equal('bad');
 
                     server.connections[0].inject('/', function (res) {
 
@@ -1432,22 +1462,6 @@ describe('Plugin', function () {
                 server.handler('foo', 'bar');
             }).to.throw('Handler must be a function: foo');
             done();
-        });
-
-        it('sets directory route handler', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection({ files: { relativeTo: __dirname } });
-            server.register(require('./plugins/--handler'), function (err) {
-
-                expect(err).to.not.exist();
-                server.inject('/handler/package.json', function (res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(JSON.parse(res.result).name).to.equal('--handler');
-                    done();
-                });
-            });
         });
     });
 
@@ -1759,10 +1773,45 @@ describe('Plugin', function () {
 
     describe('path()', function () {
 
+        it('sets local path for directory route handler', function (done) {
+
+            var plugin = {
+                name: 'plugin',
+                register: function (plugin, options, next) {
+
+                    plugin.path(Path.join(__dirname, '..'));
+
+                    plugin.route({
+                        method: 'GET',
+                        path: '/handler/{file*}',
+                        handler: {
+                            directory: {
+                                path: './'
+                            }
+                        }
+                    });
+
+                    return next();
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ files: { relativeTo: __dirname } });
+            server.register(plugin, function (err) {
+
+                expect(err).to.not.exist();
+                server.inject('/handler/package.json', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
         it('throws when plugin sets undefined path', function (done) {
 
             var plugin = {
-                name: '--steve',
+                name: 'plugin',
                 register: function (plugin, options, next) {
 
                     plugin.path();
@@ -1807,7 +1856,7 @@ describe('Plugin', function () {
                 engines: { html: require('handlebars') }
             });
 
-            server.render('test', { title: 'test', message: 'Hapi' }, { path: __dirname + '/templates' }, function (err, rendered, config) {
+            server.render('test', { title: 'test', message: 'Hapi' }, { path: Path.join(__dirname, '/templates') }, function (err, rendered, config) {
 
                 expect(rendered).to.exist();
                 expect(rendered).to.contain('Hapi');
@@ -1823,8 +1872,7 @@ describe('Plugin', function () {
 
                     plugin.views({
                         engines: { 'html': require('handlebars') },
-                        relativeTo: __dirname + '/plugins/--views',
-                        path: './templates'
+                        relativeTo: Path.join(__dirname, '/templates/plugin')
                     });
 
                     var view = plugin.render('test', { message: 'steve' }, function (err, rendered, config) {
@@ -1866,7 +1914,7 @@ describe('Plugin', function () {
                         engines: { 'html': require('handlebars') }
                     });
 
-                    var view = plugin.render('test', { message: 'steve' }, { relativeTo: __dirname + '/plugins/--views', path: './templates' }, function (err, rendered, config) {
+                    var view = plugin.render('test', { message: 'steve' }, { relativeTo: Path.join(__dirname, '/templates/plugin') }, function (err, rendered, config) {
 
                         plugin.route([
                             {
@@ -1900,9 +1948,50 @@ describe('Plugin', function () {
 
         it('requires plugin with views', function (done) {
 
+            var plugin = {
+                name: 'plugin',
+                register: function (plugin, options, next) {
+
+                    plugin.path(__dirname);
+
+                    var views = {
+                        engines: { 'html': require('handlebars') },
+                        path: './templates/plugin'
+                    };
+
+                    plugin.views(views);
+                    if (Object.keys(views).length !== 2) {
+                        return next(new Error('plugin.view() modified options'));
+                    }
+
+                    plugin.route([
+                        {
+                            path: '/view', method: 'GET', handler: function (request, reply) {
+
+                                return reply.view('test', { message: options.message });
+                            }
+                        },
+                        {
+                            path: '/file', method: 'GET', handler: { file: './templates/plugin/test.html' }
+                        }
+                    ]);
+
+                    plugin.ext('onRequest', function (request, reply) {
+
+                        if (request.path === '/ext') {
+                            return reply.view('test', { message: 'grabbed' });
+                        }
+
+                        return reply.continue();
+                    });
+
+                    return next();
+                }
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.register({ plugin: require('./plugins/--views'), options: { message: 'viewing it' } }, function (err) {
+            server.register({ plugin: plugin, options: { message: 'viewing it' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/view', function (res) {
@@ -1931,8 +2020,7 @@ describe('Plugin', function () {
 
                     plugin.views({
                         engines: { 'html': require('handlebars') },
-                        relativeTo: __dirname + '/plugins/--views',
-                        path: './templates'
+                        relativeTo: Path.join(__dirname, '/templates/plugin')
                     });
 
                     plugin.route([
@@ -2058,11 +2146,109 @@ internals.plugins = {
         register: function (plugin, options, next) {
 
             if (options.route) {
-                plugin.register(require('./plugins/--test1'), options, next);
+                return plugin.register(internals.plugins.test1, options, next);
             }
-            else {
-                plugin.register(require('./plugins/--test1'), next);
-            }
+
+            return plugin.register(internals.plugins.test1, next);
         }
+    },
+    deps1: {
+        name: 'deps1',
+        register: function (plugin, options, next) {
+
+            plugin.dependency('deps2', function (plugin, next) {
+
+                plugin.expose('breaking', plugin.plugins.deps2.breaking);
+                return next();
+            });
+
+            plugin.select('a').ext('onRequest', function (request, reply) {
+
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '1|';
+                return reply.continue();
+            }, { after: 'deps3' });
+
+            return next();
+        }
+    },
+    deps2: {
+        name: 'deps2',
+        register: function (plugin, options, next) {
+
+            plugin.select('b').ext('onRequest', function (request, reply) {
+
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '2|';
+                return reply.continue();
+            }, { after: 'deps3', before: 'deps1' });
+
+            plugin.expose('breaking', 'bad');
+
+            return next();
+        }
+    },
+    deps3: {
+        name: 'deps3',
+        register: function (plugin, options, next) {
+
+            plugin.select('c').ext('onRequest', function (request, reply) {
+
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '3|';
+                return reply.continue();
+            });
+
+            return next();
+        }
+    },
+    test1: {
+        register: function (plugin, options, next) {
+
+            var handler = function (request, reply) {
+
+                return reply('testing123' + ((plugin.settings.app && plugin.settings.app.my) || ''));
+            };
+
+            plugin.select('test').route({ path: '/test1', method: 'GET', handler: handler });
+
+            plugin.expose({
+                add: function (a, b) {
+
+                    return a + b;
+                }
+            });
+
+            plugin.expose('glue', function (a, b) {
+
+                return a + b;
+            });
+
+            plugin.expose('prefix', plugin.config.route.prefix);
+
+            return next();
+        }
+    },
+    test2: {
+        register: function (plugin, options, next) {
+
+            plugin.route({ path: '/test2', method: 'GET', handler: function (request, reply) { return reply('testing123'); } });
+            plugin.log('test', 'abc');
+            return next();
+        }
+    }
+};
+
+
+internals.plugins.test1.register.attributes = {
+    name: 'test1',
+    version: '1.0.0'
+};
+
+
+internals.plugins.test2.register.attributes = {
+    pkg: {
+        name: 'test2',
+        version: '1.0.0'
     }
 };
