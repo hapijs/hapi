@@ -2270,7 +2270,7 @@ Registers a plugin where:
 
 - `plugins` - a plugin object or array of plugin objects. The objects can use one of two formats:
     - a module plugin object.
-    - a manually constructed plugin object.
+    - a manually constructed plugin object. THIS IS NO LONGER TRUE
 - `options` - optional registration options (used by **hapi** and is not passed to the plugin):
     - `select` - string or array of strings of labels to pre-select for plugin registration.
     - `route` - apply modifiers to any routes added by the plugin:

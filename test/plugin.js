@@ -1,7 +1,9 @@
 // Load modules
 
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
+var Hoek = require('hoek');
 var Lab = require('lab');
 
 
@@ -140,11 +142,10 @@ describe('Plugin', function () {
 
                     expect(options.something).to.be.true();
                     return next();
-                },
-                options: { something: true }
+                }
             };
 
-            server.register(plugin, function (err) {
+            server.register({ plugin: plugin, options: { something: true } }, function (err) {
 
                 expect(err).to.not.exist();
                 done();
@@ -181,27 +182,6 @@ describe('Plugin', function () {
                 server.register(plugin);
             }).to.throw('A callback function is required to register a plugin');
             done();
-        });
-
-        it('registers plugin via server interface', function (done) {
-
-            var plugin = {
-                name: 'test',
-                register: function (plugin, options, next) {
-
-                    expect(options.something).to.be.true();
-                    return next();
-                },
-                options: { something: true }
-            };
-
-            var server = new Hapi.Server();
-            server.connection();
-            server.register(plugin, function (err) {
-
-                expect(err).to.not.exist();
-                done();
-            });
         });
 
         it('returns plugin error', function (done) {
@@ -246,7 +226,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register({ register: 'x' }, function (err) { });
-            }).to.throw('Plugin register must be a function or a required plugin module');
+            }).to.throw('Plugin register must be a function');
             done();
         });
 
@@ -262,7 +242,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(plugin, function (err) { });
-            }).to.throw('Plugin register must be a function or a required plugin module');
+            }).to.throw('Plugin register must be a function');
             done();
         });
 
@@ -280,7 +260,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(plugin, function (err) { });
-            }).to.throw('Plugin register must be a function or a required plugin module');
+            }).to.throw('Plugin register must be a function');
             done();
         });
 
@@ -458,7 +438,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(require('./plugins/--child'), function (err) {
+            server.register(internals.plugins.child, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/test1', function (res) {
@@ -537,7 +517,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(require('./plugins/--child'), { route: { prefix: '/xyz' } }, function (err) {
+            server.register(internals.plugins.child, { route: { prefix: '/xyz' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/xyz/test1', function (res) {
@@ -552,7 +532,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(require('./plugins/--child'), { route: { vhost: 'example.com' } }, function (err) {
+            server.register(internals.plugins.child, { route: { vhost: 'example.com' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
@@ -567,7 +547,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register({ plugin: require('./plugins/--child'), options: { route: { prefix: '/inner' } } }, { route: { prefix: '/xyz' } }, function (err) {
+            server.register({ plugin: internals.plugins.child, options: { route: { prefix: '/inner' } } }, { route: { prefix: '/xyz' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/xyz/inner/test1', function (res) {
@@ -582,7 +562,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register({ plugin: require('./plugins/--child'), options: { route: { vhost: 'example.net' } } }, { route: { vhost: 'example.com' } }, function (err) {
+            server.register({ plugin: internals.plugins.child, options: { route: { vhost: 'example.net' } } }, { route: { vhost: 'example.com' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
@@ -815,81 +795,12 @@ describe('Plugin', function () {
 
         it('adds auth strategy via plugin', function (done) {
 
-            var plugin = {
-                name: 'plugin',
-                register: function (plugin, options, next) {
-
-                    plugin.auth.scheme('basic', function (server, options) {
-
-                        var settings = Hoek.clone(options);
-
-                        var scheme = {
-                            authenticate: function (request, reply) {
-
-                                var req = request.raw.req;
-                                var authorization = req.headers.authorization;
-                                if (!authorization) {
-                                    return reply(Boom.unauthorized(null, 'Basic'));
-                                }
-
-                                var parts = authorization.split(/\s+/);
-
-                                if (parts[0] &&
-                                    parts[0].toLowerCase() !== 'basic') {
-
-                                    return reply(Boom.unauthorized(null, 'Basic'));
-                                }
-
-                                if (parts.length !== 2) {
-                                    return reply(Boom.badRequest('Bad HTTP authentication header format', 'Basic'));
-                                }
-
-                                var credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
-                                if (credentialsParts.length !== 2) {
-                                    return reply(Boom.badRequest('Bad header internal syntax', 'Basic'));
-                                }
-
-                                var username = credentialsParts[0];
-                                var password = credentialsParts[1];
-
-                                settings.validateFunc(username, password, function (err, isValid, credentials) {
-
-                                    if (!isValid) {
-                                        return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials: credentials });
-                                    }
-
-                                    return reply(null, { credentials: credentials });
-                                });
-                            }
-                        };
-
-                        return scheme;
-                    });
-
-                    var loadUser = function (username, password, callback) {
-
-                        if (username === 'john') {
-                            return callback(null, password === '12345', { user: 'john' });
-                        }
-
-                        return callback(null, false);
-                    };
-
-                    plugin.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
-
-                    plugin.auth.scheme('special', function () { return { authenticate: function () { } }; });
-                    plugin.auth.strategy('special', 'special', {});
-
-                    return next();
-                }
-            };
-
             var server = new Hapi.Server();
             server.connection({ labels: 'a' });
             server.connection({ labels: 'b' });
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('authenticated!'); } });
 
-            server.register(require('./plugins/--auth'), function (err) {
+            server.register(internals.plugins.auth, function (err) {
 
                 expect(err).to.not.exist();
 
@@ -2070,4 +1981,88 @@ internals.routesList = function (server, label) {
     }
 
     return list;
+};
+
+
+internals.plugins = {
+    auth: {
+        name: 'plugin',
+        register: function (plugin, options, next) {
+
+            plugin.auth.scheme('basic', function (server, options) {
+
+                var settings = Hoek.clone(options);
+
+                var scheme = {
+                    authenticate: function (request, reply) {
+
+                        var req = request.raw.req;
+                        var authorization = req.headers.authorization;
+                        if (!authorization) {
+                            return reply(Boom.unauthorized(null, 'Basic'));
+                        }
+
+                        var parts = authorization.split(/\s+/);
+
+                        if (parts[0] &&
+                            parts[0].toLowerCase() !== 'basic') {
+
+                            return reply(Boom.unauthorized(null, 'Basic'));
+                        }
+
+                        if (parts.length !== 2) {
+                            return reply(Boom.badRequest('Bad HTTP authentication header format', 'Basic'));
+                        }
+
+                        var credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
+                        if (credentialsParts.length !== 2) {
+                            return reply(Boom.badRequest('Bad header internal syntax', 'Basic'));
+                        }
+
+                        var username = credentialsParts[0];
+                        var password = credentialsParts[1];
+
+                        settings.validateFunc(username, password, function (err, isValid, credentials) {
+
+                            if (!isValid) {
+                                return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials: credentials });
+                            }
+
+                            return reply(null, { credentials: credentials });
+                        });
+                    }
+                };
+
+                return scheme;
+            });
+
+            var loadUser = function (username, password, callback) {
+
+                if (username === 'john') {
+                    return callback(null, password === '12345', { user: 'john' });
+                }
+
+                return callback(null, false);
+            };
+
+            plugin.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
+
+            plugin.auth.scheme('special', function () { return { authenticate: function () { } }; });
+            plugin.auth.strategy('special', 'special', {});
+
+            return next();
+        }
+    },
+    child: {
+        name: 'child',
+        register: function (plugin, options, next) {
+
+            if (options.route) {
+                plugin.register(require('./plugins/--test1'), options, next);
+            }
+            else {
+                plugin.register(require('./plugins/--test1'), next);
+            }
+        }
+    }
 };
