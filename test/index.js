@@ -19,14 +19,8 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('Utils', function () {
+it('returns the correct package version number', function (done) {
 
-    describe('#version', function () {
-
-        it('returns the correct package version number', function (done) {
-
-            expect(Hapi.version).to.equal(Package.version);
-            done();
-        });
-    });
+    expect(Hapi.version).to.equal(Package.version);
+    done();
 });
