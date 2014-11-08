@@ -1933,8 +1933,10 @@ It provides the following methods:
     - `msec` - the time-to-live value in milliseconds.
 - `type(mimeType)` - sets the HTTP 'Content-Type' header where:
     - `value` - is the mime type. Should only be used to override the built-in default for each response type.
-- `unstate(name)` - clears the HTTP cookie by setting an expired value where:
+- `unstate(name, [options])` - clears the HTTP cookie by setting an expired value where:
     - `name` - the cookie name.
+    - `options` - optional configuration for expiring cookie. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
+          the specified keys in `options` override those same keys in the server definition (but not others).
 - `vary(header)` - adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
     - `header` - the HTTP request header name.
 

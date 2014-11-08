@@ -44,7 +44,7 @@
       "version": "1.1.0"
     },
     "joi": {
-      "version": "4.7.0",
+      "version": "4.8.0",
       "dependencies": {
         "isemail": {
           "version": "1.1.1"
@@ -62,6 +62,9 @@
         }
       }
     },
+    "peekaboo": {
+      "version": "1.0.0"
+    },
     "qs": {
       "version": "2.3.2"
     },
@@ -72,7 +75,7 @@
       "version": "1.2.0"
     },
     "subtext": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "dependencies": {
         "content": {
           "version": "1.0.1"

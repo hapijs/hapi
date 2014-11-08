@@ -90,6 +90,25 @@ describe('response', function () {
             done();
         });
     });
+
+    it('appends to set-cookie header', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply('ok').header('set-cookie', 'A').header('set-cookie', 'B', { append: true });
+        };
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.deep.equal(['A', 'B']);
+            done();
+        });
+    });
+
     describe('caching', function () {
 
         it('returns max-age value when route sets cache', function (done) {
@@ -3605,6 +3624,26 @@ describe('response', function () {
                     done();
                 });
             });
+
+        });
+    });
+
+    it('allows options into unstate()', function (done) {
+
+        var handler = function (request, reply) {
+
+            reply().unstate('session', { path: '/unset', isSecure: true });
+        };
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject('/', function (unset) {
+
+            expect(unset.statusCode).to.equal(200);
+            expect(unset.headers['set-cookie']).to.deep.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
+            done();
         });
     });
 

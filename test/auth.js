@@ -28,7 +28,7 @@ describe('authentication', function () {
         server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
         server.inject('/', function (res) {
 
@@ -48,7 +48,7 @@ describe('authentication', function () {
         server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok').ttl(1000); } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').ttl(1000); } });
 
         server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -66,7 +66,7 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true);
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -96,7 +96,7 @@ describe('authentication', function () {
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: {} } });
             server.auth.default('default');
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.inject('/', function (res) {
 
@@ -117,7 +117,7 @@ describe('authentication', function () {
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: {} } });
             server.auth.default({ strategy: 'default' });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.inject('/', function (res) {
 
@@ -180,7 +180,7 @@ describe('authentication', function () {
                         },
                         handler: function (request, reply) {
 
-                            reply('ok');
+                            return reply('ok');
                         }
                     }
                 });
@@ -201,7 +201,7 @@ describe('authentication', function () {
 
             var handler = function (request, reply) {
 
-                reply(!!request.auth.credentials);
+                return reply(!!request.auth.credentials);
             };
             server.route({ method: 'GET', path: '/', config: { handler: handler, auth: { mode: 'optional' } } });
 
@@ -225,7 +225,7 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.mode); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.mode); } });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -246,7 +246,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.strategy); },
+                    handler: function (request, reply) { return reply(request.auth.strategy); },
                     auth: {
                         strategies: ['first', 'second']
                     }
@@ -273,12 +273,12 @@ describe('authentication', function () {
                 var options = { url: '/2', credentials: request.auth.credentials };
                 server.inject(options, function (res) {
 
-                    reply(res.result);
+                    return reply(res.result);
                 });
             };
 
             server.route({ method: 'GET', path: '/1', handler: doubleHandler });
-            server.route({ method: 'GET', path: '/2', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/2', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -297,7 +297,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         strategy: 'default'
                     }
@@ -321,7 +321,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: 'default'
                 }
             });
@@ -337,7 +337,7 @@ describe('authentication', function () {
 
             var handler = function (request, reply) {
 
-                reply({ status: request.auth.isAuthenticated, error: request.auth.error });
+                return reply({ status: request.auth.isAuthenticated, error: request.auth.error });
             };
 
             var server = new Hapi.Server();
@@ -375,7 +375,7 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.inject({ url: '/', headers: { authorization: 'Custom' } }, function (res) {
 
@@ -390,7 +390,7 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.on('request', function (request, event, tags) {
 
@@ -411,7 +411,7 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { message: 'in a bottle' } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.inject({ url: '/', headers: { authorization: 'Custom message' } }, function (res) {
 
@@ -433,7 +433,7 @@ describe('authentication', function () {
                 expect(err.message).to.equal('Uncaught error: Boom');
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -448,7 +448,7 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', 'try', { users: { message: 'in a bottle' } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
 
             server.inject({ url: '/', headers: { authorization: 'Custom message' } }, function (res) {
 
@@ -468,7 +468,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: 'one'
                     }
@@ -492,7 +492,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: ['one', 'three']
                     }
@@ -516,7 +516,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: ['one', 'three']
                     }
@@ -540,7 +540,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: 'one'
                     }
@@ -564,7 +564,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: 'onex'
                     }
@@ -588,7 +588,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: 'b'
                     }
@@ -612,7 +612,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: 'b'
                     }
@@ -636,7 +636,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         scope: ['c', 'd']
                     }
@@ -660,7 +660,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         entity: 'user'
                     }
@@ -684,7 +684,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         entity: 'user'
                     }
@@ -708,7 +708,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         entity: 'app'
                     }
@@ -732,7 +732,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         entity: 'app'
                     }
@@ -755,14 +755,14 @@ describe('authentication', function () {
                 return {
                     authenticate: function (request, reply) {
 
-                        reply('Redirecting ...').redirect('/test');
+                        return reply('Redirecting ...').redirect('/test');
                     }
                 };
             });
 
             server.auth.strategy('test', 'test', true, {});
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('test'); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('test'); } });
 
             var result;
             server.on('request', function (request, event, tags) {
@@ -792,7 +792,7 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         payload: 'required'
                     }
@@ -820,7 +820,7 @@ describe('authentication', function () {
                     method: 'POST',
                     path: '/',
                     config: {
-                        handler: function (request, reply) { reply(request.auth.credentials.user); },
+                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
                         auth: {
                             payload: 'required'
                         }
@@ -844,7 +844,7 @@ describe('authentication', function () {
                     method: 'POST',
                     path: '/',
                     config: {
-                        handler: function (request, reply) { reply(request.auth.credentials.user); },
+                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
                         auth: {
                             payload: 'optional'
                         }
@@ -870,7 +870,7 @@ describe('authentication', function () {
                     method: 'POST',
                     path: '/',
                     config: {
-                        handler: function (request, reply) { reply(request.auth.credentials.user); },
+                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
                         auth: {
                             strategies: ['default2', 'default1'],
                             payload: 'optional'
@@ -891,7 +891,7 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); }
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); }
                 }
             });
 
@@ -912,7 +912,7 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(); },
+                    handler: function (request, reply) { return reply(); },
                     auth: {
                         mode: 'try',
                         payload: 'required'
@@ -937,7 +937,7 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         payload: 'optional'
                     }
@@ -961,7 +961,7 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         payload: 'required'
                     }
@@ -985,7 +985,7 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { reply(request.auth.credentials.user); },
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
                     auth: {
                         payload: 'required'
                     }

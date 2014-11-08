@@ -18,7 +18,7 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('Method', function () {
+describe('Methods', function () {
 
     it('registers a method', function (done) {
 

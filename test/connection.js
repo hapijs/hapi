@@ -127,7 +127,7 @@ describe('Connection', function () {
         var listener = Http.createServer();
         var server = new Hapi.Server();
         server.connection({ listener: listener });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
 
         server.start(function () {
 
@@ -146,7 +146,7 @@ describe('Connection', function () {
         var listener = Http.createServer();
         var server = new Hapi.Server();
         server.connection({ listener: listener, autoListen: false });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
 
         listener.listen(0, 'localhost', function () {
 
@@ -188,7 +188,7 @@ describe('Connection', function () {
 
                     setTimeout(function () {
 
-                        reply('too late');
+                        return reply('too late');
                     }, 70);
                 }
             }
@@ -210,7 +210,7 @@ describe('Connection', function () {
 
         var server = new Hapi.Server();
         server.connection({ timeout: { socket: false } });
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(); } } });
+        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(); } } });
 
         server.start(function () {
 
@@ -471,7 +471,7 @@ describe('Connection', function () {
 
                 var start = Date.now();
                 while (Date.now() - start < 10) { }
-                reply('ok');
+                return reply('ok');
             };
 
             var logged = null;
@@ -642,7 +642,7 @@ describe('Connection', function () {
                 }
             ]);
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.app.x); } });
 
             server.inject('/', function (res) {
 
@@ -661,7 +661,7 @@ describe('Connection', function () {
                 return reply.continue();
             }, { bind: { y: 42 } });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.app.x); } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.app.x); } });
 
             server.inject('/', function (res) {
 
@@ -771,7 +771,7 @@ describe('Connection', function () {
                     return reply(null, Boom.badRequest('boom'));
                 });
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
 
                 server.inject('/', function (res) {
 
@@ -794,7 +794,7 @@ describe('Connection', function () {
                     return reply.view('test', { message: 'hola!' });
                 });
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
 
                 server.inject('/', function (res) {
 
@@ -819,8 +819,8 @@ describe('Connection', function () {
                     return reply.continue();
                 });
 
-                server.route({ method: 'GET', path: '/text', handler: function (request, reply) { reply('ok'); } });
-                server.route({ method: 'GET', path: '/obj', handler: function (request, reply) { reply({ status: 'ok' }); } });
+                server.route({ method: 'GET', path: '/text', handler: function (request, reply) { return reply('ok'); } });
+                server.route({ method: 'GET', path: '/obj', handler: function (request, reply) { return reply({ status: 'ok' }); } });
 
                 server.inject({ method: 'GET', url: '/text' }, function (res) {
 
@@ -930,6 +930,153 @@ describe('Connection', function () {
 
                     cmd.stdin.end();
                 });
+            });
+        });
+    });
+
+    describe('route()', function () {
+
+        it('overrides the default notFound handler', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: '*', path: '/{p*}', handler: function (request, reply) { return reply('found'); } });
+            server.inject({ method: 'GET', url: '/page' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('found');
+                done();
+            });
+        });
+
+        it('allows methods array', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var config = { method: ['HEAD', 'GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { return reply(request.route.method); } };
+            server.route(config);
+            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.payload).to.equal('get');
+
+                    server.inject({ method: 'PUT', url: '/' }, function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        expect(res.payload).to.equal('put');
+
+                        server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                            expect(res.statusCode).to.equal(200);
+                            expect(res.payload).to.equal('post');
+
+                            server.inject({ method: 'DELETE', url: '/' }, function (res) {
+
+                                expect(res.statusCode).to.equal(200);
+                                expect(res.payload).to.equal('delete');
+                                expect(config.method).to.deep.equal(['HEAD', 'GET', 'PUT', 'POST', 'DELETE']);
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it('adds routes using single and array methods', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route([
+                {
+                    method: 'GET',
+                    path: '/api/products',
+                    handler: function (request, reply) { return reply(); }
+                },
+                {
+                    method: 'GET',
+                    path: '/api/products/{id}',
+                    handler: function (request, reply) { return reply(); }
+                },
+                {
+                    method: 'POST',
+                    path: '/api/products',
+                    handler: function (request, reply) { return reply(); }
+                },
+                {
+                    method: ['PUT', 'PATCH'],
+                    path: '/api/products/{id}',
+                    handler: function (request, reply) { return reply(); }
+                },
+                {
+                    method: 'DELETE',
+                    path: '/api/products/{id}',
+                    handler: function (request, reply) { return reply(); }
+                }
+            ]);
+
+            var table = server.table()[server.info.uri];
+            var paths = table.map(function (route) {
+                var obj = {
+                    method: route.method,
+                    path: route.path
+                };
+                return obj;
+            });
+
+            expect(table).to.have.length(6);
+            expect(paths).to.only.deep.include([
+                { method: 'get', path: '/api/products' },
+                { method: 'get', path: '/api/products/{id}' },
+                { method: 'post', path: '/api/products' },
+                { method: 'put', path: '/api/products/{id}' },
+                { method: 'patch', path: '/api/products/{id}' },
+                { method: 'delete', path: '/api/products/{id}' }
+            ]);
+            done();
+        });
+    });
+
+    describe('_defaultRoutes()', function () {
+
+        it('returns 404 when making a request to a route that does not exist', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.inject({ method: 'GET', url: '/nope' }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+
+        it('returns 404 on OPTIONS when cors disabled', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ cors: false });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+
+            server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+
+        it('returns 400 on bad request', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/a/{p}', handler: function (request, reply) { return reply(); } });
+            server.inject('/a/%', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                done();
             });
         });
     });

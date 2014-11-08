@@ -33,6 +33,7 @@
     "joi": "^4.4.x",
     "kilt": "^1.1.x",
     "mimos": "1.x.x",
+    "peekaboo": "1.x.x",
     "qs": "2.x.x",
     "shot": "1.x.x",
     "statehood": "^1.2.x",
@@ -44,7 +45,6 @@
   "devDependencies": {
     "code": "1.x.x",
     "handlebars": "1.x.x",
-    "form-data": "0.1.x",
     "lab": "5.x.x"
   },
   "scripts": {
