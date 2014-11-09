@@ -1000,6 +1000,24 @@ describe('authentication', function () {
         });
     });
 
+    describe('response()', function () {
+
+        it('fails on response error', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { response: Boom.internal() } } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
     describe('test()', function () {
 
         it('tests a request', function (done) {
@@ -1085,7 +1103,7 @@ internals.implementation = function (server, options) {
         },
         response: function (request, next) {
 
-            return next();
+            return next(request.auth.credentials.response);
         }
     };
 

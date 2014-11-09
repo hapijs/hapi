@@ -15,7 +15,6 @@ var Hoek = require('hoek');
 var Joi = require('joi');
 var Lab = require('lab');
 var Wreck = require('wreck');
-var Payload = require('../lib/response/payload');
 var Response = require('../lib/response');
 
 
@@ -51,7 +50,7 @@ describe('response', function () {
         var handler = function (request, reply) {
 
             reply.state('bad', {});
-            reply(new Response.Message('blow', request, { marshall: marshall }));
+            reply(new Response('blow', request, { marshall: marshall }));
         };
 
         var server = new Hapi.Server({ debug: false });
@@ -3643,16 +3642,6 @@ describe('response', function () {
 
             expect(unset.statusCode).to.equal(200);
             expect(unset.headers['set-cookie']).to.deep.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
-            done();
-        });
-    });
-
-    describe('Payload', function () {
-
-        it('handles undefined data', function (done) {
-
-            var payload = new Payload(undefined, {});
-            expect(payload._data).to.equal(null);
             done();
         });
     });
