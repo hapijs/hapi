@@ -7,6 +7,7 @@ var Os = require('os');
 var Stream = require('stream');
 var Zlib = require('zlib');
 var Boom = require('boom');
+var CatboxMemory = require('catbox-memory');
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
@@ -1670,7 +1671,7 @@ describe('transmission', function () {
 
         it('caches using non default cache', function (done) {
 
-            var server = new Hapi.Server({ cache: { name: 'primary', engine: require('catbox-memory') } });
+            var server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
             server.connection();
             var defaults = server.cache('a', { expiresIn: 2000 });
             var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });

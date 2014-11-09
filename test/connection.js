@@ -9,6 +9,7 @@ var Os = require('os');
 var Path = require('path');
 var Boom = require('boom');
 var Code = require('code');
+var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -676,7 +677,7 @@ describe('Connection', function () {
             server.connection();
 
             server.views({
-                engines: { html: require('handlebars') },
+                engines: { html: Handlebars },
                 path: __dirname + '/templates'
             });
 
@@ -690,7 +691,7 @@ describe('Connection', function () {
                 register: function (plugin, options, next) {
 
                     plugin.views({
-                        engines: { html: require('handlebars') },
+                        engines: { html: Handlebars },
                         path: './no_such_directory_found'
                     });
 
@@ -785,7 +786,7 @@ describe('Connection', function () {
                 var server = new Hapi.Server();
                 server.connection();
                 server.views({
-                    engines: { 'html': require('handlebars') },
+                    engines: { 'html': Handlebars },
                     path: __dirname + '/templates'
                 });
 

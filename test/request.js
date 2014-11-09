@@ -5,6 +5,7 @@ var Net = require('net');
 var Stream = require('stream');
 var Boom = require('boom');
 var Code = require('code');
+var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -917,7 +918,7 @@ describe('Request', function () {
             server.connection();
 
             server.views({
-                engines: { 'html': require('handlebars') },
+                engines: { 'html': Handlebars },
                 path: __dirname
             });
 

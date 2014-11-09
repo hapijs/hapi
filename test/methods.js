@@ -1,5 +1,6 @@
 // Load modules
 
+var CatboxMemory = require('catbox-memory');
 var Code = require('code');
 var Hapi = require('..');
 var Lab = require('lab');
@@ -419,7 +420,7 @@ describe('Methods', function () {
 
         var fn = function () {
 
-            var server = new Hapi.Server({ cache: require('catbox-memory') });
+            var server = new Hapi.Server({ cache: CatboxMemory });
             server.connection();
             server.method('user', function () { }, { cache: { x: 'y' } });
         };
@@ -488,7 +489,7 @@ describe('Methods', function () {
 
     it('returns a valid result when calling a method using the cache', function (done) {
 
-        var server = new Hapi.Server({ cache: require('catbox-memory') });
+        var server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
 
         var gen = 0;
@@ -513,7 +514,7 @@ describe('Methods', function () {
 
     it('returns timeout when method taking too long using the cache', function (done) {
 
-        var server = new Hapi.Server({ cache: require('catbox-memory') });
+        var server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
 
         var gen = 0;
@@ -549,7 +550,7 @@ describe('Methods', function () {
 
     it('supports empty key method', function (done) {
 
-        var server = new Hapi.Server({ cache: require('catbox-memory') });
+        var server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
 
         var gen = 0;
@@ -574,7 +575,7 @@ describe('Methods', function () {
 
     it('returns valid results when calling a method (with different keys) using the cache', function (done) {
 
-        var server = new Hapi.Server({ cache: require('catbox-memory') });
+        var server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
@@ -598,7 +599,7 @@ describe('Methods', function () {
 
     it('errors when key generation fails', function (done) {
 
-        var server = new Hapi.Server({ cache: require('catbox-memory') });
+        var server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
 
         var method = function (id, next) {

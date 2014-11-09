@@ -2,7 +2,9 @@
 
 var Path = require('path');
 var Boom = require('boom');
+var CatboxMemory = require('catbox-memory');
 var Code = require('code');
+var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -892,7 +894,7 @@ describe('Plugin', function () {
 
         it('provisions a server cache with custom partition', function (done) {
 
-            var server = new Hapi.Server({ cache: { engine: require('catbox-memory'), partition: 'hapi-test-other' } });
+            var server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
             server.connection();
             var cache = server.cache('test', { expiresIn: 1000 });
             server.start(function () {
@@ -939,7 +941,7 @@ describe('Plugin', function () {
 
         it('allows reusing the same cache segment', function (done) {
 
-            var server = new Hapi.Server({ cache: { engine: require('catbox-memory'), shared: true } });
+            var server = new Hapi.Server({ cache: { engine: CatboxMemory, shared: true } });
             server.connection();
             expect(function () {
 
@@ -1836,7 +1838,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
             server.views({
-                engines: { html: require('handlebars') },
+                engines: { html: Handlebars },
                 path: __dirname + '/templates'
             });
 
@@ -1853,7 +1855,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
             server.views({
-                engines: { html: require('handlebars') }
+                engines: { html: Handlebars }
             });
 
             server.render('test', { title: 'test', message: 'Hapi' }, { path: Path.join(__dirname, '/templates') }, function (err, rendered, config) {
@@ -1871,7 +1873,7 @@ describe('Plugin', function () {
                 register: function (plugin, options, next) {
 
                     plugin.views({
-                        engines: { 'html': require('handlebars') },
+                        engines: { 'html': Handlebars },
                         relativeTo: Path.join(__dirname, '/templates/plugin')
                     });
 
@@ -1911,7 +1913,7 @@ describe('Plugin', function () {
                 register: function (plugin, options, next) {
 
                     plugin.views({
-                        engines: { 'html': require('handlebars') }
+                        engines: { 'html': Handlebars }
                     });
 
                     var view = plugin.render('test', { message: 'steve' }, { relativeTo: Path.join(__dirname, '/templates/plugin') }, function (err, rendered, config) {
@@ -1955,7 +1957,7 @@ describe('Plugin', function () {
                     plugin.path(__dirname);
 
                     var views = {
-                        engines: { 'html': require('handlebars') },
+                        engines: { 'html': Handlebars },
                         path: './templates/plugin'
                     };
 
@@ -2019,7 +2021,7 @@ describe('Plugin', function () {
                 register: function (plugin, options, next) {
 
                     plugin.views({
-                        engines: { 'html': require('handlebars') },
+                        engines: { 'html': Handlebars },
                         relativeTo: Path.join(__dirname, '/templates/plugin')
                     });
 

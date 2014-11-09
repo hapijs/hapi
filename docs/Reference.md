@@ -2629,7 +2629,7 @@ exports.register = function (plugin, options, next) {
     plugin.views({
         engines: {
             html: {
-              module: Handlebars.create()
+              module: require('handlebars').create()
             }
         },
         path: './templates'
@@ -2782,7 +2782,7 @@ exports.register = function (plugin, options, next) {
     plugin.views({
         engines: {
             html: {
-              module: Handlebars.create()
+              module: require('handlebars').create()
             }
         },
         path: './templates'
