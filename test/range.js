@@ -21,7 +21,7 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('Response Range', function () {
+describe('response range', function () {
 
     it('returns a subset of a file (start)', function (done) {
 
@@ -247,7 +247,7 @@ describe('Response Range', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(new TestStream()); } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new TestStream()); } });
 
         server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } }, function (res) {
 
@@ -293,7 +293,7 @@ describe('Response Range', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(new TestStream()); } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new TestStream()); } });
 
         server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, function (res) {
 

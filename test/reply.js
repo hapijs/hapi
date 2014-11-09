@@ -18,7 +18,7 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('handler', function () {
+describe('Reply', function () {
 
     it('throws when reply called twice', function (done) {
 

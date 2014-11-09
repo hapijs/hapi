@@ -26,7 +26,7 @@ describe('Route', function () {
 
             var route = {};
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route(route);
         };
         expect(fn).to.throw();
@@ -41,7 +41,7 @@ describe('Route', function () {
                 path: '/test'
             };
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route(route);
         };
         expect(fn).to.throw();
@@ -57,7 +57,7 @@ describe('Route', function () {
                 method: 'put'
             };
             var server = new Hapi.Server();
-        server.connection();
+            server.connection();
             server.route(route);
         };
         expect(fn).to.throw();
@@ -100,7 +100,7 @@ describe('Route', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(request.route.app.x + request.route.plugins.x.y); }, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
+        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(request.route.app.x + request.route.plugins.x.y); }, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('ok');
@@ -124,7 +124,7 @@ describe('Route', function () {
         var server = new Hapi.Server();
         server.connection();
         var context = { key: 'is ' };
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(this.key + (this === context)); }, config: { bind: context } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(this.key + (this === context)); }, config: { bind: context } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');
@@ -137,7 +137,7 @@ describe('Route', function () {
         var server = new Hapi.Server();
         server.connection();
         var app = { key: 'is ' };
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.route.app.key + (request.route.app === app)); }, config: { app: app } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.route.app.key + (request.route.app === app)); }, config: { app: app } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');
@@ -150,7 +150,7 @@ describe('Route', function () {
         var server = new Hapi.Server();
         server.connection();
         var plugins = { key: 'is ' };
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply(request.route.plugins.key + (request.route.plugins === plugins)); }, config: { plugins: plugins } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.route.plugins.key + (request.route.plugins === plugins)); }, config: { plugins: plugins } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');

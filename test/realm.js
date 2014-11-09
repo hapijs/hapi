@@ -1,17 +1,8 @@
 // Load modules
 
-var Net = require('net');
-var Fs = require('fs');
-var Http = require('http');
-var Https = require('https');
-var Stream = require('stream');
-var Os = require('os');
-var Path = require('path');
 var Code = require('code');
 var Hapi = require('..');
-var Hoek = require('hoek');
 var Lab = require('lab');
-var Wreck = require('wreck');
 
 
 // Declare internals
