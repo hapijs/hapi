@@ -36,6 +36,28 @@ describe('Server', function () {
         done();
     });
 
+    it('does not cache etags', function (done) {
+
+        var server = new Hapi.Server({ files: { etagsCacheMaxSize: 0 } });
+        server.connection({ files: { relativeTo: __dirname } });
+        server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
+
+        server.inject('/note', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('Test');
+            expect(res.headers.etag).to.not.exist();
+
+            server.inject('/note', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Test');
+                expect(res.headers.etag).to.not.exist();
+                done();
+            });
+        });
+    });
+
     describe('start()', function () {
 
         it('starts and stops', function (done) {

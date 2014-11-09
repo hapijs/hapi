@@ -910,6 +910,33 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('emits internalError when view file for handler not found', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            server.views({
+                engines: { 'html': require('handlebars') },
+                path: __dirname
+            });
+
+            server.once('internalError', function (request, err) {
+
+                expect(err).to.exist();
+                expect(err.message).to.contain('View file not found');
+                done();
+            });
+
+            server.route({ method: 'GET', path: '/{param}', handler: { view: 'noview' } });
+
+            server.inject('/hello', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist();
+                expect(res.result.message).to.equal('An internal server error occurred');
+            });
+        });
     });
 
     describe('timeout', { parallel: false }, function () {

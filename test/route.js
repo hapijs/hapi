@@ -157,4 +157,22 @@ describe('Route', function () {
             done();
         });
     });
+
+    it('overrides server relativeTo', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        var handler = function (request, reply) {
+
+            return reply.file('../package.json');
+        };
+
+        server.route({ method: 'GET', path: '/file', handler: handler, config: { files: { relativeTo: __dirname } } });
+
+        server.inject('/file', function (res) {
+
+            expect(res.payload).to.contain('hapi');
+            done();
+        });
+    });
 });
