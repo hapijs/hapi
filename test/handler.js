@@ -21,35 +21,97 @@ var expect = Code.expect;
 
 describe('handler', function () {
 
-    it('uses string handler', function (done) {
+    describe('execute()', function () {
 
-        var server = new Hapi.Server();
-        server.connection();
-        server.method('handler.get', function (request, next) {
+        it('returns 500 on handler exception (same tick)', function (done) {
 
-            return next(null, request.params.x + request.params.y);
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            var handler = function (request) {
+
+                var x = a.b.c;
+            };
+
+            server.route({ method: 'GET', path: '/domain', handler: handler });
+
+            server.inject('/domain', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
         });
 
-        server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
-        server.inject('/a/b', function (res) {
+        it('returns 500 on handler exception (next tick)', { parallel: false }, function (done) {
 
-            expect(res.result).to.equal('ab');
-            done();
+            var handler = function (request) {
+
+                setImmediate(function () {
+
+                    var x = not.here;
+                });
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.on('internalError', function (request, err) {
+
+                expect(err.message).to.equal('Uncaught error: not is not defined');
+                done();
+            });
+
+            var orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('hapi, internal, implementation, error');
+            };
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+            });
         });
     });
 
-    it('binds handler to route bind object', function (done) {
+    describe('handler()', function () {
 
-        var item = { x: 123 };
+        it('binds handler to route bind object', function (done) {
 
-        var server = new Hapi.Server();
-        server.connection();
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(this.x); }, bind: item } });
+            var item = { x: 123 };
 
-        server.inject('/', function (res) {
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(this.x); }, bind: item } });
 
-            expect(res.result).to.equal(item.x);
-            done();
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal(item.x);
+                done();
+            });
+        });
+
+        it('invokes handler with right arguments', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                expect(arguments.length).to.equal(2);
+                expect(reply.send).to.not.exist();
+                return reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                done();
+            });
         });
     });
 
@@ -811,6 +873,26 @@ describe('handler', function () {
         });
     });
 
+    describe('fromString()', function () {
+
+        it('uses string handler', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.method('handler.get', function (request, next) {
+
+                return next(null, request.params.x + request.params.y);
+            });
+
+            server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
+            server.inject('/a/b', function (res) {
+
+                expect(res.result).to.equal('ab');
+                done();
+            });
+        });
+    });
+
     describe('defaults()', function () {
 
         it('returns handler without defaults', function (done) {
@@ -910,6 +992,32 @@ describe('handler', function () {
             }).to.throw('Handler defaults property must be an object or function');
 
             done();
+        });
+    });
+
+    describe('invoke()', function () {
+
+        it('returns 500 on ext method exception (same tick)', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.ext('onRequest', function (request, next) {
+
+                var x = a.b.c;
+            });
+
+            var handler = function (request, reply) {
+
+                return reply('neven gonna happen');
+            };
+
+            server.route({ method: 'GET', path: '/domain', handler: handler });
+
+            server.inject('/domain', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
         });
     });
 });

@@ -64,4 +64,48 @@ describe('Reply', function () {
             done();
         });
     });
+
+    describe('hold()', function () {
+
+        it('undo scheduled next tick in reply interface', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                return reply('123').hold().send();
+            };
+
+            server.route({ method: 'GET', path: '/domain', handler: handler });
+
+            server.inject('/domain', function (res) {
+
+                expect(res.result).to.equal('123');
+                done();
+            });
+        });
+
+        it('sends reply after timed handler', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                var response = reply('123').hold();
+                setTimeout(function () {
+                    response.send();
+                }, 10);
+            };
+
+            server.route({ method: 'GET', path: '/domain', handler: handler });
+
+            server.inject('/domain', function (res) {
+
+                expect(res.result).to.equal('123');
+                done();
+            });
+        });
+    });
 });

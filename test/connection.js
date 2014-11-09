@@ -1079,5 +1079,23 @@ describe('Connection', function () {
                 done();
             });
         });
+
+        it('returns OPTIONS response', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(Boom.badRequest());
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ cors: true });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
+
+                expect(res.headers['access-control-allow-origin']).to.equal('*');
+                done();
+            });
+        });
     });
 });
