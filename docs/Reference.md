@@ -1,124 +1,892 @@
 # 8.0.x API Reference
 
-- [`Hapi.Connection`](#hapiserver)
-    - [`new Server([host], [port], [options])`](#new-serverhost-port-options)
-    - [`createServer([host], [port], [options])`](#createserverhost-port-options)
-    - [Server options](#server-options)
-    - [`Server` properties](#server-properties)
-    - [`Server` methods](#server-methods)
-        - [`server.start([callback])`](#serverstartcallback)
-        - [`server.stop([options], [callback])`](#serverstopoptions-callback)
-        - [`server.route(options)`](#serverrouteoptions)
-            - [Route options](#route-options)
-            - [Path processing](#path-processing)
-            - [Path parameters](#path-parameters)
-            - [Route handler](#route-handler)
-            - [Route prerequisites](#route-prerequisites)
-            - [Route not found](#route-not-found)
-        - [`server.route(routes)`](#serverrouteroutes)
-        - [`server.table([host])`](#servertablehost)
-        - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
-        - [`server.state(name, [options])`](#serverstatename-options)
-        - [`server.views(options)`](#serverviewsoptions)
-        - [`server.cache(name, options)`](#servercachename-options)
-        - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
-        - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
-        - [`server.auth.default(options)`](#serverauthdefault-options)
-        - [`server.auth.test(strategy, request, next)`](#serverauthteststrategy-request-next)
-        - [`server.ext(event, method, [options])`](#serverextevent-method-options)
-            - [Request lifecycle](#request-lifecycle)
-        - [`server.method(name, fn, [options])`](#servermethodname-fn-options)
-        - [`server.method(method)`](#servermethodmethod)
-        - [`server.inject(options, callback)`](#serverinjectoptions-callback)
-        - [`server.handler(name, method)`](#serverhandlername-method)
-        - [`server.render(template, context, [options], callback)`](#serverrendertemplate-context-options-callback)
-    - [`Server` events](#server-events)
-- [Request object](#request-object)
-    - [`request` properties](#request-properties)
-    - [`request` methods](#request-methods)
-        - [`request.setUrl(url)`](#requestseturlurl)
-        - [`request.setMethod(method)`](#requestsetmethodmethod)
-        - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
-        - [`request.getLog([tags])`](#requestgetlogtags)
-        - [`request.tail([name])`](#requesttailname)
-    - [`request` events](#request-events)
-- [Reply interface](#reply-interface)
-    - [Flow control](#flow-control)
-    - [`reply([result])`](#replyresult)
-    - [`reply.file(path, options)`](#replyfilepath-options)
-    - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
-    - [`reply.close([options])`](#replycloseoptions)
-    - [`reply.proxy(options)`](#replyproxyoptions)
-    - [`reply.redirect(uri)`](#replyredirecturi)
-- [Response object](#response-object)
-    - [Response events](#response-events)
-- [`Hapi.Server`](#hapipack)
-      - [`new Pack([options])`](#new-packoptions)
-      - [`Pack` properties](#pack-properties)
-      - [`Pack` methods](#pack-methods)
-          - [`pack.server([host], [port], [options])`](#packserverhost-port-options)
-          - [`pack.start([callback])`](#packstartcallback)
-          - [`pack.stop([options], [callback])`](#packstopoptions-callback)
-          - [`pack.register(plugins, options, callback)`](#packregisterplugins-options-callback)
-      - [`Pack.compose(manifest, [options], callback)`](#packcomposemanifest-options-callback)
-- [Plugin interface](#plugin-interface)
-    - [`exports.register(plugin, options, next)`](#exportsregisterplugin-options-next)
-    - [Root methods and properties](#root-methods-and-properties)
-        - [`plugin.hapi`](#pluginhapi)
-        - [`plugin.app`](#pluginapp)
-        - [`plugin.plugins`](#pluginplugins)
-        - [`plugin.path(path)`](#pluginpathpath)
-        - [`plugin.log(tags, [data, [timestamp]])`](#pluginlogtags-data-timestamp)
-        - [`plugin.after(method)`](#pluginaftermethod)
-        - [`plugin.views(options)`](#pluginviewsoptions)
-        - [`plugin.method(name, fn, [options])`](#pluginmethodname-fn-options)
-        - [`plugin.method(method)`](#pluginmethodmethod)
-        - [`plugin.methods`](#pluginmethods)
-        - [`plugin.cache(options)`](#plugincacheoptions)
-        - [`plugin.bind(bind)`](#pluginbindbind)
-        - [`plugin.handler(name, method)`](#pluginhandlername-method)
-        - [`plugin.render(template, context, [options], callback)`](#pluginrendertemplate-context-options-callback)
-    - [Selectable methods and properties](#selectable-methods-and-properties)
-        - [`plugin.select(labels)`](#pluginselectlabels)
-        - [`plugin.connections`](#pluginconnections)
-        - [`plugin.expose(key, value)`](#pluginexposekey-value)
-        - [`plugin.expose(obj)`](#pluginexposeobj)
-        - [`plugin.route(options)`](#pluginrouteoptions)
-        - [`plugin.route(routes)`](#pluginrouteroutes)
-        - [`plugin.state(name, [options])`](#pluginstatename-options)
-        - [`plugin.auth.scheme(name, scheme)`](#pluginauthschemename-scheme)
-        - [`plugin.auth.strategy(name, scheme, [mode], [options])`](#pluginauthstrategyname-scheme-mode-options)
-        - [`plugin.ext(event, method, [options])`](#pluginextevent-method-options)
-        - [`plugin.register(plugins, options, callback)`](#pluginregisterplugins-options-callback)
-        - [`plugin.dependency(deps, [after])`](#plugindependencydeps-after)
-- [`Hapi.version`](#hapiversion)
-- [hapi CLI](#hapi-cli)
 
-## `Hapi.Connection`
+## `Hapi.version`
+
+The **hapi** framework version number.
+
+```js
+var Hapi = require('hapi');
+console.log(Hapi.version);
+```
+
+## `Hapi.Server`
+
+The `Server` object is the main application container. The server manages all incoming connections
+along with all the facilities provided by the framework. A server can contain more than one
+connection (e.g. listen to port `80` and `8080`).
 
 ### `new Server([options])`
 
-Creates a new server instance with the following arguments:
+Creates a new `Server` object where:
+- `options` - optional configuration:
+    - `app` - application-specific configuration which can later be accessed via
+      `server.settings.app`. Note the difference between `server.settings.app` which is
+      used to store static configuration values and `server.app` which is meant for storing
+      run-time state. Defaults to `{}`.
+    - <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server
+      includes a default cache for storing application state. By default, a simple memory-based
+      cache is created which has limited capacity and capabilities. **hapi** uses
+      [**catbox**](https://github.com/hapijs/catbox) for its cache which includes support for
+      common storage solutions (e.g. Redis, MongoDB, Memcached, and Riak). Caching is only utilized
+      if methods and plugins explicitly store their state in the cache. The server cache
+      configuration only defines the storage container itself. `cache` can be assigned:
+        - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
+          such as `require('catbox-redis')`).
+        - a configuration object with the following options:
+            - `engine` - a prototype function or **catbox** engine object.
+            - `name` - an identifier used later when provisioning or configuring caching for
+              methods or plugins. Each cache name must be unique. A single item may omit the `name`
+              option which defines the default cache. If every cache includes a `name`, a default
+              memory cache is provisions as well.
+            - `shared` - if `true`, allows multiple cache uses to share the same segment (e.g.
+              multiple methods using the same cache storage container). Default to `false`.
+            - other options passed to the **catbox** strategy used.
+        - an array of the above object for configuring multiple cache instances, each with a unique
+          name. When an array of objects is provided, multiple cache connections are established
+          and each array item (except one) must include a `name`.
+    - `debug` - determines which errors are sent to the console:
+        - `request` - a string array of request log tags to be displayed via `console.error()` when
+          the events are logged via `request.log()`. Defaults to uncaught errors thrown in external
+          code (these errors are handled automatically and result in an Internal Server Error
+          response) or runtime errors due to developer error. For example, to display all errors,
+          change the option to `['error']`. To turn off all console debug messages set it to
+          `false`.
+    - `files` - file system related settings:
+        - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the
+          etags cache. Defaults to `10000`.
+    - `load` - process load monitoring where:
+        - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no
+          sampling).
+    - `plugins` - plugin-specific configuration which can later be accessed via
+      `server.settings.plugins`. `plugins` is an object where each key is a plugin name and the
+      value is the configuration. Note the difference between `server.settings.plugins` which is
+      used to store static configuration values and `server.plugins` which is meant for storing
+      run-time state. Defaults to `{}`.
 
-- `options` - An object with the server configuration as described in [server options](#server-options).
-
-```javascript
+```js
 var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection({ host: 'localhost', port: 8000, cors: true });
+var server = new Hapi.Server({
+    cache: require('catbox-redis'),
+    load: {
+        sampleInterface: 1000
+    }
+});
 ```
 
-### `createServer([host], [port], [options])`
+### Server properties
 
-An alternative method for creating a server instance using the same arguments as `new Server()`.
+#### `server.app`
 
-```javascript
+Provides a safe place to store server-specific run-time application data without potential
+conflicts with the framework internals. The data can be accessed whenever the server is
+accessible. Initialized with am empty object.
+
+```js
 var Hapi = require('hapi');
-var server = new Hapi.Server();
-        server.connection('localhost', 8000, { cors: true });
+server = new Hapi.Server();
+server.app.key = 'value';
+
+var handler = function (request, reply) {
+
+    return reply(request.server.app.key);
+};
 ```
 
-### Server options
+#### `server.config`
+
+When the server object is provided as an argument to the plugin `register()` method, the `config`
+property provides the registration preferences passed the `server.register()` method. `config` is
+an object with the following properties:
+- `route` - route adding preferences:
+    - `prefix` - the route path prefix used by any calls to `server.route()` from the plugin.
+    - `vhost` - the route virtual host settings used by any calls to `server.route()` from the plugin.
+
+The `config` property should be considered read-only and should not be changed.
+
+```js
+exports.register = function (server, options, next) {
+
+    console.log(server.config.route.prefix);
+    next();
+};
+```
+
+#### `server.connections`
+
+An array containing the server's connections. When the server object is returned from
+`server.select()`, the `connections` array only includes the connections matching the selection
+criteria.
+
+```js
+var server = new Hapi.Server();
+server.connection(80, { labels: 'a' });
+server.connection(8080, { labels: 'b' });
+
+// server.connections.length === 2
+
+var a = server.select('a');
+
+// a.connections.lenght === 1
+```
+
+
+
+
+
+
+
+
+Each `Server` object provides the following properties:
+- `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using
+  [`plugin.expose()`](#pluginexposekey-value).
+- `load` - process load metrics (when `load.sampleInterval` is enabled):
+    - `eventLoopDelay` - event loop delay milliseconds.
+    - `heapUsed` - V8 heap usage.
+    - `rss` - RSS memory usage.
+
+
+
+
+
+
+
+
+#### `plugin.plugins`
+
+An object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value)
+when called at the plugin root level (without calling `plugin.select()`).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    console.log(plugin.plugins.example.key);
+    next();
+};
+```
+
+#### `plugin.path(path)`
+
+Sets the path prefix used to locate static resources (files and view templates) when relative paths are used by the plugin:
+- `path` - the path prefix added to any relative file path starting with `'.'`. The value has the same effect as using the server's
+  configuration `files.relativeTo` option but only within the plugin.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.path(__dirname + '../static');
+    plugin.route({ path: '/file', method: 'GET', handler: { file: './test.html' } });
+    next();
+};
+```
+
+#### `plugin.log(tags, [data, [timestamp]])`
+
+Emits a `'log'` event on the `pack` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.log(['plugin', 'info'], 'Plugin registered');
+    next();
+};
+```
+
+#### `plugin.after(method)`
+
+Add a method to be called after all the required plugins have been registered and before the servers start. The function is only
+called if the pack servers are started. Arguments:
+
+- `after` - the method with signature `function(plugin, next)` where:
+    - `plugin` - the [plugin interface](#plugin-interface) object.
+    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
+      signature is `function(err)` where:
+        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
+          registration error is considered an unrecoverable event which should terminate the application.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.after(after);
+    next();
+};
+
+var after = function (plugin, next) {
+
+    // Additional plugin registration logic
+    next();
+};
+```
+
+#### `plugin.views(options)`
+
+Generates a plugin-specific views manager for rendering templates where:
+- `options` - the views configuration as described in the server's [`views`](#serverviewsoptions) option. Note that due to the way node
+  `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
+
+Note that relative paths are relative to the plugin root, not the working directory or the application registering the plugin. This allows
+plugin the specify their own static resources without having to require external configuration.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.views({
+        engines: {
+            html: {
+              module: require('handlebars').create()
+            }
+        },
+        path: './templates'
+    });
+
+    next();
+};
+```
+
+#### `plugin.method(name, fn, [options])`
+
+Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodname-fn-options)
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.method('user', function (id, next) {
+
+        next(null, { id: id });
+    });
+
+    next();
+};
+```
+
+#### `plugin.method(method)`
+
+Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodmethod)
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.method({
+        name: 'user',
+        fn: function (id, next) {
+
+            next(null, { id: id });
+        }
+    });
+
+    next();
+};
+```
+
+#### `plugin.methods`
+
+Provides access to the method methods registered with [`plugin.method()`](#pluginmethodname-fn-options)
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.method('user', function (id, next) {
+
+        next(null, { id: id });
+    });
+
+    plugin.methods.user(5, function (err, result) {
+
+        // Do something with result
+
+        next();
+    });
+};
+```
+
+#### `plugin.cache(options)`
+
+Provisions a plugin cache segment within the pack's common caching facility where:
+
+- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy) with a few additions:
+    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
+      together with `expiresAt`.
+    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
+      expire. Cannot be used together with `expiresIn`.
+    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
+    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+      method is taking too long.
+    - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '!name' where 'name' is the
+      plugin name. When setting segment manually, it must begin with '!!'.
+    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
+    - `shared` - if true, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same cache. Default
+      to not shared.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    var cache = plugin.cache({ expiresIn: 60 * 60 * 1000 });
+    next();
+};
+```
+
+#### `plugin.bind(bind)`
+
+Sets a global plugin bind used as the default bind when adding a route or an extension using the plugin interface (if no
+explicit bind is provided as an option). The bind object is made available within the handler and extension methods via `this`.
+
+```js
+var handler = function (request, reply) {
+
+    request.reply(this.message);
+};
+
+exports.register = function (plugin, options, next) {
+
+    var bind = {
+        message: 'hello'
+    };
+
+    plugin.bind(bind);
+    plugin.route({ method: 'GET', path: '/', handler: handler });
+    next();
+};
+```
+
+#### `plugin.handler(name, method)`
+
+Registers a new handler type as describe in [`server.handler(name, method)`](#serverhandlername-method).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    var handlerFunc = function (route, options) {
+
+        return function (request, reply) {
+
+            reply('Message from plugin handler: ' + options.msg);
+        }
+    };
+
+    plugin.handler('testHandler', handlerFunc);
+    next();
+}
+```
+
+#### `plugin.render(template, context, [options], callback)`
+
+Utilizes the plugin views engine configured to render a template where:
+- `template` - the template filename and path, relative to the templates path configured via ['plugin.views()`](#pluginviewsoptions).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the plugin's ['plugin.views()`](#pluginviewsoptions) configuration.
+- `callback` - the callback function with signature `function (err, rendered, config)` where:
+    - `err` - the rendering error if any.
+    - `rendered` - the result view string.
+    - `config` - the configuration used to render the template.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.views({
+        engines: {
+            html: {
+              module: require('handlebars').create()
+            }
+        },
+        path: './templates'
+    });
+
+    plugin.render('hello', context, function (err, rendered, config) {
+
+        console.log(rendered);
+        next();
+    });
+};
+```
+
+### Selectable methods and properties
+
+The plugin interface selectable methods and properties are those available both on the `plugin` object received via the
+[`exports.register()`](#exportsregisterplugin-options-next) interface and the objects received by calling
+[`plugin.select()`](#pluginselectlabels). However, unlike the root methods, they operate only on the selected subset of
+servers.
+
+#### `plugin.select(labels)`
+
+Selects a subset of pack servers using the servers' `labels` configuration option where:
+
+- `labels` - a single string or array of strings of labels used as a logical OR statement to select all the servers with matching
+  labels in their configuration.
+
+Returns a new `plugin` interface with only access to the [selectable methods and properties](#selectable-methods-and-properties).
+Selecting again on a selection operates as a logic AND statement between the individual selections.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    var selection = plugin.select('web');
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+    next();
+};
+```
+
+#### `plugin.expose(key, value)`
+
+Exposes a property via `plugin.plugins[name]` (if added to the plugin root without first calling `plugin.select()`) and `server.plugins[name]`
+('name' of plugin) object of each selected pack server where:
+
+- `key` - the key assigned (`server.plugins[name][key]` or `plugin.plugins[name][key]`).
+- `value` - the value assigned.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.expose('util', function () { console.log('something'); });
+    next();
+};
+```
+
+#### `plugin.expose(obj)`
+
+Merges a deep copy of an object into to the existing content of `plugin.plugins[name]` (if added to the plugin root without first calling
+`plugin.select()`) and `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
+
+- `obj` - the object merged into the exposed properties container.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.expose({ util: function () { console.log('something'); } });
+    next();
+};
+```
+
+#### `plugin.route(options)`
+
+Adds a server route to the selected pack's servers as described in [`server.route(options)`](#serverrouteoptions).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    var selection = plugin.select('web');
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+    next();
+};
+```
+
+#### `plugin.route(routes)`
+
+Adds multiple server routes to the selected pack's servers as described in [`server.route(routes)`](#serverrouteroutes).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    var selection = plugin.select('admin');
+    selection.route([
+        { method: 'GET', path: '/1', handler: function (request, reply) { reply('ok'); } },
+        { method: 'GET', path: '/2', handler: function (request, reply) { reply('ok'); } }
+    ]);
+
+    next();
+};
+```
+
+#### `plugin.state(name, [options])`
+
+Adds a state definition to the selected pack's servers as described in [`server.state()`](#serverstatename-options).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.state('example', { encoding: 'base64' });
+    next();
+};
+```
+
+#### `plugin.auth.scheme(name, scheme)`
+
+Adds an authentication scheme to the selected pack's servers as described in [`server.auth.scheme()`](#serverauthschemename-scheme).
+
+#### `plugin.auth.strategy(name, scheme, [mode], [options])`
+
+Adds an authentication strategy to the selected pack's servers as described in [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
+
+#### `plugin.ext(event, method, [options])`
+
+Adds an extension point method to the selected pack's servers as described in [`server.ext()`](#serverextevent-method-options).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.ext('onRequest', function (request, extNext) {
+
+        console.log('Received request: ' + request.path);
+        extNext();
+    });
+
+    next();
+};
+```
+
+#### `plugin.register(plugins, [options], callback)`
+
+Adds a plugin to the selected pack's servers as described in [`pack.register()`](#packregisterplugins-options-callback).
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.register({
+        plugin: require('plugin_name'),
+        options: {
+            message: 'hello'
+        }
+    }, next);
+};
+```
+
+#### `plugin.dependency(deps, [after])`
+
+Declares a required dependency upon other plugins where:
+
+- `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
+  must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
+  should be implemented using [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
+- `after` - an optional function called after all the specified dependencies have been registered and before the servers start. The function is only
+  called if the pack servers are started. If a circular dependency is created, the call will assert (e.g. two plugins each has an `after` function
+  to be called after the other). The function signature is `function(plugin, next)` where:
+    - `plugin` - the [plugin interface](#plugin-interface) object.
+    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
+      signature is `function(err)` where:
+        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
+          registration error is considered an unrecoverable event which should terminate the application.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.dependency('yar', after);
+    next();
+};
+
+var after = function (plugin, next) {
+
+    // Additional plugin registration logic
+    next();
+};
+```
+
+
+
+
+#### `pack.server([host], [port], [options])`
+
+Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in
+[`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
+configured via the pack `cache` option.
+
+```js
+var Hapi = require('hapi');
+var pack = new Hapi.Server();
+
+pack.server(8000, { labels: ['web'] });
+pack.server(8001, { labels: ['admin'] });
+```
+
+#### `pack.start([callback])`
+
+Starts all the servers in the pack and used as described in [`server.start([callback])`](#serverstartcallback).
+
+```js
+var Hapi = require('hapi');
+var pack = new Hapi.Server();
+
+pack.server(8000, { labels: ['web'] });
+pack.server(8001, { labels: ['admin'] });
+
+pack.start(function () {
+
+    console.log('All servers started');
+});
+```
+
+#### `pack.stop([options], [callback])`
+
+Stops all the servers in the pack and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
+
+```js
+pack.stop({ timeout: 60 * 1000 }, function () {
+
+    console.log('All servers stopped');
+});
+```
+
+#### `pack.register(plugins, [options], callback)`
+
+Registers a plugin where:
+
+- `plugins` - a plugin object or array of plugin objects. The objects can use one of two formats:
+    - a module plugin object.
+    - a manually constructed plugin object. THIS IS NO LONGER TRUE
+- `options` - optional registration options (used by **hapi** and is not passed to the plugin):
+    - `select` - string or array of strings of labels to pre-select for plugin registration.
+    - `route` - apply modifiers to any routes added by the plugin:
+        - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin registers a child plugin
+          the `prefix` is passed on to the child or is added in front of the child-specific prefix.
+        - `vhost` - virtual host string (or array of strings) applied to every route. The outter-most `vhost` overrides the any
+          nested configuration.
+- `callback` - the callback function with signature `function(err)` where:
+    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
+      (e.g. among routes, methods, state) will throw an error and will not return a callback.
+
+Module plugin is registered by passing the following object (or array of object) as `plugins`:
+- `plugin` - an object (usually obtained by calling node's `require()`) with:
+    - `register` - the [`exports.register()`](#exportsregisterplugin-options-next) function. The function must have an `attributes`
+      property with either `name` (and optional `version`) keys or `pkg` with the content of the module's 'package.json'.
+- `options` - optional configuration object which is passed to the plugin via the `options` argument in
+  [`exports.register()`](#exportsregisterplugin-options-next).
+
+```js
+server.pack.register({
+    plugin: require('plugin_name'),
+    options: {
+        message: 'hello'
+    }
+ }, function (err) {
+
+     if (err) {
+         console.log('Failed loading plugin');
+     }
+ });
+```
+
+Manually constructed plugin is an object containing:
+- `name` - plugin name.
+- `version` - an optional plugin version. Defaults to `'0.0.0'`.
+- `multiple` - an optional boolean indicating if the plugin is safe to register multiple time with the same server.
+  Defaults to `false`.
+- `register` - the [`register()`](#exportsregisterplugin-options-next) function.
+- `options` - optional configuration object which is passed to the plugin via the `options` argument in
+  [`exports.register()`](#exportsregisterplugin-options-next).
+
+```js
+server.pack.register({
+    name: 'test',
+    version: '2.0.0',
+    register: function (plugin, options, next) {
+
+        plugin.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } });
+        next();
+    },
+    options: {
+        message: 'hello'
+    }
+}, function (err) {
+
+    if (err) {
+        console.log('Failed loading plugin');
+    }
+});
+```
+
+### `Pack.compose(manifest, [options], callback)`
+
+Provides a simple way to construct a [`Pack`](#hapipack) from a single configuration object, including configuring servers
+and registering plugins where:
+
+- `manifest` - an object with the following keys:
+    - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options). In order to support loading JSON documents,
+      The `compose()` function supports passing a module name string as the value of `pack.cache` or `pack.cache.engine`. These strings are
+      resolved the same way the `plugins` keys are (using `options.relativeTo`).
+    - `servers` - an array of server configuration objects where:
+        - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
+          `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an
+          environment variable by prefixing the variable name with `'$env.'`.
+    - `plugins` - an object where each key is a plugin name, and each value is one of:
+        - the `options` object passed to the plugin on registration.
+        - an array of object where:
+            - `options` - the object passed to the plugin on registration.
+            - any key supported by the `pack.register()` options used for registration (e.g. `select`).
+- `options` - optional compose configuration:
+    - `relativeTo` - path prefix used when loading plugins using node's `require()`. The `relativeTo` path prefix is added to any
+      relative plugin name (i.e. beings with `'./'`). All other module names are required as-is and will be looked up from the location
+      of the **hapi** module path (e.g. if **hapi** resides outside of your project `node_modules` path, it will not find your project
+      dependencies - you should specify them as relative and use the `relativeTo` option).
+- `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
+  `function(err, pack)` where:
+    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
+      (e.g. among routes, methods, state) will throw an error and will not return a callback.
+    - `pack` - the composed Pack object.
+
+```js
+var Hapi = require('hapi');
+
+var manifest = {
+    pack: {
+        cache: 'catbox-memory'
+    },
+    servers: [
+        {
+            port: 8000,
+            options: {
+                labels: ['web']
+            }
+        },
+        {
+            host: 'localhost',
+            port: 8001,
+            options: {
+                labels: ['admin']
+            }
+        }
+    ],
+    plugins: {
+        'yar': {
+            cookieOptions: {
+                password: 'secret'
+            }
+        },
+        'furball': [
+            {
+                select: 'web',
+                options: {
+                    version: '/v'
+                }
+            }
+        ]
+    }
+};
+
+Hapi.Server.compose(manifest, function (err, pack) {
+
+    pack.start();
+});
+```
+
+## Plugin interface
+
+Plugins provide an extensibility platform for both general purpose utilities such as [batch requests](https://github.com/hapijs/bassmaster)
+and for application business logic. Instead of thinking about a web server as a single entity with a unified routing table, plugins enable
+developers to break their application into logical units, assembled together in different combinations to fit the development, testing, and
+deployment needs.
+
+A plugin is constructed with the following:
+
+- name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive
+  their name from the registry name to ensure uniqueness. Private plugin names should be picked carefully to avoid conflicts with both
+  private and public names.
+- registration function - the function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
+  The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the
+  single entry point into the plugin's functionality.
+- version - the optional plugin version is only used informatively to enable other plugins to find out the versions loaded. The version
+  should be the same as the one specified in the plugin's 'package.json' file.
+
+The name and versions are included by attaching an `attributes` property to the `exports.register()` function:
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.route({
+        method: 'GET',
+        path: '/version',
+        handler: function (request, reply) {
+
+            reply('1.0.0');
+        }
+    });
+
+    next();
+};
+
+exports.register.attributes = {
+    name: 'example',
+    version: '1.0.0'
+};
+```
+
+Alternatively, the name and version can be included via the `pkg` attribute containing the 'package.json' file for the module which
+already has the name and version included:
+
+```js
+exports.register.attributes = {
+    pkg: require('./package.json')
+};
+```
+
+The `multiple` attributes specifies that a plugin is safe to register multiple times with the same server.
+
+```js
+exports.register.attributes = {
+    multiple: true,
+    pkg: require('./package.json')
+};
+```
+
+#### `exports.register(plugin, options, next)`
+
+Registers the plugin where:
+
+- `plugin` - the registration interface representing the pack the plugin is being registered into. Provides the properties and methods listed below.
+- `options` - the `options` object provided by the pack registration methods.
+- `next` - the callback function the plugin must call to return control over to the application and complete the registration process. The function
+  signature is `function(err)` where:
+    - `err` - internal plugin error condition, which is returned back via the registration methods' callback. A plugin registration error is considered
+      an unrecoverable event which should terminate the application.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('hello world') } });
+    next();
+};
+```
+
+### Root methods and properties
+
+The plugin interface root methods and properties are those available only on the `plugin` object received via the
+[`exports.register()`](#exportsregisterplugin-options-next) interface. They are not available on the object received by calling
+[`plugin.select()`](#pluginselectlabels).
+
+The plugin interface is an emitter containing the events of all the selected servers.
+
+```js
+exports.register = function (plugin, options, next) {
+
+    plugin.on('internalError', function (request, err) {
+
+        console.log(err);
+    });
+
+    next();
+};
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Connection options
 
 When creating a server instance, the following options configure the server's behavior:
 
@@ -133,23 +901,6 @@ When creating a server instance, the following options configure the server's be
   place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which
   should use `plugins[name]`. Note the difference between `server.settings.app` which is used to store configuration value
   and `server.app` which is meant for storing run-time state.
-
-- <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server includes a default cache for storing
-  application state. By default, a simple memory-based cache is created which has limited capacity and capabilities. **hapi**
-  uses [**catbox**](https://github.com/hapijs/catbox) for its cache which includes support for Redis, MongoDB, Memcached, and
-  Riak. Caching is only utilized if methods and plugins explicitly store their state in the cache. The server cache
-  configuration only defines the storage container itself. `cache` can be assigned:
-    - a prototype function (usually obtained by calling `require()` on a **catbox** strategy such as `require('catbox-redis')`).
-    - a configuration object with the following options:
-        - `engine` - a prototype function or **catbox** engine object.
-        - `name` - an identifier used later when provisioning or configuring caching for routes, methods, or plugins. Each
-          connection name must be unique. A single item may omit the `name` option which defines the default cache. If every
-          connection includes a `name`, a default memory cache is provisions as well as the default.
-        - `shared` - if `true`, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using
-          the same route and cache. Default to not shared.
-        - other options required by the **catbox** strategy used.
-    - an array of the above object for configuring multiple cache instances, each with a unique name. When an array of objects
-      is provided, multiple cache connections are established and each array item (except one) must include a `name`.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API
   calls. CORS is required by web applications running inside a browser which are loaded from a different domain than the API
@@ -270,7 +1021,7 @@ Each instance of the `Server` object have the following properties:
 Starts the server by listening for incoming connections on the configured port. If provided, `callback()` is called once the server is
 ready for new connections. If the server is already started, the `callback()` is called on the next tick.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -290,7 +1041,7 @@ The optional `options` object supports:
 
 - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection. Defaults to `5000` (5 seconds).
 
-```javascript
+```js
 server.stop({ timeout: 60 * 1000 }, function () {
 
     console.log('Server stopped');
@@ -592,7 +1343,7 @@ The following options are available when adding a route:
     - `notes` - route notes used for generating documentation (string or array of strings).
     - `tags` - route tags used for generating documentation (array of strings).
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -624,7 +1375,7 @@ server.route({ method: 'GET', path: '/user', config: user });
 The router iterates through the routing table on each incoming request and executes the first (and only the first) matching route. Route
 matching is done on a combination of the request path and the HTTP verb. The query is excluded from the routing logic. Requests are matched in a deterministic order where the order in which routes are added does not matter. The routes are sorted from the most specific to the most generic. The specificity of a route is a combination of the HTTP verb and the route path. The more specific a route definition is, the higher up in the routing table it will appear. For example, the following path array shows the order in which an incoming request path will be matched against the routes:
 
-```javascript
+```js
 var paths = [
     '/',
     '/a',
@@ -674,7 +1425,7 @@ Parameterized paths are processed by matching the named parameters to the conten
  only covers part of the segment as in '/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of `request.params.id` set
  to an empty string `''`.
 
-```javascript
+```js
 var getAlbum = function (request, reply) {
 
     reply('You asked for ' +
@@ -692,7 +1443,7 @@ server.route({
 In addition to the optional `?` suffix, a parameter name can also specify the number of matching segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts can be anything, then use `*` without a number (matching any number of segments can only be used in the
 last path segment).
 
-```javascript
+```js
 var getPerson = function (request, reply) {
 
     var nameParts = request.params.name.split('/');
@@ -711,7 +1462,7 @@ server.route({
 When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request-object) object.
 The handler method must call [`reply()`](#replyresult) or one of its sub-methods to return control back to the router.
 
-```javascript
+```js
 var handler = function (request, reply) {
 
     reply('success');
@@ -738,7 +1489,7 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
     - 'name' - the method name. The name is also used as the default value of `assign`.
     - 'args' - the method arguments (excluding `next`) where each argument is a property of `request`.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -783,7 +1534,7 @@ server.route({
 If the application needs to override the default Not Found (404) error response, it can add a catch-all route for a specific
 method or all methods. Only one catch-all route can be defined per server instance.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -800,7 +1551,7 @@ server.route({ method: '*', path: '/{p*}', handler: handler });
 
 Same as [server.route(options)](#serverrouteoptions) where `routes` is an array of route options.
 
-```javascript
+```js
 server.route([
     { method: 'GET', path: '/status', handler: status },
     { method: 'GET', path: '/user', config: user }
@@ -817,7 +1568,7 @@ The return value is an array of routes where each route contains:
 - `method` - the HTTP method in lower case.
 - `path` - the route path.
 
-```javascript
+```js
 var table = server.table()
 console.log(table);
 
@@ -849,7 +1600,7 @@ event which can be used by other listeners or plugins to record the information 
 - `data` - an optional message string or object with the application data being logged.
 - `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -897,7 +1648,7 @@ can be registered with the server using the `server.state()` method, where:
     - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
     - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
 
-```javascript
+```js
 // Set cookie definition
 
 server.state('session', {
@@ -927,7 +1678,7 @@ If an incoming registered cookie fails parsing, it is not included in `request.s
 When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit a `'request'` event. To capture these errors
 subscribe to the `'request'` events and filter on `'error'` and `'state'` tags:
 
-```javascript
+```js
 server.on('request', function (request, event, tags) {
 
     if (tags.error && tags.state) {
@@ -978,7 +1729,7 @@ Initializes the server views manager where:
     - `context` - a global context used with all templates. The global context option can be either an object or a function that takes no arguments and returns a context object. When rendering views, the global context will be merged with any context object specified on the handler or using `reply.view()`. When multiple context objects are used, values from the global context always have lowest precedence.
 
 
-```javascript
+```js
 server.views({
     engines: {
         html: require('handlebars'),
@@ -1003,7 +1754,7 @@ Provisions a server cache segment within the common caching facility where:
       method is taking too long.
     - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
 
-```javascript
+```js
 var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 ```
 
@@ -1088,7 +1839,7 @@ Registers an extension function in one of the available [extension points](#requ
       in the order added.
     - `bind` - any value passed back to the provided method (via `this`) when called.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1188,7 +1939,7 @@ Methods are registered via `server.method(name, fn, [options])` where:
      `null` if no key can be generated). Note that when the `generateKey` method is invoked, the arguments list will include
      the `next` argument which must not be used in calculation of the key.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1242,7 +1993,7 @@ of objects where each has:
 - `fn` - the method function.
 - `options` - optional settings.
 
-```javascript
+```js
 var add = function (a, b, next) {
 
     next(null, a + b);
@@ -1285,7 +2036,7 @@ testing purposes as well as for invoking routing logic internally without the ov
         - `result` - the raw handler response (e.g. when not a stream) before it is serialized for transmission. If not available, set to
           `payload`. Useful for inspection and reuse of the internal objects returned (instead of parsing the response string).
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1317,7 +2068,7 @@ The `method` function can have a `defaults` property of an object or function. I
 the default route config for routes using this handler. If the property is set to a function, the function uses the signature `function(method)`
 and returns the route default configuration.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
         server.connection('localhost', 8000);
@@ -1351,7 +2102,7 @@ Utilizes the server views engine configured to render a template where:
     - `rendered` - the result view string.
     - `config` - the configuration used to render the template.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1391,7 +2142,7 @@ When provided (as listed below) the `event` object include:
 
 The `'log'` event includes the `event` object and a `tags` object (where each tag is a key with the value `true`):
 
-```javascript
+```js
 server.on('log', function (event, tags) {
 
     if (tags.error) {
@@ -1402,7 +2153,7 @@ server.on('log', function (event, tags) {
 
 The `'request'` event includes the `request` object, the `event` object, and a `tags` object (where each tag is a key with the value `true`):
 
-```javascript
+```js
 server.on('request', function (request, event, tags) {
 
     if (tags.received) {
@@ -1413,7 +2164,7 @@ server.on('request', function (request, event, tags) {
 
 The `'response'` and `'tail'` events include the `request` object:
 
-```javascript
+```js
 server.on('response', function (request) {
 
     console.log('Response sent for request: ' + request.id);
@@ -1422,7 +2173,7 @@ server.on('response', function (request) {
 
 The `'internalError'` event includes the `request` object and the causing error `err` object:
 
-```javascript
+```js
 server.on('internalError', function (request, err) {
 
     console.log('Error response (500) sent for request: ' + request.id + ' because: ' + err.message);
@@ -1497,7 +2248,7 @@ _Available only in `'onRequest'` extension methods._
 
  - `url` - the new request path value.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1518,7 +2269,7 @@ Changes the request method before the router begins processing the request where
 
 - `method` - is the request HTTP method (e.g. `'GET'`).
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1544,7 +2295,7 @@ arguments are:
 - `data` - an optional message string or object with the application data being logged.
 - `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1569,7 +2320,7 @@ _Always available._
 Returns an array containing the events matching any of the tags specified (logical OR) where:
 - `tags` - is a single tag string or array of tag strings. If no `tags` specified, returns all events.
 
-```javascript
+```js
 request.getLog();
 request.getLog('error');
 request.getLog(['hapi', 'error']);
@@ -1591,7 +2342,7 @@ with the request when logging it (or an error associated with it).
 
 When all tails completed, the server emits a `'tail'` event.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1624,7 +2375,7 @@ The request object supports the following events:
 - `'finish'` - emitted when the request payload finished reading. The event method signature is `function ()`.
 - `'disconnect'` - emitted when a request errors or aborts unexpectedly.
 
-```javascript
+```js
 var Crypto = require('crypto');
 var Hapi = require('hapi');
 var server = new Hapi.Server();
@@ -1663,7 +2414,7 @@ will resume as soon as the handler method exits. To suspend this behavior, the r
 - `response.send()` - resume the response which will be transmitted in the next tick. Available only after `response.hold()` is called and until
   `response.send()` is invoked once.
 
-```javascript
+```js
 var handler = function (request, reply) {
 
     var response = reply('success').hold();
@@ -1679,7 +2430,7 @@ When calling `reply()` in a prerequisite, it is sometimes necessary to take over
 to the client. The [response object](#response-object) provides the `takeover()` method to indicate the value provided via `reply()` should
 be used as the final response and skip any other prerequisites and the handler.
 
-```javascript
+```js
 var pre = function (request, reply) {
 
     if (!request.auth.isAuthenticated) {
@@ -1708,7 +2459,7 @@ Returns a [`response`](#response-object) object based on the value of `result`:
 - `Stream` object - [`Stream`](#stream) response.
 - any other object - [`Obj`](#obj) response.
 
-```javascript
+```js
 var handler = function (request, reply) {
 
     reply('success');
@@ -1720,7 +2471,7 @@ are response-type-specific and listed in [`response`](#response-object).
 
 The [response flow control rules](#flow-control) apply.
 
-```javascript
+```js
 var handler = function (request, reply) {
 
     reply('success')
@@ -1751,7 +2502,7 @@ No return value.
 
 The [response flow control rules](#flow-control) **do not** apply.
 
-```javascript
+```js
 var handler = function (request, reply) {
 
     reply.file('./hello.txt');
@@ -1774,7 +2525,7 @@ Returns a [response object](#response-object).
 
 The [response flow control rules](#flow-control) apply.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -1837,7 +2588,7 @@ No return value.
 
 The [response flow control rules](#flow-control) **do not** apply.
 
-```javascript
+```js
 var handler = function (request, reply) {
 
     reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
@@ -1855,7 +2606,7 @@ Returns a [response object](#response-object).
 
 The [response flow control rules](#flow-control) apply.
 
-```javascript
+```js
 var handler = function (request, reply) {
 
     reply.redirect('http://example.com');
@@ -1976,7 +2727,7 @@ The response object supports the following events:
 - `'finish'` - emitted when the response finished writing but before the client response connection is ended. The event method signature is
   `function ()`.
 
-```javascript
+```js
 var Crypto = require('crypto');
 var Hapi = require('hapi');
 var server = new Hapi.Server();
@@ -2023,7 +2774,7 @@ It also supports the following method:
 
 - `reformat()` - rebuilds `error.output` using the other object properties.
 
-```javascript
+```js
 var Hapi = require('hapi');
 
 var handler = function (request, reply) {
@@ -2044,7 +2795,7 @@ Error responses return a JSON object with the `statusCode`, `error`, and `messag
 as an HTML page or using another format, the `'onPreResponse'` extension point may be used to identify errors and replace them with a different
 response object.
 
-```javascript
+```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection();
@@ -2076,7 +2827,7 @@ server.ext('onPreResponse', function (request, reply) {
 
 Returns an HTTP Bad Request (400) error response object with the provided `message`.
 
-```javascript
+```js
 var Hapi = require('hapi');
 Boom.badRequest('Invalid parameter value');
 ```
@@ -2090,7 +2841,7 @@ Returns an HTTP Unauthorized (401) error response object where:
   response header with the scheme and any provided `attributes`.
 - `attributes` - an object where each key is an HTTP header attribute and value is the attribute content.
 
-```javascript
+```js
 var Hapi = require('hapi');
 Boom.unauthorized('Stale timestamp', 'Hawk', { ts: fresh, tsm: tsm });
 ```
@@ -2102,7 +2853,7 @@ Returns an HTTP Unauthorized (401) error response object where:
 - `message` - the error message.
 - `wwwAuthenticate` - an array of HTTP 'WWW-Authenticate' header responses for multiple challenges.
 
-```javascript
+```js
 var Hapi = require('hapi');
 Boom.unauthorized('Missing authentication', ['Hawk', 'Basic']);
 ```
@@ -2111,7 +2862,7 @@ Boom.unauthorized('Missing authentication', ['Hawk', 'Basic']);
 
 Returns an HTTP Request Timeout (408) error response object with the provided `message`.
 
-```javascript
+```js
 var Hapi = require('hapi');
 Boom.clientTimeout('This is taking too long');
 ```
@@ -2120,7 +2871,7 @@ Boom.clientTimeout('This is taking too long');
 
 Returns an HTTP Service Unavailable (503) error response object with the provided `message`.
 
-```javascript
+```js
 var Hapi = require('hapi');
 Boom.serverTimeout('Too busy, come back later');
 ```
@@ -2129,7 +2880,7 @@ Boom.serverTimeout('Too busy, come back later');
 
 Returns an HTTP Forbidden (403) error response object with the provided `message`.
 
-```javascript
+```js
 var Hapi = require('hapi');
 Boom.forbidden('Missing permissions');
 ```
@@ -2138,7 +2889,7 @@ Boom.forbidden('Missing permissions');
 
 Returns an HTTP Not Found (404) error response object with the provided `message`.
 
-```javascript
+```js
 var Hapi = require('hapi');
 Boom.notFound('Wrong number');
 ```
@@ -2154,7 +2905,7 @@ Returns an HTTP Internal Server Error (500) error response object where:
 Note that the `error.output.payload.message` is overridden with `'An internal server error occurred'` to hide any internal details from
 the client. `error.message` remains unchanged.
 
-```javascript
+```js
 var Hapi = require('hapi');
 
 var handler = function (request, reply) {
@@ -2170,845 +2921,3 @@ var handler = function (request, reply) {
     reply(result);
 };
 ```
-
-## `Hapi.Server`
-
-`Pack` is a collection of servers grouped together to form a single logical unit. The pack's primary purpose is to provide
-a unified object interface when working with [plugins](#plugin-interface). Grouping multiple servers into a single pack
-enables treating them as a single entity which can start and stop in sync, as well as enable sharing routes and other
-facilities. For example, a Single Page Application (SPA) often requires a web component and an API component running as two
-servers using distinct ports. Another common example is when plugins register both public routes as well as internal admin
-routes, each on a different port but setup in a single plugin.
-
-The servers in a pack share the same cache. Every server belongs to a pack, even if created directed via
-[`new Server()`](#new-serverhost-port-options), in which case the `server.pack` object is automatically assigned a single-server pack.
-
-#### `new Pack([options])`
-
-Creates a new `Pack` object instance where:
-
-- `options` - optional configuration:
-    - `app` - an object used to initialize the application-specific data stored in `pack.app`.
-    - `cache` - cache configuration as described in the server [`cache`](#server.config.cache) option.
-    - `debug` - controls the error types sent to the console:
-        - `request` - a string array of request log tags to be displayed via `console.error()` when the events are logged via `request.log()`. Defaults
-          to uncaught errors thrown in external code (these errors are handled automatically and result in an Internal Server Error (500) error response) or
-          runtime errors due to incorrect implementation of the hapi API. For example, to display all errors, change the option to `['error']`.
-          To turn off all console debug messages set it to `false`.
-    - `load` - process load monitoring (stored under `pack.load` when enabled) where:
-        - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no sampling).
-    - `files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
-        - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the cache. Defaults to `10000`.
-
-```javascript
-var Hapi = require('hapi');
-var pack = new Hapi.Server();
-```
-
-### `Pack` properties
-
-Each `Pack` object instance has the following properties:
-
-- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
-  Initialized via the pack `app` configuration option. Defaults to `{}`.
-- `events` - an `Events.EventEmitter` providing a consolidate emitter of all the events emitted from all member pack servers as well as
-  the `'start'` and `'stop'` pack events.
-- `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using
-  [`plugin.expose()`](#pluginexposekey-value).
-- `load` - process load metrics (when `load.sampleInterval` is enabled):
-    - `eventLoopDelay` - event loop delay milliseconds.
-    - `heapUsed` - V8 heap usage.
-    - `rss` - RSS memory usage.
-
-### `Pack` methods
-
-#### `pack.server([host], [port], [options])`
-
-Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in
-[`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
-configured via the pack `cache` option.
-
-```javascript
-var Hapi = require('hapi');
-var pack = new Hapi.Server();
-
-pack.server(8000, { labels: ['web'] });
-pack.server(8001, { labels: ['admin'] });
-```
-
-#### `pack.start([callback])`
-
-Starts all the servers in the pack and used as described in [`server.start([callback])`](#serverstartcallback).
-
-```javascript
-var Hapi = require('hapi');
-var pack = new Hapi.Server();
-
-pack.server(8000, { labels: ['web'] });
-pack.server(8001, { labels: ['admin'] });
-
-pack.start(function () {
-
-    console.log('All servers started');
-});
-```
-
-#### `pack.stop([options], [callback])`
-
-Stops all the servers in the pack and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
-
-```javascript
-pack.stop({ timeout: 60 * 1000 }, function () {
-
-    console.log('All servers stopped');
-});
-```
-
-#### `pack.register(plugins, [options], callback)`
-
-Registers a plugin where:
-
-- `plugins` - a plugin object or array of plugin objects. The objects can use one of two formats:
-    - a module plugin object.
-    - a manually constructed plugin object. THIS IS NO LONGER TRUE
-- `options` - optional registration options (used by **hapi** and is not passed to the plugin):
-    - `select` - string or array of strings of labels to pre-select for plugin registration.
-    - `route` - apply modifiers to any routes added by the plugin:
-        - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin registers a child plugin
-          the `prefix` is passed on to the child or is added in front of the child-specific prefix.
-        - `vhost` - virtual host string (or array of strings) applied to every route. The outter-most `vhost` overrides the any
-          nested configuration.
-- `callback` - the callback function with signature `function(err)` where:
-    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-      (e.g. among routes, methods, state) will throw an error and will not return a callback.
-
-Module plugin is registered by passing the following object (or array of object) as `plugins`:
-- `plugin` - an object (usually obtained by calling node's `require()`) with:
-    - `register` - the [`exports.register()`](#exportsregisterplugin-options-next) function. The function must have an `attributes`
-      property with either `name` (and optional `version`) keys or `pkg` with the content of the module's 'package.json'.
-- `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next).
-
-```javascript
-server.pack.register({
-    plugin: require('plugin_name'),
-    options: {
-        message: 'hello'
-    }
- }, function (err) {
-
-     if (err) {
-         console.log('Failed loading plugin');
-     }
- });
-```
-
-Manually constructed plugin is an object containing:
-- `name` - plugin name.
-- `version` - an optional plugin version. Defaults to `'0.0.0'`.
-- `multiple` - an optional boolean indicating if the plugin is safe to register multiple time with the same server.
-  Defaults to `false`.
-- `register` - the [`register()`](#exportsregisterplugin-options-next) function.
-- `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next).
-
-```javascript
-server.pack.register({
-    name: 'test',
-    version: '2.0.0',
-    register: function (plugin, options, next) {
-
-        plugin.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } });
-        next();
-    },
-    options: {
-        message: 'hello'
-    }
-}, function (err) {
-
-    if (err) {
-        console.log('Failed loading plugin');
-    }
-});
-```
-
-### `Pack.compose(manifest, [options], callback)`
-
-Provides a simple way to construct a [`Pack`](#hapipack) from a single configuration object, including configuring servers
-and registering plugins where:
-
-- `manifest` - an object with the following keys:
-    - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options). In order to support loading JSON documents,
-      The `compose()` function supports passing a module name string as the value of `pack.cache` or `pack.cache.engine`. These strings are
-      resolved the same way the `plugins` keys are (using `options.relativeTo`).
-    - `servers` - an array of server configuration objects where:
-        - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
-          `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an
-          environment variable by prefixing the variable name with `'$env.'`.
-    - `plugins` - an object where each key is a plugin name, and each value is one of:
-        - the `options` object passed to the plugin on registration.
-        - an array of object where:
-            - `options` - the object passed to the plugin on registration.
-            - any key supported by the `pack.register()` options used for registration (e.g. `select`).
-- `options` - optional compose configuration:
-    - `relativeTo` - path prefix used when loading plugins using node's `require()`. The `relativeTo` path prefix is added to any
-      relative plugin name (i.e. beings with `'./'`). All other module names are required as-is and will be looked up from the location
-      of the **hapi** module path (e.g. if **hapi** resides outside of your project `node_modules` path, it will not find your project
-      dependencies - you should specify them as relative and use the `relativeTo` option).
-- `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
-  `function(err, pack)` where:
-    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-      (e.g. among routes, methods, state) will throw an error and will not return a callback.
-    - `pack` - the composed Pack object.
-
-```javascript
-var Hapi = require('hapi');
-
-var manifest = {
-    pack: {
-        cache: 'catbox-memory'
-    },
-    servers: [
-        {
-            port: 8000,
-            options: {
-                labels: ['web']
-            }
-        },
-        {
-            host: 'localhost',
-            port: 8001,
-            options: {
-                labels: ['admin']
-            }
-        }
-    ],
-    plugins: {
-        'yar': {
-            cookieOptions: {
-                password: 'secret'
-            }
-        },
-        'furball': [
-            {
-                select: 'web',
-                options: {
-                    version: '/v'
-                }
-            }
-        ]
-    }
-};
-
-Hapi.Server.compose(manifest, function (err, pack) {
-
-    pack.start();
-});
-```
-
-## Plugin interface
-
-Plugins provide an extensibility platform for both general purpose utilities such as [batch requests](https://github.com/hapijs/bassmaster)
-and for application business logic. Instead of thinking about a web server as a single entity with a unified routing table, plugins enable
-developers to break their application into logical units, assembled together in different combinations to fit the development, testing, and
-deployment needs.
-
-A plugin is constructed with the following:
-
-- name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive
-  their name from the registry name to ensure uniqueness. Private plugin names should be picked carefully to avoid conflicts with both
-  private and public names.
-- registration function - the function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
-  The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the
-  single entry point into the plugin's functionality.
-- version - the optional plugin version is only used informatively to enable other plugins to find out the versions loaded. The version
-  should be the same as the one specified in the plugin's 'package.json' file.
-
-The name and versions are included by attaching an `attributes` property to the `exports.register()` function:
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.route({
-        method: 'GET',
-        path: '/version',
-        handler: function (request, reply) {
-
-            reply('1.0.0');
-        }
-    });
-
-    next();
-};
-
-exports.register.attributes = {
-    name: 'example',
-    version: '1.0.0'
-};
-```
-
-Alternatively, the name and version can be included via the `pkg` attribute containing the 'package.json' file for the module which
-already has the name and version included:
-
-```javascript
-exports.register.attributes = {
-    pkg: require('./package.json')
-};
-```
-
-The `multiple` attributes specifies that a plugin is safe to register multiple times with the same server.
-
-```javascript
-exports.register.attributes = {
-    multiple: true,
-    pkg: require('./package.json')
-};
-```
-
-#### `exports.register(plugin, options, next)`
-
-Registers the plugin where:
-
-- `plugin` - the registration interface representing the pack the plugin is being registered into. Provides the properties and methods listed below.
-- `options` - the `options` object provided by the pack registration methods.
-- `next` - the callback function the plugin must call to return control over to the application and complete the registration process. The function
-  signature is `function(err)` where:
-    - `err` - internal plugin error condition, which is returned back via the registration methods' callback. A plugin registration error is considered
-      an unrecoverable event which should terminate the application.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('hello world') } });
-    next();
-};
-```
-
-### Root methods and properties
-
-The plugin interface root methods and properties are those available only on the `plugin` object received via the
-[`exports.register()`](#exportsregisterplugin-options-next) interface. They are not available on the object received by calling
-[`plugin.select()`](#pluginselectlabels).
-
-The plugin interface is an emitter containing the events of all the selected servers.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.on('internalError', function (request, err) {
-
-        console.log(err);
-    });
-
-    next();
-};
-```
-
-#### `plugin.hapi`
-
-A reference to the **hapi** module used to create the pack and server instances. Removes the need to add a dependency on **hapi** within the plugin.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var Hapi = plugin.hapi;
-
-    var handler = function (request, reply) {
-
-        reply(Boom.internal('Not implemented yet'));
-    };
-
-    plugin.route({ method: 'GET', path: '/', handler: handler });
-    next();
-};
-```
-
-#### `plugin.config`
-
-The registration options provided to the `pack.register()` method. Contains:
-- `route` - route path prefix and virtual host settings.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    console.log(plugin.config.route.prefix);
-    next();
-};
-```
-
-#### `plugin.app`
-
-Provides access to the [common pack application-specific state](#pack-properties).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.app.hapi = 'joi';
-    next();
-};
-```
-
-#### `plugin.plugins`
-
-An object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value)
-when called at the plugin root level (without calling `plugin.select()`).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    console.log(plugin.plugins.example.key);
-    next();
-};
-```
-
-#### `plugin.path(path)`
-
-Sets the path prefix used to locate static resources (files and view templates) when relative paths are used by the plugin:
-- `path` - the path prefix added to any relative file path starting with `'.'`. The value has the same effect as using the server's
-  configuration `files.relativeTo` option but only within the plugin.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.path(__dirname + '../static');
-    plugin.route({ path: '/file', method: 'GET', handler: { file: './test.html' } });
-    next();
-};
-```
-
-#### `plugin.log(tags, [data, [timestamp]])`
-
-Emits a `'log'` event on the `pack` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.log(['plugin', 'info'], 'Plugin registered');
-    next();
-};
-```
-
-#### `plugin.after(method)`
-
-Add a method to be called after all the required plugins have been registered and before the servers start. The function is only
-called if the pack servers are started. Arguments:
-
-- `after` - the method with signature `function(plugin, next)` where:
-    - `plugin` - the [plugin interface](#plugin-interface) object.
-    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
-      signature is `function(err)` where:
-        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
-          registration error is considered an unrecoverable event which should terminate the application.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.after(after);
-    next();
-};
-
-var after = function (plugin, next) {
-
-    // Additional plugin registration logic
-    next();
-};
-```
-
-#### `plugin.views(options)`
-
-Generates a plugin-specific views manager for rendering templates where:
-- `options` - the views configuration as described in the server's [`views`](#serverviewsoptions) option. Note that due to the way node
-  `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
-
-Note that relative paths are relative to the plugin root, not the working directory or the application registering the plugin. This allows
-plugin the specify their own static resources without having to require external configuration.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.views({
-        engines: {
-            html: {
-              module: require('handlebars').create()
-            }
-        },
-        path: './templates'
-    });
-
-    next();
-};
-```
-
-#### `plugin.method(name, fn, [options])`
-
-Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodname-fn-options)
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.method('user', function (id, next) {
-
-        next(null, { id: id });
-    });
-
-    next();
-};
-```
-
-#### `plugin.method(method)`
-
-Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodmethod)
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.method({
-        name: 'user',
-        fn: function (id, next) {
-
-            next(null, { id: id });
-        }
-    });
-
-    next();
-};
-```
-
-#### `plugin.methods`
-
-Provides access to the method methods registered with [`plugin.method()`](#pluginmethodname-fn-options)
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.method('user', function (id, next) {
-
-        next(null, { id: id });
-    });
-
-    plugin.methods.user(5, function (err, result) {
-
-        // Do something with result
-
-        next();
-    });
-};
-```
-
-#### `plugin.cache(options)`
-
-Provisions a plugin cache segment within the pack's common caching facility where:
-
-- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy) with a few additions:
-    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
-      together with `expiresAt`.
-    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
-      expire. Cannot be used together with `expiresIn`.
-    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
-    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
-    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
-      method is taking too long.
-    - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '!name' where 'name' is the
-      plugin name. When setting segment manually, it must begin with '!!'.
-    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
-    - `shared` - if true, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same cache. Default
-      to not shared.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var cache = plugin.cache({ expiresIn: 60 * 60 * 1000 });
-    next();
-};
-```
-
-#### `plugin.bind(bind)`
-
-Sets a global plugin bind used as the default bind when adding a route or an extension using the plugin interface (if no
-explicit bind is provided as an option). The bind object is made available within the handler and extension methods via `this`.
-
-```javascript
-var handler = function (request, reply) {
-
-    request.reply(this.message);
-};
-
-exports.register = function (plugin, options, next) {
-
-    var bind = {
-        message: 'hello'
-    };
-
-    plugin.bind(bind);
-    plugin.route({ method: 'GET', path: '/', handler: handler });
-    next();
-};
-```
-
-#### `plugin.handler(name, method)`
-
-Registers a new handler type as describe in [`server.handler(name, method)`](#serverhandlername-method).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var handlerFunc = function (route, options) {
-
-        return function (request, reply) {
-
-            reply('Message from plugin handler: ' + options.msg);
-        }
-    };
-
-    plugin.handler('testHandler', handlerFunc);
-    next();
-}
-```
-
-#### `plugin.render(template, context, [options], callback)`
-
-Utilizes the plugin views engine configured to render a template where:
-- `template` - the template filename and path, relative to the templates path configured via ['plugin.views()`](#pluginviewsoptions).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the plugin's ['plugin.views()`](#pluginviewsoptions) configuration.
-- `callback` - the callback function with signature `function (err, rendered, config)` where:
-    - `err` - the rendering error if any.
-    - `rendered` - the result view string.
-    - `config` - the configuration used to render the template.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.views({
-        engines: {
-            html: {
-              module: require('handlebars').create()
-            }
-        },
-        path: './templates'
-    });
-
-    plugin.render('hello', context, function (err, rendered, config) {
-
-        console.log(rendered);
-        next();
-    });
-};
-```
-
-### Selectable methods and properties
-
-The plugin interface selectable methods and properties are those available both on the `plugin` object received via the
-[`exports.register()`](#exportsregisterplugin-options-next) interface and the objects received by calling
-[`plugin.select()`](#pluginselectlabels). However, unlike the root methods, they operate only on the selected subset of
-servers.
-
-#### `plugin.select(labels)`
-
-Selects a subset of pack servers using the servers' `labels` configuration option where:
-
-- `labels` - a single string or array of strings of labels used as a logical OR statement to select all the servers with matching
-  labels in their configuration.
-
-Returns a new `plugin` interface with only access to the [selectable methods and properties](#selectable-methods-and-properties).
-Selecting again on a selection operates as a logic AND statement between the individual selections.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    next();
-};
-```
-
-#### `plugin.connections`
-
-The selected connections array.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var selection = plugin.select('web');
-    selection.connections.forEach(function (connection) {
-
-        connection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    });
-
-    next();
-};
-```
-
-#### `plugin.expose(key, value)`
-
-Exposes a property via `plugin.plugins[name]` (if added to the plugin root without first calling `plugin.select()`) and `server.plugins[name]`
-('name' of plugin) object of each selected pack server where:
-
-- `key` - the key assigned (`server.plugins[name][key]` or `plugin.plugins[name][key]`).
-- `value` - the value assigned.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.expose('util', function () { console.log('something'); });
-    next();
-};
-```
-
-#### `plugin.expose(obj)`
-
-Merges a deep copy of an object into to the existing content of `plugin.plugins[name]` (if added to the plugin root without first calling
-`plugin.select()`) and `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
-
-- `obj` - the object merged into the exposed properties container.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.expose({ util: function () { console.log('something'); } });
-    next();
-};
-```
-
-#### `plugin.route(options)`
-
-Adds a server route to the selected pack's servers as described in [`server.route(options)`](#serverrouteoptions).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    next();
-};
-```
-
-#### `plugin.route(routes)`
-
-Adds multiple server routes to the selected pack's servers as described in [`server.route(routes)`](#serverrouteroutes).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    var selection = plugin.select('admin');
-    selection.route([
-        { method: 'GET', path: '/1', handler: function (request, reply) { reply('ok'); } },
-        { method: 'GET', path: '/2', handler: function (request, reply) { reply('ok'); } }
-    ]);
-
-    next();
-};
-```
-
-#### `plugin.state(name, [options])`
-
-Adds a state definition to the selected pack's servers as described in [`server.state()`](#serverstatename-options).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.state('example', { encoding: 'base64' });
-    next();
-};
-```
-
-#### `plugin.auth.scheme(name, scheme)`
-
-Adds an authentication scheme to the selected pack's servers as described in [`server.auth.scheme()`](#serverauthschemename-scheme).
-
-#### `plugin.auth.strategy(name, scheme, [mode], [options])`
-
-Adds an authentication strategy to the selected pack's servers as described in [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
-
-#### `plugin.ext(event, method, [options])`
-
-Adds an extension point method to the selected pack's servers as described in [`server.ext()`](#serverextevent-method-options).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.ext('onRequest', function (request, extNext) {
-
-        console.log('Received request: ' + request.path);
-        extNext();
-    });
-
-    next();
-};
-```
-
-#### `plugin.register(plugins, [options], callback)`
-
-Adds a plugin to the selected pack's servers as described in [`pack.register()`](#packregisterplugins-options-callback).
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.register({
-        plugin: require('plugin_name'),
-        options: {
-            message: 'hello'
-        }
-    }, next);
-};
-```
-
-#### `plugin.dependency(deps, [after])`
-
-Declares a required dependency upon other plugins where:
-
-- `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
-  must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
-  should be implemented using [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
-- `after` - an optional function called after all the specified dependencies have been registered and before the servers start. The function is only
-  called if the pack servers are started. If a circular dependency is created, the call will assert (e.g. two plugins each has an `after` function
-  to be called after the other). The function signature is `function(plugin, next)` where:
-    - `plugin` - the [plugin interface](#plugin-interface) object.
-    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
-      signature is `function(err)` where:
-        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
-          registration error is considered an unrecoverable event which should terminate the application.
-
-```javascript
-exports.register = function (plugin, options, next) {
-
-    plugin.dependency('yar', after);
-    next();
-};
-
-var after = function (plugin, next) {
-
-    // Additional plugin registration logic
-    next();
-};
-```
-
-## `Hapi.version`
-
-The **hapi** module version number.
-
-```javascript
-var Hapi = require('hapi');
-console.log(Hapi.version);
-```
-
-## `hapi CLI`
-
-The **hapi** command line interface allows a pack of servers to be composed and started from a configuration file
-only from the command line. When installing **hapi** with the global flag the **hapi** binary script will be
-installed in the path.  The following arguments are available to the **hapi** CLI:
-
-- '-c' - the path to configuration json file (required)
-- '-p' - the path to the node_modules folder to load plugins from (optional)
-- '--require' - a module the cli will require before hapi is required (optional) ex. loading a metrics library
-
-Note that `--require` will require from `node_modules`, an absolute path, a relative path, or from the `node_modules`
-set by `-p` if available.
-
-When using the CLI to compose a pack of servers, all values in the configuration json file can be set to an
-environment variable by prefixing the variable name with`'$env.'`.
-
-In order to help with A/B testing there is [confidence](https://github.com/hapijs/confidence). Confidence is a
-configuration document format, an API, and a foundation for A/B testing. The configuration format is designed to
-work with any existing JSON-based configuration, serving values based on object path ('/a/b/c' translates to a.b.c).
-In addition, confidence defines special $-prefixed keys used to filter values for a given criteria.

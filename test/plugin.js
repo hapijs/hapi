@@ -293,7 +293,7 @@ describe('Plugin', function () {
             var plugin = {
                 register: function (plugin, options, next) {
 
-                    plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(plugin.hapi.version); } });
+                    plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(plugin.version); } });
                     return next();
                 }
             };
