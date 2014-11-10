@@ -118,10 +118,10 @@
   - Use this.constructor === to check if a constructor function was called with new
   ```javascript
   // Right
-  Utils.assert(this.constructor === Server, 'Server must be instantiated using new');
+  Hoek.assert(this.constructor === Server, 'Server must be instantiated using new');
 
   // Wrong
-  Utils.assert(this instanceof Server, 'Server must be instantiated using new');
+  Hoek.assert(this instanceof Server, 'Server must be instantiated using new');
   ```
 
 ### Style
