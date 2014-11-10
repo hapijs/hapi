@@ -184,7 +184,7 @@ describe('authentication', function () {
                         }
                     }
                 });
-            }).to.throw();
+            }).to.throw('Unknown authentication strategy: c in path: /');
 
             done();
         });

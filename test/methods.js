@@ -337,13 +337,12 @@ describe('Methods', function () {
 
     it('throws an error when name is not a string', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
             server.method(0, function () { });
-        };
-        expect(fn).to.throw();
+        }).to.throw('name must be a string');
         done();
     });
 
@@ -354,28 +353,28 @@ describe('Methods', function () {
             var server = new Hapi.Server();
             server.connection();
             server.method('0', function () { });
-        }).to.throw();
+        }).to.throw('Invalid name: 0');
 
         expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
             server.method('a..', function () { });
-        }).to.throw();
+        }).to.throw('Invalid name: a..');
 
         expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
             server.method('a.0', function () { });
-        }).to.throw();
+        }).to.throw('Invalid name: a.0');
 
         expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
             server.method('.a', function () { });
-        }).to.throw();
+        }).to.throw('Invalid name: .a');
 
         done();
     });
@@ -388,7 +387,7 @@ describe('Methods', function () {
             server.connection();
             server.method('user', 'function');
         };
-        expect(fn).to.throw();
+        expect(fn).to.throw('fn must be a function');
         done();
     });
 
@@ -400,7 +399,7 @@ describe('Methods', function () {
             server.connection();
             server.method('user', function () { }, 'options');
         };
-        expect(fn).to.throw();
+        expect(fn).to.throw(/Invalid method options \(user\)/);
         done();
     });
 
@@ -412,7 +411,7 @@ describe('Methods', function () {
             server.connection();
             server.method('user', function () { }, { generateKey: 'function' });
         };
-        expect(fn).to.throw();
+        expect(fn).to.throw(/Invalid method options \(user\)/);
         done();
     });
 
@@ -424,7 +423,7 @@ describe('Methods', function () {
             server.connection();
             server.method('user', function () { }, { cache: { x: 'y' } });
         };
-        expect(fn).to.throw();
+        expect(fn).to.throw(/Invalid cache policy configuration/);
         done();
     });
 

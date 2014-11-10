@@ -20,47 +20,36 @@ var expect = Code.expect;
 
 describe('Route', function () {
 
-    it('throws an error when a route is passed in that is missing a path', function (done) {
+    it('throws an error when a route is missing a path', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
-            var route = {};
             var server = new Hapi.Server();
             server.connection();
-            server.route(route);
-        };
-        expect(fn).to.throw();
+            server.route({ method: 'GET', handler: function () { } });
+        }).to.throw('Route missing path');
         done();
     });
 
-    it('throws an error when a route is passed in that is missing a method', function (done) {
+    it('throws an error when a route is missing a method', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
-            var route = {
-                path: '/test'
-            };
             var server = new Hapi.Server();
             server.connection();
-            server.route(route);
-        };
-        expect(fn).to.throw();
+            server.route({ path: '/test', handler: function () { } });
+        }).to.throw(/method is required/);
         done();
     });
 
-    it('throws an error when a route is passed in that is missing a handler', function (done) {
+    it('throws an error when a route is missing a handler', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
-            var route = {
-                path: '/test',
-                method: 'put'
-            };
             var server = new Hapi.Server();
             server.connection();
-            server.route(route);
-        };
-        expect(fn).to.throw();
+            server.route({ path: '/test', method: 'put' });
+        }).to.throw('Missing or undefined handler: put /test');
         done();
     });
 
