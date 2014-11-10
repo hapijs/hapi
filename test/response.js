@@ -1,7 +1,10 @@
 // Load modules
 
+var Bluebird = require('bluebird');
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
+var Hoek = require('hoek');
 var Lab = require('lab');
 
 
@@ -309,58 +312,43 @@ describe('Response', function () {
         });
     });
 
-    describe('_streamify()', function () {
+    describe('replacer()', function () {
 
-        it('returns a formatted response', function (done) {
+        it('errors when called on wrong type', function (done) {
 
-            var handler = function (request, reply) {
-
-                return reply({ a: 1, b: 2 });
-            };
-
-            var server = new Hapi.Server();
-            server.connection({ json: { replacer: ['a'], space: 4, suffix: '\n' } });
-            server.route({ method: 'GET', path: '/', handler: handler });
-
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').replacer(['x']); } });
             server.inject('/', function (res) {
 
-                expect(res.payload).to.equal('{\n    \"a\": 1\n}\n');
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
+    });
 
-        it('returns a response with options', function (done) {
+    describe('spaces()', function () {
 
-            var handler = function (request, reply) {
+        it('errors when called on wrong type', function (done) {
 
-                return reply({ a: 1, b: 2 }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n');
-            };
-
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
-
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').spaces(2); } });
             server.inject('/', function (res) {
 
-                expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
-                expect(res.headers['content-type']).to.equal('application/x-test');
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
+    });
 
-        it('captures object which cannot be stringify', function (done) {
+    describe('suffix()', function () {
 
-            var handler = function (request, reply) {
+        it('errors when called on wrong type', function (done) {
 
-                var obj = {};
-                obj.a = obj;
-                return reply(obj);
-            };
-
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
-
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').suffix('x'); } });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(500);
@@ -591,6 +579,129 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(302);
+                done();
+            });
+        });
+    });
+
+    describe('_prepare()', function () {
+
+        it('handles promises that resolve', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(Bluebird.resolve('promised response')).code(201);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('promised response');
+                expect(res.statusCode).to.equal(201);
+                done();
+            });
+        });
+
+        it('handles promises that reject', function (done) {
+
+            var handler = function (request, reply) {
+
+                var promise = Bluebird.reject(Boom.forbidden('this is not allowed!'));
+                promise.catch(Hoek.ignore);
+
+                return reply(promise).code(299);            // Code ignored
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result.message).to.equal('this is not allowed!');
+                expect(res.statusCode).to.equal(403);
+                done();
+            });
+        });
+    });
+
+    describe('_streamify()', function () {
+
+        it('returns a formatted response', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply({ a: 1, b: 2 });
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ json: { replacer: ['a'], space: 4, suffix: '\n' } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{\n    \"a\": 1\n}\n');
+                done();
+            });
+        });
+
+        it('returns a response with options', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply({ a: 1, b: 2 }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
+                expect(res.headers['content-type']).to.equal('application/x-test');
+                done();
+            });
+        });
+
+        it('returns a response with options (different order)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply({ a: 1, b: 2 }).type('application/x-test').replacer(['a']).suffix('\n').spaces(2);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
+                expect(res.headers['content-type']).to.equal('application/x-test');
+                done();
+            });
+        });
+
+        it('captures object which cannot be stringify', function (done) {
+
+            var handler = function (request, reply) {
+
+                var obj = {};
+                obj.a = obj;
+                return reply(obj);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
