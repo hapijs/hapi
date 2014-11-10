@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "7.5.1",
+  "version": "7.5.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -26,7 +26,7 @@
     "cryptiles": "2.x.x",
     "h2o2": "2.x.x",
     "heavy": "1.x.x",
-    "hoek": "^2.4.x",
+    "hoek": "^2.9.x",
     "glue": "1.x.x",
     "inert": "^1.1.x",
     "iron": "2.x.x",
