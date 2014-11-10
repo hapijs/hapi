@@ -1,6 +1,7 @@
 // Load modules
 
 var Stream = require('stream');
+var Bluebird = require('bluebird');
 var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
@@ -285,6 +286,71 @@ describe('Reply', function () {
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
                     expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                    done();
+                });
+            });
+        });
+
+        describe('promises', function () {
+
+            it('returns a stream', function (done) {
+
+                var TestStream = function () {
+
+                    Stream.Readable.call(this);
+
+                    this.statusCode = 200;
+                };
+
+                Hoek.inherits(TestStream, Stream.Readable);
+
+                TestStream.prototype._read = function (size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('x');
+                    this.push('y');
+                    this.push(null);
+                };
+
+                var handler = function (request, reply) {
+
+                    return reply(Bluebird.resolve(new TestStream())).ttl(2000).code(299);
+                };
+
+                var server = new Hapi.Server({ debug: false });
+                server.connection({ cors: { origin: ['test.example.com'] } });
+                server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
+
+                server.inject('/stream', function (res) {
+
+                    expect(res.result).to.equal('xy');
+                    expect(res.statusCode).to.equal(299);
+                    expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+                    expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                    done();
+                });
+            });
+
+            it('returns a buffer', function (done) {
+
+                var handler = function (request, reply) {
+
+                    return reply(Bluebird.resolve(new Buffer('buffer content'))).code(299).type('something/special');
+                };
+
+                var server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/', handler: handler });
+
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(299);
+                    expect(res.result.toString()).to.equal('buffer content');
+                    expect(res.headers['content-type']).to.equal('something/special');
                     done();
                 });
             });

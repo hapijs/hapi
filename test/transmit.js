@@ -2197,6 +2197,25 @@ describe('transmission', function () {
                 done();
             });
         });
+
+        it('does not modify content-type header when charset is unset (default type)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('text').charset();
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-type']).to.equal('text/html');
+                done();
+            });
+        });
     });
 });
 
