@@ -26,7 +26,7 @@
     "cryptiles": "2.x.x",
     "h2o2": "3.x.x",
     "heavy": "2.x.x",
-    "hoek": "^2.4.x",
+    "hoek": "^2.9.x",
     "inert": "2.0.x",
     "iron": "2.x.x",
     "items": "1.x.x",
