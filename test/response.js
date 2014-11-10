@@ -1715,8 +1715,8 @@ describe('Response', function () {
 
                         expect(res3.statusCode).to.equal(304);
                         expect(res3.headers['content-length']).to.not.exist();
-                        expect(res3.headers.etag).to.not.exist();
-                        expect(res3.headers['last-modified']).to.not.exist();
+                        expect(res3.headers.etag).to.exist();
+                        expect(res3.headers['last-modified']).to.exist();
 
                         var fd = Fs.openSync(__dirname + '/file/note.txt', 'w');
                         Fs.writeSync(fd, new Buffer('Test'), 0, 4);
@@ -1810,8 +1810,8 @@ describe('Response', function () {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['content-length']).to.not.exist();
-                    expect(res2.headers.etag).to.not.exist();
-                    expect(res2.headers['last-modified']).to.not.exist();
+                    expect(res2.headers.etag).to.exist();
+                    expect(res2.headers['last-modified']).to.exist();
                     done();
                 });
             });
@@ -1828,8 +1828,8 @@ describe('Response', function () {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['content-length']).to.not.exist();
-                    expect(res2.headers.etag).to.not.exist();
-                    expect(res2.headers['last-modified']).to.not.exist();
+                    expect(res2.headers.etag).to.exist();
+                    expect(res2.headers['last-modified']).to.exist();
                     done();
                 });
             });
