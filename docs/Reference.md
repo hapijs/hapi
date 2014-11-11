@@ -751,7 +751,7 @@ connections) and to each `connection.plugins[name]` (where 'name' is the plugin 
 exports.register = function (server, options, next) {
 
     server.expose('util', function () { console.log('something'); });
-    next();
+    return next();
 };
 ```
 
@@ -766,7 +766,7 @@ where:
 exports.register = function (server, options, next) {
 
     server.expose({ util: function () { console.log('something'); } });
-    next();
+    return next();
 };
 ```
 
@@ -796,16 +796,16 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onRequest', function (request, next) {
+server.ext('onRequest', function (request, reply) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
-    next();
+    return reply.continue();
 });
 
 var handler = function (request, reply) {
 
-    reply({ status: 'ok' });
+    return reply({ status: 'ok' });
 };
 
 server.route({ method: 'GET', path: '/test', handler: handler });
@@ -816,29 +816,30 @@ server.start();
 
 #### `server.handler(name, method)`
 
-Registers a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`),
-or any previously registered types is not allowed.
-
-- `name` - string name for the handler being registered.
-- `method` - the function used to generate the route handler using the signature `function(route, options)` where:
+Registers a new handler type to be used in routes where:
+- `name` - string name for the handler being registered. Cannot override the built-in handler
+  types (`directory`, `file`, `proxy`, and `view`) or any previously registered type.
+- `method` - the function used to generate the route handler using the signature
+  `function(route, options)` where:
     - `route` - the route configuration object.
     - `options` - the configuration object provided in the handler config.
 
-The `method` function can have a `defaults` property of an object or function. If the property is set to an object, that object is used as
-the default route config for routes using this handler. If the property is set to a function, the function uses the signature `function(method)`
-and returns the route default configuration.
+The `method` function can have a `defaults` property of an object or function. If the property is
+set to an object, that object is used as the default route config for routes using this handler. If
+the property is set to a function, the function uses the signature `function(method)` and returns
+the route default configuration.
 
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-        server.connection({ host: 'localhost', port: 8000 });
+server.connection({ host: 'localhost', port: 8000 });
 
 // Defines new handler for routes on this server
 server.handler('test', function (route, options) {
 
     return function (request, reply) {
 
-        reply('new handler: ' + options.msg);
+        return reply('new handler: ' + options.msg);
     }
 });
 
@@ -853,23 +854,29 @@ server.start();
 
 #### `server.inject(options, callback)`
 
-Injects a request into the server simulating an incoming HTTP request without making an actual socket connection. Injection is useful for
-testing purposes as well as for invoking routing logic internally without the overhead or limitations of the network stack. Utilizes the
-[**shot**](https://github.com/hapijs/shot) module for performing injections, with some additional options and response properties:
-
+When the server contains exactly one connection, injects a request into the sole connection
+simulating an incoming HTTP request without making an actual socket connection. Injection is useful
+for testing purposes as well as for invoking routing logic internally without the overhead or
+limitations of the network stack. Utilizes the [**shot**](https://github.com/hapijs/shot) module
+for performing injections, with some additional options and response properties:
 - `options` - can be assign a string with the requested URI, or an object with:
     - `method` - the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
-    - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host'
-      header, unless one was specified in `headers`.
-    - `headers` - an object with optional request headers where each key is the header name and the value is the header content. Defaults
-      to no additions to the default Shot headers.
-    - `payload` - an optional string or buffer containing the request payload (object must be manually converted to a string first).
-      Defaults to no payload. Note that payload processing defaults to `'application/json'` if no 'Content-Type' header provided.
-    - `credentials` - an optional credentials object containing authentication information. The `credentials` are used to bypass the default
-      authentication strategies, and are validated directly as if they were received via an authentication scheme. Defaults to no credentials.
-    - `simulate` - an object with options used to simulate client request stream conditions for testing:
-        - `error` - if `true`, emits an `'error'` event after payload transmission (if any). Defaults to `false`.
-        - `close` - if `true`, emits a `'close'` event after payload transmission (if any). Defaults to `false`.
+    - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is
+      used to automatically set an HTTP 'Host' header, unless one was specified in `headers`.
+    - `headers` - an object with optional request headers where each key is the header name and the
+      value is the header content. Defaults to no additions to the default Shot headers.
+    - `payload` - an optional string or buffer containing the request payload (object must be
+      manually converted to a string first). Defaults to no payload. Note that payload processing
+      defaults to `'application/json'` if no 'Content-Type' header provided.
+    - `credentials` - an optional credentials object containing authentication information. The
+      `credentials` are used to bypass the default authentication strategies, and are validated
+      directly as if they were received via an authentication scheme. Defaults to no credentials.
+    - `simulate` - an object with options used to simulate client request stream conditions for
+      testing:
+        - `error` - if `true`, emits an `'error'` event after payload transmission (if any).
+          Defaults to `false`.
+        - `close` - if `true`, emits a `'close'` event after payload transmission (if any).
+          Defaults to `false`.
         - `end` - if `false`, does not end the stream. Defaults to `true`.
 - `callback` - the callback function with signature `function(res)` where:
     - `res` - the response object where:
@@ -880,20 +887,24 @@ testing purposes as well as for invoking routing logic internally without the ov
         - `raw` - an object with the injection request and response objects:
             - `req` - the `request` object.
             - `res` - the response object.
-        - `result` - the raw handler response (e.g. when not a stream) before it is serialized for transmission. If not available, set to
-          `payload`. Useful for inspection and reuse of the internal objects returned (instead of parsing the response string).
+        - `result` - the raw handler response (e.g. when not a stream) before it is serialized for
+          transmission. If not available, set to `payload`. Useful for inspection and reuse of the
+          internal objects returned (instead of parsing the response string).
+
+When the server contains more than one connection, each `server.connections` array member provides
+its own `connection.inject()`.
 
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
 
-var get = function (request, reply) {
+var handler = function (request, reply) {
 
-    reply('Success!');
+    return reply('Success!');
 };
 
-server.route({ method: 'GET', path: '/', handler: get });
+server.route({ method: 'GET', path: '/', handler: handler });
 
 server.inject('/', function (res) {
 
@@ -903,11 +914,12 @@ server.inject('/', function (res) {
 
 #### `server.log(tags, [data, [timestamp]])`
 
-The `server.log()` method is used for logging server events that cannot be associated with a specific request. When called the server emits a `'log'`
-event which can be used by other listeners or plugins to record the information or output to the console. The arguments are:
-
-- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
-  and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
+The `server.log()` method is used for logging server events that cannot be associated with a
+specific request. When called the server emits a `'log'` event which can be used by other listeners
+or plugins to record the information or output to the console. The arguments are:
+- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
+  the event. Tags are used instead of log levels and provide a much more expressive mechanism for
+  describing and filtering events. Any logs generated by the server internally include the `'hapi'`
   tag along with event-specific information.
 - `data` - an optional message string or object with the application data being logged.
 - `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
@@ -927,13 +939,94 @@ server.on('log', function (event, tags) {
 server.log(['test', 'error'], 'Test event');
 ```
 
-#### `server.method(method)`
+#### `server.method(name, method, [options])`
 
-Registers a server method function as described in [`server.method()`](#servermethodname-fn-options) using a method object or an array
-of objects where each has:
-- `name` - the method name.
-- `fn` - the method function.
-- `options` - optional settings.
+Registers a server method. Server methods are functions registered with the server and used
+throughout the application as a common utility. Their advantage is in the ability to configure them
+to use the built-in cache and share across multiple request handlers without having to create a
+common module.
+
+Methods are registered via `server.method(name, method, [options])` where:
+- `name` - a unique method name used to invoke the method via `server.methods[name]`. When
+ configured with caching enabled, `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)`
+ can be used to clear the cache for a given key. Supports using nested names such as
+ `utils.users.get` which will automatically create the missing path under `server.methods` and can
+ be accessed for the previous example via `server.methods.utils.users.get`.
+- `method` - the method function with the signature is `function(arg1, arg2, ..., argn, next)`
+  where:
+    - `arg1`, `arg2`, etc. - the method function arguments.
+    - `next` - the function called when the method is done with the signature
+      `function(err, result, ttl)` where:
+        - `err` - error response if the method failed.
+        - `result` - the return value.
+        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
+- `options` - optional configuration:
+    - `bind` - a context object passed back to the method function (via `this`) when called.
+      Defaults to active context (set via `server.bind()` when the method is registered.
+    - `cache` - the same cache configuration used in `server.cache()`.
+    - `generateKey` - a function used to generate a unique key (for caching) from the arguments
+      passed to the method function (with the exception of the last 'next' argument). The server
+      will automatically generate a unique key if the function's arguments are all of types
+      `'string'`, `'number'`, or `'boolean'`. However if the method uses other types of arguments,
+      a key generation function must be provided which takes the same arguments as the function and
+      returns a unique string (or `null` if no key can be generated). Note that when the
+      `generateKey` method is invoked, the arguments list will include the `next` argument which
+      must not be used in calculation of the key.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+// Simple arguments
+
+var add = function (a, b, next) {
+
+    return next(null, a + b);
+};
+
+server.method('sum', add, { cache: { expiresIn: 2000 } });
+
+server.methods.sum(4, 5, function (err, result) {
+
+    console.log(result);
+});
+
+// Object argument
+
+var addArray = function (array, next) {
+
+    var sum = 0;
+    array.forEach(function (item) {
+
+        sum += item;
+    });
+
+    return next(null, sum);
+};
+
+server.method('sumObj', addArray, {
+    cache: { expiresIn: 2000 },
+    generateKey: function (array) {
+
+        return array.join(',');
+    }
+});
+
+server.methods.sumObj([5, 6], function (err, result) {
+
+    console.log(result);
+});
+```
+
+#### `server.method(methods)`
+
+Registers a server method function as described in `server.method()` using a configuration object
+where:
+- `methods` - an object or an array of objects where each one contains:
+    - `name` - the method name.
+    - `method` - the method function.
+    - `options` - optional settings.
 
 ```js
 var add = function (a, b, next) {
@@ -941,25 +1034,7 @@ var add = function (a, b, next) {
     next(null, a + b);
 };
 
-server.method({ name: 'sum', fn: add, options: { cache: { expiresIn: 2000 } } });
-
-server.method([{ name: 'also', fn: add }]);
-```
-
-#### `server.method(name, fn, [options])`
-
-Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodname-fn-options)
-
-```js
-exports.register = function (server, options, next) {
-
-    server.method('user', function (id, next) {
-
-        next(null, { id: id });
-    });
-
-    next();
-};
+server.method({ name: 'sum', method: add, options: { cache: { expiresIn: 2000 } } });
 ```
 
 #### `server.path(path)`
@@ -2121,92 +2196,6 @@ Each incoming request passes through a pre-defined set of steps, along with opti
 - Emits `'response'` event
 - Wait for tails
 - Emits `'tail'` event
-
-#### `server.method(name, fn, [options])`
-
-Registers a server method function. Server methods are functions registered with the server and used throughout the application as
-a common utility. Their advantage is in the ability to configure them to use the built-in cache and shared across multiple request
-handlers without having to create a common module.
-
-Methods are registered via `server.method(name, fn, [options])` where:
-
-- `name` - a unique method name used to invoke the method via `server.methods[name]`. When configured with caching enabled,
-  `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)` can be used to clear the cache for a given key. Supports using
-  nested names such as `utils.users.get` which will automatically create the missing path under `server.methods` and can be accessed
-  for the previous example via `server.methods.utils.users.get`.
-- `fn` - the method function with the signature is `function(arg1, arg2, ..., argn, next)` where:
-    - `arg1`, `arg2`, etc. - the method function arguments.
-    - `next` - the function called when the method is done with the signature `function(err, result, ttl)` where:
-        - `err` - error response if the method failed.
-        - `result` - the return value.
-        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
-- `options` - optional configuration:
-    - `bind` - an object passed back to the provided method function (via `this`) when called. Defaults to `null` unless added via a plugin, in which
-      case it defaults to the plugin bind object.
-    - `cache` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy) with a few additions:
-        - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
-          together with `expiresAt`.
-        - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
-          expire. Cannot be used together with `expiresIn`.
-        - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
-        - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
-        - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
-          method is taking too long.
-        - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '#name' where 'name' is the
-          method name. When setting segment manually, it must begin with '##'.
-        - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
-    - `generateKey` - a function used to generate a unique key (for caching) from the arguments passed to the method function
-     (with the exception of the last 'next' argument). The server will automatically generate a unique key if the function's
-     arguments are all of types `'string'`, `'number'`, or `'boolean'`. However if the method uses other types of arguments, a
-     key generation function must be provided which takes the same arguments as the function and returns a unique string (or
-     `null` if no key can be generated). Note that when the `generateKey` method is invoked, the arguments list will include
-     the `next` argument which must not be used in calculation of the key.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection({ port: 80 });
-
-// Simple arguments
-
-var add = function (a, b, next) {
-
-    next(null, a + b);
-};
-
-server.method('sum', add, { cache: { expiresIn: 2000 } });
-
-server.methods.sum(4, 5, function (err, result) {
-
-    console.log(result);
-});
-
-// Object argument
-
-var addArray = function (array, next) {
-
-    var sum = 0;
-    array.forEach(function (item) {
-
-        sum += item;
-    });
-
-    next(null, sum);
-};
-
-server.method('sumObj', addArray, {
-    cache: { expiresIn: 2000 },
-    generateKey: function (array) {
-
-        return array.join(',');
-    }
-});
-
-server.methods.sumObj([5, 6], function (err, result) {
-
-    console.log(result);
-});
-```
 
 
 

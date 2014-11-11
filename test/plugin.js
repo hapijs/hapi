@@ -58,7 +58,7 @@ describe('Plugin', function () {
 
                     memoryx.state('sid', { encoding: 'base64' });
                     plugin.method({
-                        name: 'testMethod', fn: function (next) {
+                        name: 'testMethod', method: function (next) {
 
                             return next(null, '123');
                         }, options: { cache: { expiresIn: 1000 } }

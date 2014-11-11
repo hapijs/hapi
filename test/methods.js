@@ -379,51 +379,47 @@ describe('Methods', function () {
         done();
     });
 
-    it('throws an error when fn is not a function', function (done) {
+    it('throws an error when method is not a function', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
             server.method('user', 'function');
-        };
-        expect(fn).to.throw('fn must be a function');
+        }).to.throw('method must be a function');
         done();
     });
 
     it('throws an error when options is not an object', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
             server.method('user', function () { }, 'options');
-        };
-        expect(fn).to.throw(/Invalid method options \(user\)/);
+        }).to.throw(/Invalid method options \(user\)/);
         done();
     });
 
     it('throws an error when options.generateKey is not a function', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
             server.method('user', function () { }, { generateKey: 'function' });
-        };
-        expect(fn).to.throw(/Invalid method options \(user\)/);
+        }).to.throw(/Invalid method options \(user\)/);
         done();
     });
 
     it('throws an error when options.cache is not valid', function (done) {
 
-        var fn = function () {
+        expect(function () {
 
             var server = new Hapi.Server({ cache: CatboxMemory });
             server.connection();
             server.method('user', function () { }, { cache: { x: 'y' } });
-        };
-        expect(fn).to.throw(/Invalid cache policy configuration/);
+        }).to.throw(/Invalid cache policy configuration/);
         done();
     });
 
@@ -606,7 +602,7 @@ describe('Methods', function () {
             return next(null, { id: id });
         };
 
-        server.method([{ name: 'user', fn: method, options: { cache: { expiresIn: 2000 } } }]);
+        server.method([{ name: 'user', method: method, options: { cache: { expiresIn: 2000 } } }]);
 
         server.start(function () {
 
