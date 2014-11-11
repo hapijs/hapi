@@ -2,7 +2,7 @@
 
 
 
-## `Hapi.Server`
+## Server
 
 The `Server` object is the main application container. The server manages all incoming connections
 along with all the facilities provided by the framework. A server can contain more than one
@@ -1434,297 +1434,159 @@ server.views({
 When `server.views()` is called within a plugin, the views manager is only available to plugins
 methods.
 
+## Plugins
 
+Plugins provide a way to organize the application code by splitting the server logic into smaller
+components. Each plugin can manipulate the server and its connections through the standard server
+interface, but with the added ability to sandbox certain properties (such as the views manager
+and relative file paths).
 
+A plugin is a function with the signature `function(server, options, next)` where:
+- `server` - the server object the plugin is being registered to.
+- `options` - an options object passed to the plugin during registration.
+- `next` - a callback method the function must call to return control back to the framework to
+  complete the registration process with signature `function(err)` where:
+    - `err` - any plugin registration error.
 
-
-
-
-
-
-
-
-
-
-
-## Plugin interface
-
-Plugins provide an extensibility platform for both general purpose utilities such as [batch requests](https://github.com/hapijs/bassmaster)
-and for application business logic. Instead of thinking about a web server as a single entity with a unified routing table, plugins enable
-developers to break their application into logical units, assembled together in different combinations to fit the development, testing, and
-deployment needs.
-
-A plugin is constructed with the following:
-
-- name - the plugin name is used as a unique key. Public plugins should be published in the [npm registry](https://npmjs.org) and derive
-  their name from the registry name to ensure uniqueness. Private plugin names should be picked carefully to avoid conflicts with both
-  private and public names.
-- registration function - the function described in [`exports.register()`](#exportsregisterplugin-options-next) is the plugin's core.
-  The function is called when the plugin is registered and it performs all the activities required by the plugin to operate. It is the
-  single entry point into the plugin's functionality.
-- version - the optional plugin version is only used informatively to enable other plugins to find out the versions loaded. The version
-  should be the same as the one specified in the plugin's 'package.json' file.
-
-The name and versions are included by attaching an `attributes` property to the `exports.register()` function:
+The plugin function must include an `attributes` function property with the following:
+- `name` - required plugin name string. The name is used as a unique key. Published plugins should use
+  the same name as the name field in the 'package.json' file. Names must be unique within each
+  application.
+- `version` - optional plugin version. The version is only used informatively to enable other
+  plugins to find out the versions loaded. The version should be the same as the one specified in
+  the plugin's 'package.json' file.
+- `multiple` - if `true`, allows the plugin to be registered multiple times with the same server.
+  Defaults to `false`.
 
 ```js
-exports.register = function (server, options, next) {
+var register = function (server, options, next) {
 
     server.route({
         method: 'GET',
-        path: '/version',
+        path: '/test',
         handler: function (request, reply) {
 
-            reply('1.0.0');
+            return reply('ok');
         }
     });
 
-    next();
+    return next();
 };
 
-exports.register.attributes = {
-    name: 'example',
+register.attributes = {
+    name: 'test',
     version: '1.0.0'
 };
 ```
 
-Alternatively, the name and version can be included via the `pkg` attribute containing the 'package.json' file for the module which
-already has the name and version included:
+Alternatively, the `name` and `version` can be included via the `pkg` attribute containing the
+'package.json' file for the module which already has the name and version included:
 
 ```js
-exports.register.attributes = {
+register.attributes = {
     pkg: require('./package.json')
 };
 ```
 
-The `multiple` attributes specifies that a plugin is safe to register multiple times with the same server.
-
-```js
-exports.register.attributes = {
-    multiple: true,
-    pkg: require('./package.json')
-};
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### `server.route(options)`
-
-Adds a new route to the server where:
-
-- `options` - the route configuration as described in [route options](#route-options).
-
-##### Route options
-
-The following options are available when adding a route:
-
-- `path` - (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured
-  paths based on the server [`router`](#server.config.router) configuration option. The path can include named parameters enclosed in `{}` which
-  will be matched against literal values in the request as described in [Path parameters](#path-parameters).
-
-- `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'.
-  Use `'*'` to match against any HTTP method (only when an exact match was not found, and any match with a specific method will be given a higher
-  priority over a wildcard match). Can be assigned an array of methods which has the same result as adding the same route with different methods manually.
-
-- `vhost` - an optional domain string or an array of domain strings for limiting the route to only requests with a matching host header field.
-  Matching is done against the hostname part of the header only (excluding the port). Defaults to all hosts.
-
-- `handler` - (required) the function called to generate the response after successful authentication and validation. The handler function is
-  described in [Route handler](#route-handler). If set to a string, the value is parsed the same way a prerequisite server method string shortcut is processed. Alternatively, `handler` can be assigned an object with one of:
-    - <a name="route.config.file"></a>`file` - generates a static file endpoint for serving a single file. `file` can be set to:
-        - a relative or absolute file path string (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
-        - a function with the signature `function(request)` which returns the relative or absolute file path.
-        - an object with the following options:
-            - `path` - a path string or function as described above.
-            - `filename` - an optional filename to specify if sending a 'Content-Disposition' header, defaults to the basename of `path`
-            - `mode` - specifies whether to include the 'Content-Disposition' header with the response. Available values:
-                - `false` - header is not included. This is the default value.
-                - `'attachment'`
-                - `'inline'`
-            - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix for a precompressed version of the file to
-              serve if the request supports content encoding. Defaults to `false`.
-
-    - <a name="route.config.directory"></a>`directory` - generates a directory endpoint for serving static content from a directory. Routes using the
-      directory handler must include a path parameter at the end of the path string (e.g. `/path/to/somewhere/{param}` where the parameter name does
-      not matter). The path parameter can use any of the parameter options (e.g. `{param}` for one level files only, `{param?}` for one level files or
-      the directory root, `{param*}` for any level, or `{param*3}` for a specific level). If additional path parameters are present, they are ignored for
-      the purpose of selecting the file system resource. The directory handler is an object with the following options:
-        - `path` - (required) the directory root path (relative paths are resolved based on the server [`files`](#server.config.files) configuration).
-          Value can be:
-            - a single path string used as the prefix for any resources requested by appending the request path parameter to the provided string.
-            - an array of path strings. Each path will be attempted in order until a match is found (by following the same process as the single path string).
-            - a function with the signature `function(request)` which returns the path string or an array of path strings. If the function returns an
-              error, the error is passed back to the client in the response.
-        - `index` - optional boolean, determines if 'index.html' will be served if found in the folder when requesting a directory. Defaults to `true`.
-        - `listing` - optional boolean, determines if directory listing is generated when a directory is requested without an index document.
-          Defaults to `false`.
-        - `showHidden` - optional boolean, determines if hidden files will be shown and served. Defaults to `false`.
-        - `redirectToSlash` - optional boolean, determines if requests for a directory without a trailing slash are redirected to the same path with
-          the missing slash. Useful for ensuring relative links inside the response are resolved correctly. Disabled when the server config
-          `router.stripTrailingSlash` is `true. `Defaults to `true`.
-        - `lookupCompressed` - optional boolean, instructs the file processor to look for the same filename with the '.gz' suffix for a precompressed
-          version of the file to serve if the request supports content encoding. Defaults to `false`.
-        - `defaultExtension` - optional string, appended to file requests if the requested file is not found. Defaults to no extension.
-
-    - <a name="route.config.proxy"></a>`proxy` - generates a reverse proxy handler with the following options:
-        - `host` - the upstream service host to proxy requests to.  The same path on the client request will be used as the path on the host.
-        - `port` - the upstream service port.
-        - `protocol` - The protocol to use when making a request to the proxied host:
-            - `'http'`
-            - `'https'`
-        - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
-        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream service being proxied to, headers sent from the upstream service will also be forwarded to the client. Defaults to `false`.
-        - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming requests before being passed upstream. This is
-          a security feature to prevent local state (e.g. authentication cookies) from leaking upstream to other servers along with the cookies intended
-          for those servers. This value can be overridden on a per state basis via the [`server.state()`](#serverstatename-options) `passThrough` option.
-          Defaults to `false`.
-        - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header which is useful when using an `onResponse` post-processing
-          to avoid receiving an encoded response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true` (passing header).
-        - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
-          making the request. This value is only used when the proxied server uses TLS/SSL.  When set it will override the node.js `rejectUnauthorized` property.
-          If `false` then ssl errors will be ignored. When `true` the server certificate is verified and an 500 response will be sent when verification fails.  This
-          shouldn't be used alongside the `agent` setting as the `agent` will be used instead.
-          Defaults to the https agent default value of `true`.
-        - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port', 'X-Forwarded-Proto' headers when making a request to the
-          proxied upstream endpoint. Defaults to `false`.
-        - `redirects` - the maximum number of HTTP redirections allowed, to be followed automatically by the handler. Set to `false` or `0` to
-          disable all redirections (the response will contain the redirection received from the upstream service). If redirections are enabled,
-          no redirections (301, 302, 307, 308) will be passed along to the client, and reaching the maximum allowed redirections will return an
-          error response. Defaults to `false`.
-        - `timeout` - number of milliseconds before aborting the upstream request. Defaults to `180000` (3 minutes).
-        - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used together with `host`, `port`, `protocol`, or `uri`.
-          The function signature is `function(request, callback)` where:
-            - `request` - is the incoming `request` object
-            - `callback` - is `function(err, uri, headers)` where:
-                - `err` - internal error condition.
-                - `uri` - the absolute proxy URI.
-                - `headers` - optional object where each key is an HTTP request header and the value is the header content.
-        - `onResponse` - a custom function for processing the response from the upstream service before sending to the client. Useful for
-          custom error handling of responses from the proxied endpoint or other payload manipulation. Function signature is
-          `function(err, res, request, reply, settings, ttl)` where:
-              - `err` - internal or upstream error returned from attempting to contact the upstream proxy.
-              - `res` - the node response object received from the upstream service. `res` is a readable stream (use the
-                [**wreck**](https://github.com/hapijs/wreck) module `read` method to easily convert it to a Buffer or string).
-              - `request` - is the incoming `request` object.
-              - `reply()` - the continuation function.
-              - `settings` - the proxy handler configuration.
-              - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and the upstream response included a valid
-                'Cache-Control' header with 'max-age'.
-        - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the response using the `response.ttl()` method (or passed
-          as an argument to the `onResponse` method if provided).
-        - `agent` - a node [http(s) agent](http://nodejs.org/api/http.html#http_class_http_agent) to be used for connections to upstream server.
-        - `maxSockets` - sets the maximum number of sockets available per outgoing proxy host connection. `false` means use the **wreck** module
-          default value (Infinity). Does not affect non-proxy outgoing client connections. Defaults to `Infinity`.
-
-    - <a name="route.config.view"></a>`view` - generates a template-based response. The `view` option can be set to one of:
-        - a string with the template file name.
-        - an object with the following keys:
-            - `template` - a string with the template file name.
-            - `context` - an optional template context object. Defaults to an object with the following key:
-                - `payload` - maps to `request.payload`.
-                - `params` - maps to `request.params`.
-                - `query` - maps to `request.query`.
-                - `pre` - maps to `request.pre`.
-            - `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration.
-
-- `config` - additional route configuration (the `config` options allows splitting the route information from its implementation):
-    - `handler` - an alternative location for the route handler function. Same as the `handler` option in the parent level. Can only
-      include one handler per route.
-    - `bind` - an object passed back to the provided handler (via `this`) when called.
-    - `app` - application-specific configuration. Provides a safe place to pass application configuration without potential conflicts
-      with **hapi**. Should not be used by plugins which should use `plugins[name]`.
-    - `plugins` - plugin-specific configuration. Provides a place to pass route-level plugin configuration. The `plugins` is an object
-      where each key is a plugin name and the value is the state.
-    - `pre` - an array with prerequisites methods which are executed in serial or in parallel before the handler is called and are
-      described in [Route prerequisites](#route-prerequisites).
-
-    - `validate` - request input validation rules for various request components. When using a [Joi](http://github.com/hapijs/joi)
-      validation object, the values of the other inputs (e.g. `headers`, `query`, and `params` when validating `payload`) are made
-      available under the validation context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is performed in
-      order (i.e. headers, params, query, payload) and if type casting is used (converting a string to number), the value of inputs
-      not yet validated will reflect the raw, unvalidated and unmodified values. The `validate` object supports:
+## Requests
+
+Incoming requests are handled by the server via routes. Each route describes an HTTP endpoint with
+a path, method, and other properties. The route logic is divided between static configuration,
+prerequisite functions and a route handler function. Routes are added via the `server.route()`
+method.
+
+### Request lifecycle
+
+Each incoming request passes through a pre-defined list of steps, along with optional extensions:
+
+- **`'onRequest'`** extension point
+    - always called
+    - the `request` object passed to the extension functions is decorated with the
+      `request.setUrl(url)` and `request.setMethod(verb)` methods. Calls to these methods will
+      impact how the request is routed and can be used for rewrite rules. 
+    - `request.route` is not yet populated at this point.
+- Lookup route using request path
+- Parse cookies
+- **`'onPreAuth'`** extension point
+- Authenticate request
+- Read and parse payload
+- Authenticate request payload
+- **`'onPostAuth'`** extension point
+- Validate path parameters
+- Process query extensions (e.g. JSONP)
+- Validate query
+- Validate payload
+- **`'onPreHandler'`** extension point
+- Route prerequisites
+- Route handler
+- **`'onPostHandler'`** extension point
+    - The response object contained in `request.response` may be modified (but not assigned a new
+      value). To return a different response type (for example, replace an error with an HTML
+      response), return a new response via `reply(response)`.
+- Validate response payload
+- **`'onPreResponse'`** extension point
+    - always called (except when `reply.close()` is called or the client terminates the connection
+      prematurely).
+    - The response contained in `request.response` may be modified (but not assigned a new value).
+      To return a different response type (for example, replace an error with an HTML response),
+      return a new response via `reply(response)`. Note that any errors generated after
+      `reply(response)` is called will not be passed back to the `'onPreResponse'` extension method
+      to prevent an infinite loop.
+- Send response (may emit `'internalError'` event)
+- Emits `'response'` event
+- Wait for tails
+- Emits `'tail'` event
+
+### Route configuration
+
+The route configuration object supports the following options:
+- `path` - (required) the absolute path used to match incoming requests (must begin with '/').
+  Incoming requests are compared to the configured paths based on the server
+  [`router`](#server.config.router) configuration option. The path can include named parameters
+  enclosed in `{}` which  will be matched against literal values in the request as described in
+  [Path parameters](#path-parameters).
+
+- `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE',
+  or 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'. Use `'*'` to match against any HTTP
+  method (only when an exact match was not found, and any match with a specific method will be
+  given a higher priority over a wildcard match). Can be assigned an array of methods which has the
+  same result as adding the same route with different methods manually.
+
+- `vhost` - an optional domain string or an array of domain strings for limiting the route to only
+  requests with a matching host header field. Matching is done against the hostname part of the
+  header only (excluding the port). Defaults to all hosts.
+
+- `handler` - (required) the function called to generate the response after successful
+  authentication and validation. The handler function is described in
+  [Route handler](#route-handler). If set to a string, the value is parsed the same way a
+  prerequisite server method string shortcut is processed. Alternatively, `handler` can be assigned
+  an object with a single key using the name of a registered handler type and value with the
+  options passed to the registered handler.
+
+- `config` - additional route configuration (the `config` object allows splitting the basic route
+  information from its implementation and allowing it to reside in multiple modules):
+
+    - `handler` - an alternative location for the route `handler` option.
+
+    - `bind` - an object passed back to the provided `handler` (via `this`) when called.
+
+    - `app` - application-specific configuration. Should not be used by plugins which should use
+
+      `plugins[name]` instead.
+
+    - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
+      name and the value is the plugin configuration.
+
+    - `pre` - an array with prerequisites methods which are executed in serial or in parallel
+      before the handler is called and are described in [Route prerequisites](#route-prerequisites).
+
+    - `validate` - request input validation rules for various request components. When using a
+      [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (e.g.
+      `headers`, `query`, and `params` when validating `payload`) are made available under the
+      validation context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is
+      performed in order (i.e. headers, params, query, payload) and if type casting is used
+      (converting a string to number), the value of inputs not yet validated will reflect the raw,
+      unvalidated and unmodified values. The `validate` object supports:
 
         - `headers` - validation rules for incoming request headers. Values allowed:
             - `true` - any headers allowed (no validation performed).  This is the default.
@@ -1735,8 +1597,9 @@ The following options are available when adding a route:
                 - `options` - the server validation options.
                 - `next(err, value)` - the callback function called when validation is completed.
 
-        - `params` - validation rules for incoming request path parameters, after matching the path against the route and extracting any
-          parameters then stored in `request.params`. Values allowed:
+        - `params` - validation rules for incoming request path parameters, after matching the path
+          against the route and extracting any parameters then stored in `request.params`. Values
+          allowed:
             - `true` - any path parameters allowed (no validation performed).  This is the default.
             - `false` - no path variables allowed.
             - a [Joi](http://github.com/hapijs/joi) validation object.
@@ -1745,9 +1608,9 @@ The following options are available when adding a route:
                 - `options` - the server validation options.
                 - `next(err, value)` - the callback function called when validation is completed.
 
-        - `query` - validation rules for an incoming request URI query component (the key-value part of the URI between '?' and '#').
-          The query is parsed into its individual key-value pairs (see
-          [Query String](http://nodejs.org/api/querystring.html#querystring_querystring_parse_str_sep_eq_options)) and stored in
+        - `query` - validation rules for an incoming request URI query component (the key-value
+          part of the URI between '?' and '#'). The query is parsed into its individual key-value
+          pairs (using the [**qs** module](https://github.com/hapijs/qs)) and stored in
           `request.query` prior to validation. Values allowed:
             - `true` - any query parameters allowed (no validation performed). This is the default.
             - `false` - no query parameters allowed.
@@ -1757,7 +1620,8 @@ The following options are available when adding a route:
                 - `options` - the server validation options.
                 - `next(err, value)` - the callback function called when validation is completed.
 
-        - `payload` - validation rules for an incoming request payload (request body). Values allowed:
+        - `payload` - validation rules for an incoming request payload (request body). Values
+          allowed:
             - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
             - a [Joi](http://github.com/hapijs/joi) validation object.
@@ -1766,59 +1630,75 @@ The following options are available when adding a route:
                 - `options` - the server validation options.
                 - `next(err, value)` - the callback function called when validation is completed.
 
-        - `errorFields` - an optional object with error fields copied into every validation error response.
+        - `errorFields` - an optional object with error fields copied into every validation error
+          response.
         - `failAction` - determines how to handle invalid requests. Allowed values are:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
             - `'log'` - log the error but continue processing the request.
             - `'ignore'` - take no action.
-            - a custom error handler function with the signature `function(source, error, next)` where:
+            - a custom error handler function with the signature `function(source, error, next)`
+              where:
                 - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
-                - `error` - the error object prepared for the client response (including the validation function error under `error.data`).
-                - `next` - the continuation method called to resume route processing or return an error response. The function signature
-                  is `function(exit)` where:
-                    - `exit` - optional client response. If set to a non-falsy value, the request lifecycle process will jump to the
-                      "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can
-                      be any result value accepted by [`reply()`](#replyresult).
+                - `error` - the error object prepared for the client response (including the
+                  validation function error under `error.data`).
+                - `next` - the continuation method called to resume route processing or return an
+                  error response. The function signature is `function(exit)` where:
+                    - `exit` - optional client response. If set to a non-falsy value, the request
+                      lifecycle process will jump to the "send response" step, skipping all other
+                      steps in between, and using the `exit` value as the new response.
 
     - `payload` - determines how the request payload is processed:
         - `output` - the type of payload representation requested. The value must be one of:
-            - `'data'` - the incoming payload is read fully into memory. If `parse` is `true`, the payload is parsed (JSON, form-decoded,
-              multipart) based on the 'Content-Type' header. If `parse` is false, the raw `Buffer` is returned. This is the default value
-              except when a proxy handler is used.
-            - `'stream'` - the incoming payload is made available via a `Stream.Readable` interface. If the payload is 'multipart/form-data' and
-              `parse` is `true`, fields values are presented as text while files are provided as streams. File streams from a
-              'multipart/form-data' upload will also have a property `hapi` containing `filename` and `headers` properties.
-            - `'file'` - the incoming payload in written to temporary file in the directory specified by the server's `payload.uploads` settings.
-              If the payload is 'multipart/form-data' and `parse` is `true`, fields values are presented as text while files are saved. Note that
-              it is the sole responsibility of the application to clean up the files generated by the framework. This can be done by keeping track
-              of which files are used (e.g. using the `request.app` object), and listening to the server `'response'` event to perform any needed
-              cleaup.
-        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is processed or presented raw. `true` and `gunzip`
-          includes gunzipping when the appropriate 'Content-Encoding' is specified on the received request. If parsing is enabled and the
-          'Content-Type' is known (for the whole payload as well as parts), the payload is converted into an object when possible. If the
-          format is unknown, a Bad Request (400) error response is sent. Defaults to `true`, except when a proxy handler is used. The
+            - `'data'` - the incoming payload is read fully into memory. If `parse` is `true`, the
+              payload is parsed (JSON, form-decoded, multipart) based on the 'Content-Type' header.
+              If `parse` is false, the raw `Buffer` is returned. This is the default value except
+              when a proxy handler is used.
+            - `'stream'` - the incoming payload is made available via a `Stream.Readable`
+              interface. If the payload is 'multipart/form-data' and `parse` is `true`, fields
+              values are presented as text while files are provided as streams. File streams from a
+              'multipart/form-data' upload will also have a property `hapi` containing `filename`
+              and `headers` properties.
+            - `'file'` - the incoming payload in written to temporary file in the directory
+              specified by the server's `payload.uploads` settings. If the payload is
+              'multipart/form-data' and `parse` is `true`, fields values are presented as text
+              while files are saved. Note that it is the sole responsibility of the application to
+              clean up the files generated by the framework. This can be done by keeping track
+              of which files are used (e.g. using the `request.app` object), and listening to
+              the server `'response'` event to perform any needed cleaup.
+        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is
+          processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate
+          'Content-Encoding' is specified on the received request. If parsing is enabled and the
+          'Content-Type' is known (for the whole payload as well as parts), the payload is
+          converted into an object when possible. If the format is unknown, a Bad Request (400)
+          error response is sent. Defaults to `true`, except when a proxy handler is used. The
           supported mime types are:
             - 'application/json'
             - 'application/x-www-form-urlencoded'
             - 'application/octet-stream'
             - 'text/*'
             - 'multipart/form-data'
-        - `allow` - a string or an array of strings with the allowed mime types for the endpoint. Defaults to any of the supported mime types listed
-          above. Note that allowing other mime types not listed will not enable them to be parsed, and that if parsing mode is `'parse'`, the request
-          will result in an error response.
-        - `override` - a mime type string overriding the 'Content-Type' header value received. Defaults to no override.
+        - `allow` - a string or an array of strings with the allowed mime types for the endpoint.
+          Defaults to any of the supported mime types listed above. Note that allowing other mime
+          types not listed will not enable them to be parsed, and that if parsing mode is
+          `'parse'`, the request will result in an error response.
+        - `override` - a mime type string overriding the 'Content-Type' header value received.
+          Defaults to no override.
         - `maxBytes` - overrides the server [default value](#server.config.payload) for this route.
-        - `timeout` - payload processing timeout in milliseconds. Sets the maximum time allowed for the client to transmit the request payload (body)
-          before giving up and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to the server `timeout.client`
-          configuration.
-        - `uploads` - overrides the server [default value](#server.config.payload) for this route.
+        - `timeout` - payload processing timeout in milliseconds. Sets the maximum time allowed for
+          the client to transmit the request payload (body) before giving up and responding with a
+          Request Timeout (408) error response. Set to `false` to disable. Defaults to the server
+          `timeout.client` configuration.
+        - `uploads` - overrides the connection [default value](#server.config.payload) for this
+          route.
         - `failAction` - determines how to handle payload parsing errors. Allowed values are:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
             - `'log'` - report the error but continue processing the request.
             - `'ignore'` - take no action and continue processing the request.
 
-    - `response` - validation rules for the outgoing response payload (response body). Can only validate [object](#obj) response:
-        - `schema` - the default response object validation rules (for all non-error responses) expressed as one of:
+    - `response` - validation rules for the outgoing response payload (response body). Can only
+      validate [object](#obj) response:
+        - `schema` - the default response object validation rules (for all non-error responses)
+          expressed as one of:
             - `true` - any payload allowed (no validation performed). This is the default.
             - `false` - no payload allowed.
             - a [Joi](http://github.com/hapijs/joi) validation object.
@@ -1826,60 +1706,76 @@ The following options are available when adding a route:
                 - `value` - the object containing the response object.
                 - `options` - the server validation options.
                 - `next(err)` - the callback function called when validation is completed.
-        - `status` - HTTP status-code-specific validation rules. The `status` key is set to an object where each key is a 3 digit HTTP
-          status code and the value has the same definition as `schema`. If a response status code is not present in the `status` object,
+        - `status` - HTTP status-code-specific validation rules. The `status` key is set to an
+          object where each key is a 3 digit HTTP status code and the value has the same
+          definition as `schema`. If a response status code is not present in the `status` object,
           the `schema` definition is used, expect for errors which are not validated by default.
-        - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all validation. Defaults to `100` (all responses).
+        - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all
+          validation. Defaults to `100` (all responses).
         - `failAction` - defines what to do when a response fails validation. Options are:
-            - `error` - return an Internal Server Error (500) error response. This is the default value.
+            - `error` - return an Internal Server Error (500) error response. This is the default
+              value.
             - `log` - log the error but send the response.
-        - `modify` - if `true`, applies the validation rule changes to the response. Defaults to `false`.
+        - `modify` - if `true`, applies the validation rule changes to the response. Defaults to
+          `false`.
 
-    - `cache` - if the route method is 'GET', the route can be configured to include caching directives in the response using the following options:
-        - `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control' header. Values are:
+    - `cache` - if the route method is 'GET', the route can be configured to include caching
+      directives in the response using the following options:
+        - `privacy` - determines the privacy flag included in client-side caching using the
+          'Cache-Control' header. Values are:
             - `'default'` - no privacy flag. This is the default setting.
             - `'public'` - mark the response as suitable for public caching.
             - `'private'` - mark the response as suitable only for private caching.
-        - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
-          together with `expiresAt`.
-        - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
-          expire. Cannot be used together with `expiresIn`.
+        - `expiresIn` - relative expiration expressed in the number of milliseconds since the
+          item was saved in the cache. Cannot be used together with `expiresAt`.
+        - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which
+          point all cache records for the route expire. Cannot be used together with `expiresIn`.
 
     - <a name="route.config.auth"></a>`auth` - authentication configuration. Value can be:
         - `false` to disable authentication if a default strategy is set.
-        - a string with the name of an authentication strategy registered with `server.auth.strategy()`.
+        - a string with the name of an authentication strategy registered with
+          `server.auth.strategy()`.
         - an object with:
-            - `mode` - the authentication mode. Defaults to `'required'` if a server authentication strategy is configured, otherwise defaults
-              to no authentication. Available values:
+            - `mode` - the authentication mode. Defaults to `'required'` if a server authentication
+              strategy is configured, otherwise defaults to no authentication. Available values:
                 - `'required'` - authentication is required.
                 - `'optional'` - authentication is optional (must be valid if present).
                 - `'try'` - same as `'optional'` but allows for invalid authentication.
-            - `strategies` - a string array of strategy names in order they should be attempted. If only one strategy is used, `strategy` can
-              be used instead with the single string value. Defaults to the default authentication strategy which is available only when a single
-              strategy is configured.
-            - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is authenticated after it is processed. Requires a strategy
-              with payload authentication support (e.g. [Hawk](#hawk-authentication)). Available values:
+            - `strategies` - a string array of strategy names in order they should be attempted. If
+              only one strategy is used, `strategy` can be used instead with the single string
+              value. Defaults to the default authentication strategy which is available only when a
+              single strategy is configured.
+            - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is
+              authenticated after it is processed. Requires a strategy with payload authentication
+              support (e.g. [Hawk](#hawk-authentication)). Available values:
                 - `false` - no payload authentication. This is the default value.
                 - `'required'` - payload authentication required.
-                - `'optional'` - payload authentication performed only when the client includes payload authentication information (e.g.
-                  `hash` attribute in Hawk).
-            - `scope` - the application scope required to access the route. Value can be a scope string or an array of scope strings. The authenticated
-              credentials object `scope` property must contain at least one of the scopes defined to access the route. Defaults to no scope required.
-            - `entity` - the required authenticated entity type. If set, must match the `entity` value of the authentication credentials. Available
-              values:
-                - `any` - the authentication can be on behalf of a user or application. This is the default value.
+                - `'optional'` - payload authentication performed only when the client includes
+                  payload authentication information (e.g. `hash` attribute in Hawk).
+            - `scope` - the application scope required to access the route. Value can be a scope
+              string or an array of scope strings. The authenticated credentials object `scope`
+              property must contain at least one of the scopes defined to access the route.
+              Defaults to no scope required.
+            - `entity` - the required authenticated entity type. If set, must match the `entity`
+              value of the authentication credentials. Available values:
+                - `any` - the authentication can be on behalf of a user or application. This is the
+                  default value.
                 - `user` - the authentication must be on behalf of a user.
                 - `app` - the authentication must be on behalf of an application.
 
-    - `cors` - when `false`, the server's CORS headers are disabled for the route. Defaults to using the server's settings.
+    - `cors` - when `false`, the server's CORS headers are disabled for the route. Defaults to
+      using the server's settings.
 
-    - `jsonp` - enables JSONP support by setting the value to the query parameter name containing the function name used to wrap the response payload.
-      For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON response is `'{ "a":"b" }'`, the payload will be:
-      `'me({ "a":"b" });'`. Does not work with stream responses.
+    - `jsonp` - enables JSONP support by setting the value to the query parameter name containing
+      the function name used to wrap the response payload. For example, if the value is
+      `'callback'`, a request comes in with `'callback=me'`, and the JSON response is
+      `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Does not work with stream
+      responses.
 
-    - `files` - overrides the server settings controling the behavior for serving static resources using the built-in route handlers for files and
-      directories:
-        - `relativeTo` - determines the folder relative paths are resolved against when using the file and directory handlers.
+    - `files` - overrides the server settings controlling the behavior for serving static resources
+      using the built-in route handlers for files and directories:
+        - `relativeTo` - determines the folder relative paths are resolved against when using the
+          file and directory handlers.
 
     - `description` - route description used for generating documentation (string).
     - `notes` - route notes used for generating documentation (string or array of strings).
@@ -1894,7 +1790,7 @@ server.connection({ port: 80 });
 
 var status = function (request, reply) {
 
-    reply('ok');
+    return reply('ok');
 };
 
 server.route({ method: 'GET', path: '/status', handler: status });
@@ -1905,17 +1801,78 @@ var user = {
     cache: { expiresIn: 5000 },
     handler: function (request, reply) {
 
-        reply({ name: 'John' });
+        return reply({ name: 'John' });
     }
 };
 
 server.route({ method: 'GET', path: '/user', config: user });
 ```
 
-##### Path processing
+#### Path parameters
 
-The router iterates through the routing table on each incoming request and executes the first (and only the first) matching route. Route
-matching is done on a combination of the request path and the HTTP verb. The query is excluded from the routing logic. Requests are matched in a deterministic order where the order in which routes are added does not matter. The routes are sorted from the most specific to the most generic. The specificity of a route is a combination of the HTTP verb and the route path. The more specific a route definition is, the higher up in the routing table it will appear. For example, the following path array shows the order in which an incoming request path will be matched against the routes:
+Parameterized paths are processed by matching the named parameters to the content of the incoming
+request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
+`request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
+and the closing '/' unless it is the end of the path) can only include one named parameter. A
+parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').
+
+An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
+if the parameter is at the ends of the path or only covers part of the segment as in
+'/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of
+`request.params.id` set to an empty string `''`.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+var getAlbum = function (request, reply) {
+
+    return reply('You asked for ' +
+        (request.params.song ? request.params.song + ' from ' : '') +
+        request.params.album);
+};
+
+server.route({
+    path: '/{album}/{song?}',
+    method: 'GET',
+    handler: getAlbum
+});
+```
+
+In addition to the optional `?` suffix, a parameter name can also specify the number of matching
+segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts
+can be anything, then use `*` without a number (matching any number of segments can only be used in
+the last path segment).
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+var getPerson = function (request, reply) {
+
+    var nameParts = request.params.name.split('/');
+    return reply({ first: nameParts[0], last: nameParts[1] });
+};
+
+server.route({
+    path: '/person/{name*2}',   // Matches '/person/john/doe'
+    method: 'GET',
+    handler: getPerson
+});
+```
+
+### Path processing
+
+The router iterates through the routing table on each incoming request and executes the first (and
+only the first) matching route. Route matching is done on a combination of the request path and the
+HTTP verb. The query is excluded from the routing logic. Requests are matched in a deterministic
+order where the order in which routes are added does not matter. The routes are sorted from the
+most specific to the most generic. The specificity of a route is a combination of the HTTP verb and
+the route path. The more specific a route definition is, the higher up in the routing table it will
+appear. For example, the following path array shows the order in which an incoming request path
+will be matched against the routes:
 
 ```js
 var paths = [
@@ -1956,80 +1913,188 @@ var paths = [
 ];
 ```
 
-##### Path parameters
+### Route handler
 
-Parameterized paths are processed by matching the named parameters to the content of the incoming request path at that path segment. For example,
-'/book/{id}/cover' will match '/book/123/cover' and `request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/' and
- the closing '/' unless it is the end of the path) can only include one named parameter. A parameter can cover the entire segment ('/{param}') or
- part of the segment ('/file.{ext}').
-
- An optional '?' suffix following the parameter name indicates an optional parameter (only allowed if the parameter is at the ends of the path or
- only covers part of the segment as in '/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of `request.params.id` set
- to an empty string `''`.
-
-```js
-var getAlbum = function (request, reply) {
-
-    reply('You asked for ' +
-          (request.params.song ? request.params.song + ' from ' : '') +
-          request.params.album);
-};
-
-server.route({
-    path: '/{album}/{song?}',
-    method: 'GET',
-    handler: getAlbum
-});
-```
-
-In addition to the optional `?` suffix, a parameter name can also specify the number of matching segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts can be anything, then use `*` without a number (matching any number of segments can only be used in the
-last path segment).
-
-```js
-var getPerson = function (request, reply) {
-
-    var nameParts = request.params.name.split('/');
-    reply({ first: nameParts[0], last: nameParts[1] });
-};
-
-server.route({
-    path: '/person/{name*2}',   // Matches '/person/john/doe'
-    method: 'GET',
-    handler: getPerson
-});
-```
-
-##### Route handler
-
-When a route is matched against an incoming request, the route handler is called and passed a reference to the [request](#request-object) object.
-The handler method must call [`reply()`](#replyresult) or one of its sub-methods to return control back to the router.
+The route handler function uses the signature `function(request, reply)` where:
+- `request` - is the incoming request object (this is not the node.js request object but a higher
+  interface).
+- `reply` - the method the handler must call to set a response and return control back to the
+  framework.
 
 ```js
 var handler = function (request, reply) {
 
-    reply('success');
+    return reply('success');
 };
 ```
 
-##### Route prerequisites
+#### Built-in handlers
 
-It is often necessary to perform prerequisite actions before the handler is called (e.g. load required reference data from a database).
-The route `pre` option allows defining such pre-handler methods. The methods are called in order. If the `pre` array contains another array,
-those methods are called in parallel. `pre` can be assigned a mixed array of:
+The framework comes with a few built-in handler types available by setting the route `handler`
+config to an object containing one of these keys:
+
+    - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
+        - a relative or absolute file path string (relative paths are resolved based on the server
+          [`files`](#server.config.files) configuration).
+        - a function with the signature `function(request)` which returns the relative or absolute
+          file path.
+        - an object with the following options:
+            - `path` - a path string or function as described above.
+            - `filename` - an optional filename to specify if sending a 'Content-Disposition'
+              header, defaults to the basename of `path`
+            - `mode` - specifies whether to include the 'Content-Disposition' header with the
+              response. Available values:
+                - `false` - header is not included. This is the default value.
+                - `'attachment'`
+                - `'inline'`
+            - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix
+              for a precompressed version of the file to serve if the request supports content
+              encoding. Defaults to `false`.
+
+    - `directory` - generates a directory endpoint for serving static content from a directory.
+      Routes using the directory handler must include a path parameter at the end of the path
+      string (e.g. `/path/to/somewhere/{param}` where the parameter name does not matter). The
+      path parameter can use any of the parameter options (e.g. `{param}` for one level files
+      only, `{param?}` for one level files or the directory root, `{param*}` for any level, or
+      `{param*3}` for a specific level). If additional path parameters are present, they are
+      ignored for the purpose of selecting the file system resource. The directory handler is an
+      object with the following options:
+        - `path` - (required) the directory root path (relative paths are resolved based on the
+          server [`files`](#server.config.files) configuration). Value can be:
+            - a single path string used as the prefix for any resources requested by appending the
+              request path parameter to the provided string.
+            - an array of path strings. Each path will be attempted in order until a match is
+              found (by following the same process as the single path string).
+            - a function with the signature `function(request)` which returns the path string or
+              an array of path strings. If the function returns an error, the error is passed back
+              to the client in the response.
+        - `index` - optional boolean, determines if 'index.html' will be served if found in the
+          folder when requesting a directory. Defaults to `true`.
+        - `listing` - optional boolean, determines if directory listing is generated when a
+          directory is requested without an index document.
+          Defaults to `false`.
+        - `showHidden` - optional boolean, determines if hidden files will be shown and served.
+          Defaults to `false`.
+        - `redirectToSlash` - optional boolean, determines if requests for a directory without a
+          trailing slash are redirected to the same path with the missing slash. Useful for
+          ensuring relative links inside the response are resolved correctly. Disabled when the
+          server config `router.stripTrailingSlash` is `true. `Defaults to `true`.
+        - `lookupCompressed` - optional boolean, instructs the file processor to look for the same
+          filename with the '.gz' suffix for a pre-compressed version of the file to serve if the
+          request supports content encoding. Defaults to `false`.
+        - `defaultExtension` - optional string, appended to file requests if the requested file is
+          not found. Defaults to no extension.
+
+    - <a name="route.config.proxy"></a>`proxy` - generates a reverse proxy handler with the
+      following options:
+        - `host` - the upstream service host to proxy requests to.  The same path on the client
+          request will be used as the path on the host.
+        - `port` - the upstream service port.
+        - `protocol` - The protocol to use when making a request to the proxied host:
+            - `'http'`
+            - `'https'`
+        - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and
+          query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
+        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream
+          service being proxied to, headers sent from the upstream service will also be forwarded
+          to the client. Defaults to `false`.
+        - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming
+          requests before being passed upstream. This is a security feature to prevent local state
+          (e.g. authentication cookies) from leaking upstream to other servers along with the
+          cookies intended for those servers. This value can be overridden on a per state basis via
+          the `server.state()` `passThrough` option.
+          Defaults to `false`.
+        - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header
+          which is useful when using an `onResponse` post-processing to avoid receiving an encoded
+          response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true`
+          (passing header).
+        - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https
+          [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
+          making the request. This value is only used when the proxied server uses TLS/SSL. When
+          set it will override the node.js `rejectUnauthorized` property. If `false` then ssl
+          errors will be ignored. When `true` the server certificate is verified and an 500
+          response will be sent when verification fails. This shouldn't be used alongside the
+          `agent` setting as the `agent` will be used instead. Defaults to the https agent default
+          value of `true`.
+        - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port',
+          'X-Forwarded-Proto' headers when making a request to the proxied upstream endpoint.
+          Defaults to `false`.
+        - `redirects` - the maximum number of HTTP redirections allowed, to be followed
+          automatically by the handler. Set to `false` or `0` to disable all redirections (the
+          response will contain the redirection received from the upstream service). If
+          redirections are enabled, no redirections (301, 302, 307, 308) will be passed along to
+          the client, and reaching the maximum allowed redirections will return an error response.
+          Defaults to `false`.
+        - `timeout` - number of milliseconds before aborting the upstream request. Defaults to
+          `180000` (3 minutes).
+        - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used
+          together with `host`, `port`, `protocol`, or `uri`. The function signature is
+          `function(request, callback)` where:
+            - `request` - is the incoming `request` object
+            - `callback` - is `function(err, uri, headers)` where:
+                - `err` - internal error condition.
+                - `uri` - the absolute proxy URI.
+                - `headers` - optional object where each key is an HTTP request header and the
+                  value is the header content.
+        - `onResponse` - a custom function for processing the response from the upstream service
+          before sending to the client. Useful for custom error handling of responses from the
+          proxied endpoint or other payload manipulation. Function signature is 
+          `function(err, res, request, reply, settings, ttl)` where:
+              - `err` - internal or upstream error returned from attempting to contact the upstream
+                proxy.
+              - `res` - the node response object received from the upstream service. `res` is a
+                readable stream (use the [**wreck**](https://github.com/hapijs/wreck) module `read`
+                method to easily convert it to a Buffer or string).
+              - `request` - is the incoming `request` object.
+              - `reply()` - the continuation function.
+              - `settings` - the proxy handler configuration.
+              - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and
+                the upstream response included a valid 'Cache-Control' header with 'max-age'.
+        - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the
+          response using the `response.ttl()` method (or passed as an argument to the `onResponse`
+          method if provided).
+        - `agent` - a node [http(s) agent](http://nodejs.org/api/http.html#http_class_http_agent)
+          to be used for connections to upstream server.
+        - `maxSockets` - sets the maximum number of sockets available per outgoing proxy host
+          connection. `false` means use the **wreck** module default value (Infinity). Does not
+          affect non-proxy outgoing client connections. Defaults to `Infinity`.
+
+    - `view` - generates a template-based response. The `view` option can be set to one of:
+        - a string with the template file name.
+        - an object with the following keys:
+            - `template` - a string with the template file name.
+            - `context` - an optional template context object. Defaults to an object with the
+              following key:
+                - `payload` - maps to `request.payload`.
+                - `params` - maps to `request.params`.
+                - `query` - maps to `request.query`.
+                - `pre` - maps to `request.pre`.
+            - `options` - optional object used to override the server's views manager
+              configuration.
+
+### Route prerequisites
+
+It is often necessary to perform prerequisite actions before the handler is called (e.g. load
+required reference data from a database). The route `pre` option allows defining such pre-handler
+methods. The methods are called in order. If the `pre` array contains another array, those methods
+are called in parallel. `pre` can be assigned a mixed array of:
 - arrays containing the elements listed below, which are executed in parallel.
 - objects with:
-    - `method` - the function to call (or short-hand method string as described below). the function signature is identical to a route handler
-      as describer in [Route handler](#route-handler).
+    - `method` - the function to call (or short-hand method string as described below). the
+      function signature is identical to a route handler as describer in
+      [Route handler](#route-handler).
     - `assign` - key name to assign the result of the function to within `request.pre`.
     - `failAction` - determines how to handle errors returned by the method. Allowed values are:
         - `'error'` - returns the error response back to the client. This is the default value.
-        - `'log'` - logs the error but continues processing the request. If `assign` is used, the error will be assigned.
+        - `'log'` - logs the error but continues processing the request. If `assign` is used, the
+          error will be assigned.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
-- strings - special short-hand notation for [registered server methods](#servermethodname-fn-options) using the format 'name(args)'
+- strings - special short-hand notation for registered server methods using the format 'name(args)'
   (e.g. `'user(params.id)'`) where:
     - 'name' - the method name. The name is also used as the default value of `assign`.
-    - 'args' - the method arguments (excluding `next`) where each argument is a property of `request`.
+    - 'args' - the method arguments (excluding `next`) where each argument is a property of
+      `request`.
 
 ```js
 var Hapi = require('hapi');
@@ -2038,17 +2103,17 @@ server.connection({ port: 80 });
 
 var pre1 = function (request, reply) {
 
-    reply('Hello');
+    return reply('Hello');
 };
 
 var pre2 = function (request, reply) {
 
-    reply('World');
+    return reply('World');
 };
 
 var pre3 = function (request, reply) {
 
-    reply(request.pre.m1 + ' ' + request.pre.m2);
+    return reply(request.pre.m1 + ' ' + request.pre.m2);
 };
 
 server.route({
@@ -2065,16 +2130,17 @@ server.route({
         ],
         handler: function (request, reply) {
 
-            reply(request.pre.m3 + '\n');
+            return reply(request.pre.m3 + '\n');
         }
     }
 });
 ```
 
-##### Route not found
+### Catch all route
 
-If the application needs to override the default Not Found (404) error response, it can add a catch-all route for a specific
-method or all methods. Only one catch-all route can be defined per server instance.
+If the application needs to override the default Not Found (404) error response, it can add a
+catch-all route for a specific method or all methods. Only one catch-all route can be defined per
+server connection.
 
 ```js
 var Hapi = require('hapi');
@@ -2083,7 +2149,7 @@ server.connection({ port: 80 });
 
 var handler = function (request, reply) {
 
-    reply('The page was not found').code(404);
+    return reply('The page was not found').code(404);
 };
 
 server.route({ method: '*', path: '/{p*}', handler: handler });
@@ -2103,60 +2169,6 @@ server.route({ method: '*', path: '/{p*}', handler: handler });
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##### Request lifecycle
-
-Each incoming request passes through a pre-defined set of steps, along with optional extensions:
-
-- **`'onRequest'`** extension point
-    - always called
-    - the `request` object passed to the extension functions is decorated with the `request.setUrl(url)` and `request.setMethod(verb)` methods. Calls to these methods
-      will impact how the request is routed and can be used for rewrite rules.
-    - `request.route` is not yet populated as the router only looks at the request after this point.
-- Lookup route using request path
-- Parse cookies
-- **`'onPreAuth'`** extension point
-- Authenticate request
-- Read and parse payload
-- Authenticate request payload
-- **`'onPostAuth'`** extension point
-- Validate path parameters
-- Process query extensions (e.g. JSONP)
-- Validate query
-- Validate payload
-- **`'onPreHandler'`** extension point
-- Route prerequisites
-- Route handler
-- **`'onPostHandler'`** extension point
-    - The [response object](#response-object) contained in `request.response` may be modified (but not assigned a new value). To return a different response type
-      (for example, replace an error with an HTML response), return a new response via `next(response)`.
-- Validate response payload
-- **`'onPreResponse'`** extension point
-    - always called (except when `reply.close()` is called or the client terminates the connection prematurely).
-    - The response contained in `request.response` may be modified (but not assigned a new value). To return a different response type (for
-      example, replace an error with an HTML response), return a new response via `next(response)`. Note that any errors generated after
-      `next(response)` is called will not be passed back to the `'onPreResponse'` extension method to prevent an infinite loop.
-- Send response (may emit `'internalError'` event)
-- Emits `'response'` event
-- Wait for tails
-- Emits `'tail'` event
 
 
 
