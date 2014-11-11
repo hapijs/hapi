@@ -1406,6 +1406,8 @@ The server object inherits from `Events.EventEmitter` and emits the following ev
 - `'tail'` - emitted when a request finished processing, including any registered [tails](#requesttailname). Single event per request.
 - `'internalError'` - emitted whenever an Internal Server Error (500) error response is sent. Single event per request.
 
+ While `start` and `stop` are not available as server events, they are available as [`pack events`](#pack-properties) instead.
+
 When provided (as listed below) the `event` object include:
 
 - `timestamp` - the event timestamp.
