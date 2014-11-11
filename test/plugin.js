@@ -760,6 +760,79 @@ describe('Plugin', function () {
 
     describe('after()', function () {
 
+        it('calls method after plugin', function (done) {
+
+            var plugin = {
+                name: 'x',
+                register: function (plugin, options, next) {
+
+                    plugin.expose('a', 'b');
+                    return next();
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(server.plugins.x).to.not.exist();
+
+            var called = false;
+            server.after(function (server, next) {
+
+                expect(server.plugins.x.a).to.equal('b');
+                called = true;
+                return next();
+            }, 'x');
+
+            server.register(plugin, function (err) {
+
+                expect(err).to.not.exist();
+                server.start(function (err) {
+
+                    expect(called).to.be.true();
+                    done();
+                });
+            });
+        });
+
+        it('calls method before start', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var called = false;
+            server.after(function (server, next) {
+
+                called = true;
+                return next();
+            });
+
+            server.start(function (err) {
+
+                expect(called).to.be.true();
+                done();
+            });
+        });
+
+        it('calls method before start even if plugin not registered', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var called = false;
+            server.after(function (server, next) {
+
+                called = true;
+                return next();
+            }, 'x');
+
+            server.start(function (err) {
+
+                expect(called).to.be.true();
+                done();
+            });
+        });
+
         it('fails to start server when after method fails', function (done) {
 
             var plugin = {

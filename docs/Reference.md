@@ -99,8 +99,9 @@ When the server object is provided as an argument to the plugin `register()` met
 property provides the registration preferences passed the `server.register()` method. `config` is
 an object with the following properties:
 - `route` - route adding preferences:
-    - `prefix` - the route path prefix used by any calls to `server.route()` from the plugin.
-    - `vhost` - the route virtual host settings used by any calls to `server.route()` from the plugin.
+    - `prefix` - the route path prefix used by any calls to `server.route()` from the server.
+    - `vhost` - the route virtual host settings used by any calls to `server.route()` from the
+      server.
 
 The `config` property should be considered read-only and should not be changed.
 
@@ -130,176 +131,346 @@ var a = server.select('a');
 // a.connections.lenght === 1
 ```
 
+#### `server.info`
 
+When the server contains exactly one connection, `info` is an object containing information about
+the sole connection where:
+- `id` - a unique connection identifier (using the format '{hostname}:{pid}:{now base36}').
+- `created` - the connection creation timestamp.
+- `started` - the connection start timestamp (`0` when stopped).
+- `port` - the port the connection was configured to (before `server.start()`) or bound to (after
+  `server.start()`).
+- `host` - the host name the connection was configured to (defaults to `'0.0.0.0'` if no host was
+  provided).
+- `protocol` - the protocol used:
+    - `'http'` - HTTP.
+    - `'https'` - HTTPS.
+    - `'socket'` - UNIX domain socket or Windows named pipe.
+- `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
+  'socket:/unix/domain/socket/path').
 
-
-
-
-
-
-Each `Server` object provides the following properties:
-- `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using
-  [`plugin.expose()`](#pluginexposekey-value).
-- `load` - process load metrics (when `load.sampleInterval` is enabled):
-    - `eventLoopDelay` - event loop delay milliseconds.
-    - `heapUsed` - V8 heap usage.
-    - `rss` - RSS memory usage.
-
-
-
-
-
-
-
-
-#### `plugin.plugins`
-
-An object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value)
-when called at the plugin root level (without calling `plugin.select()`).
+When the server contains more than one connection, each `server.connections` array member provides
+its own `connection.info`.
 
 ```js
-exports.register = function (plugin, options, next) {
+var server = new Hapi.Server();
+server.connection(80);
 
-    console.log(plugin.plugins.example.key);
+// server.info.port === 80
+
+server.connection(8080);
+
+// server.info === null
+// server.connections[1].info.port === 8080
+```
+
+#### `server.load`
+
+An object containing the process load metrics (when `load.sampleInterval` is enabled):
+- `eventLoopDelay` - event loop delay milliseconds.
+- `heapUsed` - V8 heap usage.
+- `rss` - RSS memory usage.
+
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server({ load: { sampleInterface: 1000 } });
+
+console.log(server.load.rss);
+```
+
+#### `server.listener`
+
+When the server contains exactly one connection, `listener` is the node HTTP server object of the
+sole connection.
+
+When the server contains more than one connection, each `server.connections` array member provides
+its own `connection.listener`.
+
+```js
+var Hapi = require('hapi');
+var SocketIO = require('socket.io');
+
+var server = new Hapi.Server();
+server.connection(80);
+
+var io = SocketIO.listen(server.listener);
+io.sockets.on('connection', function(socket) {
+
+    socket.emit({ msg: 'welcome' });
+});
+```
+
+#### `server.methods`
+
+An object providing access to the server methods registered with `server.method()` where each
+server method name is an object property.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
+server.method('add', function (a, b, next) {
+
+    return next(null, a + b);
+});
+
+server.methods.add(1, 2, function (err, result) {
+
+    // result === 3
+});
+```
+
+#### `server.plugins`
+
+An object containing the public API exposed by each plugin registered where each key is a plugin
+name and the values are the exposed properties by each plugin using `server.expose()`.
+
+```js
+exports.register = function (server, options, next) {
+
+    server.expose('key', 'value');
+    // server.plugins.example.key === 'value'
     next();
+};
+
+exports.register.attributes = {
+    name: 'example'
 };
 ```
 
-#### `plugin.path(path)`
+#### `server.settings`
 
-Sets the path prefix used to locate static resources (files and view templates) when relative paths are used by the plugin:
-- `path` - the path prefix added to any relative file path starting with `'.'`. The value has the same effect as using the server's
-  configuration `files.relativeTo` option but only within the plugin.
+The server configuration object after defaults applied.
 
 ```js
-exports.register = function (plugin, options, next) {
+var Hapi = require('hapi');
+var server = new Hapi.Server({
+    app: {
+        key: 'value'
+    }
+});
 
-    plugin.path(__dirname + '../static');
-    plugin.route({ path: '/file', method: 'GET', handler: { file: './test.html' } });
-    next();
-};
+// server.settings.app === { key: 'value' }
 ```
 
-#### `plugin.log(tags, [data, [timestamp]])`
+#### `server.version`
 
-Emits a `'log'` event on the `pack` emitter using the same interface as [`server.log()`](#serverlogtags-data-timestamp).
+The **hapi** module version number.
 
 ```js
-exports.register = function (plugin, options, next) {
-
-    plugin.log(['plugin', 'info'], 'Plugin registered');
-    next();
-};
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+// server.version === '8.0.0'
 ```
 
-#### `plugin.after(method)`
+### Server methods
 
-Add a method to be called after all the required plugins have been registered and before the servers start. The function is only
-called if the pack servers are started. Arguments:
+#### `server.after(method, [dependencies])`
 
+Adds a method to be called after all the plugin dependencies have been registered and before the
+server starts (only called if the server is started) where:
 - `after` - the method with signature `function(plugin, next)` where:
-    - `plugin` - the [plugin interface](#plugin-interface) object.
-    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
-      signature is `function(err)` where:
-        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
-          registration error is considered an unrecoverable event which should terminate the application.
+    - `server` - server object the `after()` method was called on.
+    - `next` - the callback function the method must call to return control over to the application
+      and complete the registration process. The function signature is `function(err)` where:
+        - `err` - internal error which is returned back via the `server.start()` callback.
+- `dependencies` - a string or array of string with the plugin names to call this method after
+  their `after()` methods. There is no requirement for the other plugins to be registered. Setting
+  dependencies only arranges the after methods in the specified order.
 
 ```js
-exports.register = function (plugin, options, next) {
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection(80);
 
-    plugin.after(after);
-    next();
-};
+server.after(function () {
 
-var after = function (plugin, next) {
+    // Perform some pre-start logic
+});
 
-    // Additional plugin registration logic
-    next();
-};
+server.start(function (err) {
+
+    // After method already executed
+});
 ```
 
-#### `plugin.views(options)`
+#### `server.auth.default(options)`
 
-Generates a plugin-specific views manager for rendering templates where:
-- `options` - the views configuration as described in the server's [`views`](#serverviewsoptions) option. Note that due to the way node
-  `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
+Sets a default strategy which is applied to every route where:
+- `options` - a string with the default strategy name or an object with a specified strategy or
+ strategies using the same format as the [route `auth` handler options](#route.config.auth).
 
-Note that relative paths are relative to the plugin root, not the working directory or the application registering the plugin. This allows
-plugin the specify their own static resources without having to require external configuration.
+The default does not apply when the route config specifies `auth` as `false`, or has an
+authentication strategy configured. Otherwise, the route authentication config is applied to the
+defaults. Note that the default only applies at time of route configuration, not at runtime.
+Calling `default()` after adding a route will have no impact on routes added prior.
 
 ```js
-exports.register = function (plugin, options, next) {
+var server = new Hapi.Server();
+server.connection(80);
 
-    plugin.views({
-        engines: {
-            html: {
-              module: require('handlebars').create()
+server.auth.scheme('custom', scheme);
+server.auth.strategy('default', 'custom');
+server.auth.default('default');
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: function (request, reply) {
+    
+        return reply(request.auth.credentials.user);
+    }
+});
+```
+
+#### `server.auth.scheme(name, scheme)`
+
+Registers an authentication scheme where:
+- `name` - the scheme name.
+- `scheme` - the method implementing the scheme with signature `function(server, options)` where:
+    - `server` - a reference to the server object the scheme is added to.
+    - `options` - optional scheme settings used to instantiate a strategy.
+
+The `scheme` method must return an object with the following keys:
+- `authenticate(request, reply)` - required function called on each incoming request configured
+  with the authentication scheme where:
+    - `request` - the request object.
+    - `reply(err, result)` - the interface the authentication method must call when done where:
+        - `err` - if not `null`, indicates failed authentication.
+        - `result` - an object containing:
+            - `credentials` - the authenticated credentials. Required if `err` is `null`.
+            - `artifacts` - optional authentication artifacts.
+            - `log` - optional object used to customize the request authentication log which
+              supports:
+                - `data` - log data.
+                - `tags` - additional tags.
+- `payload(request, next)` - optional function called to authenticate the request payload where:
+    - `request` - the request object.
+    - `next(err)` - the continuation function the method must called when done where:
+        - `err` - if `null`, payload successfully authenticated. If `false`, indicates that
+          authentication could not be performed (e.g. missing payload hash). If set to any other
+          value, it is used as an error response.
+- `response(request, next)` - optional function called to decorate the response with authentication
+  headers before the response headers or payload is written where:
+    - `request` - the request object.
+    - `next(err)` - the continuation function the method must called when done where:
+        - `err` - if `null`, successfully applied. If set to any other value, it is used as an
+          error response.
+
+When the scheme `authenticate()` method implementation calls `reply()` with an error condition,
+the specifics of the error affect whether additional authentication strategies will be attempted
+if configured for the route. If the `err` returned bu the `reply()` method includes a message, no
+additional strategies will be attempted. If the `err` does not include a message but does include
+a scheme name (e.g. `Boom.unauthorized(null, 'Custom')`), additional strategies will be attempted
+in order of preference.
+
+```js
+var server = new Hapi.Server();
+server.connection(80);
+
+var scheme = function (server, options) {
+
+    return {
+        authenticate: function (request, reply) {
+
+            var req = request.raw.req;
+            var authorization = req.headers.authorization;
+            if (!authorization) {
+                return reply(Boom.unauthorized(null, 'Custom'));
             }
-        },
-        path: './templates'
-    });
 
-    next();
-};
-```
-
-#### `plugin.method(name, fn, [options])`
-
-Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodname-fn-options)
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.method('user', function (id, next) {
-
-        next(null, { id: id });
-    });
-
-    next();
-};
-```
-
-#### `plugin.method(method)`
-
-Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodmethod)
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.method({
-        name: 'user',
-        fn: function (id, next) {
-
-            next(null, { id: id });
+            return reply(null, { credentials: { user: 'john' } });
         }
-    });
+    };
+};
 
+server.auth.scheme('custom', scheme);
+```
+
+#### `server.auth.strategy(name, scheme, [mode], [options])`
+
+Registers an authentication strategy where:
+- `name` - the strategy name.
+- `scheme` - the scheme name (must be previously registered using `server.auth.scheme()`).
+- `mode` - if `true`, the scheme is automatically assigned as a required strategy to any route
+  without an `auth` config. Can only be assigned to a single server strategy. Value must be `true`
+  (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`,
+  `'try'`). Defaults to `false`.
+- `options` - scheme options based on the scheme requirements.
+
+```js
+var server = new Hapi.Server();
+server.connection(80);
+
+server.auth.scheme('custom', scheme);
+server.auth.strategy('default', 'custom');
+
+server.route({
+    method: 'GET',
+    path: '/',
+    config: {
+        auth: 'default',
+        handler: function (request, reply) {
+    
+            return reply(request.auth.credentials.user);
+        }
+    }
+});
+```
+
+#### `server.auth.test(strategy, request, next)`
+
+Tests a request against an authentication strategy where:
+- `strategy` - the strategy name registered with `server.auth.strategy()`.
+- `request` - the request object. The request route authentication configuration is not used.
+- `next` - the callback function with signature `function(err, credentials)` where:
+    - `err` - the error if authentication failed.
+    - `credentials` - the authentication credentials object if authentication was successful.
+
+#### `server.bind(bind)`
+
+Sets a global plugin bind used as the default bind when adding a route or an extension using the plugin interface (if no
+explicit bind is provided as an option). The bind object is made available within the handler and extension methods via `this`.
+
+```js
+var handler = function (request, reply) {
+
+    request.reply(this.message);
+};
+
+exports.register = function (server, options, next) {
+
+    var bind = {
+        message: 'hello'
+    };
+
+    server.bind(bind);
+    server.route({ method: 'GET', path: '/', handler: handler });
     next();
 };
 ```
 
-#### `plugin.methods`
+#### `server.cache(name, options)`
 
-Provides access to the method methods registered with [`plugin.method()`](#pluginmethodname-fn-options)
+Provisions a server cache segment within the common caching facility where:
+
+- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy):
+    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
+      together with `expiresAt`.
+    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
+      expire. Cannot be used together with `expiresIn`.
+    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
+    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
+      method is taking too long.
+    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
 
 ```js
-exports.register = function (plugin, options, next) {
-
-    plugin.method('user', function (id, next) {
-
-        next(null, { id: id });
-    });
-
-    plugin.methods.user(5, function (err, result) {
-
-        // Do something with result
-
-        next();
-    });
-};
+var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
 ```
 
-#### `plugin.cache(options)`
+----
 
 Provisions a plugin cache segment within the pack's common caching facility where:
 
@@ -319,228 +490,31 @@ Provisions a plugin cache segment within the pack's common caching facility wher
       to not shared.
 
 ```js
-exports.register = function (plugin, options, next) {
+exports.register = function (server, options, next) {
 
-    var cache = plugin.cache({ expiresIn: 60 * 60 * 1000 });
+    var cache = server.cache({ expiresIn: 60 * 60 * 1000 });
     next();
 };
 ```
 
-#### `plugin.bind(bind)`
+#### `server.connection([host], [port], [options])`
 
-Sets a global plugin bind used as the default bind when adding a route or an extension using the plugin interface (if no
-explicit bind is provided as an option). The bind object is made available within the handler and extension methods via `this`.
-
-```js
-var handler = function (request, reply) {
-
-    request.reply(this.message);
-};
-
-exports.register = function (plugin, options, next) {
-
-    var bind = {
-        message: 'hello'
-    };
-
-    plugin.bind(bind);
-    plugin.route({ method: 'GET', path: '/', handler: handler });
-    next();
-};
-```
-
-#### `plugin.handler(name, method)`
-
-Registers a new handler type as describe in [`server.handler(name, method)`](#serverhandlername-method).
+Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in
+[`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
+configured via the pack `cache` option.
 
 ```js
-exports.register = function (plugin, options, next) {
+var Hapi = require('hapi');
+var pack = new Hapi.Server();
 
-    var handlerFunc = function (route, options) {
-
-        return function (request, reply) {
-
-            reply('Message from plugin handler: ' + options.msg);
-        }
-    };
-
-    plugin.handler('testHandler', handlerFunc);
-    next();
-}
+pack.server(8000, { labels: ['web'] });
+pack.server(8001, { labels: ['admin'] });
 ```
 
-#### `plugin.render(template, context, [options], callback)`
+#### `server.decorate(type, property, method)`
 
-Utilizes the plugin views engine configured to render a template where:
-- `template` - the template filename and path, relative to the templates path configured via ['plugin.views()`](#pluginviewsoptions).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the plugin's ['plugin.views()`](#pluginviewsoptions) configuration.
-- `callback` - the callback function with signature `function (err, rendered, config)` where:
-    - `err` - the rendering error if any.
-    - `rendered` - the result view string.
-    - `config` - the configuration used to render the template.
 
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.views({
-        engines: {
-            html: {
-              module: require('handlebars').create()
-            }
-        },
-        path: './templates'
-    });
-
-    plugin.render('hello', context, function (err, rendered, config) {
-
-        console.log(rendered);
-        next();
-    });
-};
-```
-
-### Selectable methods and properties
-
-The plugin interface selectable methods and properties are those available both on the `plugin` object received via the
-[`exports.register()`](#exportsregisterplugin-options-next) interface and the objects received by calling
-[`plugin.select()`](#pluginselectlabels). However, unlike the root methods, they operate only on the selected subset of
-servers.
-
-#### `plugin.select(labels)`
-
-Selects a subset of pack servers using the servers' `labels` configuration option where:
-
-- `labels` - a single string or array of strings of labels used as a logical OR statement to select all the servers with matching
-  labels in their configuration.
-
-Returns a new `plugin` interface with only access to the [selectable methods and properties](#selectable-methods-and-properties).
-Selecting again on a selection operates as a logic AND statement between the individual selections.
-
-```js
-exports.register = function (plugin, options, next) {
-
-    var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    next();
-};
-```
-
-#### `plugin.expose(key, value)`
-
-Exposes a property via `plugin.plugins[name]` (if added to the plugin root without first calling `plugin.select()`) and `server.plugins[name]`
-('name' of plugin) object of each selected pack server where:
-
-- `key` - the key assigned (`server.plugins[name][key]` or `plugin.plugins[name][key]`).
-- `value` - the value assigned.
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.expose('util', function () { console.log('something'); });
-    next();
-};
-```
-
-#### `plugin.expose(obj)`
-
-Merges a deep copy of an object into to the existing content of `plugin.plugins[name]` (if added to the plugin root without first calling
-`plugin.select()`) and `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
-
-- `obj` - the object merged into the exposed properties container.
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.expose({ util: function () { console.log('something'); } });
-    next();
-};
-```
-
-#### `plugin.route(options)`
-
-Adds a server route to the selected pack's servers as described in [`server.route(options)`](#serverrouteoptions).
-
-```js
-exports.register = function (plugin, options, next) {
-
-    var selection = plugin.select('web');
-    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    next();
-};
-```
-
-#### `plugin.route(routes)`
-
-Adds multiple server routes to the selected pack's servers as described in [`server.route(routes)`](#serverrouteroutes).
-
-```js
-exports.register = function (plugin, options, next) {
-
-    var selection = plugin.select('admin');
-    selection.route([
-        { method: 'GET', path: '/1', handler: function (request, reply) { reply('ok'); } },
-        { method: 'GET', path: '/2', handler: function (request, reply) { reply('ok'); } }
-    ]);
-
-    next();
-};
-```
-
-#### `plugin.state(name, [options])`
-
-Adds a state definition to the selected pack's servers as described in [`server.state()`](#serverstatename-options).
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.state('example', { encoding: 'base64' });
-    next();
-};
-```
-
-#### `plugin.auth.scheme(name, scheme)`
-
-Adds an authentication scheme to the selected pack's servers as described in [`server.auth.scheme()`](#serverauthschemename-scheme).
-
-#### `plugin.auth.strategy(name, scheme, [mode], [options])`
-
-Adds an authentication strategy to the selected pack's servers as described in [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
-
-#### `plugin.ext(event, method, [options])`
-
-Adds an extension point method to the selected pack's servers as described in [`server.ext()`](#serverextevent-method-options).
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.ext('onRequest', function (request, extNext) {
-
-        console.log('Received request: ' + request.path);
-        extNext();
-    });
-
-    next();
-};
-```
-
-#### `plugin.register(plugins, [options], callback)`
-
-Adds a plugin to the selected pack's servers as described in [`pack.register()`](#packregisterplugins-options-callback).
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.register({
-        plugin: require('plugin_name'),
-        options: {
-            message: 'hello'
-        }
-    }, next);
-};
-```
-
-#### `plugin.dependency(deps, [after])`
+#### `server.dependency(deps, [after])`
 
 Declares a required dependency upon other plugins where:
 
@@ -557,9 +531,9 @@ Declares a required dependency upon other plugins where:
           registration error is considered an unrecoverable event which should terminate the application.
 
 ```js
-exports.register = function (plugin, options, next) {
+exports.register = function (server, options, next) {
 
-    plugin.dependency('yar', after);
+    server.dependency('yar', after);
     next();
 };
 
@@ -570,52 +544,245 @@ var after = function (plugin, next) {
 };
 ```
 
+#### `server.expose(key, value)`
 
+Exposes a property via `server.plugins[name]` (if added to the plugin root without first calling `server.select()`) and `server.plugins[name]`
+('name' of plugin) object of each selected pack server where:
 
+- `key` - the key assigned (`server.plugins[name][key]` or `server.plugins[name][key]`).
+- `value` - the value assigned.
 
-#### `pack.server([host], [port], [options])`
+```js
+exports.register = function (server, options, next) {
 
-Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in
-[`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
-configured via the pack `cache` option.
+    server.expose('util', function () { console.log('something'); });
+    next();
+};
+```
+
+#### `server.expose(obj)`
+
+Merges a deep copy of an object into to the existing content of `server.plugins[name]` (if added to the plugin root without first calling
+`server.select()`) and `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
+
+- `obj` - the object merged into the exposed properties container.
+
+```js
+exports.register = function (server, options, next) {
+
+    server.expose({ util: function () { console.log('something'); } });
+    next();
+};
+```
+
+#### `server.ext(event, method, [options])`
+
+Registers an extension function in one of the available [extension points](#request-lifecycle) where:
+
+- `event` - the event name.
+- `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
+  is `function(request, next)` where:
+    - `request` - the incoming `request` object.
+    - `next` - the callback function the extension method must call to return control over to the router with signature `function(exit)` where:
+        - `exit` - optional request processing exit response. If set to a non-falsy value, the request lifecycle process will jump to the
+          "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
+          value accepted by [`reply()`](#replyresult).
+    - `this` - the object provided via `options.bind`.
+- `options` - an optional object with the following:
+    - `before` - a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed
+      in the order added.
+    - `after` - a string or array of strings of plugin names this method must execute after (on the same event). Otherwise, extension methods are executed
+      in the order added.
+    - `bind` - any value passed back to the provided method (via `this`) when called.
 
 ```js
 var Hapi = require('hapi');
-var pack = new Hapi.Server();
+var server = new Hapi.Server();
+server.connection();
 
-pack.server(8000, { labels: ['web'] });
-pack.server(8001, { labels: ['admin'] });
+server.ext('onRequest', function (request, next) {
+
+    // Change all requests to '/test'
+    request.setUrl('/test');
+    next();
+});
+
+var handler = function (request, reply) {
+
+    reply({ status: 'ok' });
+};
+
+server.route({ method: 'GET', path: '/test', handler: handler });
+server.start();
+
+// All requests will get routed to '/test'
 ```
 
-#### `pack.start([callback])`
 
-Starts all the servers in the pack and used as described in [`server.start([callback])`](#serverstartcallback).
+#### `server.handler(name, method)`
+
+Registers a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`),
+or any previously registered types is not allowed.
+
+- `name` - string name for the handler being registered.
+- `method` - the function used to generate the route handler using the signature `function(route, options)` where:
+    - `route` - the route configuration object.
+    - `options` - the configuration object provided in the handler config.
+
+The `method` function can have a `defaults` property of an object or function. If the property is set to an object, that object is used as
+the default route config for routes using this handler. If the property is set to a function, the function uses the signature `function(method)`
+and returns the route default configuration.
 
 ```js
 var Hapi = require('hapi');
-var pack = new Hapi.Server();
+var server = new Hapi.Server();
+        server.connection('localhost', 8000);
 
-pack.server(8000, { labels: ['web'] });
-pack.server(8001, { labels: ['admin'] });
+// Defines new handler for routes on this server
+server.handler('test', function (route, options) {
 
-pack.start(function () {
+    return function (request, reply) {
 
-    console.log('All servers started');
+        reply('new handler: ' + options.msg);
+    }
 });
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: { test: { msg: 'test' } }
+});
+
+server.start();
 ```
 
-#### `pack.stop([options], [callback])`
+#### `server.inject(options, callback)`
 
-Stops all the servers in the pack and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
+Injects a request into the server simulating an incoming HTTP request without making an actual socket connection. Injection is useful for
+testing purposes as well as for invoking routing logic internally without the overhead or limitations of the network stack. Utilizes the
+[**shot**](https://github.com/hapijs/shot) module for performing injections, with some additional options and response properties:
+
+- `options` - can be assign a string with the requested URI, or an object with:
+    - `method` - the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
+    - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host'
+      header, unless one was specified in `headers`.
+    - `headers` - an object with optional request headers where each key is the header name and the value is the header content. Defaults
+      to no additions to the default Shot headers.
+    - `payload` - an optional string or buffer containing the request payload (object must be manually converted to a string first).
+      Defaults to no payload. Note that payload processing defaults to `'application/json'` if no 'Content-Type' header provided.
+    - `credentials` - an optional credentials object containing authentication information. The `credentials` are used to bypass the default
+      authentication strategies, and are validated directly as if they were received via an authentication scheme. Defaults to no credentials.
+    - `simulate` - an object with options used to simulate client request stream conditions for testing:
+        - `error` - if `true`, emits an `'error'` event after payload transmission (if any). Defaults to `false`.
+        - `close` - if `true`, emits a `'close'` event after payload transmission (if any). Defaults to `false`.
+        - `end` - if `false`, does not end the stream. Defaults to `true`.
+- `callback` - the callback function with signature `function(res)` where:
+    - `res` - the response object where:
+        - `statusCode` - the HTTP status code.
+        - `headers` - an object containing the headers set.
+        - `payload` - the response payload string.
+        - `rawPayload` - the raw response payload buffer.
+        - `raw` - an object with the injection request and response objects:
+            - `req` - the `request` object.
+            - `res` - the response object.
+        - `result` - the raw handler response (e.g. when not a stream) before it is serialized for transmission. If not available, set to
+          `payload`. Useful for inspection and reuse of the internal objects returned (instead of parsing the response string).
 
 ```js
-pack.stop({ timeout: 60 * 1000 }, function () {
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection();
 
-    console.log('All servers stopped');
+var get = function (request, reply) {
+
+    reply('Success!');
+};
+
+server.route({ method: 'GET', path: '/', handler: get });
+
+server.inject('/', function (res) {
+
+    console.log(res.result);
 });
 ```
 
-#### `pack.register(plugins, [options], callback)`
+#### `server.log(tags, [data, [timestamp]])`
+
+The `server.log()` method is used for logging server events that cannot be associated with a specific request. When called the server emits a `'log'`
+event which can be used by other listeners or plugins to record the information or output to the console. The arguments are:
+
+- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
+  and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
+  tag along with event-specific information.
+- `data` - an optional message string or object with the application data being logged.
+- `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection();
+
+server.on('log', function (event, tags) {
+
+    if (tags.error) {
+        console.log(event);
+    }
+});
+
+server.log(['test', 'error'], 'Test event');
+```
+
+#### `server.method(method)`
+
+Registers a server method function as described in [`server.method()`](#servermethodname-fn-options) using a method object or an array
+of objects where each has:
+- `name` - the method name.
+- `fn` - the method function.
+- `options` - optional settings.
+
+```js
+var add = function (a, b, next) {
+
+    next(null, a + b);
+};
+
+server.method({ name: 'sum', fn: add, options: { cache: { expiresIn: 2000 } } });
+
+server.method([{ name: 'also', fn: add }]);
+```
+
+#### `server.method(name, fn, [options])`
+
+Registers a server method function with all the pack's servers as described in [`server.method()`](#servermethodname-fn-options)
+
+```js
+exports.register = function (server, options, next) {
+
+    server.method('user', function (id, next) {
+
+        next(null, { id: id });
+    });
+
+    next();
+};
+```
+
+#### `server.path(path)`
+
+Sets the path prefix used to locate static resources (files and view templates) when relative paths are used by the plugin:
+- `path` - the path prefix added to any relative file path starting with `'.'`. The value has the same effect as using the server's
+  configuration `files.relativeTo` option but only within the server.
+
+```js
+exports.register = function (server, options, next) {
+
+    server.path(__dirname + '../static');
+    server.route({ path: '/file', method: 'GET', handler: { file: './test.html' } });
+    next();
+};
+```
+
+#### `server.register(plugins, [options], callback)`
 
 Registers a plugin where:
 
@@ -667,9 +834,9 @@ Manually constructed plugin is an object containing:
 server.pack.register({
     name: 'test',
     version: '2.0.0',
-    register: function (plugin, options, next) {
+    register: function (server, options, next) {
 
-        plugin.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } });
+        server.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } });
         next();
     },
     options: {
@@ -683,79 +850,441 @@ server.pack.register({
 });
 ```
 
-### `Pack.compose(manifest, [options], callback)`
 
-Provides a simple way to construct a [`Pack`](#hapipack) from a single configuration object, including configuring servers
-and registering plugins where:
 
-- `manifest` - an object with the following keys:
-    - `pack` - the pack `options` as described in [`new Pack()`](#packserverhost-port-options). In order to support loading JSON documents,
-      The `compose()` function supports passing a module name string as the value of `pack.cache` or `pack.cache.engine`. These strings are
-      resolved the same way the `plugins` keys are (using `options.relativeTo`).
-    - `servers` - an array of server configuration objects where:
-        - `host`, `port`, `options` - the same as described in [`new Server()`](#new-serverhost-port-options) with the exception that the
-          `cache` option is not allowed and must be configured via the pack `cache` option. The `host` and `port` keys can be set to an
-          environment variable by prefixing the variable name with `'$env.'`.
-    - `plugins` - an object where each key is a plugin name, and each value is one of:
-        - the `options` object passed to the plugin on registration.
-        - an array of object where:
-            - `options` - the object passed to the plugin on registration.
-            - any key supported by the `pack.register()` options used for registration (e.g. `select`).
-- `options` - optional compose configuration:
-    - `relativeTo` - path prefix used when loading plugins using node's `require()`. The `relativeTo` path prefix is added to any
-      relative plugin name (i.e. beings with `'./'`). All other module names are required as-is and will be looked up from the location
-      of the **hapi** module path (e.g. if **hapi** resides outside of your project `node_modules` path, it will not find your project
-      dependencies - you should specify them as relative and use the `relativeTo` option).
-- `callback` - the callback method, called when all packs and servers have been created and plugins registered has the signature
-  `function(err, pack)` where:
-    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-      (e.g. among routes, methods, state) will throw an error and will not return a callback.
-    - `pack` - the composed Pack object.
+#### `server.render(template, context, [options], callback)`
+
+Utilizes the server views engine configured to render a template where:
+- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#serverviewsoptions).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration.
+- `callback` - the callback function with signature `function (err, rendered, config)` where:
+    - `err` - the rendering error if any.
+    - `rendered` - the result view string.
+    - `config` - the configuration used to render the template.
 
 ```js
 var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection();
+server.views({
+    engines: { html: require('handlebars') },
+    path: __dirname + '/templates'
+});
 
-var manifest = {
-    pack: {
-        cache: 'catbox-memory'
-    },
-    servers: [
-        {
-            port: 8000,
-            options: {
-                labels: ['web']
-            }
-        },
-        {
-            host: 'localhost',
-            port: 8001,
-            options: {
-                labels: ['admin']
-            }
-        }
-    ],
-    plugins: {
-        'yar': {
-            cookieOptions: {
-                password: 'secret'
-            }
-        },
-        'furball': [
-            {
-                select: 'web',
-                options: {
-                    version: '/v'
-                }
-            }
-        ]
-    }
+var context = {
+    title: 'Views Example',
+    message: 'Hello, World'
 };
 
-Hapi.Server.compose(manifest, function (err, pack) {
+server.render('hello', context, function (err, rendered, config) {
 
-    pack.start();
+    console.log(rendered);
 });
 ```
+
+---
+
+Utilizes the plugin views engine configured to render a template where:
+- `template` - the template filename and path, relative to the templates path configured via ['server.views()`](#pluginviewsoptions).
+- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
+- `options` - optional object used to override the plugin's ['server.views()`](#pluginviewsoptions) configuration.
+- `callback` - the callback function with signature `function (err, rendered, config)` where:
+    - `err` - the rendering error if any.
+    - `rendered` - the result view string.
+    - `config` - the configuration used to render the template.
+
+```js
+exports.register = function (server, options, next) {
+
+    server.views({
+        engines: {
+            html: {
+              module: require('handlebars').create()
+            }
+        },
+        path: './templates'
+    });
+
+    server.render('hello', context, function (err, rendered, config) {
+
+        console.log(rendered);
+        next();
+    });
+};
+```
+
+#### `server.route(options)`
+
+Adds a server route to the selected pack's servers as described in [`server.route(options)`](#serverrouteoptions).
+
+```js
+exports.register = function (server, options, next) {
+
+    var selection = server.select('web');
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+    next();
+};
+```
+
+#### `server.route(routes)`
+
+Adds multiple server routes to the selected pack's servers as described in [`server.route(routes)`](#serverrouteroutes).
+
+```js
+exports.register = function (server, options, next) {
+
+    var selection = server.select('admin');
+    selection.route([
+        { method: 'GET', path: '/1', handler: function (request, reply) { reply('ok'); } },
+        { method: 'GET', path: '/2', handler: function (request, reply) { reply('ok'); } }
+    ]);
+
+    next();
+};
+```
+
+#### `server.select(labels)`
+
+Selects a subset of pack servers using the servers' `labels` configuration option where:
+
+- `labels` - a single string or array of strings of labels used as a logical OR statement to select all the servers with matching
+  labels in their configuration.
+
+Returns a new `plugin` interface with only access to the [selectable methods and properties](#selectable-methods-and-properties).
+Selecting again on a selection operates as a logic AND statement between the individual selections.
+
+```js
+exports.register = function (server, options, next) {
+
+    var selection = server.select('web');
+    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
+    next();
+};
+```
+#### `server.start([callback])`
+
+Starts the server by listening for incoming connections on the configured port. If provided, `callback()` is called once the server is
+ready for new connections. If the server is already started, the `callback()` is called on the next tick.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection();
+server.start(function () {
+
+    console.log('Server started at: ' + server.info.uri);
+});
+```
+
+---
+Starts all the servers in the pack and used as described in [`server.start([callback])`](#serverstartcallback).
+
+```js
+var Hapi = require('hapi');
+var pack = new Hapi.Server();
+
+pack.server(8000, { labels: ['web'] });
+pack.server(8001, { labels: ['admin'] });
+
+pack.start(function () {
+
+    console.log('All servers started');
+});
+```
+
+#### `server.state(name, [options])`
+
+[HTTP state management](http://tools.ietf.org/html/rfc6265) uses client cookies to persist a state across multiple requests. Cookie definitions
+can be registered with the server using the `server.state()` method, where:
+
+- `name` - is the cookie name.
+- `options` - are the optional cookie settings:
+    - `ttl` - time-to-live in milliseconds. Defaults to `null` (session time-life - cookies are deleted when the browser is closed).
+    - `isSecure` - sets the 'Secure' flag. Defaults to `false`.
+    - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `false`.
+    - `path` - the path scope. Defaults to `null` (no path).
+    - `domain` - the domain scope. Defaults to `null` (no domain).
+    - `autoValue` - if present and the cookie was not received from the client or explicitly set by the route handler, the cookie is automatically
+      added to the response with the provided value. The value can be a function with signature `function(request, next)` where:
+        - `request` - the request object.
+        - `next` - the continuation function using the `function(err, value)` signature.
+    - `encoding` - encoding performs on the provided value before serialization. Options are:
+        - `'none'` - no encoding. When used, the cookie value must be a string. This is the default value.
+        - `'base64'` - string value is encoded using Base64.
+        - `'base64json'` - object value is JSON-stringified than encoded using Base64.
+        - `'form'` - object value is encoded using the _x-www-form-urlencoded_ method.
+        - `'iron'` - Encrypts and sign the value using [**iron**](https://github.com/hueniverse/iron).
+    - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not provide privacy, only a mean to verify that the cookie value
+      was generated by the server. Redundant when `'iron'` encoding is used. Options are:
+        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
+        - `password` - password used for HMAC key generation.
+    - `password` - password used for `'iron'` encoding.
+    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
+    - `failAction` - overrides the default server `state.cookies.failAction` setting.
+    - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
+    - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
+    - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
+
+```js
+// Set cookie definition
+
+server.state('session', {
+    ttl: 24 * 60 * 60 * 1000,     // One day
+    isSecure: true,
+    path: '/',
+    encoding: 'base64json'
+});
+
+// Set state in route handler
+
+var handler = function (request, reply) {
+
+    var session = request.state.session;
+    if (!session) {
+        session = { user: 'joe' };
+    }
+
+    session.last = Date.now();
+
+    reply('Success').state('session', session);
+};
+```
+
+Registered cookies are automatically parsed when received. Parsing rules depends on the server [`state.cookies`](#server.config.state) configuration.
+If an incoming registered cookie fails parsing, it is not included in `request.state`, regardless of the `state.cookies.failAction` setting.
+When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit a `'request'` event. To capture these errors
+subscribe to the `'request'` events and filter on `'error'` and `'state'` tags:
+
+```js
+server.on('request', function (request, event, tags) {
+
+    if (tags.error && tags.state) {
+        console.error(event);
+    }
+});
+```
+
+
+#### `server.stop([options], [callback])`
+
+Stops the server by refusing to accept any new connections. Existing connections will continue until closed or timeout (defaults to 5 seconds).
+Once the server stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
+is already stopped, the `callback()` is called on the next tick.
+
+The optional `options` object supports:
+
+- `timeout` - overrides the timeout in millisecond before forcefully terminating a connection. Defaults to `5000` (5 seconds).
+
+```js
+server.stop({ timeout: 60 * 1000 }, function () {
+
+    console.log('Server stopped');
+});
+```
+
+---
+
+Stops all the servers in the pack and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
+
+```js
+pack.stop({ timeout: 60 * 1000 }, function () {
+
+    console.log('All servers stopped');
+});
+```
+
+#### `server.table([host])`
+
+Returns a copy of the routing table where:
+- `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual hosts.
+
+The return value is an array of routes where each route contains:
+- `settings` - the route config with defaults applied.
+- `method` - the HTTP method in lower case.
+- `path` - the route path.
+
+```js
+var table = server.table()
+console.log(table);
+
+/*  Output:
+
+    [{
+        method: 'get',
+        path: '/test/{p}/end',
+        settings: {
+            handler: [Function],
+            method: 'get',
+            plugins: {},
+            app: {},
+            validate: {},
+            payload: { output: 'stream' },
+            auth: undefined,
+            cache: [Object] }
+    }] */
+```
+
+#### `server.views(options)`
+
+Initializes the server views manager where:
+
+- `options` - a configuration object with the following:
+    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'hbr'), mapped to the npm module used for
+      rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
+        - `module` - the npm module used for rendering the templates. The module object must contain:
+            - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
+              `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
+              and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
+              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature
+              `function(context, options, callback)` and `callback` has the signature `function(err, rendered)`.
+        - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
+    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
+      explicit extension is provided for a given template. No default value.
+    - `path` - the root file path used to resolve and load the templates identified when calling `reply.view()`. Defaults to current working
+      directory.
+    - `partialsPath` - the root file path where partials are located. Partials are small segments of template code that can be nested and reused
+      throughout other templates. Defaults to no partials support (empty path).
+    - `helpersPath` - the directory path where helpers are located. Helpers are functions used within templates to perform transformations
+      and other data manipulations using the template context or other inputs. Each '.js' file in the helpers directory is loaded and the file name
+      is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
+      not supported and are ignored. Defaults to no helpers support (empty path). Note that jade does not support loading helpers this way.
+    - `relativeTo` - a base path used as prefix for `path` and `partialsPath`. No default.
+    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
+      for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
+      Otherwise, the provided filename is suffixed with the engine's extension and loaded. Disable `layout` when using Jade as it will handle
+      including any layout files independently. Defaults to `false`.
+    - `layoutPath` - the root file path where layout templates are located (using the `relativeTo` prefix if present). Defaults to `path`.
+    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
+    - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
+    - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
+    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `reply.view()`. Defaults to `false`.
+    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to contain '../'. Defaults to `false`.
+    - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
+    - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
+    - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
+    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
+    - `context` - a global context used with all templates. The global context option can be either an object or a function that takes no arguments and returns a context object. When rendering views, the global context will be merged with any context object specified on the handler or using `reply.view()`. When multiple context objects are used, values from the global context always have lowest precedence.
+
+
+```js
+server.views({
+    engines: {
+        html: require('handlebars'),
+        jade: require('jade')
+    },
+    path: '/static/templates'
+});
+```
+
+---
+
+Generates a plugin-specific views manager for rendering templates where:
+- `options` - the views configuration as described in the server's [`views`](#serverviewsoptions) option. Note that due to the way node
+  `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
+
+Note that relative paths are relative to the plugin root, not the working directory or the application registering the server. This allows
+plugin the specify their own static resources without having to require external configuration.
+
+```js
+exports.register = function (server, options, next) {
+
+    server.views({
+        engines: {
+            html: {
+              module: require('handlebars').create()
+            }
+        },
+        path: './templates'
+    });
+
+    next();
+};
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Plugin interface
 
@@ -778,9 +1307,9 @@ A plugin is constructed with the following:
 The name and versions are included by attaching an `attributes` property to the `exports.register()` function:
 
 ```js
-exports.register = function (plugin, options, next) {
+exports.register = function (server, options, next) {
 
-    plugin.route({
+    server.route({
         method: 'GET',
         path: '/version',
         handler: function (request, reply) {
@@ -815,63 +1344,6 @@ exports.register.attributes = {
     pkg: require('./package.json')
 };
 ```
-
-#### `exports.register(plugin, options, next)`
-
-Registers the plugin where:
-
-- `plugin` - the registration interface representing the pack the plugin is being registered into. Provides the properties and methods listed below.
-- `options` - the `options` object provided by the pack registration methods.
-- `next` - the callback function the plugin must call to return control over to the application and complete the registration process. The function
-  signature is `function(err)` where:
-    - `err` - internal plugin error condition, which is returned back via the registration methods' callback. A plugin registration error is considered
-      an unrecoverable event which should terminate the application.
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('hello world') } });
-    next();
-};
-```
-
-### Root methods and properties
-
-The plugin interface root methods and properties are those available only on the `plugin` object received via the
-[`exports.register()`](#exportsregisterplugin-options-next) interface. They are not available on the object received by calling
-[`plugin.select()`](#pluginselectlabels).
-
-The plugin interface is an emitter containing the events of all the selected servers.
-
-```js
-exports.register = function (plugin, options, next) {
-
-    plugin.on('internalError', function (request, err) {
-
-        console.log(err);
-    });
-
-    next();
-};
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -944,7 +1416,7 @@ When creating a server instance, the following options configure the server's be
     - `replacer` - the replacer function or array. Defaults to no action.
     - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
 
-- `labels` - a string array of labels used when registering plugins to [`plugin.select()`](#pluginselectlabels) matching server labels. Defaults
+- `labels` - a string array of labels used when registering plugins to [`server.select()`](#pluginselectlabels) matching server labels. Defaults
   to an empty array `[]` (no labels).
 
 - `load` - server load limits configuration where:
@@ -994,59 +1466,9 @@ When creating a server instance, the following options configure the server's be
 - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
   (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no options.
 
-### `Server` properties
 
-Each instance of the `Server` object have the following properties:
 
-- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
-  Should not be used by plugins which should use `plugins[name]`.
-- `methods` - methods registered with [`server.method()`](#servermethodname-fn-options).
-- `info` - server information:
-    - `id` - a unique connection identifier (using the format '{hostname}:{pid}:{now base36}').
-    - `created` - the connection creation timestamp.
-    - `started` - the connection start timestamp (`0` when stopped).
-    - `port` - the port the server was configured to (before `start()`) or bound to (after `start()`).
-    - `host` - the hostname the server was configured to (defaults to `'0.0.0.0'` if no host was provided).
-    - `protocol` - the protocol used (e.g. `'http'` or `'https'`).
-    - `uri` - a string with the following format: 'protocol://host:port' (e.g. 'http://example.com:8080').
-- `listener` - the node HTTP server object.
-- `pack` - the [`Pack`](#hapipack) object the server belongs to (automatically assigned when creating a server instance directly).
-- `plugins` - an object where each key is a plugin name and the value are the exposed properties by that plugin using [`plugin.expose()`](#pluginexposekey-value).
-- `settings` - an object containing the [server options](#server-options) after applying the defaults.
 
-### `Server` methods
-
-#### `server.start([callback])`
-
-Starts the server by listening for incoming connections on the configured port. If provided, `callback()` is called once the server is
-ready for new connections. If the server is already started, the `callback()` is called on the next tick.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection();
-server.start(function () {
-
-    console.log('Server started at: ' + server.info.uri);
-});
-```
-
-#### `server.stop([options], [callback])`
-
-Stops the server by refusing to accept any new connections. Existing connections will continue until closed or timeout (defaults to 5 seconds).
-Once the server stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
-is already stopped, the `callback()` is called on the next tick.
-
-The optional `options` object supports:
-
-- `timeout` - overrides the timeout in millisecond before forcefully terminating a connection. Defaults to `5000` (5 seconds).
-
-```js
-server.stop({ timeout: 60 * 1000 }, function () {
-
-    console.log('Server stopped');
-});
-```
 
 #### `server.route(options)`
 
@@ -1547,320 +1969,37 @@ var handler = function (request, reply) {
 server.route({ method: '*', path: '/{p*}', handler: handler });
 ```
 
-#### `server.route(routes)`
-
-Same as [server.route(options)](#serverrouteoptions) where `routes` is an array of route options.
-
-```js
-server.route([
-    { method: 'GET', path: '/status', handler: status },
-    { method: 'GET', path: '/user', config: user }
-]);
-```
-
-#### `server.table([host])`
-
-Returns a copy of the routing table where:
-- `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual hosts.
-
-The return value is an array of routes where each route contains:
-- `settings` - the route config with defaults applied.
-- `method` - the HTTP method in lower case.
-- `path` - the route path.
-
-```js
-var table = server.table()
-console.log(table);
-
-/*  Output:
-
-    [{
-        method: 'get',
-        path: '/test/{p}/end',
-        settings: {
-            handler: [Function],
-            method: 'get',
-            plugins: {},
-            app: {},
-            validate: {},
-            payload: { output: 'stream' },
-            auth: undefined,
-            cache: [Object] }
-    }] */
-```
-
-#### `server.log(tags, [data, [timestamp]])`
-
-The `server.log()` method is used for logging server events that cannot be associated with a specific request. When called the server emits a `'log'`
-event which can be used by other listeners or plugins to record the information or output to the console. The arguments are:
-
-- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
-  and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
-  tag along with event-specific information.
-- `data` - an optional message string or object with the application data being logged.
-- `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection();
-
-server.on('log', function (event, tags) {
-
-    if (tags.error) {
-        console.log(event);
-    }
-});
-
-server.log(['test', 'error'], 'Test event');
-```
-
-#### `server.state(name, [options])`
-
-[HTTP state management](http://tools.ietf.org/html/rfc6265) uses client cookies to persist a state across multiple requests. Cookie definitions
-can be registered with the server using the `server.state()` method, where:
-
-- `name` - is the cookie name.
-- `options` - are the optional cookie settings:
-    - `ttl` - time-to-live in milliseconds. Defaults to `null` (session time-life - cookies are deleted when the browser is closed).
-    - `isSecure` - sets the 'Secure' flag. Defaults to `false`.
-    - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `false`.
-    - `path` - the path scope. Defaults to `null` (no path).
-    - `domain` - the domain scope. Defaults to `null` (no domain).
-    - `autoValue` - if present and the cookie was not received from the client or explicitly set by the route handler, the cookie is automatically
-      added to the response with the provided value. The value can be a function with signature `function(request, next)` where:
-        - `request` - the request object.
-        - `next` - the continuation function using the `function(err, value)` signature.
-    - `encoding` - encoding performs on the provided value before serialization. Options are:
-        - `'none'` - no encoding. When used, the cookie value must be a string. This is the default value.
-        - `'base64'` - string value is encoded using Base64.
-        - `'base64json'` - object value is JSON-stringified than encoded using Base64.
-        - `'form'` - object value is encoded using the _x-www-form-urlencoded_ method.
-        - `'iron'` - Encrypts and sign the value using [**iron**](https://github.com/hueniverse/iron).
-    - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not provide privacy, only a mean to verify that the cookie value
-      was generated by the server. Redundant when `'iron'` encoding is used. Options are:
-        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
-        - `password` - password used for HMAC key generation.
-    - `password` - password used for `'iron'` encoding.
-    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
-    - `failAction` - overrides the default server `state.cookies.failAction` setting.
-    - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
-    - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
-    - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
-
-```js
-// Set cookie definition
-
-server.state('session', {
-    ttl: 24 * 60 * 60 * 1000,     // One day
-    isSecure: true,
-    path: '/',
-    encoding: 'base64json'
-});
-
-// Set state in route handler
-
-var handler = function (request, reply) {
-
-    var session = request.state.session;
-    if (!session) {
-        session = { user: 'joe' };
-    }
-
-    session.last = Date.now();
-
-    reply('Success').state('session', session);
-};
-```
-
-Registered cookies are automatically parsed when received. Parsing rules depends on the server [`state.cookies`](#server.config.state) configuration.
-If an incoming registered cookie fails parsing, it is not included in `request.state`, regardless of the `state.cookies.failAction` setting.
-When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit a `'request'` event. To capture these errors
-subscribe to the `'request'` events and filter on `'error'` and `'state'` tags:
-
-```js
-server.on('request', function (request, event, tags) {
-
-    if (tags.error && tags.state) {
-        console.error(event);
-    }
-});
-```
-
-#### `server.views(options)`
-
-Initializes the server views manager where:
-
-- `options` - a configuration object with the following:
-    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'hbr'), mapped to the npm module used for
-      rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
-        - `module` - the npm module used for rendering the templates. The module object must contain:
-            - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
-              `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
-              and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
-              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature
-              `function(context, options, callback)` and `callback` has the signature `function(err, rendered)`.
-        - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
-    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
-      explicit extension is provided for a given template. No default value.
-    - `path` - the root file path used to resolve and load the templates identified when calling `reply.view()`. Defaults to current working
-      directory.
-    - `partialsPath` - the root file path where partials are located. Partials are small segments of template code that can be nested and reused
-      throughout other templates. Defaults to no partials support (empty path).
-    - `helpersPath` - the directory path where helpers are located. Helpers are functions used within templates to perform transformations
-      and other data manipulations using the template context or other inputs. Each '.js' file in the helpers directory is loaded and the file name
-      is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
-      not supported and are ignored. Defaults to no helpers support (empty path). Note that jade does not support loading helpers this way.
-    - `relativeTo` - a base path used as prefix for `path` and `partialsPath`. No default.
-    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
-      for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
-      Otherwise, the provided filename is suffixed with the engine's extension and loaded. Disable `layout` when using Jade as it will handle
-      including any layout files independently. Defaults to `false`.
-    - `layoutPath` - the root file path where layout templates are located (using the `relativeTo` prefix if present). Defaults to `path`.
-    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
-    - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
-    - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
-    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `reply.view()`. Defaults to `false`.
-    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to contain '../'. Defaults to `false`.
-    - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
-    - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
-    - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
-    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
-    - `context` - a global context used with all templates. The global context option can be either an object or a function that takes no arguments and returns a context object. When rendering views, the global context will be merged with any context object specified on the handler or using `reply.view()`. When multiple context objects are used, values from the global context always have lowest precedence.
 
 
-```js
-server.views({
-    engines: {
-        html: require('handlebars'),
-        jade: require('jade')
-    },
-    path: '/static/templates'
-});
-```
 
-#### `server.cache(name, options)`
 
-Provisions a server cache segment within the common caching facility where:
 
-- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy):
-    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
-      together with `expiresAt`.
-    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
-      expire. Cannot be used together with `expiresIn`.
-    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
-    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
-    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
-      method is taking too long.
-    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
 
-```js
-var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
-```
 
-#### `server.auth.scheme(name, scheme)`
 
-Registers an authentication scheme where:
 
-- `name` - the scheme name.
-- `scheme` - the method implementing the scheme with signature `function(server, options)` where:
-    - `server` - a reference to the server object the scheme is added to.
-    - `options` - optional scheme settings used to instantiate a strategy.
 
-The `scheme` method must return an object with the following keys:
 
-- `authenticate(request, reply)` - required function called on each incoming request configured with the authentication scheme where:
-    - `request` - the request object.
-    - `reply(err, result)` - the interface the authentication method must call when done where:
-        - `err` - if not `null`, indicates failed authentication.
-        - `result` - an object containing:
-            - `credentials` - the authenticated credentials. Required if `err` is `null`.
-            - `artifacts` - optional authentication artifacts.
-            - `log` - optional object used to customize the request authentication log which supports:
-                - `data` - log data.
-                - `tags` - additional tags.
-- `payload(request, next)` - optional function called to authenticate the request payload where:
-    - `request` - the request object.
-    - `next(err)` - the continuation function the method must called when done where:
-        - `err` - if `null`, payload successfully authenticated. If `false`, indicates that authentication could not be performed
-          (e.g. missing payload hash). If set to any other value, it is used as an error response.
-- `response(request, next)` - optional function called to decorate the response with authentication headers before the response
-  headers or payload is written where:
-    - `request` - the request object.
-    - `next(err)` - the continuation function the method must called when done where:
-        - `err` - if `null`, successfully applied. If set to any other value, it is used as an error response.
 
-#### `server.auth.strategy(name, scheme, [mode], [options])`
 
-Registers an authentication strategy where:
 
-- `name` - the strategy name.
-- `scheme` - the scheme name (must be previously registered using `server.auth.scheme()`).
-- `mode` - if `true`, the scheme is automatically assigned as a required strategy to any route without an `auth` config. Can only be
-  assigned to a single server strategy. Value must be `true` (which is the same as `'required'`) or a valid authentication mode
-  (`'required'`, `'optional'`, `'try'`). Defaults to `false`.
-- `options` - scheme options based on the scheme requirements.
 
-#### `server.auth.default(options)`
 
-Sets a default startegy which is applied to every route. The default does not apply when the route config specifies `auth` as `false`,
-or has an authentication strategy configured. Otherwise, the route authentication config is applied to the defaults. Note that the default
-only applies at time of route configuration, not at runtime. Calling `default()` after adding a route will have no impact on that route.
-The function requires:
-- `options` - a string with the default strategy name or an object with a specified strategy or strategies using the same format as the
-  [route `auth` handler options](#route.config.auth).
 
-#### `server.auth.test(strategy, request, next)`
 
-Tests a request against an authentication strategy where:
-- `strategy` - the strategy name registered with `server.auth.strategy()`.
-- `request` - the request object. The request route authentication configuration is not used.
-- `next` - the callback function with signature `function(err, credentials)` where:
-    - `err` - the error if authentication failed.
-    - `credentials` - the authentication credentials object if authentication was successful.
 
-#### `server.ext(event, method, [options])`
 
-Registers an extension function in one of the available [extension points](#request-lifecycle) where:
 
-- `event` - the event name.
-- `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
-  is `function(request, next)` where:
-    - `request` - the incoming `request` object.
-    - `next` - the callback function the extension method must call to return control over to the router with signature `function(exit)` where:
-        - `exit` - optional request processing exit response. If set to a non-falsy value, the request lifecycle process will jump to the
-          "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
-          value accepted by [`reply()`](#replyresult).
-    - `this` - the object provided via `options.bind`.
-- `options` - an optional object with the following:
-    - `before` - a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed
-      in the order added.
-    - `after` - a string or array of strings of plugin names this method must execute after (on the same event). Otherwise, extension methods are executed
-      in the order added.
-    - `bind` - any value passed back to the provided method (via `this`) when called.
 
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection();
 
-server.ext('onRequest', function (request, next) {
 
-    // Change all requests to '/test'
-    request.setUrl('/test');
-    next();
-});
 
-var handler = function (request, reply) {
 
-    reply({ status: 'ok' });
-};
 
-server.route({ method: 'GET', path: '/test', handler: handler });
-server.start();
 
-// All requests will get routed to '/test'
-```
+
+
+
 
 ##### Request lifecycle
 
@@ -1985,142 +2124,24 @@ server.methods.sumObj([5, 6], function (err, result) {
 });
 ```
 
-#### `server.method(method)`
 
-Registers a server method function as described in [`server.method()`](#servermethodname-fn-options) using a method object or an array
-of objects where each has:
-- `name` - the method name.
-- `fn` - the method function.
-- `options` - optional settings.
 
-```js
-var add = function (a, b, next) {
 
-    next(null, a + b);
-};
 
-server.method({ name: 'sum', fn: add, options: { cache: { expiresIn: 2000 } } });
 
-server.method([{ name: 'also', fn: add }]);
-```
 
-#### `server.inject(options, callback)`
 
-Injects a request into the server simulating an incoming HTTP request without making an actual socket connection. Injection is useful for
-testing purposes as well as for invoking routing logic internally without the overhead or limitations of the network stack. Utilizes the
-[**shot**](https://github.com/hapijs/shot) module for performing injections, with some additional options and response properties:
 
-- `options` - can be assign a string with the requested URI, or an object with:
-    - `method` - the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
-    - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host'
-      header, unless one was specified in `headers`.
-    - `headers` - an object with optional request headers where each key is the header name and the value is the header content. Defaults
-      to no additions to the default Shot headers.
-    - `payload` - an optional string or buffer containing the request payload (object must be manually converted to a string first).
-      Defaults to no payload. Note that payload processing defaults to `'application/json'` if no 'Content-Type' header provided.
-    - `credentials` - an optional credentials object containing authentication information. The `credentials` are used to bypass the default
-      authentication strategies, and are validated directly as if they were received via an authentication scheme. Defaults to no credentials.
-    - `simulate` - an object with options used to simulate client request stream conditions for testing:
-        - `error` - if `true`, emits an `'error'` event after payload transmission (if any). Defaults to `false`.
-        - `close` - if `true`, emits a `'close'` event after payload transmission (if any). Defaults to `false`.
-        - `end` - if `false`, does not end the stream. Defaults to `true`.
-- `callback` - the callback function with signature `function(res)` where:
-    - `res` - the response object where:
-        - `statusCode` - the HTTP status code.
-        - `headers` - an object containing the headers set.
-        - `payload` - the response payload string.
-        - `rawPayload` - the raw response payload buffer.
-        - `raw` - an object with the injection request and response objects:
-            - `req` - the `request` object.
-            - `res` - the response object.
-        - `result` - the raw handler response (e.g. when not a stream) before it is serialized for transmission. If not available, set to
-          `payload`. Useful for inspection and reuse of the internal objects returned (instead of parsing the response string).
 
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection();
 
-var get = function (request, reply) {
 
-    reply('Success!');
-};
 
-server.route({ method: 'GET', path: '/', handler: get });
 
-server.inject('/', function (res) {
 
-    console.log(res.result);
-});
-```
 
-#### `server.handler(name, method)`
 
-Registers a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`),
-or any previously registered types is not allowed.
 
-- `name` - string name for the handler being registered.
-- `method` - the function used to generate the route handler using the signature `function(route, options)` where:
-    - `route` - the route configuration object.
-    - `options` - the configuration object provided in the handler config.
 
-The `method` function can have a `defaults` property of an object or function. If the property is set to an object, that object is used as
-the default route config for routes using this handler. If the property is set to a function, the function uses the signature `function(method)`
-and returns the route default configuration.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-        server.connection('localhost', 8000);
-
-// Defines new handler for routes on this server
-server.handler('test', function (route, options) {
-
-    return function (request, reply) {
-
-        reply('new handler: ' + options.msg);
-    }
-});
-
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: { test: { msg: 'test' } }
-});
-
-server.start();
-```
-
-#### `server.render(template, context, [options], callback)`
-
-Utilizes the server views engine configured to render a template where:
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#serverviewsoptions).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration.
-- `callback` - the callback function with signature `function (err, rendered, config)` where:
-    - `err` - the rendering error if any.
-    - `rendered` - the result view string.
-    - `config` - the configuration used to render the template.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection();
-server.views({
-    engines: { html: require('handlebars') },
-    path: __dirname + '/templates'
-});
-
-var context = {
-    title: 'Views Example',
-    message: 'Hello, World'
-};
-
-server.render('hello', context, function (err, rendered, config) {
-
-    console.log(rendered);
-});
-```
 
 ### `Server` events
 
@@ -2233,7 +2254,7 @@ Each request object has the following properties:
 - `route` - the route configuration object after defaults are applied.
 - `server` - the server object.
 - `session` - Special key reserved for plugins implementing session support. Plugins utilizing this key must check for `null` value
-  to ensure there is no conflict with another similar plugin.
+  to ensure there is no conflict with another similar server.
 - `state` - an object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching
   cookie content after processing using any registered cookie definition.
 - `url` - the parsed request URI.
