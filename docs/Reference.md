@@ -121,8 +121,8 @@ criteria.
 
 ```js
 var server = new Hapi.Server();
-server.connection(80, { labels: 'a' });
-server.connection(8080, { labels: 'b' });
+server.connection({ port: 80, labels: 'a' });
+server.connection({ port: 8080, labels: 'b' });
 
 // server.connections.length === 2
 
@@ -154,11 +154,11 @@ its own `connection.info`.
 
 ```js
 var server = new Hapi.Server();
-server.connection(80);
+server.connection({ port: 80 });
 
 // server.info.port === 80
 
-server.connection(8080);
+server.connection({ port: 8080 });
 
 // server.info === null
 // server.connections[1].info.port === 8080
@@ -192,7 +192,7 @@ var Hapi = require('hapi');
 var SocketIO = require('socket.io');
 
 var server = new Hapi.Server();
-server.connection(80);
+server.connection({ port: 80 });
 
 var io = SocketIO.listen(server.listener);
 io.sockets.on('connection', function(socket) {
@@ -231,7 +231,7 @@ exports.register = function (server, options, next) {
 
     server.expose('key', 'value');
     // server.plugins.example.key === 'value'
-    next();
+    return next();
 };
 
 exports.register.attributes = {
@@ -282,7 +282,7 @@ server starts (only called if the server is started) where:
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection(80);
+server.connection({ port: 80 });
 
 server.after(function () {
 
@@ -308,7 +308,7 @@ Calling `default()` after adding a route will have no impact on routes added pri
 
 ```js
 var server = new Hapi.Server();
-server.connection(80);
+server.connection({ port: 80 });
 
 server.auth.scheme('custom', scheme);
 server.auth.strategy('default', 'custom');
@@ -367,7 +367,7 @@ in order of preference.
 
 ```js
 var server = new Hapi.Server();
-server.connection(80);
+server.connection({ port: 80 });
 
 var scheme = function (server, options) {
 
@@ -401,7 +401,7 @@ Registers an authentication strategy where:
 
 ```js
 var server = new Hapi.Server();
-server.connection(80);
+server.connection({ port: 80 });
 
 server.auth.scheme('custom', scheme);
 server.auth.strategy('default', 'custom');
@@ -430,7 +430,7 @@ Tests a request against an authentication strategy where:
 
 ```js
 var server = new Hapi.Server();
-server.connection(80);
+server.connection({ port: 80 });
 
 server.auth.scheme('custom', scheme);
 server.auth.strategy('default', 'custom');
@@ -473,108 +473,278 @@ exports.register = function (server, options, next) {
 
     server.bind(bind);
     server.route({ method: 'GET', path: '/', handler: handler });
-    next();
+    return next();
 };
 ```
 
-#### `server.cache(name, options)`
+#### `server.cache(options)`
 
-Provisions a cache segment within the common caching facility where:
-- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy):
-    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
-      together with `expiresAt`.
-    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
-      expire. Cannot be used together with `expiresIn`.
-    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
+Provisions a cache segment within the server cache facility where:
+- `options` - [**catbox** policy](https://github.com/hapijs/catbox#policy) configuration where:
+    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was
+      saved in the cache. Cannot be used together with `expiresAt`.
+    - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point
+      all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
+    - `generateFunc` - a function used to generate a new cache item if one is not found in the cache
+      when calling `get()`. The method's signature is `function(id, next)` where:
+          - `id` - the `id` string or object provided to the `get()` method.
+          - `next` - the method called when the new item is returned with the signature
+            `function(err, value, ttl)` where:
+              - `err` - an error condition.
+              - `value` - the new value generated.
+              - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the
+                cache. Defaults to the cache global policy.
+    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to
+      regenerate it when `generateFunc` is provided. Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
-    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
-      method is taking too long.
-    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the
+      `generateFunc` function takes too long to return a value. When the value is eventually
+      returned, it is stored in the cache for future requests.
+    - `cache` - the cache name configured in ['server.cache`](#server.config.cache). Defaults to
+      the default cache.
+    - `segment` - string segment name, used to isolate cached items within the cache partition.
+      When called within a plugin, defaults to '!name' where 'name' is the plugin name. Required
+      when called outside of a plugin.
+    - `shared` - if `true`, allows multiple cache provisions to share the same segment. Default to
+      `false`.
 
 ```js
-var cache = server.cache('countries', { expiresIn: 60 * 60 * 1000 });
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+var cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
+cache.set('norway', { capital: 'oslo' }, function (err) {
+
+    cache.get('norway', function (err, value, cached, log) {
+
+        // value === { capital: 'oslo' };
+    });
+});
 ```
 
-----
+#### `server.connection([options])`
 
-Provisions a plugin cache segment within the pack's common caching facility where:
+Adds an incoming sever connection where:
+- `host` - the hostname or IP address. Defaults to `0.0.0.0` which means any available network
+  interface. Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from
+  the same machine. 
 
-- `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy) with a few additions:
-    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
-      together with `expiresAt`.
-    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
-      expire. Cannot be used together with `expiresIn`.
-    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it. Must be less than `expiresIn`.
-    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
-    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when an item is not in the cache and the generate
-      method is taking too long.
-    - `segment` - optional segment name, used to isolate cached items within the cache partition. Defaults to '!name' where 'name' is the
-      plugin name. When setting segment manually, it must begin with '!!'.
-    - `cache` - the name of the cache connection configured in the ['server.cache` option](#server.config.cache). Defaults to the default cache.
-    - `shared` - if true, allows multiple cache users to share the same segment (e.g. multiple servers in a pack using the same cache. Default
-      to not shared.
+- `port` - the TCP port the connection is listening to. Defaults to an ephemeral port (`0`) which
+  uses an available port when the server is started (and assigned to `server.info.port`). If `port`
+  is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
+  with '\\.\pipe' as a Windows named pipe.
 
-```js
-exports.register = function (server, options, next) {
+- `app` - application-specific connection configuration which can be accessed via
+  `connection.settings.app`. Provides a safe place to store application configuration without
+  potential conflicts with the framework internals. Should not be used to configure plugins which
+  should use `plugins[name]`. Note the difference between `connection.settings.app` which is used
+  to store configuration values and `connection.app` which is meant for storing run-time state.
+  
+- `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to
+  include a valid caching directive. Defaults to `[200]`.
 
-    var cache = server.cache({ expiresIn: 60 * 60 * 1000 });
-    next();
-};
-```
+- `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers
+  to make cross-origin API calls. CORS is required by web applications running inside a browser
+  which are loaded from a different domain than the API server. CORS headers are disabled by
+  default. To enable, set `cors` to `true`, or to an object with the following options:
+    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The
+      array can contain any combination of fully qualified origins along with origin strings
+      containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin
+      `['*']`.
+    - `isOriginExposed` - if `false`, prevents the connection from returning the full list of
+      non-wildcard `origin` values if the incoming origin header does not match any of the values.
+      Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
+    - `matchOrigin` - if `false`, returns the list of `origin` values without attempting to match
+      the incoming origin value. Cannot be used with wildcard `origin` values. Defaults to `true`.
+    - `maxAge` - number of seconds the browser should cache the CORS response
+      ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
+      checks for changes in policy. Defaults to `86400` (one day).
+    - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to
+      `['Authorization', 'Content-Type', 'If-None-Match']`.
+    - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep
+      the default headers in place.
+    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods').
+      Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
+    - `additionalMethods` - a strings array of additional methods to `methods`. Use this to keep
+      the default methods in place.
+    - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers').
+      Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
+    - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use
+      this to keep the default headers in place.
+    - `credentials` - if `true`, allows user credentials to be sent
+      ('Access-Control-Allow-Credentials'). Defaults to `false`.
 
-#### `server.connection([host], [port], [options])`
+- <a name="server.config.files"></a>`files` - defines the behavior for serving static resources
+  using the built-in route handlers for files and directories:
+    - `relativeTo` - determines the folder relative paths are resolved against when using the file
+      and directory handlers.
 
-Creates a `Server` instance and adds it to the pack, where `host`, `port`, `options` are the same as described in
-[`new Server()`](#new-serverhost-port-options) with the exception that the `cache` option is not allowed and must be
-configured via the pack `cache` option.
+- `json` - optional arguments passed to `JSON.stringify()` when converting an object or error
+  response to a string payload. Supports the following:
+    - `replacer` - the replacer function or array. Defaults to no action.
+    - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
+
+- `labels` - a string or string array of labels used to `server.select()` specific connections
+  matching the specified labels. Defaults to an empty array `[]` (no labels).
+
+- `load` - connection load limits configuration where:
+    - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an
+      HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+    - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an
+      HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+    - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
+      requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+
+- <a name="server.config.payload"></a>`payload` - controls how incoming payloads (request body) are
+  processed:
+    - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very
+      large payloads may cause the server to run out of memory. Defaults to `1048576` (1MB).
+    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
+
+- `plugins` - plugin-specific configuration which can later be accessed via
+  `connection.settings.plugins`. Provides a place to store and pass connection-specific plugin
+  configuration. `plugins` is an object where each key is a plugin name and the value is the
+  configuration. Note the difference between `connection.settings.plugins` which is used to store
+  configuration values and `connection.plugins` which is meant for storing run-time state.
+
+- <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched
+  against the routing table:
+    - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered
+      different resources. Defaults to `true`.
+    - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
+
+- `security` - sets common security headers. All headers are disabled by default. To enable set
+  `security` to `true` or to an object with the following options:
+    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be
+      set to `max-age=15768000`, if specified as a number the maxAge parameter will be set to that
+      number. Defaults to `true`. You may also specify an object with the following fields:
+        - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
+        - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains` flag to
+          the header.
+    - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will be set
+      to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To use the
+      'allow-from' rule, you must set this to an object with the following fields:
+        - `rule` - either 'deny', 'sameorigin', or 'allow-from'
+        - `source` - when `rule` is 'allow-from' this is used to form the rest of the header,
+          otherwise this field is ignored. If `rule` is 'allow-from' but `source` is unset, the
+          rule will be automatically changed to 'sameorigin'.
+    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which
+      sets the header to equal '1; mode=block'. NOTE: This setting can create a security
+      vulnerability in versions of IE below 8, as well as unpatched versions of IE8. See
+      [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/) and
+      [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If you
+      actively support old versions of IE, it may be wise to explicitly set this flag to `false`.
+    - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing downloads
+      from executing in your context. Defaults to `true` setting the header to 'noopen'.
+    - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true`
+      setting the header to its only and default option, 'nosniff'.
+
+- <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to
+  store information on the client which is sent back to the server with every request (as defined
+  in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports the following options:
+    - `cookies` - cookie parsing and formating options:
+        - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
+          `request.state` object. Defaults to `true`.
+        - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
+            - `'error'` - return a Bad Request (400) error response. This is the default value.
+            - `'log'` - report the error but continue processing the request.
+            - `'ignore'` - take no action.
+        - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies.
+          Defaults to `false`.
+        - `strictHeader` - if `false`, allows any cookie value including values in violation of
+          [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
+
+- `timeout` - define timeouts for processing durations:
+    - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to
+      respond to an incoming client request before giving up and responding with a Service
+      Unavailable (503) error response. Disabled by default (`false`).
+    - `client` - request timeout in milliseconds. Sets the maximum time allowed for the client to
+      transmit the request payload (body) before giving up and responding with a Request Timeout
+      (408) error response. Set to `false` to disable. Can be customized on a per-route basis using
+      the route `payload.timeout` configuration. Defaults to `10000` (10 seconds).
+    - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to
+      override this behavior. Defaults to `undefined` which leaves the node default unchanged. Set
+      to `false` to disable socket timeouts.
+
+- `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
+  the node.js HTTPS server as described in the
+  [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+
+- `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global
+  options such as `stripUnknown` or `abortEarly` (the complete list is available
+  [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no
+  options.
 
 ```js
 var Hapi = require('hapi');
 var pack = new Hapi.Server();
 
-pack.server(8000, { labels: ['web'] });
-pack.server(8001, { labels: ['admin'] });
+server.connection({ port: 8000, host: 'example.com', labels: ['web'] });
 ```
 
 #### `server.decorate(type, property, method)`
 
+Extends various framework interfaces with custom methods where:
+- `type` - the interface being decorated. Supported types:
+    - `'reply'` - adds methods to the `reply()` interface.
+- `property` - the object decoration key name.
+- `method` - the extension function.
 
-#### `server.dependency(deps, [after])`
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
 
-Declares a required dependency upon other plugins where:
+server.decorate('reply', 'success', function () {
 
-- `deps` - a single string or array of strings of plugin names which must be registered in order for this plugin to operate. Plugins listed
-  must be registered in the same pack transaction to allow validation of the dependency requirements. Does not provide version dependency which
-  should be implemented using [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
-- `after` - an optional function called after all the specified dependencies have been registered and before the servers start. The function is only
-  called if the pack servers are started. If a circular dependency is created, the call will assert (e.g. two plugins each has an `after` function
-  to be called after the other). The function signature is `function(plugin, next)` where:
-    - `plugin` - the [plugin interface](#plugin-interface) object.
-    - `next` - the callback function the method must call to return control over to the application and complete the registration process. The function
-      signature is `function(err)` where:
-        - `err` - internal plugin error condition, which is returned back via the [`pack.start(callback)`](#packstartcallback) callback. A plugin
-          registration error is considered an unrecoverable event which should terminate the application.
+    return this.response({ status: 'ok' });
+});
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: function (request, reply) {
+
+        return reply.success();
+    }
+});
+```
+
+#### `server.dependency(dependencies, [after])`
+
+Used within a plugin to declares a required dependency on other plugins where:
+- `dependencies` - a single string or array of plugin name strings which must be registered in
+  order for this plugin to operate. Plugins listed must be registered before the server is started.
+  Does not provide version dependency which should be implemented using
+  [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
+- `after` - an optional function called after all the specified dependencies have been registered
+  and before the server starts. The function is only called if the server is started. If a circular
+  dependency is detected, an exception is thrown (e.g. two plugins each has an `after` function
+  to be called after the other). The function signature is `function(server, next)` where:
+    - `server` - the server the `dependency()` method was called on.
+    - `next` - the callback function the method must call to return control over to the application
+      and complete the registration process. The function signature is `function(err)` where:
+        - `err` - internal error condition, which is returned back via the `server.start()`
+          callback.
 
 ```js
 exports.register = function (server, options, next) {
 
     server.dependency('yar', after);
-    next();
+    return next();
 };
 
-var after = function (plugin, next) {
+var after = function (server, next) {
 
     // Additional plugin registration logic
-    next();
+    return next();
 };
 ```
 
 #### `server.expose(key, value)`
 
-Exposes a property via `server.plugins[name]` (if added to the plugin root without first calling `server.select()`) and `server.plugins[name]`
-('name' of plugin) object of each selected pack server where:
-
-- `key` - the key assigned (`server.plugins[name][key]` or `server.plugins[name][key]`).
+Used within a plugin to expose a property via `server.plugins[name]` (when added to all the
+connections) and to each `connection.plugins[name]` (where 'name' is the plugin name) where:
+- `key` - the key assigned (`server.plugins[name][key]` or `connection.plugins[name][key]`).
 - `value` - the value assigned.
 
 ```js
@@ -587,9 +757,9 @@ exports.register = function (server, options, next) {
 
 #### `server.expose(obj)`
 
-Merges a deep copy of an object into to the existing content of `server.plugins[name]` (if added to the plugin root without first calling
-`server.select()`) and `server.plugins[name]` ('name' of plugin) object of each selected pack server where:
-
+Merges a deep copy of an object into to the existing content of `server.plugins[name]`(when added
+to all the connections) and to each `connection.plugins[name]` (where 'name' is the plugin name)
+where:
 - `obj` - the object merged into the exposed properties container.
 
 ```js
@@ -602,28 +772,29 @@ exports.register = function (server, options, next) {
 
 #### `server.ext(event, method, [options])`
 
-Registers an extension function in one of the available [extension points](#request-lifecycle) where:
-
+Registers an extension function in one of the available [extension points](#request-lifecycle)
+where:
 - `event` - the event name.
-- `method` - a function or an array of functions to be executed at a specified point during request processing. The required extension function signature
-  is `function(request, next)` where:
+- `method` - a function or an array of functions to be executed at a specified point during request
+  processing. The required extension function signature is `function(request, reply)` where:
     - `request` - the incoming `request` object.
-    - `next` - the callback function the extension method must call to return control over to the router with signature `function(exit)` where:
-        - `exit` - optional request processing exit response. If set to a non-falsy value, the request lifecycle process will jump to the
-          "send response" step, skipping all other steps in between, and using the `exit` value as the new response. `exit` can be any result
-          value accepted by [`reply()`](#replyresult).
-    - `this` - the object provided via `options.bind`.
+    - `reply` - the `reply()` interface which is used to return control back to the framework. To
+      continue normal execution of the request lifecycle, `reply.continue()` must be called. To
+      abort processing and return a response to the client, call `reply(value)` where value is an
+      error or any other valid response.
+    - `this` - the object provided via `options.bind` or the current active context set with
+      `server.bind()`.
 - `options` - an optional object with the following:
-    - `before` - a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed
-      in the order added.
-    - `after` - a string or array of strings of plugin names this method must execute after (on the same event). Otherwise, extension methods are executed
-      in the order added.
-    - `bind` - any value passed back to the provided method (via `this`) when called.
+    - `before` - a string or array of strings of plugin names this method must execute before (on
+      the same event). Otherwise, extension methods are executed in the order added.
+    - `after` - a string or array of strings of plugin names this method must execute after (on the
+      same event). Otherwise, extension methods are executed in the order added.
+    - `bind` - a context object passed back to the provided method (via `this`) when called.
 
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 server.ext('onRequest', function (request, next) {
 
@@ -643,7 +814,6 @@ server.start();
 // All requests will get routed to '/test'
 ```
 
-
 #### `server.handler(name, method)`
 
 Registers a new handler type which can then be used in routes. Overriding the built in handler types (`directory`, `file`, `proxy`, and `view`),
@@ -661,7 +831,7 @@ and returns the route default configuration.
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-        server.connection('localhost', 8000);
+        server.connection({ host: 'localhost', port: 8000 });
 
 // Defines new handler for routes on this server
 server.handler('test', function (route, options) {
@@ -716,7 +886,7 @@ testing purposes as well as for invoking routing logic internally without the ov
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 var get = function (request, reply) {
 
@@ -745,7 +915,7 @@ event which can be used by other listeners or plugins to record the information 
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 server.on('log', function (event, tags) {
 
@@ -891,7 +1061,7 @@ Utilizes the server views engine configured to render a template where:
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 server.views({
     engines: { html: require('handlebars') },
     path: __dirname + '/templates'
@@ -995,7 +1165,7 @@ ready for new connections. If the server is already started, the `callback()` is
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 server.start(function () {
 
     console.log('Server started at: ' + server.info.uri);
@@ -1383,117 +1553,6 @@ exports.register.attributes = {
 
 
 
-### Connection options
-
-When creating a server instance, the following options configure the server's behavior:
-
-- `host` - the hostname, IP address, or path to UNIX domain socket the server is bound to. Defaults to `0.0.0.0` which
-  means any available network interface. Set to `127.0.0.1` or `localhost` to restrict connection to those coming from
-  the same machine. If `host` contains a '/' character, it is used as a UNIX domain socket path and if it starts with
-  '\\.\pipe' as a Windows named pipe.
-- `port` - the TCP port the server is listening to. Defaults to port `80` for HTTP and to `443` when TLS is configured.
-  To use an ephemeral port, use `0` and once the server is started, retrieve the port allocation via `server.info.port`.
-
-- `app` - application-specific configuration which can later be accessed via `server.settings.app`. Provides a safe
-  place to store application configuration without potential conflicts with **hapi**. Should not be used by plugins which
-  should use `plugins[name]`. Note the difference between `server.settings.app` which is used to store configuration value
-  and `server.app` which is meant for storing run-time state.
-
-- `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make cross-origin API
-  calls. CORS is required by web applications running inside a browser which are loaded from a different domain than the API
-  server. CORS headers are disabled by default. To enable, set `cors` to `true`, or to an object with the following options:
-    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The array can contain any combination of fully qualified origins
-      along with origin strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin `['*']`.
-    - `isOriginExposed` - if `false`, prevents the server from returning the full list of non-wildcard `origin` values if the incoming origin header
-      does not match any of the values. Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
-    - `matchOrigin` - if `false`, returns the list of `origin` values without attempting to match the incoming origin value. Cannot be used with
-      wildcard `origin` values. Defaults to `true`.
-    - `maxAge` - number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it
-      will take before the browser checks for changes in policy. Defaults to `86400` (one day).
-    - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
-    - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep the default headers in place.
-    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods'). Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
-    - `additionalMethods` - a strings array of additional methods to `methods`. Use this to keep the default methods in place.
-    - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers'). Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
-    - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this to keep the default headers in place.
-    - `credentials` - if `true`, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to `false`.
-
-- `security` - sets some common security related headers. All headers are disabled by default. To enable set `security` to `true` or to an object with
-  the following options:
-    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be set to `max-age=15768000`, if specified as a number
-      the maxAge parameter will be set to that number. Defaults to `true`. You may also specify an object with the following fields:
-        - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
-        - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains` flag to the header.
-    - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will be set to `DENY`, you may also specify a string value of
-      'deny' or 'sameorigin'. To use the 'allow-from' rule, you must set this to an object with the following fields:
-        - `rule` - either 'deny', 'sameorigin', or 'allow-from'
-        - `source` - when `rule` is 'allow-from' this is used to form the rest of the header, otherwise this field is ignored. If `rule` is 'allow-from'
-          but `source` is unset, the rule will be automatically changed to 'sameorigin'.
-    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which sets the header to equal '1; mode=block'. NOTE: This setting can create a security vulnerability in versions of IE below 8, as well as unpatched versions of IE8. See [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/) and [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If you actively support old versions of IE, it may be wise to explicitly set this flag to `false`.
-    - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing downloads from executing in your context. Defaults to `true` setting
-      the header to 'noopen'.
-    - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting the header to its only and default option, 'nosniff'.
-
-- <a name="server.config.files"></a>`files` - defines the behavior for serving static resources using the built-in route handlers for files and directories:
-    - `relativeTo` - determines the folder relative paths are resolved against when using the file and directory handlers.
-
-- `json` - optional arguments passed to `JSON.stringify()` when converting an object or error response to a string payload. Supports the following:
-    - `replacer` - the replacer function or array. Defaults to no action.
-    - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
-
-- `labels` - a string array of labels used when registering plugins to [`server.select()`](#pluginselectlabels) matching server labels. Defaults
-  to an empty array `[]` (no labels).
-
-- `load` - server load limits configuration where:
-    - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-    - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-    - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response.
-      Defaults to `0` (no limit).
-
-- `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to include a valid caching directive. Defaults to `[200]`.
-
-- <a name="server.config.payload"></a>`payload` - controls how incoming payloads (request body) are processed:
-    - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run
-      out of memory. Defaults to `1048576` (1MB).
-    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
-
-- `plugins` - plugin-specific configuration which can later be accessed by `server.plugins`. Provides a place to store and pass plugin configuration that
-  is at server-level. The `plugins` is an object where each key is a plugin name and the value is the configuration. Note the difference between
-  `server.settings.plugins` which is used to store configuration value and `server.plugins` which is meant for storing run-time state.
-
-- <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched against the routing table:
-    - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered different resources. Defaults to `true`.
-    - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
-
-- <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to store information on the client which is sent back to
-  the server with every request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
-    - `cookies` - The server automatically parses incoming cookies based on these options:
-        - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the `request.state` object. Defaults to `true`.
-        - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
-            - `'error'` - return a Bad Request (400) error response. This is the default value.
-            - `'log'` - report the error but continue processing the request.
-            - `'ignore'` - take no action.
-        - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies. Defaults to `false`.
-        - `strictHeader` - if `false`, allows any cookie value including values in violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
-
-- `timeout` - define timeouts for processing durations:
-    - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming client request before giving
-      up and responding with a Service Unavailable (503) error response. Disabled by default (`false`).
-    - `client` - request timeout in milliseconds. Sets the maximum time allowed for the client to transmit the request payload (body) before giving up
-      and responding with a Request Timeout (408) error response. Set to `false` to disable. Can be customized on a per-route basis using the route
-      `payload.timeout` configuration. Defaults to `10000` (10 seconds).
-    - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to override this behavior. Defaults to `undefined`
-      which leaves the node default unchanged. Set to `false` to disable socket timeouts.
-
-- `tls` - used to create an HTTPS server. The `tls` object is passed unchanged as options to the node.js HTTPS server as described in the
-  [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
-
-- `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global options such as `stripUnknown` or `abortEarly`
-  (the complete list is available [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no options.
-
-
-
-
 
 #### `server.route(options)`
 
@@ -1793,7 +1852,7 @@ The following options are available when adding a route:
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 // Handler in top level
 
@@ -1939,7 +1998,7 @@ those methods are called in parallel. `pre` can be assigned a mixed array of:
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 var pre1 = function (request, reply) {
 
@@ -1984,7 +2043,7 @@ method or all methods. Only one catch-all route can be defined per server instan
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 var handler = function (request, reply) {
 
@@ -2106,7 +2165,7 @@ Methods are registered via `server.method(name, fn, [options])` where:
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 // Simple arguments
 
@@ -2297,7 +2356,7 @@ _Available only in `'onRequest'` extension methods._
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 server.ext('onRequest', function (request, next) {
 
@@ -2318,7 +2377,7 @@ Changes the request method before the router begins processing the request where
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 server.ext('onRequest', function (request, next) {
 
@@ -2344,7 +2403,7 @@ arguments are:
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 server.on('request', function (request, event, tags) {
 
@@ -2391,7 +2450,7 @@ When all tails completed, the server emits a `'tail'` event.
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 var get = function (request, reply) {
 
@@ -2425,7 +2484,7 @@ The request object supports the following events:
 var Crypto = require('crypto');
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 server.ext('onRequest', function (request, reply) {
 
@@ -2574,7 +2633,7 @@ The [response flow control rules](#flow-control) apply.
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 server.views({
     engines: { html: require('handlebars') },
     path: __dirname + '/templates'
@@ -2777,7 +2836,7 @@ The response object supports the following events:
 var Crypto = require('crypto');
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 
 server.ext('onPreResponse', function (request, reply) {
 
@@ -2844,7 +2903,7 @@ response object.
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
-server.connection();
+server.connection({ port: 80 });
 server.views({
     engines: {
         html: require('handlebars')
