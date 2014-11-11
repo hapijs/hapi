@@ -947,7 +947,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var cache = server.cache('test', { expiresIn: 1000 });
+            var cache = server.cache({ segment: 'test', expiresIn: 1000 });
             server.start(function () {
 
                 cache.set('a', 'going in', 0, function (err) {
@@ -965,11 +965,22 @@ describe('Plugin', function () {
             });
         });
 
+        it('throws when missing segment', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.cache({ expiresIn: 1000 });
+            }).to.throw('Missing cache segment name');
+            done();
+        });
+
         it('provisions a server cache with custom partition', function (done) {
 
             var server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
             server.connection();
-            var cache = server.cache('test', { expiresIn: 1000 });
+            var cache = server.cache({ segment: 'test', expiresIn: 1000 });
             server.start(function () {
 
                 cache.set('a', 'going in', 0, function (err) {
@@ -994,7 +1005,7 @@ describe('Plugin', function () {
             server.connection();
             expect(function () {
 
-                server.cache('a', { expiresAt: '12:00', expiresIn: 1000 });
+                server.cache({ segment: 'a', expiresAt: '12:00', expiresIn: 1000 });
             }).throws();
 
             done();
@@ -1006,20 +1017,32 @@ describe('Plugin', function () {
             server.connection();
             expect(function () {
 
-                server.cache('a', {});
+                server.cache({ segment: 'a' });
             }).to.not.throw();
 
             done();
         });
 
-        it('allows reusing the same cache segment', function (done) {
+        it('allows reusing the same cache segment (server)', function (done) {
 
             var server = new Hapi.Server({ cache: { engine: CatboxMemory, shared: true } });
             server.connection();
             expect(function () {
 
-                var a1 = server.cache('a', { expiresIn: 1000 });
-                var a2 = server.cache('a', { expiresIn: 1000 });
+                var a1 = server.cache({ segment: 'a', expiresIn: 1000 });
+                var a2 = server.cache({ segment: 'a', expiresIn: 1000 });
+            }).to.not.throw();
+            done();
+        });
+
+        it('allows reusing the same cache segment (cache)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                var a1 = server.cache({ segment: 'a', expiresIn: 1000 });
+                var a2 = server.cache({ segment: 'a', expiresIn: 1000, shared: true });
             }).to.not.throw();
             done();
         });
@@ -1076,88 +1099,6 @@ describe('Plugin', function () {
                     });
                 });
             });
-        });
-    });
-
-    describe('_provisionCache()', function () {
-
-        it('throws when missing options', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(function () {
-
-                server._provisionCache();
-            }).to.throw('Invalid cache policy options');
-            done();
-        });
-
-        it('throws when creating method cache with invalid segment', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(function () {
-
-                server._provisionCache({ expiresIn: 1000 }, 'method', 'steve', 'bad');
-            }).to.throw('Server method cache segment must start with \'##\'');
-            done();
-        });
-
-        it('throws when creating plugin cache with invalid segment', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(function () {
-
-                server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', 'bad');
-            }).to.throw('Plugin cache segment must start with \'!!\'');
-            done();
-        });
-
-        it('uses custom method cache segment', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(function () {
-
-                server._provisionCache({ expiresIn: 1000 }, 'method', 'steve', '##method');
-            }).to.not.throw();
-            done();
-        });
-
-        it('uses custom plugin cache segment', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(function () {
-
-                server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
-            }).to.not.throw();
-            done();
-        });
-
-        it('throws when creating the same cache twice', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(function () {
-
-                server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
-                server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
-            }).to.throw('Cannot provision the same cache segment more than once');
-            done();
-        });
-
-        it('allows creating the same cache twice via cache options', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            expect(function () {
-
-                server._provisionCache({ expiresIn: 1000 }, 'plugin', 'steve', '!!plugin');
-                server._provisionCache({ expiresIn: 1000, shared: true }, 'plugin', 'steve', '!!plugin');
-            }).to.not.throw();
-            done();
         });
     });
 

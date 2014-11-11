@@ -144,7 +144,7 @@ describe('Server', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var cache = server.cache('test', { expiresIn: 1000 });
+            var cache = server.cache({ segment: 'test', expiresIn: 1000 });
             server.start(function () {
 
                 cache.set('a', 'going in', 0, function (err) {

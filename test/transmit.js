@@ -1673,8 +1673,8 @@ describe('transmission', function () {
 
             var server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
             server.connection();
-            var defaults = server.cache('a', { expiresIn: 2000 });
-            var primary = server.cache('a', { expiresIn: 2000, cache: 'primary' });
+            var defaults = server.cache({ segment: 'a', expiresIn: 2000 });
+            var primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
 
             server.start(function (err) {
 
