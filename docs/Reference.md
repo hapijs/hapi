@@ -1,14 +1,6 @@
 # 8.0.x API Reference
 
 
-## `Hapi.version`
-
-The **hapi** framework version number.
-
-```js
-var Hapi = require('hapi');
-console.log(Hapi.version);
-```
 
 ## `Hapi.Server`
 
@@ -533,6 +525,13 @@ Adds an incoming sever connection where:
   uses an available port when the server is started (and assigned to `server.info.port`). If `port`
   is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
   with '\\.\pipe' as a Windows named pipe.
+
+- `listener` - optional node.js HTTP (or HTTPS)
+  [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server) object or any compatible
+  object. If the `listener` needs to be manually started, set `autoListen` to `false`.
+
+- `autoListen` - indicates that the `connection.listener` will be started manually outside the
+  framework. Cannot be specified with a `port` setting. Defaults to `true`.
 
 - `app` - application-specific connection configuration which can be accessed via
   `connection.settings.app`. Provides a safe place to store application configuration without
@@ -1067,26 +1066,24 @@ exports.register = function (server, options, next) {
 #### `server.register(plugins, [options], callback)`
 
 Registers a plugin where:
-- `plugins` - a plugin object or array of plugin objects. The objects can use one of two formats:
-    - a module plugin object.
-    - a manually constructed plugin object. THIS IS NO LONGER TRUE
-- `options` - optional registration options (used by **hapi** and is not passed to the plugin):
-    - `select` - string or array of strings of labels to pre-select for plugin registration.
-    - `route` - apply modifiers to any routes added by the plugin:
-        - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin registers a child plugin
-          the `prefix` is passed on to the child or is added in front of the child-specific prefix.
-        - `vhost` - virtual host string (or array of strings) applied to every route. The outter-most `vhost` overrides the any
-          nested configuration.
+- `plugins` - an object or array of objects where each one is either:
+    - a plugin registration function.
+    - an object with the following:
+        - `register` - the plugin registration function.
+        - `options` - optional options passed to the registration function when called.
+- `options` - optional registration options (different from the options passed to the registration
+  function):
+    - `select` - a string or array of string labels used to pre-select connections for plugin
+      registration.
+    - `route` - modifiers applied to each route added by the plugin:
+        - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin
+          registers a child plugin the `prefix` is passed on to the child or is added in front of
+          the child-specific prefix.
+        - `vhost` - virtual host string (or array of strings) applied to every route. The outer-most
+          `vhost` overrides the any nested configuration.
 - `callback` - the callback function with signature `function(err)` where:
-    - `err` - an error returned from `exports.register()`. Note that incorrect usage, bad configuration, or namespace conflicts
-      (e.g. among routes, methods, state) will throw an error and will not return a callback.
-
-Module plugin is registered by passing the following object (or array of object) as `plugins`:
-- `plugin` - an object (usually obtained by calling node's `require()`) with:
-    - `register` - the [`exports.register()`](#exportsregisterplugin-options-next) function. The function must have an `attributes`
-      property with either `name` (and optional `version`) keys or `pkg` with the content of the module's 'package.json'.
-- `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next).
+    - `err` - an error returned from the registration function. Note that exceptions thrown by the
+      registration function are not handled by the framework.
 
 ```js
 server.pack.register({
@@ -1102,43 +1099,14 @@ server.pack.register({
  });
 ```
 
-Manually constructed plugin is an object containing:
-- `name` - plugin name.
-- `version` - an optional plugin version. Defaults to `'0.0.0'`.
-- `multiple` - an optional boolean indicating if the plugin is safe to register multiple time with the same server.
-  Defaults to `false`.
-- `register` - the [`register()`](#exportsregisterplugin-options-next) function.
-- `options` - optional configuration object which is passed to the plugin via the `options` argument in
-  [`exports.register()`](#exportsregisterplugin-options-next).
-
-```js
-server.pack.register({
-    name: 'test',
-    version: '2.0.0',
-    register: function (server, options, next) {
-
-        server.route({ method: 'GET', path: '/special', handler: function (request, reply) { reply(options.message); } });
-        next();
-    },
-    options: {
-        message: 'hello'
-    }
-}, function (err) {
-
-    if (err) {
-        console.log('Failed loading plugin');
-    }
-});
-```
-
-
-
 #### `server.render(template, context, [options], callback)`
 
-Utilizes the server views engine configured to render a template where:
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#serverviewsoptions).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration.
+Utilizes the server views manager to render a template where:
+- `template` - the template filename and path, relative to the views manager templates path (`path`
+  or `relativeTo`).
+- `context` - optional object used by the template to render context-specific result. Defaults to
+  no context (`{}`).
+- `options` - optional object used to override the views manager configuration.
 - `callback` - the callback function with signature `function (err, rendered, config)` where:
     - `err` - the rendering error if any.
     - `rendered` - the result view string.
@@ -1164,150 +1132,106 @@ server.render('hello', context, function (err, rendered, config) {
 });
 ```
 
----
-
-Utilizes the plugin views engine configured to render a template where:
-- `template` - the template filename and path, relative to the templates path configured via ['server.views()`](#pluginviewsoptions).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the plugin's ['server.views()`](#pluginviewsoptions) configuration.
-- `callback` - the callback function with signature `function (err, rendered, config)` where:
-    - `err` - the rendering error if any.
-    - `rendered` - the result view string.
-    - `config` - the configuration used to render the template.
-
-```js
-exports.register = function (server, options, next) {
-
-    server.views({
-        engines: {
-            html: {
-              module: require('handlebars').create()
-            }
-        },
-        path: './templates'
-    });
-
-    server.render('hello', context, function (err, rendered, config) {
-
-        console.log(rendered);
-        next();
-    });
-};
-```
-
 #### `server.route(options)`
 
-Adds a server route to the selected pack's servers as described in [`server.route(options)`](#serverrouteoptions).
-
-```js
-exports.register = function (server, options, next) {
-
-    var selection = server.select('web');
-    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    next();
-};
-```
-
-#### `server.route(routes)`
-
-Adds multiple server routes to the selected pack's servers as described in [`server.route(routes)`](#serverrouteroutes).
-
-```js
-exports.register = function (server, options, next) {
-
-    var selection = server.select('admin');
-    selection.route([
-        { method: 'GET', path: '/1', handler: function (request, reply) { reply('ok'); } },
-        { method: 'GET', path: '/2', handler: function (request, reply) { reply('ok'); } }
-    ]);
-
-    next();
-};
-```
-
-#### `server.select(labels)`
-
-Selects a subset of pack servers using the servers' `labels` configuration option where:
-
-- `labels` - a single string or array of strings of labels used as a logical OR statement to select all the servers with matching
-  labels in their configuration.
-
-Returns a new `plugin` interface with only access to the [selectable methods and properties](#selectable-methods-and-properties).
-Selecting again on a selection operates as a logic AND statement between the individual selections.
-
-```js
-exports.register = function (server, options, next) {
-
-    var selection = server.select('web');
-    selection.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); } });
-    next();
-};
-```
-#### `server.start([callback])`
-
-Starts the server by listening for incoming connections on the configured port. If provided, `callback()` is called once the server is
-ready for new connections. If the server is already started, the `callback()` is called on the next tick.
+Adds a connection route where:
+- `options` - a route configuration object or an array of configuration objects.
 
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
-server.start(function () {
+
+server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+server.route([
+    { method: 'GET', path: '/1', handler: function (request, reply) { return reply('ok'); } },
+    { method: 'GET', path: '/2', handler: function (request, reply) { return reply('ok'); } }
+]);
+```
+
+#### `server.select(labels)`
+
+Selects a subset of the server's connections where:
+- `labels` - a single string or array of strings of labels used as a logical OR statement to select
+  all the connections with matching labels in their configuration.
+
+Returns a server object with `connections` set to the requested subset. Selecting again on a
+selection operates as a logic AND statement between the individual selections.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80, labels: ['a', 'b'] });
+server.connection({ port: 8080, labels: ['a', 'c'] });
+server.connection({ port: 8081, labels: ['b', 'c'] });
+
+var a = server.select('a');     // 80, 8080
+var ac = a.select('c');         // 8080
+```
+
+#### `server.start([callback])`
+
+Starts the server connections by listening for incoming requests on the configured port of each
+listener (unless the connection was configured with `autoListen` set to `false`), where:
+- `callback` - optional callback when server startup is completed or failed with the signature
+  `function(err)` where:
+    - `err` - any startup error condition.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.start(function (err) {
 
     console.log('Server started at: ' + server.info.uri);
 });
 ```
 
----
-Starts all the servers in the pack and used as described in [`server.start([callback])`](#serverstartcallback).
-
-```js
-var Hapi = require('hapi');
-var pack = new Hapi.Server();
-
-pack.server(8000, { labels: ['web'] });
-pack.server(8001, { labels: ['admin'] });
-
-pack.start(function () {
-
-    console.log('All servers started');
-});
-```
-
 #### `server.state(name, [options])`
 
-[HTTP state management](http://tools.ietf.org/html/rfc6265) uses client cookies to persist a state across multiple requests. Cookie definitions
-can be registered with the server using the `server.state()` method, where:
-
-- `name` - is the cookie name.
+[HTTP state management](http://tools.ietf.org/html/rfc6265) uses client cookies to persist a state
+across multiple requests. Registers a cookie definitions where:
+- `name` - the cookie name string.
 - `options` - are the optional cookie settings:
-    - `ttl` - time-to-live in milliseconds. Defaults to `null` (session time-life - cookies are deleted when the browser is closed).
+    - `ttl` - time-to-live in milliseconds. Defaults to `null` (session time-life - cookies are
+      deleted when the browser is closed).
     - `isSecure` - sets the 'Secure' flag. Defaults to `false`.
     - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `false`.
     - `path` - the path scope. Defaults to `null` (no path).
     - `domain` - the domain scope. Defaults to `null` (no domain).
-    - `autoValue` - if present and the cookie was not received from the client or explicitly set by the route handler, the cookie is automatically
-      added to the response with the provided value. The value can be a function with signature `function(request, next)` where:
+    - `autoValue` - if present and the cookie was not received from the client or explicitly set by
+      the route handler, the cookie is automatically added to the response with the provided value.
+      The value can be a function with signature `function(request, next)` where:
         - `request` - the request object.
         - `next` - the continuation function using the `function(err, value)` signature.
     - `encoding` - encoding performs on the provided value before serialization. Options are:
-        - `'none'` - no encoding. When used, the cookie value must be a string. This is the default value.
+        - `'none'` - no encoding. When used, the cookie value must be a string. This is the default
+          value.
         - `'base64'` - string value is encoded using Base64.
         - `'base64json'` - object value is JSON-stringified than encoded using Base64.
         - `'form'` - object value is encoded using the _x-www-form-urlencoded_ method.
-        - `'iron'` - Encrypts and sign the value using [**iron**](https://github.com/hueniverse/iron).
-    - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not provide privacy, only a mean to verify that the cookie value
-      was generated by the server. Redundant when `'iron'` encoding is used. Options are:
-        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
+        - `'iron'` - Encrypts and sign the value using 
+          [**iron**](https://github.com/hueniverse/iron).
+    - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not
+      provide privacy, only a mean to verify that the cookie value was generated by the server.
+      Redundant when `'iron'` encoding is used. Options are:
+        - `integrity` - algorithm options. Defaults to
+          [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
         - `password` - password used for HMAC key generation.
     - `password` - password used for `'iron'` encoding.
-    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
+    - `iron` - options for `'iron'` encoding. Defaults to
+       [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
     - `failAction` - overrides the default server `state.cookies.failAction` setting.
     - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
     - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
     - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
 
 ```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
 // Set cookie definition
 
 server.state('session', {
@@ -1332,12 +1256,18 @@ var handler = function (request, reply) {
 };
 ```
 
-Registered cookies are automatically parsed when received. Parsing rules depends on the server [`state.cookies`](#server.config.state) configuration.
-If an incoming registered cookie fails parsing, it is not included in `request.state`, regardless of the `state.cookies.failAction` setting.
-When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit a `'request'` event. To capture these errors
-subscribe to the `'request'` events and filter on `'error'` and `'state'` tags:
+Registered cookies are automatically parsed when received. Parsing rules depends on the connection
+[`state.cookies`](#server.config.state) configuration. If an incoming registered cookie fails
+parsing, it is not included in `request.state`, regardless of the `state.cookies.failAction`
+setting. When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received,
+the server will emit a `'request'` event. To capture these errors subscribe to the `'request'`
+events and filter on `'error'` and `'state'` tags:
 
 ```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
 server.on('request', function (request, event, tags) {
 
     if (tags.error && tags.state) {
@@ -1346,109 +1276,152 @@ server.on('request', function (request, event, tags) {
 });
 ```
 
-
 #### `server.stop([options], [callback])`
 
-Stops the server by refusing to accept any new connections. Existing connections will continue until closed or timeout (defaults to 5 seconds).
-Once the server stopped, all the connections have ended, and it is safe to exit the process, the callback (if provided) is called. If the server
-is already stopped, the `callback()` is called on the next tick.
-
-The optional `options` object supports:
-
-- `timeout` - overrides the timeout in millisecond before forcefully terminating a connection. Defaults to `5000` (5 seconds).
+Stops the server's connections by refusing to accept any new connections (existing connections will
+continue until closed or timeout), where:
+- `options` - optional object with:
+    - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
+      Defaults to `5000` (5 seconds).
+- `callback` - optional callback method with signature `function()` which is called once all the
+  connections have ended and it is safe to exit the process.
 
 ```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
 server.stop({ timeout: 60 * 1000 }, function () {
 
     console.log('Server stopped');
 });
 ```
 
----
-
-Stops all the servers in the pack and used as described in [`server.stop([options], [callback])`](#serverstopoptions-callback).
-
-```js
-pack.stop({ timeout: 60 * 1000 }, function () {
-
-    console.log('All servers stopped');
-});
-```
-
 #### `server.table([host])`
 
 Returns a copy of the routing table where:
-- `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual hosts.
+- `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual
+  hosts.
 
-The return value is an array of routes where each route contains:
+The return value is an object where each key is the `connection.info.uri` value of each connection
+and the value is an array of routes where each route contains:
 - `settings` - the route config with defaults applied.
 - `method` - the HTTP method in lower case.
 - `path` - the route path.
 
 ```js
-var table = server.table()
-console.log(table);
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80, host: 'example.com' });
+server.route({ method: 'GET', path: '/example', handler: function (request, reply) { return reply(); } });
 
-/*  Output:
+var table = server.table();
 
-    [{
-        method: 'get',
-        path: '/test/{p}/end',
-        settings: {
-            handler: [Function],
+/*
+    {
+        'http://example.com:80': [
+            {
+                method: 'get',
+                path: '/example',
+                settings: { ... }
+            }
+        ]
+    }
+*/
+```
+
+When calling `connection.table()` directly on each connection, the return value is the same as the
+array value assigned to each connection record:
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80, host: 'example.com' });
+server.route({ method: 'GET', path: '/example', handler: function (request, reply) { return reply(); } });
+
+var table = server.connections[0].table();
+
+/*
+    [
+        {
             method: 'get',
-            plugins: {},
-            app: {},
-            validate: {},
-            payload: { output: 'stream' },
-            auth: undefined,
-            cache: [Object] }
-    }] */
+            path: '/example',
+            settings: { ... }
+        }
+    ]
+*/
 ```
 
 #### `server.views(options)`
 
 Initializes the server views manager where:
-
 - `options` - a configuration object with the following:
-    - `engines` - (required) an object where each key is a file extension (e.g. 'html', 'hbr'), mapped to the npm module used for
-      rendering the templates. Alternatively, the extension can be mapped to an object with the following options:
-        - `module` - the npm module used for rendering the templates. The module object must contain:
-            - `compile()` - the rendering function. The required function signature depends on the `compileMode` settings. If the `compileMode` is
-              `'sync'`, the signature is `compile(template, options)`, the return value is a function with signature `function(context, options)`,
-              and the method is allowed to throw errors. If the `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
-              where `callback` has the signature `function(err, compiled)` where `compiled` is a function with signature
-              `function(context, options, callback)` and `callback` has the signature `function(err, rendered)`.
-        - any of the `views` options listed below (except `defaultExtension`) to override the defaults for a specific engine.
-    - `defaultExtension` - defines the default filename extension to append to template names when multiple engines are configured and not
-      explicit extension is provided for a given template. No default value.
-    - `path` - the root file path used to resolve and load the templates identified when calling `reply.view()`. Defaults to current working
-      directory.
-    - `partialsPath` - the root file path where partials are located. Partials are small segments of template code that can be nested and reused
-      throughout other templates. Defaults to no partials support (empty path).
-    - `helpersPath` - the directory path where helpers are located. Helpers are functions used within templates to perform transformations
-      and other data manipulations using the template context or other inputs. Each '.js' file in the helpers directory is loaded and the file name
-      is used as the helper name. The files must export a single method with the signature `function(context)` and return a string. Sub-folders are
-      not supported and are ignored. Defaults to no helpers support (empty path). Note that jade does not support loading helpers this way.
+    - `engines` - required object where each key is a file extension (e.g. 'html', 'hbr'), mapped
+      to the npm module used for rendering the templates. Alternatively, the extension can be
+      mapped to an object with the following options:
+        - `module` - the npm module used for rendering the templates. The module object must
+          contain:
+            - `compile()` - the rendering function. The required function signature depends on the
+              `compileMode` settings. If the `compileMode` is `'sync'`, the signature is
+              `compile(template, options)`, the return value is a function with signature
+              `function(context, options)`, and the method is allowed to throw errors. If the
+              `compileMode` is `'async'`, the signature is `compile(template, options, callback)`
+              where `callback` has the signature `function(err, compiled)` where `compiled` is a
+              function with signature `function(context, options, callback)` and `callback` has the
+              signature `function(err, rendered)`.
+        - any of the `views` options listed below (except `defaultExtension`) to override the
+          defaults for a specific engine.
+    - `defaultExtension` - defines the default filename extension to append to template names when
+      multiple engines are configured and not explicit extension is provided for a given template.
+      No default value.
+    - `path` - the root file path used to resolve and load the templates identified when calling
+      `reply.view()`. Defaults to current working directory.
+    - `partialsPath` - the root file path where partials are located. Partials are small segments
+      of template code that can be nested and reused throughout other templates. Defaults to no
+      partials support (empty path).
+    - `helpersPath` - the directory path where helpers are located. Helpers are functions used
+      within templates to perform transformations and other data manipulations using the template
+      context or other inputs. Each '.js' file in the helpers directory is loaded and the file name
+      is used as the helper name. The files must export a single method with the signature
+      `function(context)` and return a string. Sub-folders are not supported and are ignored.
+      Defaults to no helpers support (empty path). Note that jade does not support loading helpers
+      this way.
     - `relativeTo` - a base path used as prefix for `path` and `partialsPath`. No default.
-    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a single template file used as the parent template
-      for other view templates in the same engine. If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's extension.
-      Otherwise, the provided filename is suffixed with the engine's extension and loaded. Disable `layout` when using Jade as it will handle
-      including any layout files independently. Defaults to `false`.
-    - `layoutPath` - the root file path where layout templates are located (using the `relativeTo` prefix if present). Defaults to `path`.
-    - `layoutKeyword` - the key used by the template engine to denote where primary template content should go. Defaults to `'content'`.
-    - `encoding` - the text encoding used by the templates when reading the files and outputting the result. Defaults to `'utf8'`.
-    - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on every use). Defaults to `true`.
-    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to `reply.view()`. Defaults to `false`.
-    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to contain '../'. Defaults to `false`.
-    - `compileOptions` - options object passed to the engine's compile function. Defaults to empty options `{}`.
-    - `runtimeOptions` - options object passed to the returned function from the compile operation. Defaults to empty options `{}`.
+    - `layout` - if set to `true` or a layout filename, layout support is enabled. A layout is a
+      single template file used as the parent template for other view templates in the same engine.
+      If `true`, the layout template name must be 'layout.ext' where 'ext' is the engine's
+      extension. Otherwise, the provided filename is suffixed with the engine's extension and
+      loaded. Disable `layout` when using Jade as it will handle including any layout files
+      independently. Defaults to `false`.
+    - `layoutPath` - the root file path where layout templates are located (using the `relativeTo`
+      prefix if present). Defaults to `path`.
+    - `layoutKeyword` - the key used by the template engine to denote where primary template
+      content should go. Defaults to `'content'`.
+    - `encoding` - the text encoding used by the templates when reading the files and outputting
+      the result. Defaults to `'utf8'`.
+    - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on
+      every use). Defaults to `true`.
+    - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to
+      `reply.view()`. Defaults to `false`.
+    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to
+      contain '../'. Defaults to `false`.
+    - `compileOptions` - options object passed to the engine's compile function. Defaults to empty
+      options `{}`.
+    - `runtimeOptions` - options object passed to the returned function from the compile operation.
+      Defaults to empty options `{}`.
     - `contentType` - the content type of the engine results. Defaults to `'text/html'`.
-    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`. Defaults to `'sync'`.
-    - `context` - a global context used with all templates. The global context option can be either an object or a function that takes no arguments and returns a context object. When rendering views, the global context will be merged with any context object specified on the handler or using `reply.view()`. When multiple context objects are used, values from the global context always have lowest precedence.
-
+    - `compileMode` - specify whether the engine `compile()` method is `'sync'` or `'async'`.
+      Defaults to `'sync'`.
+    - `context` - a global context used with all templates. The global context option can be either
+      an object or a function that takes no arguments and returns a context object. When rendering
+      views, the global context will be merged with any context object specified on the handler or
+      using `reply.view()`. When multiple context objects are used, values from the global context
+      always have lowest precedence.
 
 ```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+
 server.views({
     engines: {
         html: require('handlebars'),
@@ -1458,101 +1431,8 @@ server.views({
 });
 ```
 
----
-
-Generates a plugin-specific views manager for rendering templates where:
-- `options` - the views configuration as described in the server's [`views`](#serverviewsoptions) option. Note that due to the way node
-  `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option.
-
-Note that relative paths are relative to the plugin root, not the working directory or the application registering the server. This allows
-plugin the specify their own static resources without having to require external configuration.
-
-```js
-exports.register = function (server, options, next) {
-
-    server.views({
-        engines: {
-            html: {
-              module: require('handlebars').create()
-            }
-        },
-        path: './templates'
-    });
-
-    next();
-};
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+When `server.views()` is called within a plugin, the views manager is only available to plugins
+methods.
 
 
 
@@ -1625,6 +1505,76 @@ exports.register.attributes = {
     pkg: require('./package.json')
 };
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2285,6 +2235,33 @@ server.on('internalError', function (request, err) {
 });
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Request object
 
 The `request` object is created internally for each incoming request. It is **not** the node `request` object received from the HTTP
@@ -2506,6 +2483,35 @@ server.ext('onRequest', function (request, reply) {
 });
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Reply interface
 
 ### Flow control
@@ -2720,6 +2726,29 @@ var handler = function (request, reply) {
 
 Changing to a permanent or non-rewriterable redirect is also available see [response object redirect](#response-object-redirect) for more information.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Response object
 
 Every response includes the following properties:
@@ -2857,6 +2886,27 @@ server.ext('onPreResponse', function (request, reply) {
     });
 });
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## `Boom`
 
@@ -3025,4 +3075,16 @@ var handler = function (request, reply) {
 
     reply(result);
 };
+```
+
+
+
+
+## `Hapi.version`
+
+The **hapi** framework version number.
+
+```js
+var Hapi = require('hapi');
+console.log(Hapi.version);
 ```

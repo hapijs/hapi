@@ -35,27 +35,27 @@ describe('Plugin', function () {
             server.connection({ labels: ['s3', 'a', 'b', 'd'] });
             server.connection({ labels: ['s4', 'b', 'x'] });
 
-            var register = function (plugin, options, next) {
+            var register = function (server, options, next) {
 
-                var a = plugin.select('a');
+                var a = server.select('a');
                 var ab = a.select('b');
-                var memoryx = plugin.select('x', 's4');
-                var sodd = plugin.select(['s2', 's4']);
+                var memoryx = server.select('x', 's4');
+                var sodd = server.select(['s2', 's4']);
 
-                expect(plugin.connections.length).to.equal(4);
+                expect(server.connections.length).to.equal(4);
                 expect(a.connections.length).to.equal(3);
                 expect(ab.connections.length).to.equal(2);
                 expect(memoryx.connections.length).to.equal(1);
                 expect(sodd.connections.length).to.equal(2);
 
-                plugin.route({ method: 'GET', path: '/all', handler: function (request, reply) { return reply('all'); } });
+                server.route({ method: 'GET', path: '/all', handler: function (request, reply) { return reply('all'); } });
                 a.route({ method: 'GET', path: '/a', handler: function (request, reply) { return reply('a'); } });
                 ab.route([{ method: 'GET', path: '/ab', handler: function (request, reply) { return reply('ab'); } }]);
                 memoryx.route({ method: 'GET', path: '/memoryx', handler: function (request, reply) { return reply('memoryx'); } });
                 sodd.route({ method: 'GET', path: '/sodd', handler: function (request, reply) { return reply('sodd'); } });
 
                 memoryx.state('sid', { encoding: 'base64' });
-                plugin.method({
+                server.method({
                     name: 'testMethod', method: function (next) {
 
                         return next(null, '123');
@@ -66,7 +66,7 @@ describe('Plugin', function () {
 
                     expect(result).to.equal('123');
 
-                    plugin.methods.testMethod(function (err, result) {
+                    server.methods.testMethod(function (err, result) {
 
                         expect(result).to.equal('123');
                         return next();
@@ -142,7 +142,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
                 expect(options.something).to.be.true();
                 return next();
@@ -164,7 +164,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             expect(function () {
 
-                server.register({ register: function (plugin, options, next) { return next(); } }, function (err) { });
+                server.register({ register: function (server, options, next) { return next(); } }, function (err) { });
             }).to.throw('Invalid plugin object - invalid or missing register function attributes property');
 
             done();
@@ -172,7 +172,7 @@ describe('Plugin', function () {
 
         it('throws on bad plugin (missing name)', function (done) {
 
-            var register = function (plugin, options, next) {
+            var register = function (server, options, next) {
 
                 return next();
             };
@@ -190,7 +190,7 @@ describe('Plugin', function () {
 
         it('throws on bad plugin (empty pkg)', function (done) {
 
-            var register = function (plugin, options, next) {
+            var register = function (server, options, next) {
 
                 return next();
             };
@@ -213,7 +213,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
                 expect(options.something).to.be.true();
                 return next();
@@ -232,7 +232,7 @@ describe('Plugin', function () {
 
         it('returns plugin error', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
                 return next(new Error('from plugin'));
             };
@@ -253,9 +253,9 @@ describe('Plugin', function () {
 
         it('sets version to 0.0.0 if missing', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(plugin.version); } });
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(server.version); } });
                 return next();
             };
 
@@ -282,9 +282,9 @@ describe('Plugin', function () {
 
         it('prevents plugin from multiple registrations', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.route({ method: 'GET', path: '/a', handler: function (request, reply) { return reply('a'); } });
+                server.route({ method: 'GET', path: '/a', handler: function (request, reply) { return reply('a'); } });
                 return next();
             };
 
@@ -308,9 +308,9 @@ describe('Plugin', function () {
 
         it('allows plugin multiple registrations (attributes)', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.app.x = plugin.app.x ? plugin.app.x + 1 : 1;
+                server.app.x = server.app.x ? server.app.x + 1 : 1;
                 return next();
             };
 
@@ -406,9 +406,9 @@ describe('Plugin', function () {
 
         it('registers a plugin with route path prefix and plugin root route', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
                 return next();
             };
 
@@ -432,9 +432,9 @@ describe('Plugin', function () {
         it('ignores the type of the plugin value', function (done) {
 
             var a = function () { };
-            a.register = function (plugin, options, next) {
+            a.register = function (server, options, next) {
 
-                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
                 return next();
             };
 
@@ -542,9 +542,9 @@ describe('Plugin', function () {
             var server1 = server.connections[0];
             var server2 = server.connections[1];
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
                 return next();
             };
 
@@ -578,10 +578,10 @@ describe('Plugin', function () {
             var server2 = server.connections[1];
             var server3 = server.connections[2];
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
-                plugin.expose('super', 'trooper');
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.expose('super', 'trooper');
                 return next();
             };
 
@@ -615,9 +615,9 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in one statement', function (done) {
 
-            var a = function (plugin, options, next) {
+            var a = function (server, options, next) {
 
-                plugin.dependency(['b', 'c']);
+                server.dependency(['b', 'c']);
                 return next();
             };
 
@@ -625,7 +625,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (plugin, options, next) {
+            var b = function (server, options, next) {
 
                 return next();
             };
@@ -634,7 +634,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (plugin, options, next) {
+            var c = function (server, options, next) {
 
                 return next();
             };
@@ -659,10 +659,10 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in multiple statements', function (done) {
 
-            var a = function (plugin, options, next) {
+            var a = function (server, options, next) {
 
-                plugin.dependency('b');
-                plugin.dependency('c');
+                server.dependency('b');
+                server.dependency('c');
                 return next();
             };
 
@@ -670,7 +670,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (plugin, options, next) {
+            var b = function (server, options, next) {
 
                 return next();
             };
@@ -679,7 +679,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (plugin, options, next) {
+            var c = function (server, options, next) {
 
                 return next();
             };
@@ -707,9 +707,9 @@ describe('Plugin', function () {
 
         it('calls method after plugin', function (done) {
 
-            var x = function (plugin, options, next) {
+            var x = function (server, options, next) {
 
-                plugin.expose('a', 'b');
+                server.expose('a', 'b');
                 return next();
             };
 
@@ -781,14 +781,14 @@ describe('Plugin', function () {
 
         it('fails to start server when after method fails', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.after(function (plugin, finish) {
+                server.after(function (server, finish) {
 
                     return finish();
                 });
 
-                plugin.after(function (plugin, finish) {
+                server.after(function (server, finish) {
 
                     return finish(new Error('Not in the mood'));
                 });
@@ -845,14 +845,14 @@ describe('Plugin', function () {
 
         it('sets plugin context', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
                 var bind = {
                     value: 'in context',
                     suffix: ' throughout'
                 };
 
-                plugin.route({
+                server.route({
                     method: 'GET',
                     path: '/',
                     handler: function (request, reply) {
@@ -861,12 +861,12 @@ describe('Plugin', function () {
                     }
                 });
 
-                plugin.ext('onPreResponse', function (request, reply) {
+                server.ext('onPreResponse', function (request, reply) {
 
                     return reply(request.response.source + this.suffix);
                 });
 
-                plugin.bind(bind);        // Call last to test late binding
+                server.bind(bind);        // Call last to test late binding
 
                 return next();
             };
@@ -997,10 +997,10 @@ describe('Plugin', function () {
 
         it('uses plugin cache interface', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                var cache = plugin.cache({ expiresIn: 10 });
-                plugin.expose({
+                var cache = server.cache({ expiresIn: 10 });
+                server.expose({
                     get: function (key, callback) {
 
                         cache.get(key, function (err, value, cached, report) {
@@ -1055,9 +1055,9 @@ describe('Plugin', function () {
 
         it('fails to register single plugin with dependencies', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.dependency('none');
+                server.dependency('none');
                 return next();
             };
 
@@ -1093,16 +1093,16 @@ describe('Plugin', function () {
 
         it('recognizes dependencies from peer plugins', function (done) {
 
-            var a = function (plugin, options, next) {
+            var a = function (server, options, next) {
 
-                plugin.register(b, next);
+                server.register(b, next);
             };
 
             a.attributes = {
                 name: 'a'
             };
 
-            var b = function (plugin, options, next) {
+            var b = function (server, options, next) {
 
                 return next();
             };
@@ -1111,9 +1111,9 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (plugin, options, next) {
+            var c = function (server, options, next) {
 
-                plugin.dependency('b');
+                server.dependency('b');
                 return next();
             };
 
@@ -1132,18 +1132,18 @@ describe('Plugin', function () {
 
         it('errors when missing inner dependencies', function (done) {
 
-            var a = function (plugin, options, next) {
+            var a = function (server, options, next) {
 
-                plugin.register(b, next);
+                server.register(b, next);
             };
 
             a.attributes = {
                 name: 'a'
             };
 
-            var b = function (plugin, options, next) {
+            var b = function (server, options, next) {
 
-                plugin.dependency('c');
+                server.dependency('c');
                 return next();
             };
 
@@ -1168,9 +1168,9 @@ describe('Plugin', function () {
 
         it('plugin event handlers receive more than 2 arguments when they exist', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.once('request', function () {
+                server.once('request', function () {
 
                     expect(arguments).to.have.length(3);
                     done();
@@ -1204,14 +1204,14 @@ describe('Plugin', function () {
             var server3 = server.connections[2];
 
             var counter = 0;
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.select(['a', 'b']).on('test', function () {
+                server.select(['a', 'b']).on('test', function () {
 
                     ++counter;
                 });
 
-                plugin.select(['a']).on('start', function () {
+                server.select(['a']).on('start', function () {
 
                     ++counter;
                 });
@@ -1273,10 +1273,10 @@ describe('Plugin', function () {
 
         it('extends onRequest point', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.route({ method: 'GET', path: '/b', handler: function (request, reply) { return reply('b'); } });
-                plugin.ext('onRequest', function (request, reply) {
+                server.route({ method: 'GET', path: '/b', handler: function (request, reply) { return reply('b'); } });
+                server.ext('onRequest', function (request, reply) {
 
                     request.setUrl('/b');
                     return reply.continue();
@@ -1353,9 +1353,9 @@ describe('Plugin', function () {
 
         it('add new handler', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.handler('bar', function (route, options) {
+                server.handler('bar', function (route, options) {
 
                     return function (request, reply) {
 
@@ -1611,9 +1611,9 @@ describe('Plugin', function () {
         it('emits server log events once', function (done) {
 
             var pc = 0;
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.on('log', function (event, tags) {
+                server.on('log', function (event, tags) {
 
                     ++pc;
                 });
@@ -1652,9 +1652,9 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.method('log', function (methodNext) { return methodNext(null); });
+                server.method('log', function (methodNext) { return methodNext(null); });
                 return next();
             };
 
@@ -1674,10 +1674,10 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.bind({ x: 1 });
-                plugin.method('log', function (methodNext) { return methodNext(null, this.x); });
+                server.bind({ x: 1 });
+                server.method('log', function (methodNext) { return methodNext(null, this.x); });
                 return next();
             };
 
@@ -1701,9 +1701,9 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
+                server.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
                 return next();
             };
 
@@ -1727,10 +1727,10 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.bind({ x: 1 });
-                plugin.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
+                server.bind({ x: 1 });
+                server.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
                 return next();
             };
 
@@ -1754,11 +1754,11 @@ describe('Plugin', function () {
 
         it('sets local path for directory route handler', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.path(Path.join(__dirname, '..'));
+                server.path(Path.join(__dirname, '..'));
 
-                plugin.route({
+                server.route({
                     method: 'GET',
                     path: '/handler/{file*}',
                     handler: {
@@ -1790,9 +1790,9 @@ describe('Plugin', function () {
 
         it('throws when plugin sets undefined path', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.path();
+                server.path();
                 return next();
             };
 
@@ -1847,16 +1847,16 @@ describe('Plugin', function () {
 
         it('renders view (plugin)', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.views({
+                server.views({
                     engines: { 'html': Handlebars },
                     relativeTo: Path.join(__dirname, '/templates/plugin')
                 });
 
-                var view = plugin.render('test', { message: 'steve' }, function (err, rendered, config) {
+                var view = server.render('test', { message: 'steve' }, function (err, rendered, config) {
 
-                    plugin.route([
+                    server.route([
                         {
                             path: '/view', method: 'GET', handler: function (request, reply) {
 
@@ -1888,15 +1888,15 @@ describe('Plugin', function () {
 
         it('renders view (plugin with options)', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.views({
+                server.views({
                     engines: { 'html': Handlebars }
                 });
 
-                var view = plugin.render('test', { message: 'steve' }, { relativeTo: Path.join(__dirname, '/templates/plugin') }, function (err, rendered, config) {
+                var view = server.render('test', { message: 'steve' }, { relativeTo: Path.join(__dirname, '/templates/plugin') }, function (err, rendered, config) {
 
-                    plugin.route([
+                    server.route([
                         {
                             path: '/view', method: 'GET', handler: function (request, reply) {
 
@@ -1931,21 +1931,21 @@ describe('Plugin', function () {
 
         it('requires plugin with views', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.path(__dirname);
+                server.path(__dirname);
 
                 var views = {
                     engines: { 'html': Handlebars },
                     path: './templates/plugin'
                 };
 
-                plugin.views(views);
+                server.views(views);
                 if (Object.keys(views).length !== 2) {
                     return next(new Error('plugin.view() modified options'));
                 }
 
-                plugin.route([
+                server.route([
                     {
                         path: '/view', method: 'GET', handler: function (request, reply) {
 
@@ -1957,7 +1957,7 @@ describe('Plugin', function () {
                     }
                 ]);
 
-                plugin.ext('onRequest', function (request, reply) {
+                server.ext('onRequest', function (request, reply) {
 
                     if (request.path === '/ext') {
                         return reply.view('test', { message: 'grabbed' });
@@ -1998,14 +1998,14 @@ describe('Plugin', function () {
 
         it('requires plugin with views with specific relativeTo', function (done) {
 
-            var test = function (plugin, options, next) {
+            var test = function (server, options, next) {
 
-                plugin.views({
+                server.views({
                     engines: { 'html': Handlebars },
                     relativeTo: Path.join(__dirname, '/templates/plugin')
                 });
 
-                plugin.route([
+                server.route([
                     {
                         path: '/view', method: 'GET', handler: function (request, reply) {
 
@@ -2058,9 +2058,9 @@ internals.routesList = function (server, label) {
 
 
 internals.plugins = {
-    auth: function (plugin, options, next) {
+    auth: function (server, options, next) {
 
-        plugin.auth.scheme('basic', function (server, options) {
+        server.auth.scheme('basic', function (server, options) {
 
             var settings = Hoek.clone(options);
 
@@ -2116,30 +2116,30 @@ internals.plugins = {
             return callback(null, false);
         };
 
-        plugin.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
+        server.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
 
-        plugin.auth.scheme('special', function () { return { authenticate: function () { } }; });
-        plugin.auth.strategy('special', 'special', {});
+        server.auth.scheme('special', function () { return { authenticate: function () { } }; });
+        server.auth.strategy('special', 'special', {});
 
         return next();
     },
-    child: function (plugin, options, next) {
+    child: function (server, options, next) {
 
         if (options.route) {
-            return plugin.register(internals.plugins.test1, options, next);
+            return server.register(internals.plugins.test1, options, next);
         }
 
-        return plugin.register(internals.plugins.test1, next);
+        return server.register(internals.plugins.test1, next);
     },
-    deps1: function (plugin, options, next) {
+    deps1: function (server, options, next) {
 
-        plugin.dependency('deps2', function (plugin, next) {
+        server.dependency('deps2', function (server, next) {
 
-            plugin.expose('breaking', plugin.plugins.deps2.breaking);
+            server.expose('breaking', server.plugins.deps2.breaking);
             return next();
         });
 
-        plugin.select('a').ext('onRequest', function (request, reply) {
+        server.select('a').ext('onRequest', function (request, reply) {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '1|';
@@ -2148,22 +2148,22 @@ internals.plugins = {
 
         return next();
     },
-    deps2: function (plugin, options, next) {
+    deps2: function (server, options, next) {
 
-        plugin.select('b').ext('onRequest', function (request, reply) {
+        server.select('b').ext('onRequest', function (request, reply) {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '2|';
             return reply.continue();
         }, { after: 'deps3', before: 'deps1' });
 
-        plugin.expose('breaking', 'bad');
+        server.expose('breaking', 'bad');
 
         return next();
     },
-    deps3: function (plugin, options, next) {
+    deps3: function (server, options, next) {
 
-        plugin.select('c').ext('onRequest', function (request, reply) {
+        server.select('c').ext('onRequest', function (request, reply) {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '3|';
@@ -2172,35 +2172,35 @@ internals.plugins = {
 
         return next();
     },
-    test1: function (plugin, options, next) {
+    test1: function (server, options, next) {
 
         var handler = function (request, reply) {
 
-            return reply('testing123' + ((plugin.settings.app && plugin.settings.app.my) || ''));
+            return reply('testing123' + ((server.settings.app && server.settings.app.my) || ''));
         };
 
-        plugin.select('test').route({ path: '/test1', method: 'GET', handler: handler });
+        server.select('test').route({ path: '/test1', method: 'GET', handler: handler });
 
-        plugin.expose({
+        server.expose({
             add: function (a, b) {
 
                 return a + b;
             }
         });
 
-        plugin.expose('glue', function (a, b) {
+        server.expose('glue', function (a, b) {
 
             return a + b;
         });
 
-        plugin.expose('prefix', plugin.config.route.prefix);
+        server.expose('prefix', server.config.route.prefix);
 
         return next();
     },
-    test2: function (plugin, options, next) {
+    test2: function (server, options, next) {
 
-        plugin.route({ path: '/test2', method: 'GET', handler: function (request, reply) { return reply('testing123'); } });
-        plugin.log('test', 'abc');
+        server.route({ path: '/test2', method: 'GET', handler: function (request, reply) { return reply('testing123'); } });
+        server.log('test', 'abc');
         return next();
     }
 };
