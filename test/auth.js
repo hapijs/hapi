@@ -1024,7 +1024,7 @@ describe('authentication', function () {
 
             var handler = function (request, reply) {
 
-                request.connection.auth.test('default', request, function (err, credentials) {
+                request.server.auth.test('default', request, function (err, credentials) {
 
                     if (err) {
                         return reply({ status: false });

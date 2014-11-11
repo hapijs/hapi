@@ -428,10 +428,36 @@ Tests a request against an authentication strategy where:
     - `err` - the error if authentication failed.
     - `credentials` - the authentication credentials object if authentication was successful.
 
-#### `server.bind(bind)`
+```js
+var server = new Hapi.Server();
+server.connection(80);
 
-Sets a global plugin bind used as the default bind when adding a route or an extension using the plugin interface (if no
-explicit bind is provided as an option). The bind object is made available within the handler and extension methods via `this`.
+server.auth.scheme('custom', scheme);
+server.auth.strategy('default', 'custom');
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: function (request, reply) {
+    
+        request.server.auth.test('default', request, function (err, credentials) {
+
+            if (err) {
+                return reply({ status: false });
+            }
+
+            return reply({ status: true, user: credentials.name });
+        });
+    }
+});
+```
+
+#### `server.bind(context)`
+
+Sets a global context used as the default bind object when adding a route or an extension where:
+- `context` - the object used to bind `this` in handler and extension methods.
+
+When setting context inside a plugin, the context is applied only to methods set up by the plugin.
 
 ```js
 var handler = function (request, reply) {
@@ -453,8 +479,7 @@ exports.register = function (server, options, next) {
 
 #### `server.cache(name, options)`
 
-Provisions a server cache segment within the common caching facility where:
-
+Provisions a cache segment within the common caching facility where:
 - `options` - cache configuration as described in [**catbox** module documentation](https://github.com/hapijs/catbox#policy):
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
