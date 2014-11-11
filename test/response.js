@@ -87,6 +87,44 @@ describe('Response', function () {
         });
     });
 
+    it('calls every message processor', function (done) {
+
+        var didCall = {};
+
+        var marshall = function (response, callback) {
+
+            didCall.marshall = true;
+            callback(null, '');
+        };
+
+        var prepare = function (response, callback) {
+
+            didCall.prepare = true;
+            callback(response);
+        };
+
+        var close = function (response) {
+
+            didCall.close = true;
+        };
+
+        var handler = function (request, reply) {
+
+            reply(new Response.Message(null, request, { marshall: marshall, prepare: prepare, close: close }));
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+        server.inject('/', function (res) {
+
+            expect(didCall.prepare).to.exist();
+            expect(didCall.marshall).to.exist();
+            expect(didCall.close).to.exist();
+            done();
+        });
+    });
+
     describe('Text', function () {
 
         it('returns a reply', function (done) {
