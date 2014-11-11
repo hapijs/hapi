@@ -81,39 +81,39 @@ describe('Protect', function () {
 
         Hoek.inherits(Client, Events.EventEmitter);
 
-        var plugin = {
-            name: 'test',
-            version: '1.0.0',
-            register: function (plugin, options, next) {
+        var test = function (plugin, options, next) {
 
-                plugin.after(function (plugin, afterNext) {
+            plugin.after(function (plugin, afterNext) {
 
-                    var client = new Client();                      // Created in the global domain
-                    plugin.bind({ client: client });
-                    afterNext();
-                });
+                var client = new Client();                      // Created in the global domain
+                plugin.bind({ client: client });
+                afterNext();
+            });
 
-                plugin.route({
-                    method: 'GET',
-                    path: '/',
-                    handler: function (request, reply) {
+            plugin.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
 
-                        this.client.on('event', request.domain.bind(function () {
+                    this.client.on('event', request.domain.bind(function () {
 
-                            throw new Error('boom');                // Caught by the global domain by default, not request domain
-                        }));
+                        throw new Error('boom');                // Caught by the global domain by default, not request domain
+                    }));
 
-                        this.client.emit('event');
-                    }
-                });
+                    this.client.emit('event');
+                }
+            });
 
-                return next();
-            }
+            return next();
+        };
+
+        test.attributes = {
+            name: 'test'
         };
 
         var server = new Hapi.Server({ debug: false });
         server.connection();
-        server.register(plugin, function (err) {
+        server.register(test, function (err) {
 
             expect(err).to.not.exist();
 

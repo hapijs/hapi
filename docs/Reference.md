@@ -693,6 +693,7 @@ Extends various framework interfaces with custom methods where:
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
+server.connection({ port: 80 });
 
 server.decorate('reply', 'success', function () {
 
@@ -1034,14 +1035,25 @@ var add = function (a, b, next) {
     next(null, a + b);
 };
 
-server.method({ name: 'sum', method: add, options: { cache: { expiresIn: 2000 } } });
+server.method({
+    name: 'sum',
+    method: add,
+    options: {
+        cache: {
+            expiresIn: 2000
+        }
+    }
+});
 ```
 
-#### `server.path(path)`
+#### `server.path(relativeTo)`
 
-Sets the path prefix used to locate static resources (files and view templates) when relative paths are used by the plugin:
-- `path` - the path prefix added to any relative file path starting with `'.'`. The value has the same effect as using the server's
-  configuration `files.relativeTo` option but only within the server.
+Sets the path prefix used to locate static resources (files and view templates) when relative paths
+are used where:
+- `relativeTo` - the path prefix added to any relative file path starting with `'.'`.
+
+Note that setting a path within a plugin only applies to resources accessed by plugin methods.
+If no path is set, the connection `files.relativeTo` configuration is used.
 
 ```js
 exports.register = function (server, options, next) {
@@ -1055,7 +1067,6 @@ exports.register = function (server, options, next) {
 #### `server.register(plugins, [options], callback)`
 
 Registers a plugin where:
-
 - `plugins` - a plugin object or array of plugin objects. The objects can use one of two formats:
     - a module plugin object.
     - a manually constructed plugin object. THIS IS NO LONGER TRUE

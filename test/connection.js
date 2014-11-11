@@ -686,21 +686,22 @@ describe('Connection', function () {
                 return reply.view('test');
             });
 
-            var plugin = {
-                name: 'test',
-                register: function (plugin, options, next) {
+            var test = function (plugin, options, next) {
 
-                    plugin.views({
-                        engines: { html: Handlebars },
-                        path: './no_such_directory_found'
-                    });
+                plugin.views({
+                    engines: { html: Handlebars },
+                    path: './no_such_directory_found'
+                });
 
-                    plugin.route({ path: '/view', method: 'GET', handler: function (request, reply) { } });
-                    return next();
-                }
+                plugin.route({ path: '/view', method: 'GET', handler: function (request, reply) { } });
+                return next();
             };
 
-            server.register(plugin, function (err) {
+            test.attributes = {
+                name: 'test'
+            };
+
+            server.register(test, function (err) {
 
                 server.inject('/view', function (res) {
 
