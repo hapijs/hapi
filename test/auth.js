@@ -384,7 +384,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors with log option', function (done) {
+        it('logs error', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
@@ -1080,7 +1080,7 @@ internals.implementation = function (server, options) {
             var credentials = settings.users[username];
 
             if (!credentials) {
-                return reply(Boom.unauthorized('Missing credentials', 'Custom'), { log: { tags: ['auth', 'custom'], data: 'oops' } });
+                return reply(Boom.unauthorized('Missing credentials', 'Custom'));
             }
 
             if (credentials === 'skip') {
