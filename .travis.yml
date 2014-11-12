@@ -2,9 +2,4 @@ language: node_js
 
 node_js:
   - 0.10
-
-notifications:
-  irc:
-    channels:
-      - "irc.freenode.net#hapi"
-    skip_join: true
+  - 0.12
