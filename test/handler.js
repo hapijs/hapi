@@ -1,5 +1,6 @@
 // Load modules
 
+var Boom = require('boom');
 var Code = require('code');
 var Hapi = require('..');
 var Lab = require('lab');
@@ -18,552 +19,410 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('Handler', function () {
+describe('handler', function () {
 
-    it('shows the complete prerequisite pipeline in the response', function (done) {
+    describe('execute()', function () {
 
-        var pre1 = function (request, reply) {
+        it('returns 500 on handler exception (same tick)', function (done) {
 
-            reply('Hello').code(444);
-            reply();    // Ignored
-        };
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
 
-        var pre2 = function (request, reply) {
+            var handler = function (request) {
 
-            reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
-        };
+                var x = a.b.c;
+            };
 
-        var pre3 = function (request, reply) {
+            server.route({ method: 'GET', path: '/domain', handler: handler });
 
-            process.nextTick(function () {
+            server.inject('/domain', function (res) {
 
-                reply(' ');
+                expect(res.statusCode).to.equal(500);
+                done();
             });
-        };
-
-        var pre4 = function (request, reply) {
-
-            reply('World');
-        };
-
-        var pre5 = function (request, reply) {
-
-            reply(request.pre.m2 + '!');
-        };
-
-        var handler = function (request, reply) {
-
-            reply(request.pre.m5);
-        };
-
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    [
-                        { method: pre1, assign: 'm1' },
-                        { method: pre3, assign: 'm3' },
-                        { method: pre4, assign: 'm4' }
-                    ],
-                    { method: pre2, assign: 'm2' },
-                    { method: pre5, assign: 'm5' }
-                ],
-                handler: handler
-            }
         });
 
-        server.inject('/', function (res) {
+        it('returns 500 on handler exception (next tick)', { parallel: false }, function (done) {
 
-            expect(res.result).to.equal('Hello World!');
-            done();
-        });
-    });
+            var handler = function (request) {
 
-    it('shows a single prerequisite when only one is used', function (done) {
+                setImmediate(function () {
 
-        var pre = function (request, reply) {
+                    var x = not.here;
+                });
+            };
 
-            reply('Hello');
-        };
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.on('internalError', function (request, err) {
 
-        var handler = function (request, reply) {
-
-            reply(request.pre.p);
-        };
-
-        var server = new Hapi.Server();
-
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    { method: pre, assign: 'p' }
-                ],
-                handler: handler
-            }
-        });
-
-        server.inject('/', function (res) {
-
-            expect(res.result).to.equal('Hello');
-            done();
-        });
-    });
-
-    it('does not explode if an empty prerequisite array is specified', function (done) {
-
-        var handler = function (request, reply) {
-
-            reply('Hello');
-        };
-
-        var server = new Hapi.Server();
-
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [],
-                handler: handler
-            }
-        });
-
-        server.inject('/', function (res) {
-
-            expect(res.result).to.equal('Hello');
-            done();
-        });
-    });
-
-    it('takes over response', function (done) {
-
-        var pre1 = function (request, reply) {
-
-            reply('Hello');
-        };
-
-        var pre2 = function (request, reply) {
-
-            reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
-        };
-
-        var pre3 = function (request, reply) {
-
-            process.nextTick(function () {
-
-                reply(' ').takeover();
+                expect(err.message).to.equal('Uncaught error: not is not defined');
+                done();
             });
-        };
 
-        var pre4 = function (request, reply) {
+            var orig = console.error;
+            console.error = function () {
 
-            reply('World');
-        };
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('hapi, internal, implementation, error');
+            };
 
-        var pre5 = function (request, reply) {
+            server.inject('/', function (res) {
 
-            reply(request.pre.m2 + '!');
-        };
+                expect(res.statusCode).to.equal(500);
+            });
+        });
+    });
 
-        var handler = function (request, reply) {
+    describe('handler()', function () {
 
-            reply(request.pre.m5);
-        };
+        it('binds handler to route bind object', function (done) {
 
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    [
-                        { method: pre1, assign: 'm1' },
-                        { method: pre3, assign: 'm3' },
-                        { method: pre4, assign: 'm4' }
+            var item = { x: 123 };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(this.x); }, bind: item } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal(item.x);
+                done();
+            });
+        });
+
+        it('invokes handler with right arguments', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                expect(arguments.length).to.equal(2);
+                expect(reply.send).to.not.exist();
+                return reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                done();
+            });
+        });
+    });
+
+    describe('prerequisites()', function () {
+
+        it('shows the complete prerequisite pipeline in the response', function (done) {
+
+            var pre1 = function (request, reply) {
+
+                return reply('Hello').code(444);
+            };
+
+            var pre2 = function (request, reply) {
+
+                return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
+            };
+
+            var pre3 = function (request, reply) {
+
+                process.nextTick(function () {
+
+                    return reply(' ');
+                });
+            };
+
+            var pre4 = function (request, reply) {
+
+                return reply('World');
+            };
+
+            var pre5 = function (request, reply) {
+
+                return reply(request.pre.m2 + '!');
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(request.pre.m5);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        [
+                            { method: pre1, assign: 'm1' },
+                            { method: pre3, assign: 'm3' },
+                            { method: pre4, assign: 'm4' }
+                        ],
+                        { method: pre2, assign: 'm2' },
+                        { method: pre5, assign: 'm5' }
                     ],
-                    { method: pre2, assign: 'm2' },
-                    { method: pre5, assign: 'm5' }
-                ],
-                handler: handler
-            }
-        });
-
-        server.inject('/', function (res) {
-
-            expect(res.result).to.equal(' ');
-            done();
-        });
-    });
-
-    it('returns error if prerequisite returns error', function (done) {
-
-        var pre1 = function (request, reply) {
-
-            reply('Hello');
-        };
-
-        var pre2 = function (request, reply) {
-
-            reply(Hapi.error.internal('boom'));
-        };
-
-        var handler = function (request, reply) {
-
-            reply(request.pre.m1);
-        };
-
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    [{ method: pre1, assign: 'm1' }],
-                    { method: pre2, assign: 'm2' }
-                ],
-                handler: handler
-            }
-        });
-
-        server.inject('/', function (res) {
-
-            expect(res.result.statusCode).to.equal(500);
-            done();
-        });
-    });
-
-    it('passes wrapped object', function (done) {
-
-        var pre = function (request, reply) {
-
-            reply('Hello').code(444);
-        };
-
-        var handler = function (request, reply) {
-
-            reply(request.responses.p);
-        };
-
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    { method: pre, assign: 'p' }
-                ],
-                handler: handler
-            }
-        });
-
-        server.inject('/', function (res) {
-
-            expect(res.statusCode).to.equal(444);
-            done();
-        });
-    });
-
-    it('returns 500 if prerequisite throws', function (done) {
-
-        var pre1 = function (request, reply) {
-
-            reply('Hello');
-        };
-
-        var pre2 = function (request, reply) {
-
-            a.b.c = 0;
-        };
-
-        var handler = function (request, reply) {
-
-            reply(request.pre.m1);
-        };
-
-
-        var server = new Hapi.Server({ debug: false });
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    [{ method: pre1, assign: 'm1' }],
-                    { method: pre2, assign: 'm2' }
-                ],
-                handler: handler
-            }
-        });
-
-        server.inject('/', function (res) {
-
-            expect(res.result.statusCode).to.equal(500);
-            done();
-        });
-    });
-
-    it('returns a user record using server method', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user', function (id, next) {
-
-            return next(null, { id: id, name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}',
-            config: {
-                pre: [
-                    'user(params.id)'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.user);
+                    handler: handler
                 }
-            }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('Hello World!');
+                done();
+            });
         });
 
-        server.inject('/user/5', function (res) {
+        it('allows a single prerequisite', function (done) {
 
-            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
-            done();
-        });
-    });
+            var pre = function (request, reply) {
 
-    it('returns a user record using server method in object', function (done) {
+                return reply('Hello');
+            };
 
-        var server = new Hapi.Server();
+            var handler = function (request, reply) {
 
-        server.method('user', function (id, next) {
+                return reply(request.pre.p);
+            };
 
-            return next(null, { id: id, name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}',
-            config: {
-                pre: [
-                    {
-                        method: 'user(params.id)',
-                        assign: 'steve'
-                    }
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.steve);
-                }
-            }
-        });
-
-        server.inject('/user/5', function (res) {
-
-            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
-            done();
-        });
-    });
-
-    it('returns a user name using multiple server methods', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user', function (id, next) {
-
-            return next(null, { id: id, name: 'Bob' });
-        });
-
-        server.method('name', function (user, next) {
-
-            return next(null, user.name);
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}/name',
-            config: {
-                pre: [
-                    'user(params.id)',
-                    'name(pre.user)'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.name);
-                }
-            }
-        });
-
-        server.inject('/user/5/name', function (res) {
-
-            expect(res.result).to.equal('Bob');
-            done();
-        });
-    });
-
-    it('returns a user record using server method with trailing space', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user', function (id, next) {
-
-            return next(null, { id: id, name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}',
-            config: {
-                pre: [
-                    'user(params.id )'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.user);
-                }
-            }
-        });
-
-        server.inject('/user/5', function (res) {
-
-            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
-            done();
-        });
-    });
-
-    it('returns a user record using server method with leading space', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user', function (id, next) {
-
-            return next(null, { id: id, name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}',
-            config: {
-                pre: [
-                    'user( params.id)'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.user);
-                }
-            }
-        });
-
-        server.inject('/user/5', function (res) {
-
-            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
-            done();
-        });
-    });
-
-    it('returns a user record using server method with zero args', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user', function (next) {
-
-            return next(null, { name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user',
-            config: {
-                pre: [
-                    'user()'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.user);
-                }
-            }
-        });
-
-        server.inject('/user', function (res) {
-
-            expect(res.result).to.deep.equal({ name: 'Bob' });
-            done();
-        });
-    });
-
-    it('returns a user record using server method with no args', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user', function (request, next) {
-
-            return next(null, { id: request.params.id, name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}',
-            config: {
-                pre: [
-                    'user'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.user);
-                }
-            }
-        });
-
-        server.inject('/user/5', function (res) {
-
-            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
-            done();
-        });
-    });
-
-    it('returns a user record using server method with nested name', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user.get', function (next) {
-
-            return next(null, { name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user',
-            config: {
-                pre: [
-                    'user.get()'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre['user.get']);
-                }
-            }
-        });
-
-        server.inject('/user', function (res) {
-
-            expect(res.result).to.deep.equal({ name: 'Bob' });
-            done();
-        });
-    });
-
-    it('fails on bad method name', function (done) {
-
-        var server = new Hapi.Server();
-        var test = function () {
+            var server = new Hapi.Server();
+            server.connection();
 
             server.route({
                 method: 'GET',
-                path: '/x/{id}',
+                path: '/',
                 config: {
                     pre: [
-                        'xuser(params.id)'
+                        { method: pre, assign: 'p' }
+                    ],
+                    handler: handler
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('Hello');
+                done();
+            });
+        });
+
+        it('allows an empty prerequisite array', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('Hello');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [],
+                    handler: handler
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('Hello');
+                done();
+            });
+        });
+
+        it('takes over response', function (done) {
+
+            var pre1 = function (request, reply) {
+
+                return reply('Hello');
+            };
+
+            var pre2 = function (request, reply) {
+
+                return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
+            };
+
+            var pre3 = function (request, reply) {
+
+                process.nextTick(function () {
+
+                    return reply(' ').takeover();
+                });
+            };
+
+            var pre4 = function (request, reply) {
+
+                return reply('World');
+            };
+
+            var pre5 = function (request, reply) {
+
+                return reply(request.pre.m2 + '!');
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(request.pre.m5);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        [
+                            { method: pre1, assign: 'm1' },
+                            { method: pre3, assign: 'm3' },
+                            { method: pre4, assign: 'm4' }
+                        ],
+                        { method: pre2, assign: 'm2' },
+                        { method: pre5, assign: 'm5' }
+                    ],
+                    handler: handler
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal(' ');
+                done();
+            });
+        });
+
+        it('returns error if prerequisite returns error', function (done) {
+
+            var pre1 = function (request, reply) {
+
+                return reply('Hello');
+            };
+
+            var pre2 = function (request, reply) {
+
+                return reply(Boom.internal('boom'));
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(request.pre.m1);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        [{ method: pre1, assign: 'm1' }],
+                        { method: pre2, assign: 'm2' }
+                    ],
+                    handler: handler
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('passes wrapped object', function (done) {
+
+            var pre = function (request, reply) {
+
+                return reply('Hello').code(444);
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(request.responses.p);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        { method: pre, assign: 'p' }
+                    ],
+                    handler: handler
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(444);
+                done();
+            });
+        });
+
+        it('returns 500 if prerequisite throws', function (done) {
+
+            var pre1 = function (request, reply) {
+
+                return reply('Hello');
+            };
+
+            var pre2 = function (request, reply) {
+
+                a.b.c = 0;
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(request.pre.m1);
+            };
+
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        [{ method: pre1, assign: 'm1' }],
+                        { method: pre2, assign: 'm2' }
+                    ],
+                    handler: handler
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns a user record using server method', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob' });
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user(params.id)'
                     ],
                     handler: function (request, reply) {
 
@@ -571,23 +430,101 @@ describe('Handler', function () {
                     }
                 }
             });
-        };
 
-        expect(test).to.throw('Unknown server method in string notation: xuser(params.id)');
-        done();
-    });
+            server.inject('/user/5', function (res) {
 
-    it('fails on bad method syntax name', function (done) {
+                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                done();
+            });
+        });
 
-        var server = new Hapi.Server();
-        var test = function () {
+        it('returns a user record using server method in object', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob' });
+            });
 
             server.route({
                 method: 'GET',
-                path: '/x/{id}',
+                path: '/user/{id}',
                 config: {
                     pre: [
-                        'userparams.id)'
+                        {
+                            method: 'user(params.id)',
+                            assign: 'steve'
+                        }
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre.steve);
+                    }
+                }
+            });
+
+            server.inject('/user/5', function (res) {
+
+                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                done();
+            });
+        });
+
+        it('returns a user name using multiple server methods', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob' });
+            });
+
+            server.method('name', function (user, next) {
+
+                return next(null, user.name);
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}/name',
+                config: {
+                    pre: [
+                        'user(params.id)',
+                        'name(pre.user)'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre.name);
+                    }
+                }
+            });
+
+            server.inject('/user/5/name', function (res) {
+
+                expect(res.result).to.equal('Bob');
+                done();
+            });
+        });
+
+        it('returns a user record using server method with trailing space', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob' });
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user(params.id )'
                     ],
                     handler: function (request, reply) {
 
@@ -595,196 +532,368 @@ describe('Handler', function () {
                     }
                 }
             });
-        };
 
-        expect(test).to.throw('Invalid server method string notation: userparams.id)');
-        done();
-    });
+            server.inject('/user/5', function (res) {
 
-    it('sets pre failAction to error', function (done) {
+                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                done();
+            });
+        });
 
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    {
-                        method: function (request, reply) {
+        it('returns a user record using server method with leading space', function (done) {
 
-                            reply(Hapi.error.forbidden());
-                        },
-                        failAction: 'error'
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob' });
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user( params.id)'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre.user);
                     }
-                ],
-                handler: function (request, reply) {
-
-                    reply('ok');
                 }
-            }
+            });
+
+            server.inject('/user/5', function (res) {
+
+                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                done();
+            });
         });
 
-        server.inject('/', function (res) {
+        it('returns a user record using server method with zero args', function (done) {
 
-            expect(res.statusCode).to.equal(403);
-            done();
-        });
-    });
+            var server = new Hapi.Server();
+            server.connection();
 
-    it('sets pre failAction to ignore', function (done) {
+            server.method('user', function (next) {
 
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    {
-                        method: function (request, reply) {
+                return next(null, { name: 'Bob' });
+            });
 
-                            reply(Hapi.error.forbidden());
-                        },
-                        failAction: 'ignore'
+            server.route({
+                method: 'GET',
+                path: '/user',
+                config: {
+                    pre: [
+                        'user()'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre.user);
                     }
-                ],
-                handler: function (request, reply) {
-
-                    reply('ok');
                 }
-            }
+            });
+
+            server.inject('/user', function (res) {
+
+                expect(res.result).to.deep.equal({ name: 'Bob' });
+                done();
+            });
         });
 
-        server.inject('/', function (res) {
+        it('returns a user record using server method with no args', function (done) {
 
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
+            var server = new Hapi.Server();
+            server.connection();
 
-    it('sets pre failAction to log', function (done) {
+            server.method('user', function (request, next) {
 
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [
-                    {
-                        assign: 'before',
-                        method: function (request, reply) {
+                return next(null, { id: request.params.id, name: 'Bob' });
+            });
 
-                            reply(Hapi.error.forbidden());
-                        },
-                        failAction: 'log'
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre.user);
                     }
-                ],
-                handler: function (request, reply) {
-
-                    reply('ok');
                 }
-            }
+            });
+
+            server.inject('/user/5', function (res) {
+
+                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                done();
+            });
         });
 
-        var log = null;
-        server.on('request', function (request, event, tags) {
+        it('returns a user record using server method with nested name', function (done) {
 
-            if (tags.hapi && tags.pre && tags.error) {
-                log = event.data.assign;
-            }
-        });
+            var server = new Hapi.Server();
+            server.connection();
 
-        server.inject('/', function (res) {
+            server.method('user.get', function (next) {
 
-            expect(res.statusCode).to.equal(200);
-            expect(log).to.equal('before');
-            done();
-        });
-    });
+                return next(null, { name: 'Bob' });
+            });
 
-    it('uses string handler', function (done) {
+            server.route({
+                method: 'GET',
+                path: '/user',
+                config: {
+                    pre: [
+                        'user.get()'
+                    ],
+                    handler: function (request, reply) {
 
-        var server = new Hapi.Server();
-        server.method('handler.get', function (request, next) {
-
-            return next(null, request.params.x + request.params.y);
-        });
-
-        server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
-        server.inject('/a/b', function (res) {
-
-            expect(res.result).to.equal('ab');
-            done();
-        });
-    });
-
-    it('binds handler to route bind object', function (done) {
-
-        var item = { x: 123 };
-
-        var server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { reply(this.x); }, bind: item } });
-
-        server.inject('/', function (res) {
-
-            expect(res.result).to.equal(item.x);
-            done();
-        });
-    });
-
-    it('binds pre to route bind object', function (done) {
-
-        var item = { x: 123 };
-
-        var server = new Hapi.Server();
-        server.route({
-            method: 'GET',
-            path: '/',
-            config: {
-                pre: [{ method: function (request, reply) { reply(this.x); }, assign: 'x' }],
-                handler: function (request, reply) { reply(request.pre.x); },
-                bind: item
-            }
-        });
-
-        server.inject('/', function (res) {
-
-            expect(res.result).to.equal(item.x);
-            done();
-        });
-    });
-
-    it('logs server method using string notation', function (done) {
-
-        var server = new Hapi.Server();
-
-        server.method('user', function (id, next) {
-
-            return next(null, { id: id, name: 'Bob' });
-        });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}',
-            config: {
-                pre: [
-                    'user(params.id)'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.getLog('method'));
+                        return reply(request.pre['user.get']);
+                    }
                 }
-            }
+            });
+
+            server.inject('/user', function (res) {
+
+                expect(res.result).to.deep.equal({ name: 'Bob' });
+                done();
+            });
         });
 
-        server.inject('/user/5', function (res) {
+        it('fails on bad method name', function (done) {
 
-            expect(res.result[0].tags).to.deep.equal(['hapi', 'pre', 'method', 'user']);
-            expect(res.result[0].data.msec).to.exist();
+            var server = new Hapi.Server();
+            server.connection();
+            var test = function () {
+
+                server.route({
+                    method: 'GET',
+                    path: '/x/{id}',
+                    config: {
+                        pre: [
+                            'xuser(params.id)'
+                        ],
+                        handler: function (request, reply) {
+
+                            return reply(request.pre.user);
+                        }
+                    }
+                });
+            };
+
+            expect(test).to.throw('Unknown server method in string notation: xuser(params.id)');
             done();
+        });
+
+        it('fails on bad method syntax name', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            var test = function () {
+
+                server.route({
+                    method: 'GET',
+                    path: '/x/{id}',
+                    config: {
+                        pre: [
+                            'userparams.id)'
+                        ],
+                        handler: function (request, reply) {
+
+                            return reply(request.pre.user);
+                        }
+                    }
+                });
+            };
+
+            expect(test).to.throw('Invalid server method string notation: userparams.id)');
+            done();
+        });
+
+        it('sets pre failAction to error', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        {
+                            method: function (request, reply) {
+
+                                return reply(Boom.forbidden());
+                            },
+                            failAction: 'error'
+                        }
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(403);
+                done();
+            });
+        });
+
+        it('sets pre failAction to ignore', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        {
+                            method: function (request, reply) {
+
+                                return reply(Boom.forbidden());
+                            },
+                            failAction: 'ignore'
+                        }
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('sets pre failAction to log', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        {
+                            assign: 'before',
+                            method: function (request, reply) {
+
+                                return reply(Boom.forbidden());
+                            },
+                            failAction: 'log'
+                        }
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                }
+            });
+
+            var log = null;
+            server.on('request', function (request, event, tags) {
+
+                if (tags.hapi && tags.pre && tags.error) {
+                    log = event.data.assign;
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(log).to.equal('before');
+                done();
+            });
+        });
+
+        it('binds pre to route bind object', function (done) {
+
+            var item = { x: 123 };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [{ method: function (request, reply) { return reply(this.x); }, assign: 'x' }],
+                    handler: function (request, reply) { return reply(request.pre.x); },
+                    bind: item
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal(item.x);
+                done();
+            });
+        });
+
+        it('logs server method using string notation', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob' });
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user(params.id)'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.getLog('method'));
+                    }
+                }
+            });
+
+            server.inject('/user/5', function (res) {
+
+                expect(res.result[0].tags).to.deep.equal(['hapi', 'pre', 'method', 'user']);
+                expect(res.result[0].data.msec).to.exist();
+                done();
+            });
         });
     });
 
-    describe('#defaults', function () {
+    describe('fromString()', function () {
+
+        it('uses string handler', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.method('handler.get', function (request, next) {
+
+                return next(null, request.params.x + request.params.y);
+            });
+
+            server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
+            server.inject('/a/b', function (res) {
+
+                expect(res.result).to.equal('ab');
+                done();
+            });
+        });
+    });
+
+    describe('defaults()', function () {
 
         it('returns handler without defaults', function (done) {
 
@@ -797,6 +906,7 @@ describe('Handler', function () {
             };
 
             var server = new Hapi.Server();
+            server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -823,6 +933,7 @@ describe('Handler', function () {
             };
 
             var server = new Hapi.Server();
+            server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -851,6 +962,7 @@ describe('Handler', function () {
             };
 
             var server = new Hapi.Server();
+            server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', function (res) {
@@ -873,12 +985,39 @@ describe('Handler', function () {
             handler.defaults = 'invalid';
 
             var server = new Hapi.Server();
+            server.connection();
             expect(function () {
 
                 server.handler('test', handler);
             }).to.throw('Handler defaults property must be an object or function');
 
             done();
+        });
+    });
+
+    describe('invoke()', function () {
+
+        it('returns 500 on ext method exception (same tick)', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.ext('onRequest', function (request, next) {
+
+                var x = a.b.c;
+            });
+
+            var handler = function (request, reply) {
+
+                return reply('neven gonna happen');
+            };
+
+            server.route({ method: 'GET', path: '/domain', handler: handler });
+
+            server.inject('/domain', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
         });
     });
 });

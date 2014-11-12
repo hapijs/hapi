@@ -25,6 +25,7 @@ describe('Protect', function () {
     it('catches error when handler throws after reply() is called', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
 
         var handler = function (request, reply) {
 
@@ -46,6 +47,7 @@ describe('Protect', function () {
     it('catches error when handler throws twice after reply() is called', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
 
         var handler = function (request, reply) {
 
@@ -79,38 +81,39 @@ describe('Protect', function () {
 
         Hoek.inherits(Client, Events.EventEmitter);
 
-        var plugin = {
-            name: 'test',
-            version: '1.0.0',
-            register: function (plugin, options, next) {
+        var test = function (plugin, options, next) {
 
-                plugin.after(function (plugin, afterNext) {
+            plugin.after(function (plugin, afterNext) {
 
-                    var client = new Client();                      // Created in the global domain
-                    plugin.bind({ client: client });
-                    afterNext();
-                });
+                var client = new Client();                      // Created in the global domain
+                plugin.bind({ client: client });
+                afterNext();
+            });
 
-                plugin.route({
-                    method: 'GET',
-                    path: '/',
-                    handler: function (request, reply) {
+            plugin.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
 
-                        this.client.on('event', request.domain.bind(function () {
+                    this.client.on('event', request.domain.bind(function () {
 
-                            throw new Error('boom');                // Caught by the global domain by default, not request domain
-                        }));
+                        throw new Error('boom');                // Caught by the global domain by default, not request domain
+                    }));
 
-                        this.client.emit('event');
-                    }
-                });
+                    this.client.emit('event');
+                }
+            });
 
-                return next();
-            }
+            return next();
         };
 
-        var server = new Hapi.Server(0, { debug: false });
-        server.pack.register(plugin, function (err) {
+        test.attributes = {
+            name: 'test'
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.register(test, function (err) {
 
             expect(err).to.not.exist();
 
@@ -136,6 +139,7 @@ describe('Protect', function () {
         };
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
 
         server.on('log', function (event, tags) {
 

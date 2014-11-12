@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "7.5.2",
+  "version": "8.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -24,33 +24,29 @@
     "catbox": "4.x.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
-    "h2o2": "2.x.x",
-    "heavy": "1.x.x",
+    "h2o2": "3.x.x",
+    "heavy": "2.x.x",
     "hoek": "^2.9.x",
-    "glue": "1.x.x",
-    "inert": "^1.1.x",
+    "inert": "2.0.x",
     "iron": "2.x.x",
     "items": "1.x.x",
-    "joi": "^4.4.x",
+    "joi": "^4.8.x",
     "kilt": "^1.1.x",
     "mimos": "1.x.x",
+    "peekaboo": "1.x.x",
     "qs": "2.x.x",
-    "rejoice": "1.x.x",
     "shot": "1.x.x",
     "statehood": "^1.2.x",
     "subtext": "1.x.x",
     "topo": "1.x.x",
-    "vision": "1.x.x",
+    "vision": "2.x.x",
     "wreck": "5.x.x"
   },
   "devDependencies": {
+    "bluebird": "2.x.x",
     "code": "1.x.x",
     "handlebars": "1.x.x",
-    "form-data": "0.1.x",
     "lab": "5.x.x"
-  },
-  "bin": {
-    "hapi": "./bin/hapi"
   },
   "scripts": {
     "test": "make test-cov",

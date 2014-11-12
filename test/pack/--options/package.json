@@ -1,7 +1,0 @@
-{
-    "name": "--options",
-    "description": "Test plugin module",
-    "version": "0.0.1",
-    "private": true,
-    "main": "lib/index"
-}

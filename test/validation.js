@@ -1,5 +1,6 @@
 // Load modules
 
+var Boom = require('boom');
 var Code = require('code');
 var Lab = require('lab');
 var Joi = require('joi');
@@ -19,15 +20,16 @@ var it = lab.it;
 var expect = Code.expect;
 
 
-describe('Validation', function () {
+describe('validation', function () {
 
     it('validates valid input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -47,10 +49,11 @@ describe('Validation', function () {
     it('validates valid input using context', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/{user?}',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -85,10 +88,11 @@ describe('Validation', function () {
     it('fails valid input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -107,11 +111,12 @@ describe('Validation', function () {
 
     it('validates valid input with validation options', function (done) {
 
-        var server = new Hapi.Server({ validation: { convert: false } });
+        var server = new Hapi.Server();
+        server.connection({ validation: { convert: false } });
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -131,10 +136,11 @@ describe('Validation', function () {
     it('allows any input when set to null', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: null
@@ -149,13 +155,14 @@ describe('Validation', function () {
         });
     });
 
-    it('validates using custom validator', function (done) {
+    it('validates using custom validation', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: function (value, options, next) {
@@ -182,10 +189,11 @@ describe('Validation', function () {
     it('casts input to desired type', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/{seq}',
-            handler: function (request, reply) { reply(request.params.seq + 1); },
+            handler: function (request, reply) { return reply(request.params.seq + 1); },
             config: {
                 validate: {
                     params: {
@@ -206,10 +214,11 @@ describe('Validation', function () {
     it('uses original value before schema conversion', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/{seq}',
-            handler: function (request, reply) { reply(request.orig.params.seq + 1); },
+            handler: function (request, reply) { return reply(request.orig.params.seq + 1); },
             config: {
                 validate: {
                     params: {
@@ -230,10 +239,11 @@ describe('Validation', function () {
     it('invalidates forbidden input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: false
@@ -251,10 +261,11 @@ describe('Validation', function () {
     it('retains the validation error', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: false
@@ -264,7 +275,7 @@ describe('Validation', function () {
 
         server.ext('onPreResponse', function (request, reply) {
 
-            reply(request.response.data.details[0].path);
+            return reply(request.response.data.details[0].path);
         });
 
         server.inject('/?a=123', function (res) {
@@ -278,10 +289,11 @@ describe('Validation', function () {
     it('validates valid input (Object root)', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: Joi.object({
@@ -301,10 +313,11 @@ describe('Validation', function () {
     it('fails on invalid input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -326,13 +339,14 @@ describe('Validation', function () {
         });
     });
 
-    it('ignores on invalid input', function (done) {
+    it('ignores invalid input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -350,15 +364,16 @@ describe('Validation', function () {
         });
     });
 
-    it('logs on invalid input', function (done) {
+    it('logs invalid input', function (done) {
 
         var handler = function (request, reply) {
 
             var item = request.getLog('validation')[0];
-            reply(item);
+            return reply(item);
         };
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -384,10 +399,11 @@ describe('Validation', function () {
     it('replaces error with message on invalid input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -412,10 +428,11 @@ describe('Validation', function () {
     it('customizes error on invalid input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     query: {
@@ -449,10 +466,11 @@ describe('Validation', function () {
     it('fails on text input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     payload: {
@@ -472,10 +490,11 @@ describe('Validation', function () {
     it('fails on null input', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     payload: {
@@ -496,10 +515,11 @@ describe('Validation', function () {
     it('fails on no payload', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     payload: {
@@ -524,13 +544,14 @@ describe('Validation', function () {
     it('samples responses', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply({ a: 1 });
+                    return reply({ a: 1 });
                 },
                 response: {
                     sample: 50,
@@ -562,10 +583,11 @@ describe('Validation', function () {
         var i = 0;
         var handler = function (request, reply) {
 
-            reply({ some: i++ ? null : 'value' });
+            return reply({ some: i++ ? null : 'value' });
         };
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -592,15 +614,206 @@ describe('Validation', function () {
         });
     });
 
+    it('validates error response', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            var error = Boom.badRequest('Kaboom');
+            error.output.payload.custom = i++;
+            return reply(error);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    status: {
+                        400: {
+                            statusCode: Joi.number(),
+                            error: Joi.string(),
+                            message: Joi.string(),
+                            custom: 0
+                        }
+                    }
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
+    it('validates error response and ignore 200', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            if (i === 0) {
+                ++i;
+                return reply({ a: 1, b: 2 });
+            }
+
+            var error = Boom.badRequest('Kaboom');
+            error.output.payload.custom = i++;
+            return reply(error);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: true,
+                    status: {
+                        400: {
+                            statusCode: Joi.number(),
+                            error: Joi.string(),
+                            message: Joi.string(),
+                            custom: 1
+                        }
+                    }
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(400);
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(500);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('validates and modifies response', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply({ a: 1, b: 2 });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: Joi.object({
+                        a: Joi.number()
+                    }).options({ stripUnknown: true }),
+                    modify: true
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.deep.equal({ a: 1 });
+            done();
+        });
+    });
+
+    it('validates and modifies error response', function (done) {
+
+        var handler = function (request, reply) {
+
+            var error = Boom.badRequest('Kaboom');
+            error.output.payload.custom = '123';
+            return reply(error);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    status: {
+                        400: {
+                            statusCode: Joi.number(),
+                            error: Joi.string(),
+                            message: Joi.string(),
+                            custom: Joi.number()
+                        }
+                    },
+                    modify: true
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.custom).to.equal(123);
+            done();
+        });
+    });
+
+    it('throws on sample with response modify', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply({ a: 1, b: 2 });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        expect(function () {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    response: {
+                        schema: Joi.object({
+                            a: Joi.number()
+                        }).options({ stripUnknown: true }),
+                        modify: true,
+                        sample: 90
+                    }
+                },
+                handler: handler
+            });
+        }).to.throw(/modify conflict with forbidden peer sample/);
+        done();
+    });
+
     it('validates response using custom validation function', function (done) {
 
         var i = 0;
         var handler = function (request, reply) {
 
-            reply({ some: i++ ? null : 'value' });
+            return reply({ some: i++ ? null : 'value' });
         };
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
@@ -631,13 +844,14 @@ describe('Validation', function () {
     it('skips response validation when sample is zero', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply({ a: 1 });
+                    return reply({ a: 1 });
                 },
                 response: {
                     sample: 0,
@@ -666,14 +880,15 @@ describe('Validation', function () {
 
     it('fails response validation with options', function (done) {
 
-        var server = new Hapi.Server({ debug: false, validation: { convert: false } });
+        var server = new Hapi.Server({ debug: false });
+        server.connection({ validation: { convert: false } });
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply({ a: '1' });
+                    return reply({ a: '1' });
                 },
                 response: {
                     schema: {
@@ -693,13 +908,14 @@ describe('Validation', function () {
     it('skips response validation when schema is true', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply({ a: 1 });
+                    return reply({ a: 1 });
                 },
                 response: {
                     schema: true
@@ -714,16 +930,42 @@ describe('Validation', function () {
         });
     });
 
-    it('forbids response when schema is false', function (done) {
+    it('skips response validation when status is empty', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply({ a: 1 });
+                    return reply({ a: 1 });
+                },
+                response: {
+                    status: {}
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('forbids response when schema is false', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    return reply({ a: 1 });
                 },
                 response: {
                     schema: false
@@ -741,13 +983,14 @@ describe('Validation', function () {
     it('ignores error responses', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply(Hapi.error.badRequest());
+                    return reply(Boom.badRequest());
                 },
                 response: {
                     schema: {
@@ -767,13 +1010,14 @@ describe('Validation', function () {
     it('errors on non-plain-object responses', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply.file('./package.json');
+                    return reply.file('./package.json');
                 },
                 response: {
                     schema: {
@@ -793,13 +1037,14 @@ describe('Validation', function () {
     it('logs invalid responses', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
             config: {
                 handler: function (request, reply) {
 
-                    reply({ a: 1 });
+                    return reply({ a: 1 });
                 },
                 response: {
                     failAction: 'log',
@@ -827,10 +1072,11 @@ describe('Validation', function () {
     it('validates valid header', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     headers: {
@@ -857,10 +1103,11 @@ describe('Validation', function () {
     it('rejects invalid header', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { reply('ok'); },
+            handler: function (request, reply) { return reply('ok'); },
             config: {
                 validate: {
                     headers: {
