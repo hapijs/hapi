@@ -1,6 +1,78 @@
 # 8.0.x API Reference
 
-
+- [Server](#server)
+    - [`new Server([options])`](#new-serveroptions)
+    - [Server properties](#server-properties)
+        - [`server.app`](#serverapp)
+        - [`server.config`](#serverconfig)
+        - [`server.connections`](#serverconnections)
+        - [`server.info`](#serverinfo)
+        - [`server.load`](#serverload)
+        - [`server.listener`](#serverlistener)
+        - [`server.methods`](#servermethods)
+        - [`server.plugins`](#serverplugins)
+        - [`server.settings`](#serversettings)
+        - [`server.version`](#serverversion)
+    - [`server.after(method, [dependencies])`](#serveraftermethod-dependencies)
+    - [`server.auth.default(options)`](#serverauthdefaultoptions)
+    - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
+    - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
+    - [`server.auth.test(strategy, request, next)`](#serverauthteststrategy-request-next)
+    - [`server.bind(context)`](#serverbindcontext)
+    - [`server.cache(options)`](#servercacheoptions)
+    - [`server.connection([options])`](#serverconnectionoptions)
+    - [`server.decorate(type, property, method)`](#serverdecoratetype-property-method)
+    - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
+    - [`server.expose(key, value)`](#serverexposekey-value)
+    - [`server.expose(obj)`](#serverexposeobj)
+    - [`server.ext(event, method, [options])`](#serverextevent-method-options)
+    - [`server.handler(name, method)`](#serverhandlername-method)
+    - [`server.inject(options, callback)`](#serverinjectoptions-callback)
+    - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
+    - [`server.method(name, method, [options])`](#servermethodname-method-options)
+    - [`server.method(methods)`](#servermethodmethods)
+    - [`server.path(relativeTo)`](#serverpathrelativeto)
+    - [`server.register(plugins, [options], callback)`](#serverregisterplugins-options-callback)
+    - [`server.render(template, context, [options], callback)`](#serverrendertemplate-context-options-callback)
+    - [`server.route(options)`](#serverrouteoptions)
+    - [`server.select(labels)`](#serverselectlabels)
+    - [`server.start([callback])`](#serverstartcallback)
+    - [`server.state(name, [options])`](#serverstatename-options)
+    - [`server.stop([options], [callback])`](#serverstopoptions-callback)
+    - [`server.table([host])`](#servertablehost)
+    - [`server.views(options)`](#serverviewsoptions)
+    - [Server events](#server-events)
+- [Plugins](#plugins)
+- [Requests](#requests)
+    - [Request lifecycle](#request-lifecycle)
+    - [Route configuration](#route-configuration)
+    - [Path parameters](#path-parameters)
+    - [Path matching order](#path-matching-order)
+        - [Catch all route](#catch-all-route)
+    - [Route handler](#route-handler)
+        - [Built-in handlers](#built-in-handlers)
+    - [Route prerequisites](#route-prerequisites)
+- [Request object](#request-object)
+    - [`request` properties](#request-properties)
+    - [`request.setUrl(url)`](#requestseturlurl)
+    - [`request.setMethod(method)`](#requestsetmethodmethod)
+    - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
+    - [`request.getLog([tags])`](#requestgetlogtags)
+    - [`request.tail([name])`](#requesttailname)
+    - [Request events](#request-events)
+- [Reply interface](#reply-interface)
+    - [`reply([err], [result])`](#replyerr-result)
+        - [Response object](#response-object)
+            - [Response Object Redirect Methods](#response-object-redirect-methods)
+            - [Response events](#response-events)
+        - [Error response](#error-response)
+            - [Error transformation](#error-transformation)
+        - [Flow control](#flow-control)
+    - [`reply.file(path, [options])`](#replyfilepath-options)
+    - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
+    - [`reply.close([options])`](#replycloseoptions)
+    - [`reply.proxy(options)`](#replyproxyoptions)
+    - [`reply.redirect(uri)`](#replyredirecturi)
 
 ## Server
 
@@ -571,7 +643,7 @@ Adds an incoming sever connection where:
     - `credentials` - if `true`, allows user credentials to be sent
       ('Access-Control-Allow-Credentials'). Defaults to `false`.
 
-- <a name="server.config.files"></a>`files` - defines the behavior for serving static resources
+- <a name="connection.config.files"></a>`files` - defines the behavior for serving static resources
   using the built-in route handlers for files and directories:
     - `relativeTo` - determines the folder relative paths are resolved against when using the file
       and directory handlers.
@@ -592,8 +664,8 @@ Adds an incoming sever connection where:
     - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
       requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
-- <a name="server.config.payload"></a>`payload` - controls how incoming payloads (request body) are
-  processed:
+- <a name="connection.config.payload"></a>`payload` - controls how incoming payloads (request body)
+  are processed:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very
       large payloads may cause the server to run out of memory. Defaults to `1048576` (1MB).
     - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
@@ -604,7 +676,7 @@ Adds an incoming sever connection where:
   configuration. Note the difference between `connection.settings.plugins` which is used to store
   configuration values and `connection.plugins` which is meant for storing run-time state.
 
-- <a name="server.config.router"></a>`router` - controls how incoming request URIs are matched
+- <a name="connection.config.router"></a>`router` - controls how incoming request URIs are matched
   against the routing table:
     - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered
       different resources. Defaults to `true`.
@@ -636,8 +708,8 @@ Adds an incoming sever connection where:
     - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true`
       setting the header to its only and default option, 'nosniff'.
 
-- <a name="server.config.state"></a>`state` - HTTP state management (cookies) allows the server to
-  store information on the client which is sent back to the server with every request (as defined
+- <a name="connection.config.state"></a>`state` - HTTP state management (cookies) allows the server
+  to store information on the client which is sent back to the server with every request (as defined
   in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports the following options:
     - `cookies` - cookie parsing and formating options:
         - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
@@ -1255,7 +1327,7 @@ var handler = function (request, reply) {
 ```
 
 Registered cookies are automatically parsed when received. Parsing rules depends on the connection
-[`state.cookies`](#server.config.state) configuration. If an incoming registered cookie fails
+[`state.cookies`](#connection.config.state) configuration. If an incoming registered cookie fails
 parsing, it is not included in `request.state`, regardless of the `state.cookies.failAction`
 setting. When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received,
 the server will emit a `'request'` event. To capture these errors subscribe to the `'request'`
@@ -1605,8 +1677,8 @@ Each incoming request passes through a pre-defined list of steps, along with opt
 
 The route configuration object supports the following options:
 - `path` - (required) the absolute path used to match incoming requests (must begin with '/').
-  Incoming requests are compared to the configured paths based on the server
-  [`router`](#server.config.router) configuration option. The path can include named parameters
+  Incoming requests are compared to the configured paths based on the connection
+  [`router`](#connection.config.router) configuration option. The path can include named parameters
   enclosed in `{}` which  will be matched against literal values in the request as described in
   [Path parameters](#path-parameters).
 
@@ -1747,12 +1819,13 @@ The route configuration object supports the following options:
           `'parse'`, the request will result in an error response.
         - `override` - a mime type string overriding the 'Content-Type' header value received.
           Defaults to no override.
-        - `maxBytes` - overrides the server [default value](#server.config.payload) for this route.
+        - `maxBytes` - overrides the connection [default value](#connection.config.payload) for this
+          route.
         - `timeout` - payload processing timeout in milliseconds. Sets the maximum time allowed for
           the client to transmit the request payload (body) before giving up and responding with a
           Request Timeout (408) error response. Set to `false` to disable. Defaults to the server
           `timeout.client` configuration.
-        - `uploads` - overrides the connection [default value](#server.config.payload) for this
+        - `uploads` - overrides the connection [default value](#connection.config.payload) for this
           route.
         - `failAction` - determines how to handle payload parsing errors. Allowed values are:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
@@ -1760,7 +1833,7 @@ The route configuration object supports the following options:
             - `'ignore'` - take no action and continue processing the request.
 
     - `response` - validation rules for the outgoing response payload (response body). Can only
-      validate [object](#obj) response:
+      validate object response:
         - `schema` - the default response object validation rules (for all non-error responses)
           expressed as one of:
             - `true` - any payload allowed (no validation performed). This is the default.
@@ -1811,7 +1884,7 @@ The route configuration object supports the following options:
               single strategy is configured.
             - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is
               authenticated after it is processed. Requires a strategy with payload authentication
-              support (e.g. [Hawk](#hawk-authentication)). Available values:
+              support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Available values:
                 - `false` - no payload authentication. This is the default value.
                 - `'required'` - payload authentication required.
                 - `'optional'` - payload authentication performed only when the client includes
@@ -2017,8 +2090,8 @@ The framework comes with a few built-in handler types available by setting the r
 config to an object containing one of these keys:
 
     - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
-        - a relative or absolute file path string (relative paths are resolved based on the server
-          [`files`](#server.config.files) configuration).
+        - a relative or absolute file path string (relative paths are resolved based on the
+          connection [`files`](#connection.config.files) configuration).
         - a function with the signature `function(request)` which returns the relative or absolute
           file path.
         - an object with the following options:
@@ -2043,7 +2116,7 @@ config to an object containing one of these keys:
       ignored for the purpose of selecting the file system resource. The directory handler is an
       object with the following options:
         - `path` - (required) the directory root path (relative paths are resolved based on the
-          server [`files`](#server.config.files) configuration). Value can be:
+          connection [`files`](#connection.config.files) configuration). Value can be:
             - a single path string used as the prefix for any resources requested by appending the
               request path parameter to the provided string.
             - an array of path strings. Each path will be attempted in order until a match is
@@ -2696,6 +2769,111 @@ server.ext('onPreResponse', function (request, reply) {
 });
 ```
 
+#### Error response
+
+**hapi** uses the [**boom**](https://github.com/hapijs/boom) error library for all its internal
+error generation. **boom** provides an expressive interface to return HTTP errors. Any error
+returned via the `reply()` interface is converted to a **boom** object and defaults to status code
+`500` if the error is not a **boom** object.
+
+When the error is sent back to the client, the responses contians a JSON object with the
+`statusCode`, `error`, and `message` keys.
+
+```js
+var Hapi = require('hapi');
+var Boom = require('boom');
+
+var server = new Hapi.Server();
+
+server.route({
+    method: 'GET',
+    path: '/badRequest',
+    handler: function (request, reply) {
+
+        return reply(Boom.badRequest('Unsupported parameter'));
+    }
+});
+
+server.route({
+    method: 'GET',
+    path: '/internal',
+    handler: function (request, reply) {
+
+        return reply(new Error('unexpect error'));
+    }
+});
+```
+
+##### Error transformation
+
+Errors can be customized by changing their `output` content. The **boom** error object includes the
+following properties:
+- `isBoom` - if `true`, indicates this is a `Boom` object instance.
+- `message` - the error message.
+- `output` - the formatted response. Can be directly manipulated after object construction to return
+  a custom error response. Allowed root keys:
+    - `statusCode` - the HTTP status code (typically 4xx or 5xx).
+    - `headers` - an object containing any HTTP headers where each key is a header name and value is
+      the header content.
+    - `payload` - the formatted object used as the response payload (stringified). Can be directly
+      manipulated but any changes will be lost
+      if `reformat()` is called. Any content allowed and by default includes the following content:
+        - `statusCode` - the HTTP status code, derived from `error.output.statusCode`.
+        - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived
+          from `statusCode`.
+        - `message` - the error message derived from `error.message`.
+- inherited `Error` properties.
+
+It also supports the following method:
+- `reformat()` - rebuilds `error.output` using the other object properties.
+
+```js
+var Boom = require('boom');
+
+var handler = function (request, reply) {
+
+    var error = Boom.badRequest('Cannot feed after midnight');
+    error.output.statusCode = 499;    // Assign a custom error code
+    error.reformat();
+
+    error.output.payload.custom = 'abc_123'; // Add custom key
+
+    reply(error);
+});
+```
+
+When a different error representation is desired, such as an HTML page or a different payload
+format, the `'onPreResponse'` extension point may be used to identify errors and replace them with a
+different response object.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+server.views({
+    engines: {
+        html: require('handlebars')
+    }
+});
+
+server.ext('onPreResponse', function (request, reply) {
+
+    var response = request.response;
+    if (!response.isBoom) {
+        return reply.continue();
+    }
+
+    // Replace error with friendly HTML
+
+      var error = response;
+      var ctx = {
+          message: (error.output.statusCode === 404 ? 'page not found' : 'something went wrong')
+      };
+
+      return reply.view('error', ctx);
+});
+```
+
 #### Flow control
 
 When calling `reply()`, the framework waits until `process.nextTick()` to continue processing the
@@ -2761,7 +2939,7 @@ Concludes the handler activity by returning control over to the router with a te
 response where:
 
 - `template` - the template filename and path, relative to the templates path configured via the
-  server [`views.path`](#serverviewsoptions).
+  server views manager.
 - `context` - optional object used by the template to render context-specific result. Defaults to
   no context `{}`.
 - `options` - optional object used to override the server's views manager configuration for this
@@ -2865,201 +3043,3 @@ var handler = function (request, reply) {
 
 Changing to a permanent or non-rewriterable redirect is also available see
 [response object redirect](#response-object-redirect) for more information.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## `Boom`
-
-Provides a set of utilities for returning HTTP errors. An alias of the [**boom**](https://github.com/hapijs/boom) module (can be also accessed
-`Hapi.boom`). Each utility returns a `Boom` error response object (instance of `Error`) which includes the following properties:
-
-- `isBoom` - if `true`, indicates this is a `Boom` object instance.
-- `message` - the error message.
-- `output` - the formatted response. Can be directly manipulated after object construction to return a custom error response. Allowed root keys:
-    - `statusCode` - the HTTP status code (typically 4xx or 5xx).
-    - `headers` - an object containing any HTTP headers where each key is a header name and value is the header content.
-    - `payload` - the formatted object used as the response payload (stringified). Can be directly manipulated but any changes will be lost
-      if `reformat()` is called. Any content allowed and by default includes the following content:
-        - `statusCode` - the HTTP status code, derived from `error.output.statusCode`.
-        - `error` - the HTTP status message (e.g. 'Bad Request', 'Internal Server Error') derived from `statusCode`.
-        - `message` - the error message derived from `error.message`.
-- inherited `Error` properties.
-
-It also supports the following method:
-
-- `reformat()` - rebuilds `error.output` using the other object properties.
-
-```js
-var Hapi = require('hapi');
-
-var handler = function (request, reply) {
-
-    var error = Boom.badRequest('Cannot feed after midnight');
-    error.output.statusCode = 499;    // Assign a custom error code
-    error.reformat();
-
-    error.output.payload.custom = 'abc_123'; // Add custom key
-
-    reply(error);
-});
-```
-
-### Error transformation
-
-Error responses return a JSON object with the `statusCode`, `error`, and `message` keys. When a different error representation is desired, such
-as an HTML page or using another format, the `'onPreResponse'` extension point may be used to identify errors and replace them with a different
-response object.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection({ port: 80 });
-server.views({
-    engines: {
-        html: require('handlebars')
-    }
-});
-
-server.ext('onPreResponse', function (request, reply) {
-
-    var response = request.response;
-    if (!response.isBoom) {
-        return reply.continue();
-    }
-
-    // Replace error with friendly HTML
-
-      var error = response;
-      var ctx = {
-          message: (error.output.statusCode === 404 ? 'page not found' : 'something went wrong')
-      };
-
-      return reply.view('error', ctx);
-});
-```
-
-#### `badRequest([message])`
-
-Returns an HTTP Bad Request (400) error response object with the provided `message`.
-
-```js
-var Hapi = require('hapi');
-Boom.badRequest('Invalid parameter value');
-```
-
-#### `unauthorized(message, [scheme, [attributes]])`
-
-Returns an HTTP Unauthorized (401) error response object where:
-
-- `message` - the error message.
-- `scheme` - optional HTTP authentication scheme name (e.g. `'Basic'`, `'Hawk'`). If provided, includes the HTTP 'WWW-Authenticate'
-  response header with the scheme and any provided `attributes`.
-- `attributes` - an object where each key is an HTTP header attribute and value is the attribute content.
-
-```js
-var Hapi = require('hapi');
-Boom.unauthorized('Stale timestamp', 'Hawk', { ts: fresh, tsm: tsm });
-```
-
-#### `unauthorized(message, wwwAuthenticate)`
-
-Returns an HTTP Unauthorized (401) error response object where:
-
-- `message` - the error message.
-- `wwwAuthenticate` - an array of HTTP 'WWW-Authenticate' header responses for multiple challenges.
-
-```js
-var Hapi = require('hapi');
-Boom.unauthorized('Missing authentication', ['Hawk', 'Basic']);
-```
-
-#### `clientTimeout([message])`
-
-Returns an HTTP Request Timeout (408) error response object with the provided `message`.
-
-```js
-var Hapi = require('hapi');
-Boom.clientTimeout('This is taking too long');
-```
-
-#### `serverTimeout([message])`
-
-Returns an HTTP Service Unavailable (503) error response object with the provided `message`.
-
-```js
-var Hapi = require('hapi');
-Boom.serverTimeout('Too busy, come back later');
-```
-
-#### `forbidden([message])`
-
-Returns an HTTP Forbidden (403) error response object with the provided `message`.
-
-```js
-var Hapi = require('hapi');
-Boom.forbidden('Missing permissions');
-```
-
-#### `notFound([message])`
-
-Returns an HTTP Not Found (404) error response object with the provided `message`.
-
-```js
-var Hapi = require('hapi');
-Boom.notFound('Wrong number');
-```
-
-#### `internal([message, [data]])`
-
-Returns an HTTP Internal Server Error (500) error response object where:
-
-- `message` - the error message.
-- `data` - optional data used for error logging. If `data` is an `Error`, the returned object is `data` decorated with
-  the **boom** properties. Otherwise, the returned `Error` has a `data` property with the provided value.
-
-Note that the `error.output.payload.message` is overridden with `'An internal server error occurred'` to hide any internal details from
-the client. `error.message` remains unchanged.
-
-```js
-var Hapi = require('hapi');
-
-var handler = function (request, reply) {
-
-    var result;
-    try {
-        result = JSON.parse(request.query.value);
-    }
-    catch (err) {
-        result = Boom.internal('Failed parsing JSON input', err);
-    }
-
-    reply(result);
-};
-```
-
-
-
-
-## `Hapi.version`
-
-The **hapi** framework version number.
-
-```js
-var Hapi = require('hapi');
-console.log(Hapi.version);
-```
