@@ -52,14 +52,14 @@
     - [Route handler](#route-handler)
         - [Built-in handlers](#built-in-handlers)
     - [Route prerequisites](#route-prerequisites)
-- [Request object](#request-object)
-    - [`request` properties](#request-properties)
-    - [`request.setUrl(url)`](#requestseturlurl)
-    - [`request.setMethod(method)`](#requestsetmethodmethod)
-    - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
-    - [`request.getLog([tags])`](#requestgetlogtags)
-    - [`request.tail([name])`](#requesttailname)
-    - [Request events](#request-events)
+    - [Request object](#request-object)
+        - [`request` properties](#request-properties)
+        - [`request.setUrl(url)`](#requestseturlurl)
+        - [`request.setMethod(method)`](#requestsetmethodmethod)
+        - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
+        - [`request.getLog([tags])`](#requestgetlogtags)
+        - [`request.tail([name])`](#requesttailname)
+        - [Request events](#request-events)
 - [Reply interface](#reply-interface)
     - [`reply([err], [result])`](#replyerr-result)
         - [Response object](#response-object)
@@ -397,7 +397,7 @@ Registers an authentication scheme where:
 The `scheme` method must return an object with the following keys:
 - `authenticate(request, reply)` - required function called on each incoming request configured
   with the authentication scheme where:
-    - `request` - the request object.
+    - `request` - the [request object](#request-object).
     - `reply(err, result)` - the interface the authentication method must call when done where:
         - `err` - if not `null`, indicates failed authentication.
         - `result` - an object containing:
@@ -408,14 +408,14 @@ The `scheme` method must return an object with the following keys:
                 - `data` - log data.
                 - `tags` - additional tags.
 - `payload(request, next)` - optional function called to authenticate the request payload where:
-    - `request` - the request object.
+    - `request` - the [request object](#request-object).
     - `next(err)` - the continuation function the method must called when done where:
         - `err` - if `null`, payload successfully authenticated. If `false`, indicates that
           authentication could not be performed (e.g. missing payload hash). If set to any other
           value, it is used as an error response.
 - `response(request, next)` - optional function called to decorate the response with authentication
   headers before the response headers or payload is written where:
-    - `request` - the request object.
+    - `request` - the [request object](#request-object).
     - `next(err)` - the continuation function the method must called when done where:
         - `err` - if `null`, successfully applied. If set to any other value, it is used as an
           error response.
@@ -485,7 +485,8 @@ server.route({
 
 Tests a request against an authentication strategy where:
 - `strategy` - the strategy name registered with `server.auth.strategy()`.
-- `request` - the request object. The request route authentication configuration is not used.
+- `request` - the [request object](#request-object). The request route authentication configuration
+  is not used.
 - `next` - the callback function with signature `function(err, credentials)` where:
     - `err` - the error if authentication failed.
     - `credentials` - the authentication credentials object if authentication was successful.
@@ -755,7 +756,7 @@ server.connection({ port: 8000, host: 'example.com', labels: ['web'] });
 
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
-    - `'reply'` - adds methods to the `reply()` interface.
+    - `'reply'` - adds methods to the [reply interface](#reply-interface) interface.
 - `property` - the object decoration key name.
 - `method` - the extension function.
 
@@ -848,10 +849,10 @@ where:
 - `method` - a function or an array of functions to be executed at a specified point during request
   processing. The required extension function signature is `function(request, reply)` where:
     - `request` - the incoming `request` object.
-    - `reply` - the `reply()` interface which is used to return control back to the framework. To
-      continue normal execution of the request lifecycle, `reply.continue()` must be called. To
-      abort processing and return a response to the client, call `reply(value)` where value is an
-      error or any other valid response.
+    - `reply` - the [reply interface](#reply-interface) which is used to return control back to the
+      framework. To continue normal execution of the request lifecycle, `reply.continue()` must be
+      called. To abort processing and return a response to the client, call `reply(value)` where
+      value is an error or any other valid response.
     - `this` - the object provided via `options.bind` or the current active context set with
       `server.bind()`.
 - `options` - an optional object with the following:
@@ -1273,7 +1274,7 @@ across multiple requests. Registers a cookie definitions where:
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by
       the route handler, the cookie is automatically added to the response with the provided value.
       The value can be a function with signature `function(request, next)` where:
-        - `request` - the request object.
+        - `request` - the [request object](#request-object).
         - `next` - the continuation function using the `function(err, value)` signature.
     - `encoding` - encoding performs on the provided value before serialization. Options are:
         - `'none'` - no encoding. When used, the cookie value must be a string. This is the default
@@ -2072,10 +2073,10 @@ server.route({ method: '*', path: '/{p*}', handler: handler });
 ### Route handler
 
 The route handler function uses the signature `function(request, reply)` where:
-- `request` - is the incoming request object (this is not the node.js request object but a higher
-  interface).
-- `reply` - the method the handler must call to set a response and return control back to the
-  framework.
+- `request` - is the incoming [request object](#request-object) (this is not the node.js request
+  object).
+- `reply` - the [reply interface](#reply-interface) the handler must call to set a response and
+  return control back to the framework.
 
 ```js
 var handler = function (request, reply) {
@@ -2202,7 +2203,7 @@ config to an object containing one of these keys:
                 readable stream (use the [**wreck**](https://github.com/hapijs/wreck) module `read`
                 method to easily convert it to a Buffer or string).
               - `request` - is the incoming `request` object.
-              - `reply()` - the continuation function.
+              - `reply` - the [reply interface](#reply-interface) function.
               - `settings` - the proxy handler configuration.
               - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and
                 the upstream response included a valid 'Cache-Control' header with 'max-age'.
@@ -2292,14 +2293,14 @@ server.route({
 });
 ```
 
-## Request object
+### Request object
 
 The request object is created internally for each incoming request. It is **different** from the
 node.js request object received from the HTTP server callback (which is available in
 `request.raw.req`). The request object methods and properties change throughout the
 [request lifecycle](#request-lifecycle).
 
-### `request` properties
+#### `request` properties
 
 Each request object includes the following properties:
 
@@ -2362,7 +2363,7 @@ Each request object includes the following properties:
   definition.
 - `url` - the parsed request URI.
 
-### `request.setUrl(url)`
+#### `request.setUrl(url)`
 
 _Available only in `'onRequest'` extension methods._
 
@@ -2382,7 +2383,7 @@ server.ext('onRequest', function (request, reply) {
 });
 ```
 
-### `request.setMethod(method)`
+#### `request.setMethod(method)`
 
 _Available only in `'onRequest'` extension methods._
 
@@ -2402,7 +2403,7 @@ server.ext('onRequest', function (request, reply) {
 });
 ```
 
-### `request.log(tags, [data, [timestamp]])`
+#### `request.log(tags, [data, [timestamp]])`
 
 _Always available._
 
@@ -2434,7 +2435,7 @@ var handler = function (request, reply) {
 };
 ```
 
-### `request.getLog([tags])`
+#### `request.getLog([tags])`
 
 _Always available._
 
@@ -2448,7 +2449,7 @@ request.getLog('error');
 request.getLog(['hapi', 'error']);
 ```
 
-### `request.tail([name])`
+#### `request.tail([name])`
 
 _Available until immediately after the `'response'` event is emitted._
 
@@ -2489,7 +2490,7 @@ server.on('tail', function (request) {
 });
 ```
 
-### Request events
+#### Request events
 
 The request object supports the following events:
 
@@ -2773,8 +2774,8 @@ server.ext('onPreResponse', function (request, reply) {
 
 **hapi** uses the [**boom**](https://github.com/hapijs/boom) error library for all its internal
 error generation. **boom** provides an expressive interface to return HTTP errors. Any error
-returned via the `reply()` interface is converted to a **boom** object and defaults to status code
-`500` if the error is not a **boom** object.
+returned via the [reply interface](#reply-interface) is converted to a **boom** object and defaults
+to status code `500` if the error is not a **boom** object.
 
 When the error is sent back to the client, the responses contians a JSON object with the
 `statusCode`, `error`, and `message` keys.
