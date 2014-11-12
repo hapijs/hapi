@@ -274,7 +274,7 @@ describe('Plugin', function () {
                 expect(server.connections[0]._registrations.steve.version).to.equal('0.0.0');
                 server.inject('/', function (res) {
 
-                    expect(res.result).to.equal(Hapi.version);
+                    expect(res.result).to.equal(require('../package.json').version);
                     done();
                 });
             });
