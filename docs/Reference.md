@@ -256,9 +256,7 @@ var server = new Hapi.Server();
 // server.version === '8.0.0'
 ```
 
-### Server methods
-
-#### `server.after(method, [dependencies])`
+### `server.after(method, [dependencies])`
 
 Adds a method to be called after all the plugin dependencies have been registered and before the
 server starts (only called if the server is started) where:
@@ -287,7 +285,7 @@ server.start(function (err) {
 });
 ```
 
-#### `server.auth.default(options)`
+### `server.auth.default(options)`
 
 Sets a default strategy which is applied to every route where:
 - `options` - a string with the default strategy name or an object with a specified strategy or
@@ -316,7 +314,7 @@ server.route({
 });
 ```
 
-#### `server.auth.scheme(name, scheme)`
+### `server.auth.scheme(name, scheme)`
 
 Registers an authentication scheme where:
 - `name` - the scheme name.
@@ -380,7 +378,7 @@ var scheme = function (server, options) {
 server.auth.scheme('custom', scheme);
 ```
 
-#### `server.auth.strategy(name, scheme, [mode], [options])`
+### `server.auth.strategy(name, scheme, [mode], [options])`
 
 Registers an authentication strategy where:
 - `name` - the strategy name.
@@ -411,7 +409,7 @@ server.route({
 });
 ```
 
-#### `server.auth.test(strategy, request, next)`
+### `server.auth.test(strategy, request, next)`
 
 Tests a request against an authentication strategy where:
 - `strategy` - the strategy name registered with `server.auth.strategy()`.
@@ -444,7 +442,7 @@ server.route({
 });
 ```
 
-#### `server.bind(context)`
+### `server.bind(context)`
 
 Sets a global context used as the default bind object when adding a route or an extension where:
 - `context` - the object used to bind `this` in handler and extension methods.
@@ -469,7 +467,7 @@ exports.register = function (server, options, next) {
 };
 ```
 
-#### `server.cache(options)`
+### `server.cache(options)`
 
 Provisions a cache segment within the server cache facility where:
 - `options` - [**catbox** policy](https://github.com/hapijs/catbox#policy) configuration where:
@@ -514,7 +512,7 @@ cache.set('norway', { capital: 'oslo' }, function (err) {
 });
 ```
 
-#### `server.connection([options])`
+### `server.connection([options])`
 
 Adds an incoming sever connection where:
 - `host` - the hostname or IP address. Defaults to `0.0.0.0` which means any available network
@@ -681,7 +679,7 @@ var pack = new Hapi.Server();
 server.connection({ port: 8000, host: 'example.com', labels: ['web'] });
 ```
 
-#### `server.decorate(type, property, method)`
+### `server.decorate(type, property, method)`
 
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
@@ -709,7 +707,7 @@ server.route({
 });
 ```
 
-#### `server.dependency(dependencies, [after])`
+### `server.dependency(dependencies, [after])`
 
 Used within a plugin to declares a required dependency on other plugins where:
 - `dependencies` - a single string or array of plugin name strings which must be registered in
@@ -740,7 +738,7 @@ var after = function (server, next) {
 };
 ```
 
-#### `server.expose(key, value)`
+### `server.expose(key, value)`
 
 Used within a plugin to expose a property via `server.plugins[name]` (when added to all the
 connections) and to each `connection.plugins[name]` (where 'name' is the plugin name) where:
@@ -755,7 +753,7 @@ exports.register = function (server, options, next) {
 };
 ```
 
-#### `server.expose(obj)`
+### `server.expose(obj)`
 
 Merges a deep copy of an object into to the existing content of `server.plugins[name]`(when added
 to all the connections) and to each `connection.plugins[name]` (where 'name' is the plugin name)
@@ -770,7 +768,7 @@ exports.register = function (server, options, next) {
 };
 ```
 
-#### `server.ext(event, method, [options])`
+### `server.ext(event, method, [options])`
 
 Registers an extension function in one of the available [extension points](#request-lifecycle)
 where:
@@ -814,7 +812,7 @@ server.start();
 // All requests will get routed to '/test'
 ```
 
-#### `server.handler(name, method)`
+### `server.handler(name, method)`
 
 Registers a new handler type to be used in routes where:
 - `name` - string name for the handler being registered. Cannot override the built-in handler
@@ -852,7 +850,7 @@ server.route({
 server.start();
 ```
 
-#### `server.inject(options, callback)`
+### `server.inject(options, callback)`
 
 When the server contains exactly one connection, injects a request into the sole connection
 simulating an incoming HTTP request without making an actual socket connection. Injection is useful
@@ -912,7 +910,7 @@ server.inject('/', function (res) {
 });
 ```
 
-#### `server.log(tags, [data, [timestamp]])`
+### `server.log(tags, [data, [timestamp]])`
 
 The `server.log()` method is used for logging server events that cannot be associated with a
 specific request. When called the server emits a `'log'` event which can be used by other listeners
@@ -939,7 +937,7 @@ server.on('log', function (event, tags) {
 server.log(['test', 'error'], 'Test event');
 ```
 
-#### `server.method(name, method, [options])`
+### `server.method(name, method, [options])`
 
 Registers a server method. Server methods are functions registered with the server and used
 throughout the application as a common utility. Their advantage is in the ability to configure them
@@ -1019,7 +1017,7 @@ server.methods.sumObj([5, 6], function (err, result) {
 });
 ```
 
-#### `server.method(methods)`
+### `server.method(methods)`
 
 Registers a server method function as described in `server.method()` using a configuration object
 where:
@@ -1045,7 +1043,7 @@ server.method({
 });
 ```
 
-#### `server.path(relativeTo)`
+### `server.path(relativeTo)`
 
 Sets the path prefix used to locate static resources (files and view templates) when relative paths
 are used where:
@@ -1063,7 +1061,7 @@ exports.register = function (server, options, next) {
 };
 ```
 
-#### `server.register(plugins, [options], callback)`
+### `server.register(plugins, [options], callback)`
 
 Registers a plugin where:
 - `plugins` - an object or array of objects where each one is either:
@@ -1099,7 +1097,7 @@ server.pack.register({
  });
 ```
 
-#### `server.render(template, context, [options], callback)`
+### `server.render(template, context, [options], callback)`
 
 Utilizes the server views manager to render a template where:
 - `template` - the template filename and path, relative to the views manager templates path (`path`
@@ -1132,7 +1130,7 @@ server.render('hello', context, function (err, rendered, config) {
 });
 ```
 
-#### `server.route(options)`
+### `server.route(options)`
 
 Adds a connection route where:
 - `options` - a route configuration object or an array of configuration objects.
@@ -1149,7 +1147,7 @@ server.route([
 ]);
 ```
 
-#### `server.select(labels)`
+### `server.select(labels)`
 
 Selects a subset of the server's connections where:
 - `labels` - a single string or array of strings of labels used as a logical OR statement to select
@@ -1169,7 +1167,7 @@ var a = server.select('a');     // 80, 8080
 var ac = a.select('c');         // 8080
 ```
 
-#### `server.start([callback])`
+### `server.start([callback])`
 
 Starts the server connections by listening for incoming requests on the configured port of each
 listener (unless the connection was configured with `autoListen` set to `false`), where:
@@ -1188,7 +1186,7 @@ server.start(function (err) {
 });
 ```
 
-#### `server.state(name, [options])`
+### `server.state(name, [options])`
 
 [HTTP state management](http://tools.ietf.org/html/rfc6265) uses client cookies to persist a state
 across multiple requests. Registers a cookie definitions where:
@@ -1276,7 +1274,7 @@ server.on('request', function (request, event, tags) {
 });
 ```
 
-#### `server.stop([options], [callback])`
+### `server.stop([options], [callback])`
 
 Stops the server's connections by refusing to accept any new connections (existing connections will
 continue until closed or timeout), where:
@@ -1297,7 +1295,7 @@ server.stop({ timeout: 60 * 1000 }, function () {
 });
 ```
 
-#### `server.table([host])`
+### `server.table([host])`
 
 Returns a copy of the routing table where:
 - `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual
@@ -1352,7 +1350,7 @@ var table = server.connections[0].table();
 */
 ```
 
-#### `server.views(options)`
+### `server.views(options)`
 
 Initializes the server views manager where:
 - `options` - a configuration object with the following:
@@ -1434,6 +1432,72 @@ server.views({
 When `server.views()` is called within a plugin, the views manager is only available to plugins
 methods.
 
+### Server events
+
+The server object inherits from `Events.EventEmitter` and emits the following events:
+
+- `'start'` - emitted when the server is started using `server.start()`.
+- `'stop'` - emitted when the server is stopped using `server.stop()`.
+- `'log'` - events logged with `server.log()`.
+- `'request'` - events generated by `request.log()` or internally (multiple events per request).
+- `'response'` - emitted after a response to a client request is sent back. Single event per
+  request.
+- `'tail'` - emitted when a request finished processing, including any registered tails. Single
+  event per request.
+- `'internalError'` - emitted whenever an Internal Server Error (500) error response is sent.
+  Single event per request.
+
+When provided (as listed below) the `event` object include:
+
+- `timestamp` - the event timestamp.
+- `request` - if the event relates to a request, the `request id`.
+- `server` - if the event relates to a server, the `server.info.uri`.
+- `tags` - an array of tags (e.g. `['error', 'http']`). Includes the `'hapi'` tag is the event was
+  generated internally.
+- `data` - optional event-specific information.
+
+The `'log'` event includes the `event` object and a `tags` object (where each tag is a key with the
+value `true`):
+
+```js
+server.on('log', function (event, tags) {
+
+    if (tags.error) {
+        console.log('Server error: ' + (event.data || 'unspecified'));
+    }
+});
+```
+
+The `'request'` event includes the `request` object, the `event` object, and a `tags` object (where
+each tag is a key with the value `true`):
+
+```js
+server.on('request', function (request, event, tags) {
+
+    if (tags.received) {
+        console.log('New request: ' + event.id);
+    }
+});
+```
+
+The `'response'` and `'tail'` events include the `request` object:
+
+```js
+server.on('response', function (request) {
+
+    console.log('Response sent for request: ' + request.id);
+});
+```
+
+The `'internalError'` event includes the `request` object and the causing error `err` object:
+
+```js
+server.on('internalError', function (request, err) {
+
+    console.log('Error response (500) sent for request: ' + request.id + ' because: ' + err.message);
+});
+```
+
 ## Plugins
 
 Plugins provide a way to organize the application code by splitting the server logic into smaller
@@ -1449,8 +1513,8 @@ A plugin is a function with the signature `function(server, options, next)` wher
     - `err` - any plugin registration error.
 
 The plugin function must include an `attributes` function property with the following:
-- `name` - required plugin name string. The name is used as a unique key. Published plugins should use
-  the same name as the name field in the 'package.json' file. Names must be unique within each
+- `name` - required plugin name string. The name is used as a unique key. Published plugins should
+  use the same name as the name field in the 'package.json' file. Names must be unique within each
   application.
 - `version` - optional plugin version. The version is only used informatively to enable other
   plugins to find out the versions loaded. The version should be the same as the one specified in
@@ -1808,7 +1872,7 @@ var user = {
 server.route({ method: 'GET', path: '/user', config: user });
 ```
 
-#### Path parameters
+### Path parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming
 request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
@@ -1863,7 +1927,7 @@ server.route({
 });
 ```
 
-### Path processing
+### Path matching order
 
 The router iterates through the routing table on each incoming request and executes the first (and
 only the first) matching route. Route matching is done on a combination of the request path and the
@@ -1911,6 +1975,25 @@ var paths = [
     '/{a}/b/{p*}',
     '/{p*}'
 ];
+```
+
+#### Catch all route
+
+If the application needs to override the default Not Found (404) error response, it can add a
+catch-all route for a specific method or all methods. Only one catch-all route can be defined per
+server connection.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+var handler = function (request, reply) {
+
+    return reply('The page was not found').code(404);
+};
+
+server.route({ method: '*', path: '/{p*}', handler: handler });
 ```
 
 ### Route handler
@@ -2136,166 +2219,34 @@ server.route({
 });
 ```
 
-### Catch all route
-
-If the application needs to override the default Not Found (404) error response, it can add a
-catch-all route for a specific method or all methods. Only one catch-all route can be defined per
-server connection.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection({ port: 80 });
-
-var handler = function (request, reply) {
-
-    return reply('The page was not found').code(404);
-};
-
-server.route({ method: '*', path: '/{p*}', handler: handler });
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### `Server` events
-
-The server object inherits from `Events.EventEmitter` and emits the following events:
-
-- `'log'` - events logged with [server.log()](#serverlogtags-data-timestamp).
-- `'request'` - events generated by [request.log()](#requestlogtags-data-timestamp) or internally (multiple events per request).
-- `'response'` - emitted after a response to a client request is sent back. Single event per request.
-- `'tail'` - emitted when a request finished processing, including any registered [tails](#requesttailname). Single event per request.
-- `'internalError'` - emitted whenever an Internal Server Error (500) error response is sent. Single event per request.
-
-When provided (as listed below) the `event` object include:
-
-- `timestamp` - the event timestamp.
-- `request` - if the event relates to a request, the `request id`.
-- `server` - if the event relates to a server, the `server.info.uri`.
-- `tags` - an array of tags (e.g. `['error', 'http']`). Includes the `'hapi'` tag is the event was generated internally.
-- `data` - optional event-specific information.
-
-The `'log'` event includes the `event` object and a `tags` object (where each tag is a key with the value `true`):
-
-```js
-server.on('log', function (event, tags) {
-
-    if (tags.error) {
-        console.log('Server error: ' + (event.data || 'unspecified'));
-    }
-});
-```
-
-The `'request'` event includes the `request` object, the `event` object, and a `tags` object (where each tag is a key with the value `true`):
-
-```js
-server.on('request', function (request, event, tags) {
-
-    if (tags.received) {
-        console.log('New request: ' + event.id);
-    }
-});
-```
-
-The `'response'` and `'tail'` events include the `request` object:
-
-```js
-server.on('response', function (request) {
-
-    console.log('Response sent for request: ' + request.id);
-});
-```
-
-The `'internalError'` event includes the `request` object and the causing error `err` object:
-
-```js
-server.on('internalError', function (request, err) {
-
-    console.log('Error response (500) sent for request: ' + request.id + ' because: ' + err.message);
-});
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Request object
 
-The `request` object is created internally for each incoming request. It is **not** the node `request` object received from the HTTP
-server callback (which is available in `request.raw.req`). The `request` object methods and properties change through the
+The request object is created internally for each incoming request. It is **different** from the
+node.js request object received from the HTTP server callback (which is available in
+`request.raw.req`). The request object methods and properties change throughout the
 [request lifecycle](#request-lifecycle).
 
 ### `request` properties
 
-Each request object has the following properties:
+Each request object includes the following properties:
 
-- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
-  Should not be used by plugins which should use `plugins[name]`.
+- `app` - application-specific state. Provides a safe place to store application data without
+  potential conflicts with the framework. Should not be used by plugins which should use
+  `plugins[name]`.
 - `auth` - authentication information:
-    - `isAuthenticated` - `true` is the request has been successfully authenticated, otherwise `false`.
-    - `credentials` - the `credential` object received during the authentication process. The presence of an object does not mean
-      successful authentication.
-    - `artifacts` - an artifact object received from the authentication strategy and used in authentication-related actions.
+    - `isAuthenticated` - `true` is the request has been successfully authenticated, otherwise
+      `false`.
+    - `credentials` - the `credential` object received during the authentication process. The
+      presence of an object does not mean successful authentication.
+    - `artifacts` - an artifact object received from the authentication strategy and used in
+      authentication-related actions.
     - `mode` - the route authentication mode.
     - `error` - the authentication error is failed and mode set to `'try'`.
-    - `session` - an object used by the [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
-- `domain` - the node domain object used to protect against exceptions thrown in extensions, handlers and prerequisites. Can be used to
-  manually bind callback functions otherwise bound to other domains.
+    - `session` - an object used by the
+      [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
+- `domain` - the node domain object used to protect against exceptions thrown in extensions,
+  handlers and prerequisites. Can be used to manually bind callback functions otherwise bound to
+  other domains.
 - `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
 - `info` - request information:
@@ -2307,39 +2258,42 @@ Each request object has the following properties:
     - `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
     - `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
 - `method` - the request method in lower case (e.g. `'get'`, `'post'`).
-- `mime` - the parsed content-type header. Only available when payload parsing enabled and no payload error occurred.
-- `orig` - an object containing the values of `params`, `query`, and `payload` before any validation modifications made. Only set when
-  input validation is performed.
-- `params` - an object where each key is a path parameter name with matching value as described in [Path parameters](#path-parameters).
+- `mime` - the parsed content-type header. Only available when payload parsing enabled and no
+  payload error occurred.
+- `orig` - an object containing the values of `params`, `query`, and `payload` before any
+  validation modifications made. Only set when input validation is performed.
+- `params` - an object where each key is a path parameter name with matching value as described in
+  [Path parameters](#path-parameters).
 - `path` - the request URI's path component.
 - `payload` - the request payload based on the route `payload.output` and `payload.parse` settings.
-- `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
-  key is a plugin name and the value is the state.
-- `pre` - an object where each key is the name assigned by a [route prerequisites](#route-prerequisites) function. The values are the raw values
-  provided to the continuation function as argument. For the wrapped response object, use `responses`.
-- `response` - the response object when set. The object can be modified but must not be assigned another object. To replace the response
-  with another from within an extension point, use `next(response)` to override with a different response.
+- `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data.
+  The `plugins` is an object where each key is a plugin name and the value is the state.
+- `pre` - an object where each key is the name assigned by a
+  [route prerequisites](#route-prerequisites) function. The values are the raw values provided to
+  the continuation function as argument. For the wrapped response object, use `responses`.
+- `response` - the response object when set. The object can be modified but must not be assigned
+  another object. To replace the response with another from within an extension point, use
+  `reply(response)` to override with a different response.
 - `responses` - same as `pre` but represented as the response object created by the pre method.
 - `query` - an object containing the query parameters.
-- `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
+- `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
+  objects is not recommended.**
     - `req` - the `request` object.
     - `res` - the response object.
 - `route` - the route configuration object after defaults are applied.
 - `server` - the server object.
-- `session` - Special key reserved for plugins implementing session support. Plugins utilizing this key must check for `null` value
-  to ensure there is no conflict with another similar server.
-- `state` - an object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching
-  cookie content after processing using any registered cookie definition.
+- `session` - Special key reserved for plugins implementing session support. Plugins utilizing this
+  key must check for `null` value to ensure there is no conflict with another similar server.
+- `state` - an object containing parsed HTTP state information (cookies) where each key is the
+  cookie name and value is the matching cookie content after processing using any registered cookie
+  definition.
 - `url` - the parsed request URI.
 
-### `request` methods
-
-#### `request.setUrl(url)`
+### `request.setUrl(url)`
 
 _Available only in `'onRequest'` extension methods._
 
- Changes the request URI before the router begins processing the request where:
-
+Changes the request URI before the router begins processing the request where:
  - `url` - the new request path value.
 
 ```js
@@ -2347,20 +2301,19 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onRequest', function (request, next) {
+server.ext('onRequest', function (request, reply) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
-    next();
+    return reply.continue();
 });
 ```
 
-#### `request.setMethod(method)`
+### `request.setMethod(method)`
 
 _Available only in `'onRequest'` extension methods._
 
 Changes the request method before the router begins processing the request where:
-
 - `method` - is the request HTTP method (e.g. `'GET'`).
 
 ```js
@@ -2368,23 +2321,23 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onRequest', function (request, next) {
+server.ext('onRequest', function (request, reply) {
 
     // Change all requests to 'GET'
     request.setMethod('GET');
-    next();
+    return reply.continue();
 });
 ```
 
-#### `request.log(tags, [data, [timestamp]])`
+### `request.log(tags, [data, [timestamp]])`
 
 _Always available._
 
-Logs request-specific events. When called, the server emits a `'request'` event which can be used by other listeners or plugins. The
-arguments are:
-
-- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify the event. Tags are used instead of log levels
-  and provide a much more expressive mechanism for describing and filtering events. Any logs generated by the server internally include the `'hapi'`
+Logs request-specific events. When called, the server emits a `'request'` event which can be used
+by other listeners or plugins. The arguments are:
+- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
+  the event. Tags are used instead of log levels and provide a much more expressive mechanism for
+  describing and filtering events. Any logs generated by the server internally include the `'hapi'`
   tag along with event-specific information.
 - `data` - an optional message string or object with the application data being logged.
 - `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
@@ -2404,15 +2357,17 @@ server.on('request', function (request, event, tags) {
 var handler = function (request, reply) {
 
     request.log(['test', 'error'], 'Test event');
+    return reply();
 };
 ```
 
-#### `request.getLog([tags])`
+### `request.getLog([tags])`
 
 _Always available._
 
 Returns an array containing the events matching any of the tags specified (logical OR) where:
-- `tags` - is a single tag string or array of tag strings. If no `tags` specified, returns all events.
+- `tags` - is a single tag string or array of tag strings. If no `tags` specified, returns all
+  events.
 
 ```js
 request.getLog();
@@ -2420,19 +2375,19 @@ request.getLog('error');
 request.getLog(['hapi', 'error']);
 ```
 
-#### `request.tail([name])`
+### `request.tail([name])`
 
 _Available until immediately after the `'response'` event is emitted._
 
 Adds a request tail which has to complete before the request lifecycle is complete where:
-
 - `name` - an optional tail name used for logging purposes.
 
 Returns a tail function which must be called when the tail activity is completed.
 
-Tails are actions performed throughout the request lifecycle, but which may end after a response is sent back to the client. For example, a
-request may trigger a database update which should not delay sending back a response. However, it is still desirable to associate the activity
-with the request when logging it (or an error associated with it).
+Tails are actions performed throughout the request lifecycle, but which may end after a response is
+sent back to the client. For example, a request may trigger a database update which should not
+delay sending back a response. However, it is still desirable to associate the activity with the
+request when logging it (or an error associated with it).
 
 When all tails completed, the server emits a `'tail'` event.
 
@@ -2450,7 +2405,7 @@ var get = function (request, reply) {
         dbTail();
     });
 
-    reply('Success!');
+    return reply('Success!');
 };
 
 server.route({ method: 'GET', path: '/', handler: get });
@@ -2465,8 +2420,10 @@ server.on('tail', function (request) {
 
 The request object supports the following events:
 
-- `'peek'` - emitted for each chunk of payload data read from the client connection. The event method signature is `function(chunk, encoding)`.
-- `'finish'` - emitted when the request payload finished reading. The event method signature is `function ()`.
+- `'peek'` - emitted for each chunk of payload data read from the client connection. The event
+  method signature is `function(chunk, encoding)`.
+- `'finish'` - emitted when the request payload finished reading. The event method signature is
+  `function ()`.
 - `'disconnect'` - emitted when a request errors or aborts unexpectedly.
 
 ```js
@@ -2492,307 +2449,127 @@ server.ext('onRequest', function (request, reply) {
 
         console.error('request aborted');
     });
+
+    return reply.continue();
 });
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Reply interface
 
-### Flow control
+The various request lifecycle events (e.g. extensions, authentication, prerequisites, handlers)
+provide a reply interface as one of the function arguments. The reply interface acts as both a
+callback interface to return control to the framework and a response generator.
 
-When calling `reply()`, the router waits until `process.nextTick()` to continue processing the request and transmit the response.
-This enables making changes to the returned [response object](#response-object) before the response is sent. This means the router
-will resume as soon as the handler method exits. To suspend this behavior, the returned `response` object includes:
+### `reply([err], [result])`
 
-- `response.hold()` - puts the response on hold until `response.send()` is called. Available only after `reply()` is called and until
-  `response.hold()` is invoked once.
-- `response.send()` - resume the response which will be transmitted in the next tick. Available only after `response.hold()` is called and until
-  `response.send()` is invoked once.
-
-```js
-var handler = function (request, reply) {
-
-    var response = reply('success').hold();
-
-    setTimeout(function () {
-
-        response.send();
-    }, 1000);
-};
-```
-
-When calling `reply()` in a prerequisite, it is sometimes necessary to take over the handler execution and return a non-error response back
-to the client. The [response object](#response-object) provides the `takeover()` method to indicate the value provided via `reply()` should
-be used as the final response and skip any other prerequisites and the handler.
-
-```js
-var pre = function (request, reply) {
-
-    if (!request.auth.isAuthenticated) {
-        return reply('You need to login first!').takeover();
-    }
-
-    reply({ account: request.auth.credentials });   // Used in the handler later
-};
-```
-
-### `reply([result])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
+_Available only within the before one of `reply()`, `reply.file()`, `reply.view()`,
 `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
-Concludes the handler activity by returning control over to the router where:
-
+Concludes the handler activity by setting a response and returning control over to the framework
+where:
+- `err` - an optional error response.
 - `result` - an optional response payload.
 
-Returns a [`response`](#response-object) object based on the value of `result`:
+Since an request can only have one response regardless if it is an error or success, the `reply()`
+method can only result in a single response value. This means that passing both an `err` and 
+`result` will only use the `err`. There is no requirement for either `err` or `result` to be (or
+not) an `Error` object. The framework will simply use the first argument if present, otherwise the
+second. The method supports two arguments to be compatible with the common callback pattern of
+error first.
 
-- `null`, `undefined`, or empty string `''` - [`Empty`](#empty) response.
-- string - [`Text`](#text) response.
-- `Buffer` object - [`Buffer`](#buffer) response.
-- `Error` object (generated via [`error`](#hapierror) or `new Error()`) - [`Boom`](#hapierror) object.
-- `Stream` object - [`Stream`](#stream) response.
-- any other object - [`Obj`](#obj) response.
+Both `err` and `result` can be set to:
+- `null`
+- `undefined`
+- string
+- number
+- boolean
+- `Buffer` object
+- `Error` object
+- `Stream` object
+- Promise object
+- any other object or array
 
 ```js
 var handler = function (request, reply) {
 
-    reply('success');
+    return reply('success');
 };
 ```
 
-The returned `response` object provides a set of methods to customize the response (e.g. HTTP status code, custom headers, etc.). The methods
-are response-type-specific and listed in [`response`](#response-object).
+If the input is not an `Error` object, the method returns a [`response`](#response-object) object
+which provides a set of methods to customize the response (e.g. HTTP status code, custom headers,
+etc.). If the input is an `Error` object, the method returns back the error wrapped in a
+[`Boom`](https://github.com/hapijs/boom) object.
 
 The [response flow control rules](#flow-control) apply.
 
 ```js
+// Detailed notation
+
 var handler = function (request, reply) {
 
-    reply('success')
+    var response = reply('success');
+    response.type('text/plain');
+    response.header('X-Custom', 'some-value');
+};
+
+// Chained notation
+
+var handler = function (request, reply) {
+
+    return reply('success')
         .type('text/plain')
         .header('X-Custom', 'some-value');
 };
 ```
 
-Note that if `result` is a `Stream` with a `statusCode` property, that status code will be used as the default response code.
-
-### `reply.file(path, [options])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
-
-Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type based on filename extension.:
-
-- `path` - the file path.
-- `options` - optional settings:
-    - `filename` - an optional filename to specify if sending a 'Content-Disposition' header, defaults to the basename of `path`
-    - `mode` - specifies whether to include the 'Content-Disposition' header with the response. Available values:
-        - `false` - header is not included. This is the default value.
-        - `'attachment'`
-        - `'inline'`
-    - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix for a precompressed version of the file to serve if the request supports content encoding. Defaults to `false`.
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-```js
-var handler = function (request, reply) {
-
-    reply.file('./hello.txt');
-};
-```
-
-### `reply.view(template, [context, [options]])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
-
-Concludes the handler activity by returning control over to the router with a templatized view response where:
-
-- `template` - the template filename and path, relative to the templates path configured via the server [`views.path`](#serverviewsoptions).
-- `context` - optional object used by the template to render context-specific result. Defaults to no context `{}`.
-- `options` - optional object used to override the server's [`views`](#serverviewsoptions) configuration for this response. Cannot override
-  `isCached`, `partialsPath`, or `helpersPath` which are only loaded at initialization.
-
-Returns a [response object](#response-object).
-
-The [response flow control rules](#flow-control) apply.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection({ port: 80 });
-server.views({
-    engines: { html: require('handlebars') },
-    path: __dirname + '/templates'
-});
-
-var handler = function (request, reply) {
-
-    var context = {
-        title: 'Views Example',
-        message: 'Hello, World'
-    };
-
-    reply.view('hello', context);
-};
-
-server.route({ method: 'GET', path: '/', handler: handler });
-```
-
-**templates/hello.html**
-
-```html
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{{title}}</title>
-    </head>
-    <body>
-        <div>
-            <h1>{{message}}</h1>
-        </div>
-    </body>
-</html>
-```
-
-### `reply.close([options])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
-
-Concludes the handler activity by returning control over to the router and informing the router that a response has already been sent back
-directly via `request.raw.res` and that no further response action is needed. Supports the following optional options:
-- `end` - if `false`, the router will not call `request.raw.res.end())` to ensure the response was ended. Defaults to `true`.
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-### `reply.proxy(options)`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
-
-Proxies the request to an upstream endpoint where:
-- `options` - an object including the same keys and restrictions defined by the [route `proxy` handler options](#route.config.proxy).
-
-No return value.
-
-The [response flow control rules](#flow-control) **do not** apply.
-
-```js
-var handler = function (request, reply) {
-
-    reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
-};
-```
-
-### `reply.redirect(uri)`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
-
-Redirects the client to the specified uri. Same as calling `reply().redirect(uri)`.
-
-Returns a [response object](#response-object).
-
-The [response flow control rules](#flow-control) apply.
-
-```js
-var handler = function (request, reply) {
-
-    reply.redirect('http://example.com');
-};
-```
-
-Changing to a permanent or non-rewriterable redirect is also available see [response object redirect](#response-object-redirect) for more information.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Response object
+Note that if `result` is a `Stream` with a `statusCode` property, that status code will be used as
+the default response code.
+
+Any value provided to `reply()` (including no value) will be used as the response sent back to the
+client. This means calling `reply()` with a value in an extension function or authentication
+function will be considered an error and will terminate the request lifecycle. With the exception
+of the handler function, all other methods provide the `reply.continue()` method which instructs
+the framework to continue processing the request without setting a response.
+
+#### Response object
 
 Every response includes the following properties:
 - `statusCode` - the HTTP response status code. Defaults to `200` (except for errors).
-- `headers` - an object containing the response headers where each key is a header field name. Note that this is an incomplete list of
-  headers to be included with the response. Additional headers will be added once the response is prepare for transmission (e.g. 'Location',
-  'Cache-Control').
+- `headers` - an object containing the response headers where each key is a header field name. Note
+  that this is an incomplete list of headers to be included with the response. Additional headers
+  will be added once the response is prepare for transmission.
 - `source` - the value provided using the `reply()` interface.
 - `variety` - a string indicating the type of `source` with available values:
-    - `'plain'` - a plain response such as string, number, `null`, or simple object (e.g. not a `Stream`, `Buffer`, or view).
+    - `'plain'` - a plain response such as string, number, `null`, or simple object (e.g. not a
+      `Stream`, `Buffer`, or view).
     - `'buffer'` - a `Buffer`.
     - `'view'` - a view generated with `reply.view()`.
     - `'file'` - a file generated with `reply.file()` of via the directory handler.
     - `'stream'` - a `Stream`.
-- `app` - application-specific state. Provides a safe place to store application data without potential conflicts with **hapi**.
-  Should not be used by plugins which should use `plugins[name]`.
-- `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each
-  key is a plugin name and the value is the state.
+    - `'promise'` - a Promise object.
+- `app` - application-specific state. Provides a safe place to store application data without
+  potential conflicts with the framework. Should not be used by plugins which should use
+  `plugins[name]`.
+- `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data.
+  The `plugins` is an object where each key is a plugin name and the value is the state.
 - `settings` - response handling flags:
     - `charset` -  the 'Content-Type' HTTP header 'charset' property. Defaults to `'utf-8'`.
-    - `encoding` - the string encoding scheme used to serial data into the HTTP payload when `source` is a string or marshalls into a string.
+    - `encoding` - the string encoding scheme used to serial data into the HTTP payload when
+      `source` is a string or marshalls into a string.
       Defaults to `'utf8'`.
-    - `passThrough` - if `true` and `source` is a `Stream`, copies the `statusCode` and `headers` of the stream to the outbound response.
-      Defaults to `true`.
-    - `stringify` - options used for `source` value requiring stringification. Defaults to no replacer and no space padding.
-    - `ttl` -  if set, overrides the route cache expiration milliseconds value set in the route config. Defaults to no override.
-    - `varyEtag` - if `true`, a suffix will be automatically added to the 'ETag' header at transmission time (separated by a `'-'` character)
-      when the HTTP 'Vary' header is present.
+    - `passThrough` - if `true` and `source` is a `Stream`, copies the `statusCode` and `headers`
+      of the stream to the outbound response. Defaults to `true`.
+    - `stringify` - options used for `source` value requiring stringification. Defaults to no
+      replacer and no space padding.
+    - `ttl` -  if set, overrides the route cache expiration milliseconds value set in the route
+      config. Defaults to no override.
+    - `varyEtag` - if `true`, a suffix will be automatically added to the 'ETag' header at
+      transmission time (separated by a `'-'` character) when the HTTP 'Vary' header is present.
 
-It provides the following methods:
-
-- `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
+The response object provides the following methods:
+- `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding)
+  where:
     - `length` - the header value. Must match the actual payload size.
 - `charset(charset)` - sets the 'Content-Type' HTTP header 'charset' property where:
     `charset` - the charset property value.
@@ -2800,59 +2577,75 @@ It provides the following methods:
     - `statusCode` - the HTTP status code.
 - `created(uri)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
     `uri` - an absolute or relative URI used as the 'Location' header value.
-- `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload where:
-    `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
-- `etag(tag, options)` - sets the representation [entity tag](http://tools.ietf.org/html/rfc7232#section-2.3) where:
+- `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload
+  where:
+    `encoding` - the encoding property value (see
+      [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
+- `etag(tag, options)` - sets the representation
+   [entity tag](http://tools.ietf.org/html/rfc7232#section-2.3) where:
     - `tag` - the entity tag string without the double-quote.
     - `options` - optional settings where:
-        - `weak` - if `true`, the tag will be prefixed with the `'W/'` weak signifier. Weak tags will fail to match identical tags for the
-          purpose of determining 304 response status. Defaults to `false`.
-        - `vary` - if `true`, a suffix will be automatically added to the tag at transmission time (separated by a `'-'` character) when the
-          HTTP 'Vary' header is present. Ignored when `weak` is `true`. Defaults to `true` when a tag is set using this method and when using
+        - `weak` - if `true`, the tag will be prefixed with the `'W/'` weak signifier. Weak tags
+          will fail to match identical tags for the purpose of determining 304 response status.
+          Defaults to `false`.
+        - `vary` - if `true`, a suffix will be automatically added to the tag at transmission time
+          (separated by a `'-'` character) when the HTTP 'Vary' header is present. Ignored when
+          `weak` is `true`. Defaults to `true` when a tag is set using this method and when using
           the internal file or directory handlers, otherwise `false`.
 - `header(name, value, options)` - sets an HTTP header where:
     - `name` - the header name.
     - `value` - the header value.
     - `options` - optional settings where:
-        - `append` - if `true`, the value is appended to any existing header value using `separator`. Defaults to `false`.
-        - `separator` - string used as separator when appending to an exiting value. Defaults to `','`.
-        - `override` - if `false`, the header value is not set if an existing value present. Defaults to `true`.
+        - `append` - if `true`, the value is appended to any existing header value using
+          `separator`. Defaults to `false`.
+        - `separator` - string used as separator when appending to an exiting value. Defaults to
+          `','`.
+        - `override` - if `false`, the header value is not set if an existing value present.
+          Defaults to `true`.
 - `location(uri)` - sets the HTTP 'Location' header where:
     - `uri` - an absolute or relative URI used as the 'Location' header value.
-- `redirect(uri)` - sets an HTTP redirection response (302) and decorates the response with additional methods listed below, where:
+- `redirect(uri)` - sets an HTTP redirection response (302) and decorates the response with
+  additional methods listed below, where:
     - `uri` - an absolute or relative URI used to redirect the client to another resource.
-- `state(name, value, [options])` - sets an HTTP cookie where:
-    - `name` - the cookie name.
-    - `value` - the cookie value. If no `encoding` is defined, must be a string.
-    - `options` - optional configuration. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
-      the specified keys in `options` override those same keys in the server definition (but not others).
-- `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
-    - `msec` - the time-to-live value in milliseconds.
-- `type(mimeType)` - sets the HTTP 'Content-Type' header where:
-    - `value` - is the mime type. Should only be used to override the built-in default for each response type.
-- `unstate(name, [options])` - clears the HTTP cookie by setting an expired value where:
-    - `name` - the cookie name.
-    - `options` - optional configuration for expiring cookie. If the state was previously registered with the server using [`server.state()`](#serverstatename-options),
-          the specified keys in `options` override those same keys in the server definition (but not others).
-- `vary(header)` - adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
-    - `header` - the HTTP request header name.
-
-When the value provided by `reply()` requires stringification before transmission, the following methods are provided:
-
 - `replacer(method)` - sets the `JSON.stringify()` `replacer` argument where:
     - `method` - the replacer function or array. Defaults to none.
 - `spaces(count)` - sets the `JSON.stringify()` `space` argument where:
     - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
+- `state(name, value, [options])` - sets an HTTP cookie where:
+    - `name` - the cookie name.
+    - `value` - the cookie value. If no `encoding` is defined, must be a string.
+    - `options` - optional configuration. If the state was previously registered with the server
+      using [`server.state()`](#serverstatename-options),
+      the specified keys in `options` override those same keys in the server definition (but not
+      others).
+- `suffix(suffix)` - sets a string suffix when the response is process via `JSON.stringify()`.
+- `ttl(msec)` - overrides the default route cache expiration rule for this response instance where:
+    - `msec` - the time-to-live value in milliseconds.
+- `type(mimeType)` - sets the HTTP 'Content-Type' header where:
+    - `value` - is the mime type. Should only be used to override the built-in default for each
+      response type.
+- `unstate(name, [options])` - clears the HTTP cookie by setting an expired value where:
+    - `name` - the cookie name.
+    - `options` - optional configuration for expiring cookie. If the state was previously
+      registered with the server using [`server.state()`](#serverstatename-options), the specified
+      keys in `options` override those same keys in the server definition (but not others).
+- `vary(header)` - adds the provided header to the list of inputs affected the response generation
+  via the HTTP 'Vary' header where:
+    - `header` - the HTTP request header name.
 
-#### Response Object Redirect Methods
+##### Response Object Redirect Methods
+
 When using the `redirect()` method, the response object provides these additional methods:
 
-- `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()` setting) where:
+- `temporary(isTemporary)` - sets the status code to `302` or `307` (based on the `rewritable()`
+  setting) where:
     - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
-- `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()` setting) where:
+- `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()`
+  setting) where:
     - `isPermanent` - if `true`, sets status to temporary. Defaults to `false`.
-- `rewritable(isRewritable)` - sets the status code to `301`/`302` for rewritable (allows changing the request method from 'POST' to 'GET') or
-  `307`/`308` for non-rewritable (does not allow changing the request method from 'POST' to 'GET'). Exact code based on the `temporary()` or
+- `rewritable(isRewritable)` - sets the status code to `301`/`302` for rewritable (allows changing
+  the request method from 'POST' to 'GET') or `307`/`308` for non-rewritable (does not allow
+  changing the request method from 'POST' to 'GET'). Exact code based on the `temporary()` or
   `permanent()` setting. Arguments:
     - `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
 
@@ -2863,15 +2656,17 @@ When using the `redirect()` method, the response object provides these additiona
 
 Notes:
 1. Default value.
-2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by all clients.
+2. [Proposed code](http://tools.ietf.org/id/draft-reschke-http-status-308-07.txt), not supported by
+  all clients.
 
-### Response events
+##### Response events
 
 The response object supports the following events:
 
-- `'peek'` - emitted for each chunk of data written back to the client connection. The event method signature is `function(chunk, encoding)`.
-- `'finish'` - emitted when the response finished writing but before the client response connection is ended. The event method signature is
-  `function ()`.
+- `'peek'` - emitted for each chunk of data written back to the client connection. The event method
+  signature is `function(chunk, encoding)`.
+- `'finish'` - emitted when the response finished writing but before the client response connection
+  is ended. The event method signature is `function ()`.
 
 ```js
 var Crypto = require('crypto');
@@ -2896,12 +2691,180 @@ server.ext('onPreResponse', function (request, reply) {
 
         console.log(hash.digest('hex'));
     });
+
+    return reply.continue();
 });
 ```
 
+#### Flow control
 
+When calling `reply()`, the framework waits until `process.nextTick()` to continue processing the
+request and transmit the response. This enables making changes to the returned
+[response object](#response-object) before the response is sent. This means the framework
+will resume as soon as the handler method exits. To suspend this behavior, the returned
+`response` object supports the following methods:
+- `hold()` - puts the response on hold until `response.send()` is called. Available only after
+  `reply()` is called and until `response.hold()` is invoked once.
+- `send()` - resume the response which will be transmitted in the next tick. Available only after
+  `response.hold()` is called and until `response.send()` is invoked once.
 
+```js
+var handler = function (request, reply) {
 
+    var response = reply('success').hold();
+
+    setTimeout(function () {
+
+        response.send();
+    }, 1000);
+};
+```
+
+### `reply.file(path, [options])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`,
+`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
+
+Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type
+based on filename extension.:
+
+- `path` - the file path.
+- `options` - optional settings:
+    - `filename` - an optional filename to specify if sending a 'Content-Disposition' header,
+      defaults to the basename of `path`
+    - `mode` - specifies whether to include the 'Content-Disposition' header with the response.
+      Available values:
+        - `false` - header is not included. This is the default value.
+        - `'attachment'`
+        - `'inline'`
+    - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix for a
+      precompressed version of the file to serve if the request supports content encoding.
+      Defaults to `false`.
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+```js
+var handler = function (request, reply) {
+
+    reply.file('./hello.txt');
+};
+```
+
+### `reply.view(template, [context, [options]])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`,
+`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
+
+Concludes the handler activity by returning control over to the router with a templatized view
+response where:
+
+- `template` - the template filename and path, relative to the templates path configured via the
+  server [`views.path`](#serverviewsoptions).
+- `context` - optional object used by the template to render context-specific result. Defaults to
+  no context `{}`.
+- `options` - optional object used to override the server's views manager configuration for this
+  response. Cannot override `isCached`, `partialsPath`, or `helpersPath` which are only loaded at
+  initialization.
+
+Returns a [response object](#response-object).
+
+The [response flow control rules](#flow-control) apply.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+server.views({
+    engines: { html: require('handlebars') },
+    path: __dirname + '/templates'
+});
+
+var handler = function (request, reply) {
+
+    var context = {
+        title: 'Views Example',
+        message: 'Hello, World'
+    };
+
+    return reply.view('hello', context);
+};
+
+server.route({ method: 'GET', path: '/', handler: handler });
+```
+
+**templates/hello.html**
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <div>
+            <h1>{{message}}</h1>
+        </div>
+    </body>
+</html>
+```
+
+### `reply.close([options])`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`,
+`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
+
+Concludes the handler activity by returning control over to the router and informing the router
+that a response has already been sent back directly via `request.raw.res` and that no further
+response action is needed. Supports the following optional options:
+- `end` - if `false`, the router will not call `request.raw.res.end())` to ensure the response was
+  ended. Defaults to `true`.
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+### `reply.proxy(options)`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`,
+`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
+
+Proxies the request to an upstream endpoint where:
+- `options` - an object including the same keys and restrictions defined by the
+ [route `proxy` handler options](#route.config.proxy).
+
+No return value.
+
+The [response flow control rules](#flow-control) **do not** apply.
+
+```js
+var handler = function (request, reply) {
+
+    reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
+};
+```
+
+### `reply.redirect(uri)`
+
+_Available only within the handler method and only before one of `reply()`, `reply.file()`,
+`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
+
+Redirects the client to the specified uri. Same as calling `reply().redirect(uri)`.
+
+Returns a [response object](#response-object).
+
+The [response flow control rules](#flow-control) apply.
+
+```js
+var handler = function (request, reply) {
+
+    reply.redirect('http://example.com');
+};
+```
+
+Changing to a permanent or non-rewriterable redirect is also available see
+[response object redirect](#response-object-redirect) for more information.
 
 
 
@@ -2976,7 +2939,7 @@ server.ext('onPreResponse', function (request, reply) {
 
     var response = request.response;
     if (!response.isBoom) {
-        return reply();
+        return reply.continue();
     }
 
     // Replace error with friendly HTML
@@ -2986,7 +2949,7 @@ server.ext('onPreResponse', function (request, reply) {
           message: (error.output.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
-      reply.view('error', ctx);
+      return reply.view('error', ctx);
 });
 ```
 
