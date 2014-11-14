@@ -2348,7 +2348,7 @@ Each request object includes the following properties:
 - `response` - the response object when set. The object can be modified but must not be assigned
   another object. To replace the response with another from within an extension point, use
   `reply(response)` to override with a different response.
-- `responses` - same as `pre` but represented as the response object created by the pre method.
+- `preResponses` - same as `pre` but represented as the response object created by the pre method.
 - `query` - an object containing the query parameters.
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
   objects is not recommended.**

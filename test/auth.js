@@ -1073,7 +1073,7 @@ internals.implementation = function (server, options) {
 
             var parts = authorization.split(/\s+/);
             if (parts.length !== 2) {
-                return reply();
+                return reply.continue();        // Error without error or credentials
             }
 
             var username = parts[1];
@@ -1095,7 +1095,7 @@ internals.implementation = function (server, options) {
                 return reply(credentials);
             }
 
-            return reply(null, { credentials: credentials });
+            return reply.continue({ credentials: credentials });
         },
         payload: function (request, next) {
 

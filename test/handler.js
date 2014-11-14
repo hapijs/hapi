@@ -345,7 +345,7 @@ describe('handler', function () {
 
             var handler = function (request, reply) {
 
-                return reply(request.responses.p);
+                return reply(request.preResponses.p);
             };
 
             var server = new Hapi.Server();
