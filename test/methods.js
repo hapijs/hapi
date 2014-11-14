@@ -30,7 +30,6 @@ describe('Methods', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection();
         server.method('add', add);
 
         server.methods.add(1, 5, function (err, result) {
@@ -48,7 +47,6 @@ describe('Methods', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection();
         server.method('add', add, { callback: false });
 
         expect(server.methods.add(1, 5)).to.equal(6);
@@ -134,7 +132,6 @@ describe('Methods', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection();
         server.method('tools.add', add);
         expect(function () {
 
@@ -152,7 +149,6 @@ describe('Methods', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection();
         server.method('add', add);
         expect(function () {
 
@@ -444,7 +440,6 @@ describe('Methods', function () {
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method(0, function () { });
         }).to.throw('name must be a string');
         done();
@@ -455,28 +450,24 @@ describe('Methods', function () {
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method('0', function () { });
         }).to.throw('Invalid name: 0');
 
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method('a..', function () { });
         }).to.throw('Invalid name: a..');
 
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method('a.0', function () { });
         }).to.throw('Invalid name: a.0');
 
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method('.a', function () { });
         }).to.throw('Invalid name: .a');
 
@@ -488,7 +479,6 @@ describe('Methods', function () {
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method('user', 'function');
         }).to.throw('method must be a function');
         done();
@@ -499,7 +489,6 @@ describe('Methods', function () {
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method('user', function () { }, 'options');
         }).to.throw(/Invalid method options \(user\)/);
         done();
@@ -510,7 +499,6 @@ describe('Methods', function () {
         expect(function () {
 
             var server = new Hapi.Server();
-            server.connection();
             server.method('user', function () { }, { generateKey: 'function' });
         }).to.throw(/Invalid method options \(user\)/);
         done();
@@ -521,7 +509,6 @@ describe('Methods', function () {
         expect(function () {
 
             var server = new Hapi.Server({ cache: CatboxMemory });
-            server.connection();
             server.method('user', function () { }, { cache: { x: 'y' } });
         }).to.throw(/Invalid cache policy configuration/);
         done();
@@ -530,7 +517,6 @@ describe('Methods', function () {
     it('returns a valid result when calling a method without using the cache', function (done) {
 
         var server = new Hapi.Server();
-        server.connection();
         server.method('user', function (id, next) { return next(null, { id: id }); });
         server.methods.user(4, function (err, result) {
 
@@ -558,7 +544,6 @@ describe('Methods', function () {
     it('returns an error result when calling a method that returns an error', function (done) {
 
         var server = new Hapi.Server();
-        server.connection();
         server.method('user', function (id, next) { return next(new Error()); });
         server.methods.user(4, function (err, result) {
 
@@ -570,7 +555,6 @@ describe('Methods', function () {
     it('returns a different result when calling a method without using the cache', function (done) {
 
         var server = new Hapi.Server();
-        server.connection();
         var gen = 0;
         server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); });
         server.methods.user(4, function (err, result1) {
