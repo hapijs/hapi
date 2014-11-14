@@ -2099,7 +2099,7 @@ internals.plugins = {
                             return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials: credentials });
                         }
 
-                        return reply(null, { credentials: credentials });
+                        return reply.continue({ credentials: credentials });
                     });
                 }
             };
