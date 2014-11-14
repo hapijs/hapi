@@ -1886,6 +1886,48 @@ describe('Plugin', function () {
             });
         });
 
+        it('renders view (plugin without views)', function (done) {
+
+            var test = function (server, options, next) {
+
+                var view = server.render('test', { message: 'steve' }, function (err, rendered, config) {
+
+                    server.route([
+                        {
+                            path: '/view', method: 'GET', handler: function (request, reply) {
+
+                                return reply(rendered);
+                            }
+                        }
+                    ]);
+
+                    return next();
+                });
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.views({
+                engines: { 'html': Handlebars },
+                relativeTo: Path.join(__dirname, '/templates/plugin')
+            });
+
+            server.register(test, function (err) {
+
+                expect(err).to.not.exist();
+                server.inject('/view', function (res) {
+
+                    expect(res.result).to.equal('<h1>steve</h1>');
+                    done();
+                });
+            });
+        });
+
         it('renders view (plugin with options)', function (done) {
 
             var test = function (server, options, next) {
@@ -2029,6 +2071,49 @@ describe('Plugin', function () {
                 server.inject('/view', function (res) {
 
                     expect(res.result).to.equal('<h1>steve</h1>');
+                    done();
+                });
+            });
+        });
+
+        it('defaults to server views', function (done) {
+
+            var test = function (server, options, next) {
+
+                server.route({
+                    path: '/view',
+                    method: 'GET',
+                    handler: function (request, reply) {
+
+                        return reply.view('test', { message: options.message });
+                    }
+                });
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.path(__dirname);
+
+            var views = {
+                engines: { 'html': Handlebars },
+                path: './templates/plugin'
+            };
+
+            server.views(views);
+
+            server.register({ register: test, options: { message: 'viewing it' } }, function (err) {
+
+                expect(err).to.not.exist();
+                server.inject('/view', function (res) {
+
+                    expect(res.result).to.equal('<h1>viewing it</h1>');
                     done();
                 });
             });
