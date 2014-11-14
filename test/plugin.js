@@ -1170,7 +1170,7 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.once('request', function () {
+                server.once('request-internal', function () {
 
                     expect(arguments).to.have.length(3);
                     done();

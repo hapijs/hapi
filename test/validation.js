@@ -1055,7 +1055,7 @@ describe('validation', function () {
             }
         });
 
-        server.on('request', function (request, event, tags) {
+        server.on('request-internal', function (request, event, tags) {
 
             if (tags.validation) {
                 expect(event.data).to.equal('a is not allowed');

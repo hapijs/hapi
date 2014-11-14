@@ -677,6 +677,33 @@ describe('Request', function () {
             });
         });
 
+        it('emits a request event', function (done) {
+
+            var handler = function (request, reply) {
+
+                server.on('request', function (request, event, tags) {
+
+                    expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
+                    expect(event.data).to.equal('data');
+                    expect(event.internal).to.be.false();
+                    expect(tags).to.deep.equal({ test: true });
+                    return reply();
+                });
+
+                request.log(['test'], 'data');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
         it('outputs log to debug console without data', function (done) {
 
             var handler = function (request, reply) {
@@ -847,6 +874,22 @@ describe('Request', function () {
                 console.error = orig;
                 done();
             });
+        });
+    });
+
+    describe('_log()', { parallel: false }, function () {
+
+        it('emits a request-internal event', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.once('request-internal', function (request, event, tags) {
+
+                expect(tags.received).to.be.true();
+                done();
+            });
+
+            server.inject('/', function (res) { });
         });
     });
 

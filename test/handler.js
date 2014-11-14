@@ -872,9 +872,12 @@ describe('handler', function () {
             });
 
             var log = null;
-            server.on('request', function (request, event, tags) {
+            server.on('request-internal', function (request, event, tags) {
 
-                if (event.internal && tags.pre && tags.error) {
+                if (event.internal &&
+                    tags.pre &&
+                    tags.error) {
+
                     log = event.data.assign;
                 }
             });

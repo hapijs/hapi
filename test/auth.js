@@ -392,7 +392,7 @@ describe('authentication', function () {
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
-            server.on('request', function (request, event, tags) {
+            server.on('request-internal', function (request, event, tags) {
 
                 if (tags.auth) {
                     done();
@@ -765,7 +765,7 @@ describe('authentication', function () {
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('test'); } });
 
             var result;
-            server.on('request', function (request, event, tags) {
+            server.on('request-internal', function (request, event, tags) {
 
                 if (tags.unauthenticated) {
                     result = event.data;
