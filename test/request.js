@@ -1146,7 +1146,7 @@ describe('Request', function () {
 
                 var req = Http.request(options, function (res) {
 
-                    expect(timer.elapsed()).to.be.at.least(70);
+                    expect(timer.elapsed()).to.be.at.least(60);
                     expect(res.statusCode).to.equal(200);
                     done();
                 });
