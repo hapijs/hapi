@@ -157,6 +157,24 @@ describe('Server', function () {
                 });
             });
         });
+
+        it('stops with only an option object', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.connections[0]._stop = function (options, callback) {
+
+                expect(options).to.deep.equal({
+                    timeout: 1
+                });
+                done();
+            };
+
+            server.stop({
+                timeout: 1
+            });
+        });
     });
 
     describe('connection()', function () {
