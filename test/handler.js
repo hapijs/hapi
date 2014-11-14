@@ -57,7 +57,7 @@ describe('handler', function () {
             var server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.on('internalError', function (request, err) {
+            server.on('request-error', function (request, err) {
 
                 expect(err.message).to.equal('Uncaught error: not is not defined');
                 done();

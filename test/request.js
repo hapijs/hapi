@@ -850,6 +850,30 @@ describe('Request', function () {
         });
     });
 
+    describe('getLog()', function () {
+
+        it('returns the selected logs', function (done) {
+
+            var handler = function (request, reply) {
+
+                request._log('1');
+                request.log('1');
+
+                return reply([request.getLog('1').length, request.getLog('1', true).length, request.getLog('1', false).length, request.getLog(true).length, request.getLog(false).length, request.getLog().length].join('|'));
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.payload).to.equal('2|1|1|2|1|3');
+                done();
+            });
+        });
+    });
+
     describe('_setResponse()', function () {
 
         it('leaves the response open when the same response is set again', function (done) {
@@ -912,7 +936,7 @@ describe('Request', function () {
             });
         });
 
-        it('emits internalError when view file for handler not found', function (done) {
+        it('emits request-error when view file for handler not found', function (done) {
 
             var server = new Hapi.Server({ debug: false });
             server.connection();
@@ -922,7 +946,7 @@ describe('Request', function () {
                 path: __dirname
             });
 
-            server.once('internalError', function (request, err) {
+            server.once('request-error', function (request, err) {
 
                 expect(err).to.exist();
                 expect(err.message).to.contain('View file not found');

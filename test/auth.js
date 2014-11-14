@@ -428,7 +428,7 @@ describe('authentication', function () {
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: 'throw' } });
 
-            server.once('internalError', function (request, err) {
+            server.once('request-error', function (request, err) {
 
                 expect(err.message).to.equal('Uncaught error: Boom');
             });
