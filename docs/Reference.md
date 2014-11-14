@@ -1785,16 +1785,12 @@ The route configuration object supports the following options:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
             - `'log'` - log the error but continue processing the request.
             - `'ignore'` - take no action.
-            - a custom error handler function with the signature `function(source, error, next)`
+            - a custom error handler function with the signature `function(source, error, reply)`
               where:
                 - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
                 - `error` - the error object prepared for the client response (including the
                   validation function error under `error.data`).
-                - `next` - the continuation method called to resume route processing or return an
-                  error response. The function signature is `function(exit)` where:
-                    - `exit` - optional client response. If set to a non-falsy value, the request
-                      lifecycle process will jump to the "send response" step, skipping all other
-                      steps in between, and using the `exit` value as the new response.
+                - `reply` - the continuation [reply interface](#reply-interface).
 
     - `payload` - determines how the request payload is processed:
         - `output` - the type of payload representation requested. The value must be one of:

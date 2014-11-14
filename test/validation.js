@@ -409,9 +409,9 @@ describe('validation', function () {
                     query: {
                         a: Joi.string().min(2)
                     },
-                    failAction: function (source, error, next) {
+                    failAction: function (source, error, reply) {
 
-                        return next('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad');
+                        return reply('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad').code(400);
                     }
                 }
             }
@@ -419,7 +419,7 @@ describe('validation', function () {
 
         server.inject('/?a=1', function (res) {
 
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(400);
             expect(res.result).to.equal('Got error in query where a is bad');
             done();
         });
