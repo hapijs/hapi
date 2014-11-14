@@ -1064,13 +1064,11 @@ Methods are registered via `server.method(name, method, [options])` where:
       an additional argument with the signature `function(err, result, cached, report)` since the
       cache interface cannot return values synchronously. Defaults to `true`.
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments
-      passed to the method function (with the exception of the last 'next' argument). The server
+      passed to the method function (the callback argument is not passed as input). The server
       will automatically generate a unique key if the function's arguments are all of types
       `'string'`, `'number'`, or `'boolean'`. However if the method uses other types of arguments,
       a key generation function must be provided which takes the same arguments as the function and
-      returns a unique string (or `null` if no key can be generated). Note that when the
-      `generateKey` method is invoked, the arguments list will include the `next` argument which
-      must not be used in calculation of the key.
+      returns a unique string (or `null` if no key can be generated).
 
 ```js
 var Hapi = require('hapi');
