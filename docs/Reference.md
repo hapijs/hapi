@@ -1043,23 +1043,26 @@ Methods are registered via `server.method(name, method, [options])` where:
  can be used to clear the cache for a given key. Supports using nested names such as
  `utils.users.get` which will automatically create the missing path under `server.methods` and can
  be accessed for the previous example via `server.methods.utils.users.get`.
-- `method` - the method function with the signature is `function(arg1, arg2, ..., argn, next)`
-  where:
-    - `arg1`, `arg2`, etc. - the method function arguments.
-    - `next` - the function called when the method is done with the signature
-      `function(err, result, ttl)` where:
-        - `err` - error response if the method failed.
-        - `result` - the return value.
-        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
+- `method` - the method function with the signature is one of:
+    - `function(arg1, arg2, ..., argn, next)` where:
+        - `arg1`, `arg2`, etc. - the method function arguments.
+        - `next` - the function called when the method is done with the signature
+          `function(err, result, ttl)` where:
+            - `err` - error response if the method failed.
+            - `result` - the return value.
+            - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
+    - `function(arg1, arg2, ..., argn)` where:
+        - `arg1`, `arg2`, etc. - the method function arguments.
+        - the `callback` option is set to `false`.
+        - the method must returns a value (result, `Error`, or a promise) or throw an `Error`.
 - `options` - optional configuration:
     - `bind` - a context object passed back to the method function (via `this`) when called.
       Defaults to active context (set via `server.bind()` when the method is registered.
     - `cache` - the same cache configuration used in `server.cache()`.
-    - `callback` - if `false`, expects the `method` to be a synchronous function which returns a
-      value (valid or `Error`) or throws `Error`. Note that using a synchronous function with
-      caching will convert the method interface to require a callback as an additional argument
-      with the signature `function(err, result, cached, report)` since the cache interface cannot
-      return values synchronously. Defaults to `true`.
+    - `callback` - if `false`, expects the `method` to be a synchronous function. Note that using a
+      synchronous function with caching will convert the method interface to require a callback as
+      an additional argument with the signature `function(err, result, cached, report)` since the
+      cache interface cannot return values synchronously. Defaults to `true`.
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments
       passed to the method function (with the exception of the last 'next' argument). The server
       will automatically generate a unique key if the function's arguments are all of types

@@ -1,5 +1,6 @@
 // Load modules
 
+var Bluebird = require('bluebird');
 var CatboxMemory = require('catbox-memory');
 var Code = require('code');
 var Hapi = require('..');
@@ -52,6 +53,25 @@ describe('Methods', function () {
 
         expect(server.methods.add(1, 5)).to.equal(6);
         done();
+    });
+
+    it('registers a method (promise)', function (done) {
+
+        var addAsync = function (a, b, next) {
+
+            return next(null, a + b);
+        };
+
+        var add = Bluebird.promisify(addAsync);
+
+        var server = new Hapi.Server();
+        server.method('add', add, { callback: false });
+
+        server.methods.add(1, 5).then(function (result) {
+
+            expect(result).to.equal(6);
+            done();
+        });
     });
 
     it('registers a method with nested name', function (done) {
@@ -185,10 +205,12 @@ describe('Methods', function () {
 
             server.methods.test(1, function (err, result) {
 
+                expect(err).to.not.exist();
                 expect(result.gen).to.equal(0);
 
                 server.methods.test(1, function (err, result) {
 
+                    expect(err).to.not.exist();
                     expect(result.gen).to.equal(0);
                     done();
                 });
@@ -212,12 +234,55 @@ describe('Methods', function () {
 
             server.methods.test(1, function (err, result) {
 
+                expect(err).to.not.exist();
                 expect(result.gen).to.equal(0);
 
                 server.methods.test(1, function (err, result) {
 
+                    expect(err).to.not.exist();
                     expect(result.gen).to.equal(0);
                     done();
+                });
+            });
+        });
+    });
+
+    it('caches method value (promise)', function (done) {
+
+        var gen = 0;
+        var methodAsync = function (id, next) {
+
+            if (id === 2) {
+                return next(new Error('boom'));
+            }
+
+            return next(null, { id: id, gen: gen++ });
+        };
+
+        var method = Bluebird.promisify(methodAsync);
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.method('test', method, { cache: { expiresIn: 1000 }, callback: false });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(err).to.not.exist();
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(err).to.not.exist();
+                    expect(result.gen).to.equal(0);
+
+                    server.methods.test(2, function (err, result) {
+
+                        expect(err).to.exist();
+                        expect(err.message).to.equal('boom');
+                        done();
+                    });
                 });
             });
         });
