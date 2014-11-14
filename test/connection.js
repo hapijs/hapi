@@ -31,6 +31,24 @@ var expect = Code.expect;
 
 describe('Connection', function () {
 
+    it('allows null port and host', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.connection({ host: null, port: null });
+        }).to.not.throw();
+        done();
+    });
+
+    it('removes duplicate labels', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection({ labels: ['a', 'b', 'a', 'c', 'b'] });
+        expect(server.connections[0].settings.labels).to.deep.equal(['a', 'b', 'c']);
+        done();
+    });
+
     it('throws when disabling autoListen and providing a port', function (done) {
 
         var server = new Hapi.Server();

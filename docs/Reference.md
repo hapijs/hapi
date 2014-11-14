@@ -57,7 +57,7 @@
         - [`request.setUrl(url)`](#requestseturlurl)
         - [`request.setMethod(method)`](#requestsetmethodmethod)
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
-        - [`request.getLog([tags])`](#requestgetlogtags)
+        - [`request.getLog([tags], [internal])`](#requestgetlogtags-internal)
         - [`request.tail([name])`](#requesttailname)
         - [Request events](#request-events)
 - [Reply interface](#reply-interface)
@@ -88,6 +88,7 @@ Creates a new `Server` object where:
       `server.settings.app`. Note the difference between `server.settings.app` which is
       used to store static configuration values and `server.app` which is meant for storing
       run-time state. Defaults to `{}`.
+
     - <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server
       includes a default cache for storing application state. By default, a simple memory-based
       cache is created which has limited capacity and capabilities. **hapi** uses
@@ -109,6 +110,141 @@ Creates a new `Server` object where:
         - an array of the above object for configuring multiple cache instances, each with a unique
           name. When an array of objects is provided, multiple cache connections are established
           and each array item (except one) must include a `name`.
+
+    - <a name="server.config.connections"></a>`connections` - sets the default connections
+      configuration which can be overridden by each connection where:
+
+        - `app` - application-specific connection configuration which can be accessed via
+          `connection.settings.app`. Provides a safe place to store application configuration without
+          potential conflicts with the framework internals. Should not be used to configure plugins which
+          should use `plugins[name]`. Note the difference between `connection.settings.app` which is used
+          to store configuration values and `connection.app` which is meant for storing run-time state.
+
+        - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers
+          to make cross-origin API calls. CORS is required by web applications running inside a browser
+          which are loaded from a different domain than the API server. CORS headers are disabled by
+          default. To enable, set `cors` to `true`, or to an object with the following options:
+            - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The
+              array can contain any combination of fully qualified origins along with origin strings
+              containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin
+              `['*']`.
+            - `isOriginExposed` - if `false`, prevents the connection from returning the full list of
+              non-wildcard `origin` values if the incoming origin header does not match any of the values.
+              Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
+            - `matchOrigin` - if `false`, returns the list of `origin` values without attempting to match
+              the incoming origin value. Cannot be used with wildcard `origin` values. Defaults to `true`.
+            - `maxAge` - number of seconds the browser should cache the CORS response
+              ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
+              checks for changes in policy. Defaults to `86400` (one day).
+            - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to
+              `['Authorization', 'Content-Type', 'If-None-Match']`.
+            - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep
+              the default headers in place.
+            - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods').
+              Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
+            - `additionalMethods` - a strings array of additional methods to `methods`. Use this to keep
+              the default methods in place.
+            - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers').
+              Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
+            - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use
+              this to keep the default headers in place.
+            - `credentials` - if `true`, allows user credentials to be sent
+              ('Access-Control-Allow-Credentials'). Defaults to `false`.
+
+        - <a name="connection.config.files"></a>`files` - defines the behavior for serving static resources
+          using the built-in route handlers for files and directories:
+            - `relativeTo` - determines the folder relative paths are resolved against when using the file
+              and directory handlers.
+
+        - `json` - optional arguments passed to `JSON.stringify()` when converting an object or error
+          response to a string payload. Supports the following:
+            - `replacer` - the replacer function or array. Defaults to no action.
+            - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
+
+        - `load` - connection load limits configuration where:
+            - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an
+              HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+            - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an
+              HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+            - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
+              requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+
+        - <a name="connection.config.payload"></a>`payload` - controls how incoming payloads (request body)
+          are processed:
+            - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very
+              large payloads may cause the server to run out of memory. Defaults to `1048576` (1MB).
+            - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
+
+        - `plugins` - plugin-specific configuration which can later be accessed via
+          `connection.settings.plugins`. Provides a place to store and pass connection-specific plugin
+          configuration. `plugins` is an object where each key is a plugin name and the value is the
+          configuration. Note the difference between `connection.settings.plugins` which is used to store
+          configuration values and `connection.plugins` which is meant for storing run-time state.
+
+        - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are matched
+          against the routing table:
+            - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered
+              different resources. Defaults to `true`.
+            - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
+
+        - `security` - sets common security headers. All headers are disabled by default. To enable set
+          `security` to `true` or to an object with the following options:
+            - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be
+              set to `max-age=15768000`, if specified as a number the maxAge parameter will be set to that
+              number. Defaults to `true`. You may also specify an object with the following fields:
+                - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
+                - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains` flag to
+                  the header.
+            - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will be set
+              to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To use the
+              'allow-from' rule, you must set this to an object with the following fields:
+                - `rule` - either 'deny', 'sameorigin', or 'allow-from'
+                - `source` - when `rule` is 'allow-from' this is used to form the rest of the header,
+                  otherwise this field is ignored. If `rule` is 'allow-from' but `source` is unset, the
+                  rule will be automatically changed to 'sameorigin'.
+            - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which
+              sets the header to equal '1; mode=block'. NOTE: This setting can create a security
+              vulnerability in versions of IE below 8, as well as unpatched versions of IE8. See
+              [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/) and
+              [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If you
+              actively support old versions of IE, it may be wise to explicitly set this flag to `false`.
+            - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing downloads
+              from executing in your context. Defaults to `true` setting the header to 'noopen'.
+            - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true`
+              setting the header to its only and default option, 'nosniff'.
+
+        - <a name="connection.config.state"></a>`state` - HTTP state management (cookies) allows the server
+          to store information on the client which is sent back to the server with every request (as defined
+          in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports the following options:
+            - `cookies` - cookie parsing and formating options:
+                - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
+                  `request.state` object. Defaults to `true`.
+                - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
+                    - `'error'` - return a Bad Request (400) error response. This is the default value.
+                    - `'log'` - report the error but continue processing the request.
+                    - `'ignore'` - take no action.
+                - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies.
+                  Defaults to `false`.
+                - `strictHeader` - if `false`, allows any cookie value including values in violation of
+                  [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
+
+        - `timeout` - define timeouts for processing durations:
+            - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to
+              respond to an incoming client request before giving up and responding with a Service
+              Unavailable (503) error response. Disabled by default (`false`).
+            - `client` - request timeout in milliseconds. Sets the maximum time allowed for the client to
+              transmit the request payload (body) before giving up and responding with a Request Timeout
+              (408) error response. Set to `false` to disable. Can be customized on a per-route basis using
+              the route `payload.timeout` configuration. Defaults to `10000` (10 seconds).
+            - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to
+              override this behavior. Defaults to `undefined` which leaves the node default unchanged. Set
+              to `false` to disable socket timeouts.
+
+        - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global
+          options such as `stripUnknown` or `abortEarly` (the complete list is available
+          [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no
+          options.
+
     - `debug` - determines which errors are sent to the console:
         - `request` - a string array of request log tags to be displayed via `console.error()` when
           the events are logged via `request.log()`. Defaults to uncaught errors thrown in external
@@ -116,17 +252,23 @@ Creates a new `Server` object where:
           response) or runtime errors due to developer error. For example, to display all errors,
           change the option to `['error']`. To turn off all console debug messages set it to
           `false`.
+
     - `files` - file system related settings:
         - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the
           etags cache. Defaults to `10000`.
+
     - `load` - process load monitoring where:
         - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no
           sampling).
+
     - `plugins` - plugin-specific configuration which can later be accessed via
       `server.settings.plugins`. `plugins` is an object where each key is a plugin name and the
       value is the configuration. Note the difference between `server.settings.plugins` which is
       used to store static configuration values and `server.plugins` which is meant for storing
       run-time state. Defaults to `{}`.
+
+Note that the `options` object is deeply cloned and cannot contain any values that are unsafe to
+perform deep copy on.
 
 ```js
 var Hapi = require('hapi');
@@ -591,159 +733,27 @@ Adds an incoming sever connection where:
 - `host` - the hostname or IP address. Defaults to `0.0.0.0` which means any available network
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from
   the same machine. 
-
 - `port` - the TCP port the connection is listening to. Defaults to an ephemeral port (`0`) which
   uses an available port when the server is started (and assigned to `server.info.port`). If `port`
   is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
   with '\\.\pipe' as a Windows named pipe.
-
 - `listener` - optional node.js HTTP (or HTTPS)
   [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server) object or any compatible
   object. If the `listener` needs to be manually started, set `autoListen` to `false`.
-
 - `autoListen` - indicates that the `connection.listener` will be started manually outside the
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
-
-- `app` - application-specific connection configuration which can be accessed via
-  `connection.settings.app`. Provides a safe place to store application configuration without
-  potential conflicts with the framework internals. Should not be used to configure plugins which
-  should use `plugins[name]`. Note the difference between `connection.settings.app` which is used
-  to store configuration values and `connection.app` which is meant for storing run-time state.
-  
 - `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to
   include a valid caching directive. Defaults to `[200]`.
-
-- `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers
-  to make cross-origin API calls. CORS is required by web applications running inside a browser
-  which are loaded from a different domain than the API server. CORS headers are disabled by
-  default. To enable, set `cors` to `true`, or to an object with the following options:
-    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The
-      array can contain any combination of fully qualified origins along with origin strings
-      containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin
-      `['*']`.
-    - `isOriginExposed` - if `false`, prevents the connection from returning the full list of
-      non-wildcard `origin` values if the incoming origin header does not match any of the values.
-      Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
-    - `matchOrigin` - if `false`, returns the list of `origin` values without attempting to match
-      the incoming origin value. Cannot be used with wildcard `origin` values. Defaults to `true`.
-    - `maxAge` - number of seconds the browser should cache the CORS response
-      ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
-      checks for changes in policy. Defaults to `86400` (one day).
-    - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to
-      `['Authorization', 'Content-Type', 'If-None-Match']`.
-    - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep
-      the default headers in place.
-    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods').
-      Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
-    - `additionalMethods` - a strings array of additional methods to `methods`. Use this to keep
-      the default methods in place.
-    - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers').
-      Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
-    - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use
-      this to keep the default headers in place.
-    - `credentials` - if `true`, allows user credentials to be sent
-      ('Access-Control-Allow-Credentials'). Defaults to `false`.
-
-- <a name="connection.config.files"></a>`files` - defines the behavior for serving static resources
-  using the built-in route handlers for files and directories:
-    - `relativeTo` - determines the folder relative paths are resolved against when using the file
-      and directory handlers.
-
-- `json` - optional arguments passed to `JSON.stringify()` when converting an object or error
-  response to a string payload. Supports the following:
-    - `replacer` - the replacer function or array. Defaults to no action.
-    - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
-
 - `labels` - a string or string array of labels used to `server.select()` specific connections
   matching the specified labels. Defaults to an empty array `[]` (no labels).
-
-- `load` - connection load limits configuration where:
-    - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an
-      HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-    - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an
-      HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-    - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
-      requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-
-- <a name="connection.config.payload"></a>`payload` - controls how incoming payloads (request body)
-  are processed:
-    - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very
-      large payloads may cause the server to run out of memory. Defaults to `1048576` (1MB).
-    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
-
-- `plugins` - plugin-specific configuration which can later be accessed via
-  `connection.settings.plugins`. Provides a place to store and pass connection-specific plugin
-  configuration. `plugins` is an object where each key is a plugin name and the value is the
-  configuration. Note the difference between `connection.settings.plugins` which is used to store
-  configuration values and `connection.plugins` which is meant for storing run-time state.
-
-- <a name="connection.config.router"></a>`router` - controls how incoming request URIs are matched
-  against the routing table:
-    - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered
-      different resources. Defaults to `true`.
-    - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
-
-- `security` - sets common security headers. All headers are disabled by default. To enable set
-  `security` to `true` or to an object with the following options:
-    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be
-      set to `max-age=15768000`, if specified as a number the maxAge parameter will be set to that
-      number. Defaults to `true`. You may also specify an object with the following fields:
-        - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
-        - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains` flag to
-          the header.
-    - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will be set
-      to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To use the
-      'allow-from' rule, you must set this to an object with the following fields:
-        - `rule` - either 'deny', 'sameorigin', or 'allow-from'
-        - `source` - when `rule` is 'allow-from' this is used to form the rest of the header,
-          otherwise this field is ignored. If `rule` is 'allow-from' but `source` is unset, the
-          rule will be automatically changed to 'sameorigin'.
-    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which
-      sets the header to equal '1; mode=block'. NOTE: This setting can create a security
-      vulnerability in versions of IE below 8, as well as unpatched versions of IE8. See
-      [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/) and
-      [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If you
-      actively support old versions of IE, it may be wise to explicitly set this flag to `false`.
-    - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing downloads
-      from executing in your context. Defaults to `true` setting the header to 'noopen'.
-    - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true`
-      setting the header to its only and default option, 'nosniff'.
-
-- <a name="connection.config.state"></a>`state` - HTTP state management (cookies) allows the server
-  to store information on the client which is sent back to the server with every request (as defined
-  in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports the following options:
-    - `cookies` - cookie parsing and formating options:
-        - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
-          `request.state` object. Defaults to `true`.
-        - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
-            - `'error'` - return a Bad Request (400) error response. This is the default value.
-            - `'log'` - report the error but continue processing the request.
-            - `'ignore'` - take no action.
-        - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies.
-          Defaults to `false`.
-        - `strictHeader` - if `false`, allows any cookie value including values in violation of
-          [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
-
-- `timeout` - define timeouts for processing durations:
-    - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to
-      respond to an incoming client request before giving up and responding with a Service
-      Unavailable (503) error response. Disabled by default (`false`).
-    - `client` - request timeout in milliseconds. Sets the maximum time allowed for the client to
-      transmit the request payload (body) before giving up and responding with a Request Timeout
-      (408) error response. Set to `false` to disable. Can be customized on a per-route basis using
-      the route `payload.timeout` configuration. Defaults to `10000` (10 seconds).
-    - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to
-      override this behavior. Defaults to `undefined` which leaves the node default unchanged. Set
-      to `false` to disable socket timeouts.
-
 - `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
   the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+- Any [connections configuration server defaults](#server.config.connections) can be included to
+  override and customize the individual connection.
 
-- `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global
-  options such as `stripUnknown` or `abortEarly` (the complete list is available
-  [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no
-  options.
+Note that the `options` object is deeply cloned (with the exception of `listener` which is
+shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
 
 ```js
 var Hapi = require('hapi');
@@ -1920,6 +1930,10 @@ The route configuration object supports the following options:
     - `description` - route description used for generating documentation (string).
     - `notes` - route notes used for generating documentation (string or array of strings).
     - `tags` - route tags used for generating documentation (array of strings).
+
+    
+Note that the `options` object is deeply cloned (with the exception of `bind` which is shallowly
+copied) and cannot contain any values that are unsafe to perform deep copy on.
 
 ```js
 var Hapi = require('hapi');

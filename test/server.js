@@ -20,22 +20,6 @@ var expect = Code.expect;
 
 describe('Server', function () {
 
-    it('shallow clones app config', function (done) {
-
-        var item = {};
-        var server = new Hapi.Server({ app: item });
-        expect(server.settings.app).to.equal(item);
-        done();
-    });
-
-    it('shallow clones plugins config', function (done) {
-
-        var item = {};
-        var server = new Hapi.Server({ plugins: item });
-        expect(server.settings.plugins).to.equal(item);
-        done();
-    });
-
     it('does not cache etags', function (done) {
 
         var server = new Hapi.Server({ files: { etagsCacheMaxSize: 0 } });
@@ -56,6 +40,14 @@ describe('Server', function () {
                 done();
             });
         });
+    });
+
+    it('sets connections defaults', function (done) {
+
+        var server = new Hapi.Server({ connections: { app: { message: 'test defaults' } } });
+        server.connection();
+        expect(server.connections[0].settings.app.message).to.equal('test defaults');
+        done();
     });
 
     describe('start()', function () {
@@ -164,6 +156,57 @@ describe('Server', function () {
                     });
                 });
             });
+        });
+    });
+
+    describe('connection()', function () {
+
+        it('throws on invalid config', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.connection({ something: false });
+            }).to.throw(/Invalid connection options/);
+            done();
+        });
+
+        it('validates server timeout is less then socket timeout', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.connection({ timeout: { server: 60000, socket: 120000 } });
+            }).to.not.throw();
+            done();
+        });
+
+        it('validates server timeout is less then socket timeout (node default)', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.connection({ timeout: { server: 60000, socket: false } });
+            }).to.not.throw();
+            done();
+        });
+
+        it('combines configuration from server and connection (cors)', function (done) {
+
+            var server = new Hapi.Server({ connections: { cors: true } });
+            server.connection({ cors: { origin: ['example.com'] } });
+            expect(server.connections[0].settings.cors.origin).to.deep.equal(['example.com']);
+            done();
+        });
+
+        it('combines configuration from server and connection (security)', function (done) {
+
+            var server = new Hapi.Server({ connections: { security: { hsts: 1, xss: false } } });
+            server.connection({ security: { hsts: 2 } });
+            expect(server.connections[0].settings.security.hsts).to.equal(2);
+            expect(server.connections[0].settings.security.xss).to.be.false();
+            expect(server.connections[0].settings.security.xframe).to.equal('deny');
+            done();
         });
     });
 

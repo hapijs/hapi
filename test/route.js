@@ -121,32 +121,6 @@ describe('Route', function () {
         });
     });
 
-    it('shallow copies route config app', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-        var app = { key: 'is ' };
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.route.app.key + (request.route.app === app)); }, config: { app: app } });
-        server.inject('/', function (res) {
-
-            expect(res.result).to.equal('is true');
-            done();
-        });
-    });
-
-    it('shallow copies route config plugins', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-        var plugins = { key: 'is ' };
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.route.plugins.key + (request.route.plugins === plugins)); }, config: { plugins: plugins } });
-        server.inject('/', function (res) {
-
-            expect(res.result).to.equal('is true');
-            done();
-        });
-    });
-
     it('overrides server relativeTo', function (done) {
 
         var server = new Hapi.Server();
