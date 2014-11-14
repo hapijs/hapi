@@ -945,6 +945,39 @@ describe('handler', function () {
                 done();
             });
         });
+
+        it('logs server method using string notation (sync)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user', function (id) {
+
+                return { id: id, name: 'Bob' };
+            }, { callback: false });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user(params.id)'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.getLog('method'));
+                    }
+                }
+            });
+
+            server.inject('/user/5', function (res) {
+
+                expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
+                expect(res.result[0].internal).to.equal(true);
+                expect(res.result[0].data.msec).to.exist();
+                done();
+            });
+        });
     });
 
     describe('fromString()', function () {

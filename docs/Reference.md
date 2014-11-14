@@ -1055,6 +1055,11 @@ Methods are registered via `server.method(name, method, [options])` where:
     - `bind` - a context object passed back to the method function (via `this`) when called.
       Defaults to active context (set via `server.bind()` when the method is registered.
     - `cache` - the same cache configuration used in `server.cache()`.
+    - `callback` - if `false`, expects the `method` to be a synchronous function which returns a
+      value (valid or `Error`) or throws `Error`. Note that using a synchronous function with
+      caching will convert the method interface to require a callback as an additional argument
+      with the signature `function(err, result, cached, report)` since the cache interface cannot
+      return values synchronously. Defaults to `true`.
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments
       passed to the method function (with the exception of the last 'next' argument). The server
       will automatically generate a unique key if the function's arguments are all of types
@@ -1105,6 +1110,20 @@ server.method('sumObj', addArray, {
 });
 
 server.methods.sumObj([5, 6], function (err, result) {
+
+    console.log(result);
+});
+
+// Synchronous method with cache
+
+var addSync = function (a, b) {
+
+    return a + b;
+};
+
+server.method('sumSync', addSync, { cache: { expiresIn: 2000 }, callback: false });
+
+server.methods.sumSync(4, 5, function (err, result) {
 
     console.log(result);
 });

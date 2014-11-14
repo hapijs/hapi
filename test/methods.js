@@ -32,14 +32,26 @@ describe('Methods', function () {
         server.connection();
         server.method('add', add);
 
-        server.start(function () {
+        server.methods.add(1, 5, function (err, result) {
 
-            server.methods.add(1, 5, function (err, result) {
-
-                expect(result).to.equal(6);
-                done();
-            });
+            expect(result).to.equal(6);
+            done();
         });
+    });
+
+    it('registers a method (no callback)', function (done) {
+
+        var add = function (a, b) {
+
+            return a + b;
+        };
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.method('add', add, { callback: false });
+
+        expect(server.methods.add(1, 5)).to.equal(6);
+        done();
     });
 
     it('registers a method with nested name', function (done) {
@@ -157,7 +169,7 @@ describe('Methods', function () {
         });
     });
 
-    it('reuses cached method value', function (done) {
+    it('caches method value', function (done) {
 
         var gen = 0;
         var method = function (id, next) {
@@ -168,6 +180,33 @@ describe('Methods', function () {
         var server = new Hapi.Server();
         server.connection();
         server.method('test', method, { cache: { expiresIn: 1000 } });
+
+        server.start(function () {
+
+            server.methods.test(1, function (err, result) {
+
+                expect(result.gen).to.equal(0);
+
+                server.methods.test(1, function (err, result) {
+
+                    expect(result.gen).to.equal(0);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('caches method value (no callback)', function (done) {
+
+        var gen = 0;
+        var method = function (id) {
+
+            return { id: id, gen: gen++ };
+        };
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.method('test', method, { cache: { expiresIn: 1000 }, callback: false });
 
         server.start(function () {
 
@@ -697,6 +736,160 @@ describe('Methods', function () {
                     done();
                 });
             });
+        });
+    });
+
+    describe('_add()', function () {
+
+        it('normalizes no callback into callback (direct)', function (done) {
+
+            var add = function (a, b) {
+
+                return a + b;
+            };
+
+            var server = new Hapi.Server();
+            server.method('add', add, { callback: false });
+            var result = server.methods.add(1, 5);
+            expect(result).to.equal(6);
+            done();
+        });
+
+        it('normalizes no callback into callback (direct error)', function (done) {
+
+            var add = function (a, b) {
+
+                return new Error('boom');
+            };
+
+            var server = new Hapi.Server();
+            server.method('add', add, { callback: false });
+            var result = server.methods.add(1, 5);
+            expect(result).to.be.instanceof(Error);
+            expect(result.message).to.equal('boom');
+            done();
+        });
+
+        it('normalizes no callback into callback (direct throw)', function (done) {
+
+            var add = function (a, b) {
+
+                throw new Error('boom');
+            };
+
+            var server = new Hapi.Server();
+            server.method('add', add, { callback: false });
+            expect(function () {
+
+                server.methods.add(1, 5);
+            }).to.throw('boom');
+            done();
+        });
+
+        it('normalizes no callback into callback (normalized)', function (done) {
+
+            var add = function (a, b) {
+
+                return a + b;
+            };
+
+            var server = new Hapi.Server();
+            server.method('add', add, { callback: false });
+
+            server._methods._normalized.add(1, 5, function (err, result) {
+
+                expect(result).to.equal(6);
+                done();
+            });
+        });
+
+        it('normalizes no callback into callback (normalized error)', function (done) {
+
+            var add = function (a, b) {
+
+                return new Error('boom');
+            };
+
+            var server = new Hapi.Server();
+            server.method('add', add, { callback: false });
+
+            server._methods._normalized.add(1, 5, function (err, result) {
+
+                expect(err).to.exist();
+                expect(err.message).to.equal('boom');
+                done();
+            });
+        });
+
+        it('normalizes no callback into callback (normalized throw)', function (done) {
+
+            var add = function (a, b) {
+
+                throw new Error('boom');
+            };
+
+            var server = new Hapi.Server();
+            server.method('add', add, { callback: false });
+
+            server._methods._normalized.add(1, 5, function (err, result) {
+
+                expect(err).to.exist();
+                expect(err.message).to.equal('boom');
+                done();
+            });
+        });
+    });
+
+    it('normalizes no callback into callback (cached)', function (done) {
+
+        var add = function (a, b) {
+
+            return a + b;
+        };
+
+        var server = new Hapi.Server();
+        server.method('add', add, { cache: { expiresIn: 10 }, callback: false });
+
+        server._methods._normalized.add(1, 5, function (err, result) {
+
+            expect(result).to.equal(6);
+            done();
+        });
+    });
+
+    it('normalizes no callback into callback (cached error)', function (done) {
+
+        var add = function (a, b) {
+
+            return new Error('boom');
+        };
+
+        var server = new Hapi.Server();
+        server.method('add', add, { cache: { expiresIn: 10 }, callback: false });
+
+        server._methods._normalized.add(1, 5, function (err, result) {
+
+            expect(err).to.exist();
+            expect(err.message).to.equal('boom');
+            done();
+        });
+    });
+
+    it('normalizes no callback into callback (cached throw)', function (done) {
+
+        var add = function (a, b) {
+
+            throw new Error('boom');
+        };
+
+        var server = new Hapi.Server();
+        server.method('add', add, { cache: { expiresIn: 10 }, callback: false });
+
+        server._methods._normalized.add(1, 5, function (err, result) {
+
+            expect(err).to.exist();
+            expect(err.message).to.equal('boom');
+            done();
         });
     });
 });
