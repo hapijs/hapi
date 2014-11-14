@@ -478,7 +478,7 @@ describe('Connection', function () {
             var logged = null;
             server.once('log', function (event, tags) {
 
-                logged = (tags.hapi && tags.load && event.data);
+                logged = (event.internal && tags.load && event.data);
             });
 
             server.route({ method: 'GET', path: '/', handler: handler });

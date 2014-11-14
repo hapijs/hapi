@@ -1489,12 +1489,12 @@ describe('Plugin', function () {
 
                 console.error = orig;
                 expect(arguments[0]).to.equal('Debug:');
-                expect(arguments[1]).to.equal('hapi, internal, implementation, error');
+                expect(arguments[1]).to.equal('internal, implementation, error');
 
                 done();
             };
 
-            server.log(['hapi', 'internal', 'implementation', 'error'], 'log event 1');
+            server.log(['internal', 'implementation', 'error'], 'log event 1');
         });
 
         it('outputs log data to debug console', function (done) {

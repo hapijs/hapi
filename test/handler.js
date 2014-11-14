@@ -68,7 +68,7 @@ describe('handler', function () {
 
                 console.error = orig;
                 expect(arguments[0]).to.equal('Debug:');
-                expect(arguments[1]).to.equal('hapi, internal, implementation, error');
+                expect(arguments[1]).to.equal('internal, implementation, error');
             };
 
             server.inject('/', function (res) {
@@ -874,7 +874,7 @@ describe('handler', function () {
             var log = null;
             server.on('request', function (request, event, tags) {
 
-                if (tags.hapi && tags.pre && tags.error) {
+                if (event.internal && tags.pre && tags.error) {
                     log = event.data.assign;
                 }
             });
@@ -936,7 +936,8 @@ describe('handler', function () {
 
             server.inject('/user/5', function (res) {
 
-                expect(res.result[0].tags).to.deep.equal(['hapi', 'pre', 'method', 'user']);
+                expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
+                expect(res.result[0].internal).to.equal(true);
                 expect(res.result[0].data.msec).to.exist();
                 done();
             });
