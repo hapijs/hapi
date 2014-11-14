@@ -540,34 +540,44 @@ The `scheme` method must return an object with the following keys:
 - `authenticate(request, reply)` - required function called on each incoming request configured
   with the authentication scheme where:
     - `request` - the [request object](#request-object).
-    - `reply(err, result)` - the interface the authentication method must call when done where:
-        - `err` - if not `null`, indicates failed authentication.
-        - `result` - an object containing:
-            - `credentials` - the authenticated credentials. Required if `err` is `null`.
-            - `artifacts` - optional authentication artifacts.
-            - `log` - optional object used to customize the request authentication log which
-              supports:
-                - `data` - log data.
-                - `tags` - additional tags.
-- `payload(request, next)` - optional function called to authenticate the request payload where:
+    - `reply` - the [reply interface](#reply-interface) the authentication method must call when
+      done authenticating the request where:
+        - `reply(err, response, result)` - is called if authentication failed where:
+            - `err` - any authentication error.
+            - `response` - any authentication response action such as redirection. Ignored if `err`
+              is present, otherwise required.
+            - `result` - an object containing:
+                - `credentials` - the authenticated credentials.
+                - `artifacts` - optional authentication artifacts.
+        - `reply.continue(result)` - is called if authentication succeeded where:
+            - `result` - same object as `result` above.
+- `payload(request, reply)` - optional function called to authenticate the request payload where:
     - `request` - the [request object](#request-object).
-    - `next(err)` - the continuation function the method must called when done where:
-        - `err` - if `null`, payload successfully authenticated. If `false`, indicates that
-          authentication could not be performed (e.g. missing payload hash). If set to any other
-          value, it is used as an error response.
-- `response(request, next)` - optional function called to decorate the response with authentication
-  headers before the response headers or payload is written where:
+    - `reply(err, response)` - is called if authentication failed where:
+        - `err` - any authentication error.
+        - `response` - any authentication response action such as redirection. Ignored if `err`
+            is present, otherwise required.
+    - `reply.continue()` - is called if payload authentication succeeded.
+- `response(request, reply)` - optional function called to decorate the response with
+  authentication headers before the response headers or payload is written where:
     - `request` - the [request object](#request-object).
-    - `next(err)` - the continuation function the method must called when done where:
-        - `err` - if `null`, successfully applied. If set to any other value, it is used as an
-          error response.
+    - `reply(err, response)` - is called if an error occurred where:
+        - `err` - any authentication error.
+        - `response` - any authentication response to send instead of the current response. Ignored
+          if `err` is present, otherwise required.
+    - `reply.continue()` - is called if the operation succeeded.
 
 When the scheme `authenticate()` method implementation calls `reply()` with an error condition,
 the specifics of the error affect whether additional authentication strategies will be attempted
-if configured for the route. If the `err` returned bu the `reply()` method includes a message, no
+if configured for the route. If the `err` returned by the `reply()` method includes a message, no
 additional strategies will be attempted. If the `err` does not include a message but does include
 a scheme name (e.g. `Boom.unauthorized(null, 'Custom')`), additional strategies will be attempted
 in order of preference.
+
+When the scheme `payload()` method returns an error with a message, it means payload validation
+failed due to bad payload. If the error has no message but includes a scheme name (e.g.
+`Boom.unauthorized(null, 'Custom')`), authentication may still be successful if the route
+`auth.payload` configuration is set to `'optional'`.
 
 ```js
 var server = new Hapi.Server();

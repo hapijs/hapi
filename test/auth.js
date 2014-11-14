@@ -932,7 +932,7 @@ describe('authentication', function () {
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: false } } });
+            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: Boom.unauthorized(null, 'Custom') } } });
             server.route({
                 method: 'POST',
                 path: '/',
@@ -951,12 +951,12 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on missing payload auth when required', function (done) {
+        it('errors on missing payload when required', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: false } } });
+            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: Boom.unauthorized(null, 'Custom') } } });
             server.route({
                 method: 'POST',
                 path: '/',
@@ -975,12 +975,36 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on invalid request payload', function (done) {
+        it('errors on invalid payload auth when required', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { invalidPayload: { payload: Boom.unauthorized('Payload is invalid') } } });
+            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: Boom.unauthorized() } } });
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    auth: {
+                        payload: 'required'
+                    }
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } }, function (res) {
+
+                expect(res.statusCode).to.equal(401);
+                done();
+            });
+        });
+
+        it('errors on invalid request payload (non error)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { invalidPayload: { payload: 'Payload is invalid' } } });
             server.route({
                 method: 'POST',
                 path: '/',
@@ -994,7 +1018,8 @@ describe('authentication', function () {
 
             server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom invalidPayload' } }, function (res) {
 
-                expect(res.statusCode).to.equal(401);
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('Payload is invalid');
                 done();
             });
         });
@@ -1097,13 +1122,21 @@ internals.implementation = function (server, options) {
 
             return reply.continue({ credentials: credentials });
         },
-        payload: function (request, next) {
+        payload: function (request, reply) {
 
-            return next(request.auth.credentials.payload);
+            if (request.auth.credentials.payload) {
+                return reply(request.auth.credentials.payload);
+            }
+
+            return reply.continue();
         },
-        response: function (request, next) {
+        response: function (request, reply) {
 
-            return next(request.auth.credentials.response);
+            if (request.auth.credentials.response) {
+                return reply(request.auth.credentials.response);
+            }
+
+            return reply.continue();
         }
     };
 
