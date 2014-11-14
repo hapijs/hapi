@@ -1,7 +1,9 @@
 // Load modules
 
+var Path = require('path');
 var Boom = require('boom');
 var Code = require('code');
+var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Lab = require('lab');
 
@@ -110,6 +112,74 @@ describe('handler', function () {
             server.inject('/', function (res) {
 
                 expect(res.result).to.equal('ok');
+                done();
+            });
+        });
+    });
+
+    describe('register()', function () {
+
+        it('proxies from handler', function (done) {
+
+            var upstream = new Hapi.Server();
+            upstream.connection();
+            upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { return reply({ a: 1 }); } });
+            upstream.start(function () {
+
+                var server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/handler', handler: function (request, reply) { return reply.proxy({ uri: 'http://localhost:' + upstream.info.port + '/item' }); } });
+
+                server.inject('/handler', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.payload).to.contain('"a":1');
+                    done();
+                });
+            });
+        });
+
+        it('returns a file', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ files: { relativeTo: __dirname } });
+            var handler = function (request, reply) {
+
+                return reply.file('../package.json').code(499);
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.inject('/file', function (res) {
+
+                expect(res.statusCode).to.equal(499);
+                expect(res.payload).to.contain('hapi');
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+                expect(res.headers['content-length']).to.exist();
+                expect(res.headers['content-disposition']).to.not.exist();
+                done();
+            });
+        });
+
+        it('returns a view', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.views({
+                engines: { 'html': Handlebars },
+                relativeTo: Path.join(__dirname, '/templates/plugin')
+            });
+
+            var handler = function (request, reply) {
+
+                return reply.view('test', { message: 'steve' });
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('<h1>steve</h1>');
                 done();
             });
         });
