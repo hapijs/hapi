@@ -310,6 +310,32 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('ignores varyEtag when etag header is removed', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { var response = reply('ok').etag('abc').vary('x'); delete response.headers.etag; } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.etag).to.not.exist();
+                done();
+            });
+        });
+
+        it('leaves etag header when varyEtag is false', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('abc', { vary: false }).vary('x'); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.etag).to.equal('"abc"');
+                done();
+            });
+        });
     });
 
     describe('replacer()', function () {

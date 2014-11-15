@@ -2711,10 +2711,9 @@ The response object provides the following methods:
         - `weak` - if `true`, the tag will be prefixed with the `'W/'` weak signifier. Weak tags
           will fail to match identical tags for the purpose of determining 304 response status.
           Defaults to `false`.
-        - `vary` - if `true`, a suffix will be automatically added to the tag at transmission time
-          (separated by a `'-'` character) when the HTTP 'Vary' header is present. Ignored when
-          `weak` is `true`. Defaults to `true` when a tag is set using this method and when using
-          the internal file or directory handlers, otherwise `false`.
+        - `vary` - if `true`, a suffix based on the content of the 'Vary' header will be
+          automatically added to the tag at transmission time (separated by a `'-'` character) when
+          the HTTP 'Vary' header is present. Ignored when `weak` is `true`. Defaults to `true`.
 - `header(name, value, options)` - sets an HTTP header where:
     - `name` - the header name.
     - `value` - the header value.

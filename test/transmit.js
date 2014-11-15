@@ -156,8 +156,8 @@ describe('transmission', function () {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['content-length']).to.not.exist();
-                    expect(res2.headers.etag).to.not.exist();
-                    expect(res2.headers['last-modified']).to.not.exist();
+                    expect(res2.headers.etag).to.exist();
+                    expect(res2.headers['last-modified']).to.exist();
                     done();
                 });
             });
@@ -175,8 +175,8 @@ describe('transmission', function () {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['content-length']).to.not.exist();
-                    expect(res2.headers.etag).to.not.exist();
-                    expect(res2.headers['last-modified']).to.not.exist();
+                    expect(res2.headers.etag).to.exist();
+                    expect(res2.headers['last-modified']).to.exist();
                     done();
                 });
             });
@@ -492,7 +492,7 @@ describe('transmission', function () {
                         expect(res3.statusCode).to.equal(200);
                         expect(res3.headers.vary).to.equal('accept-encoding');
                         expect(res3.headers.etag).to.not.equal(res2.headers.etag);
-                        expect(res3.headers.etag).to.contain(res2.headers.etag.slice(0, -1) + '-');
+                        expect(res3.headers.etag).to.equal(res2.headers.etag.slice(0, -1) + '-858124b52dce65944e236995b997b791b1e9c528"');
                         expect(res3.headers['last-modified']).to.equal(res2.headers['last-modified']);
                         done();
                     });
