@@ -151,6 +151,7 @@ describe('Response', function () {
             server.inject('/', function (res) {
 
                 expect(res.result).to.exist();
+                expect(res.statusCode).to.equal(500);
                 expect(res.result.message).to.equal('An internal server error occurred');
                 expect(res.headers['set-cookie']).to.not.exist();
                 done();
