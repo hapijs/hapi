@@ -392,7 +392,7 @@ describe('transmission', function () {
 
         it('returns last known error when the error fails to marshal', function (done) {
 
-            var marshall = function (response, callback) {
+            var marshal = function (response, callback) {
 
                 callback(Boom.badRequest());
             };
@@ -400,7 +400,7 @@ describe('transmission', function () {
             var handler = function (request, reply) {
 
                 reply.state('bad', {});
-                return reply(new Response('blow', request, { marshall: marshall }));
+                return reply(new Response('blow', request, { marshal: marshal }));
             };
 
             var server = new Hapi.Server({ debug: false });
@@ -979,7 +979,7 @@ describe('transmission', function () {
 
                 server.ext('onPreResponse', function (request, reply) {
 
-                    request.response._marshall = function () { throw new Error('not called'); };
+                    request.response._marshal = function () { throw new Error('not called'); };
                     return reply.continue();
                 });
 

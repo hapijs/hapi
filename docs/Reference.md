@@ -2679,7 +2679,7 @@ Every response includes the following properties:
 - `settings` - response handling flags:
     - `charset` -  the 'Content-Type' HTTP header 'charset' property. Defaults to `'utf-8'`.
     - `encoding` - the string encoding scheme used to serial data into the HTTP payload when
-      `source` is a string or marshalls into a string.
+      `source` is a string or marshals into a string.
       Defaults to `'utf8'`.
     - `passThrough` - if `true` and `source` is a `Stream`, copies the `statusCode` and `headers`
       of the stream to the outbound response. Defaults to `true`.
