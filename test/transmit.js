@@ -437,6 +437,20 @@ describe('transmission', function () {
                 done();
             });
         });
+
+        it('sets caching headers', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
+
+            server.inject('/public/transmit.js', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['cache-control']).to.equal('max-age=86400, must-revalidate, public');
+                done();
+            });
+        });
     });
 
     describe('transmit()', function () {
