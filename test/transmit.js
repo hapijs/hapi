@@ -13,7 +13,6 @@ var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
 var Wreck = require('wreck');
-var Response = require('../lib/response');
 
 
 // Declare internals
@@ -31,7 +30,7 @@ var expect = Code.expect;
 
 describe('transmission', function () {
 
-    describe('send()', function () {
+    describe('marshal()', function () {
 
         it('returns valid http date responses in last-modified header', function (done) {
 
@@ -181,9 +180,40 @@ describe('transmission', function () {
                 });
             });
         });
-    });
 
-    describe('headers()', function () {
+        it('matches etag with content-encoding', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/', function (res1) {
+
+                expect(res1.statusCode).to.equal(200);
+
+                server.inject('/', function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers.etag).to.exist();
+
+                    server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } }, function (res3) {
+
+                        expect(res3.statusCode).to.equal(304);
+
+                        server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } }, function (res4) {
+
+                            expect(res4.statusCode).to.equal(200);
+
+                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } }, function (res5) {
+
+                                expect(res5.statusCode).to.equal(304);
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
 
         it('returns a stream reply with custom response headers', function (done) {
 
@@ -275,6 +305,27 @@ describe('transmission', function () {
 
                 expect(res.payload).to.equal('/**/me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(25);
+                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+                done();
+            });
+        });
+
+        it('returns an JSONP response (no charset)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply({ some: 'value' }).charset('');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject('/?callback=me', function (res) {
+
+                expect(res.payload).to.equal('/**/me({"some":"value"});');
+                expect(res.headers['content-length']).to.equal(25);
+                expect(res.headers['content-type']).to.equal('text/javascript');
                 done();
             });
         });
@@ -383,33 +434,6 @@ describe('transmission', function () {
 
                 expect(res.result).to.exist();
                 expect(res.result.message).to.equal('Invalid JSONP parameter value');
-                done();
-            });
-        });
-    });
-
-    describe('fail()', function () {
-
-        it('returns last known error when the error fails to marshal', function (done) {
-
-            var marshal = function (response, callback) {
-
-                callback(Boom.badRequest());
-            };
-
-            var handler = function (request, reply) {
-
-                reply.state('bad', {});
-                return reply(new Response('blow', request, { marshal: marshal }));
-            };
-
-            var server = new Hapi.Server({ debug: false });
-            server.connection();
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
-
-            server.inject('/', function (res) {
-
-                expect(res.result.statusCode).to.equal(400);
                 done();
             });
         });
