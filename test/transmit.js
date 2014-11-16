@@ -1374,7 +1374,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not override CORS origin', function (done) {
+        it('override CORS origin', function (done) {
 
             var handler = function (request, reply) {
 
@@ -1383,6 +1383,46 @@ describe('transmission', function () {
 
             var server = new Hapi.Server();
             server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
+                done();
+            });
+        });
+
+        it('preserves CORS origin header when not locally configured', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok').header('access-control-allow-origin', 'something');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ cors: { origin: [] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.equal('something');
+                done();
+            });
+        });
+
+        it('preserves CORS origin header when override disabled', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok').header('access-control-allow-origin', 'something');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ cors: { override: false } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {

@@ -1,5 +1,6 @@
 // Load modules
 
+var Stream = require('stream');
 var Bluebird = require('bluebird');
 var Boom = require('boom');
 var Code = require('code');
@@ -334,6 +335,168 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers.etag).to.equal('"abc"');
+                done();
+            });
+        });
+    });
+
+    describe('passThrough()', function () {
+
+        it('passes stream headers and code through', function (done) {
+
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+                this.statusCode = 299;
+                this.headers = { xcustom: 'some value' };
+            };
+
+            Hoek.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push('x');
+                this.push(null);
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(new TestStream());
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('x');
+                expect(res.statusCode).to.equal(299);
+                expect(res.headers.xcustom).to.equal('some value');
+                done();
+            });
+        });
+
+        it('excludes stream headers and code when passThrough is false', function (done) {
+
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+                this.statusCode = 299;
+                this.headers = { xcustom: 'some value' };
+            };
+
+            Hoek.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push('x');
+                this.push(null);
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(new TestStream()).passThrough(false);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('x');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.xcustom).to.not.exist();
+                done();
+            });
+        });
+
+        it('ignores stream headers when empty', function (done) {
+
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+                this.statusCode = 299;
+                this.headers = {};
+            };
+
+            Hoek.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push('x');
+                this.push(null);
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(new TestStream());
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('x');
+                expect(res.statusCode).to.equal(299);
+                expect(res.headers.xcustom).to.not.exist();
+                done();
+            });
+        });
+
+        it('retains local headers with stream headers pass-through', function (done) {
+
+            var TestStream = function () {
+
+                Stream.Readable.call(this);
+                this.headers = { xcustom: 'some value', 'set-cookie': 'a=1' };
+            };
+
+            Hoek.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push('x');
+                this.push(null);
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(new TestStream()).header('xcustom', 'other value').state('b', '2');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('x');
+                expect(res.headers.xcustom).to.equal('other value');
+                expect(res.headers['set-cookie']).to.deep.equal(['a=1', 'b=2']);
                 done();
             });
         });

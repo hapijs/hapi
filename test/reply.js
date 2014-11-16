@@ -227,7 +227,7 @@ describe('Reply', function () {
                 return reply(new TestStream()).ttl(2000);
             };
 
-            var server = new Hapi.Server({ debug: false });
+            var server = new Hapi.Server();
             server.connection({ cors: { origin: ['test.example.com'] } });
             server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 

@@ -115,22 +115,24 @@ Creates a new `Server` object where:
       configuration which can be overridden by each connection where:
 
         - `app` - application-specific connection configuration which can be accessed via
-          `connection.settings.app`. Provides a safe place to store application configuration without
-          potential conflicts with the framework internals. Should not be used to configure plugins which
-          should use `plugins[name]`. Note the difference between `connection.settings.app` which is used
-          to store configuration values and `connection.app` which is meant for storing run-time state.
+          `connection.settings.app`. Provides a safe place to store application configuration
+          without potential conflicts with the framework internals. Should not be used to configure
+          plugins which should use `plugins[name]`. Note the difference between
+          `connection.settings.app` which is used to store configuration values and
+          `connection.app` which is meant for storing run-time state.
 
-        - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers
-          to make cross-origin API calls. CORS is required by web applications running inside a browser
-          which are loaded from a different domain than the API server. CORS headers are disabled by
-          default. To enable, set `cors` to `true`, or to an object with the following options:
-            - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin'). The
-              array can contain any combination of fully qualified origins along with origin strings
-              containing a wilcard '*' character, or a single `'*'` origin string. Defaults to any origin
-              `['*']`.
-            - `isOriginExposed` - if `false`, prevents the connection from returning the full list of
-              non-wildcard `origin` values if the incoming origin header does not match any of the values.
-              Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
+        - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows
+          browsers to make cross-origin API calls. CORS is required by web applications running
+          inside a browser which are loaded from a different domain than the API server. CORS
+          headers are disabled by default. To enable, set `cors` to `true`, or to an object with
+          the following options:
+            - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin').
+              The array can contain any combination of fully qualified origins along with origin
+              strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults
+              to any origin `['*']`.
+            - `isOriginExposed` - if `false`, prevents the connection from returning the full list
+              of non-wildcard `origin` values if the incoming origin header does not match any of
+              the values. Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
             - `matchOrigin` - if `false`, returns the list of `origin` values without attempting to match
               the incoming origin value. Cannot be used with wildcard `origin` values. Defaults to `true`.
             - `maxAge` - number of seconds the browser should cache the CORS response
@@ -150,6 +152,8 @@ Creates a new `Server` object where:
               this to keep the default headers in place.
             - `credentials` - if `true`, allows user credentials to be sent
               ('Access-Control-Allow-Credentials'). Defaults to `false`.
+            - `override` - if `false`, preserves existing CORS headers set manually before the
+              response is sent. Defaults to `true`.
 
         - <a name="connection.config.files"></a>`files` - defines the behavior for serving static resources
           using the built-in route handlers for files and directories:
