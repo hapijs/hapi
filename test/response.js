@@ -902,4 +902,31 @@ describe('Response', function () {
             });
         });
     });
+
+    describe('_close()', function () {
+
+        it('calls custom close processor', function (done) {
+
+            var closed = false;
+            var close = function (response) {
+
+                closed = true;
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(request.generateResponse(null, { close: close }));
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(closed).to.be.true();
+                done();
+            });
+        });
+    });
 });
