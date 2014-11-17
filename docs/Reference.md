@@ -514,6 +514,8 @@ authentication strategy configured. Otherwise, the route authentication config i
 defaults. Note that the default only applies at time of route configuration, not at runtime.
 Calling `default()` after adding a route will have no impact on routes added prior.
 
+The default auth strategy configuration can be accessed via `connection.auth.settings.default`.
+
 ```js
 var server = new Hapi.Server();
 server.connection({ port: 80 });

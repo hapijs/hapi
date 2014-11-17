@@ -95,7 +95,10 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: {} } });
+
             server.auth.default('default');
+            expect(server.connections[0].auth.settings.default).to.deep.equal({ strategies: ['default'], mode: 'required' });
+
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
 
             server.inject('/', function (res) {
