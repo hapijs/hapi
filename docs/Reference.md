@@ -1821,10 +1821,12 @@ The route configuration object supports the following options:
             - `'ignore'` - take no action.
             - a custom error handler function with the signature `function(source, error, reply)`
               where:
-                - `source` - the source of the invalid field (e.g. 'path', 'query', 'payload').
+                - `request` - the request object.
+                - `reply` - the continuation [reply interface](#reply-interface).
+                - `source` - the source of the invalid field (e.g. `'path'`, `'query'`,
+                  `'payload'`).
                 - `error` - the error object prepared for the client response (including the
                   validation function error under `error.data`).
-                - `reply` - the continuation [reply interface](#reply-interface).
 
     - `payload` - determines how the request payload is processed:
         - `output` - the type of payload representation requested. The value must be one of:

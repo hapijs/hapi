@@ -409,7 +409,7 @@ describe('validation', function () {
                     query: {
                         a: Joi.string().min(2)
                     },
-                    failAction: function (source, error, reply) {
+                    failAction: function (request, reply, source, error) {
 
                         return reply('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad').code(400);
                     }
