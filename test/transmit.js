@@ -187,31 +187,82 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
 
+            // Initial request - no etag
+
             server.inject('/', function (res1) {
 
                 expect(res1.statusCode).to.equal(200);
+
+                // Second request - etag
 
                 server.inject('/', function (res2) {
 
                     expect(res2.statusCode).to.equal(200);
                     expect(res2.headers.etag).to.exist();
+                    expect(res2.headers.etag).to.not.contain('-');
+
+                    // Conditional request
 
                     server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } }, function (res3) {
 
                         expect(res3.statusCode).to.equal(304);
+                        expect(res3.headers.etag).to.not.contain('-');
+
+                        // Conditional request with accept-encoding
 
                         server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } }, function (res4) {
 
-                            expect(res4.statusCode).to.equal(200);
+                            expect(res4.statusCode).to.equal(304);
+                            expect(res4.headers.etag).to.not.contain('-');
 
-                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } }, function (res5) {
+                            // Conditional request with vary etag
+
+                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag.slice(0, -1) + '-gzip"', 'accept-encoding': 'gzip' } }, function (res5) {
 
                                 expect(res5.statusCode).to.equal(304);
-                                done();
+                                expect(res5.headers.etag).to.match(/-gzip/);
+
+                                // Request with accept-encoding (gzip)
+
+                                server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res6) {
+
+                                    expect(res6.statusCode).to.equal(200);
+                                    expect(res6.headers.etag).to.match(/-gzip/);
+
+                                    // Request with accept-encoding (deflate)
+
+                                    server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } }, function (res7) {
+
+                                        expect(res7.statusCode).to.equal(200);
+                                        expect(res7.headers.etag).to.match(/-deflate/);
+
+                                        // Conditional request with accept-encoding (gzip)
+
+                                        server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } }, function (res8) {
+
+                                            expect(res8.statusCode).to.equal(304);
+                                            expect(res8.headers.etag).to.match(/-deflate/);
+                                            done();
+                                        });
+                                    });
+                                });
                             });
                         });
                     });
                 });
+            });
+        });
+
+        it('returns 304 when manually set to 304', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply().code(304); } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(304);
+                done();
             });
         });
 
@@ -530,7 +581,7 @@ describe('transmission', function () {
                         expect(res3.statusCode).to.equal(200);
                         expect(res3.headers.vary).to.equal('accept-encoding');
                         expect(res3.headers.etag).to.not.equal(res2.headers.etag);
-                        expect(res3.headers.etag).to.equal(res2.headers.etag.slice(0, -1) + '-858124b52dce65944e236995b997b791b1e9c528"');
+                        expect(res3.headers.etag).to.equal(res2.headers.etag.slice(0, -1) + '-gzip"');
                         expect(res3.headers['last-modified']).to.equal(res2.headers['last-modified']);
                         done();
                     });

@@ -335,7 +335,13 @@ describe('Response', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers.etag).to.equal('"abc"');
-                done();
+
+                server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.headers.etag).to.equal('"abc"');
+                    done();
+                });
             });
         });
     });
