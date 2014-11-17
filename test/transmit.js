@@ -519,6 +519,20 @@ describe('transmission', function () {
             });
         });
 
+        it('skips compression on empty', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(null);
+                expect(res.headers['content-encoding']).to.not.exist();
+                done();
+            });
+        });
+
         it('handles stream errors on the response after the response has been piped', function (done) {
 
             var handler = function (request, reply) {
