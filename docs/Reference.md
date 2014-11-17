@@ -681,7 +681,7 @@ When setting context inside a plugin, the context is applied only to methods set
 ```js
 var handler = function (request, reply) {
 
-    return request.reply(this.message);
+    return reply(this.message);
 };
 
 exports.register = function (server, options, next) {
