@@ -2717,7 +2717,7 @@ The response object provides the following methods:
         - `weak` - if `true`, the tag will be prefixed with the `'W/'` weak signifier. Weak tags
           will fail to match identical tags for the purpose of determining 304 response status.
           Defaults to `false`.
-        - `vary` - if `true` and content encoding is applied to the response (e.g 'gzip' or
+        - `vary` - if `true` and content encoding is set or applied to the response (e.g 'gzip' or
           'deflate'), the encoding name will be automatically added to the tag at transmission time
           (separated by a `'-'` character). Ignored when `weak` is `true`. Defaults to `true`.
 - `header(name, value, options)` - sets an HTTP header where:

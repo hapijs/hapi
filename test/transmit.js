@@ -220,28 +220,28 @@ describe('transmission', function () {
                             server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag.slice(0, -1) + '-gzip"', 'accept-encoding': 'gzip' } }, function (res5) {
 
                                 expect(res5.statusCode).to.equal(304);
-                                expect(res5.headers.etag).to.match(/-gzip/);
+                                expect(res5.headers.etag).to.match(/-gzip"$/);
 
                                 // Request with accept-encoding (gzip)
 
                                 server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res6) {
 
                                     expect(res6.statusCode).to.equal(200);
-                                    expect(res6.headers.etag).to.match(/-gzip/);
+                                    expect(res6.headers.etag).to.match(/-gzip"$/);
 
                                     // Request with accept-encoding (deflate)
 
                                     server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } }, function (res7) {
 
                                         expect(res7.statusCode).to.equal(200);
-                                        expect(res7.headers.etag).to.match(/-deflate/);
+                                        expect(res7.headers.etag).to.match(/-deflate"$/);
 
                                         // Conditional request with accept-encoding (gzip)
 
                                         server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } }, function (res8) {
 
                                             expect(res8.statusCode).to.equal(304);
-                                            expect(res8.headers.etag).to.match(/-deflate/);
+                                            expect(res8.headers.etag).to.match(/-deflate"$/);
                                             done();
                                         });
                                     });
@@ -1411,6 +1411,21 @@ describe('transmission', function () {
                 });
                 clientRequest.on('error', function () { /* NOP */ });
                 clientRequest.end();
+            });
+        });
+
+        it('changes etag when content-encoding set manually', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').header('content-encoding', 'gzip').etag('abc'); } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.etag).to.exist();
+                expect(res.headers.etag).to.match(/-gzip"$/);
+                done();
             });
         });
     });
