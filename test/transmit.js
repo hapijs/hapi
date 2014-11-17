@@ -1430,7 +1430,7 @@ describe('transmission', function () {
         });
     });
 
-    describe('cors', function () {
+    describe('cors()', function () {
 
         it('returns CORS origin (GET)', function (done) {
 
@@ -1635,6 +1635,48 @@ describe('transmission', function () {
             });
         });
 
+        it('returns origin header when matching against *', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('Tada').header('vary', 'x-test');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ cors: { origin: ['*'] } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('Tada');
+                expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
+                expect(res.headers.vary).to.equal('x-test,origin');
+                done();
+            });
+        });
+
+        it('returns * when matching is disabled', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('Tada').header('vary', 'x-test');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ cors: { origin: ['*'], matchOrigin: false } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('Tada');
+                expect(res.headers['access-control-allow-origin']).to.equal('*');
+                expect(res.headers.vary).to.equal('x-test');
+                done();
+            });
+        });
+
         it('returns matching CORS origin without exposing full list', function (done) {
 
             var handler = function (request, reply) {
@@ -1740,7 +1782,7 @@ describe('transmission', function () {
         });
     });
 
-    describe('cache', function () {
+    describe('cache()', function () {
 
         it('returns max-age value when route sets cache', function (done) {
 
@@ -1922,7 +1964,7 @@ describe('transmission', function () {
         });
     });
 
-    describe('security', function () {
+    describe('security()', function () {
 
         it('does not set security headers by default', function (done) {
 
@@ -2316,7 +2358,7 @@ describe('transmission', function () {
         });
     });
 
-    describe('content', function () {
+    describe('content()', function () {
 
         it('does not modify content-type header when charset manually set', function (done) {
 
