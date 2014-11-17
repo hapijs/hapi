@@ -2384,6 +2384,8 @@ Each request object includes the following properties:
   validation modifications made. Only set when input validation is performed.
 - `params` - an object where each key is a path parameter name with matching value as described in
   [Path parameters](#path-parameters).
+- `paramsArray` - an array containing all the path `params` values in the order they appeared in
+  the path.
 - `path` - the request URI's path component.
 - `payload` - the request payload based on the route `payload.output` and `payload.parse` settings.
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data.
