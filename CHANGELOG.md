@@ -1,4 +1,95 @@
 
+## [**8.0.0**](https://github.com/hapijs/hapi/issues?milestone=127&state=open)
+- [**#2170**](https://github.com/hapijs/hapi/issues/2170) Spin off range header parser
+- [**#2066**](https://github.com/hapijs/hapi/issues/2066) Configure auth scheme to require payload validation
+- [**#2111**](https://github.com/hapijs/hapi/issues/2111) CORS matchOrigin should echo origin when config doesn't specify
+- [**#2158**](https://github.com/hapijs/hapi/issues/2158) How to get default auth strategy from server object?
+- [**#1994**](https://github.com/hapijs/hapi/issues/1994) Pass meta data from a joi object to a failAction
+- [**#2167**](https://github.com/hapijs/hapi/issues/2167) Add response 'close' processor
+- [**#2166**](https://github.com/hapijs/hapi/issues/2166) ETag vary modification not applied to content-encoding set elsewhere
+- [**#2165**](https://github.com/hapijs/hapi/issues/2165) Expose request.paramsArray
+- [**#2164**](https://github.com/hapijs/hapi/issues/2164) Bypass compression on empty payload
+- [**#2163**](https://github.com/hapijs/hapi/issues/2163) ETag vary modification is incorrect
+- [**#2099**](https://github.com/hapijs/hapi/issues/2099) ETags never match with varyEtag setting
+- [**#2160**](https://github.com/hapijs/hapi/issues/2160) Add cors.override setting
+- [**#2154**](https://github.com/hapijs/hapi/issues/2154) Rename response object option marshall to marshal
+- [**#2153**](https://github.com/hapijs/hapi/issues/2153) Change etag based on vary header by default
+- [**#2093**](https://github.com/hapijs/hapi/issues/2093) Include ETag and Last-Modified in 304 response
+- [**#2152**](https://github.com/hapijs/hapi/issues/2152) Change server method generateKey() to only take the arguments
+- [**#2148**](https://github.com/hapijs/hapi/issues/2148) Optimize use of arguments
+- [**#2150**](https://github.com/hapijs/hapi/issues/2150) argument Object Optimizations
+- [**#2129**](https://github.com/hapijs/hapi/issues/2129) Support promises in server.method()
+- [**#2149**](https://github.com/hapijs/hapi/issues/2149) Support server methods without callback
+- [**#2122**](https://github.com/hapijs/hapi/issues/2122) Pass the reply() interface everywhere a response can be returned
+- [**#2146**](https://github.com/hapijs/hapi/issues/2146) Deep copy app and plugins configurations
+- [**#2124**](https://github.com/hapijs/hapi/issues/2124) Server-level connection defaults
+- [**#2145**](https://github.com/hapijs/hapi/issues/2145) Split request log events into request and request-internal
+- [**#2048**](https://github.com/hapijs/hapi/issues/2048) New Event for request.log
+- [**#2144**](https://github.com/hapijs/hapi/issues/2144) Rename server event internalError to `request-error`
+- [**#2143**](https://github.com/hapijs/hapi/issues/2143) Replace log 'hapi' tag with event.internal flag
+- [**#2142**](https://github.com/hapijs/hapi/issues/2142) Rename request.responses to request.preResponses
+- [**#2104**](https://github.com/hapijs/hapi/issues/2104) Apply `reply.continue()` to auth interfaces
+- [**#2137**](https://github.com/hapijs/hapi/issues/2137) Remove auth authenticate() `log` option in result
+- [**#2136**](https://github.com/hapijs/hapi/issues/2136) Here comes 8
+- [**#2135**](https://github.com/hapijs/hapi/issues/2135) Remove Hapi.version
+- [**#2131**](https://github.com/hapijs/hapi/issues/2131) Simplify server.register() to only accept register() or { register, options }
+- [**#2128**](https://github.com/hapijs/hapi/issues/2128) Change server.method() object key from fn to method
+- [**#2097**](https://github.com/hapijs/hapi/issues/2097) Support Promises in reply() interface
+- [**#2126**](https://github.com/hapijs/hapi/issues/2126) Change server.cache() to take only options
+- [**#2125**](https://github.com/hapijs/hapi/issues/2125) Remove .hapi references
+- [**#2118**](https://github.com/hapijs/hapi/issues/2118) Cleanup register() to accept a plugin or { plugin, options }
+- [**#2116**](https://github.com/hapijs/hapi/issues/2116) Move peek logic to Peekaboo
+- [**#2040**](https://github.com/hapijs/hapi/issues/2040) Improve request ID generator to prevent collisions
+- [**#2113**](https://github.com/hapijs/hapi/issues/2113) Missing host will default to hostname or 'localhost' instead of '0.0.0.0' pre start()
+- [**#2112**](https://github.com/hapijs/hapi/issues/2112) Switch unix domain socket  and windows named pipe to use options.port
+- [**#1977**](https://github.com/hapijs/hapi/issues/1977) Throw when route() is called with multiple arguments
+- [**#2003**](https://github.com/hapijs/hapi/issues/2003) Stop cache client when pack stops
+- [**#1926**](https://github.com/hapijs/hapi/issues/1926) Remove special handling of the HTTP Location header
+- [**#2109**](https://github.com/hapijs/hapi/issues/2109) Remove request aborted listener
+- [**#1902**](https://github.com/hapijs/hapi/issues/1902) reply.redirect() and reply.file() not working in server extensions
+- [**#2103**](https://github.com/hapijs/hapi/issues/2103) Change ext continuation method from `reply()` to `reply.continue()`
+- [**#1965**](https://github.com/hapijs/hapi/issues/1965) Need to know when response was sent in `server.on(tail)`
+- [**#2065**](https://github.com/hapijs/hapi/issues/2065) failing to generate a method key should generate an error somewhere
+- [**#2089**](https://github.com/hapijs/hapi/issues/2089) How to use the Debug output
+- [**#1963**](https://github.com/hapijs/hapi/issues/1963) Extensible reply() interface
+- [**#1866**](https://github.com/hapijs/hapi/issues/1866) Throw error when trying to reply twice
+- [**#1864**](https://github.com/hapijs/hapi/issues/1864) Feature Request: Validation of non-200/ok responses.
+- [**#1723**](https://github.com/hapijs/hapi/issues/1723) Allow response object stripping according to schema
+- [**#2096**](https://github.com/hapijs/hapi/issues/2096) Skip onPreResponse when connection closes prematurely
+- [**#1686**](https://github.com/hapijs/hapi/issues/1686) Don't report request closed on redirect payload write
+- [**#2086**](https://github.com/hapijs/hapi/issues/2086) Remove bin/hapi
+- [**#2085**](https://github.com/hapijs/hapi/issues/2085) Remove server.compose()
+- [**#1672**](https://github.com/hapijs/hapi/issues/1672) Enable starting the server listener externally
+- [**#2095**](https://github.com/hapijs/hapi/issues/2095) Rework composer format
+- [**#2092**](https://github.com/hapijs/hapi/issues/2092) Change default port to 0
+- [**#2090**](https://github.com/hapijs/hapi/issues/2090) Remove plugin.version
+- [**#2084**](https://github.com/hapijs/hapi/issues/2084) Remove Hapi.state.prepareValue()
+- [**#2083**](https://github.com/hapijs/hapi/issues/2083) Remove Hapi.error
+- [**#2082**](https://github.com/hapijs/hapi/issues/2082) Remove Hapi.createServer()
+- [**#2052**](https://github.com/hapijs/hapi/issues/2052) Remove plugin.length
+- [**#2053**](https://github.com/hapijs/hapi/issues/2053) Change plugin.servers to plugin.connections
+- [**#2071**](https://github.com/hapijs/hapi/issues/2071) Move proxy handler to use local maxSocket config
+- [**#2072**](https://github.com/hapijs/hapi/issues/2072) Remove debug from server configuration
+- [**#2073**](https://github.com/hapijs/hapi/issues/2073) Split process load from server load limits
+- [**#2076**](https://github.com/hapijs/hapi/issues/2076) Move files.etagsCacheMaxSize to pack level
+- [**#2080**](https://github.com/hapijs/hapi/issues/2080) app config no longer copied over to server.app or connection.app
+
+## [**7.5.2**](https://github.com/hapijs/hapi/issues?milestone=132&state=closed)
+- [**#2123**](https://github.com/hapijs/hapi/issues/2123) Upgrade hoek to 2.9.0
+
+## [**7.5.1**](https://github.com/hapijs/hapi/issues?milestone=131&state=closed)
+- [**#2120**](https://github.com/hapijs/hapi/issues/2120) TypeError: Cannot read property 'get' of undefined
+
+## [**7.5.0**](https://github.com/hapijs/hapi/issues?milestone=130&state=closed)
+- [**#2105**](https://github.com/hapijs/hapi/issues/2105) Added ability to pass option into unstate.
+- [**#1916**](https://github.com/hapijs/hapi/issues/1916) Temp file is not deleted when request is aborted by client
+
+## [**7.4.0**](https://github.com/hapijs/hapi/issues?milestone=129&state=closed)
+- [**#2100**](https://github.com/hapijs/hapi/issues/2100) Global view context.
+
+## [**7.3.0**](https://github.com/hapijs/hapi/issues?milestone=128&state=closed)
+- [**#2098**](https://github.com/hapijs/hapi/issues/2098) Catbox 4.1
+
 ## [**7.2.0**](https://github.com/hapijs/hapi/issues?milestone=126&state=closed)
 - [**#2069**](https://github.com/hapijs/hapi/issues/2069) Isolate server in its own pack
 - [**#2061**](https://github.com/hapijs/hapi/issues/2061) Second phase of server/pack/plugin refactor
@@ -30,7 +121,7 @@
 - [**#2017**](https://github.com/hapijs/hapi/issues/2017) Initial 7.0 changes
 - [**#2016**](https://github.com/hapijs/hapi/issues/2016) Remove $env support from pack.compose()
 - [**#1955**](https://github.com/hapijs/hapi/issues/1955) Use environment variables in CLI configuration json file
-- [**#2011**](https://github.com/hapijs/hapi/issues/2011) Hapi should not override `cache-control` header if it&#39;s manually set by user&#39;s code
+- [**#2011**](https://github.com/hapijs/hapi/issues/2011) Hapi should not override `cache-control` header if it's manually set by user's code
 - [**#1960**](https://github.com/hapijs/hapi/issues/1960) Remove support for tos authentication setting
 - [**#2007**](https://github.com/hapijs/hapi/issues/2007) Remove server views config
 
@@ -121,14 +212,14 @@
 - [**#1778**](https://github.com/hapijs/hapi/issues/1778) Do not create a duplicate Content-Type header on proxy passthrough
 - [**#1774**](https://github.com/hapijs/hapi/issues/1774) Style fixes
 - [**#1766**](https://github.com/hapijs/hapi/issues/1766) prepend jsonp callbacks with a comment to prevent the rosetta-flash vulnerability
-- [**#1763**](https://github.com/hapijs/hapi/issues/1763) fixes #1755 - stripTrailingSlash doesn&#39;t work when query variables are used
+- [**#1763**](https://github.com/hapijs/hapi/issues/1763) fixes #1755 - stripTrailingSlash doesn't work when query variables are used
 - [**#1760**](https://github.com/hapijs/hapi/issues/1760) How can I set Content-Type header to the content generated from reply.view?
 - [**#1762**](https://github.com/hapijs/hapi/issues/1762) fix content-type overriding issue #1760.
 - [**#1733**](https://github.com/hapijs/hapi/issues/1733) log function should only emit once if _server object
 - [**#1783**](https://github.com/hapijs/hapi/issues/1783) Change etag when content-encoding is used
 - [**#1782**](https://github.com/hapijs/hapi/issues/1782) server.inject() res.result does not reflect actual payload sent on 304/204
 - [**#1781**](https://github.com/hapijs/hapi/issues/1781) Send empty payload on 204
-- [**#1756**](https://github.com/hapijs/hapi/issues/1756) Follow coding conventions concerning semicolons; Don&#39;t initialize variab...
+- [**#1756**](https://github.com/hapijs/hapi/issues/1756) Follow coding conventions concerning semicolons; Don't initialize variab...
 - [**#1776**](https://github.com/hapijs/hapi/issues/1776) Proxy pass-through with onResponse fails to preserve vary header values
 - [**#1773**](https://github.com/hapijs/hapi/issues/1773) Windows path fails on trailing slash on view helpers
 - [**#1676**](https://github.com/hapijs/hapi/issues/1676) Problem serving precompressed files with directory handler
@@ -140,7 +231,7 @@
 - [**#1728**](https://github.com/hapijs/hapi/issues/1728) 6.x breaks plugin modules exporting functions
 
 ## [**6.0.2**](https://github.com/hapijs/hapi/issues?milestone=104&state=closed)
-- [**#1720**](https://github.com/hapijs/hapi/issues/1720) No way to handle root routes with `route: {prefix: &#39;...&#39;}`
+- [**#1720**](https://github.com/hapijs/hapi/issues/1720) No way to handle root routes with `route: {prefix: '...'}`
 - [**#1719**](https://github.com/hapijs/hapi/issues/1719) Fixes undefined error in `plugin.dependency`
 
 ## [**6.0.1**](https://github.com/hapijs/hapi/issues?milestone=103&state=closed)
@@ -150,14 +241,14 @@
 - [**#1708**](https://github.com/hapijs/hapi/issues/1708) Hapi 6.0 no longer invalidates auth strategy on registration of route
 - [**#1703**](https://github.com/hapijs/hapi/issues/1703) Catbox 3.0 and drop internal require support
 - [**#1700**](https://github.com/hapijs/hapi/issues/1700) Change the order of actions when starting a pack
-- [**#1668**](https://github.com/hapijs/hapi/issues/1668) Delete &#39;Accept-Encoding&#39; header on proxy requests
+- [**#1668**](https://github.com/hapijs/hapi/issues/1668) Delete 'Accept-Encoding' header on proxy requests
 - [**#1696**](https://github.com/hapijs/hapi/issues/1696) Non-Error auth err responses are ignored in try mode
 - [**#1695**](https://github.com/hapijs/hapi/issues/1695) Preserve auth error on try
 - [**#1691**](https://github.com/hapijs/hapi/issues/1691) V6.0
 - [**#1693**](https://github.com/hapijs/hapi/issues/1693) Enhance setting authentication defaults
 - [**#1692**](https://github.com/hapijs/hapi/issues/1692) Allow testing a request against any configured authentication strategy
 - [**#1688**](https://github.com/hapijs/hapi/issues/1688) Bring back reply.redirect()
-- [**#1687**](https://github.com/hapijs/hapi/issues/1687) Don&#39;t log auth non-error responses with &#39;error&#39; tag
+- [**#1687**](https://github.com/hapijs/hapi/issues/1687) Don't log auth non-error responses with 'error' tag
 - [**#1679**](https://github.com/hapijs/hapi/issues/1679) Allow cookie-specific settings for failAction, strictHeader, and clearInvalid
 - [**#1678**](https://github.com/hapijs/hapi/issues/1678) Expose the location header logic
 - [**#1677**](https://github.com/hapijs/hapi/issues/1677) Enhance manifest format to support registration options (select, prefix, vhost)
@@ -168,7 +259,7 @@
 - [**#1662**](https://github.com/hapijs/hapi/issues/1662) Config clones bind, app, and plugins
 - [**#1661**](https://github.com/hapijs/hapi/issues/1661) View manager clones engines including modules
 - [**#1658**](https://github.com/hapijs/hapi/issues/1658) Set route path prefix when loading plugin
-- [**#1659**](https://github.com/hapijs/hapi/issues/1659) plugin.view() modifies options&#39; basePath
+- [**#1659**](https://github.com/hapijs/hapi/issues/1659) plugin.view() modifies options' basePath
 - [**#1656**](https://github.com/hapijs/hapi/issues/1656) Remove pack.require() and plugin.require()
 - [**#1655**](https://github.com/hapijs/hapi/issues/1655) Remove support for string view engine config
 - [**#1653**](https://github.com/hapijs/hapi/issues/1653) Move Composer into Pack.compose()
@@ -240,7 +331,7 @@
 - [**#1535**](https://github.com/hapijs/hapi/issues/1535) Cannot set maxSockets to node default
 - [**#1533**](https://github.com/hapijs/hapi/issues/1533) Proxy without passThrough fails to set cache-control header
 - [**#1532**](https://github.com/hapijs/hapi/issues/1532) Multipart payload to files with multiple files skips second file when large
-- [**#1531**](https://github.com/hapijs/hapi/issues/1531) pack.log() doesn&#39;t retain server debug false setting
+- [**#1531**](https://github.com/hapijs/hapi/issues/1531) pack.log() doesn't retain server debug false setting
 - [**#1530**](https://github.com/hapijs/hapi/issues/1530) plugin.method() should use method bind before plugin bind
 - [**#1515**](https://github.com/hapijs/hapi/issues/1515) Coverage to 100% after lab logical statement support
 - [**#1520**](https://github.com/hapijs/hapi/issues/1520) server.table() mis-documented, missing args, and route.table() is wrong
@@ -250,7 +341,7 @@
 - [**#1513**](https://github.com/hapijs/hapi/issues/1513) Authentication userland code not protected by domain
 
 ## [**3.0.2**](https://github.com/hapijs/hapi/issues?milestone=89&state=closed)
-- [**#1507**](https://github.com/hapijs/hapi/issues/1507) request.setUrl(&#39;&#39;) throws
+- [**#1507**](https://github.com/hapijs/hapi/issues/1507) request.setUrl('') throws
 
 ## [**3.0.1**](https://github.com/hapijs/hapi/issues?milestone=88&state=closed)
 - [**#1503**](https://github.com/hapijs/hapi/issues/1503) plugin.method(name, fn, [options]) fails 
@@ -272,10 +363,10 @@
 - [**#1453**](https://github.com/hapijs/hapi/issues/1453) Include prerequisites in default view context. #1452
 - [**#1445**](https://github.com/hapijs/hapi/issues/1445) Server method bind option
 - [**#1450**](https://github.com/hapijs/hapi/issues/1450) Enable handlers to use the prerequisite method string notation
-- [**#1449**](https://github.com/hapijs/hapi/issues/1449) Allow server methods names to include &#39;.&#39; (nested)
+- [**#1449**](https://github.com/hapijs/hapi/issues/1449) Allow server methods names to include '.' (nested)
 - [**#1448**](https://github.com/hapijs/hapi/issues/1448) Prerequisite string notation parsing errors
 - [**#1447**](https://github.com/hapijs/hapi/issues/1447) Allow prerequisites string notation to use method name without ()
-- [**#1446**](https://github.com/hapijs/hapi/issues/1446) Document server method callback &#39;isUncacheable&#39; argument
+- [**#1446**](https://github.com/hapijs/hapi/issues/1446) Document server method callback 'isUncacheable' argument
 - [**#1442**](https://github.com/hapijs/hapi/issues/1442) Response 304
 
 ## [**2.5.0**](https://github.com/hapijs/hapi/issues?milestone=84&state=closed)
@@ -286,7 +377,7 @@
 - [**#1299**](https://github.com/hapijs/hapi/issues/1299) thrown errors inside server.inject does not propagate
 
 ## [**2.4.0**](https://github.com/hapijs/hapi/issues?milestone=83&state=closed)
-- [**#1430**](https://github.com/hapijs/hapi/issues/1430) Server fails to parse &quot;&quot; cookie value
+- [**#1430**](https://github.com/hapijs/hapi/issues/1430) Server fails to parse "" cookie value
 - [**#1428**](https://github.com/hapijs/hapi/issues/1428) request.getLog() includes same event multiple times when using multiple tags
 - [**#1424**](https://github.com/hapijs/hapi/issues/1424) Searching actual working SSE example (#1008 does not work for me)
 - [**#1425**](https://github.com/hapijs/hapi/issues/1425) return a reference to the server when adding via pack.server
@@ -296,8 +387,8 @@
 - [**#1320**](https://github.com/hapijs/hapi/issues/1320) Add support for asynchronous view rendering
 
 ## [**2.2.0**](https://github.com/hapijs/hapi/issues?milestone=81&state=closed)
-- [**#1372**](https://github.com/hapijs/hapi/issues/1372) test that handler isn&#39;t called when a request is interrupted
-- [**#1362**](https://github.com/hapijs/hapi/issues/1362) (cookies) TypeError: Cannot call method &#39;match&#39; of undefined
+- [**#1372**](https://github.com/hapijs/hapi/issues/1372) test that handler isn't called when a request is interrupted
+- [**#1362**](https://github.com/hapijs/hapi/issues/1362) (cookies) TypeError: Cannot call method 'match' of undefined
 - [**#1378**](https://github.com/hapijs/hapi/issues/1378) add failureResponse option to proxy handler
 - [**#1354**](https://github.com/hapijs/hapi/issues/1354) Use configuration objects to register helpers
 - [**#1380**](https://github.com/hapijs/hapi/issues/1380) Allow bind context for view handler
@@ -315,7 +406,7 @@
 - [**#1387**](https://github.com/hapijs/hapi/issues/1387) EMFILE error when hapi serves static files over period of time in hapi 2.1.2
 - [**#1391**](https://github.com/hapijs/hapi/issues/1391) Disable autoparsing without losing gzip
 - [**#1393**](https://github.com/hapijs/hapi/issues/1393) add `gunzip` as third option to `parse`; resolves #1391
-- [**#1400**](https://github.com/hapijs/hapi/issues/1400) Question: Can you get a log of requests that don&#39;t pass validation?
+- [**#1400**](https://github.com/hapijs/hapi/issues/1400) Question: Can you get a log of requests that don't pass validation?
 - [**#1401**](https://github.com/hapijs/hapi/issues/1401) route.payload.allow as Array never matches
 - [**#1357**](https://github.com/hapijs/hapi/issues/1357) specify hoek minor version
 
@@ -339,17 +430,17 @@
 - [**#1332**](https://github.com/hapijs/hapi/issues/1332) Payload always logging an error regardless of error state
 - [**#1327**](https://github.com/hapijs/hapi/issues/1327) Better debug support for object data
 - [**#1324**](https://github.com/hapijs/hapi/issues/1324) When no query params are sent, request.params is null instead of {}.
-- [**#1301**](https://github.com/hapijs/hapi/issues/1301) `querystring` =&gt; `qs`, adds support for nested objects
+- [**#1301**](https://github.com/hapijs/hapi/issues/1301) `querystring` => `qs`, adds support for nested objects
 - [**#1314**](https://github.com/hapijs/hapi/issues/1314) Replace old payload try mode with failAction
 - [**#1313**](https://github.com/hapijs/hapi/issues/1313) Change redirectToSlash default value to true
-- [**#1312**](https://github.com/hapijs/hapi/issues/1312) Remove special values for server config &#39;files.relativeTo&#39;
+- [**#1312**](https://github.com/hapijs/hapi/issues/1312) Remove special values for server config 'files.relativeTo'
 - [**#1311**](https://github.com/hapijs/hapi/issues/1311) Implement saving payload to file when not using mutlipart
-- [**#1304**](https://github.com/hapijs/hapi/issues/1304) Request &#39;peek&#39; event
+- [**#1304**](https://github.com/hapijs/hapi/issues/1304) Request 'peek' event
 - [**#1300**](https://github.com/hapijs/hapi/issues/1300) Do not overwrite Access-Control-Allow-Origin
 - [**#1297**](https://github.com/hapijs/hapi/issues/1297) Document validation option in settings
 - [**#1295**](https://github.com/hapijs/hapi/issues/1295) Replace route payload.mode with payload.output and payload.parse
 - [**#1292**](https://github.com/hapijs/hapi/issues/1292) Skip loading entire multipart to memory and stream directly to multiparty
-- [**#1168**](https://github.com/hapijs/hapi/issues/1168) Save stream to file like {mode: &#39;file&#39; ...}
+- [**#1168**](https://github.com/hapijs/hapi/issues/1168) Save stream to file like {mode: 'file' ...}
 - [**#1236**](https://github.com/hapijs/hapi/issues/1236) Review lru-cache settings
 - [**#1239**](https://github.com/hapijs/hapi/issues/1239) Disable cache when Authorization header is included
 - [**#1241**](https://github.com/hapijs/hapi/issues/1241) Add user/private flag to state variable
@@ -368,18 +459,18 @@
 - [**#1279**](https://github.com/hapijs/hapi/issues/1279) Convert ext method signature to handler
 - [**#1270**](https://github.com/hapijs/hapi/issues/1270) Apply encoding to Response.Payload operations consistently
 - [**#1272**](https://github.com/hapijs/hapi/issues/1272) Redo reply.close()
-- [**#1277**](https://github.com/hapijs/hapi/issues/1277) Emit &#39;internalError&#39; for every 500, not just the one sent back
+- [**#1277**](https://github.com/hapijs/hapi/issues/1277) Emit 'internalError' for every 500, not just the one sent back
 - [**#1276**](https://github.com/hapijs/hapi/issues/1276) Retain headers in 304 response
 - [**#1275**](https://github.com/hapijs/hapi/issues/1275) Boom 2.0
 - [**#1274**](https://github.com/hapijs/hapi/issues/1274) Fixed code example in README to comply with 2.0.x
-- [**#1238**](https://github.com/hapijs/hapi/issues/1238) Special handling for &#39;*&#39; Vary response header
+- [**#1238**](https://github.com/hapijs/hapi/issues/1238) Special handling for '*' Vary response header
 - [**#1059**](https://github.com/hapijs/hapi/issues/1059) Allow route prerequisites to takeover() and preempt handler
 - [**#1222**](https://github.com/hapijs/hapi/issues/1222) Proxy passthrough does not allow for cookie domain modification
 - [**#1247**](https://github.com/hapijs/hapi/issues/1247) Clean up postResponse in proxy config
 - [**#1253**](https://github.com/hapijs/hapi/issues/1253) in directory, fix the listing of subdirs that reside in a subdirs that have spaces
 - [**#1268**](https://github.com/hapijs/hapi/issues/1268) Expose more response properties
-- [**#1267**](https://github.com/hapijs/hapi/issues/1267) Add &#39;app&#39; and &#39;plugins&#39; to response object
-- [**#1266**](https://github.com/hapijs/hapi/issues/1266) Remove &#39;response.variety&#39; support
+- [**#1267**](https://github.com/hapijs/hapi/issues/1267) Add 'app' and 'plugins' to response object
+- [**#1266**](https://github.com/hapijs/hapi/issues/1266) Remove 'response.variety' support
 - [**#1262**](https://github.com/hapijs/hapi/issues/1262) Remove response.getTtl()
 - [**#1261**](https://github.com/hapijs/hapi/issues/1261) Rename response.uri() to response.location()
 - [**#1258**](https://github.com/hapijs/hapi/issues/1258) Default Buffer responses to application/octet-stream
@@ -392,9 +483,9 @@
 - [**#1251**](https://github.com/hapijs/hapi/issues/1251) Replace File from response type to reply.file() helper
 - [**#1252**](https://github.com/hapijs/hapi/issues/1252) Protect response payload stream wrapper from multiple replays
 - [**#1242**](https://github.com/hapijs/hapi/issues/1242) Remove server-side route caching
-- [**#1231**](https://github.com/hapijs/hapi/issues/1231) request.log() no longer adds &#39;error&#39; tag if data is Error
+- [**#1231**](https://github.com/hapijs/hapi/issues/1231) request.log() no longer adds 'error' tag if data is Error
 - [**#1234**](https://github.com/hapijs/hapi/issues/1234) Move client out to separate module
-- [**#1229**](https://github.com/hapijs/hapi/issues/1229) Add req.on(&#39;error&#39;/&#39;close&#39;) to request object processing
+- [**#1229**](https://github.com/hapijs/hapi/issues/1229) Add req.on('error'/'close') to request object processing
 - [**#1189**](https://github.com/hapijs/hapi/issues/1189) Attaching a websocket to a server in a pack
 - [**#1230**](https://github.com/hapijs/hapi/issues/1230) Remove plugin permissions
 - [**#1219**](https://github.com/hapijs/hapi/issues/1219) `pack.require` doc is somewhat incorrect
@@ -434,7 +525,7 @@
 - [**#1165**](https://github.com/hapijs/hapi/issues/1165) Switch benchmarks to use Hoek.Bench instead of Date.now()
 
 ## [**1.19.4**](https://github.com/hapijs/hapi/issues?milestone=75&state=closed)
-- [**#1163**](https://github.com/hapijs/hapi/issues/1163) CORS response doesn&#39;t set Vary header in all cases
+- [**#1163**](https://github.com/hapijs/hapi/issues/1163) CORS response doesn't set Vary header in all cases
 
 ## [**1.19.3**](https://github.com/hapijs/hapi/issues?milestone=74&state=closed)
 - [**#1161**](https://github.com/hapijs/hapi/issues/1161) Schema issues
@@ -456,7 +547,7 @@
 - [**#1140**](https://github.com/hapijs/hapi/issues/1140) Not able to login after attempting without user name
 - [**#1144**](https://github.com/hapijs/hapi/issues/1144) Support pre-compressed files
 - [**#1142**](https://github.com/hapijs/hapi/issues/1142) Fix ext function plugin env binding
-- [**#1137**](https://github.com/hapijs/hapi/issues/1137) generateView at &#39;onRequest&#39; extension point
+- [**#1137**](https://github.com/hapijs/hapi/issues/1137) generateView at 'onRequest' extension point
 
 ## [**1.16.1**](https://github.com/hapijs/hapi/issues?milestone=67&state=closed)
 - [**#1135**](https://github.com/hapijs/hapi/issues/1135) Formatting problem in Reference.md
@@ -471,7 +562,7 @@
 ## [**1.15.0**](https://github.com/hapijs/hapi/issues?milestone=65&state=closed)
 - [**#1103**](https://github.com/hapijs/hapi/issues/1103) allow arrays of scopes on routes
 - [**#1116**](https://github.com/hapijs/hapi/issues/1116) CORS origin bug fixes and enhancements
-- [**#1091**](https://github.com/hapijs/hapi/issues/1091) Only set access-control-allow-origin if the origin header value matches (or &#39;*&#39; is allowed)
+- [**#1091**](https://github.com/hapijs/hapi/issues/1091) Only set access-control-allow-origin if the origin header value matches (or '*' is allowed)
 - [**#1113**](https://github.com/hapijs/hapi/issues/1113) updates plugin.views Reference.md entry to a clear and working example
 - [**#1094**](https://github.com/hapijs/hapi/issues/1094) 404 not being caught by onPreResponse function
 - [**#1112**](https://github.com/hapijs/hapi/issues/1112) Too strict cookie parsing?
@@ -480,8 +571,8 @@
 ## [**1.14.0**](https://github.com/hapijs/hapi/issues?milestone=64&state=closed)
 - [**#1098**](https://github.com/hapijs/hapi/issues/1098) Add criteria support to CLI
 - [**#1092**](https://github.com/hapijs/hapi/issues/1092) Empty path parameter should have empty string value, not undefined
-- [**#1028**](https://github.com/hapijs/hapi/issues/1028) Expose requests content-type/mime &amp; accept
-- [**#1024**](https://github.com/hapijs/hapi/issues/1024) Hapi.Composer.compose() requires &quot;plugins&quot; but won&#39;t warn if it&#39;s not there
+- [**#1028**](https://github.com/hapijs/hapi/issues/1028) Expose requests content-type/mime & accept
+- [**#1024**](https://github.com/hapijs/hapi/issues/1024) Hapi.Composer.compose() requires "plugins" but won't warn if it's not there
 - [**#995**](https://github.com/hapijs/hapi/issues/995) Block response.created() from methods other than POST and PUT
 
 ## [**1.13.0**](https://github.com/hapijs/hapi/issues?milestone=63&state=closed)
@@ -505,7 +596,7 @@
 - [**#1064**](https://github.com/hapijs/hapi/issues/1064) Helper cache drop interface
 
 ## [**1.10.0**](https://github.com/hapijs/hapi/issues?milestone=59&state=closed)
-- [**#1057**](https://github.com/hapijs/hapi/issues/1057) &#39;/{p*}&#39; is sorted ahead of &#39;/{a}/b/{p*}&#39;
+- [**#1057**](https://github.com/hapijs/hapi/issues/1057) '/{p*}' is sorted ahead of '/{a}/b/{p*}'
 - [**#1056**](https://github.com/hapijs/hapi/issues/1056) Allow directory paths to include multiple params and use last for resource selection
 - [**#1058**](https://github.com/hapijs/hapi/issues/1058) Closes #1056 and #1057
 - [**#1054**](https://github.com/hapijs/hapi/issues/1054) Enhance prerequisites configuration options
@@ -556,7 +647,7 @@
 - [**#970**](https://github.com/hapijs/hapi/issues/970) Removing complexity-report
 - [**#967**](https://github.com/hapijs/hapi/issues/967) Authentication defaultMode allowed invalid values
 - [**#966**](https://github.com/hapijs/hapi/issues/966) Expose the hapi module on the request object
-- [**#963**](https://github.com/hapijs/hapi/issues/963) Question: should pack.register&#39;s register pack parameter should be renamed to plugin?
+- [**#963**](https://github.com/hapijs/hapi/issues/963) Question: should pack.register's register pack parameter should be renamed to plugin?
 - [**#965**](https://github.com/hapijs/hapi/issues/965) Change parameter name pack to plugin to resolve #963
 - [**#962**](https://github.com/hapijs/hapi/issues/962) Server config schema does not allow single string labels
 - [**#960**](https://github.com/hapijs/hapi/issues/960) Updates to case sensitive routing
@@ -572,7 +663,7 @@
 - [**#943**](https://github.com/hapijs/hapi/issues/943) Updating version
 - [**#942**](https://github.com/hapijs/hapi/issues/942) Layouts work correctly in jade
 - [**#941**](https://github.com/hapijs/hapi/issues/941) No longer destroying request socket
-- [**#938**](https://github.com/hapijs/hapi/issues/938) Fixed the code example to get Hapi&#39;s version
+- [**#938**](https://github.com/hapijs/hapi/issues/938) Fixed the code example to get Hapi's version
 - [**#936**](https://github.com/hapijs/hapi/issues/936) Allow omitting trailing slash when last segment is an optional parameter
 
 ## [**1.8.1**](https://github.com/hapijs/hapi/issues?milestone=48&state=closed)
@@ -612,12 +703,12 @@
 - [**#891**](https://github.com/hapijs/hapi/issues/891) Exposing rejectUnauthorized property on proxy
 
 ## [**1.5.0**](https://github.com/hapijs/hapi/issues?milestone=39&state=closed)
-- [**#889**](https://github.com/hapijs/hapi/issues/889) Plugin view engine required from hapi&#39;s module path, not plugin
-- [**#887**](https://github.com/hapijs/hapi/issues/887) Default auth scheme only works when scheme is added with &#39;default&#39; name
+- [**#889**](https://github.com/hapijs/hapi/issues/889) Plugin view engine required from hapi's module path, not plugin
+- [**#887**](https://github.com/hapijs/hapi/issues/887) Default auth scheme only works when scheme is added with 'default' name
 
 ## [**1.4.0**](https://github.com/hapijs/hapi/issues?milestone=38&state=closed)
 - [**#868**](https://github.com/hapijs/hapi/issues/868) Potential leak when aborting reading a payload if max size reached
-- [**#872**](https://github.com/hapijs/hapi/issues/872) Test for invalid incoming path without leading &#39;/&#39;
+- [**#872**](https://github.com/hapijs/hapi/issues/872) Test for invalid incoming path without leading '/'
 - [**#869**](https://github.com/hapijs/hapi/issues/869) Request._replyInterface called twice but does not share wasProcessed state
 - [**#870**](https://github.com/hapijs/hapi/issues/870) Response treats objects as errors based on too trivial keys
 - [**#885**](https://github.com/hapijs/hapi/issues/885) Fix plugin.path
@@ -642,7 +733,7 @@
 - [**#850**](https://github.com/hapijs/hapi/issues/850) Increasing allowed sockets to 10 for client
 - [**#848**](https://github.com/hapijs/hapi/issues/848) Template settings override fix
 - [**#845**](https://github.com/hapijs/hapi/issues/845) Generic response fails to account for all possible res events
-- [**#844**](https://github.com/hapijs/hapi/issues/844) Proxy to outside site fails due to request&#39;s old stream api and node 0.10 wrap()
+- [**#844**](https://github.com/hapijs/hapi/issues/844) Proxy to outside site fails due to request's old stream api and node 0.10 wrap()
 - [**#843**](https://github.com/hapijs/hapi/issues/843) Allow setting custom headers via proxy mapUri
 
 ## [**1.1.0**](https://github.com/hapijs/hapi/issues?milestone=32&state=closed)
@@ -653,7 +744,7 @@
 - [**#835**](https://github.com/hapijs/hapi/issues/835) `Pack`: Automatically resolve the `requirePath` if provided
 - [**#832**](https://github.com/hapijs/hapi/issues/832) Allow route.payload config to be an object with `mode`
 - [**#833**](https://github.com/hapijs/hapi/issues/833) closes #832
-- [**#830**](https://github.com/hapijs/hapi/issues/830) Add payload &#39;try&#39; parsing mode
+- [**#830**](https://github.com/hapijs/hapi/issues/830) Add payload 'try' parsing mode
 - [**#831**](https://github.com/hapijs/hapi/issues/831) Closes #830
 - [**#828**](https://github.com/hapijs/hapi/issues/828) Add HttpOnly support to cookie auth
 - [**#827**](https://github.com/hapijs/hapi/issues/827) request debug printout format and condition
@@ -662,7 +753,7 @@
 
 ## [**1.0.3**](https://github.com/hapijs/hapi/issues?milestone=35&state=closed)
 - [**#823**](https://github.com/hapijs/hapi/issues/823) Issue/822
-- [**#822**](https://github.com/hapijs/hapi/issues/822) JSONP doesn&#39;t seem to be working
+- [**#822**](https://github.com/hapijs/hapi/issues/822) JSONP doesn't seem to be working
 - [**#817**](https://github.com/hapijs/hapi/issues/817) Payload bugfix for PATCH method
 - [**#818**](https://github.com/hapijs/hapi/issues/818) Tiny composer documentation fix
 - [**#814**](https://github.com/hapijs/hapi/issues/814) Fixed jade compile issues and updated tests to verify fix.
@@ -676,7 +767,7 @@
 - [**#793**](https://github.com/hapijs/hapi/issues/793) Use new assert with passed parameters instead of concat string
 - [**#791**](https://github.com/hapijs/hapi/issues/791) Test fails: Auth Hawk includes authorization header in response when the response is a stream
 - [**#789**](https://github.com/hapijs/hapi/issues/789) Streams not properly being closed for static files when browser gets cache hit
-- [**#788**](https://github.com/hapijs/hapi/issues/788) Need more detailed documentation for &quot;next&quot; callback for event handlers
+- [**#788**](https://github.com/hapijs/hapi/issues/788) Need more detailed documentation for "next" callback for event handlers
 - [**#787**](https://github.com/hapijs/hapi/issues/787) Expose Plugin File Path
 - [**#767**](https://github.com/hapijs/hapi/issues/767) Verify every example works with 1.0
 - [**#780**](https://github.com/hapijs/hapi/issues/780) Relative path redirection should have vhost support
@@ -783,7 +874,7 @@
 - [**#522**](https://github.com/hapijs/hapi/issues/522) rename helmet to tv
 - [**#512**](https://github.com/hapijs/hapi/issues/512) Direct use of Boom (0.3.0)
 - [**#496**](https://github.com/hapijs/hapi/issues/496) Distributable cache for files
-- [**#500**](https://github.com/hapijs/hapi/issues/500) Cookie parsing fails if encoding set to &#39;none&#39;
+- [**#500**](https://github.com/hapijs/hapi/issues/500) Cookie parsing fails if encoding set to 'none'
 - [**#501**](https://github.com/hapijs/hapi/issues/501) Response refactor, bug fixes
 - [**#498**](https://github.com/hapijs/hapi/issues/498) Adding code coverage support using blanket
 - [**#494**](https://github.com/hapijs/hapi/issues/494) fix typo from issue/491
@@ -798,7 +889,7 @@
 - [**#474**](https://github.com/hapijs/hapi/issues/474) 0.13.2
 - [**#466**](https://github.com/hapijs/hapi/issues/466) Directory listing at top level folders now link correctly
 - [**#472**](https://github.com/hapijs/hapi/issues/472) Fix matching of wildcard path param with trailing /
-- [**#463**](https://github.com/hapijs/hapi/issues/463) Typo: req.session.used -&gt; req.session.user
+- [**#463**](https://github.com/hapijs/hapi/issues/463) Typo: req.session.used -> req.session.user
 
 ## [**0.13.0**](https://github.com/hapijs/hapi/issues?milestone=17&state=closed)
 - [**#448**](https://github.com/hapijs/hapi/issues/448) Fixed typos
@@ -879,4 +970,3 @@
 - [**#93**](https://github.com/hapijs/hapi/issues/93) fix error on subsequent url accesses for queryval
 - [**#92**](https://github.com/hapijs/hapi/issues/92) Fix example
 - [**#91**](https://github.com/hapijs/hapi/issues/91) QueryValidation fixes, add default behavior for unspecified params, added small tests
-
