@@ -576,6 +576,28 @@ describe('transmission', function () {
             });
         });
 
+        it('matches etag header list value', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject('/file', function (res2) {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers.etag).to.exist();
+
+                    server.inject({ url: '/file', headers: { 'if-none-match': 'x, ' + res2.headers.etag } }, function (res3) {
+
+                        expect(res3.statusCode).to.equal(304);
+                        done();
+                    });
+                });
+            });
+        });
+
         it('changes etag when content encoding is used', function (done) {
 
             var server = new Hapi.Server();
