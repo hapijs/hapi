@@ -688,7 +688,7 @@ When setting context inside a plugin, the context is applied only to methods set
 ```js
 var handler = function (request, reply) {
 
-    request.reply(this.message);
+    return reply(this.message);
 };
 
 exports.register = function (server, options, next) {
@@ -1374,7 +1374,7 @@ var handler = function (request, reply) {
 
     session.last = Date.now();
 
-    reply('Success').state('session', session);
+    return reply('Success').state('session', session);
 };
 ```
 
@@ -2905,7 +2905,7 @@ var handler = function (request, reply) {
 
     error.output.payload.custom = 'abc_123'; // Add custom key
 
-    reply(error);
+    return reply(error);
 });
 ```
 
@@ -2993,7 +2993,7 @@ The [response flow control rules](#flow-control) **do not** apply.
 ```js
 var handler = function (request, reply) {
 
-    reply.file('./hello.txt');
+    return reply.file('./hello.txt');
 };
 ```
 
@@ -3086,7 +3086,7 @@ The [response flow control rules](#flow-control) **do not** apply.
 ```js
 var handler = function (request, reply) {
 
-    reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
+    return reply.proxy({ host: 'example.com', port: 80, protocol: 'http' });
 };
 ```
 
@@ -3104,7 +3104,7 @@ The [response flow control rules](#flow-control) apply.
 ```js
 var handler = function (request, reply) {
 
-    reply.redirect('http://example.com');
+    return reply.redirect('http://example.com');
 };
 ```
 
