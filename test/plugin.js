@@ -159,6 +159,30 @@ describe('Plugin', function () {
             });
         });
 
+        it('registers a required plugin', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ labels: ['a', 'b'] });
+
+            var test = {
+                register: function (server, options, next) {
+
+                    expect(options.something).to.be.true();
+                    return next();
+                }
+            };
+
+            test.register.attributes = {
+                name: 'test'
+            };
+
+            server.register({ register: test, options: { something: true } }, function (err) {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
         it('throws on bad plugin (missing attributes)', function (done) {
 
             var server = new Hapi.Server();
