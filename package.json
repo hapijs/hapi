@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "accept": "1.x.x",
+    "ammo":  "1.x.x",
     "boom": "^2.5.x",
     "call": "1.x.x",
     "catbox": "4.x.x",

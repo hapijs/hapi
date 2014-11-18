@@ -5,6 +5,9 @@
     "accept": {
       "version": "1.0.0"
     },
+    "ammo": {
+      "version": "1.0.0"
+    },
     "boom": {
       "version": "2.5.1"
     },
