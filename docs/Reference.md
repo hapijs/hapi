@@ -574,6 +574,9 @@ The `scheme` method must return an object with the following keys:
         - `response` - any authentication response to send instead of the current response. Ignored
           if `err` is present, otherwise required.
     - `reply.continue()` - is called if the operation succeeded.
+- `options` - an optional object with the following keys:
+    - `payload` - if `true`, requires payload validation as part of the scheme and forbids routes
+      from disabling payload auth validation. Defaults to `false`.
 
 When the scheme `authenticate()` method implementation calls `reply()` with an error condition,
 the specifics of the error affect whether additional authentication strategies will be attempted
@@ -1933,9 +1936,12 @@ The route configuration object supports the following options:
               single strategy is configured.
             - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is
               authenticated after it is processed. Requires a strategy with payload authentication
-              support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Available values:
+              support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be set to a value
+              other than `'required'` when the scheme sets the `options.payload` to `true`.
+              Available values:
                 - `false` - no payload authentication. This is the default value.
-                - `'required'` - payload authentication required.
+                - `'required'` - payload authentication required. This is the default value when
+                  the scheme sets `options.payload` to `true`.
                 - `'optional'` - payload authentication performed only when the client includes
                   payload authentication information (e.g. `hash` attribute in Hawk).
             - `scope` - the application scope required to access the route. Value can be a scope

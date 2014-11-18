@@ -809,6 +809,95 @@ describe('authentication', function () {
             });
         });
 
+        it('skips when scheme does not support it', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, payload: false });
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); }
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('authenticates request payload (required scheme)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    auth: {}
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('authenticates request payload (required scheme and required route)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    auth: {
+                        payload: true
+                    }
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('throws when scheme requires payload authentication and route conflicts', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, options: { payload: true } });
+            expect(function () {
+
+                server.route({
+                    method: 'POST',
+                    path: '/',
+                    config: {
+                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                        auth: {
+                            payload: 'optional'
+                        }
+                    }
+                });
+            }).to.throw('Cannot set authentication payload to optional when a strategy requires payload validation /');
+            done();
+        });
+
         it('throws when strategy does not support payload authentication', function (done) {
 
             var server = new Hapi.Server();
@@ -1125,14 +1214,6 @@ internals.implementation = function (server, options) {
 
             return reply.continue({ credentials: credentials });
         },
-        payload: function (request, reply) {
-
-            if (request.auth.credentials.payload) {
-                return reply(request.auth.credentials.payload);
-            }
-
-            return reply.continue();
-        },
         response: function (request, reply) {
 
             if (request.auth.credentials.response) {
@@ -1142,6 +1223,25 @@ internals.implementation = function (server, options) {
             return reply.continue();
         }
     };
+
+    if (!settings ||
+        settings.payload !== false) {
+
+        scheme.payload = function (request, reply) {
+
+            if (request.auth.credentials.payload) {
+                return reply(request.auth.credentials.payload);
+            }
+
+            return reply.continue();
+        };
+    }
+
+    if (settings &&
+        settings.options) {
+
+        scheme.options = settings.options;
+    }
 
     return scheme;
 };
