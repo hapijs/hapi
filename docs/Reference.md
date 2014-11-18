@@ -648,11 +648,14 @@ server.route({
 
 Tests a request against an authentication strategy where:
 - `strategy` - the strategy name registered with `server.auth.strategy()`.
-- `request` - the [request object](#request-object). The request route authentication configuration
-  is not used.
+- `request` - the [request object](#request-object).
 - `next` - the callback function with signature `function(err, credentials)` where:
     - `err` - the error if authentication failed.
     - `credentials` - the authentication credentials object if authentication was successful.
+
+Note that the `test()` method does not take into account the route authentication configuration. It
+also does not perform payload authentication. It is limited to the basic strategy authentication
+execution. It does not include verifying scope, entity, or other route properties.
 
 ```js
 var server = new Hapi.Server();
