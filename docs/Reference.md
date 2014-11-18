@@ -56,7 +56,7 @@
         - [Built-in handlers](#built-in-handlers)
     - [Route prerequisites](#route-prerequisites)
     - [Request object](#request-object)
-        - [`request` properties](#request-properties)
+        - [Request properties](#request-properties)
         - [`request.setUrl(url)`](#requestseturlurl)
         - [`request.setMethod(method)`](#requestsetmethodmethod)
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
@@ -89,7 +89,7 @@ Creates a new `Server` object where:
 - `options` - optional configuration:
     - `app` - application-specific configuration which can later be accessed via
       `server.settings.app`. Note the difference between `server.settings.app` which is
-      used to store static configuration values and `server.app` which is meant for storing
+      used to store static configuration values and [`server.app`](#serverapp) which is meant for storing
       run-time state. Defaults to `{}`.
 
     - <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server
@@ -97,14 +97,14 @@ Creates a new `Server` object where:
       cache is created which has limited capacity and capabilities. **hapi** uses
       [**catbox**](https://github.com/hapijs/catbox) for its cache which includes support for
       common storage solutions (e.g. Redis, MongoDB, Memcached, and Riak). Caching is only utilized
-      if methods and plugins explicitly store their state in the cache. The server cache
+      if methods and [plugins](#plugins) explicitly store their state in the cache. The server cache
       configuration only defines the storage container itself. `cache` can be assigned:
         - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
           such as `require('catbox-redis')`).
         - a configuration object with the following options:
             - `engine` - a prototype function or **catbox** engine object.
             - `name` - an identifier used later when provisioning or configuring caching for
-              methods or plugins. Each cache name must be unique. A single item may omit the `name`
+              [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache name must be unique. A single item may omit the `name`
               option which defines the default cache. If every cache includes a `name`, a default
               memory cache is provisions as well.
             - `shared` - if `true`, allows multiple cache uses to share the same segment (e.g.
@@ -120,7 +120,7 @@ Creates a new `Server` object where:
         - `app` - application-specific connection configuration which can be accessed via
           `connection.settings.app`. Provides a safe place to store application configuration
           without potential conflicts with the framework internals. Should not be used to configure
-          plugins which should use `plugins[name]`. Note the difference between
+          [plugins](#plugins) which should use `plugins[name]`. Note the difference between
           `connection.settings.app` which is used to store configuration values and
           `connection.app` which is meant for storing run-time state.
 
@@ -256,7 +256,7 @@ Creates a new `Server` object where:
 
     - `debug` - determines which errors are sent to the console:
         - `request` - a string array of request log tags to be displayed via `console.error()` when
-          the events are logged via `request.log()`. Defaults to uncaught errors thrown in external
+          the events are logged via [`request.log()`](#requestlogtags-data-timestamp). Defaults to uncaught errors thrown in external
           code (these errors are handled automatically and result in an Internal Server Error
           response) or runtime errors due to developer error. For example, to display all errors,
           change the option to `['error']`. To turn off all console debug messages set it to
@@ -273,7 +273,7 @@ Creates a new `Server` object where:
     - `plugins` - plugin-specific configuration which can later be accessed via
       `server.settings.plugins`. `plugins` is an object where each key is a plugin name and the
       value is the configuration. Note the difference between `server.settings.plugins` which is
-      used to store static configuration values and `server.plugins` which is meant for storing
+      used to store static configuration values and [`server.plugins`](#serverplugins) which is meant for storing
       run-time state. Defaults to `{}`.
 
 Note that the `options` object is deeply cloned and cannot contain any values that are unsafe to
@@ -311,11 +311,11 @@ var handler = function (request, reply) {
 #### `server.config`
 
 When the server object is provided as an argument to the plugin `register()` method, the `config`
-property provides the registration preferences passed the `server.register()` method. `config` is
+property provides the registration preferences passed the [`server.register()`](#serverregisterplugins-options-callback) method. `config` is
 an object with the following properties:
 - `route` - route adding preferences:
-    - `prefix` - the route path prefix used by any calls to `server.route()` from the server.
-    - `vhost` - the route virtual host settings used by any calls to `server.route()` from the
+    - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions) from the server.
+    - `vhost` - the route virtual host settings used by any calls to [`server.route()`](#serverrouteoptions) from the
       server.
 
 The `config` property should be considered read-only and should not be changed.
@@ -331,7 +331,7 @@ exports.register = function (server, options, next) {
 #### `server.connections`
 
 An array containing the server's connections. When the server object is returned from
-`server.select()`, the `connections` array only includes the connections matching the selection
+[`server.select()`](#serverselectlabels), the `connections` array only includes the connections matching the selection
 criteria.
 
 ```js
@@ -353,8 +353,8 @@ the sole connection where:
 - `id` - a unique connection identifier (using the format '{hostname}:{pid}:{now base36}').
 - `created` - the connection creation timestamp.
 - `started` - the connection start timestamp (`0` when stopped).
-- `port` - the port the connection was configured to (before `server.start()`) or bound to (after
-  `server.start()`).
+- `port` - the port the connection was configured to (before [`server.start()`](#serverstartcallback)) or bound to (after
+  [`server.start()`](#serverstartcallback)).
 - `host` - the host name the connection was configured to (defaults to `'0.0.0.0'` if no host was
   provided).
 - `protocol` - the protocol used:
@@ -364,7 +364,7 @@ the sole connection where:
 - `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
   'socket:/unix/domain/socket/path').
 
-When the server contains more than one connection, each `server.connections` array member provides
+When the server contains more than one connection, each [`server.connections`](#serverconnections) array member provides
 its own `connection.info`.
 
 ```js
@@ -399,7 +399,7 @@ console.log(server.load.rss);
 When the server contains exactly one connection, `listener` is the node HTTP server object of the
 sole connection.
 
-When the server contains more than one connection, each `server.connections` array member provides
+When the server contains more than one connection, each [`server.connections`](#serverconnections) array member provides
 its own `connection.listener`.
 
 ```js
@@ -418,7 +418,7 @@ io.sockets.on('connection', function(socket) {
 
 #### `server.methods`
 
-An object providing access to the server methods registered with `server.method()` where each
+An object providing access to the [server methods](#servermethodname-method-options) where each
 server method name is an object property.
 
 ```js
@@ -439,7 +439,7 @@ server.methods.add(1, 2, function (err, result) {
 #### `server.plugins`
 
 An object containing the public API exposed by each plugin registered where each key is a plugin
-name and the values are the exposed properties by each plugin using `server.expose()`.
+name and the values are the exposed properties by each plugin using [`server.expose()`](#serverexposekey-value).
 
 ```js
 exports.register = function (server, options, next) {
@@ -487,9 +487,9 @@ server starts (only called if the server is started) where:
     - `server` - server object the `after()` method was called on.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
-        - `err` - internal error which is returned back via the `server.start()` callback.
+        - `err` - internal error which is returned back via the [`server.start()`](#serverstartcallback) callback.
 - `dependencies` - a string or array of string with the plugin names to call this method after
-  their `after()` methods. There is no requirement for the other plugins to be registered. Setting
+  their `after()` methods. There is no requirement for the other [plugins](#plugins) to be registered. Setting
   dependencies only arranges the after methods in the specified order.
 
 ```js
@@ -620,7 +620,7 @@ server.auth.scheme('custom', scheme);
 
 Registers an authentication strategy where:
 - `name` - the strategy name.
-- `scheme` - the scheme name (must be previously registered using `server.auth.scheme()`).
+- `scheme` - the scheme name (must be previously registered using [`server.auth.scheme()`](#serverauthschemename-scheme)).
 - `mode` - if `true`, the scheme is automatically assigned as a required strategy to any route
   without an `auth` config. Can only be assigned to a single server strategy. Value must be `true`
   (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`,
@@ -650,7 +650,7 @@ server.route({
 ### `server.auth.test(strategy, request, next)`
 
 Tests a request against an authentication strategy where:
-- `strategy` - the strategy name registered with `server.auth.strategy()`.
+- `strategy` - the strategy name registered with [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
 - `request` - the [request object](#request-object).
 - `next` - the callback function with signature `function(err, credentials)` where:
     - `err` - the error if authentication failed.
@@ -687,7 +687,7 @@ server.route({
 ### `server.bind(context)`
 
 Sets a global context used as the default bind object when adding a route or an extension where:
-- `context` - the object used to bind `this` in handler and extension methods.
+- `context` - the object used to bind `this` in handler and [extension methods](#serverextevent-method-options).
 
 When setting context inside a plugin, the context is applied only to methods set up by the plugin.
 
@@ -771,7 +771,7 @@ Adds an incoming sever connection where:
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
 - `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to
   include a valid caching directive. Defaults to `[200]`.
-- `labels` - a string or string array of labels used to `server.select()` specific connections
+- `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels) specific connections
   matching the specified labels. Defaults to an empty array `[]` (no labels).
 - `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
   the node.js HTTPS server as described in the
@@ -800,7 +800,7 @@ var admin = server.connection({ port: 8001, host: 'example.com', labels: ['admin
 
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
-    - `'reply'` - adds methods to the [reply interface](#reply-interface) interface.
+    - `'reply'` - adds methods to the [reply interface](#reply-interface).
 - `property` - the object decoration key name.
 - `method` - the extension function.
 
@@ -826,7 +826,7 @@ server.route({
 
 ### `server.dependency(dependencies, [after])`
 
-Used within a plugin to declares a required dependency on other plugins where:
+Used within a plugin to declares a required dependency on other [plugins](#plugins) where:
 - `dependencies` - a single string or array of plugin name strings which must be registered in
   order for this plugin to operate. Plugins listed must be registered before the server is started.
   Does not provide version dependency which should be implemented using
@@ -838,7 +838,7 @@ Used within a plugin to declares a required dependency on other plugins where:
     - `server` - the server the `dependency()` method was called on.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
-        - `err` - internal error condition, which is returned back via the `server.start()`
+        - `err` - internal error condition, which is returned back via the [`server.start()`](#serverstartcallback)
           callback.
 
 ```js
@@ -892,13 +892,13 @@ where:
 - `event` - the event name.
 - `method` - a function or an array of functions to be executed at a specified point during request
   processing. The required extension function signature is `function(request, reply)` where:
-    - `request` - the incoming `request` object.
+    - `request` - the [request object](#request-object).
     - `reply` - the [reply interface](#reply-interface) which is used to return control back to the
-      framework. To continue normal execution of the request lifecycle, `reply.continue()` must be
+      framework. To continue normal execution of the [request lifecycle](#request-lifecycle), `reply.continue()` must be
       called. To abort processing and return a response to the client, call `reply(value)` where
       value is an error or any other valid response.
     - `this` - the object provided via `options.bind` or the current active context set with
-      `server.bind()`.
+      [`server.bind()`](#serverbindcontext).
 - `options` - an optional object with the following:
     - `before` - a string or array of strings of plugin names this method must execute before (on
       the same event). Otherwise, extension methods are executed in the order added.
@@ -1000,13 +1000,13 @@ for performing injections, with some additional options and response properties:
         - `payload` - the response payload string.
         - `rawPayload` - the raw response payload buffer.
         - `raw` - an object with the injection request and response objects:
-            - `req` - the `request` object.
+            - `req` - the [request object](#request-object).
             - `res` - the response object.
         - `result` - the raw handler response (e.g. when not a stream) before it is serialized for
           transmission. If not available, set to `payload`. Useful for inspection and reuse of the
           internal objects returned (instead of parsing the response string).
 
-When the server contains more than one connection, each `server.connections` array member provides
+When the server contains more than one connection, each [`server.connections`](#serverconnections) array member provides
 its own `connection.inject()`.
 
 ```js
@@ -1029,9 +1029,8 @@ server.inject('/', function (res) {
 
 ### `server.log(tags, [data, [timestamp]])`
 
-The `server.log()` method is used for logging server events that cannot be associated with a
-specific request. When called the server emits a `'log'` event which can be used by other listeners
-or plugins to record the information or output to the console. The arguments are:
+Logs server events that cannot be associated with a specific request. When called the server emits a `'log'` event which can be used by other listeners
+or [plugins](#plugins) to record the information or output to the console. The arguments are:
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
   the event. Tags are used instead of log levels and provide a much more expressive mechanism for
   describing and filtering events. Any logs generated by the server internally include the `'hapi'`
@@ -1065,7 +1064,7 @@ Methods are registered via `server.method(name, method, [options])` where:
 - `name` - a unique method name used to invoke the method via `server.methods[name]`. When
  configured with caching enabled, `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)`
  can be used to clear the cache for a given key. Supports using nested names such as
- `utils.users.get` which will automatically create the missing path under `server.methods` and can
+ `utils.users.get` which will automatically create the missing path under [`server.methods`](#servermethods) and can
  be accessed for the previous example via `server.methods.utils.users.get`.
 - `method` - the method function with the signature is one of:
     - `function(arg1, arg2, ..., argn, next)` where:
@@ -1081,8 +1080,8 @@ Methods are registered via `server.method(name, method, [options])` where:
         - the method must returns a value (result, `Error`, or a promise) or throw an `Error`.
 - `options` - optional configuration:
     - `bind` - a context object passed back to the method function (via `this`) when called.
-      Defaults to active context (set via `server.bind()` when the method is registered.
-    - `cache` - the same cache configuration used in `server.cache()`.
+      Defaults to active context (set via [`server.bind()`](#serverbindcontext) when the method is registered.
+    - `cache` - the same cache configuration used in [`server.cache()`](#servercacheoptions).
     - `callback` - if `false`, expects the `method` to be a synchronous function. Note that using a
       synchronous function with caching will convert the method interface to require a callback as
       an additional argument with the signature `function(err, result, cached, report)` since the
@@ -1156,7 +1155,7 @@ server.methods.sumSync(4, 5, function (err, result) {
 
 ### `server.method(methods)`
 
-Registers a server method function as described in `server.method()` using a configuration object
+Registers a server method function as described in [`server.method()`](#servermethodname-method-options) using a configuration object
 where:
 - `methods` - an object or an array of objects where each one contains:
     - `name` - the method name.
@@ -1510,7 +1509,7 @@ Initializes the server views manager where:
       multiple engines are configured and not explicit extension is provided for a given template.
       No default value.
     - `path` - the root file path used to resolve and load the templates identified when calling
-      `reply.view()`. Defaults to current working directory.
+      [`reply.view()`](#replyviewtemplate-context-options). Defaults to current working directory.
     - `partialsPath` - the root file path where partials are located. Partials are small segments
       of template code that can be nested and reused throughout other templates. Defaults to no
       partials support (empty path).
@@ -1537,8 +1536,8 @@ Initializes the server views manager where:
     - `isCached` - if set to `false`, templates will not be cached (thus will be read from file on
       every use). Defaults to `true`.
     - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to
-      `reply.view()`. Defaults to `false`.
-    - `allowInsecureAccess` - if set to `true`, allows template paths passed to `reply.view()` to
+      [`reply.view()`](#replyviewtemplate-context-options). Defaults to `false`.
+    - `allowInsecureAccess` - if set to `true`, allows template paths passed to [`reply.view()`](#replyviewtemplate-context-options) to
       contain '../'. Defaults to `false`.
     - `compileOptions` - options object passed to the engine's compile function. Defaults to empty
       options `{}`.
@@ -1550,7 +1549,7 @@ Initializes the server views manager where:
     - `context` - a global context used with all templates. The global context option can be either
       an object or a function that takes no arguments and returns a context object. When rendering
       views, the global context will be merged with any context object specified on the handler or
-      using `reply.view()`. When multiple context objects are used, values from the global context
+      using [`reply.view()`](#replyviewtemplate-context-options). When multiple context objects are used, values from the global context
       always have lowest precedence.
 
 ```js
@@ -1566,17 +1565,17 @@ server.views({
 });
 ```
 
-When `server.views()` is called within a plugin, the views manager is only available to plugins
+When [`server.views()`](#serverviewsoptions) is called within a plugin, the views manager is only available to [plugins](#plugins)
 methods.
 
 ### Server events
 
 The server object inherits from `Events.EventEmitter` and emits the following events:
 
-- `'log'` - events logged with `server.log()`.
-- `'start'` - emitted when the server is started using `server.start()`.
-- `'stop'` - emitted when the server is stopped using `server.stop()`.
-- `'request'` - events generated by `request.log()`.
+- `'log'` - events logged with [`server.log()`](#serverlogtags-data-timestamp).
+- `'start'` - emitted when the server is started using [`server.start()`](#serverstartcallback).
+- `'stop'` - emitted when the server is stopped using [`server.stop()`](#serverstopoptions-callback).
+- `'request'` - events generated by [`request.log()`](#requestlogtags-data-timestamp).
 - `'request-internal'` - request events generated internally by the framework (multiple events per
   request).
 - `'request-error'` - emitted whenever an Internal Server Error (500) error response is sent.
@@ -1607,7 +1606,7 @@ server.on('log', function (event, tags) {
 });
 ```
 
-The `'request'` and `'request-internal'` events include the `request` object, the `event` object,
+The `'request'` and `'request-internal'` events include the [request object](#request-object), the `event` object,
 and a `tags` object (where each tag is a key with the value `true`):
 
 ```js
@@ -1619,7 +1618,7 @@ server.on('request', function (request, event, tags) {
 });
 ```
 
-The `'request-error'` event includes the `request` object and the causing error `err` object:
+The `'request-error'` event includes the [request object](#request-object) and the causing error `err` object:
 
 ```js
 server.on('request-error', function (request, err) {
@@ -1628,7 +1627,7 @@ server.on('request-error', function (request, err) {
 });
 ```
 
-The `'response'` and `'tail'` events include the `request` object:
+The `'response'` and `'tail'` events include the [request object](#request-object):
 
 ```js
 server.on('response', function (request) {
@@ -1718,11 +1717,11 @@ A plugin is a function with the signature `function(server, options, next)` wher
     - `err` - any plugin registration error.
 
 The plugin function must include an `attributes` function property with the following:
-- `name` - required plugin name string. The name is used as a unique key. Published plugins should
+- `name` - required plugin name string. The name is used as a unique key. Published [plugins](#plugins) should
   use the same name as the name field in the 'package.json' file. Names must be unique within each
   application.
 - `version` - optional plugin version. The version is only used informatively to enable other
-  plugins to find out the versions loaded. The version should be the same as the one specified in
+  [plugins](#plugins) to find out the versions loaded. The version should be the same as the one specified in
   the plugin's 'package.json' file.
 - `multiple` - if `true`, allows the plugin to be registered multiple times with the same server.
   Defaults to `false`.
@@ -1761,17 +1760,17 @@ register.attributes = {
 
 Incoming requests are handled by the server via routes. Each route describes an HTTP endpoint with
 a path, method, and other properties. The route logic is divided between static configuration,
-prerequisite functions and a route handler function. Routes are added via the `server.route()`
+prerequisite functions and a route handler function. Routes are added via the [`server.route()`](#serverrouteoptions)
 method.
 
 ### Request lifecycle
 
-Each incoming request passes through a pre-defined list of steps, along with optional extensions:
+Each incoming request passes through a pre-defined list of steps, along with optional [extensions](#serverextevent-method-options):
 
 - **`'onRequest'`** extension point
     - always called
-    - the `request` object passed to the extension functions is decorated with the
-      `request.setUrl(url)` and `request.setMethod(verb)` methods. Calls to these methods will
+    - the [request object](#request-object) passed to the extension functions is decorated with the
+      [`request.setUrl()`](#requestseturlurl) and [`request.setMethod()`](#requestsetmethodmethod) methods. Calls to these methods will
       impact how the request is routed and can be used for rewrite rules. 
     - `request.route` is not yet populated at this point.
 - Lookup route using request path
@@ -1786,7 +1785,7 @@ Each incoming request passes through a pre-defined list of steps, along with opt
 - Validate query
 - Validate payload
 - **`'onPreHandler'`** extension point
-- Route prerequisites
+- [Route prerequisites](#route-prerequisites)
 - Route handler
 - **`'onPostHandler'`** extension point
     - The response object contained in `request.response` may be modified (but not assigned a new
@@ -1794,7 +1793,7 @@ Each incoming request passes through a pre-defined list of steps, along with opt
       response), return a new response via `reply(response)`.
 - Validate response payload
 - **`'onPreResponse'`** extension point
-    - always called (except when `reply.close()` is called or the client terminates the connection
+    - always called (except when [`reply.close()`](#replycloseoptions) is called or the client terminates the connection
       prematurely).
     - The response contained in `request.response` may be modified (but not assigned a new value).
       To return a different response type (for example, replace an error with an HTML response),
@@ -1839,15 +1838,15 @@ The route configuration object supports the following options:
 
     - `bind` - an object passed back to the provided `handler` (via `this`) when called.
 
-    - `app` - application-specific configuration. Should not be used by plugins which should use
+    - `app` - application-specific configuration. Should not be used by [plugins](#plugins) which should use
 
       `plugins[name]` instead.
 
     - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
       name and the value is the plugin configuration.
 
-    - `pre` - an array with prerequisites methods which are executed in serial or in parallel
-      before the handler is called and are described in [Route prerequisites](#route-prerequisites).
+    - `pre` - an array with [route prerequisites](#route-prerequisites) methods which are executed in serial or in parallel
+      before the handler is called.
 
     - `validate` - request input validation rules for various request components. When using a
       [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (e.g.
@@ -1907,7 +1906,7 @@ The route configuration object supports the following options:
             - `'ignore'` - take no action.
             - a custom error handler function with the signature `function(source, error, reply)`
               where:
-                - `request` - the request object.
+                - `request` - the [request object](#request-object).
                 - `reply` - the continuation [reply interface](#reply-interface).
                 - `source` - the source of the invalid field (e.g. `'path'`, `'query'`,
                   `'payload'`).
@@ -2002,7 +2001,7 @@ The route configuration object supports the following options:
     - <a name="route.config.auth"></a>`auth` - authentication configuration. Value can be:
         - `false` to disable authentication if a default strategy is set.
         - a string with the name of an authentication strategy registered with
-          `server.auth.strategy()`.
+          [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
         - an object with:
             - `mode` - the authentication mode. Defaults to `'required'` if a server authentication
               strategy is configured, otherwise defaults to no authentication. Available values:
@@ -2296,7 +2295,7 @@ config to an object containing one of these keys:
           requests before being passed upstream. This is a security feature to prevent local state
           (e.g. authentication cookies) from leaking upstream to other servers along with the
           cookies intended for those servers. This value can be overridden on a per state basis via
-          the `server.state()` `passThrough` option.
+          the [`server.state()`](#serverstatename-options) `passThrough` option.
           Defaults to `false`.
         - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header
           which is useful when using an `onResponse` post-processing to avoid receiving an encoded
@@ -2324,7 +2323,7 @@ config to an object containing one of these keys:
         - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used
           together with `host`, `port`, `protocol`, or `uri`. The function signature is
           `function(request, callback)` where:
-            - `request` - is the incoming `request` object
+            - `request` - is the incoming [request object](#request-object).
             - `callback` - is `function(err, uri, headers)` where:
                 - `err` - internal error condition.
                 - `uri` - the absolute proxy URI.
@@ -2339,7 +2338,7 @@ config to an object containing one of these keys:
               - `res` - the node response object received from the upstream service. `res` is a
                 readable stream (use the [**wreck**](https://github.com/hapijs/wreck) module `read`
                 method to easily convert it to a Buffer or string).
-              - `request` - is the incoming `request` object.
+              - `request` - is the incoming [request object](#request-object).
               - `reply` - the [reply interface](#reply-interface) function.
               - `settings` - the proxy handler configuration.
               - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and
@@ -2384,11 +2383,11 @@ are called in parallel. `pre` can be assigned a mixed array of:
           error will be assigned.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
-- strings - special short-hand notation for registered server methods using the format 'name(args)'
+- strings - special short-hand notation for registered [server methods](#servermethodname-method-options) using the format 'name(args)'
   (e.g. `'user(params.id)'`) where:
     - 'name' - the method name. The name is also used as the default value of `assign`.
     - 'args' - the method arguments (excluding `next`) where each argument is a property of
-      `request`.
+      the [request object](#request-object).
 
 ```js
 var Hapi = require('hapi');
@@ -2437,12 +2436,12 @@ node.js request object received from the HTTP server callback (which is availabl
 `request.raw.req`). The request object methods and properties change throughout the
 [request lifecycle](#request-lifecycle).
 
-#### `request` properties
+#### Request properties
 
 Each request object includes the following properties:
 
 - `app` - application-specific state. Provides a safe place to store application data without
-  potential conflicts with the framework. Should not be used by plugins which should use
+  potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
   `plugins[name]`.
 - `auth` - authentication information:
     - `isAuthenticated` - `true` is the request has been successfully authenticated, otherwise
@@ -2456,7 +2455,7 @@ Each request object includes the following properties:
     - `session` - an object used by the
       [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
 - `domain` - the node domain object used to protect against exceptions thrown in extensions,
-  handlers and prerequisites. Can be used to manually bind callback functions otherwise bound to
+  handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback functions otherwise bound to
   other domains.
 - `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
@@ -2485,17 +2484,17 @@ Each request object includes the following properties:
   [route prerequisites](#route-prerequisites) function. The values are the raw values provided to
   the continuation function as argument. For the wrapped response object, use `responses`.
 - `response` - the response object when set. The object can be modified but must not be assigned
-  another object. To replace the response with another from within an extension point, use
+  another object. To replace the response with another from within an [extension point](#serverextevent-method-options), use
   `reply(response)` to override with a different response.
 - `preResponses` - same as `pre` but represented as the response object created by the pre method.
 - `query` - an object containing the query parameters.
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
   objects is not recommended.**
-    - `req` - the `request` object.
-    - `res` - the response object.
+    - `req` - the node.js request object.
+    - `res` - the node.js response object.
 - `route` - the route configuration object after defaults are applied.
 - `server` - the server object.
-- `session` - Special key reserved for plugins implementing session support. Plugins utilizing this
+- `session` - Special key reserved for [plugins](#plugins) implementing session support. Plugins utilizing this
   key must check for `null` value to ensure there is no conflict with another similar server.
 - `state` - an object containing parsed HTTP state information (cookies) where each key is the
   cookie name and value is the matching cookie content after processing using any registered cookie
@@ -2547,7 +2546,7 @@ server.ext('onRequest', function (request, reply) {
 _Always available._
 
 Logs request-specific events. When called, the server emits a `'request'` event which can be used
-by other listeners or plugins. The arguments are:
+by other listeners or [plugins](#plugins). The arguments are:
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
   the event. Tags are used instead of log levels and provide a much more expressive mechanism for
   describing and filtering events.
@@ -2599,12 +2598,12 @@ request.getLog(false);
 
 _Available until immediately after the `'response'` event is emitted._
 
-Adds a request tail which has to complete before the request lifecycle is complete where:
+Adds a request tail which has to complete before the [request lifecycle](#request-lifecycle) is complete where:
 - `name` - an optional tail name used for logging purposes.
 
 Returns a tail function which must be called when the tail activity is completed.
 
-Tails are actions performed throughout the request lifecycle, but which may end after a response is
+Tails are actions performed throughout the [request lifecycle](#request-lifecycle), but which may end after a response is
 sent back to the client. For example, a request may trigger a database update which should not
 delay sending back a response. However, it is still desirable to associate the activity with the
 request when logging it (or an error associated with it).
@@ -2638,7 +2637,7 @@ server.on('tail', function (request) {
 
 #### Request events
 
-The request object supports the following events:
+The [request object](#request-object) supports the following events:
 
 - `'peek'` - emitted for each chunk of payload data read from the client connection. The event
   method signature is `function(chunk, encoding)`.
@@ -2676,7 +2675,7 @@ server.ext('onRequest', function (request, reply) {
 
 ## Reply interface
 
-The various request lifecycle events (e.g. extensions, authentication, prerequisites, handlers)
+The various [request lifecycle](#request-lifecycle) events (e.g. extensions, authentication, [route prerequisites](#route-prerequisites), handlers)
 provide a reply interface as one of the function arguments. The reply interface acts as both a
 callback interface to return control to the framework and a response generator.
 
@@ -2747,8 +2746,8 @@ Note that if `result` is a `Stream` with a `statusCode` property, that status co
 the default response code.
 
 Any value provided to `reply()` (including no value) will be used as the response sent back to the
-client. This means calling `reply()` with a value in an extension function or authentication
-function will be considered an error and will terminate the request lifecycle. With the exception
+client. This means calling `reply()` with a value in an [extension methods](#serverextevent-method-options) or authentication
+function will be considered an error and will terminate the [request lifecycle](#request-lifecycle). With the exception
 of the handler function, all other methods provide the `reply.continue()` method which instructs
 the framework to continue processing the request without setting a response.
 
@@ -2759,17 +2758,17 @@ Every response includes the following properties:
 - `headers` - an object containing the response headers where each key is a header field name. Note
   that this is an incomplete list of headers to be included with the response. Additional headers
   will be added once the response is prepare for transmission.
-- `source` - the value provided using the `reply()` interface.
+- `source` - the value provided using the [reply interface](#reply-interface).
 - `variety` - a string indicating the type of `source` with available values:
     - `'plain'` - a plain response such as string, number, `null`, or simple object (e.g. not a
       `Stream`, `Buffer`, or view).
     - `'buffer'` - a `Buffer`.
-    - `'view'` - a view generated with `reply.view()`.
-    - `'file'` - a file generated with `reply.file()` of via the directory handler.
+    - `'view'` - a view generated with [`reply.view()`](#replyviewtemplate-context-options).
+    - `'file'` - a file generated with [`reply.file()`](#replyfilepath-options) of via the directory handler.
     - `'stream'` - a `Stream`.
     - `'promise'` - a Promise object.
 - `app` - application-specific state. Provides a safe place to store application data without
-  potential conflicts with the framework. Should not be used by plugins which should use
+  potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
   `plugins[name]`.
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data.
   The `plugins` is an object where each key is a plugin name and the value is the state.
