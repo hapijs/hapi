@@ -779,14 +779,21 @@ Adds an incoming sever connection where:
 - Any [connections configuration server defaults](#server.config.connections) can be included to
   override and customize the individual connection.
 
+Returns a server object with the new connection selected.
+
 Note that the `options` object is deeply cloned (with the exception of `listener` which is
 shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
 
 ```js
 var Hapi = require('hapi');
-var pack = new Hapi.Server();
+var server = new Hapi.Server();
 
-server.connection({ port: 8000, host: 'example.com', labels: ['web'] });
+var web = server.connection({ port: 8000, host: 'example.com', labels: ['web'] });
+var admin = server.connection({ port: 8001, host: 'example.com', labels: ['admin'] });
+
+// server.connections.length === 2
+// web.connections.length === 1
+// admin.connections.length === 1
 ```
 
 ### `server.decorate(type, property, method)`
@@ -1214,8 +1221,8 @@ Registers a plugin where:
       registration function are not handled by the framework.
 
 ```js
-server.pack.register({
-    plugin: require('plugin_name'),
+server.register({
+    register: require('plugin_name'),
     options: {
         message: 'hello'
     }

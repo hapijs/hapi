@@ -179,6 +179,20 @@ describe('Server', function () {
 
     describe('connection()', function () {
 
+        it('returns a server with only the selected connection', function (done) {
+
+            var server = new Hapi.Server();
+            var p1 = server.connection({ port: 1 });
+            var p2 = server.connection({ port: 2 });
+
+            expect(server.connections.length).to.equal(2);
+            expect(p1.connections.length).to.equal(1);
+            expect(p2.connections.length).to.equal(1);
+            expect(p1.connections[0].settings.port).to.equal(1);
+            expect(p2.connections[0].settings.port).to.equal(2);
+            done();
+        });
+
         it('throws on invalid config', function (done) {
 
             var server = new Hapi.Server();
