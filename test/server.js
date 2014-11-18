@@ -50,6 +50,27 @@ describe('Server', function () {
         done();
     });
 
+    it('overrides mime settings', function (done) {
+
+        var options = {
+            mime: {
+                override: {
+                    'node/module': {
+                        source: 'steve',
+                        compressible: false,
+                        extensions: ['node', 'module', 'npm'],
+                        type: 'node/module'
+                    }
+                }
+            }
+        };
+
+        var server = new Hapi.Server(options);
+        expect(server.mime.path('file.npm').type).to.equal('node/module');
+        expect(server.mime.path('file.npm').source).to.equal('steve');
+        done();
+    });
+
     describe('start()', function () {
 
         it('starts and stops', function (done) {

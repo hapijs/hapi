@@ -10,6 +10,7 @@
         - [`server.load`](#serverload)
         - [`server.listener`](#serverlistener)
         - [`server.methods`](#servermethods)
+        - [`server.mime`](#servermime)
         - [`server.plugins`](#serverplugins)
         - [`server.settings`](#serversettings)
         - [`server.version`](#serverversion)
@@ -270,6 +271,9 @@ Creates a new `Server` object where:
         - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no
           sampling).
 
+    - `mime` - options passed to the [**mimos**](https://github.com/hapijs/mimos) module when
+      generating the mime database used by the server and accessed via [`server.mime`](#servermime).
+
     - `plugins` - plugin-specific configuration which can later be accessed via
       `server.settings.plugins`. `plugins` is an object where each key is a plugin name and the
       value is the configuration. Note the difference between `server.settings.plugins` which is
@@ -434,6 +438,32 @@ server.methods.add(1, 2, function (err, result) {
 
     // result === 3
 });
+```
+
+#### `server.mime`
+
+Provides access to the server MIME database used for setting content-type information. The object
+must not be modified directly but only through the `mime` server setting.
+
+```js
+var Hapi = require('hapi');
+
+var options = {
+    mime: {
+        override: {
+            'node/module': {
+                source: 'steve',
+                compressible: false,
+                extensions: ['node', 'module', 'npm'],
+                type: 'node/module'
+            }
+        }
+    }
+};
+
+var server = new Hapi.Server(options);
+// server.mime.path('code.js').type === 'application/javascript'
+// server.mime.path('file.npm').type === 'node/module'
 ```
 
 #### `server.plugins`
