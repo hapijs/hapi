@@ -72,6 +72,7 @@
         - [Error response](#error-response)
             - [Error transformation](#error-transformation)
         - [Flow control](#flow-control)
+    - [`reply.continue([data])`](#replycontinuedata)
     - [`reply.file(path, [options])`](#replyfilepath-options)
     - [`reply.view(template, [context, [options]])`](#replyviewtemplate-context-options)
     - [`reply.close([options])`](#replycloseoptions)
@@ -90,24 +91,25 @@ Creates a new `Server` object where:
 - `options` - optional configuration:
     - `app` - application-specific configuration which can later be accessed via
       `server.settings.app`. Note the difference between `server.settings.app` which is
-      used to store static configuration values and [`server.app`](#serverapp) which is meant for storing
-      run-time state. Defaults to `{}`.
+      used to store static configuration values and [`server.app`](#serverapp) which is meant for
+      storing run-time state. Defaults to `{}`.
 
     - <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server
       includes a default cache for storing application state. By default, a simple memory-based
       cache is created which has limited capacity and capabilities. **hapi** uses
       [**catbox**](https://github.com/hapijs/catbox) for its cache which includes support for
       common storage solutions (e.g. Redis, MongoDB, Memcached, and Riak). Caching is only utilized
-      if methods and [plugins](#plugins) explicitly store their state in the cache. The server cache
-      configuration only defines the storage container itself. `cache` can be assigned:
+      if methods and [plugins](#plugins) explicitly store their state in the cache. The server
+      cache configuration only defines the storage container itself. `cache` can be assigned:
         - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
           such as `require('catbox-redis')`).
         - a configuration object with the following options:
             - `engine` - a prototype function or **catbox** engine object.
             - `name` - an identifier used later when provisioning or configuring caching for
-              [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache name must be unique. A single item may omit the `name`
-              option which defines the default cache. If every cache includes a `name`, a default
-              memory cache is provisions as well.
+              [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache
+              name must be unique. A single item may omit the `name` option which defines the
+              default cache. If every cache includes a `name`, a default memory cache is provisions
+              as well.
             - `shared` - if `true`, allows multiple cache uses to share the same segment (e.g.
               multiple methods using the same cache storage container). Default to `false`.
             - other options passed to the **catbox** strategy used.
@@ -142,126 +144,138 @@ Creates a new `Server` object where:
               of non-wildcard `origin` values if the incoming origin header does not match any of
               the values. Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
             - `maxAge` - number of seconds the browser should cache the CORS response
-              ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
-              checks for changes in policy. Defaults to `86400` (one day).
-            - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to
-              `['Authorization', 'Content-Type', 'If-None-Match']`.
-            - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep
-              the default headers in place.
+              ('Access-Control-Max-Age'). The greater the value, the longer it will take before the
+              browser checks for changes in policy. Defaults to `86400` (one day).
+            - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers').
+              Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
+            - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to
+              keep the default headers in place.
             - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods').
               Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
-            - `additionalMethods` - a strings array of additional methods to `methods`. Use this to keep
-              the default methods in place.
-            - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers').
-              Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
-            - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use
-              this to keep the default headers in place.
+            - `additionalMethods` - a strings array of additional methods to `methods`. Use this to
+              keep the default methods in place.
+            - `exposedHeaders` - a strings array of exposed headers
+              ('Access-Control-Expose-Headers'). Defaults to
+              `['WWW-Authenticate', 'Server-Authorization']`.
+            - `additionalExposedHeaders` - a strings array of additional headers to
+              `exposedHeaders`. Use this to keep the default headers in place.
             - `credentials` - if `true`, allows user credentials to be sent
               ('Access-Control-Allow-Credentials'). Defaults to `false`.
             - `override` - if `false`, preserves existing CORS headers set manually before the
               response is sent. Defaults to `true`.
 
-        - <a name="connection.config.files"></a>`files` - defines the behavior for serving static resources
-          using the built-in route handlers for files and directories:
-            - `relativeTo` - determines the folder relative paths are resolved against when using the file
-              and directory handlers.
+        - <a name="connection.config.files"></a>`files` - defines the behavior for serving static
+          resources using the built-in route handlers for files and directories:
+            - `relativeTo` - determines the folder relative paths are resolved against when using
+              the file and directory handlers.
 
-        - `json` - optional arguments passed to `JSON.stringify()` when converting an object or error
-          response to a string payload. Supports the following:
+        - `json` - optional arguments passed to `JSON.stringify()` when converting an object or
+          error response to a string payload. Supports the following:
             - `replacer` - the replacer function or array. Defaults to no action.
             - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
 
         - `load` - connection load limits configuration where:
-            - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an
-              HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-            - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an
-              HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-            - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
-              requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+            - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected
+              with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+            - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected
+              with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+            - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which
+              incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults
+              to `0` (no limit).
 
-        - <a name="connection.config.payload"></a>`payload` - controls how incoming payloads (request body)
-          are processed:
-            - `maxBytes` - limits the size of incoming payloads to the specified byte count. Allowing very
-              large payloads may cause the server to run out of memory. Defaults to `1048576` (1MB).
+        - <a name="connection.config.payload"></a>`payload` - controls how incoming payloads
+          (request body) are processed:
+            - `maxBytes` - limits the size of incoming payloads to the specified byte count.
+              Allowing very large payloads may cause the server to run out of memory. Defaults to
+              `1048576` (1MB).
             - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
 
         - `plugins` - plugin-specific configuration which can later be accessed via
-          `connection.settings.plugins`. Provides a place to store and pass connection-specific plugin
-          configuration. `plugins` is an object where each key is a plugin name and the value is the
-          configuration. Note the difference between `connection.settings.plugins` which is used to store
-          configuration values and `connection.plugins` which is meant for storing run-time state.
+          `connection.settings.plugins`. Provides a place to store and pass connection-specific
+           plugin configuration. `plugins` is an object where each key is a plugin name and the
+           value is the configuration. Note the difference between `connection.settings.plugins`
+           which is used to store configuration values and `connection.plugins` which is meant for
+           storing run-time state.
 
-        - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are matched
-          against the routing table:
-            - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered
-              different resources. Defaults to `true`.
-            - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
+        - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are
+          matched against the routing table:
+            - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are
+              considered different resources. Defaults to `true`.
+            - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to
+              `false`.
 
-        - `security` - sets common security headers. All headers are disabled by default. To enable set
-          `security` to `true` or to an object with the following options:
-            - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header will be
-              set to `max-age=15768000`, if specified as a number the maxAge parameter will be set to that
-              number. Defaults to `true`. You may also specify an object with the following fields:
+        - `security` - sets common security headers. All headers are disabled by default. To enable
+          set `security` to `true` or to an object with the following options:
+            - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header
+              will be set to `max-age=15768000`, if specified as a number the maxAge parameter will
+              be set to that number. Defaults to `true`. You may also specify an object with the
+              following fields:
                 - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
-                - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains` flag to
-                  the header.
-            - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will be set
-              to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To use the
-              'allow-from' rule, you must set this to an object with the following fields:
+                - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains`
+                  flag to the header.
+            - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will
+              be set to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To
+              use the 'allow-from' rule, you must set this to an object with the following fields:
                 - `rule` - either 'deny', 'sameorigin', or 'allow-from'
-                - `source` - when `rule` is 'allow-from' this is used to form the rest of the header,
-                  otherwise this field is ignored. If `rule` is 'allow-from' but `source` is unset, the
-                  rule will be automatically changed to 'sameorigin'.
-            - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to `true` which
-              sets the header to equal '1; mode=block'. NOTE: This setting can create a security
-              vulnerability in versions of IE below 8, as well as unpatched versions of IE8. See
-              [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/) and
-              [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If you
-              actively support old versions of IE, it may be wise to explicitly set this flag to `false`.
-            - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing downloads
-              from executing in your context. Defaults to `true` setting the header to 'noopen'.
-            - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true`
-              setting the header to its only and default option, 'nosniff'.
+                - `source` - when `rule` is 'allow-from' this is used to form the rest of the
+                  header, otherwise this field is ignored. If `rule` is 'allow-from' but `source`
+                  is unset, the rule will be automatically changed to 'sameorigin'.
+            - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to
+              `true` which sets the header to equal '1; mode=block'. NOTE: This setting can create
+              a security vulnerability in versions of IE below 8, as well as unpatched versions of
+              IE8. See [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
+              and [here](https://technet.microsoft.com/library/security/ms10-002) for more
+              information. If you actively support old versions of IE, it may be wise to explicitly
+              set this flag to `false`.
+            - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing
+              downloads from executing in your context. Defaults to `true` setting the header to
+              'noopen'.
+            - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to
+              `true` setting the header to its only and default option, 'nosniff'.
 
-        - <a name="connection.config.state"></a>`state` - HTTP state management (cookies) allows the server
-          to store information on the client which is sent back to the server with every request (as defined
-          in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports the following options:
+        - <a name="connection.config.state"></a>`state` - HTTP state management (cookies) allows
+          the server to store information on the client which is sent back to the server with every
+          request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports
+          the following options:
             - `cookies` - cookie parsing and formating options:
                 - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
                   `request.state` object. Defaults to `true`.
-                - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
-                    - `'error'` - return a Bad Request (400) error response. This is the default value.
+                - `failAction` - determines how to handle cookie parsing errors. Allowed values
+                   are:
+                    - `'error'` - return a Bad Request (400) error response. This is the default
+                      value.
                     - `'log'` - report the error but continue processing the request.
                     - `'ignore'` - take no action.
-                - `clearInvalid` - if `true`, automatically instruct the client to remove invalid cookies.
-                  Defaults to `false`.
-                - `strictHeader` - if `false`, allows any cookie value including values in violation of
-                  [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
+                - `clearInvalid` - if `true`, automatically instruct the client to remove invalid
+                  cookies. Defaults to `false`.
+                - `strictHeader` - if `false`, allows any cookie value including values in
+                  violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
 
         - `timeout` - define timeouts for processing durations:
-            - `server` - response timeout in milliseconds. Sets the maximum time allowed for the server to
-              respond to an incoming client request before giving up and responding with a Service
-              Unavailable (503) error response. Disabled by default (`false`).
-            - `client` - request timeout in milliseconds. Sets the maximum time allowed for the client to
-              transmit the request payload (body) before giving up and responding with a Request Timeout
-              (408) error response. Set to `false` to disable. Can be customized on a per-route basis using
-              the route `payload.timeout` configuration. Defaults to `10000` (10 seconds).
-            - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this option to
-              override this behavior. Defaults to `undefined` which leaves the node default unchanged. Set
-              to `false` to disable socket timeouts.
+            - `server` - response timeout in milliseconds. Sets the maximum time allowed for the
+              server to respond to an incoming client request before giving up and responding with
+              a Service Unavailable (503) error response. Disabled by default (`false`).
+            - `client` - request timeout in milliseconds. Sets the maximum time allowed for the
+              client to transmit the request payload (body) before giving up and responding with a
+              Request Timeout (408) error response. Set to `false` to disable. Can be customized on
+              a per-route basis using the route `payload.timeout` configuration. Defaults to
+              `10000` (10 seconds).
+            - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this
+              option to override this behavior. Defaults to `undefined` which leaves the node
+              default unchanged. Set to `false` to disable socket timeouts.
 
-        - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set global
-          options such as `stripUnknown` or `abortEarly` (the complete list is available
-          [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to no
-          options.
+        - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
+          global options such as `stripUnknown` or `abortEarly` (the complete list is available
+          [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to
+          no options.
 
     - `debug` - determines which errors are sent to the console:
         - `request` - a string array of request log tags to be displayed via `console.error()` when
-          the events are logged via [`request.log()`](#requestlogtags-data-timestamp). Defaults to uncaught errors thrown in external
-          code (these errors are handled automatically and result in an Internal Server Error
-          response) or runtime errors due to developer error. For example, to display all errors,
-          change the option to `['error']`. To turn off all console debug messages set it to
-          `false`.
+          the events are logged via [`request.log()`](#requestlogtags-data-timestamp). Defaults to
+          uncaught errors thrown in external code (these errors are handled automatically and
+          result in an Internal Server Error response) or runtime errors due to developer error.
+          For example, to display all errors, change the option to `['error']`. To turn off all
+          console debug messages set it to `false`.
 
     - `files` - file system related settings:
         - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the
@@ -272,13 +286,14 @@ Creates a new `Server` object where:
           sampling).
 
     - `mime` - options passed to the [**mimos**](https://github.com/hapijs/mimos) module when
-      generating the mime database used by the server and accessed via [`server.mime`](#servermime).
+      generating the mime database used by the server and accessed via
+      [`server.mime`](#servermime).
 
     - `plugins` - plugin-specific configuration which can later be accessed via
       `server.settings.plugins`. `plugins` is an object where each key is a plugin name and the
       value is the configuration. Note the difference between `server.settings.plugins` which is
-      used to store static configuration values and [`server.plugins`](#serverplugins) which is meant for storing
-      run-time state. Defaults to `{}`.
+      used to store static configuration values and [`server.plugins`](#serverplugins) which is
+      meant for storing run-time state. Defaults to `{}`.
 
 Note that the `options` object is deeply cloned and cannot contain any values that are unsafe to
 perform deep copy on.
@@ -315,12 +330,14 @@ var handler = function (request, reply) {
 #### `server.config`
 
 When the server object is provided as an argument to the plugin `register()` method, the `config`
-property provides the registration preferences passed the [`server.register()`](#serverregisterplugins-options-callback) method. `config` is
-an object with the following properties:
+property provides the registration preferences passed the
+[`server.register()`](#serverregisterplugins-options-callback) method. `config` is an object with
+the following properties:
 - `route` - route adding preferences:
-    - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions) from the server.
-    - `vhost` - the route virtual host settings used by any calls to [`server.route()`](#serverrouteoptions) from the
-      server.
+    - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions)
+      from the server.
+    - `vhost` - the route virtual host settings used by any calls to
+      [`server.route()`](#serverrouteoptions) from the server.
 
 The `config` property should be considered read-only and should not be changed.
 
@@ -335,8 +352,8 @@ exports.register = function (server, options, next) {
 #### `server.connections`
 
 An array containing the server's connections. When the server object is returned from
-[`server.select()`](#serverselectlabels), the `connections` array only includes the connections matching the selection
-criteria.
+[`server.select()`](#serverselectlabels), the `connections` array only includes the connections
+matching the selection criteria.
 
 ```js
 var server = new Hapi.Server();
@@ -357,7 +374,8 @@ the sole connection where:
 - `id` - a unique connection identifier (using the format '{hostname}:{pid}:{now base36}').
 - `created` - the connection creation timestamp.
 - `started` - the connection start timestamp (`0` when stopped).
-- `port` - the port the connection was configured to (before [`server.start()`](#serverstartcallback)) or bound to (after
+- `port` - the port the connection was configured to (before
+  [`server.start()`](#serverstartcallback)) or bound to (after
   [`server.start()`](#serverstartcallback)).
 - `host` - the host name the connection was configured to (defaults to `'0.0.0.0'` if no host was
   provided).
@@ -368,8 +386,8 @@ the sole connection where:
 - `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
   'socket:/unix/domain/socket/path').
 
-When the server contains more than one connection, each [`server.connections`](#serverconnections) array member provides
-its own `connection.info`.
+When the server contains more than one connection, each [`server.connections`](#serverconnections)
+array member provides its own `connection.info`.
 
 ```js
 var server = new Hapi.Server();
@@ -403,8 +421,8 @@ console.log(server.load.rss);
 When the server contains exactly one connection, `listener` is the node HTTP server object of the
 sole connection.
 
-When the server contains more than one connection, each [`server.connections`](#serverconnections) array member provides
-its own `connection.listener`.
+When the server contains more than one connection, each [`server.connections`](#serverconnections)
+array member provides its own `connection.listener`.
 
 ```js
 var Hapi = require('hapi');
@@ -469,7 +487,8 @@ var server = new Hapi.Server(options);
 #### `server.plugins`
 
 An object containing the public API exposed by each plugin registered where each key is a plugin
-name and the values are the exposed properties by each plugin using [`server.expose()`](#serverexposekey-value).
+name and the values are the exposed properties by each plugin using
+[`server.expose()`](#serverexposekey-value).
 
 ```js
 exports.register = function (server, options, next) {
@@ -517,10 +536,11 @@ server starts (only called if the server is started) where:
     - `server` - server object the `after()` method was called on.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
-        - `err` - internal error which is returned back via the [`server.start()`](#serverstartcallback) callback.
+        - `err` - internal error which is returned back via the
+          [`server.start()`](#serverstartcallback) callback.
 - `dependencies` - a string or array of string with the plugin names to call this method after
-  their `after()` methods. There is no requirement for the other [plugins](#plugins) to be registered. Setting
-  dependencies only arranges the after methods in the specified order.
+  their `after()` methods. There is no requirement for the other [plugins](#plugins) to be
+  registered. Setting dependencies only arranges the after methods in the specified order.
 
 ```js
 var Hapi = require('hapi');
@@ -650,7 +670,8 @@ server.auth.scheme('custom', scheme);
 
 Registers an authentication strategy where:
 - `name` - the strategy name.
-- `scheme` - the scheme name (must be previously registered using [`server.auth.scheme()`](#serverauthschemename-scheme)).
+- `scheme` - the scheme name (must be previously registered using
+  [`server.auth.scheme()`](#serverauthschemename-scheme)).
 - `mode` - if `true`, the scheme is automatically assigned as a required strategy to any route
   without an `auth` config. Can only be assigned to a single server strategy. Value must be `true`
   (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`,
@@ -680,7 +701,8 @@ server.route({
 ### `server.auth.test(strategy, request, next)`
 
 Tests a request against an authentication strategy where:
-- `strategy` - the strategy name registered with [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
+- `strategy` - the strategy name registered with
+  [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
 - `request` - the [request object](#request-object).
 - `next` - the callback function with signature `function(err, credentials)` where:
     - `err` - the error if authentication failed.
@@ -717,7 +739,8 @@ server.route({
 ### `server.bind(context)`
 
 Sets a global context used as the default bind object when adding a route or an extension where:
-- `context` - the object used to bind `this` in handler and [extension methods](#serverextevent-method-options).
+- `context` - the object used to bind `this` in handler and
+  [extension methods](#serverextevent-method-options).
 
 When setting context inside a plugin, the context is applied only to methods set up by the plugin.
 
@@ -747,8 +770,8 @@ Provisions a cache segment within the server cache facility where:
       saved in the cache. Cannot be used together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point
       all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
-    - `generateFunc` - a function used to generate a new cache item if one is not found in the cache
-      when calling `get()`. The method's signature is `function(id, next)` where:
+    - `generateFunc` - a function used to generate a new cache item if one is not found in the
+      cache when calling `get()`. The method's signature is `function(id, next)` where:
           - `id` - the `id` string or object provided to the `get()` method.
           - `next` - the method called when the new item is returned with the signature
             `function(err, value, ttl)` where:
@@ -801,8 +824,8 @@ Adds an incoming sever connection where:
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
 - `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to
   include a valid caching directive. Defaults to `[200]`.
-- `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels) specific connections
-  matching the specified labels. Defaults to an empty array `[]` (no labels).
+- `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
+  specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
 - `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
   the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
@@ -868,8 +891,8 @@ Used within a plugin to declares a required dependency on other [plugins](#plugi
     - `server` - the server the `dependency()` method was called on.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
-        - `err` - internal error condition, which is returned back via the [`server.start()`](#serverstartcallback)
-          callback.
+        - `err` - internal error condition, which is returned back via the
+          [`server.start()`](#serverstartcallback) callback.
 
 ```js
 exports.register = function (server, options, next) {
@@ -924,9 +947,9 @@ where:
   processing. The required extension function signature is `function(request, reply)` where:
     - `request` - the [request object](#request-object).
     - `reply` - the [reply interface](#reply-interface) which is used to return control back to the
-      framework. To continue normal execution of the [request lifecycle](#request-lifecycle), `reply.continue()` must be
-      called. To abort processing and return a response to the client, call `reply(value)` where
-      value is an error or any other valid response.
+      framework. To continue normal execution of the [request lifecycle](#request-lifecycle),
+      `reply.continue()` must be called. To abort processing and return a response to the client,
+      call `reply(value)` where value is an error or any other valid response.
     - `this` - the object provided via `options.bind` or the current active context set with
       [`server.bind()`](#serverbindcontext).
 - `options` - an optional object with the following:
@@ -1036,8 +1059,8 @@ for performing injections, with some additional options and response properties:
           transmission. If not available, set to `payload`. Useful for inspection and reuse of the
           internal objects returned (instead of parsing the response string).
 
-When the server contains more than one connection, each [`server.connections`](#serverconnections) array member provides
-its own `connection.inject()`.
+When the server contains more than one connection, each [`server.connections`](#serverconnections)
+array member provides its own `connection.inject()`.
 
 ```js
 var Hapi = require('hapi');
@@ -1059,8 +1082,9 @@ server.inject('/', function (res) {
 
 ### `server.log(tags, [data, [timestamp]])`
 
-Logs server events that cannot be associated with a specific request. When called the server emits a `'log'` event which can be used by other listeners
-or [plugins](#plugins) to record the information or output to the console. The arguments are:
+Logs server events that cannot be associated with a specific request. When called the server emits
+a `'log'` event which can be used by other listeners or [plugins](#plugins) to record the
+information or output to the console. The arguments are:
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
   the event. Tags are used instead of log levels and provide a much more expressive mechanism for
   describing and filtering events. Any logs generated by the server internally include the `'hapi'`
@@ -1092,10 +1116,11 @@ common module.
 
 Methods are registered via `server.method(name, method, [options])` where:
 - `name` - a unique method name used to invoke the method via `server.methods[name]`. When
- configured with caching enabled, `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)`
- can be used to clear the cache for a given key. Supports using nested names such as
- `utils.users.get` which will automatically create the missing path under [`server.methods`](#servermethods) and can
- be accessed for the previous example via `server.methods.utils.users.get`.
+  configured with caching enabled, `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)`
+  can be used to clear the cache for a given key. Supports using nested names such as
+  `utils.users.get` which will automatically create the missing path under
+  [`server.methods`](#servermethods) and can be accessed for the previous example via
+  `server.methods.utils.users.get`.
 - `method` - the method function with the signature is one of:
     - `function(arg1, arg2, ..., argn, next)` where:
         - `arg1`, `arg2`, etc. - the method function arguments.
@@ -1110,7 +1135,8 @@ Methods are registered via `server.method(name, method, [options])` where:
         - the method must returns a value (result, `Error`, or a promise) or throw an `Error`.
 - `options` - optional configuration:
     - `bind` - a context object passed back to the method function (via `this`) when called.
-      Defaults to active context (set via [`server.bind()`](#serverbindcontext) when the method is registered.
+      Defaults to active context (set via [`server.bind()`](#serverbindcontext) when the method is
+      registered.
     - `cache` - the same cache configuration used in [`server.cache()`](#servercacheoptions).
     - `callback` - if `false`, expects the `method` to be a synchronous function. Note that using a
       synchronous function with caching will convert the method interface to require a callback as
@@ -1185,7 +1211,8 @@ server.methods.sumSync(4, 5, function (err, result) {
 
 ### `server.method(methods)`
 
-Registers a server method function as described in [`server.method()`](#servermethodname-method-options) using a configuration object
+Registers a server method function as described in
+[`server.method()`](#servermethodname-method-options) using a configuration object
 where:
 - `methods` - an object or an array of objects where each one contains:
     - `name` - the method name.
@@ -1243,8 +1270,8 @@ Registers a plugin where:
         - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin
           registers a child plugin the `prefix` is passed on to the child or is added in front of
           the child-specific prefix.
-        - `vhost` - virtual host string (or array of strings) applied to every route. The outer-most
-          `vhost` overrides the any nested configuration.
+        - `vhost` - virtual host string (or array of strings) applied to every route. The
+          outer-most `vhost` overrides the any nested configuration.
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from the registration function. Note that exceptions thrown by the
       registration function are not handled by the framework.
@@ -1567,8 +1594,8 @@ Initializes the server views manager where:
       every use). Defaults to `true`.
     - `allowAbsolutePaths` - if set to `true`, allows absolute template paths passed to
       [`reply.view()`](#replyviewtemplate-context-options). Defaults to `false`.
-    - `allowInsecureAccess` - if set to `true`, allows template paths passed to [`reply.view()`](#replyviewtemplate-context-options) to
-      contain '../'. Defaults to `false`.
+    - `allowInsecureAccess` - if set to `true`, allows template paths passed to
+      [`reply.view()`](#replyviewtemplate-context-options) to contain '../'. Defaults to `false`.
     - `compileOptions` - options object passed to the engine's compile function. Defaults to empty
       options `{}`.
     - `runtimeOptions` - options object passed to the returned function from the compile operation.
@@ -1579,8 +1606,8 @@ Initializes the server views manager where:
     - `context` - a global context used with all templates. The global context option can be either
       an object or a function that takes no arguments and returns a context object. When rendering
       views, the global context will be merged with any context object specified on the handler or
-      using [`reply.view()`](#replyviewtemplate-context-options). When multiple context objects are used, values from the global context
-      always have lowest precedence.
+      using [`reply.view()`](#replyviewtemplate-context-options). When multiple context objects are
+      used, values from the global context always have lowest precedence.
 
 ```js
 var Hapi = require('hapi');
@@ -1595,8 +1622,8 @@ server.views({
 });
 ```
 
-When [`server.views()`](#serverviewsoptions) is called within a plugin, the views manager is only available to [plugins](#plugins)
-methods.
+When [`server.views()`](#serverviewsoptions) is called within a plugin, the views manager is only
+available to [plugins](#plugins) methods.
 
 ### Server events
 
@@ -1636,8 +1663,8 @@ server.on('log', function (event, tags) {
 });
 ```
 
-The `'request'` and `'request-internal'` events include the [request object](#request-object), the `event` object,
-and a `tags` object (where each tag is a key with the value `true`):
+The `'request'` and `'request-internal'` events include the [request object](#request-object), the
+`event` object, and a `tags` object (where each tag is a key with the value `true`):
 
 ```js
 server.on('request', function (request, event, tags) {
@@ -1648,7 +1675,8 @@ server.on('request', function (request, event, tags) {
 });
 ```
 
-The `'request-error'` event includes the [request object](#request-object) and the causing error `err` object:
+The `'request-error'` event includes the [request object](#request-object) and the causing error
+`err` object:
 
 ```js
 server.on('request-error', function (request, err) {
@@ -1747,12 +1775,12 @@ A plugin is a function with the signature `function(server, options, next)` wher
     - `err` - any plugin registration error.
 
 The plugin function must include an `attributes` function property with the following:
-- `name` - required plugin name string. The name is used as a unique key. Published [plugins](#plugins) should
-  use the same name as the name field in the 'package.json' file. Names must be unique within each
-  application.
+- `name` - required plugin name string. The name is used as a unique key. Published
+  [plugins](#plugins) should  use the same name as the name field in the 'package.json' file. Names
+  must be unique within each application.
 - `version` - optional plugin version. The version is only used informatively to enable other
-  [plugins](#plugins) to find out the versions loaded. The version should be the same as the one specified in
-  the plugin's 'package.json' file.
+  [plugins](#plugins) to find out the versions loaded. The version should be the same as the one
+  specified in the plugin's 'package.json' file.
 - `multiple` - if `true`, allows the plugin to be registered multiple times with the same server.
   Defaults to `false`.
 
@@ -1790,18 +1818,20 @@ register.attributes = {
 
 Incoming requests are handled by the server via routes. Each route describes an HTTP endpoint with
 a path, method, and other properties. The route logic is divided between static configuration,
-prerequisite functions and a route handler function. Routes are added via the [`server.route()`](#serverrouteoptions)
-method.
+prerequisite functions and a route handler function. Routes are added via the
+[`server.route()`](#serverrouteoptions) method.
 
 ### Request lifecycle
 
-Each incoming request passes through a pre-defined list of steps, along with optional [extensions](#serverextevent-method-options):
+Each incoming request passes through a pre-defined list of steps, along with optional
+[extensions](#serverextevent-method-options):
 
 - **`'onRequest'`** extension point
     - always called
     - the [request object](#request-object) passed to the extension functions is decorated with the
-      [`request.setUrl()`](#requestseturlurl) and [`request.setMethod()`](#requestsetmethodmethod) methods. Calls to these methods will
-      impact how the request is routed and can be used for rewrite rules. 
+      [`request.setUrl()`](#requestseturlurl) and [`request.setMethod()`](#requestsetmethodmethod)
+      methods. Calls to these methods will impact how the request is routed and can be used for
+      rewrite rules.
     - `request.route` is not yet populated at this point.
 - Lookup route using request path
 - Parse cookies
@@ -1823,8 +1853,8 @@ Each incoming request passes through a pre-defined list of steps, along with opt
       response), return a new response via `reply(response)`.
 - Validate response payload
 - **`'onPreResponse'`** extension point
-    - always called (except when [`reply.close()`](#replycloseoptions) is called or the client terminates the connection
-      prematurely).
+    - always called (except when [`reply.close()`](#replycloseoptions) is called or the client
+      terminates the connection prematurely).
     - The response contained in `request.response` may be modified (but not assigned a new value).
       To return a different response type (for example, replace an error with an HTML response),
       return a new response via `reply(response)`. Note that any errors generated after
@@ -1868,15 +1898,14 @@ The route configuration object supports the following options:
 
     - `bind` - an object passed back to the provided `handler` (via `this`) when called.
 
-    - `app` - application-specific configuration. Should not be used by [plugins](#plugins) which should use
-
-      `plugins[name]` instead.
+    - `app` - application-specific configuration. Should not be used by [plugins](#plugins) which
+      should use `plugins[name]` instead.
 
     - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
       name and the value is the plugin configuration.
 
-    - `pre` - an array with [route prerequisites](#route-prerequisites) methods which are executed in serial or in parallel
-      before the handler is called.
+    - `pre` - an array with [route prerequisites](#route-prerequisites) methods which are executed
+      in serial or in parallel before the handler is called.
 
     - `validate` - request input validation rules for various request components. When using a
       [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (e.g.
@@ -1979,8 +2008,8 @@ The route configuration object supports the following options:
           `'parse'`, the request will result in an error response.
         - `override` - a mime type string overriding the 'Content-Type' header value received.
           Defaults to no override.
-        - `maxBytes` - overrides the connection [default value](#connection.config.payload) for this
-          route.
+        - `maxBytes` - overrides the connection [default value](#connection.config.payload) for
+          this route.
         - `timeout` - payload processing timeout in milliseconds. Sets the maximum time allowed for
           the client to transmit the request payload (body) before giving up and responding with a
           Request Timeout (408) error response. Set to `false` to disable. Defaults to the server
@@ -2413,8 +2442,9 @@ are called in parallel. `pre` can be assigned a mixed array of:
           error will be assigned.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
-- strings - special short-hand notation for registered [server methods](#servermethodname-method-options) using the format 'name(args)'
-  (e.g. `'user(params.id)'`) where:
+- strings - special short-hand notation for registered
+  [server methods](#servermethodname-method-options) using the format 'name(args)' (e.g.
+  `'user(params.id)'`) where:
     - 'name' - the method name. The name is also used as the default value of `assign`.
     - 'args' - the method arguments (excluding `next`) where each argument is a property of
       the [request object](#request-object).
@@ -2485,8 +2515,8 @@ Each request object includes the following properties:
     - `session` - an object used by the
       [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
 - `domain` - the node domain object used to protect against exceptions thrown in extensions,
-  handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback functions otherwise bound to
-  other domains.
+  handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback
+  functions otherwise bound to other domains.
 - `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
 - `info` - request information:
@@ -2514,8 +2544,9 @@ Each request object includes the following properties:
   [route prerequisites](#route-prerequisites) function. The values are the raw values provided to
   the continuation function as argument. For the wrapped response object, use `responses`.
 - `response` - the response object when set. The object can be modified but must not be assigned
-  another object. To replace the response with another from within an [extension point](#serverextevent-method-options), use
-  `reply(response)` to override with a different response.
+  another object. To replace the response with another from within an
+  [extension point](#serverextevent-method-options), use `reply(response)` to override with a
+  different response.
 - `preResponses` - same as `pre` but represented as the response object created by the pre method.
 - `query` - an object containing the query parameters.
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
@@ -2524,8 +2555,9 @@ Each request object includes the following properties:
     - `res` - the node.js response object.
 - `route` - the route configuration object after defaults are applied.
 - `server` - the server object.
-- `session` - Special key reserved for [plugins](#plugins) implementing session support. Plugins utilizing this
-  key must check for `null` value to ensure there is no conflict with another similar server.
+- `session` - Special key reserved for [plugins](#plugins) implementing session support. Plugins
+  utilizing this key must check for `null` value to ensure there is no conflict with another
+  similar server.
 - `state` - an object containing parsed HTTP state information (cookies) where each key is the
   cookie name and value is the matching cookie content after processing using any registered cookie
   definition.
@@ -2628,15 +2660,16 @@ request.getLog(false);
 
 _Available until immediately after the `'response'` event is emitted._
 
-Adds a request tail which has to complete before the [request lifecycle](#request-lifecycle) is complete where:
+Adds a request tail which has to complete before the [request lifecycle](#request-lifecycle) is
+complete where:
 - `name` - an optional tail name used for logging purposes.
 
 Returns a tail function which must be called when the tail activity is completed.
 
-Tails are actions performed throughout the [request lifecycle](#request-lifecycle), but which may end after a response is
-sent back to the client. For example, a request may trigger a database update which should not
-delay sending back a response. However, it is still desirable to associate the activity with the
-request when logging it (or an error associated with it).
+Tails are actions performed throughout the [request lifecycle](#request-lifecycle), but which may
+end after a response is sent back to the client. For example, a request may trigger a database
+update which should not delay sending back a response. However, it is still desirable to associate
+the activity with the request when logging it (or an error associated with it).
 
 When all tails completed, the server emits a `'tail'` event.
 
@@ -2705,14 +2738,22 @@ server.ext('onRequest', function (request, reply) {
 
 ## Reply interface
 
-The various [request lifecycle](#request-lifecycle) events (e.g. extensions, authentication, [route prerequisites](#route-prerequisites), handlers)
-provide a reply interface as one of the function arguments. The reply interface acts as both a
-callback interface to return control to the framework and a response generator.
+The various [request lifecycle](#request-lifecycle) events (e.g. extensions, authentication,
+[route prerequisites](#route-prerequisites), handlers) provide a reply interface as one of the
+function arguments. The reply interface acts as both a callback interface to return control to the
+framework and a response generator.
+
+When `reply()` is called with an error or result response, that value is used as the response sent
+to the client. When `reply()` is called within a prerequisite, the value is saves for future use
+and is not used as the response. In all other places except for the handler, calling `reply()` will
+be considered an error and will abort the [request lifecycle](#request-lifecycle), jumping directly
+to the `'onPreResponse'` event.
+
+To return control to the framework within an [extension](#serverextevent-method-options) or other
+places other than the handler, without setting a response, the method
+[`reply.continue()`](#replycontinuedata) must be called.
 
 ### `reply([err], [result])`
-
-_Available only within the before one of `reply()`, `reply.file()`, `reply.view()`,
-`reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Concludes the handler activity by setting a response and returning control over to the framework
 where:
@@ -2750,6 +2791,10 @@ which provides a set of methods to customize the response (e.g. HTTP status code
 etc.). If the input is an `Error` object, the method returns back the error wrapped in a
 [`Boom`](https://github.com/hapijs/boom) object.
 
+Note that when used to return both an error and credentials in the authentication methods,
+`reply()` must be called with three arguments `function(err, null, data)` where `data` is the
+additional authentication information.
+
 The [response flow control rules](#flow-control) apply.
 
 ```js
@@ -2776,10 +2821,11 @@ Note that if `result` is a `Stream` with a `statusCode` property, that status co
 the default response code.
 
 Any value provided to `reply()` (including no value) will be used as the response sent back to the
-client. This means calling `reply()` with a value in an [extension methods](#serverextevent-method-options) or authentication
-function will be considered an error and will terminate the [request lifecycle](#request-lifecycle). With the exception
-of the handler function, all other methods provide the `reply.continue()` method which instructs
-the framework to continue processing the request without setting a response.
+client. This means calling `reply()` with a value in an
+[extension methods](#serverextevent-method-options) or authentication function will be considered
+an error and will terminate the [request lifecycle](#request-lifecycle). With the exception of the
+handler function, all other methods provide the `reply.continue()` method which instructs the
+framework to continue processing the request without setting a response.
 
 #### Response object
 
@@ -2794,12 +2840,13 @@ Every response includes the following properties:
       `Stream`, `Buffer`, or view).
     - `'buffer'` - a `Buffer`.
     - `'view'` - a view generated with [`reply.view()`](#replyviewtemplate-context-options).
-    - `'file'` - a file generated with [`reply.file()`](#replyfilepath-options) of via the directory handler.
+    - `'file'` - a file generated with [`reply.file()`](#replyfilepath-options) of via the
+      directory handler.
     - `'stream'` - a `Stream`.
     - `'promise'` - a Promise object.
 - `app` - application-specific state. Provides a safe place to store application data without
-  potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
-  `plugins[name]`.
+  potential conflicts with the framework. Should not be used by [plugins](#plugins) which should
+  use `plugins[name]`.
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data.
   The `plugins` is an object where each key is a plugin name and the value is the state.
 - `settings` - response handling flags:
@@ -2985,11 +3032,11 @@ Errors can be customized by changing their `output` content. The **boom** error 
 following properties:
 - `isBoom` - if `true`, indicates this is a `Boom` object instance.
 - `message` - the error message.
-- `output` - the formatted response. Can be directly manipulated after object construction to return
-  a custom error response. Allowed root keys:
+- `output` - the formatted response. Can be directly manipulated after object construction to
+  return a custom error response. Allowed root keys:
     - `statusCode` - the HTTP status code (typically 4xx or 5xx).
-    - `headers` - an object containing any HTTP headers where each key is a header name and value is
-      the header content.
+    - `headers` - an object containing any HTTP headers where each key is a header name and value
+      is the header content.
     - `payload` - the formatted object used as the response payload (stringified). Can be directly
       manipulated but any changes will be lost
       if `reformat()` is called. Any content allowed and by default includes the following content:
@@ -3018,8 +3065,8 @@ var handler = function (request, reply) {
 ```
 
 When a different error representation is desired, such as an HTML page or a different payload
-format, the `'onPreResponse'` extension point may be used to identify errors and replace them with a
-different response object.
+format, the `'onPreResponse'` extension point may be used to identify errors and replace them with
+a different response object.
 
 ```js
 var Hapi = require('hapi');
@@ -3073,10 +3120,26 @@ var handler = function (request, reply) {
 };
 ```
 
-### `reply.file(path, [options])`
+### `reply.continue([data])`
 
-_Available only within the handler method and only before one of `reply()`, `reply.file()`,
-`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
+Returns control back to the framework without setting a response. If called in the handler, the
+response defaults to an empty payload with status code `200`. The `data` argument is only used for
+passing back authentication data and is ignored elsewhere.
+
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.ext('onRequest', function (request, reply) {
+
+    // Change all requests to '/test'
+    request.setUrl('/test');
+    return reply.continue();
+});
+```
+
+### `reply.file(path, [options])`
 
 Transmits a file from the file system. The 'Content-Type' header defaults to the matching mime type
 based on filename extension.:
@@ -3106,9 +3169,6 @@ var handler = function (request, reply) {
 ```
 
 ### `reply.view(template, [context, [options]])`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`,
-`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Concludes the handler activity by returning control over to the router with a templatized view
 response where:
@@ -3165,9 +3225,6 @@ server.route({ method: 'GET', path: '/', handler: handler });
 
 ### `reply.close([options])`
 
-_Available only within the handler method and only before one of `reply()`, `reply.file()`,
-`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
-
 Concludes the handler activity by returning control over to the router and informing the router
 that a response has already been sent back directly via `request.raw.res` and that no further
 response action is needed. Supports the following optional options:
@@ -3179,9 +3236,6 @@ No return value.
 The [response flow control rules](#flow-control) **do not** apply.
 
 ### `reply.proxy(options)`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`,
-`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Proxies the request to an upstream endpoint where:
 - `options` - an object including the same keys and restrictions defined by the
@@ -3199,9 +3253,6 @@ var handler = function (request, reply) {
 ```
 
 ### `reply.redirect(uri)`
-
-_Available only within the handler method and only before one of `reply()`, `reply.file()`,
-`reply.view()`, `reply.close()`, `reply.proxy()`, or `reply.redirect()` is called._
 
 Redirects the client to the specified uri. Same as calling `reply().redirect(uri)`.
 
