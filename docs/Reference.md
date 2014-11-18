@@ -42,6 +42,9 @@
     - [`server.table([host])`](#servertablehost)
     - [`server.views(options)`](#serverviewsoptions)
     - [Server events](#server-events)
+        - [Internal events](#internal-events)
+            - [Request logs](#request-logs)
+            - [Server logs](#server-logs)
 - [Plugins](#plugins)
 - [Requests](#requests)
     - [Request lifecycle](#request-lifecycle)
@@ -1626,6 +1629,72 @@ server.on('response', function (request) {
     console.log('Response sent for request: ' + request.id);
 });
 ```
+
+#### Internal events
+
+The following logs are generated automatically by the framework. Each event can be identified by
+the combination of tags used.
+
+##### Request logs
+
+- `received` - a new request received. Includes information about the request.
+- `auth` `{strategy}` - the request successfully authenticated with the listed strategy.
+- `auth` `unauthenticated` - no authentication scheme included with the request.
+- `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
+  non-error response (e.g. a redirect to a login page).
+- `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed
+  authentication strategy.
+- `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
+  authentication strategy in `'try'` mode and will continue.
+- `auth` `scope` `error` `{strategy}` - the request authenticated but failed to meet the scope
+  requirements.
+- `auth` `entity` `user` `error` `{strategy}` - the request authenticated but included an
+  application entity when a user entity was required.
+- `auth` `entity` `app` `error` `{strategy}` - the request authenticated but included a user
+  entity when an application entity was required.
+- `handler` - the route handler executed. Includes the execution duration.
+- `handler` `error` - the route handler returned an error. Includes the execution duration and the
+  error message.
+- `handler` `method` {method} - a string-shortcut handler method was executed. Includes information
+  about the execution including cache performance.
+- `pre` `method` {method} - a string-shortcut pre method was executed. Includes information about
+  the execution including cache performance.
+- `pre` - a pre method was executed. Includes the execution duration and assignment key.
+- `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
+  assignment key, and error.
+- `internal` `error` - an HTTP 500 error response was assigned to the request.
+- `internal` `implementation` `error` - a function provided by the user failed with an exception
+  during request execution.
+- `request` `closed` `error` - the request closed prematurely.
+- `request` `error` - the request stream emitted an error. Includes the error.
+- `request` `server` `timeout` `error` - the request took too long to process by the server.
+  Includes the timeout configuration value and the duration.
+- `tail` `add` - a request tail was added. Includes the tail name and id.
+- `tail` `remove` - a request tail was removed. Includes the tail name and id.
+- `tail` `remove` `last` - the last request tail was removed. Includes the tail name and id.
+- `tail` `remove` `error` - failed to remove a request tail (already removed). Includes the tail
+  name and id.
+- `state` `error` - the request included an invalid cookie. Includes the cookie name.
+- `state` `response` `error` - the response included an invalid cookie which prevented generating a
+  valid header. Includes the error.
+- `payload` `error` - failed processing the request payload. Includes the error.
+- `response` - the response was sent successfully.
+- `response` `error` - failed writing the response to the client. Includes the error.
+- `response` `error` `close` - failed writing the response to the client due to prematurely closed
+  connection.
+- `response` `error` `aborted` - failed writing the response to the client due to prematurely
+  aborted connection.
+- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed.
+  Includes the error.
+- `validation` `response` `error` - response validation failed. Includes the error message.
+
+##### Server logs
+
+- `load` - logs the current server load measurements when the server rejects a request due to high
+  load. The event data contains the metrics.
+- `internal` `implementation` `error` - a function provided by the user failed with an exception
+  during request execution. The log appears under the server logs when the exception cannot be
+  associated with the request that generated it.
 
 ## Plugins
 
