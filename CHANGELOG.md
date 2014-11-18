@@ -4,7 +4,7 @@
 - [**#2174**](https://github.com/hapijs/hapi/issues/2174) Update hapijs/qs to 2.3.3 from 2.3.2
   - **hapijs/qs 2.3.3**
   - [**#59**](https://github.com/hapijs/qs/issues/59) make sure array indexes are >= 0, closes #57
-- [**#58**](https://github.com/hapijs/qs/issues/58) make qs usable for browser loader
+  - [**#58**](https://github.com/hapijs/qs/issues/58) make qs usable for browser loader
 - [**#2173**](https://github.com/hapijs/hapi/issues/2173) Update hapijs/catbox-memory to 1.1.1 from 1.1.0
 - [**#2172**](https://github.com/hapijs/hapi/issues/2172) Update hapijs/boom to 2.6.0 from 2.5.1
   - **hapijs/boom 2.6.0**
