@@ -1963,8 +1963,8 @@ The route configuration object supports the following options:
             - `'error'` - return a Bad Request (400) error response. This is the default value.
             - `'log'` - log the error but continue processing the request.
             - `'ignore'` - take no action.
-            - a custom error handler function with the signature `function(source, error, reply)`
-              where:
+            - a custom error handler function with the signature
+              'function(request, reply, source, error)` where:
                 - `request` - the [request object](#request-object).
                 - `reply` - the continuation [reply interface](#reply-interface).
                 - `source` - the source of the invalid field (e.g. `'path'`, `'query'`,
