@@ -1,6 +1,7 @@
 <img src="https://raw.github.com/hapijs/hapi/master/images/hapi.png" />
 
 ### A rich framework for building applications and services
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/hapijs/hapi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **hapi** is a simple to use configuration-centric framework with built-in support for input validation, caching, authentication,
 and other essential facilities for building web applications and services. **hapi** enables developers to focus on writing reusable
