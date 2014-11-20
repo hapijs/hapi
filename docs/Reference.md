@@ -809,7 +809,7 @@ cache.set('norway', { capital: 'oslo' }, function (err) {
 
 ### `server.connection([options])`
 
-Adds an incoming sever connection where:
+Adds an incoming server connection where:
 - `host` - the hostname or IP address. Defaults to `0.0.0.0` which means any available network
   interface. Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from
   the same machine. 
