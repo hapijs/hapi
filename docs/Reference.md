@@ -1326,7 +1326,7 @@ server.render('hello', context, function (err, rendered, config) {
 ### `server.route(options)`
 
 Adds a connection route where:
-- `options` - a route configuration object or an array of configuration objects.
+- `options` - a [route configuration object](#route-configuration) or an array of configuration objects.
 
 ```js
 var Hapi = require('hapi');
