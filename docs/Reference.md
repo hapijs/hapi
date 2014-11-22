@@ -2227,52 +2227,21 @@ server.route({
 ### Path matching order
 
 The router iterates through the routing table on each incoming request and executes the first (and
-only the first) matching route. Route matching is done on a combination of the request path and the
-HTTP verb. The query is excluded from the routing logic. Requests are matched in a deterministic
-order where the order in which routes are added does not matter. The routes are sorted from the
-most specific to the most generic. The specificity of a route is a combination of the HTTP verb and
-the route path. The more specific a route definition is, the higher up in the routing table it will
-appear. For example, the following path array shows the order in which an incoming request path
-will be matched against the routes:
+only the first) matching route. Route matching is done based on the combination of the request path
+and the HTTP verb (e.g. 'GET, 'POST'). The query is excluded from the routing logic. Requests are
+matched in a deterministic order where the order in which routes are added does not matter.
 
-```js
-var paths = [
-    '/',
-    '/a',
-    '/b',
-    '/ab',
-    '/a{p}b',
-    '/a{p}',
-    '/{p}b',
-    '/{p}',
-    '/a/b',
-    '/a/{p}',
-    '/b/',
-    '/a1{p}/a',
-    '/xx{p}/b',
-    '/x{p}/a',
-    '/x{p}/b',
-    '/y{p}/b',
-    '/{p}xx/b',
-    '/{p}x/b',
-    '/{p}y/b',
-    '/a/b/c',
-    '/a/b/{p}',
-    '/a/d{p}c/b',
-    '/a/d{p}/b',
-    '/a/{p}d/b',
-    '/a/{p}/b',
-    '/a/{p}/c',
-    '/a/{p*2}',
-    '/a/b/c/d',
-    '/a/b/{p*2}',
-    '/a/{p}/b/{x}',
-    '/{p*5}',
-    '/a/b/{p*}',
-    '/{a}/b/{p*}',
-    '/{p*}'
-];
-```
+Routes are matched based on the specificity of the route which is evaluated at each segment of the
+incoming request path. Each request path is split into its segment (the parts separated by `'/'`).
+The segments are compared to the routing table one at a time and are matched against the most
+specific path until a match is found. If no match is found, the next match is tried.
+
+When matching routes, string literals (no path parameter) have the highest priority, followed by
+mixed parameters (`'/a{p}b'`), parameters (`'/{p}'`), and then wildcard (`/{p*}`).
+
+Note that mixed parameters are slower to compare as they cannot be hashed and require an array
+iteration over all the regular expressions representing the various mixed parameter at each
+routing table node.
 
 #### Catch all route
 
