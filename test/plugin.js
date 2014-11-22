@@ -85,7 +85,7 @@ describe('Plugin', function () {
                 expect(internals.routesList(server, 's1')).to.deep.equal(['/a', '/ab', '/all']);
                 expect(internals.routesList(server, 's2')).to.deep.equal(['/a', '/all', '/sodd']);
                 expect(internals.routesList(server, 's3')).to.deep.equal(['/a', '/ab', '/all']);
-                expect(internals.routesList(server, 's4')).to.deep.equal(['/all', '/sodd', '/memoryx']);
+                expect(internals.routesList(server, 's4')).to.deep.equal(['/all', '/memoryx', '/sodd']);
                 done();
             });
         });
@@ -1666,6 +1666,40 @@ describe('Plugin', function () {
                 expect(pc).to.equal(1);
                 done();
             });
+        });
+    });
+
+    describe('lookup()', function () {
+
+        it('returns route based on id', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(); }, id: 'root', app: { test: 123 } } });
+            var root = server.lookup('root');
+            expect(root.path).to.equal('/');
+            expect(root.app.test).to.equal(123);
+            done();
+        });
+
+        it('returns null on unknown route', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            var root = server.lookup('root');
+            expect(root).to.be.null();
+            done();
+        });
+
+        it('throws in missing id', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.lookup();
+            }).to.throw('Invalid route id: ');
+            done();
         });
     });
 

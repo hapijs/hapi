@@ -30,6 +30,7 @@
     - [`server.handler(name, method)`](#serverhandlername-method)
     - [`server.inject(options, callback)`](#serverinjectoptions-callback)
     - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
+    - [`server.lookup(id)`](#serverlookupid)
     - [`server.method(name, method, [options])`](#servermethodname-method-options)
     - [`server.method(methods)`](#servermethodmethods)
     - [`server.path(relativeTo)`](#serverpathrelativeto)
@@ -989,7 +990,7 @@ Registers a new handler type to be used in routes where:
   types (`directory`, `file`, `proxy`, and `view`) or any previously registered type.
 - `method` - the function used to generate the route handler using the signature
   `function(route, options)` where:
-    - `route` - the route configuration object.
+    - `route` - the [route configuration](#route-configuration) object.
     - `options` - the configuration object provided in the handler config.
 
 The `method` function can have a `defaults` property of an object or function. If the property is
@@ -1106,6 +1107,29 @@ server.on('log', function (event, tags) {
 
 server.log(['test', 'error'], 'Test event');
 ```
+
+### `server.lookup(id)`
+
+When the server contains exactly one connection, looks up a route configuration where:
+- `id` - the route identifier as set in the [route configuration](#route-configuration).
+
+```js
+var server = new Hapi.Server();
+server.connection();
+server.route({
+    method: 'GET',
+    path: '/',
+    config: {
+        handler: function (request, reply) { return reply(); },
+        id: 'root'
+    }
+});
+
+var route = server.lookup('root');
+```
+
+When the server contains more than one connection, each [`server.connections`](#serverconnections)
+array member provides its own `connection.lookup()` method.
 
 ### `server.method(name, method, [options])`
 
@@ -1901,6 +1925,9 @@ The route configuration object supports the following options:
     - `app` - application-specific configuration. Should not be used by [plugins](#plugins) which
       should use `plugins[name]` instead.
 
+    - `id` - an optional unique indentifier used to look up the route using
+      [`server.lookup()`](#serverlookupid).
+
     - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
       name and the value is the plugin configuration.
 
@@ -2553,7 +2580,7 @@ Each request object includes the following properties:
   objects is not recommended.**
     - `req` - the node.js request object.
     - `res` - the node.js response object.
-- `route` - the route configuration object after defaults are applied.
+- `route` - the [route configuration](#route-configuration) object after defaults are applied.
 - `server` - the server object.
 - `session` - Special key reserved for [plugins](#plugins) implementing session support. Plugins
   utilizing this key must check for `null` value to ensure there is no conflict with another
