@@ -186,6 +186,31 @@ describe('validation', function () {
         });
     });
 
+    it('catches error thrown in custom validation', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { return reply('ok'); },
+            config: {
+                validate: {
+                    query: function (value, options, next) {
+
+                        throw new Error('Bad query');
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=456', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
+        });
+    });
+
     it('casts input to desired type', function (done) {
 
         var server = new Hapi.Server();
@@ -421,6 +446,34 @@ describe('validation', function () {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result).to.equal('Got error in query where a is bad');
+            done();
+        });
+    });
+
+    it('catches error thrown in failAction', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) { return reply('ok'); },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.string().min(2)
+                    },
+                    failAction: function (request, reply, source, error) {
+
+                        throw new Error('my bad');
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=1', function (res) {
+
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });
@@ -838,6 +891,37 @@ describe('validation', function () {
                 expect(res.statusCode).to.equal(500);
                 done();
             });
+        });
+    });
+
+    it('catches error thrown by custom validation function', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            return reply({ some: i++ ? null : 'value' });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: function (value, options, next) {
+
+                        throw new Error('Bad response');
+                    }
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(500);
+            done();
         });
     });
 
