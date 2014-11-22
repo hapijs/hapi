@@ -902,7 +902,7 @@ describe('authentication', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
+            var implementation = function () { return { authenticate: internals.implementation().authenticate }; };
 
             server.auth.scheme('custom', implementation);
             server.auth.strategy('default', 'custom', true, {});
@@ -926,7 +926,7 @@ describe('authentication', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
+            var implementation = function () { return { authenticate: internals.implementation().authenticate }; };
 
             server.auth.scheme('custom', implementation);
             server.auth.strategy('default', 'custom', true, {});
@@ -950,7 +950,7 @@ describe('authentication', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var implementation = function () { return { authenticate: internals.implementation.authenticate }; };
+            var implementation = function () { return { authenticate: internals.implementation().authenticate }; };
 
             server.auth.scheme('custom1', implementation);
             server.auth.scheme('custom2', internals.implementation);
