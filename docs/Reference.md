@@ -203,7 +203,7 @@ Creates a new `Server` object where:
             - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are
               considered different resources. Defaults to `true`.
             - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to
-              `false`.
+              `true`.
 
         - `security` - sets common security headers. All headers are disabled by default. To enable
           set `security` to `true` or to an object with the following options:
