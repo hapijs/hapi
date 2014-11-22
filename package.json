@@ -21,7 +21,7 @@
     "accept": "1.x.x",
     "ammo":  "1.x.x",
     "boom": "^2.5.x",
-    "call": "1.x.x",
+    "call": "2.x.x",
     "catbox": "^4.2.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
