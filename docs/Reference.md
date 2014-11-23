@@ -823,8 +823,9 @@ Adds an incoming server connection where:
   object. If the `listener` needs to be manually started, set `autoListen` to `false`.
 - `autoListen` - indicates that the `connection.listener` will be started manually outside the
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
-- `cacheControlStatus` - an array of HTTP response status codes (e.g. `200`) which are allowed to
-  include a valid caching directive. Defaults to `[200]`.
+- `cache` - caching headers configuration:
+    - `statues` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
+      a valid caching directive. Defaults to `[200]`.
 - `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
   specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
 - `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to

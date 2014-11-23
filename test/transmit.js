@@ -2147,7 +2147,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cacheControlStatus: [200, 400] });
+            server.connection({ cache: { statuses: [200, 400] } });
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
             server.inject('/', function (res) {
 
