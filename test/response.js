@@ -558,7 +558,7 @@ describe('Response', function () {
         it('returns a file in the response with the correct headers using custom mime type', function (done) {
 
             var server = new Hapi.Server();
-            server.connection({ files: { relativeTo: __dirname } });
+            server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
                 return reply.file('../Makefile').type('application/example');

@@ -876,6 +876,8 @@ describe('Plugin', function () {
                     suffix: ' throughout'
                 };
 
+                server.bind(bind);
+
                 server.route({
                     method: 'GET',
                     path: '/',
@@ -889,8 +891,6 @@ describe('Plugin', function () {
 
                     return reply(request.response.source + this.suffix);
                 });
-
-                server.bind(bind);        // Call last to test late binding
 
                 return next();
             };
@@ -1834,7 +1834,7 @@ describe('Plugin', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ files: { relativeTo: __dirname } });
+            server.connection({ routes: { files: { relativeTo: __dirname } } });
             server.register(test, function (err) {
 
                 expect(err).to.not.exist();

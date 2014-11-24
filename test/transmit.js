@@ -629,7 +629,7 @@ describe('transmission', function () {
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
             var server = new Hapi.Server();
-            server.connection({ files: { relativeTo: __dirname } });
+            server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
@@ -650,7 +650,7 @@ describe('transmission', function () {
         it('returns a plain file when not compressible', function (done) {
 
             var server = new Hapi.Server();
-            server.connection({ files: { relativeTo: __dirname } });
+            server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
                 return reply.file(__dirname + '/file/image.png');
@@ -671,7 +671,7 @@ describe('transmission', function () {
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
             var server = new Hapi.Server();
-            server.connection({ files: { relativeTo: __dirname } });
+            server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');

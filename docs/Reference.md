@@ -744,6 +744,7 @@ Sets a global context used as the default bind object when adding a route or an 
   [extension methods](#serverextevent-method-options).
 
 When setting context inside a plugin, the context is applied only to methods set up by the plugin.
+Note that the context applies only to routes and extensions added after it has been set.
 
 ```js
 var handler = function (request, reply) {
@@ -1292,7 +1293,8 @@ are used where:
 - `relativeTo` - the path prefix added to any relative file path starting with `'.'`.
 
 Note that setting a path within a plugin only applies to resources accessed by plugin methods.
-If no path is set, the connection `files.relativeTo` configuration is used.
+If no path is set, the connection `files.relativeTo` configuration is used. The path only applies
+to routes added after it has been set.
 
 ```js
 exports.register = function (server, options, next) {

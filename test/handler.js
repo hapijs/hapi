@@ -147,7 +147,7 @@ describe('handler', function () {
         it('returns a file', function (done) {
 
             var server = new Hapi.Server();
-            server.connection({ files: { relativeTo: __dirname } });
+            server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
                 return reply.file('../package.json').code(499);
