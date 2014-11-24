@@ -200,7 +200,7 @@ describe('Connection', function () {
     it('closes connection on socket timeout', { parallel: false }, function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ routes: { timeout: { client: 45, socket: 50 } } });
+        server.connection({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
         server.route({
             method: 'GET', path: '/', config: {
                 handler: function (request, reply) {

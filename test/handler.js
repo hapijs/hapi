@@ -126,9 +126,14 @@ describe('handler', function () {
             upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { return reply({ a: 1 }); } });
             upstream.start(function () {
 
+                var handler = function (request, reply) {
+
+                    return reply.proxy({ uri: 'http://localhost:' + upstream.info.port + '/item' });
+                };
+
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/handler', handler: function (request, reply) { return reply.proxy({ uri: 'http://localhost:' + upstream.info.port + '/item' }); } });
+                server.route({ method: 'GET', path: '/handler', handler: handler });
 
                 server.inject('/handler', function (res) {
 

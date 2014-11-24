@@ -158,4 +158,14 @@ describe('Route', function () {
         }).to.throw('Server timeout must be shorter than socket timeout: /{p*}');
         done();
     });
+
+    it('ignores large server timeout when socket timeout disabled', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.connection({ routes: { timeout: { server: 6000000, socket: false } } });
+        }).to.not.throw();
+        done();
+    });
 });

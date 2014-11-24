@@ -1233,7 +1233,7 @@ describe('Request', function () {
             var timeoutHandler = function (request, reply) { };
 
             var server = new Hapi.Server();
-            server.connection({ routes: { timeout: { server: 50, client: 50 } } });
+            server.connection({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
             server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
 
             server.start(function () {
