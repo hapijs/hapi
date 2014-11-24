@@ -412,11 +412,11 @@ describe('Plugin', function () {
             });
         });
 
-        it('registers a plugin with route path prefix', function (done) {
+        it('registers a plugin with routes path prefix', function (done) {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(internals.plugins.test1, { route: { prefix: '/xyz' } }, function (err) {
+            server.register(internals.plugins.test1, { routes: { prefix: '/xyz' } }, function (err) {
 
                 expect(server.plugins.test1.prefix).to.equal('/xyz');
                 expect(err).to.not.exist();
@@ -428,7 +428,7 @@ describe('Plugin', function () {
             });
         });
 
-        it('registers a plugin with route path prefix and plugin root route', function (done) {
+        it('registers a plugin with routes path prefix and plugin root route', function (done) {
 
             var test = function (server, options, next) {
 
@@ -442,7 +442,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(test, { route: { prefix: '/xyz' } }, function (err) {
+            server.register(test, { routes: { prefix: '/xyz' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/xyz', function (res) {
@@ -466,7 +466,7 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(a, { route: { prefix: '/xyz' } }, function (err) {
+            server.register(a, { routes: { prefix: '/xyz' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/xyz', function (res) {
@@ -477,11 +477,11 @@ describe('Plugin', function () {
             });
         });
 
-        it('registers a child plugin with parent route path prefix', function (done) {
+        it('registers a child plugin with parent routes path prefix', function (done) {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(internals.plugins.child, { route: { prefix: '/xyz' } }, function (err) {
+            server.register(internals.plugins.child, { routes: { prefix: '/xyz' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/xyz/test1', function (res) {
@@ -492,11 +492,11 @@ describe('Plugin', function () {
             });
         });
 
-        it('registers a child plugin with parent route vhost prefix', function (done) {
+        it('registers a child plugin with parent routes vhost prefix', function (done) {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(internals.plugins.child, { route: { vhost: 'example.com' } }, function (err) {
+            server.register(internals.plugins.child, { routes: { vhost: 'example.com' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
@@ -507,11 +507,11 @@ describe('Plugin', function () {
             });
         });
 
-        it('registers a child plugin with parent route path prefix and inner register prefix', function (done) {
+        it('registers a child plugin with parent routes path prefix and inner register prefix', function (done) {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register({ register: internals.plugins.child, options: { route: { prefix: '/inner' } } }, { route: { prefix: '/xyz' } }, function (err) {
+            server.register({ register: internals.plugins.child, options: { routes: { prefix: '/inner' } } }, { routes: { prefix: '/xyz' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/xyz/inner/test1', function (res) {
@@ -522,11 +522,11 @@ describe('Plugin', function () {
             });
         });
 
-        it('registers a child plugin with parent route vhost prefix and inner register vhost', function (done) {
+        it('registers a child plugin with parent routes vhost prefix and inner register vhost', function (done) {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register({ register: internals.plugins.child, options: { route: { vhost: 'example.net' } } }, { route: { vhost: 'example.com' } }, function (err) {
+            server.register({ register: internals.plugins.child, options: { routes: { vhost: 'example.net' } } }, { routes: { vhost: 'example.com' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
@@ -537,11 +537,11 @@ describe('Plugin', function () {
             });
         });
 
-        it('registers a plugin with route vhost', function (done) {
+        it('registers a plugin with routes vhost', function (done) {
 
             var server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            server.register(internals.plugins.test1, { route: { vhost: 'example.com' } }, function (err) {
+            server.register(internals.plugins.test1, { routes: { vhost: 'example.com' } }, function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/test1', function (res) {
@@ -2268,7 +2268,7 @@ internals.plugins = {
     },
     child: function (server, options, next) {
 
-        if (options.route) {
+        if (options.routes) {
             return server.register(internals.plugins.test1, options, next);
         }
 
@@ -2336,7 +2336,7 @@ internals.plugins = {
             return a + b;
         });
 
-        server.expose('prefix', server.config.route.prefix);
+        server.expose('prefix', server.config.routes.prefix);
 
         return next();
     },

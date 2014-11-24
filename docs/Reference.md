@@ -334,7 +334,7 @@ When the server object is provided as an argument to the plugin `register()` met
 property provides the registration preferences passed the
 [`server.register()`](#serverregisterplugins-options-callback) method. `config` is an object with
 the following properties:
-- `route` - route adding preferences:
+- `routes` - routes preferences:
     - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions)
       from the server.
     - `vhost` - the route virtual host settings used by any calls to
@@ -1315,7 +1315,7 @@ Registers a plugin where:
   function):
     - `select` - a string or array of string labels used to pre-select connections for plugin
       registration.
-    - `route` - modifiers applied to each route added by the plugin:
+    - `routes` - modifiers applied to each route added by the plugin:
         - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin
           registers a child plugin the `prefix` is passed on to the child or is added in front of
           the child-specific prefix.
