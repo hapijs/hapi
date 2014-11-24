@@ -224,26 +224,6 @@ describe('Server', function () {
             done();
         });
 
-        it('validates server timeout is less then socket timeout', function (done) {
-
-            var server = new Hapi.Server();
-            expect(function () {
-
-                server.connection({ timeout: { server: 60000, socket: 120000 } });
-            }).to.not.throw();
-            done();
-        });
-
-        it('validates server timeout is less then socket timeout (node default)', function (done) {
-
-            var server = new Hapi.Server();
-            expect(function () {
-
-                server.connection({ timeout: { server: 60000, socket: false } });
-            }).to.not.throw();
-            done();
-        });
-
         it('combines configuration from server and connection (cors)', function (done) {
 
             var server = new Hapi.Server({ connections: { cors: true } });

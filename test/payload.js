@@ -536,7 +536,7 @@ describe('payload', function () {
     it('times out when client request taking too long', function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ timeout: { client: 50 } });
+        server.connection({ routes: { timeout: { client: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: function (request, reply) { return reply('fast'); } } });
         server.start(function () {
 
@@ -569,7 +569,7 @@ describe('payload', function () {
     it('times out when client request taking too long (route override)', function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ timeout: { client: false } });
+        server.connection({ routes: { timeout: { client: false } } });
         server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: function (request, reply) { return reply('fast'); } } });
         server.start(function () {
 
@@ -602,7 +602,7 @@ describe('payload', function () {
     it('returns payload when timeout is not triggered', function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ timeout: { client: 50 } });
+        server.connection({ routes: { timeout: { client: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: function (request, reply) { return reply('fast'); } } });
         server.start(function () {
 

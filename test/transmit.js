@@ -1367,7 +1367,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 20, client: false, socket: 40 } });
+            server.connection({ routes: { timeout: { server: 20, client: false, socket: 40 } }});
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.start(function () {

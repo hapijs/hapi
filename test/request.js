@@ -372,7 +372,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 5 } });
+            server.connection({ routes: { timeout: { server: 5 } } });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -396,7 +396,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 5 } });
+            server.connection({ routes: { timeout: { server: 5 } } });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1014,7 +1014,7 @@ describe('Request', function () {
             var timeoutHandler = function (request, reply) { };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 50 } });
+            server.connection({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
 
             var timer = new Hoek.Bench();
@@ -1038,7 +1038,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 2 } });
+            server.connection({ routes: { timeout: { server: 2 } } });
             server.route({ method: 'GET', path: '/', config: { handler: slowHandler } });
 
             server.inject('/', function (res) {
@@ -1051,7 +1051,7 @@ describe('Request', function () {
         it('returns server error message when server timeout is short and already occurs when request executes', function (done) {
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 2 } });
+            server.connection({ routes: { timeout: { server: 2 } } });
             server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
             server.ext('onRequest', function (request, reply) {
 
@@ -1076,7 +1076,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 10 } });
+            server.connection({ routes: { timeout: { server: 10 } } });
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
             server.ext('onPreResponse', function (request, reply) {
 
@@ -1101,7 +1101,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 50 } });
+            server.connection({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/slow', config: { handler: slowHandler } });
 
             var timer = new Hoek.Bench();
@@ -1133,7 +1133,7 @@ describe('Request', function () {
             var timer = new Hoek.Bench();
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 50 } });
+            server.connection({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/responding', config: { handler: respondingHandler } });
             server.start(function () {
 
@@ -1190,7 +1190,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 50 } });
+            server.connection({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
             server.start(function () {
 
@@ -1218,7 +1218,7 @@ describe('Request', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 50 } });
+            server.connection({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/fast', config: { handler: fastHandler } });
 
             server.inject('/fast', function (res) {
@@ -1233,7 +1233,7 @@ describe('Request', function () {
             var timeoutHandler = function (request, reply) { };
 
             var server = new Hapi.Server();
-            server.connection({ timeout: { server: 50, client: 50 } });
+            server.connection({ routes: { timeout: { server: 50, client: 50 } } });
             server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
 
             server.start(function () {

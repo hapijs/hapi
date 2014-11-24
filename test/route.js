@@ -138,4 +138,24 @@ describe('Route', function () {
             done();
         });
     });
+
+    it('throws when server timeout is more then socket timeout', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.connection({ routes: { timeout: { server: 60000, socket: 12000 } } });
+        }).to.throw('Server timeout must be shorter than socket timeout: /{p*}');
+        done();
+    });
+
+    it('throws when server timeout is more then socket timeout (node default)', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.connection({ routes: { timeout: { server: 6000000 } } });
+        }).to.throw('Server timeout must be shorter than socket timeout: /{p*}');
+        done();
+    });
 });
