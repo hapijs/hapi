@@ -549,7 +549,7 @@ describe('Connection', function () {
 
         it('returns an array of the current routes', function (done) {
 
-            var server = new Hapi.Server({ connections: { router: { stripTrailingSlash: false }}});
+            var server = new Hapi.Server();
             server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
@@ -564,7 +564,7 @@ describe('Connection', function () {
 
         it('returns an array of the current routes (connection)', function (done) {
 
-            var server = new Hapi.Server({ connections: { router: { stripTrailingSlash: false }}});
+            var server = new Hapi.Server();
             server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
@@ -579,7 +579,7 @@ describe('Connection', function () {
 
         it('combines global and vhost routes', function (done) {
 
-            var server = new Hapi.Server({ connections: { router: { stripTrailingSlash: false }}});
+            var server = new Hapi.Server();
             server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
@@ -595,7 +595,7 @@ describe('Connection', function () {
 
         it('combines global and vhost routes and filters based on host', function (done) {
 
-            var server = new Hapi.Server({ connections: { router: { stripTrailingSlash: false }}});
+            var server = new Hapi.Server();
             server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
@@ -611,7 +611,7 @@ describe('Connection', function () {
 
         it('accepts a list of hosts', function (done) {
 
-            var server = new Hapi.Server({ connections: { router: { stripTrailingSlash: false }}});
+            var server = new Hapi.Server();
             server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
@@ -627,7 +627,7 @@ describe('Connection', function () {
 
         it('ignores unknown host', function (done) {
 
-            var server = new Hapi.Server({ connections: { router: { stripTrailingSlash: false }}});
+            var server = new Hapi.Server();
             server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });

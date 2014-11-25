@@ -2355,7 +2355,7 @@ config to an object containing one of these keys:
     - `redirectToSlash` - optional boolean, determines if requests for a directory without a
       trailing slash are redirected to the same path with the missing slash. Useful for
       ensuring relative links inside the response are resolved correctly. Disabled when the
-      server config `router.stripTrailingSlash` is `true. `Defaults to `true`.
+      server config `router.stripTrailingSlash` is `true. `Defaults to `false`.
     - `lookupCompressed` - optional boolean, instructs the file processor to look for the same
       filename with the '.gz' suffix for a pre-compressed version of the file to serve if the
       request supports content encoding. Defaults to `false`.
