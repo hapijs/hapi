@@ -51,6 +51,7 @@
 - [Requests](#requests)
     - [Request lifecycle](#request-lifecycle)
     - [Route configuration](#route-configuration)
+        - [Route options](#route-options)
     - [Path parameters](#path-parameters)
     - [Path matching order](#path-matching-order)
         - [Catch all route](#catch-all-route)
@@ -128,53 +129,6 @@ Creates a new `Server` object where:
           `connection.settings.app` which is used to store configuration values and
           `connection.app` which is meant for storing run-time state.
 
-        - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows
-          browsers to make cross-origin API calls. CORS is required by web applications running
-          inside a browser which are loaded from a different domain than the API server. CORS
-          headers are disabled by default. To enable, set `cors` to `true`, or to an object with
-          the following options:
-            - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin').
-              The array can contain any combination of fully qualified origins along with origin
-              strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults
-              to any origin `['*']`.
-            - `matchOrigin` - if `true`, matches the value of the incoming 'Origin' header to the
-              list of `origin` values ('*' matches anything) and if a match is found, uses that as
-              the value of the 'Access-Control-Allow-Origin' response header. When false, the
-              `origin` config is returned as-is. Defaults to `true`.
-            - `isOriginExposed` - if `false`, prevents the connection from returning the full list
-              of non-wildcard `origin` values if the incoming origin header does not match any of
-              the values. Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
-            - `maxAge` - number of seconds the browser should cache the CORS response
-              ('Access-Control-Max-Age'). The greater the value, the longer it will take before the
-              browser checks for changes in policy. Defaults to `86400` (one day).
-            - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers').
-              Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
-            - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to
-              keep the default headers in place.
-            - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods').
-              Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
-            - `additionalMethods` - a strings array of additional methods to `methods`. Use this to
-              keep the default methods in place.
-            - `exposedHeaders` - a strings array of exposed headers
-              ('Access-Control-Expose-Headers'). Defaults to
-              `['WWW-Authenticate', 'Server-Authorization']`.
-            - `additionalExposedHeaders` - a strings array of additional headers to
-              `exposedHeaders`. Use this to keep the default headers in place.
-            - `credentials` - if `true`, allows user credentials to be sent
-              ('Access-Control-Allow-Credentials'). Defaults to `false`.
-            - `override` - if `false`, preserves existing CORS headers set manually before the
-              response is sent. Defaults to `true`.
-
-        - <a name="connection.config.files"></a>`files` - defines the behavior for serving static
-          resources using the built-in route handlers for files and directories:
-            - `relativeTo` - determines the folder relative paths are resolved against when using
-              the file and directory handlers.
-
-        - `json` - optional arguments passed to `JSON.stringify()` when converting an object or
-          error response to a string payload. Supports the following:
-            - `replacer` - the replacer function or array. Defaults to no action.
-            - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
-
         - `load` - connection load limits configuration where:
             - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected
               with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
@@ -183,13 +137,6 @@ Creates a new `Server` object where:
             - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which
               incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults
               to `0` (no limit).
-
-        - <a name="connection.config.payload"></a>`payload` - controls how incoming payloads
-          (request body) are processed:
-            - `maxBytes` - limits the size of incoming payloads to the specified byte count.
-              Allowing very large payloads may cause the server to run out of memory. Defaults to
-              `1048576` (1MB).
-            - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
 
         - `plugins` - plugin-specific configuration which can later be accessed via
           `connection.settings.plugins`. Provides a place to store and pass connection-specific
@@ -205,70 +152,12 @@ Creates a new `Server` object where:
             - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to
               `true`.
 
-        - `security` - sets common security headers. All headers are disabled by default. To enable
-          set `security` to `true` or to an object with the following options:
-            - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header
-              will be set to `max-age=15768000`, if specified as a number the maxAge parameter will
-              be set to that number. Defaults to `true`. You may also specify an object with the
-              following fields:
-                - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
-                - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains`
-                  flag to the header.
-            - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will
-              be set to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To
-              use the 'allow-from' rule, you must set this to an object with the following fields:
-                - `rule` - either 'deny', 'sameorigin', or 'allow-from'
-                - `source` - when `rule` is 'allow-from' this is used to form the rest of the
-                  header, otherwise this field is ignored. If `rule` is 'allow-from' but `source`
-                  is unset, the rule will be automatically changed to 'sameorigin'.
-            - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to
-              `true` which sets the header to equal '1; mode=block'. NOTE: This setting can create
-              a security vulnerability in versions of IE below 8, as well as unpatched versions of
-              IE8. See [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
-              and [here](https://technet.microsoft.com/library/security/ms10-002) for more
-              information. If you actively support old versions of IE, it may be wise to explicitly
-              set this flag to `false`.
-            - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing
-              downloads from executing in your context. Defaults to `true` setting the header to
-              'noopen'.
-            - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to
-              `true` setting the header to its only and default option, 'nosniff'.
+        - `routes` - sets the default configuration for every route a
+          [route options](#route-options) object.
 
-        - <a name="connection.config.state"></a>`state` - HTTP state management (cookies) allows
-          the server to store information on the client which is sent back to the server with every
-          request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports
-          the following options:
-            - `cookies` - cookie parsing and formating options:
-                - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
-                  `request.state` object. Defaults to `true`.
-                - `failAction` - determines how to handle cookie parsing errors. Allowed values
-                   are:
-                    - `'error'` - return a Bad Request (400) error response. This is the default
-                      value.
-                    - `'log'` - report the error but continue processing the request.
-                    - `'ignore'` - take no action.
-                - `clearInvalid` - if `true`, automatically instruct the client to remove invalid
-                  cookies. Defaults to `false`.
-                - `strictHeader` - if `false`, allows any cookie value including values in
-                  violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
-
-        - `timeout` - define timeouts for processing durations:
-            - `server` - response timeout in milliseconds. Sets the maximum time allowed for the
-              server to respond to an incoming client request before giving up and responding with
-              a Service Unavailable (503) error response. Disabled by default (`false`).
-            - `client` - request timeout in milliseconds. Sets the maximum time allowed for the
-              client to transmit the request payload (body) before giving up and responding with a
-              Request Timeout (408) error response. Set to `false` to disable. Can be customized on
-              a per-route basis using the route `payload.timeout` configuration. Defaults to
-              `10000` (10 seconds).
-            - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this
-              option to override this behavior. Defaults to `undefined` which leaves the node
-              default unchanged. Set to `false` to disable socket timeouts.
-
-        - `validation` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
-          global options such as `stripUnknown` or `abortEarly` (the complete list is available
-          [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to
-          no options.
+        - `state` - sets the default configuration for every state (cookie) set explicitly via
+          [`server.state()`](#serverstatename-options) or implicitly (without definition) using
+          the [state configuration](#serverstatename-options) object.
 
     - `debug` - determines which errors are sent to the console:
         - `request` - a string array of request log tags to be displayed via `console.error()` when
@@ -992,7 +881,7 @@ Registers a new handler type to be used in routes where:
   types (`directory`, `file`, `proxy`, and `view`) or any previously registered type.
 - `method` - the function used to generate the route handler using the signature
   `function(route, options)` where:
-    - `route` - the [route configuration](#route-configuration) object.
+    - `route` - the [route options](#route-options) object.
     - `options` - the configuration object provided in the handler config.
 
 ```js
@@ -1137,7 +1026,7 @@ server.log(['test', 'error'], 'Test event');
 ### `server.lookup(id)`
 
 When the server contains exactly one connection, looks up a route configuration where:
-- `id` - the route identifier as set in the [route configuration](#route-configuration).
+- `id` - the route identifier as set in the [route options](#route-options).
 
 ```js
 var server = new Hapi.Server();
@@ -1465,10 +1354,14 @@ across multiple requests. Registers a cookie definitions where:
     - `password` - password used for `'iron'` encoding.
     - `iron` - options for `'iron'` encoding. Defaults to
        [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
-    - `failAction` - overrides the default server `state.cookies.failAction` setting.
-    - `clearInvalid` - overrides the default server `state.cookies.clearInvalid` setting.
-    - `strictHeader` - overrides the default server `state.cookies.strictHeader` setting.
+    - `ignoreErrors` - if `false`, errors are ignored and treated as missing cookies.
+    - `clearInvalid` - if `true`, automatically instruct the client to remove invalid
+      cookies. Defaults to `false`.
+    - `strictHeader` - if `false`, allows any cookie value including values in
+      violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
     - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
+
+State defaults can be modified via the server `connections.routes.state` configuration option.
 
 ```js
 var Hapi = require('hapi');
@@ -1499,12 +1392,12 @@ var handler = function (request, reply) {
 };
 ```
 
-Registered cookies are automatically parsed when received. Parsing rules depends on the connection
-[`state.cookies`](#connection.config.state) configuration. If an incoming registered cookie fails
-parsing, it is not included in `request.state`, regardless of the `state.cookies.failAction`
-setting. When `state.cookies.failAction` is set to `'log'` and an invalid cookie value is received,
-the server will emit a `'request-internal'` event. To capture these errors subscribe to the
-`'request-internal'` events and filter on `'error'` and `'state'` tags:
+Registered cookies are automatically parsed when received. Parsing rules depends on the route
+[`state.parse`](#route.config.state) configuration. If an incoming registered cookie fails parsing,
+it is not included in `request.state`, regardless of the `state.failAction` setting. When
+`state.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit
+a `'request-internal'` event. To capture these errors subscribe to the `'request-internal'` events
+and filter on `'error'` and `'state'` tags:
 
 ```js
 var Hapi = require('hapi');
@@ -1944,229 +1837,8 @@ The route configuration object supports the following options:
   an object with a single key using the name of a registered handler type and value with the
   options passed to the registered handler.
 
-- `config` - additional route configuration (the `config` object allows splitting the basic route
-  information from its implementation and allowing it to reside in multiple modules):
+- `config` - additional [route options](#route-options).
 
-    - `handler` - an alternative location for the route `handler` option.
-
-    - `bind` - an object passed back to the provided `handler` (via `this`) when called.
-
-    - `app` - application-specific configuration. Should not be used by [plugins](#plugins) which
-      should use `plugins[name]` instead.
-
-    - `id` - an optional unique indentifier used to look up the route using
-      [`server.lookup()`](#serverlookupid).
-
-    - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
-      name and the value is the plugin configuration.
-
-    - `pre` - an array with [route prerequisites](#route-prerequisites) methods which are executed
-      in serial or in parallel before the handler is called.
-
-    - `validate` - request input validation rules for various request components. When using a
-      [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (e.g.
-      `headers`, `query`, and `params` when validating `payload`) are made available under the
-      validation context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is
-      performed in order (i.e. headers, params, query, payload) and if type casting is used
-      (converting a string to number), the value of inputs not yet validated will reflect the raw,
-      unvalidated and unmodified values. The `validate` object supports:
-
-        - `headers` - validation rules for incoming request headers. Values allowed:
-            - `true` - any headers allowed (no validation performed).  This is the default.
-            - `false` - no headers allowed (this will cause all valid HTTP requests to fail).
-            - a [Joi](http://github.com/hapijs/joi) validation object.
-            - a validation function using the signature `function(value, options, next)` where:
-                - `value` - the object containing the request headers.
-                - `options` - the server validation options.
-                - `next(err, value)` - the callback function called when validation is completed.
-
-        - `params` - validation rules for incoming request path parameters, after matching the path
-          against the route and extracting any parameters then stored in `request.params`. Values
-          allowed:
-            - `true` - any path parameters allowed (no validation performed).  This is the default.
-            - `false` - no path variables allowed.
-            - a [Joi](http://github.com/hapijs/joi) validation object.
-            - a validation function using the signature `function(value, options, next)` where:
-                - `value` - the object containing the path parameters.
-                - `options` - the server validation options.
-                - `next(err, value)` - the callback function called when validation is completed.
-
-        - `query` - validation rules for an incoming request URI query component (the key-value
-          part of the URI between '?' and '#'). The query is parsed into its individual key-value
-          pairs (using the [**qs** module](https://github.com/hapijs/qs)) and stored in
-          `request.query` prior to validation. Values allowed:
-            - `true` - any query parameters allowed (no validation performed). This is the default.
-            - `false` - no query parameters allowed.
-            - a [Joi](http://github.com/hapijs/joi) validation object.
-            - a validation function using the signature `function(value, options, next)` where:
-                - `value` - the object containing the query parameters.
-                - `options` - the server validation options.
-                - `next(err, value)` - the callback function called when validation is completed.
-
-        - `payload` - validation rules for an incoming request payload (request body). Values
-          allowed:
-            - `true` - any payload allowed (no validation performed). This is the default.
-            - `false` - no payload allowed.
-            - a [Joi](http://github.com/hapijs/joi) validation object.
-            - a validation function using the signature `function(value, options, next)` where:
-                - `value` - the object containing the payload object.
-                - `options` - the server validation options.
-                - `next(err, value)` - the callback function called when validation is completed.
-
-        - `errorFields` - an optional object with error fields copied into every validation error
-          response.
-        - `failAction` - determines how to handle invalid requests. Allowed values are:
-            - `'error'` - return a Bad Request (400) error response. This is the default value.
-            - `'log'` - log the error but continue processing the request.
-            - `'ignore'` - take no action.
-            - a custom error handler function with the signature
-              'function(request, reply, source, error)` where:
-                - `request` - the [request object](#request-object).
-                - `reply` - the continuation [reply interface](#reply-interface).
-                - `source` - the source of the invalid field (e.g. `'path'`, `'query'`,
-                  `'payload'`).
-                - `error` - the error object prepared for the client response (including the
-                  validation function error under `error.data`).
-
-    - `payload` - determines how the request payload is processed:
-        - `output` - the type of payload representation requested. The value must be one of:
-            - `'data'` - the incoming payload is read fully into memory. If `parse` is `true`, the
-              payload is parsed (JSON, form-decoded, multipart) based on the 'Content-Type' header.
-              If `parse` is false, the raw `Buffer` is returned. This is the default value except
-              when a proxy handler is used.
-            - `'stream'` - the incoming payload is made available via a `Stream.Readable`
-              interface. If the payload is 'multipart/form-data' and `parse` is `true`, fields
-              values are presented as text while files are provided as streams. File streams from a
-              'multipart/form-data' upload will also have a property `hapi` containing `filename`
-              and `headers` properties.
-            - `'file'` - the incoming payload in written to temporary file in the directory
-              specified by the server's `payload.uploads` settings. If the payload is
-              'multipart/form-data' and `parse` is `true`, fields values are presented as text
-              while files are saved. Note that it is the sole responsibility of the application to
-              clean up the files generated by the framework. This can be done by keeping track
-              of which files are used (e.g. using the `request.app` object), and listening to
-              the server `'response'` event to perform any needed cleaup.
-        - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is
-          processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate
-          'Content-Encoding' is specified on the received request. If parsing is enabled and the
-          'Content-Type' is known (for the whole payload as well as parts), the payload is
-          converted into an object when possible. If the format is unknown, a Bad Request (400)
-          error response is sent. Defaults to `true`, except when a proxy handler is used. The
-          supported mime types are:
-            - 'application/json'
-            - 'application/x-www-form-urlencoded'
-            - 'application/octet-stream'
-            - 'text/*'
-            - 'multipart/form-data'
-        - `allow` - a string or an array of strings with the allowed mime types for the endpoint.
-          Defaults to any of the supported mime types listed above. Note that allowing other mime
-          types not listed will not enable them to be parsed, and that if parsing mode is
-          `'parse'`, the request will result in an error response.
-        - `override` - a mime type string overriding the 'Content-Type' header value received.
-          Defaults to no override.
-        - `maxBytes` - overrides the connection [default value](#connection.config.payload) for
-          this route.
-        - `timeout` - payload processing timeout in milliseconds. Sets the maximum time allowed for
-          the client to transmit the request payload (body) before giving up and responding with a
-          Request Timeout (408) error response. Set to `false` to disable. Defaults to the server
-          `timeout.client` configuration.
-        - `uploads` - overrides the connection [default value](#connection.config.payload) for this
-          route.
-        - `failAction` - determines how to handle payload parsing errors. Allowed values are:
-            - `'error'` - return a Bad Request (400) error response. This is the default value.
-            - `'log'` - report the error but continue processing the request.
-            - `'ignore'` - take no action and continue processing the request.
-
-    - `response` - validation rules for the outgoing response payload (response body). Can only
-      validate object response:
-        - `schema` - the default response object validation rules (for all non-error responses)
-          expressed as one of:
-            - `true` - any payload allowed (no validation performed). This is the default.
-            - `false` - no payload allowed.
-            - a [Joi](http://github.com/hapijs/joi) validation object.
-            - a validation function using the signature `function(value, options, next)` where:
-                - `value` - the object containing the response object.
-                - `options` - the server validation options.
-                - `next(err)` - the callback function called when validation is completed.
-        - `status` - HTTP status-code-specific validation rules. The `status` key is set to an
-          object where each key is a 3 digit HTTP status code and the value has the same
-          definition as `schema`. If a response status code is not present in the `status` object,
-          the `schema` definition is used, expect for errors which are not validated by default.
-        - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all
-          validation. Defaults to `100` (all responses).
-        - `failAction` - defines what to do when a response fails validation. Options are:
-            - `error` - return an Internal Server Error (500) error response. This is the default
-              value.
-            - `log` - log the error but send the response.
-        - `modify` - if `true`, applies the validation rule changes to the response. Defaults to
-          `false`.
-
-    - `cache` - if the route method is 'GET', the route can be configured to include caching
-      directives in the response using the following options:
-        - `privacy` - determines the privacy flag included in client-side caching using the
-          'Cache-Control' header. Values are:
-            - `'default'` - no privacy flag. This is the default setting.
-            - `'public'` - mark the response as suitable for public caching.
-            - `'private'` - mark the response as suitable only for private caching.
-        - `expiresIn` - relative expiration expressed in the number of milliseconds since the
-          item was saved in the cache. Cannot be used together with `expiresAt`.
-        - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which
-          point all cache records for the route expire. Cannot be used together with `expiresIn`.
-
-    - <a name="route.config.auth"></a>`auth` - authentication configuration. Value can be:
-        - `false` to disable authentication if a default strategy is set.
-        - a string with the name of an authentication strategy registered with
-          [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
-        - an object with:
-            - `mode` - the authentication mode. Defaults to `'required'` if a server authentication
-              strategy is configured, otherwise defaults to no authentication. Available values:
-                - `'required'` - authentication is required.
-                - `'optional'` - authentication is optional (must be valid if present).
-                - `'try'` - same as `'optional'` but allows for invalid authentication.
-            - `strategies` - a string array of strategy names in order they should be attempted. If
-              only one strategy is used, `strategy` can be used instead with the single string
-              value. Defaults to the default authentication strategy which is available only when a
-              single strategy is configured.
-            - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is
-              authenticated after it is processed. Requires a strategy with payload authentication
-              support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be set to a value
-              other than `'required'` when the scheme sets the `options.payload` to `true`.
-              Available values:
-                - `false` - no payload authentication. This is the default value.
-                - `'required'` - payload authentication required. This is the default value when
-                  the scheme sets `options.payload` to `true`.
-                - `'optional'` - payload authentication performed only when the client includes
-                  payload authentication information (e.g. `hash` attribute in Hawk).
-            - `scope` - the application scope required to access the route. Value can be a scope
-              string or an array of scope strings. The authenticated credentials object `scope`
-              property must contain at least one of the scopes defined to access the route.
-              Defaults to no scope required.
-            - `entity` - the required authenticated entity type. If set, must match the `entity`
-              value of the authentication credentials. Available values:
-                - `any` - the authentication can be on behalf of a user or application. This is the
-                  default value.
-                - `user` - the authentication must be on behalf of a user.
-                - `app` - the authentication must be on behalf of an application.
-
-    - `cors` - when `false`, the server's CORS headers are disabled for the route. Defaults to
-      using the server's settings.
-
-    - `jsonp` - enables JSONP support by setting the value to the query parameter name containing
-      the function name used to wrap the response payload. For example, if the value is
-      `'callback'`, a request comes in with `'callback=me'`, and the JSON response is
-      `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Does not work with stream
-      responses.
-
-    - `files` - overrides the server settings controlling the behavior for serving static resources
-      using the built-in route handlers for files and directories:
-        - `relativeTo` - determines the folder relative paths are resolved against when using the
-          file and directory handlers.
-
-    - `description` - route description used for generating documentation (string).
-    - `notes` - route notes used for generating documentation (string or array of strings).
-    - `tags` - route tags used for generating documentation (array of strings).
-
-    
 Note that the `options` object is deeply cloned (with the exception of `bind` which is shallowly
 copied) and cannot contain any values that are unsafe to perform deep copy on.
 
@@ -2196,6 +1868,327 @@ var user = {
 
 server.route({ method: 'GET', path: '/user', config: user });
 ```
+
+#### Route options
+
+Each route can be customize to change the default behavior of the request lifecycle using the
+following options:
+- `app` - application-specific configuration. Should not be used by [plugins](#plugins) which
+  should use `plugins[name]` instead.
+
+- <a name="route.config.auth"></a>`auth` - authentication configuration. Value can be:
+    - `false` to disable authentication if a default strategy is set.
+    - a string with the name of an authentication strategy registered with
+      [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
+    - an object with:
+        - `mode` - the authentication mode. Defaults to `'required'` if a server authentication
+          strategy is configured, otherwise defaults to no authentication. Available values:
+            - `'required'` - authentication is required.
+            - `'optional'` - authentication is optional (must be valid if present).
+            - `'try'` - same as `'optional'` but allows for invalid authentication.
+        - `strategies` - a string array of strategy names in order they should be attempted. If
+          only one strategy is used, `strategy` can be used instead with the single string
+          value. Defaults to the default authentication strategy which is available only when a
+          single strategy is configured.
+        - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is
+          authenticated after it is processed. Requires a strategy with payload authentication
+          support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be set to a value
+          other than `'required'` when the scheme sets the `options.payload` to `true`.
+          Available values:
+            - `false` - no payload authentication. This is the default value.
+            - `'required'` - payload authentication required. This is the default value when
+              the scheme sets `options.payload` to `true`.
+            - `'optional'` - payload authentication performed only when the client includes
+              payload authentication information (e.g. `hash` attribute in Hawk).
+        - `scope` - the application scope required to access the route. Value can be a scope
+          string or an array of scope strings. The authenticated credentials object `scope`
+          property must contain at least one of the scopes defined to access the route.
+          Defaults to no scope required.
+        - `entity` - the required authenticated entity type. If set, must match the `entity`
+          value of the authentication credentials. Available values:
+            - `any` - the authentication can be on behalf of a user or application. This is the
+              default value.
+            - `user` - the authentication must be on behalf of a user.
+            - `app` - the authentication must be on behalf of an application.
+
+- `bind` - an object passed back to the provided `handler` (via `this`) when called.
+
+- `cache` - if the route method is 'GET', the route can be configured to include caching
+  directives in the response using the following options:
+    - `privacy` - determines the privacy flag included in client-side caching using the
+      'Cache-Control' header. Values are:
+        - `'default'` - no privacy flag. This is the default setting.
+        - `'public'` - mark the response as suitable for public caching.
+        - `'private'` - mark the response as suitable only for private caching.
+    - `expiresIn` - relative expiration expressed in the number of milliseconds since the
+      item was saved in the cache. Cannot be used together with `expiresAt`.
+    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which
+      point all cache records for the route expire. Cannot be used together with `expiresIn`.
+
+- `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows
+  browsers to make cross-origin API calls. CORS is required by web applications running
+  inside a browser which are loaded from a different domain than the API server. CORS
+  headers are disabled by default. To enable, set `cors` to `true`, or to an object with
+  the following options:
+    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin').
+      The array can contain any combination of fully qualified origins along with origin
+      strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults
+      to any origin `['*']`.
+    - `matchOrigin` - if `true`, matches the value of the incoming 'Origin' header to the
+      list of `origin` values ('*' matches anything) and if a match is found, uses that as
+      the value of the 'Access-Control-Allow-Origin' response header. When false, the
+      `origin` config is returned as-is. Defaults to `true`.
+    - `isOriginExposed` - if `false`, prevents the connection from returning the full list
+      of non-wildcard `origin` values if the incoming origin header does not match any of
+      the values. Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
+    - `maxAge` - number of seconds the browser should cache the CORS response
+      ('Access-Control-Max-Age'). The greater the value, the longer it will take before the
+      browser checks for changes in policy. Defaults to `86400` (one day).
+    - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers').
+      Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
+    - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to
+      keep the default headers in place.
+    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods').
+      Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
+    - `additionalMethods` - a strings array of additional methods to `methods`. Use this to
+      keep the default methods in place.
+    - `exposedHeaders` - a strings array of exposed headers
+      ('Access-Control-Expose-Headers'). Defaults to
+      `['WWW-Authenticate', 'Server-Authorization']`.
+    - `additionalExposedHeaders` - a strings array of additional headers to
+      `exposedHeaders`. Use this to keep the default headers in place.
+    - `credentials` - if `true`, allows user credentials to be sent
+      ('Access-Control-Allow-Credentials'). Defaults to `false`.
+    - `override` - if `false`, preserves existing CORS headers set manually before the
+      response is sent. Defaults to `true`.
+
+- <a name="route.config.files"></a>`files` - defines the behavior for serving static
+  resources using the built-in route handlers for files and directories:
+    - `relativeTo` - determines the folder relative paths are resolved against when using
+      the file and directory handlers.
+
+- `handler` - an alternative location for the route `handler` option.
+
+- `id` - an optional unique indentifier used to look up the route using
+  [`server.lookup()`](#serverlookupid).
+
+- `json` - optional arguments passed to `JSON.stringify()` when converting an object or
+  error response to a string payload. Supports the following:
+    - `replacer` - the replacer function or array. Defaults to no action.
+    - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
+    - `suffix` - string suffix added after conversion to JSON string. Defaults to no suffix.
+
+- `jsonp` - enables JSONP support by setting the value to the query parameter name containing
+  the function name used to wrap the response payload. For example, if the value is
+  `'callback'`, a request comes in with `'callback=me'`, and the JSON response is
+  `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Does not work with stream
+  responses.
+
+- `payload` - determines how the request payload is processed:
+    - `output` - the type of payload representation requested. The value must be one of:
+        - `'data'` - the incoming payload is read fully into memory. If `parse` is `true`, the
+          payload is parsed (JSON, form-decoded, multipart) based on the 'Content-Type' header.
+          If `parse` is false, the raw `Buffer` is returned. This is the default value except
+          when a proxy handler is used.
+        - `'stream'` - the incoming payload is made available via a `Stream.Readable`
+          interface. If the payload is 'multipart/form-data' and `parse` is `true`, fields
+          values are presented as text while files are provided as streams. File streams from a
+          'multipart/form-data' upload will also have a property `hapi` containing `filename`
+          and `headers` properties.
+        - `'file'` - the incoming payload in written to temporary file in the directory
+          specified by the server's `payload.uploads` settings. If the payload is
+          'multipart/form-data' and `parse` is `true`, fields values are presented as text
+          while files are saved. Note that it is the sole responsibility of the application to
+          clean up the files generated by the framework. This can be done by keeping track
+          of which files are used (e.g. using the `request.app` object), and listening to
+          the server `'response'` event to perform any needed cleaup.
+    - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is
+      processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate
+      'Content-Encoding' is specified on the received request. If parsing is enabled and the
+      'Content-Type' is known (for the whole payload as well as parts), the payload is
+      converted into an object when possible. If the format is unknown, a Bad Request (400)
+      error response is sent. Defaults to `true`, except when a proxy handler is used. The
+      supported mime types are:
+        - 'application/json'
+        - 'application/x-www-form-urlencoded'
+        - 'application/octet-stream'
+        - 'text/*'
+        - 'multipart/form-data'
+    - `allow` - a string or an array of strings with the allowed mime types for the endpoint.
+      Defaults to any of the supported mime types listed above. Note that allowing other mime
+      types not listed will not enable them to be parsed, and that if parsing mode is
+      `'parse'`, the request will result in an error response.
+    - `override` - a mime type string overriding the 'Content-Type' header value received.
+      Defaults to no override.
+    - `maxBytes` - limits the size of incoming payloads to the specified byte count.
+      Allowing very large payloads may cause the server to run out of memory. Defaults to
+      `1048576` (1MB).
+    - `client` - payload reception timeout in milliseconds. Sets the maximum time allowed for the
+      client to transmit the request payload (body) before giving up and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
+    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
+    - `failAction` - determines how to handle payload parsing errors. Allowed values are:
+        - `'error'` - return a Bad Request (400) error response. This is the default value.
+        - `'log'` - report the error but continue processing the request.
+        - `'ignore'` - take no action and continue processing the request.
+
+- `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
+  name and the value is the plugin configuration.
+
+- `pre` - an array with [route prerequisites](#route-prerequisites) methods which are executed
+  in serial or in parallel before the handler is called.
+
+- `response` - validation rules for the outgoing response payload (response body). Can only
+  validate object response:
+    - `schema` - the default response object validation rules (for all non-error responses)
+      expressed as one of:
+        - `true` - any payload allowed (no validation performed). This is the default.
+        - `false` - no payload allowed.
+        - a [Joi](http://github.com/hapijs/joi) validation object.
+        - a validation function using the signature `function(value, options, next)` where:
+            - `value` - the object containing the response object.
+            - `options` - the server validation options.
+            - `next(err)` - the callback function called when validation is completed.
+    - `status` - HTTP status-code-specific validation rules. The `status` key is set to an
+      object where each key is a 3 digit HTTP status code and the value has the same
+      definition as `schema`. If a response status code is not present in the `status` object,
+      the `schema` definition is used, expect for errors which are not validated by default.
+    - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all
+      validation. Defaults to `100` (all responses).
+    - `failAction` - defines what to do when a response fails validation. Options are:
+        - `error` - return an Internal Server Error (500) error response. This is the default
+          value.
+        - `log` - log the error but send the response.
+    - `modify` - if `true`, applies the validation rule changes to the response. Defaults to
+      `false`.
+    - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
+      global options such as `stripUnknown` or `abortEarly` (the complete list is available
+      [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to
+      no options.
+
+- `security` - sets common security headers (disabled by default). To enable set `security` to
+  `true` or to an object with the following options:
+    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header
+      will be set to `max-age=15768000`, if specified as a number the maxAge parameter will
+      be set to that number. Defaults to `true`. You may also specify an object with the
+      following fields:
+        - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
+        - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains`
+          flag to the header.
+    - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will
+      be set to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To
+      use the 'allow-from' rule, you must set this to an object with the following fields:
+        - `rule` - either 'deny', 'sameorigin', or 'allow-from'
+        - `source` - when `rule` is 'allow-from' this is used to form the rest of the
+          header, otherwise this field is ignored. If `rule` is 'allow-from' but `source`
+          is unset, the rule will be automatically changed to 'sameorigin'.
+    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to
+      `true` which sets the header to equal '1; mode=block'. NOTE: This setting can create
+      a security vulnerability in versions of IE below 8, as well as unpatched versions of
+      IE8. See [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
+      and [here](https://technet.microsoft.com/library/security/ms10-002) for more
+      information. If you actively support old versions of IE, it may be wise to explicitly
+      set this flag to `false`.
+    - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing
+      downloads from executing in your context. Defaults to `true` setting the header to
+      'noopen'.
+    - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to
+      `true` setting the header to its only and default option, 'nosniff'.
+
+- <a name="route.config.state"></a>`state` - HTTP state management (cookies) allows
+  the server to store information on the client which is sent back to the server with every
+  request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports
+  the following options:
+    - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
+      `request.state` object. Defaults to `true`.
+    - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
+        - `'error'` - return a Bad Request (400) error response. This is the default value.
+        - `'log'` - report the error but continue processing the request.
+        - `'ignore'` - take no action.
+
+- `validate` - request input validation rules for various request components. When using a
+  [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (e.g.
+  `headers`, `query`, and `params` when validating `payload`) are made available under the
+  validation context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is
+  performed in order (i.e. headers, params, query, payload) and if type casting is used
+  (converting a string to number), the value of inputs not yet validated will reflect the raw,
+  unvalidated and unmodified values. The `validate` object supports:
+
+    - `headers` - validation rules for incoming request headers. Values allowed:
+        - `true` - any headers allowed (no validation performed).  This is the default.
+        - `false` - no headers allowed (this will cause all valid HTTP requests to fail).
+        - a [Joi](http://github.com/hapijs/joi) validation object.
+        - a validation function using the signature `function(value, options, next)` where:
+            - `value` - the object containing the request headers.
+            - `options` - the server validation options.
+            - `next(err, value)` - the callback function called when validation is completed.
+
+    - `params` - validation rules for incoming request path parameters, after matching the path
+      against the route and extracting any parameters then stored in `request.params`. Values
+      allowed:
+        - `true` - any path parameters allowed (no validation performed).  This is the default.
+        - `false` - no path variables allowed.
+        - a [Joi](http://github.com/hapijs/joi) validation object.
+        - a validation function using the signature `function(value, options, next)` where:
+            - `value` - the object containing the path parameters.
+            - `options` - the server validation options.
+            - `next(err, value)` - the callback function called when validation is completed.
+
+    - `query` - validation rules for an incoming request URI query component (the key-value
+      part of the URI between '?' and '#'). The query is parsed into its individual key-value
+      pairs (using the [**qs** module](https://github.com/hapijs/qs)) and stored in
+      `request.query` prior to validation. Values allowed:
+        - `true` - any query parameters allowed (no validation performed). This is the default.
+        - `false` - no query parameters allowed.
+        - a [Joi](http://github.com/hapijs/joi) validation object.
+        - a validation function using the signature `function(value, options, next)` where:
+            - `value` - the object containing the query parameters.
+            - `options` - the server validation options.
+            - `next(err, value)` - the callback function called when validation is completed.
+
+    - `payload` - validation rules for an incoming request payload (request body). Values
+      allowed:
+        - `true` - any payload allowed (no validation performed). This is the default.
+        - `false` - no payload allowed.
+        - a [Joi](http://github.com/hapijs/joi) validation object.
+        - a validation function using the signature `function(value, options, next)` where:
+            - `value` - the object containing the payload object.
+            - `options` - the server validation options.
+            - `next(err, value)` - the callback function called when validation is completed.
+
+    - `errorFields` - an optional object with error fields copied into every validation error
+      response.
+
+    - `failAction` - determines how to handle invalid requests. Allowed values are:
+        - `'error'` - return a Bad Request (400) error response. This is the default value.
+        - `'log'` - log the error but continue processing the request.
+        - `'ignore'` - take no action.
+        - a custom error handler function with the signature
+          'function(request, reply, source, error)` where:
+            - `request` - the [request object](#request-object).
+            - `reply` - the continuation [reply interface](#reply-interface).
+            - `source` - the source of the invalid field (e.g. `'path'`, `'query'`,
+              `'payload'`).
+            - `error` - the error object prepared for the client response (including the
+              validation function error under `error.data`).
+
+    - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
+      global options such as `stripUnknown` or `abortEarly` (the complete list is available
+      [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to
+      no options.
+
+- `timeout` - define timeouts for processing durations:
+    - `server` - response timeout in milliseconds. Sets the maximum time allowed for the
+      server to respond to an incoming client request before giving up and responding with
+      a Service Unavailable (503) error response. Disabled by default (`false`).
+    - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this
+      option to override this behavior. Defaults to `undefined` which leaves the node
+      default unchanged. Set to `false` to disable socket timeouts.
+
+The following documentation options are also available when adding new routes (they are not
+available when setting defaults):
+- `description` - route description used for generating documentation (string).
+- `notes` - route notes used for generating documentation (string or array of strings).
+- `tags` - route tags used for generating documentation (array of strings).
 
 ### Path parameters
 
@@ -2312,7 +2305,7 @@ config to an object containing one of these keys:
 
 - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
     - a relative or absolute file path string (relative paths are resolved based on the
-      connection [`files`](#connection.config.files) configuration).
+      route [`files`](#route.config.files) configuration).
     - a function with the signature `function(request)` which returns the relative or absolute
       file path.
     - an object with the following options:
@@ -2337,7 +2330,7 @@ config to an object containing one of these keys:
   ignored for the purpose of selecting the file system resource. The directory handler is an
   object with the following options:
     - `path` - (required) the directory root path (relative paths are resolved based on the
-      connection [`files`](#connection.config.files) configuration). Value can be:
+      route [`files`](#route.config.files) configuration). Value can be:
         - a single path string used as the prefix for any resources requested by appending the
           request path parameter to the provided string.
         - an array of path strings. Each path will be attempted in order until a match is
@@ -2578,7 +2571,7 @@ Each request object includes the following properties:
   objects is not recommended.**
     - `req` - the node.js request object.
     - `res` - the node.js response object.
-- `route` - the [route configuration](#route-configuration) object after defaults are applied.
+- `route` - the [route options](#route-options) object after defaults are applied.
 - `server` - the server object.
 - `session` - Special key reserved for [plugins](#plugins) implementing session support. Plugins
   utilizing this key must check for `null` value to ensure there is no conflict with another
