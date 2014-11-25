@@ -825,7 +825,7 @@ Adds an incoming server connection where:
 - `autoListen` - indicates that the `connection.listener` will be started manually outside the
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
 - `cache` - caching headers configuration:
-    - `statues` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
+    - `statuses` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
       a valid caching directive. Defaults to `[200]`.
 - `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
   specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
@@ -2310,144 +2310,144 @@ var handler = function (request, reply) {
 The framework comes with a few built-in handler types available by setting the route `handler`
 config to an object containing one of these keys:
 
-    - `file` - generates a static file endpoint for serving a single file. `file` can be set to:
-        - a relative or absolute file path string (relative paths are resolved based on the
-          connection [`files`](#connection.config.files) configuration).
-        - a function with the signature `function(request)` which returns the relative or absolute
-          file path.
-        - an object with the following options:
-            - `path` - a path string or function as described above.
-            - `filename` - an optional filename to specify if sending a 'Content-Disposition'
-              header, defaults to the basename of `path`
-            - `mode` - specifies whether to include the 'Content-Disposition' header with the
-              response. Available values:
-                - `false` - header is not included. This is the default value.
-                - `'attachment'`
-                - `'inline'`
-            - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix
-              for a precompressed version of the file to serve if the request supports content
-              encoding. Defaults to `false`.
+- `file` - generates a static file endpoint for serving a single file. `file` can be set to:
+    - a relative or absolute file path string (relative paths are resolved based on the
+      connection [`files`](#connection.config.files) configuration).
+    - a function with the signature `function(request)` which returns the relative or absolute
+      file path.
+    - an object with the following options:
+        - `path` - a path string or function as described above.
+        - `filename` - an optional filename to specify if sending a 'Content-Disposition'
+          header, defaults to the basename of `path`
+        - `mode` - specifies whether to include the 'Content-Disposition' header with the
+          response. Available values:
+            - `false` - header is not included. This is the default value.
+            - `'attachment'`
+            - `'inline'`
+        - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix
+          for a precompressed version of the file to serve if the request supports content
+          encoding. Defaults to `false`.
 
-    - `directory` - generates a directory endpoint for serving static content from a directory.
-      Routes using the directory handler must include a path parameter at the end of the path
-      string (e.g. `/path/to/somewhere/{param}` where the parameter name does not matter). The
-      path parameter can use any of the parameter options (e.g. `{param}` for one level files
-      only, `{param?}` for one level files or the directory root, `{param*}` for any level, or
-      `{param*3}` for a specific level). If additional path parameters are present, they are
-      ignored for the purpose of selecting the file system resource. The directory handler is an
-      object with the following options:
-        - `path` - (required) the directory root path (relative paths are resolved based on the
-          connection [`files`](#connection.config.files) configuration). Value can be:
-            - a single path string used as the prefix for any resources requested by appending the
-              request path parameter to the provided string.
-            - an array of path strings. Each path will be attempted in order until a match is
-              found (by following the same process as the single path string).
-            - a function with the signature `function(request)` which returns the path string or
-              an array of path strings. If the function returns an error, the error is passed back
-              to the client in the response.
-        - `index` - optional boolean, determines if 'index.html' will be served if found in the
-          folder when requesting a directory. Defaults to `true`.
-        - `listing` - optional boolean, determines if directory listing is generated when a
-          directory is requested without an index document.
-          Defaults to `false`.
-        - `showHidden` - optional boolean, determines if hidden files will be shown and served.
-          Defaults to `false`.
-        - `redirectToSlash` - optional boolean, determines if requests for a directory without a
-          trailing slash are redirected to the same path with the missing slash. Useful for
-          ensuring relative links inside the response are resolved correctly. Disabled when the
-          server config `router.stripTrailingSlash` is `true. `Defaults to `true`.
-        - `lookupCompressed` - optional boolean, instructs the file processor to look for the same
-          filename with the '.gz' suffix for a pre-compressed version of the file to serve if the
-          request supports content encoding. Defaults to `false`.
-        - `defaultExtension` - optional string, appended to file requests if the requested file is
-          not found. Defaults to no extension.
+- `directory` - generates a directory endpoint for serving static content from a directory.
+  Routes using the directory handler must include a path parameter at the end of the path
+  string (e.g. `/path/to/somewhere/{param}` where the parameter name does not matter). The
+  path parameter can use any of the parameter options (e.g. `{param}` for one level files
+  only, `{param?}` for one level files or the directory root, `{param*}` for any level, or
+  `{param*3}` for a specific level). If additional path parameters are present, they are
+  ignored for the purpose of selecting the file system resource. The directory handler is an
+  object with the following options:
+    - `path` - (required) the directory root path (relative paths are resolved based on the
+      connection [`files`](#connection.config.files) configuration). Value can be:
+        - a single path string used as the prefix for any resources requested by appending the
+          request path parameter to the provided string.
+        - an array of path strings. Each path will be attempted in order until a match is
+          found (by following the same process as the single path string).
+        - a function with the signature `function(request)` which returns the path string or
+          an array of path strings. If the function returns an error, the error is passed back
+          to the client in the response.
+    - `index` - optional boolean, determines if 'index.html' will be served if found in the
+      folder when requesting a directory. Defaults to `true`.
+    - `listing` - optional boolean, determines if directory listing is generated when a
+      directory is requested without an index document.
+      Defaults to `false`.
+    - `showHidden` - optional boolean, determines if hidden files will be shown and served.
+      Defaults to `false`.
+    - `redirectToSlash` - optional boolean, determines if requests for a directory without a
+      trailing slash are redirected to the same path with the missing slash. Useful for
+      ensuring relative links inside the response are resolved correctly. Disabled when the
+      server config `router.stripTrailingSlash` is `true. `Defaults to `true`.
+    - `lookupCompressed` - optional boolean, instructs the file processor to look for the same
+      filename with the '.gz' suffix for a pre-compressed version of the file to serve if the
+      request supports content encoding. Defaults to `false`.
+    - `defaultExtension` - optional string, appended to file requests if the requested file is
+      not found. Defaults to no extension.
 
-    - <a name="route.config.proxy"></a>`proxy` - generates a reverse proxy handler with the
-      following options:
-        - `host` - the upstream service host to proxy requests to.  The same path on the client
-          request will be used as the path on the host.
-        - `port` - the upstream service port.
-        - `protocol` - The protocol to use when making a request to the proxied host:
-            - `'http'`
-            - `'https'`
-        - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and
-          query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
-        - `passThrough` - if `true`, forwards the headers sent from the client to the upstream
-          service being proxied to, headers sent from the upstream service will also be forwarded
-          to the client. Defaults to `false`.
-        - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming
-          requests before being passed upstream. This is a security feature to prevent local state
-          (e.g. authentication cookies) from leaking upstream to other servers along with the
-          cookies intended for those servers. This value can be overridden on a per state basis via
-          the [`server.state()`](#serverstatename-options) `passThrough` option.
-          Defaults to `false`.
-        - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header
-          which is useful when using an `onResponse` post-processing to avoid receiving an encoded
-          response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true`
-          (passing header).
-        - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https
-          [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
-          making the request. This value is only used when the proxied server uses TLS/SSL. When
-          set it will override the node.js `rejectUnauthorized` property. If `false` then ssl
-          errors will be ignored. When `true` the server certificate is verified and an 500
-          response will be sent when verification fails. This shouldn't be used alongside the
-          `agent` setting as the `agent` will be used instead. Defaults to the https agent default
-          value of `true`.
-        - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port',
-          'X-Forwarded-Proto' headers when making a request to the proxied upstream endpoint.
-          Defaults to `false`.
-        - `redirects` - the maximum number of HTTP redirections allowed, to be followed
-          automatically by the handler. Set to `false` or `0` to disable all redirections (the
-          response will contain the redirection received from the upstream service). If
-          redirections are enabled, no redirections (301, 302, 307, 308) will be passed along to
-          the client, and reaching the maximum allowed redirections will return an error response.
-          Defaults to `false`.
-        - `timeout` - number of milliseconds before aborting the upstream request. Defaults to
-          `180000` (3 minutes).
-        - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used
-          together with `host`, `port`, `protocol`, or `uri`. The function signature is
-          `function(request, callback)` where:
-            - `request` - is the incoming [request object](#request-object).
-            - `callback` - is `function(err, uri, headers)` where:
-                - `err` - internal error condition.
-                - `uri` - the absolute proxy URI.
-                - `headers` - optional object where each key is an HTTP request header and the
-                  value is the header content.
-        - `onResponse` - a custom function for processing the response from the upstream service
-          before sending to the client. Useful for custom error handling of responses from the
-          proxied endpoint or other payload manipulation. Function signature is 
-          `function(err, res, request, reply, settings, ttl)` where:
-              - `err` - internal or upstream error returned from attempting to contact the upstream
-                proxy.
-              - `res` - the node response object received from the upstream service. `res` is a
-                readable stream (use the [**wreck**](https://github.com/hapijs/wreck) module `read`
-                method to easily convert it to a Buffer or string).
-              - `request` - is the incoming [request object](#request-object).
-              - `reply` - the [reply interface](#reply-interface) function.
-              - `settings` - the proxy handler configuration.
-              - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and
-                the upstream response included a valid 'Cache-Control' header with 'max-age'.
-        - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the
-          response using the `response.ttl()` method (or passed as an argument to the `onResponse`
-          method if provided).
-        - `agent` - a node [http(s) agent](http://nodejs.org/api/http.html#http_class_http_agent)
-          to be used for connections to upstream server.
-        - `maxSockets` - sets the maximum number of sockets available per outgoing proxy host
-          connection. `false` means use the **wreck** module default value (Infinity). Does not
-          affect non-proxy outgoing client connections. Defaults to `Infinity`.
+- <a name="route.config.proxy"></a>`proxy` - generates a reverse proxy handler with the
+  following options:
+    - `host` - the upstream service host to proxy requests to.  The same path on the client
+      request will be used as the path on the host.
+    - `port` - the upstream service port.
+    - `protocol` - The protocol to use when making a request to the proxied host:
+        - `'http'`
+        - `'https'`
+    - `uri` - an absolute URI used instead of the incoming host, port, protocol, path, and
+      query. Cannot be used with `host`, `port`, `protocol`, or `mapUri`.
+    - `passThrough` - if `true`, forwards the headers sent from the client to the upstream
+      service being proxied to, headers sent from the upstream service will also be forwarded
+      to the client. Defaults to `false`.
+    - `localStatePassThrough` - if `false`, any locally defined state is removed from incoming
+      requests before being passed upstream. This is a security feature to prevent local state
+      (e.g. authentication cookies) from leaking upstream to other servers along with the
+      cookies intended for those servers. This value can be overridden on a per state basis via
+      the [`server.state()`](#serverstatename-options) `passThrough` option.
+      Defaults to `false`.
+    - `acceptEncoding` - if `false`, does not pass-through the 'Accept-Encoding' HTTP header
+      which is useful when using an `onResponse` post-processing to avoid receiving an encoded
+      response (e.g. gzipped). Can only be used together with `passThrough`. Defaults to `true`
+      (passing header).
+    - `rejectUnauthorized` - sets the `rejectUnauthorized` property on the https
+      [agent](http://nodejs.org/api/https.html#https_https_request_options_callback)
+      making the request. This value is only used when the proxied server uses TLS/SSL. When
+      set it will override the node.js `rejectUnauthorized` property. If `false` then ssl
+      errors will be ignored. When `true` the server certificate is verified and an 500
+      response will be sent when verification fails. This shouldn't be used alongside the
+      `agent` setting as the `agent` will be used instead. Defaults to the https agent default
+      value of `true`.
+    - `xforward` - if `true`, sets the 'X-Forwarded-For', 'X-Forwarded-Port',
+      'X-Forwarded-Proto' headers when making a request to the proxied upstream endpoint.
+      Defaults to `false`.
+    - `redirects` - the maximum number of HTTP redirections allowed, to be followed
+      automatically by the handler. Set to `false` or `0` to disable all redirections (the
+      response will contain the redirection received from the upstream service). If
+      redirections are enabled, no redirections (301, 302, 307, 308) will be passed along to
+      the client, and reaching the maximum allowed redirections will return an error response.
+      Defaults to `false`.
+    - `timeout` - number of milliseconds before aborting the upstream request. Defaults to
+      `180000` (3 minutes).
+    - `mapUri` - a function used to map the request URI to the proxied URI. Cannot be used
+      together with `host`, `port`, `protocol`, or `uri`. The function signature is
+      `function(request, callback)` where:
+        - `request` - is the incoming [request object](#request-object).
+        - `callback` - is `function(err, uri, headers)` where:
+            - `err` - internal error condition.
+            - `uri` - the absolute proxy URI.
+            - `headers` - optional object where each key is an HTTP request header and the
+              value is the header content.
+    - `onResponse` - a custom function for processing the response from the upstream service
+      before sending to the client. Useful for custom error handling of responses from the
+      proxied endpoint or other payload manipulation. Function signature is 
+      `function(err, res, request, reply, settings, ttl)` where:
+          - `err` - internal or upstream error returned from attempting to contact the upstream
+            proxy.
+          - `res` - the node response object received from the upstream service. `res` is a
+            readable stream (use the [**wreck**](https://github.com/hapijs/wreck) module `read`
+            method to easily convert it to a Buffer or string).
+          - `request` - is the incoming [request object](#request-object).
+          - `reply` - the [reply interface](#reply-interface) function.
+          - `settings` - the proxy handler configuration.
+          - `ttl` - the upstream TTL in milliseconds if `proxy.ttl` it set to `'upstream'` and
+            the upstream response included a valid 'Cache-Control' header with 'max-age'.
+    - `ttl` - if set to `'upstream'`, applies the upstream response caching policy to the
+      response using the `response.ttl()` method (or passed as an argument to the `onResponse`
+      method if provided).
+    - `agent` - a node [http(s) agent](http://nodejs.org/api/http.html#http_class_http_agent)
+      to be used for connections to upstream server.
+    - `maxSockets` - sets the maximum number of sockets available per outgoing proxy host
+      connection. `false` means use the **wreck** module default value (Infinity). Does not
+      affect non-proxy outgoing client connections. Defaults to `Infinity`.
 
-    - `view` - generates a template-based response. The `view` option can be set to one of:
-        - a string with the template file name.
-        - an object with the following keys:
-            - `template` - a string with the template file name.
-            - `context` - an optional template context object. Defaults to an object with the
-              following key:
-                - `payload` - maps to `request.payload`.
-                - `params` - maps to `request.params`.
-                - `query` - maps to `request.query`.
-                - `pre` - maps to `request.pre`.
-            - `options` - optional object used to override the server's views manager
-              configuration.
+- `view` - generates a template-based response. The `view` option can be set to one of:
+    - a string with the template file name.
+    - an object with the following keys:
+        - `template` - a string with the template file name.
+        - `context` - an optional template context object. Defaults to an object with the
+          following key:
+            - `payload` - maps to `request.payload`.
+            - `params` - maps to `request.params`.
+            - `query` - maps to `request.query`.
+            - `pre` - maps to `request.pre`.
+        - `options` - optional object used to override the server's views manager
+          configuration.
 
 ### Route prerequisites
 
