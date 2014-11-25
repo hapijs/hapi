@@ -85,6 +85,25 @@ describe('authentication', function () {
             }).to.throw('Authentication strategy none missing scheme');
             done();
         });
+
+        it('adds a route to server', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: {} }, route: true });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(401);
+
+                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
     });
 
     describe('default()', function () {
@@ -1178,6 +1197,12 @@ describe('authentication', function () {
 internals.implementation = function (server, options) {
 
     var settings = Hoek.clone(options);
+
+    if (settings &&
+        settings.route) {
+
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+    }
 
     var scheme = {
         authenticate: function (request, reply) {
