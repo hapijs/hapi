@@ -20,10 +20,23 @@ var expect = Code.expect;
 
 describe('state', function () {
 
+    it('parses cookies', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.state); } });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.v).to.equal('a');
+            done();
+        });
+    });
+
     it('skips parsing cookies', function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ state: { cookies: { parse: false } } });
+        server.connection({ routes: { state: { parse: false } } });
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.state); } });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, function (res) {
 
@@ -36,7 +49,7 @@ describe('state', function () {
     it('does not clear invalid cookie if cannot parse', function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ state: { cookies: { clearInvalid: true } } });
+        server.connection({ routes: { state: { clearInvalid: true } } });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
@@ -55,12 +68,51 @@ describe('state', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.state('a', { failAction: 'ignore', encoding: 'base64json' });
+        server.state('a', { ignoreErrors: true, encoding: 'base64json' });
         server.route({ path: '/', method: 'GET', handler: handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal(0);
+            done();
+        });
+    });
+
+    it('ignores invalid cookies (header)', function (done) {
+
+        var handler = function (request, reply) {
+
+            var log = request.getLog('state');
+            return reply(log.length);
+        };
+
+        var server = new Hapi.Server();
+        server.connection({ routes: { state: { failAction: 'ignore' } } });
+        server.route({ path: '/', method: 'GET', handler: handler });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x;;' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(0);
+            done();
+        });
+    });
+
+    it('logs invalid cookie (value)', function (done) {
+
+        var handler = function (request, reply) {
+
+            var log = request.getLog('state');
+            return reply(log.length);
+        };
+
+        var server = new Hapi.Server();
+        server.connection({ routes: { state: { failAction: 'log' } } });
+        server.state('a', { encoding: 'base64json', clearInvalid: true });
+        server.route({ path: '/', method: 'GET', handler: handler });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(1);
             done();
         });
     });
@@ -74,7 +126,7 @@ describe('state', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.state('a', { failAction: 'ignore', encoding: 'base64json', clearInvalid: true });
+        server.state('a', { ignoreErrors: true, encoding: 'base64json', clearInvalid: true });
         server.route({ path: '/', method: 'GET', handler: handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, function (res) {
 

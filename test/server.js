@@ -226,19 +226,19 @@ describe('Server', function () {
 
         it('combines configuration from server and connection (cors)', function (done) {
 
-            var server = new Hapi.Server({ connections: { cors: true } });
-            server.connection({ cors: { origin: ['example.com'] } });
-            expect(server.connections[0].settings.cors.origin).to.deep.equal(['example.com']);
+            var server = new Hapi.Server({ connections: { routes: { cors: true } } });
+            server.connection({ routes: { cors: { origin: ['example.com'] } } });
+            expect(server.connections[0].settings.routes.cors.origin).to.deep.equal(['example.com']);
             done();
         });
 
         it('combines configuration from server and connection (security)', function (done) {
 
-            var server = new Hapi.Server({ connections: { security: { hsts: 1, xss: false } } });
-            server.connection({ security: { hsts: 2 } });
-            expect(server.connections[0].settings.security.hsts).to.equal(2);
-            expect(server.connections[0].settings.security.xss).to.be.false();
-            expect(server.connections[0].settings.security.xframe).to.equal('deny');
+            var server = new Hapi.Server({ connections: { routes: { security: { hsts: 1, xss: false } } } });
+            server.connection({ routes: { security: { hsts: 2 } } });
+            expect(server.connections[0].settings.routes.security.hsts).to.equal(2);
+            expect(server.connections[0].settings.routes.security.xss).to.be.false();
+            expect(server.connections[0].settings.routes.security.xframe).to.equal('deny');
             done();
         });
     });

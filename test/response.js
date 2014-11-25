@@ -45,7 +45,7 @@ describe('Response', function () {
         };
 
         var server = new Hapi.Server();
-        server.connection({ cors: true });
+        server.connection({ routes: { cors: true } });
         server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.state('sid', { encoding: 'base64' });
         server.state('always', { autoValue: 'present' });
@@ -853,7 +853,7 @@ describe('Response', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ json: { replacer: ['a'], space: 4, suffix: '\n' } });
+            server.connection({ routes: { json: { replacer: ['a'], space: 4, suffix: '\n' } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {

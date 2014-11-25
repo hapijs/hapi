@@ -189,7 +189,7 @@ describe('Reply', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { credentials: true } });
+            server.connection({ routes: { cors: { credentials: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
@@ -228,7 +228,7 @@ describe('Reply', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['test.example.com'] } });
+            server.connection({ routes: { cors: { origin: ['test.example.com'] } } });
             server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
             server.inject('/stream', function (res) {
@@ -280,7 +280,7 @@ describe('Reply', function () {
                 };
 
                 var server = new Hapi.Server({ debug: false });
-                server.connection({ cors: { origin: ['test.example.com'] } });
+                server.connection({ routes: { cors: { origin: ['test.example.com'] } } });
                 server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
                 server.inject('/stream', function (res) {

@@ -1078,7 +1078,7 @@ describe('Connection', function () {
         it('returns 404 on OPTIONS when cors disabled', function (done) {
 
             var server = new Hapi.Server();
-            server.connection({ cors: false });
+            server.connection({ routes: { cors: false } });
             server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
 
             server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
@@ -1108,7 +1108,7 @@ describe('Connection', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: true });
+            server.connection({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'OPTIONS', url: '/' }, function (res) {

@@ -1748,7 +1748,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1768,7 +1768,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'options', url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1787,7 +1787,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: [] } });
+            server.connection({ routes: { cors: { origin: [] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1808,7 +1808,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1828,7 +1828,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: [] } });
+            server.connection({ routes: { cors: { origin: [] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1848,7 +1848,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { override: false } });
+            server.connection({ routes: { cors: { override: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1868,7 +1868,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler, config: { cors: false } });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1888,7 +1888,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.connection({ routes: { cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -1909,7 +1909,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.connection({ routes: { cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
@@ -1930,7 +1930,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
@@ -1951,7 +1951,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['*'] } });
+            server.connection({ routes: { cors: { origin: ['*'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
@@ -1972,7 +1972,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['*'], matchOrigin: false } });
+            server.connection({ routes: { cors: { origin: ['*'], matchOrigin: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
@@ -1993,7 +1993,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } });
+            server.connection({ routes: { cors: { isOriginExposed: false, origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, function (res) {
@@ -2014,7 +2014,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
@@ -2035,7 +2035,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
@@ -2056,7 +2056,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { origin: ['http://test.example.com', 'http://www.example.com'], matchOrigin: false } });
+            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'], matchOrigin: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, function (res) {
@@ -2077,7 +2077,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cors: { exposedHeaders: [] } });
+            server.connection({ routes: { cors: { exposedHeaders: [] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2092,7 +2092,7 @@ describe('transmission', function () {
 
     describe('cache()', function () {
 
-        it('returns max-age value when route sets cache', function (done) {
+        it('sets max-age value (method and route)', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
@@ -2116,6 +2116,28 @@ describe('transmission', function () {
                 server.inject('/profile', function (res) {
 
                     expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+                    server.stop();
+                    done();
+                });
+            });
+        });
+
+        it('sets max-age value (expiresAt)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
+            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresAt: '10:00' } } });
+            server.start(function () {
+
+                server.inject('/', function (res) {
+
+                    expect(res.headers['cache-control']).to.match(/^max-age=\d+, must-revalidate$/);
                     server.stop();
                     done();
                 });
@@ -2147,7 +2169,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ cache: { statuses: [200, 400] } });
+            server.connection({ routes: { cache: { statuses: [200, 400] } } });
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
             server.inject('/', function (res) {
 
@@ -2306,7 +2328,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: true });
+            server.connection({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2334,7 +2356,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: true });
+            server.connection({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: handler, config: config });
 
             server.inject({ url: '/' }, function (res) {
@@ -2359,7 +2381,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { hsts: false } });
+            server.connection({ routes: { security: { hsts: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2384,7 +2406,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { hsts: true } });
+            server.connection({ routes: { security: { hsts: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2404,7 +2426,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { hsts: 123456789 } });
+            server.connection({ routes: { security: { hsts: 123456789 } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2424,7 +2446,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { hsts: { maxAge: 123456789, includeSubdomains: true } } });
+            server.connection({ routes: { security: { hsts: { maxAge: 123456789, includeSubdomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2444,7 +2466,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { hsts: { maxAge: 123456789 } } });
+            server.connection({ routes: { security: { hsts: { maxAge: 123456789 } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2464,7 +2486,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { hsts: { includeSubdomains: true } } });
+            server.connection({ routes: { security: { hsts: { includeSubdomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2484,7 +2506,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { xframe: false } });
+            server.connection({ routes: { security: { xframe: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2509,7 +2531,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { xframe: true } });
+            server.connection({ routes: { security: { xframe: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2529,7 +2551,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { xframe: 'sameorigin' } });
+            server.connection({ routes: { security: { xframe: 'sameorigin' } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2549,7 +2571,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } });
+            server.connection({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2569,7 +2591,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { xframe: { rule: 'deny' } } });
+            server.connection({ routes: { security: { xframe: { rule: 'deny' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2589,7 +2611,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { xframe: { rule: 'allow-from' } } });
+            server.connection({ routes: { security: { xframe: { rule: 'allow-from' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2609,7 +2631,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { noOpen: false } });
+            server.connection({ routes: { security: { noOpen: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2629,7 +2651,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { noSniff: false } });
+            server.connection({ routes: { security: { noSniff: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
@@ -2649,7 +2671,7 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ security: { xss: false } });
+            server.connection({ routes: { security: { xss: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {

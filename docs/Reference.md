@@ -1790,7 +1790,8 @@ the combination of tags used.
 - `tail` `remove` `last` - the last request tail was removed. Includes the tail name and id.
 - `tail` `remove` `error` - failed to remove a request tail (already removed). Includes the tail
   name and id.
-- `state` `error` - the request included an invalid cookie. Includes the cookie name.
+- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and
+  error details.
 - `state` `response` `error` - the response included an invalid cookie which prevented generating a
   valid header. Includes the error.
 - `payload` `error` - failed processing the request payload. Includes the error.

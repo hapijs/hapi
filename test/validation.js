@@ -112,7 +112,7 @@ describe('validation', function () {
     it('validates valid input with validation options', function (done) {
 
         var server = new Hapi.Server();
-        server.connection({ validation: { convert: false } });
+        server.connection({ routes: { validate: { options: { convert: false } } } });
         server.route({
             method: 'GET',
             path: '/',
@@ -965,7 +965,7 @@ describe('validation', function () {
     it('fails response validation with options', function (done) {
 
         var server = new Hapi.Server({ debug: false });
-        server.connection({ validation: { convert: false } });
+        server.connection({ routes: { response: { options: { convert: false } } } });
         server.route({
             method: 'GET',
             path: '/',
