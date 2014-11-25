@@ -672,6 +672,35 @@ describe('authentication', function () {
             });
         });
 
+        it('ignores default scope when override set to null', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { } } });
+            server.auth.default({
+                strategy: 'default',
+                scope: 'one'
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    auth: {
+                        scope: false
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
         it('matches user entity', function (done) {
 
             var server = new Hapi.Server();
