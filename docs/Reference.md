@@ -825,7 +825,7 @@ Adds an incoming server connection where:
 - `autoListen` - indicates that the `connection.listener` will be started manually outside the
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
 - `cache` - caching headers configuration:
-    - `statues` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
+    - `statuses` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
       a valid caching directive. Defaults to `[200]`.
 - `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
   specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
