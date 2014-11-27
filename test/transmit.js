@@ -1074,27 +1074,6 @@ describe('transmission', function () {
             });
         });
 
-        it('returns error when file is removed before stream is opened', function (done) {
-
-            var filename = Hoek.uniqueFilename(Os.tmpDir());
-            Fs.writeFileSync(filename, 'data');
-
-            var server = new Hapi.Server();
-            server.connection();
-            server.route({ method: 'GET', path: '/', handler: { file: filename } });
-            server.ext('onPreResponse', function (request, reply) {
-
-                Fs.unlinkSync(filename);
-                return reply.continue();
-            });
-
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
-        });
-
         it('does not open file stream on 304', function (done) {
 
             var server = new Hapi.Server();

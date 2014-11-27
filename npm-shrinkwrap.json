@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "8.0.0-rc4",
+  "version": "8.0.0-rc5",
   "dependencies": {
     "accept": {
       "version": "1.0.0"
@@ -33,7 +33,7 @@
       "version": "2.10.0"
     },
     "inert": {
-      "version": "2.0.0-rc2",
+      "version": "2.0.0-rc3",
       "dependencies": {
         "lru-cache": {
           "version": "2.5.0"
