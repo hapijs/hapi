@@ -113,10 +113,98 @@ describe('Route', function () {
         var server = new Hapi.Server();
         server.connection();
         var context = { key: 'is ' };
+
+        var count = 0;
+        Object.defineProperty(context, 'test', {
+            enumerable: true,
+            configurable: true,
+            get: function () {
+
+                ++count;
+            }
+        });
+
         server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(this.key + (this === context)); }, config: { bind: context } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');
+            expect(count).to.equal(0);
+            done();
+        });
+    });
+
+    it('shallow copies route config bind (server.bind())', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        var context = { key: 'is ' };
+
+        var count = 0;
+        Object.defineProperty(context, 'test', {
+            enumerable: true,
+            configurable: true,
+            get: function () {
+
+                ++count;
+            }
+        });
+
+        server.bind(context);
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(this.key + (this === context)); } });
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('is true');
+            expect(count).to.equal(0);
+            done();
+        });
+    });
+
+    it('shallow copies route config bind (connection defaults)', function (done) {
+
+        var server = new Hapi.Server();
+        var context = { key: 'is ' };
+
+        var count = 0;
+        Object.defineProperty(context, 'test', {
+            enumerable: true,
+            configurable: true,
+            get: function () {
+
+                ++count;
+            }
+        });
+
+        server.connection({ routes: { bind: context } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('' + this.key + (this === context)); } });
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('is true');
+            expect(count).to.equal(0);
+            done();
+        });
+    });
+
+    it('shallow copies route config bind (server defaults)', function (done) {
+
+        var context = { key: 'is ' };
+
+        var count = 0;
+        Object.defineProperty(context, 'test', {
+            enumerable: true,
+            configurable: true,
+            get: function () {
+
+                ++count;
+            }
+        });
+
+        var server = new Hapi.Server({ connections: { routes: { bind: context } } });
+        server.connection();
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(this.key + (this === context)); } });
+        server.inject('/', function (res) {
+
+            expect(res.result).to.equal('is true');
+            expect(count).to.equal(0);
             done();
         });
     });
