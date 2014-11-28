@@ -264,17 +264,21 @@ the sole connection where:
 - `id` - a unique connection identifier (using the format '{hostname}:{pid}:{now base36}').
 - `created` - the connection creation timestamp.
 - `started` - the connection start timestamp (`0` when stopped).
-- `port` - the port the connection was configured to (before
-  [`server.start()`](#serverstartcallback)) or bound to (after
-  [`server.start()`](#serverstartcallback)).
-- `host` - the host name the connection was configured to (defaults to `'0.0.0.0'` if no host was
-  provided).
+- `port` - the connection port based on the following rules:
+    - `undefined` when no port is configured or set to `0` and the server has not been started.
+    - the configured port value when set before the server has been started.
+    - the actual port assigned when no port is configured or set to `0` after the server has been
+      started.
+- `host` - the host name the connection was configured to. Defaults to the operating system
+  hostname when available, otherwise `'localhost'`.
+- `address` - the active IP address the connection was bound to after starting. Set to `undefined`
+  until the server has been started or when using a non TCP port (e.g. UNIX domain socket).
 - `protocol` - the protocol used:
     - `'http'` - HTTP.
     - `'https'` - HTTPS.
     - `'socket'` - UNIX domain socket or Windows named pipe.
 - `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
-  'socket:/unix/domain/socket/path').
+  'socket:/unix/domain/socket/path'). Only available when `info.port` is available.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.info`.
@@ -701,10 +705,14 @@ cache.set('norway', { capital: 'oslo' }, function (err) {
 ### `server.connection([options])`
 
 Adds an incoming server connection where:
-- `host` - the hostname or IP address. Defaults to `0.0.0.0` which means any available network
-  interface. Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from
-  the same machine. 
-- `port` - the TCP port the connection is listening to. Defaults to an ephemeral port (`0`) which
+- `host` - the public hostname or IP address. Used only to set `server.info.host` and
+  `server.info.uri`. If not configured, defaults to the operating system hostname and if not
+  available, to `'localhost'`.
+- `address` - sets the host name or IP address the connection will listen on. If not configured,
+  defaults to `host` if present, otherwise to all available network interfaces (i.e. `'0.0.0.0'`).
+  Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from the same
+  machine. 
+- `port` - the TCP port the connection will listen to. Defaults to an ephemeral port (`0`) which
   uses an available port when the server is started (and assigned to `server.info.port`). If `port`
   is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
   with '\\.\pipe' as a Windows named pipe.

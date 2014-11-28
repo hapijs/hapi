@@ -1,5 +1,6 @@
 // Load modules
 
+var Os = require('os');
 var Path = require('path');
 var Boom = require('boom');
 var CatboxMemory = require('catbox-memory');
@@ -317,14 +318,14 @@ describe('Plugin', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection();
+            server.connection({ host: 'example.com' });
             server.register(test, function (err) {
 
                 expect(err).to.not.exist();
                 expect(function () {
 
                     server.register(test, function (err) { });
-                }).to.throw('Plugin test already registered in: ' + server.info.uri);
+                }).to.throw('Plugin test already registered in: example.com:0');
 
                 done();
             });
@@ -1096,7 +1097,7 @@ describe('Plugin', function () {
                 expect(function () {
 
                     server.start();
-                }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
+                }).to.throw('Plugin test missing dependency none in connection: ' + Os.hostname() + ':0');
                 done();
             });
         });
@@ -1104,13 +1105,13 @@ describe('Plugin', function () {
         it('fails to register multiple plugins with dependencies', function (done) {
 
             var server = new Hapi.Server();
-            server.connection();
+            server.connection({ port: 80, host: 'localhost' });
             server.register([internals.plugins.deps1, internals.plugins.deps3], function (err) {
 
                 expect(function () {
 
                     server.start();
-                }).to.throw('Plugin deps1 missing dependency deps2 in connection: ' + server.info.uri);
+                }).to.throw('Plugin deps1 missing dependency deps2 in connection: localhost:80');
                 done();
             });
         });
@@ -1176,13 +1177,13 @@ describe('Plugin', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection();
+            server.connection({ port: 80, host: 'localhost' });
             server.register(a, function (err) {
 
                 expect(function () {
 
                     server.start();
-                }).to.throw('Plugin b missing dependency c in connection: ' + server.info.uri);
+                }).to.throw('Plugin b missing dependency c in connection: localhost:80');
                 done();
             });
         });

@@ -70,7 +70,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('defaults to 0.0.0.0 or :: when no host is provided', function (done) {
+    it('defaults address to 0.0.0.0 or :: when no host is provided', function (done) {
 
         var server = new Hapi.Server();
         server.connection();
@@ -81,7 +81,19 @@ describe('Connection', function () {
                 expectedBoundAddress = '::';
             }
 
-            expect(server.info.host).to.equal(expectedBoundAddress);
+            expect(server.info.address).to.equal(expectedBoundAddress);
+            done();
+        });
+    });
+
+    it('uses address when present instead of host', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection({ host: 'no.such.domain.hapi', address: 'localhost' });
+        server.start(function () {
+
+            expect(server.info.host).to.equal('no.such.domain.hapi');
+            expect(server.info.address).to.equal('127.0.0.1');
             done();
         });
     });
@@ -93,7 +105,6 @@ describe('Connection', function () {
         server.connection({ port: port });
 
         expect(server.connections[0].type).to.equal('socket');
-        expect(server.connections[0]._port).to.equal(port);
 
         server.start(function () {
 
@@ -116,7 +127,6 @@ describe('Connection', function () {
         server.connection({ port: port });
 
         expect(server.connections[0].type).to.equal('socket');
-        expect(server.connections[0]._port).to.equal(port);
 
         server.start(function () {
 
@@ -265,8 +275,9 @@ describe('Connection', function () {
                     expectedBoundAddress = '::';
                 }
 
-                expect(server.info.host).to.equal(expectedBoundAddress);
-                expect(server.info.port).to.not.equal(0);
+                expect(server.info.host).to.equal(Os.hostname());
+                expect(server.info.address).to.equal(expectedBoundAddress);
+                expect(server.info.port).to.be.a.number().and.above(1);
                 server.stop();
                 done();
             });
@@ -300,9 +311,9 @@ describe('Connection', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection();
+            server.connection({ port: '8000' });
             expect(server.info.host).to.equal('localhost');
-            expect(server.info.uri).to.equal('http://localhost:' + server.info.port);
+            expect(server.info.uri).to.equal('http://localhost:8000');
             done();
         });
 
