@@ -2479,6 +2479,18 @@ are called in parallel. `pre` can be assigned a mixed array of:
     - 'args' - the method arguments (excluding `next`) where each argument is a property of
       the [request object](#request-object).
 
+Note that prerequisites do not follow the same rules of the normal
+[reply interface](#reply-interface). In all other cases, calling `reply()` with or without a value
+will use the result as the response sent back to the client. In a prerequisite method, calling
+`reply()` will assign the returned value to the provided `assign` key. If the returned value is an
+error, the `failAction` setting determines the behavior. To force the return value as the response
+and ends the request lifecycle, use the `reply().takeover()` method.
+
+The reason for the difference in the reply interface behavior is to allow reusing handlers and
+prerequisites methods interchangeably. By default, the desired behavior for a prerequisite is to
+retain the result value and pass it on to the next step. Errors end the lifecycle by default. While
+less consistent, this allows easier code reusability.
+
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
