@@ -104,7 +104,7 @@ describe('Plugin', function () {
 
             var child = function (server, options, next) {
 
-                server.expose('key2', 2);
+                server.expose('key2', server.connections.length);
                 return next();
             };
 
@@ -114,7 +114,7 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.expose('key1', 1);
+                server.expose('key1', server.connections.length);
                 server.select('a').register(child, next);
             };
 
@@ -125,12 +125,8 @@ describe('Plugin', function () {
             server.register(test, { select: ['a', 'b'] }, function (err) {
 
                 expect(err).to.not.exist();
-                expect(server1.plugins.test.key1).to.equal(1);
-                expect(server1.plugins.child.key2).to.equal(2);
-                expect(server2.plugins.test.key1).to.equal(1);
-                expect(server2.plugins.child).to.not.exist();
-                expect(server3.plugins.test).to.not.exist();
-                expect(server3.plugins.child).to.not.exist();
+                expect(server.plugins.test.key1).to.equal(2);
+                expect(server.plugins.child.key2).to.equal(1);
                 done();
             });
         });
@@ -617,10 +613,7 @@ describe('Plugin', function () {
             server.register(test, { select: ['a', 'c'] }, function (err) {
 
                 expect(err).to.not.exist();
-                expect(server.plugins.test).to.not.exist();
-                expect(server1.plugins.test.super).to.equal('trooper');
-                expect(server2.plugins.test).to.not.exist();
-                expect(server3.plugins.test.super).to.equal('trooper');
+                expect(server.plugins.test.super).to.equal('trooper');
 
                 server1.inject('/', function (res) {
 
@@ -1286,8 +1279,8 @@ describe('Plugin', function () {
                 expect(server.connections[2]._router.routes.get).to.not.exist();
                 expect(internals.routesList(server, 's4')).to.deep.equal(['/test1']);
 
-                expect(server.connections[0].plugins.test1.add(1, 3)).to.equal(4);
-                expect(server.connections[0].plugins.test1.glue('1', '3')).to.equal('13');
+                expect(server.plugins.test1.add(1, 3)).to.equal(4);
+                expect(server.plugins.test1.glue('1', '3')).to.equal('13');
 
                 done();
             });

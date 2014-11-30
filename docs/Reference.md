@@ -811,9 +811,8 @@ var after = function (server, next) {
 
 ### `server.expose(key, value)`
 
-Used within a plugin to expose a property via `server.plugins[name]` (when added to all the
-connections) and to each `connection.plugins[name]` (where 'name' is the plugin name) where:
-- `key` - the key assigned (`server.plugins[name][key]` or `connection.plugins[name][key]`).
+Used within a plugin to expose a property via `server.plugins[name]` where:
+- `key` - the key assigned (`server.plugins[name][key]`).
 - `value` - the value assigned.
 
 ```js
@@ -826,9 +825,7 @@ exports.register = function (server, options, next) {
 
 ### `server.expose(obj)`
 
-Merges a deep copy of an object into to the existing content of `server.plugins[name]`(when added
-to all the connections) and to each `connection.plugins[name]` (where 'name' is the plugin name)
-where:
+Merges a deep copy of an object into to the existing content of `server.plugins[name]` where:
 - `obj` - the object merged into the exposed properties container.
 
 ```js
