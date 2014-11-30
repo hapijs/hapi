@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "8.0.0-rc5",
+  "version": "8.0.0-rc6",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -31,7 +31,7 @@
     "inert": "2.0.0-rc3",
     "iron": "2.x.x",
     "items": "1.x.x",
-    "joi": "^4.8.x",
+    "joi": "5.x.x",
     "kilt": "^1.1.x",
     "mimos": "2.x.x",
     "peekaboo": "1.x.x",
@@ -40,7 +40,7 @@
     "statehood": "2.0.0-rc2",
     "subtext": "1.x.x",
     "topo": "1.x.x",
-    "vision": "2.0.0-rc1",
+    "vision": "2.0.0-rc2",
     "wreck": "5.x.x"
   },
   "devDependencies": {
