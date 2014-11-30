@@ -1692,7 +1692,7 @@ describe('Plugin', function () {
             done();
         });
 
-        it('throws in missing id', function (done) {
+        it('throws on missing id', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
@@ -1700,6 +1700,107 @@ describe('Plugin', function () {
 
                 server.lookup();
             }).to.throw('Invalid route id: ');
+            done();
+        });
+    });
+
+    describe('match()', function () {
+
+        it('returns route based on path', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(); }, id: 'root' } });
+            server.route({ method: 'GET', path: '/abc', config: { handler: function (request, reply) { return reply(); }, id: 'abc' } });
+            server.route({ method: 'POST', path: '/abc', config: { handler: function (request, reply) { return reply(); }, id: 'post' } });
+            server.route({ method: 'GET', path: '/{p}/{x}', config: { handler: function (request, reply) { return reply(); }, id: 'params' } });
+            server.route({ method: 'GET', path: '/abc', vhost: 'example.com', config: { handler: function (request, reply) { return reply(); }, id: 'vhost' } });
+
+            expect(server.match('GET', '/').id).to.equal('root');
+            expect(server.match('GET', '/none')).to.equal(null);
+            expect(server.match('GET', '/abc').id).to.equal('abc');
+            expect(server.match('get', '/').id).to.equal('root');
+            expect(server.match('post', '/abc').id).to.equal('post');
+            expect(server.match('get', '/a/b').id).to.equal('params');
+            expect(server.match('GET', '/abc', 'example.com').id).to.equal('vhost');
+            done();
+        });
+
+        it('throws on missing method', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.match();
+            }).to.throw('Invalid method: ');
+            done();
+        });
+
+        it('throws on invalid method', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.match(5);
+            }).to.throw('Invalid method: 5');
+            done();
+        });
+
+        it('throws on missing path', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.match('get');
+            }).to.throw('Invalid path: ');
+            done();
+        });
+
+        it('throws on invalid path type', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.match('get', 5);
+            }).to.throw('Invalid path: 5');
+            done();
+        });
+
+        it('throws on invalid path prefix', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.match('get', '5');
+            }).to.throw('Invalid path: 5');
+            done();
+        });
+
+        it('throws on invalid path', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/{p}', config: { handler: function (request, reply) { return reply(); } } });
+            expect(function () {
+
+                server.match('GET', '/%p');
+            }).to.throw('Invalid path: /%p');
+            done();
+        });
+
+        it('throws on invalid host type', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.match('get', '/a', 5);
+            }).to.throw('Invalid host: 5');
             done();
         });
     });

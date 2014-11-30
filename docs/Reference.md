@@ -31,6 +31,7 @@
     - [`server.inject(options, callback)`](#serverinjectoptions-callback)
     - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
     - [`server.lookup(id)`](#serverlookupid)
+    - [`server.match(method, path, [host])`](#servermatchmethod-path-host)
     - [`server.method(name, method, [options])`](#servermethodname-method-options)
     - [`server.method(methods)`](#servermethodmethods)
     - [`server.path(relativeTo)`](#serverpathrelativeto)
@@ -1036,6 +1037,8 @@ server.log(['test', 'error'], 'Test event');
 When the server contains exactly one connection, looks up a route configuration where:
 - `id` - the route identifier as set in the [route options](#route-options).
 
+returns the route configuration object if found, otherwise `null`;
+
 ```js
 var server = new Hapi.Server();
 server.connection();
@@ -1053,6 +1056,33 @@ var route = server.lookup('root');
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.lookup()` method.
+
+### `server.match(method, path, [host])`
+
+When the server contains exactly one connection, looks up a route configuration where:
+- `method` - the HTTP method (e.g. 'GET', 'POST').
+- `path` - the requested path (must begin with '/').
+- `host` - optional hostname (to match against routes with `vhost`).
+
+returns the route configuration object if found, otherwise `null`;
+
+```js
+var server = new Hapi.Server();
+server.connection();
+server.route({
+    method: 'GET',
+    path: '/',
+    config: {
+        handler: function (request, reply) { return reply(); },
+        id: 'root'
+    }
+});
+
+var route = server.match('get', '/');
+```
+
+When the server contains more than one connection, each [`server.connections`](#serverconnections)
+array member provides its own `connection.match()` method.
 
 ### `server.method(name, method, [options])`
 
