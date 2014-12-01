@@ -776,8 +776,12 @@ var admin = server.connection({ port: 8001, host: 'example.com', labels: ['admin
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
     - `'reply'` - adds methods to the [reply interface](#reply-interface).
+    - `'server'` - adds methods to the [Server](#server) object.
 - `property` - the object decoration key name.
 - `method` - the extension function.
+
+Note that decorations apply to the entire server and all its connections regardless of current
+selection.
 
 ```js
 var Hapi = require('hapi');
