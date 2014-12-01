@@ -1069,6 +1069,130 @@ describe('Plugin', function () {
         });
     });
 
+    describe('decorate()', function () {
+
+        it('decorates reply', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('reply', 'success', function () {
+
+                return this.response({ status: 'ok' });
+            });
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply.success(); } });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.status).to.equal('ok');
+                done();
+            });
+        });
+
+        it('throws on double reply decoration', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('reply', 'success', function () {
+
+                return this.response({ status: 'ok' });
+            });
+
+            expect(function () {
+
+                server.decorate('reply', 'success', function () { });
+            }).to.throw('Reply interface decoration already defined: success');
+            done();
+        });
+
+        it('throws on internal conflict', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(function () {
+
+                server.decorate('reply', 'redirect', function () { });
+            }).to.throw('Cannot override built-in reply interface decoration: redirect');
+            done();
+        });
+
+        it('decorates server', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('server', 'ok', function (path) {
+
+                server.route({ method: 'GET', path: path, handler: function (request, reply) { return reply('ok'); } });
+            });
+
+            server.ok('/');
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('ok');
+                done();
+            });
+        });
+
+        it('throws on double server decoration', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('server', 'ok', function (path) {
+
+                server.route({ method: 'GET', path: path, handler: function (request, reply) { return reply('ok'); } });
+            });
+
+            expect(function () {
+
+                server.decorate('server', 'ok', function () { });
+            }).to.throw('Server decoration already defined: ok');
+            done();
+        });
+
+        it('throws on server decoration root conflict', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(function () {
+
+                server.decorate('server', 'start', function () { });
+            }).to.throw('Cannot override the built-in server interface method: start');
+            done();
+        });
+
+        it('throws on server decoration plugin conflict', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(function () {
+
+                server.decorate('server', 'select', function () { });
+            }).to.throw('Cannot override the built-in server interface method: select');
+            done();
+        });
+
+        it('throws on invalid decoration name', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(function () {
+
+                server.decorate('server', '_special', function () { });
+            }).to.throw('Property name cannot begin with an underscore: _special');
+            done();
+        });
+    });
+
     describe('dependency()', function () {
 
         it('fails to register single plugin with dependencies', function (done) {
