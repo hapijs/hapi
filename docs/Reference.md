@@ -182,6 +182,11 @@ Creates a new `Server` object where:
       generating the mime database used by the server and accessed via
       [`server.mime`](#servermime).
 
+    - `minimal` - if `true`, does not load the [**inert**](https://github.com/hapijs/inert) (file
+      and directory support), [**h2o2**](https://github.com/hapijs/h2o2) (proxy support), and
+      [**vision**](https://github.com/hapijs/vision) (views support) plugins automatically. The
+      plugins can be loaded manually after construction. Defaults to `false` (plugins loaded).
+
     - `plugins` - plugin-specific configuration which can later be accessed via
       `server.settings.plugins`. `plugins` is an object where each key is a plugin name and the
       value is the configuration. Note the difference between `server.settings.plugins` which is
