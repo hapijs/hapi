@@ -235,7 +235,7 @@ server.connection({ port: 8080, labels: 'b' });
 
 var a = server.select('a');
 
-// a.connections.lenght === 1
+// a.connections.length === 1
 ```
 
 #### `server.info`
