@@ -2431,7 +2431,7 @@ internals.plugins = {
             return a + b;
         });
 
-        server.expose('prefix', server.config.routes.prefix);
+        server.expose('prefix', server.realm.modifiers.route.prefix);
 
         return next();
     },

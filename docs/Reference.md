@@ -4,7 +4,6 @@
     - [`new Server([options])`](#new-serveroptions)
     - [Server properties](#server-properties)
         - [`server.app`](#serverapp)
-        - [`server.config`](#serverconfig)
         - [`server.connections`](#serverconnections)
         - [`server.info`](#serverinfo)
         - [`server.load`](#serverload)
@@ -12,6 +11,8 @@
         - [`server.methods`](#servermethods)
         - [`server.mime`](#servermime)
         - [`server.plugins`](#serverplugins)
+        - [`server.realm`](#serverrealm)
+        - [`server.root`](#serverroot)
         - [`server.settings`](#serversettings)
         - [`server.version`](#serverversion)
     - [`server.after(method, [dependencies])`](#serveraftermethod-dependencies)
@@ -218,28 +219,6 @@ var handler = function (request, reply) {
 };
 ```
 
-#### `server.config`
-
-When the server object is provided as an argument to the plugin `register()` method, the `config`
-property provides the registration preferences passed the
-[`server.register()`](#serverregisterplugins-options-callback) method. `config` is an object with
-the following properties:
-- `routes` - routes preferences:
-    - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions)
-      from the server.
-    - `vhost` - the route virtual host settings used by any calls to
-      [`server.route()`](#serverrouteoptions) from the server.
-
-The `config` property should be considered read-only and should not be changed.
-
-```js
-exports.register = function (server, options, next) {
-
-    console.log(server.config.route.prefix);
-    next();
-};
-```
-
 #### `server.connections`
 
 An array containing the server's connections. When the server object is returned from
@@ -381,9 +360,10 @@ var server = new Hapi.Server(options);
 
 #### `server.plugins`
 
-An object containing the public API exposed by each plugin registered where each key is a plugin
-name and the values are the exposed properties by each plugin using
-[`server.expose()`](#serverexposekey-value).
+An object containing the values exposed by each plugin registered where each key is a plugin name
+and the values are the exposed properties by each plugin using
+[`server.expose()`](#serverexposekey-value). Plugins may set the value of the
+`server.plugins[name]` object directly or via the `server.expose()` method.
 
 ```js
 exports.register = function (server, options, next) {
@@ -397,6 +377,46 @@ exports.register.attributes = {
     name: 'example'
 };
 ```
+
+#### `server.realm`
+
+The realm object contains server-wide or plugin-specific state that can be shared across various
+methods. For example, when calling [`server.bind()`](#serverbindcontext), the active realm
+`settings.bind` property is set which is then used by routes and extensions added at the same level
+(server root or plugin). Realms are a limited version of a sandbox where plugins can maintain state
+used by the framework when adding routes, extensions, and other properties.
+
+- `modifiers` - when the server object is provided as an argument to the plugin `register()`
+  method, `modifiers` provides the registration preferences passed the
+  [`server.register()`](#serverregisterplugins-options-callback) method and includes:
+    - `route` - routes preferences:
+        - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions)
+          from the server.
+        - `vhost` - the route virtual host settings used by any calls to
+          [`server.route()`](#serverrouteoptions) from the server.
+- `plugin` - the active plugin name (empty string if at the server root).
+- `plugins` - plugin-specific state to be shared only among activities sharing the same active
+  state. `plugins` is an object where each key is a plugin name and the value is the plugin state.
+- `settings` - settings overrides:
+    - `files.relativeTo`
+    - `bind`
+
+The `server.realm` object should be considered read-only and must not be changed directly except
+for the `plugins` property can be directly manipulated by the plugins (each setting its own under
+`plugins[name]`).
+
+```js
+exports.register = function (server, options, next) {
+
+    console.log(server.realm.modifiers.route.prefix);
+    return next();
+};
+```
+
+#### `server.root`
+
+The root server object containing all the connections and the root server methods (e.g. `start()`,
+`stop()`, `connection()`).
 
 #### `server.settings`
 
