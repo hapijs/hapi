@@ -1013,7 +1013,7 @@ describe('handler', function () {
 
                 return function (request, reply) {
 
-                    return reply(request.route.app);
+                    return reply(request.route.settings.app);
                 };
             };
 
@@ -1034,7 +1034,7 @@ describe('handler', function () {
 
                 return function (request, reply) {
 
-                    return reply(request.route.app);
+                    return reply(request.route.settings.app);
                 };
             };
 
@@ -1061,7 +1061,7 @@ describe('handler', function () {
 
                 return function (request, reply) {
 
-                    return reply(request.route.app);
+                    return reply(request.route.settings.app);
                 };
             };
 
@@ -1090,7 +1090,7 @@ describe('handler', function () {
 
                 return function (request, reply) {
 
-                    return reply(request.route.app);
+                    return reply(request.route.settings.app);
                 };
             };
 

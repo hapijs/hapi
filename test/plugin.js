@@ -1672,7 +1672,7 @@ describe('Plugin', function () {
             server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(); }, id: 'root', app: { test: 123 } } });
             var root = server.lookup('root');
             expect(root.path).to.equal('/');
-            expect(root.app.test).to.equal(123);
+            expect(root.settings.app.test).to.equal(123);
             done();
         });
 
@@ -1709,13 +1709,13 @@ describe('Plugin', function () {
             server.route({ method: 'GET', path: '/{p}/{x}', config: { handler: function (request, reply) { return reply(); }, id: 'params' } });
             server.route({ method: 'GET', path: '/abc', vhost: 'example.com', config: { handler: function (request, reply) { return reply(); }, id: 'vhost' } });
 
-            expect(server.match('GET', '/').id).to.equal('root');
+            expect(server.match('GET', '/').settings.id).to.equal('root');
             expect(server.match('GET', '/none')).to.equal(null);
-            expect(server.match('GET', '/abc').id).to.equal('abc');
-            expect(server.match('get', '/').id).to.equal('root');
-            expect(server.match('post', '/abc').id).to.equal('post');
-            expect(server.match('get', '/a/b').id).to.equal('params');
-            expect(server.match('GET', '/abc', 'example.com').id).to.equal('vhost');
+            expect(server.match('GET', '/abc').settings.id).to.equal('abc');
+            expect(server.match('get', '/').settings.id).to.equal('root');
+            expect(server.match('post', '/abc').settings.id).to.equal('post');
+            expect(server.match('get', '/a/b').settings.id).to.equal('params');
+            expect(server.match('GET', '/abc', 'example.com').settings.id).to.equal('vhost');
             done();
         });
 

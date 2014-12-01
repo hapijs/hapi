@@ -89,7 +89,7 @@ describe('Route', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(request.route.app.x + request.route.plugins.x.y); }, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
+        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(request.route.settings.app.x + request.route.settings.plugins.x.y); }, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('ok');

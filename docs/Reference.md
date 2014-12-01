@@ -54,6 +54,7 @@
     - [Request lifecycle](#request-lifecycle)
     - [Route configuration](#route-configuration)
         - [Route options](#route-options)
+        - [Route public interface](#route-public-interface)
     - [Path parameters](#path-parameters)
     - [Path matching order](#path-matching-order)
         - [Catch all route](#catch-all-route)
@@ -155,7 +156,7 @@ Creates a new `Server` object where:
               `true`.
 
         - `routes` - sets the default configuration for every route a
-          [route options](#route-options) object.
+          [route public interface](#route-public-interface) object.
 
         - `state` - sets the default configuration for every state (cookie) set explicitly via
           [`server.state()`](#serverstatename-options) or implicitly (without definition) using
@@ -907,7 +908,7 @@ Registers a new handler type to be used in routes where:
   types (`directory`, `file`, `proxy`, and `view`) or any previously registered type.
 - `method` - the function used to generate the route handler using the signature
   `function(route, options)` where:
-    - `route` - the [route options](#route-options) object.
+    - `route` - the [route public interface](#route-public-interface) object.
     - `options` - the configuration object provided in the handler config.
 
 ```js
@@ -1054,7 +1055,7 @@ server.log(['test', 'error'], 'Test event');
 When the server contains exactly one connection, looks up a route configuration where:
 - `id` - the route identifier as set in the [route options](#route-options).
 
-returns the route configuration object if found, otherwise `null`;
+returns the [route public interface](#route-public-interface) object if found, otherwise `null`.
 
 ```js
 var server = new Hapi.Server();
@@ -1081,7 +1082,7 @@ When the server contains exactly one connection, looks up a route configuration 
 - `path` - the requested path (must begin with '/').
 - `host` - optional hostname (to match against routes with `vhost`).
 
-returns the route configuration object if found, otherwise `null`;
+returns the [route public interface](#route-public-interface) object if found, otherwise `null`.
 
 ```js
 var server = new Hapi.Server();
@@ -2249,6 +2250,16 @@ available when setting defaults):
 - `notes` - route notes used for generating documentation (string or array of strings).
 - `tags` - route tags used for generating documentation (array of strings).
 
+#### Route public interface
+
+When route information is returned or made available as a property, it is an object with the
+following:
+- `method` - the route HTTP method.
+- `path` - the route path.
+- `vhost` - the route vhost option if configured.
+- `realm` - the [active realm](#serverrealm) associated with the route.
+- `settings` - the [route options](#route-options) object with all defaults applied.
+
 ### Path parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming
@@ -2642,7 +2653,7 @@ Each request object includes the following properties:
   objects is not recommended.**
     - `req` - the node.js request object.
     - `res` - the node.js response object.
-- `route` - the [route options](#route-options) object after defaults are applied.
+- `route` - the [route public interface](#route-public-interface).
 - `server` - the server object.
 - `session` - Special key reserved for [plugins](#plugins) implementing session support. Plugins
   utilizing this key must check for `null` value to ensure there is no conflict with another
