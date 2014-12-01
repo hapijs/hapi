@@ -25,10 +25,10 @@
     "catbox": "^4.2.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
-    "h2o2": "4.0.0-rc1",
+    "h2o2": "4.0.0-rc2",
     "heavy": "3.0.0-rc1",
     "hoek": "^2.10.x",
-    "inert": "2.0.0-rc3",
+    "inert": "2.0.0-rc5",
     "iron": "2.x.x",
     "items": "1.x.x",
     "joi": "5.x.x",
@@ -40,7 +40,7 @@
     "statehood": "2.0.0-rc2",
     "subtext": "1.x.x",
     "topo": "1.x.x",
-    "vision": "2.0.0-rc2",
+    "vision": "2.0.0-rc3",
     "wreck": "5.x.x"
   },
   "devDependencies": {

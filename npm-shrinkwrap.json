@@ -24,7 +24,7 @@
       "version": "2.0.4"
     },
     "h2o2": {
-      "version": "4.0.0-rc1"
+      "version": "4.0.0-rc2"
     },
     "heavy": {
       "version": "3.0.0-rc1"
@@ -33,7 +33,7 @@
       "version": "2.10.0"
     },
     "inert": {
-      "version": "2.0.0-rc4",
+      "version": "2.0.0-rc5",
       "dependencies": {
         "lru-cache": {
           "version": "2.5.0"
@@ -47,7 +47,7 @@
       "version": "1.1.0"
     },
     "joi": {
-      "version": "5.0.0",
+      "version": "5.0.1",
       "dependencies": {
         "isemail": {
           "version": "1.1.1"
@@ -108,7 +108,7 @@
       "version": "1.0.2"
     },
     "vision": {
-      "version": "2.0.0-rc2"
+      "version": "2.0.0-rc3"
     },
     "wreck": {
       "version": "5.0.1"
