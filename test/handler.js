@@ -983,6 +983,46 @@ describe('handler', function () {
                 done();
             });
         });
+
+        it('uses server method with cache via string notation', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var gen = 0;
+            server.method('user', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob', gen: gen++ });
+            }, { cache: { expiresIn: 1000 } });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user(params.id)'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre.user.gen);
+                    }
+                }
+            });
+
+            server.start(function () {
+
+                server.inject('/user/5', function (res) {
+
+                    expect(res.result).to.equal(0);
+
+                    server.inject('/user/5', function (res) {
+
+                        expect(res.result).to.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
     });
 
     describe('fromString()', function () {
