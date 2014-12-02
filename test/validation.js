@@ -516,6 +516,35 @@ describe('validation', function () {
         });
     });
 
+    it('fails on invalid payload', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) { return reply('ok'); },
+            config: {
+                validate: {
+                    payload: {
+                        a: Joi.string().min(8)
+                    }
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: '{"a":"abc"}', headers: { 'content-type': 'application/json' } }, function (res) {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.validation).to.deep.equal({
+                source: 'payload',
+                keys: ['a']
+            });
+
+            done();
+        });
+    });
+
     it('fails on text input', function (done) {
 
         var server = new Hapi.Server();
