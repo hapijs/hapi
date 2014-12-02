@@ -74,10 +74,7 @@ describe('Server', function () {
     it('skips loading built-in plugins', function (done) {
 
         var server = new Hapi.Server({ minimal: true });
-        expect(function () {
-
-            server.views();
-        }).to.throw('Object [object Object] has no method \'views\'');
+        expect(server.views).to.not.exist();
         done();
     });
 
