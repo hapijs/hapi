@@ -420,5 +420,56 @@ describe('Reply', function () {
                 done();
             });
         });
+
+        it('sets empty reply on continue in prerequisite', function (done) {
+
+            var pre1 = function (request, reply) {
+
+                return reply.continue();
+            };
+
+            var pre2 = function (request, reply) {
+
+                return reply.continue();
+            };
+
+            var pre3 = function (request, reply) {
+
+                return reply({
+                    m1: request.pre.m1,
+                    m2: request.pre.m2
+                });
+            };
+
+            var handler = function (request, reply) {
+                return reply(request.pre.m3);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        { method: pre1, assign: 'm1' },
+                        { method: pre2, assign: 'm2' },
+                        { method: pre3, assign: 'm3' }
+                    ],
+                    handler: handler
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.deep.equal({
+                    m1: null,
+                    m2: null
+                });
+                expect(res.payload).to.equal('{"m1":null,"m2":null}');
+                done();
+            });
+        });
     });
 });
