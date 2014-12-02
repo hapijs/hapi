@@ -251,8 +251,7 @@ the sole connection where:
 - `created` - the connection creation timestamp.
 - `started` - the connection start timestamp (`0` when stopped).
 - `port` - the connection port based on the following rules:
-    - `undefined` when no port is configured or set to `0` and the server has not been started.
-    - the configured port value when set before the server has been started.
+    - the configured port value before the server has been started.
     - the actual port assigned when no port is configured or set to `0` after the server has been
       started.
 - `host` - the host name the connection was configured to. Defaults to the operating system
@@ -264,7 +263,8 @@ the sole connection where:
     - `'https'` - HTTPS.
     - `'socket'` - UNIX domain socket or Windows named pipe.
 - `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
-  'socket:/unix/domain/socket/path'). Only available when `info.port` is available.
+  'socket:/unix/domain/socket/path'). If no `port` is available or set to `0`, the `uri` will not
+  include a port component.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.info`.

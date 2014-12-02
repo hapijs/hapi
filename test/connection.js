@@ -207,6 +207,14 @@ describe('Connection', function () {
         done();
     });
 
+    it('sets info.uri without port when 0', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection({ host: 'example.com' });
+        expect(server.info.uri).to.equal('http://example.com');
+        done();
+    });
+
     it('closes connection on socket timeout', { parallel: false }, function (done) {
 
         var server = new Hapi.Server();
