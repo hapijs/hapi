@@ -1733,10 +1733,10 @@ the combination of tags used.
 - `handler` - the route handler executed. Includes the execution duration.
 - `handler` `error` - the route handler returned an error. Includes the execution duration and the
   error message.
-- `handler` `method` {method} - a string-shortcut handler method was executed. Includes information
-  about the execution including cache performance.
-- `pre` `method` {method} - a string-shortcut pre method was executed. Includes information about
-  the execution including cache performance.
+- `handler` `method` {method} - a string-shortcut handler method was executed (when cache enabled).
+  Includes information about the execution including cache performance.
+- `pre` `method` {method} - a string-shortcut pre method was executed (when cache enabled).
+  Includes information about the execution including cache performance.
 - `pre` - a pre method was executed. Includes the execution duration and assignment key.
 - `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
   assignment key, and error.

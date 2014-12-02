@@ -918,7 +918,7 @@ describe('handler', function () {
             });
         });
 
-        it('logs server method using string notation', function (done) {
+        it('logs server method using string notation when cache enabled', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
@@ -926,40 +926,7 @@ describe('handler', function () {
             server.method('user', function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            });
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user(params.id)'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.getLog('method'));
-                    }
-                }
-            });
-
-            server.inject('/user/5', function (res) {
-
-                expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
-                expect(res.result[0].internal).to.equal(true);
-                expect(res.result[0].data.msec).to.exist();
-                done();
-            });
-        });
-
-        it('logs server method using string notation (sync)', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-
-            server.method('user', function (id) {
-
-                return { id: id, name: 'Bob' };
-            }, { callback: false });
+            }, { cache: { expiresIn: 1000 } });
 
             server.route({
                 method: 'GET',
@@ -1031,14 +998,15 @@ describe('handler', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.method('handler.get', function (request, next) {
+            server.method('handler.get', function (request, reply) {
 
-                return next(null, request.params.x + request.params.y);
+                return reply(null, request.params.x + request.params.y).code(299);
             });
 
             server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
             server.inject('/a/b', function (res) {
 
+                expect(res.statusCode).to.equal(299);
                 expect(res.result).to.equal('ab');
                 done();
             });
