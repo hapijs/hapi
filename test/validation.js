@@ -85,6 +85,63 @@ describe('validation', function () {
         });
     });
 
+    it('validates valid input using auth context', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.auth.scheme('none', function (server, options) {
+
+            return {
+                authenticate: function (request, reply) {
+
+                    return reply.continue({ credentials: { name: 'john' } });
+                }
+            };
+        });
+
+        server.auth.strategy('default', 'none', true);
+
+        server.route({
+            method: 'GET',
+            path: '/{user?}',
+            handler: function (request, reply) { return reply('ok'); },
+            config: {
+                validate: {
+                    query: {
+                        me: Joi.boolean().when('$auth.credentials.name', { is: Joi.ref('$params.user'), otherwise: Joi.forbidden() })
+                    }
+                }
+            }
+        });
+
+        server.inject('/?me=true', function (res) {
+
+            expect(res.statusCode).to.equal(400);
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+
+                server.inject('/steve?me=true', function (res) {
+
+                    expect(res.statusCode).to.equal(400);
+
+                    server.inject('/john?me=true', function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+
+                        server.inject('/john?me=x', function (res) {
+
+                            expect(res.statusCode).to.equal(400);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
     it('fails valid input', function (done) {
 
         var server = new Hapi.Server();
