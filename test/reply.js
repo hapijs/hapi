@@ -398,4 +398,27 @@ describe('Reply', function () {
             });
         });
     });
+
+    describe('continue()', function () {
+
+        it('sets empty reply on continue in handler', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply.continue();
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(null);
+                expect(res.payload).to.equal('');
+                done();
+            });
+        });
+    });
 });
