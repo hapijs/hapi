@@ -1712,9 +1712,9 @@ describe('Plugin', function () {
             done();
         });
 
-        it('does not output events when debug.request disabled', function (done) {
+        it('does not output events when debug.log disabled', function (done) {
 
-            var server = new Hapi.Server({ debug: { request: false } });
+            var server = new Hapi.Server({ debug: { log: false } });
             server.connection();
 
             var i = 0;

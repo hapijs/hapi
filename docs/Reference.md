@@ -162,13 +162,23 @@ Creates a new `Server` object where:
           [`server.state()`](#serverstatename-options) or implicitly (without definition) using
           the [state configuration](#serverstatename-options) object.
 
-    - `debug` - determines which logged events are sent to the console:
+    - `debug` - determines which logged events are sent to the console (this should only be used
+      for development and does not affect which events are actually logged internally and
+      recorded). Set to `false` to disable all console logging, or to an object with:
+        - `log` - a string array of server log tags to be displayed via `console.error()` when
+          the events are logged via [`server.log()`](#serverlogtags-data-timestamp) as well as
+          internally generated [server logs](#server-logs). For example, to display all errors,
+          set the option to `['error']`. To turn off all console debug messages set it to `false`.
+          Defaults to uncaught errors thrown in external code (these errors are handled
+          automatically and result in an Internal Server Error response) or runtime errors due to
+          developer error.
         - `request` - a string array of request log tags to be displayed via `console.error()` when
-          the events are logged via [`request.log()`](#requestlogtags-data-timestamp). Defaults to
-          uncaught errors thrown in external code (these errors are handled automatically and
-          result in an Internal Server Error response) or runtime errors due to developer error.
-          For example, to display all errors, change the option to `['error']`. To turn off all
-          console debug messages set it to `false`.
+          the events are logged via [`request.log()`](#requestlogtags-data-timestamp) as well as
+          internally generated [request logs](#request-logs). For example, to display all errors,
+          set the option to `['error']`. To turn off all console debug messages set it to `false`.
+          Defaults to uncaught errors thrown in external code (these errors are handled
+          automatically and result in an Internal Server Error response) or runtime errors due to
+          developer error.
 
     - `files` - file system related settings:
         - `etagsCacheMaxSize` - sets the maximum number of file etag hash values stored in the
