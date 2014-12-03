@@ -1,7 +1,9 @@
 // Load modules
 
+var Path = require('path');
 var Boom = require('boom');
 var Code = require('code');
+var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -100,6 +102,56 @@ describe('authentication', function () {
                 server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
                     expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it('uses views', function (done) {
+
+            var implementation = function (server, options) {
+
+                server.views({
+                    engines: { 'html': Handlebars },
+                    relativeTo: Path.join(__dirname, '/templates/plugin')
+                });
+
+                var handler = function (request, reply) {
+
+                    return reply.view('test', { message: 'steve' });
+                };
+
+                server.route({ method: 'GET', path: '/view', handler: handler, config: { auth: false } });
+
+                return {
+                    authenticate: function (request, reply) {
+
+                        return reply.view('test', { message: 'xyz' });
+                    }
+                };
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.views({
+                engines: { 'html': Handlebars },
+                relativeTo: Path.join(__dirname, '/no/such/directory')
+            });
+
+            server.auth.scheme('custom', implementation);
+            server.auth.strategy('default', 'custom', true);
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+
+            server.inject('/view', function (res) {
+
+                expect(res.result).to.equal('<h1>steve</h1>');
+
+                server.inject('/', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('<h1>xyz</h1>');
                     done();
                 });
             });
@@ -677,7 +729,7 @@ describe('authentication', function () {
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', { users: { steve: { } } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
             server.auth.default({
                 strategy: 'default',
                 scope: 'one'
