@@ -321,7 +321,7 @@ describe('Plugin', function () {
                 expect(function () {
 
                     server.register(test, function (err) { });
-                }).to.throw('Plugin test already registered in: example.com:0');
+                }).to.throw('Plugin test already registered in: http://example.com');
 
                 done();
             });
@@ -1214,7 +1214,7 @@ describe('Plugin', function () {
                 expect(function () {
 
                     server.start();
-                }).to.throw('Plugin test missing dependency none in connection: ' + Os.hostname() + ':0');
+                }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
                 done();
             });
         });
@@ -1228,7 +1228,7 @@ describe('Plugin', function () {
                 expect(function () {
 
                     server.start();
-                }).to.throw('Plugin deps1 missing dependency deps2 in connection: localhost:80');
+                }).to.throw('Plugin deps1 missing dependency deps2 in connection: http://localhost:80');
                 done();
             });
         });
@@ -1300,7 +1300,7 @@ describe('Plugin', function () {
                 expect(function () {
 
                     server.start();
-                }).to.throw('Plugin b missing dependency c in connection: localhost:80');
+                }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
                 done();
             });
         });
