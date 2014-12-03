@@ -1,10 +1,87 @@
 
 ## [**8.0.0**](https://github.com/hapijs/hapi/issues?milestone=127&state=open)
+- [**#2247**](https://github.com/hapijs/hapi/issues/2247) Split debug settings per event type
+- [**#2246**](https://github.com/hapijs/hapi/issues/2246) plugin dependencies error message changed
+- [**#2234**](https://github.com/hapijs/hapi/issues/2234) Support views in auth schemes
+- [**#2243**](https://github.com/hapijs/hapi/issues/2243) Fix reply.continue() in prerequisite.
+- [**#2244**](https://github.com/hapijs/hapi/issues/2244) Fix reply.continue() in prerequisite. Closes #2243
+- [**#2242**](https://github.com/hapijs/hapi/issues/2242) Uncaught error: Cannot read property 'isBoom' of null in hapi/lib/handler.js
+- [**#2241**](https://github.com/hapijs/hapi/issues/2241) Remove string notation method logging when cache not setup
+- [**#2226**](https://github.com/hapijs/hapi/issues/2226) When using string shorthand in pre it does not provide reply interface
+- [**#2240**](https://github.com/hapijs/hapi/issues/2240) Cached method in string notation bypasses cache
+- [**#2238**](https://github.com/hapijs/hapi/issues/2238) Conditional Validation Rules based on Auth
+- [**#2233**](https://github.com/hapijs/hapi/issues/2233) Populate connection.info.uri before start when port 0
+- [**#2237**](https://github.com/hapijs/hapi/issues/2237) Support bare server (no files, proxy, views)
+- [**#1971**](https://github.com/hapijs/hapi/issues/1971) Allow plugins to extend Server
+- [**#2231**](https://github.com/hapijs/hapi/issues/2231) Change request.route to a wrapper object containing settings
+- [**#2235**](https://github.com/hapijs/hapi/issues/2235) Expose realm as public interface
+- [**#2230**](https://github.com/hapijs/hapi/issues/2230) Replace server.config with server.realm.modifiers
+- [**#2229**](https://github.com/hapijs/hapi/issues/2229) plugin.expose() only sets server.plugins, not connection.plugins
+- [**#2190**](https://github.com/hapijs/hapi/issues/2190) Log heavy load reason when check() is false
+- [**#2220**](https://github.com/hapijs/hapi/issues/2220) A method to test a string against the routes table
+- [**#2228**](https://github.com/hapijs/hapi/issues/2228) Update hapijs/joi to 5.0.0 from 4.9.0
+  - **hapijs/joi 5.0.0**
+  - [**#498**](https://github.com/hapijs/joi/issues/498) array().single()
+- [**#497**](https://github.com/hapijs/joi/issues/497) array.unique doesn't validate duplicate dates
+- [**#494**](https://github.com/hapijs/joi/issues/494) Joi.number allows Infinity
+- [**#462**](https://github.com/hapijs/joi/issues/462) Return context with errors.
+- [**#486**](https://github.com/hapijs/joi/issues/486) array().includes() should not allow undefined
+- [**#485**](https://github.com/hapijs/joi/issues/485) Round number.precision if options.convert
+- [**#489**](https://github.com/hapijs/joi/issues/489) add missing semicolon
+- [**#2227**](https://github.com/hapijs/hapi/issues/2227) Update moment to 2.8.4
+- [**#2224**](https://github.com/hapijs/hapi/issues/2224) Cleanup connection.info settings and introduce 'address' config
+- [**#2219**](https://github.com/hapijs/hapi/issues/2219) Update hapijs/hoek to 2.10.0 from 2.9.0
+  - **hapijs/hoek 2.10.0**
+  - [**#109**](https://github.com/hapijs/hoek/issues/109) Enhance shallow clone methods to support nested keys
+- [**#110**](https://github.com/hapijs/hoek/issues/110) enhance withShallow methods to support nested keys. Closes #109
+- **hapijs/hoek 2.9.1**
+- [**#108**](https://github.com/hapijs/hoek/issues/108) Fix applyToDefaultsWithShallow default clone. Closes #107
+- [**#107**](https://github.com/hapijs/hoek/issues/107) applyToDefaultsWithShallow() fail to retain defaults shallow key
+- [**#2216**](https://github.com/hapijs/hapi/issues/2216) Invalid deep cloning of bind context
+- [**#2217**](https://github.com/hapijs/hapi/issues/2217) Disable scope checking on a route
+- [**#2215**](https://github.com/hapijs/hapi/issues/2215) Revert change to trailing slash behavior 
+- [**#2209**](https://github.com/hapijs/hapi/issues/2209) Not possible to add route in plugins
+- [**#2203**](https://github.com/hapijs/hapi/issues/2203) Move connection route config to route with connections defaults 
+- [**#2206**](https://github.com/hapijs/hapi/issues/2206) Change server.bind() and server.path() to apply only to routes that follow
+- [**#2205**](https://github.com/hapijs/hapi/issues/2205) Rename plugin register() `route` option to `routes`
+- [**#2201**](https://github.com/hapijs/hapi/issues/2201) Rename cacheControlStatus to cache.statuses
+- [**#2200**](https://github.com/hapijs/hapi/issues/2200) Validation failAction and custom function are not protected
+- [**#2199**](https://github.com/hapijs/hapi/issues/2199) add missing variety handler for promises returning a object
+- [**#2193**](https://github.com/hapijs/hapi/issues/2193) Change default on stripTrailingSlash to true
+- [**#2198**](https://github.com/hapijs/hapi/issues/2198) Update hapijs/call to 2.0.1 from 1.0.0
+  - **hapijs/call 2.0.0**
+  - [**#10**](https://github.com/hapijs/call/issues/10) Support route id
+- [**#3**](https://github.com/hapijs/call/issues/3) Support for flexible routes
+- [**#9**](https://github.com/hapijs/call/issues/9) /a/{p}/{p*} conflicts with /a/{p*} (which is not reachable)
+- [**#8**](https://github.com/hapijs/call/issues/8) '/a/b/{p*}' is more specific than '/{p*5}'
+- [**#7**](https://github.com/hapijs/call/issues/7) /a/b/{p*} is more specific than /a/{b}/{c}
+- [**#6**](https://github.com/hapijs/call/issues/6) '/a/{b*}' is less specific than '/a/{b}/{c*}'
+- [**#2**](https://github.com/hapijs/call/issues/2) Match case-insensitive paths with no params
+- [**#1939**](https://github.com/hapijs/hapi/issues/1939) Reverse Routing a URL
+- [**#2185**](https://github.com/hapijs/hapi/issues/2185) Update hapijs/catbox to 4.2.0 from 4.1.0
+  - **hapijs/catbox 4.2.0**
+  - [**#109**](https://github.com/hapijs/catbox/issues/109) Return cached on error when dropOnError is false
+- [**#105**](https://github.com/hapijs/catbox/issues/105) StaleIn can be function.
+- [**#113**](https://github.com/hapijs/catbox/issues/113) Allow empty keys
+- [**#2181**](https://github.com/hapijs/hapi/issues/2181) Remove server method cache key 'h' prefix
+- [**#2179**](https://github.com/hapijs/hapi/issues/2179) server.register() doesn't work with direct require of plugins (-rc1)
+- [**#2156**](https://github.com/hapijs/hapi/issues/2156) Rewrite reply() interface section
+- [**#1945**](https://github.com/hapijs/hapi/issues/1945) IE <=8 doesn't accept application/javascript as a mimetype
+- [**#2178**](https://github.com/hapijs/hapi/issues/2178) Update hapijs/mimos to 2.0.2 from 1.0.1
+  - **hapijs/mimos 2.0.2**
+  - [**#8**](https://github.com/hapijs/mimos/issues/8) Change source from hapi to mimos
+- **hapijs/mimos 2.0.1**
+- [**#7**](https://github.com/hapijs/mimos/issues/7) Improve performance for testing
+- **hapijs/mimos 2.0.0**
+- [**#6**](https://github.com/hapijs/mimos/issues/6) Added ability to override entries in the mime database.
+- [**#2157**](https://github.com/hapijs/hapi/issues/2157) Link mentions of methods to their reference
+- [**#2177**](https://github.com/hapijs/hapi/issues/2177) Return select() on server.connection()
+- [**#2155**](https://github.com/hapijs/hapi/issues/2155) Cleanup and document all internal request logs
 - [**#2175**](https://github.com/hapijs/hapi/issues/2175) Update jshttp/mime-db to 1.2.0 from 1.1.2
 - [**#2174**](https://github.com/hapijs/hapi/issues/2174) Update hapijs/qs to 2.3.3 from 2.3.2
   - **hapijs/qs 2.3.3**
   - [**#59**](https://github.com/hapijs/qs/issues/59) make sure array indexes are >= 0, closes #57
-  - [**#58**](https://github.com/hapijs/qs/issues/58) make qs usable for browser loader
+- [**#58**](https://github.com/hapijs/qs/issues/58) make qs usable for browser loader
 - [**#2173**](https://github.com/hapijs/hapi/issues/2173) Update hapijs/catbox-memory to 1.1.1 from 1.1.0
 - [**#2172**](https://github.com/hapijs/hapi/issues/2172) Update hapijs/boom to 2.6.0 from 2.5.1
   - **hapijs/boom 2.6.0**
@@ -59,7 +136,7 @@
 - [**#2103**](https://github.com/hapijs/hapi/issues/2103) Change ext continuation method from `reply()` to `reply.continue()`
 - [**#1965**](https://github.com/hapijs/hapi/issues/1965) Need to know when response was sent in `server.on(tail)`
 - [**#2065**](https://github.com/hapijs/hapi/issues/2065) failing to generate a method key should generate an error somewhere
-- [**#2089**](https://github.com/hapijs/hapi/issues/2089) How to use the Debug output
+- [**#2089**](https://github.com/hapijs/hapi/issues/2089) Server method `generateKey` no longer supports returning null as valid no caching indicator
 - [**#1963**](https://github.com/hapijs/hapi/issues/1963) Extensible reply() interface
 - [**#1866**](https://github.com/hapijs/hapi/issues/1866) Throw error when trying to reply twice
 - [**#1864**](https://github.com/hapijs/hapi/issues/1864) Feature Request: Validation of non-200/ok responses.
