@@ -1523,6 +1523,9 @@ and the value is an array of routes where each route contains:
 - `method` - the HTTP method in lower case.
 - `path` - the route path.
 
+Note that if the server has not been started and multiple connections use port `0`, the table items
+will override each other and will produce an incomplete result.
+
 ```js
 var Hapi = require('hapi');
 var server = new Hapi.Server();
