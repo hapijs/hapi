@@ -249,6 +249,43 @@ describe('Reply', function () {
             });
         });
 
+        it('errors on objectMode stream reply', function (done) {
+
+            var TestStream = function () {
+
+                Stream.Readable.call(this, { objectMode: true });
+            };
+
+            Hoek.inherits(TestStream, Stream.Readable);
+
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push({ x: 1 });
+                this.push({ y: 1 });
+                this.push(null);
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(new TestStream());
+            };
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
         describe('promises', function () {
 
             it('returns a stream', function (done) {
