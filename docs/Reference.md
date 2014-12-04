@@ -273,8 +273,9 @@ the sole connection where:
     - `'https'` - HTTPS.
     - `'socket'` - UNIX domain socket or Windows named pipe.
 - `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
-  'socket:/unix/domain/socket/path'). If no `port` is available or set to `0`, the `uri` will not
-  include a port component.
+  'socket:/unix/domain/socket/path'). Contains the `uri` setting if provided, otherwise constructed
+  from the available settings. If no `port` is available or set to `0`, the `uri` will not include
+  a port component.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.info`.
@@ -753,6 +754,8 @@ Adds an incoming server connection where:
   uses an available port when the server is started (and assigned to `server.info.port`). If `port`
   is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
   with '\\.\pipe' as a Windows named pipe.
+- `uri` - the full public URI without the path (e.g. 'http://example.com:8080'). If present, used
+  as the connection `info.uri` otherwise constructed from the connection settings.
 - `listener` - optional node.js HTTP (or HTTPS)
   [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server) object or any compatible
   object. If the `listener` needs to be manually started, set `autoListen` to `false`.

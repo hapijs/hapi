@@ -98,6 +98,30 @@ describe('Connection', function () {
         });
     });
 
+    it('uses uri when present instead of host and port', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
+        expect(server.info.uri).to.equal('http://uri.example.com:8080');
+        server.start(function () {
+
+            expect(server.info.host).to.equal('no.such.domain.hapi');
+            expect(server.info.address).to.equal('127.0.0.1');
+            expect(server.info.uri).to.equal('http://uri.example.com:8080');
+            done();
+        });
+    });
+
+    it('throws on uri ending with /', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.connection({ uri: 'http://uri.example.com:8080/' });
+        }).to.throw(/Invalid connection options/);
+        done();
+    });
+
     it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, function (done) {
 
         var port = Path.join(__dirname, 'hapi-server.socket');
