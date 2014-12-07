@@ -598,7 +598,7 @@ describe('Connection', function () {
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
-            var routes = server.table()[server.info.uri];
+            var routes = server.table()[0].table;
 
             expect(routes.length).to.equal(2);
             expect(routes[0].path).to.equal('/test/');
@@ -630,7 +630,7 @@ describe('Connection', function () {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
-            var routes = server.table()[server.info.uri];
+            var routes = server.table()[0].table;
 
             expect(routes.length).to.equal(4);
             done();
@@ -646,7 +646,7 @@ describe('Connection', function () {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
-            var routes = server.table('one.example.com')[server.info.uri];
+            var routes = server.table('one.example.com')[0].table;
 
             expect(routes.length).to.equal(3);
             done();
@@ -662,7 +662,7 @@ describe('Connection', function () {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
-            var routes = server.table(['one.example.com', 'two.example.com'])[server.info.uri];
+            var routes = server.table(['one.example.com', 'two.example.com'])[0].table;
 
             expect(routes.length).to.equal(4);
             done();
@@ -678,7 +678,7 @@ describe('Connection', function () {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
-            var routes = server.table('three.example.com')[server.info.uri];
+            var routes = server.table('three.example.com')[0].table;
 
             expect(routes.length).to.equal(2);
             done();
@@ -1083,7 +1083,7 @@ describe('Connection', function () {
                 }
             ]);
 
-            var table = server.table()[server.info.uri];
+            var table = server.table()[0].table;
             var paths = table.map(function (route) {
                 var obj = {
                     method: route.method,

@@ -2181,12 +2181,11 @@ describe('Plugin', function () {
 
 internals.routesList = function (server, label) {
 
-    var table = server.select(label || []).table();
-    var connections = Object.keys(table);
+    var tables = server.select(label || []).table();
 
     var list = [];
-    for (var c = 0, cl = connections.length; c < cl; ++c) {
-        var routes = table[connections[c]];
+    for (var c = 0, cl = tables.length; c < cl; ++c) {
+        var routes = tables[c].table;
         for (var i = 0, il = routes.length; i < il; ++i) {
             var route = routes[i];
             if (route.method === 'get') {
