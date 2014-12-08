@@ -20,6 +20,6 @@ Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 - For a self-guided lesson on hapi, use [Make Me Hapi](https://github.com/hapijs/makemehapi).
 - For a full application example, check out [postmile](https://github.com/hueniverse/postmile).
 - Information about the **work-in-progress** in the master branch:
-    - [API reference](/docs/Reference.md)
+    - [API reference](/API.md)
     - [Upcoming breaking changes](https://github.com/hapijs/hapi/issues?labels=breaking+changes)
 - For **discussions** join the [#hapi channel](http://webchat.freenode.net/?channels=hapi) on irc.freenode.net.
