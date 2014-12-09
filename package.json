@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "8.0.0-rc9",
+  "version": "8.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -25,10 +25,10 @@
     "catbox": "^4.2.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
-    "h2o2": "4.0.0-rc2",
-    "heavy": "3.0.0-rc1",
+    "h2o2": "4.x.x",
+    "heavy": "3.x.x",
     "hoek": "^2.10.x",
-    "inert": "2.0.0-rc6",
+    "inert": "2.x.x",
     "iron": "2.x.x",
     "items": "1.x.x",
     "joi": "5.x.x",
@@ -37,16 +37,16 @@
     "peekaboo": "1.x.x",
     "qs": "2.x.x",
     "shot": "1.x.x",
-    "statehood": "2.0.0-rc2",
+    "statehood": "2.x.x",
     "subtext": "1.x.x",
     "topo": "1.x.x",
-    "vision": "2.0.0-rc3",
+    "vision": "2.x.x",
     "wreck": "5.x.x"
   },
   "devDependencies": {
     "bluebird": "2.x.x",
     "code": "1.x.x",
-    "handlebars": "1.x.x",
+    "handlebars": "2.x.x",
     "lab": "5.x.x"
   },
   "scripts": {
