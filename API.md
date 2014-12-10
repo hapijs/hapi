@@ -211,7 +211,7 @@ var Hapi = require('hapi');
 var server = new Hapi.Server({
     cache: require('catbox-redis'),
     load: {
-        sampleInterface: 1000
+        sampleInterval: 1000
     }
 });
 ```
@@ -302,7 +302,7 @@ An object containing the process load metrics (when `load.sampleInterval` is ena
 
 ```js
 var Hapi = require('hapi');
-var server = new Hapi.Server({ load: { sampleInterface: 1000 } });
+var server = new Hapi.Server({ load: { sampleInterval: 1000 } });
 
 console.log(server.load.rss);
 ```
