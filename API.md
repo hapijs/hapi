@@ -2021,7 +2021,7 @@ following options:
   the following options:
     - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin').
       The array can contain any combination of fully qualified origins along with origin
-      strings containing a wilcard '*' character, or a single `'*'` origin string. Defaults
+      strings containing a wildcard '*' character, or a single `'*'` origin string. Defaults
       to any origin `['*']`.
     - `matchOrigin` - if `true`, matches the value of the incoming 'Origin' header to the
       list of `origin` values ('*' matches anything) and if a match is found, uses that as
@@ -2058,7 +2058,7 @@ following options:
 
 - `handler` - an alternative location for the route `handler` option.
 
-- `id` - an optional unique indentifier used to look up the route using
+- `id` - an optional unique identifier used to look up the route using
   [`server.lookup()`](#serverlookupid).
 
 - `json` - optional arguments passed to `JSON.stringify()` when converting an object or
@@ -2417,7 +2417,7 @@ config to an object containing one of these keys:
             - `'attachment'`
             - `'inline'`
         - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix
-          for a precompressed version of the file to serve if the request supports content
+          for a pre-compressed version of the file to serve if the request supports content
           encoding. Defaults to `false`.
 
 - `directory` - generates a directory endpoint for serving static content from a directory.
@@ -3127,7 +3127,7 @@ error generation. **boom** provides an expressive interface to return HTTP error
 returned via the [reply interface](#reply-interface) is converted to a **boom** object and defaults
 to status code `500` if the error is not a **boom** object.
 
-When the error is sent back to the client, the responses contians a JSON object with the
+When the error is sent back to the client, the responses contains a JSON object with the
 `statusCode`, `error`, and `message` keys.
 
 ```js
@@ -3283,7 +3283,7 @@ based on filename extension.:
         - `'attachment'`
         - `'inline'`
     - `lookupCompressed` - if `true`, looks for the same filename with the '.gz' suffix for a
-      precompressed version of the file to serve if the request supports content encoding.
+      pre-compressed version of the file to serve if the request supports content encoding.
       Defaults to `false`.
 
 No return value.
