@@ -1517,11 +1517,13 @@ Returns a copy of the routing table where:
 - `host` - optional host to filter routes matching a specific virtual host. Defaults to all virtual
   hosts.
 
-The return value is an object where each key is the `connection.info.uri` value of each connection
-and the value is an array of routes where each route contains:
-- `settings` - the route config with defaults applied.
-- `method` - the HTTP method in lower case.
-- `path` - the route path.
+The return value is an array where each item is an object containing:
+- `info` - the `connection.info` the connection the table was generated for.
+- `labels` - the connection labels.
+- `table` - an array of routes where each route contains:
+    - `settings` - the route config with defaults applied.
+    - `method` - the HTTP method in lower case.
+    - `path` - the route path.
 
 Note that if the server has not been started and multiple connections use port `0`, the table items
 will override each other and will produce an incomplete result.
@@ -1533,22 +1535,10 @@ server.connection({ port: 80, host: 'example.com' });
 server.route({ method: 'GET', path: '/example', handler: function (request, reply) { return reply(); } });
 
 var table = server.table();
-
-/*
-    {
-        'http://example.com:80': [
-            {
-                method: 'get',
-                path: '/example',
-                settings: { ... }
-            }
-        ]
-    }
-*/
 ```
 
 When calling `connection.table()` directly on each connection, the return value is the same as the
-array value assigned to each connection record:
+array `table` item value of an individual connection:
 
 ```js
 var Hapi = require('hapi');
