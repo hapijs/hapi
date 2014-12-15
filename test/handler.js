@@ -6,6 +6,7 @@ var Code = require('code');
 var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Lab = require('lab');
+var Promise = require('bluebird');
 
 
 // Declare internals
@@ -112,6 +113,20 @@ describe('handler', function () {
             server.inject('/', function (res) {
 
                 expect(res.result).to.equal('ok');
+                done();
+            });
+        });
+
+        it ('handles promises as return values', function(done) {
+            var item = { x: 123 };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return Promise.cast(this.x); }, bind: item } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal(item.x);
                 done();
             });
         });
