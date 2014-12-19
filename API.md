@@ -2102,7 +2102,7 @@ following options:
     - `maxBytes` - limits the size of incoming payloads to the specified byte count.
       Allowing very large payloads may cause the server to run out of memory. Defaults to
       `1048576` (1MB).
-    - `client` - payload reception timeout in milliseconds. Sets the maximum time allowed for the
+    - `timeout` - payload reception timeout in milliseconds. Sets the maximum time allowed for the
       client to transmit the request payload (body) before giving up and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
     - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
     - `failAction` - determines how to handle payload parsing errors. Allowed values are:
