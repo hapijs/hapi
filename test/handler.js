@@ -918,6 +918,41 @@ describe('handler', function () {
             });
         });
 
+        it('logs boom error instance as data if handler returns boom error', function(done){
+             var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(Boom.forbidden());
+                    }
+                }
+            });
+
+            var log = null;
+            server.on('request-internal', function (request, event, tags) {
+
+                if (event.internal &&
+                    tags.handler &&
+                    tags.error) {
+
+                    log = event.data;
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(403);
+                expect(log.data.isBoom).to.equal(true);
+                expect(log.data.output.statusCode).to.equal(403);
+                expect(log.data.message).to.equal('Forbidden');
+                done();
+            });
+        });
+
         it('logs server method using string notation when cache enabled', function (done) {
 
             var server = new Hapi.Server();
