@@ -2894,7 +2894,7 @@ Both `err` and `result` can be set to:
 - boolean
 - `Buffer` object
 - `Error` object
-- `Stream` object
+- `Stream` object (**Note** - any `Stream` object must be compatible with the "streams2" API and not be in `objectMode`)
 - Promise object
 - any other object or array
 
