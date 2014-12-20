@@ -222,7 +222,7 @@ var server = new Hapi.Server({
 
 Provides a safe place to store server-specific run-time application data without potential
 conflicts with the framework internals. The data can be accessed whenever the server is
-accessible. Initialized with am empty object.
+accessible. Initialized with an empty object.
 
 ```js
 var Hapi = require('hapi');
