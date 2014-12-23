@@ -153,7 +153,7 @@ Creates a new `Server` object where:
             - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are
               considered different resources. Defaults to `true`.
             - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to
-              `true`.
+              `false`.
 
         - `routes` - sets the default configuration for every route a
           [route public interface](#route-public-interface) object.
