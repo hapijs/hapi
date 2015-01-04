@@ -155,8 +155,8 @@ Creates a new `Server` object where:
             - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to
               `false`.
 
-        - `routes` - sets the default configuration for every route a
-          [route public interface](#route-public-interface) object.
+        - `routes` - a [route options](#route-options) object used to set the default configuration
+          for every route.
 
         - `state` - sets the default configuration for every state (cookie) set explicitly via
           [`server.state()`](#serverstatename-options) or implicitly (without definition) using
