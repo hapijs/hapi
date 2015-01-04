@@ -1432,11 +1432,16 @@ describe('transmission', function () {
         });
         describe('response range', function () {
 
-            it('returns a subset of a file (start)', function (done) {
+            var fileStreamHandler = function (request, reply) {
+                var filePath = Path.join(__dirname, 'file', 'image.png');
+                return reply(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size);
+            }
+
+            it('returns a subset of a fileStream (start)', function (done) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, function (res) {
 
@@ -1449,11 +1454,11 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a file (middle)', function (done) {
+            it('returns a subset of a fileStream (middle)', function (done) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } }, function (res) {
 
@@ -1466,11 +1471,11 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a file (-to)', function (done) {
+            it('returns a subset of a fileStream (-to)', function (done) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } }, function (res) {
 
@@ -1483,11 +1488,11 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a file (from-)', function (done) {
+            it('returns a subset of a fileStream (from-)', function (done) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } }, function (res) {
 
@@ -1500,11 +1505,11 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a file (beyond end)', function (done) {
+            it('returns a subset of a fileStream (beyond end)', function (done) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } }, function (res) {
 
@@ -1517,11 +1522,11 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a file (if-range)', function (done) {
+            it('returns a subset of a fileStream (if-range)', function (done) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject('/file', function (res) {
 
@@ -1544,7 +1549,7 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } }, function (res2) {
 
@@ -1557,7 +1562,7 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } }, function (res) {
 
@@ -1571,7 +1576,7 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } }, function (res) {
 
@@ -1585,7 +1590,7 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } }, function (res) {
 
@@ -1599,7 +1604,7 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=-' } }, function (res) {
 
@@ -1613,7 +1618,7 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/file', handler: { file: { path: Path.join(__dirname, 'file/image.png') } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } }, function (res) {
 
