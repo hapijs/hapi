@@ -102,6 +102,7 @@ describe('Reply', function () {
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal(null);
                 expect(res.payload).to.equal('');
+                expect(res.headers['content-type']).to.not.exist();
                 done();
             });
         });
