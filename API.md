@@ -1,4 +1,4 @@
-# 8.0.x API Reference
+# 8.1.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -758,7 +758,8 @@ Adds an incoming server connection where:
   as the connection `info.uri` otherwise constructed from the connection settings.
 - `listener` - optional node.js HTTP (or HTTPS)
   [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server) object or any compatible
-  object. If the `listener` needs to be manually started, set `autoListen` to `false`.
+  object. If the `listener` needs to be manually started, set `autoListen` to `false`. If the
+  `listener` uses TLS, set `tls` to `true`.
 - `autoListen` - indicates that the `connection.listener` will be started manually outside the
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
 - `cache` - caching headers configuration:
@@ -769,6 +770,7 @@ Adds an incoming server connection where:
 - `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
   the node.js HTTPS server as described in the
   [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+  Set to `true` when passing a `listener` object that has been configured to use TLS directly.
 - Any [connections configuration server defaults](#server.config.connections) can be included to
   override and customize the individual connection.
 

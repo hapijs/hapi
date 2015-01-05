@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -50,8 +50,8 @@
     "lab": "5.x.x"
   },
   "scripts": {
-    "test": "make test-cov",
-    "test-tap": "make test-tap"
+    "test": "node node_modules/lab/bin/lab -a code -t 100 -L",
+    "test-tap": "node node_modules/lab/bin/lab -a code -r tap -o tests.tap"
   },
   "licenses": [
     {

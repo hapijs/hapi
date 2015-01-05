@@ -194,6 +194,21 @@ describe('Connection', function () {
         });
     });
 
+    it('uses a provided listener (TLS)', function (done) {
+
+        var listener = Http.createServer();
+        var server = new Hapi.Server();
+        server.connection({ listener: listener, tls: true });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+
+        server.start(function () {
+
+            expect(server.info.protocol).to.equal('https');
+            server.stop();
+            done();
+        });
+    });
+
     it('uses a provided listener with manual listen', function (done) {
 
         var listener = Http.createServer();
