@@ -776,6 +776,9 @@ Adds an incoming server connection where:
 
 Returns a server object with the new connection selected.
 
+Must be called before any other server method that modifies connections is called for it to apply
+to the new connection (e.g. [`server.state()`](#serverstatename-options)).
+
 Note that the `options` object is deeply cloned (with the exception of `listener` which is
 shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
 
