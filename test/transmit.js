@@ -1719,6 +1719,26 @@ describe('transmission', function () {
 
     describe('cors()', function () {
 
+        it('returns CORS origin (route level)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler, config: { cors: true } });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-origin']).to.equal('*');
+                done();
+            });
+        });
+
         it('returns CORS origin (GET)', function (done) {
 
             var handler = function (request, reply) {
