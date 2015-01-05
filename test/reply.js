@@ -1,5 +1,6 @@
 // Load modules
 
+var Http = require('http');
 var Stream = require('stream');
 var Bluebird = require('bluebird');
 var Boom = require('boom');
@@ -244,6 +245,33 @@ describe('Reply', function () {
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
                     expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                    done();
+                });
+            });
+        });
+
+        it('responds with an http client stream reply', function (done) {
+
+            var handler = function (request, reply) {
+
+                reply('just a string');
+            };
+
+            var streamHandler = function (request, reply) {
+
+                reply(Http.get(request.server.info + '/'));
+            };
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+
+            server.start(function () {
+
+                server.inject('/stream', function (res) {
+
+                    expect(res.statusCode).to.equal(200);
                     done();
                 });
             });
