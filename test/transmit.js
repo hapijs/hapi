@@ -1433,6 +1433,7 @@ describe('transmission', function () {
         describe('response range', function () {
 
             var fileStreamHandler = function (request, reply) {
+
                 var filePath = Path.join(__dirname, 'file', 'image.png');
                 return reply(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size);
             }
