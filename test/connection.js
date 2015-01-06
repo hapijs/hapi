@@ -601,6 +601,26 @@ describe('Connection', function () {
                 done();
             });
         });
+
+        it('returns the request object', function (done) {
+
+            var handler = function (request, reply) {
+
+                request.app.key = 'value';
+                return reply();
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.request.app.key).to.equal('value');
+                done();
+            });
+        });
     });
 
     describe('table()', function () {

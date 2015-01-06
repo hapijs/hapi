@@ -1023,11 +1023,13 @@ for performing injections, with some additional options and response properties:
         - `payload` - the response payload string.
         - `rawPayload` - the raw response payload buffer.
         - `raw` - an object with the injection request and response objects:
-            - `req` - the [request object](#request-object).
-            - `res` - the response object.
-        - `result` - the raw handler response (e.g. when not a stream) before it is serialized for
-          transmission. If not available, set to `payload`. Useful for inspection and reuse of the
-          internal objects returned (instead of parsing the response string).
+            - `req` - the simulated node request object.
+            - `res` - the simulated node response object.
+        - `result` - the raw handler response (e.g. when not a stream or a view) before it is
+          serialized for transmission. If not available, the value is set to `payload`. Useful for
+          inspection and reuse of the internal objects returned (instead of parsing the response
+          string).
+        - `request` - the [request object](#request-object).
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.inject()`.
