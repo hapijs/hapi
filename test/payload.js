@@ -79,8 +79,9 @@ describe('payload', function () {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-        server.once('response', function (request) {
+        server.once('tail', function (request) {
 
+            expect(request.response).to.null()
             expect(request._isBailed).to.equal(true);
             done();
         });
