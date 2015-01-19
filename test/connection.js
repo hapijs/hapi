@@ -640,6 +640,20 @@ describe('Connection', function () {
             done();
         });
 
+        it('returns the labels for the connections', function (done) {
+
+          var server = new Hapi.Server();
+          server.connection({ labels: ['test'] });
+
+          server.route({ path: '/test/', method: 'get', handler: function () { } });
+          server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+
+          var connection = server.table()[0];
+
+          expect(connection.labels).to.only.include(['test']);
+          done();
+        });
+
         it('returns an array of the current routes (connection)', function (done) {
 
             var server = new Hapi.Server();
