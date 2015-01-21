@@ -1499,8 +1499,8 @@ server.on('request-internal', function (request, event, tags) {
 
 ### `server.stop([options], [callback])`
 
-Stops the server's connections by refusing to accept any new connections (existing connections will
-continue until closed or timeout), where:
+Stops the server's connections by refusing to accept any new connections or requests (existing
+connections will continue until closed or timeout), where:
 - `options` - optional object with:
     - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
       Defaults to `5000` (5 seconds).
