@@ -511,7 +511,10 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
+            var initial = server.listener.listeners('connection').length;
             server.start(function () {
+
+                expect(server.listener.listeners('connection').length).to.be.greaterThan(initial);
 
                 server.stop(function () {
 
@@ -519,7 +522,7 @@ describe('Connection', function () {
 
                         server.stop(function () {
 
-                            expect(server.listeners('connection').length).to.equal(0);
+                            expect(server.listener.listeners('connection').length).to.equal(initial);
                             done();
                         });
                     });
