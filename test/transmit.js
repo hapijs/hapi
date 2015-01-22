@@ -1779,6 +1779,7 @@ describe('transmission', function () {
             server.inject({ method: 'options', url: '/', headers: { origin: 'http://x.example.com' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
+                expect(res.payload.length).to.equal(0);
                 expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com http://www.example.com');
                 done();
             });
