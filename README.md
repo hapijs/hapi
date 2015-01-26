@@ -1,6 +1,6 @@
 <img src="https://raw.github.com/hapijs/hapi/master/images/hapi.png" />
 
-### A web and services application framework
+### Web and services application framework
 
 Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
