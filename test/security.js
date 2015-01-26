@@ -220,6 +220,7 @@ describe('security', function () {
         function (res) {
 
             expect(res.result.message).to.not.contain('<script>');
+            expect(JSON.stringify(res.result.validation)).to.not.contain('<script>');
             done();
         });
     });
@@ -247,6 +248,7 @@ describe('security', function () {
         function (res) {
 
             expect(res.result.message).to.not.contain('<script>');
+            expect(JSON.stringify(res.result.validation)).to.not.contain('<script>');
             done();
         });
     });
@@ -272,6 +274,7 @@ describe('security', function () {
         function (res) {
 
             expect(res.result.message).to.not.contain('<script>');
+            expect(JSON.stringify(res.result.validation)).to.not.contain('<script>');
             done();
         });
     });
