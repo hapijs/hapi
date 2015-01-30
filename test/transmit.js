@@ -1318,6 +1318,78 @@ describe('transmission', function () {
             });
         });
 
+        it('does not leak classic stream data when passed to request and aborted', function (done) {
+
+            var destroyed = false;
+
+            var handler = function (request, reply) {
+
+                var stream = new Stream();
+                stream.readable = true;
+
+                var _read = function () {
+
+                    setImmediate(function () {
+
+                        if (paused) {
+                            return;
+                        }
+
+                        var chunk = new Array(1024).join('x');
+
+                        if (destroyed) {
+                            stream.emit('data', chunk);
+                            stream.readable = false;
+                            stream.emit('end');
+                        } else {
+                            stream.emit('data', chunk);
+                            _read();
+                        }
+                    });
+                };
+
+                var paused = true;
+                stream.resume = function () {
+
+                    if (paused) {
+                        paused = false;
+                        _read();
+                    }
+                };
+                stream.pause = function () {
+
+                    paused = true;
+                };
+
+                stream.resume();
+
+                stream.once('end', function () {
+
+                    done();
+                });
+
+                return reply(stream);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.start(function () {
+
+                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+
+                    res.on('data', function (chunk) {
+
+                        if (!destroyed) {
+                            destroyed = true;
+                            res.destroy();
+                        }
+                    });
+                });
+            });
+        });
+
         it('does not leak stream data when request timeouts before stream drains', function (done) {
 
             var handler = function (request, reply) {

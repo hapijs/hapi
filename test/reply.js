@@ -251,7 +251,56 @@ describe('Reply', function () {
             });
         });
 
-        it('responds with an http client stream reply', function (done) {
+        it('errors on non-readable stream reply', function (done) {
+
+            var streamHandler = function (request, reply) {
+
+                var stream = new Stream();
+                stream.writable = true;
+
+                reply(stream);
+            };
+
+            var writableHandler = function (request, reply) {
+
+                var writable = new Stream.Writable();
+                writable._write = function () {};
+
+                reply(writable);
+            };
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+            server.route({ method: 'GET', path: '/writable', handler: writableHandler });
+
+            var requestError;
+            server.on('request-error', function (request, err) {
+
+                requestError = err;
+            });
+
+            server.start(function () {
+
+                server.inject('/stream', function (res) {
+
+                    expect(res.statusCode).to.equal(500);
+                    expect(requestError).to.exist();
+                    expect(requestError.message).to.contain('Stream is not a streams2 Readable');
+
+                    requestError = undefined;
+                    server.inject('/writable', function (res) {
+
+                        expect(res.statusCode).to.equal(500);
+                        expect(requestError).to.exist();
+                        expect(requestError.message).to.contain('Stream is not a streams2 Readable');
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('errors on an http client stream reply', function (done) {
 
             var handler = function (request, reply) {
 
@@ -272,7 +321,7 @@ describe('Reply', function () {
 
                 server.inject('/stream', function (res) {
 
-                    expect(res.statusCode).to.equal(200);
+                    expect(res.statusCode).to.equal(500);
                     done();
                 });
             });
