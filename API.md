@@ -115,7 +115,7 @@ Creates a new `Server` object where:
               name must be unique. A single item may omit the `name` option which defines the
               default cache. If every cache includes a `name`, a default memory cache is provisions
               as well.
-            - `shared` - if `true`, allows multiple cache uses to share the same segment (e.g.
+            - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
               multiple methods using the same cache storage container). Default to `false`.
             - other options passed to the **catbox** strategy used.
         - an array of the above object for configuring multiple cache instances, each with a unique
