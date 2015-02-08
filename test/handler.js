@@ -918,8 +918,9 @@ describe('handler', function () {
             });
         });
 
-        it('logs boom error instance as data if handler returns boom error', function(done){
-             var server = new Hapi.Server();
+        it('logs boom error instance as data if handler returns boom error', function (done) {
+
+            var server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
