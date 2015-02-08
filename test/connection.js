@@ -507,6 +507,36 @@ describe('Connection', function () {
             });
         });
 
+       it('refuses to handle new incoming requests', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+            server.start(function () {
+
+                var agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
+                var err2;
+
+                Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, function (err1, res, body) {
+
+                    server.stop(function() {
+
+                        expect(err1).to.not.exist();
+                        expect(body.toString()).to.equal('ok');
+                        expect(server.connections[0]._started).to.equal(false);
+                        expect(err2).to.exist();
+                        done();
+                    });
+                });
+
+                Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, function (err, res, body) {
+
+                    err2 = err;
+                });
+
+            });
+        });
+
         it('removes connection event listeners after it stops', function (done) {
 
             var server = new Hapi.Server();
