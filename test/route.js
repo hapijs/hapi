@@ -3,7 +3,7 @@
 var Code = require('code');
 var Hapi = require('..');
 var Lab = require('lab');
-
+var Joi = require('joi');
 
 // Declare internals
 
@@ -19,6 +19,28 @@ var expect = Code.expect;
 
 
 describe('Route', function () {
+
+    it('throws when payload validation is used with GET or HEAD methods', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+
+        var validation = {payload: {test: Joi.number()}};
+        var routeGET = { method: 'GET', path: '/', config: { validate: validation, handler: function (req, reply) { return reply('ok'); } } };
+        var routeWILDCARD = { method: '*', path: '/', config: { validate: validation, handler: function () { } } };
+        var errMsg = 'Payload validation cannot be used with \'get\' or \'head\' HTTP methods';
+
+        expect(function () {
+            server.route(routeGET);
+        }).to.throw(errMsg);
+
+        server.route(routeWILDCARD);
+        server.inject('/', function (res) {
+
+            expect(res.result.statusCode).to.equal(500);
+            done();
+        });
+    });
 
     it('throws an error when a route is missing a path', function (done) {
 
