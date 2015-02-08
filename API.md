@@ -1,4 +1,4 @@
-# 8.1.x API Reference
+# 8.2.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -1662,8 +1662,9 @@ The server object inherits from `Events.EventEmitter` and emits the following ev
   (multiple events per request).
 - `'request-error'` - emitted whenever an Internal Server Error (500) error response is sent.
   Single event per request.
-- `'response'` - emitted after a response to a client request is sent back. Single event per
-  request.
+- `'response'` - emitted after the response is sent back to the client (or when the client
+  connection closed and no response sent, in which case `request.response` is `null`). Single event
+  per request.
 - `'tail'` - emitted when a request finished processing, including any registered tails. Single
   event per request.
 
@@ -2672,7 +2673,8 @@ Each request object includes the following properties:
 - `response` - the response object when set. The object can be modified but must not be assigned
   another object. To replace the response with another from within an
   [extension point](#serverextevent-method-options), use `reply(response)` to override with a
-  different response.
+  different response. Contains `null` when no response has been set (e.g. when a request terminates
+  prematurely when the client disconnects).
 - `preResponses` - same as `pre` but represented as the response object created by the pre method.
 - `query` - an object containing the query parameters.
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
