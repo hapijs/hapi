@@ -2,6 +2,7 @@
 
 var Code = require('code');
 var Hapi = require('..');
+var Joi = require('joi');
 var Lab = require('lab');
 
 
@@ -106,6 +107,52 @@ describe('Route', function () {
             server.route({ method: 'POST', path: '/', handler: function () { }, config: { validate: { payload: {} }, payload: { parse: false } } });
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
         done();
+    });
+
+    it('throws when validation is set on GET', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        expect(function () {
+
+            server.route({ method: 'GET', path: '/', handler: function () { }, config: { validate: { payload: {} } } });
+        }).to.throw('Cannot validate HEAD or GET requests: /');
+        done();
+    });
+
+    it('throws when payload parsing is set on GET', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        expect(function () {
+
+            server.route({ method: 'GET', path: '/', handler: function () { }, config: { payload: { parse: true } } });
+        }).to.throw('Cannot set payload settings on HEAD or GET request: /');
+        done();
+    });
+
+    it('ignores validation on * route when request is GET', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({ method: '*', path: '/', handler: function (request, reply) { return reply(); }, config: { validate: { payload: { a: Joi.required() } } } });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('ignores default validation on GET', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection({ routes: { validate: { payload: { a: Joi.required() } } } });
+        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
     });
 
     it('shallow copies route config bind', function (done) {
