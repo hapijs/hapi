@@ -117,7 +117,7 @@ describe('security', function () {
 
         server.inject('/index%00.html', function (res) {
 
-            expect(res.statusCode).to.equal(403);
+            expect(res.statusCode).to.equal(404);
             done();
         });
     });
