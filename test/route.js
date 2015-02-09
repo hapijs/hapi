@@ -32,13 +32,23 @@ describe('Route', function () {
         done();
     });
 
+    it('throws an error when a route is made without a connection', function (done) {
+
+        expect(function () {
+
+            var server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/dork', handler: function () { } });
+        }).to.throw('Cannot create route without connection.');
+        done();
+    });
+
     it('throws an error when a route is missing a method', function (done) {
 
         expect(function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ path: '/test', handler: function () { } });
+            server.route({ path: '/', handler: function () { } });
         }).to.throw(/method is required/);
         done();
     });
