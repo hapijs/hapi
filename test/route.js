@@ -38,7 +38,7 @@ describe('Route', function () {
 
             var server = new Hapi.Server();
             server.route({ method: 'GET', path: '/dork', handler: function () { } });
-        }).to.throw('Cannot create route without connection.');
+        }).to.throw('Cannot add a route without any connections');
         done();
     });
 
