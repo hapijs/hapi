@@ -914,6 +914,30 @@ describe('validation', function () {
         });
     });
 
+    it('validates empty response', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    status: {
+                        204: false
+                    }
+                },
+                handler: function (request, reply) { reply().code(204); }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(204);
+            done();
+        });
+    });
+
     it('throws on sample with response modify', function (done) {
 
         var handler = function (request, reply) {
