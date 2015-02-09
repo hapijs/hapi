@@ -93,6 +93,38 @@ describe('Methods', function () {
         });
     });
 
+    it('registers a method with bind and callback', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        var context = { name: 'Bob' };
+        server.method('user', function (id, next) {
+
+            return next(null, { id: id, name: this.name });
+        }, { bind: context });
+
+        server.route({
+            method: 'GET',
+            path: '/user/{id}',
+            config: {
+                pre: [
+                    'user(params.id)'
+                ],
+                handler: function (request, reply) {
+
+                    return reply(request.pre.user);
+                }
+            }
+        });
+
+        server.inject('/user/5', function (res) {
+
+            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+            done();
+        });
+    });
+
     it('registers two methods with shared nested name', function (done) {
 
         var add = function (a, b, next) {
