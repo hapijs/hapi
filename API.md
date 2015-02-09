@@ -731,7 +731,7 @@ var server = new Hapi.Server();
 server.connection({ port: 80 });
 
 var cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
-cache.set('norway', { capital: 'oslo' }, function (err) {
+cache.set('norway', { capital: 'oslo' }, null, function (err) {
 
     cache.get('norway', function (err, value, cached, log) {
 
