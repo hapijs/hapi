@@ -53,6 +53,28 @@ describe('Route', function () {
         done();
     });
 
+    it('throws an error when a route has a malformed method name', function (done) {
+
+        expect(function () {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: '"GET"', path: '/', handler: function () { } });
+        }).to.throw(/Invalid method name/);
+        done();
+    });
+
+    it('throws an error when a route uses the HEAD method', function (done) {
+
+        expect(function () {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'HEAD', path: '/', handler: function () { } });
+        }).to.throw(/Method name not allowed/);
+        done();
+    });
+
     it('throws an error when a route is missing a handler', function (done) {
 
         expect(function () {

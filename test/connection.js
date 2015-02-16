@@ -1094,12 +1094,47 @@ describe('Connection', function () {
             });
         });
 
+        it('responds to HEAD requests for a GET route', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('test').code(205) } });
+            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(205);
+                expect(res.headers['content-type']).to.contain('text/html');
+                expect(res.headers['content-length']).to.not.exist();
+                expect(res.headers.etag).to.equal('"test"');
+                expect(res.result).to.not.exist();
+                done();
+            });
+        });
+
+        it('returns 404 on HEAD requests for non-GET routes', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply('ok'); } });
+            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(404);
+                expect(res.result).to.not.exist();
+
+                server.inject({ method: 'HEAD', url: '/not-there' }, function (res) {
+
+                    expect(res.statusCode).to.equal(404);
+                    expect(res.result).to.not.exist();
+                    done();
+                });
+            });
+        });
+
         it('allows methods array', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
 
-            var config = { method: ['HEAD', 'GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { return reply(request.route.method); } };
+            var config = { method: ['GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { return reply(request.route.method); } };
             server.route(config);
             server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
@@ -1124,7 +1159,7 @@ describe('Connection', function () {
 
                                 expect(res.statusCode).to.equal(200);
                                 expect(res.payload).to.equal('delete');
-                                expect(config.method).to.deep.equal(['HEAD', 'GET', 'PUT', 'POST', 'DELETE']);
+                                expect(config.method).to.deep.equal(['GET', 'PUT', 'POST', 'DELETE']);
                                 done();
                             });
                         });
