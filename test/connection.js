@@ -1098,7 +1098,7 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('test').code(205) } });
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('test').code(205); } });
             server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
                 expect(res.statusCode).to.equal(205);
