@@ -223,7 +223,7 @@ describe('Request', function () {
 
                 var check = function () {
 
-                    if (total) {
+                    if (total > 0) {
                         createConnection();
                         setImmediate(check);
                     }
