@@ -225,7 +225,7 @@ describe('Request', function () {
 
                     if (total) {
                         createConnection();
-                        setImmediate(check);
+                        setTimeout(check, 10);
                     }
                     else {
                         done();
