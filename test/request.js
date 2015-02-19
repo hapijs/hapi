@@ -223,9 +223,9 @@ describe('Request', function () {
 
                 var check = function () {
 
-                    if (total > 0) {
+                    if (total) {
                         createConnection();
-                        setImmediate(check);
+                        setTimeout(check, 10);
                     }
                     else {
                         done();
