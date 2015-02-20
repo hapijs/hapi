@@ -590,7 +590,7 @@ var scheme = function (server, options) {
                 return reply(Boom.unauthorized(null, 'Custom'));
             }
 
-            return reply(null, { credentials: { user: 'john' } });
+            return reply.continue({ credentials: { user: 'john' } });
         }
     };
 };
