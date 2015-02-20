@@ -1,3 +1,34 @@
+## [**8.2.0**](https://github.com/hapijs/hapi/issues?milestone=135&state=closed)
+- [**#2396**](https://github.com/hapijs/hapi/issues/2396) Inert 2.1.3 update
+- [**#2397**](https://github.com/hapijs/hapi/issues/2397) throw when attaching route handlers without a connection
+- [**#2374**](https://github.com/hapijs/hapi/issues/2374) Server methods context not available in route prerequisites
+- [**#2392**](https://github.com/hapijs/hapi/issues/2392) No Payload Validation
+- [**#2395**](https://github.com/hapijs/hapi/issues/2395) Update jshttp/mime-db to 1.6.1 from 1.5.0
+- [**#2370**](https://github.com/hapijs/hapi/issues/2370) Add xss protection to validation response
+- [**#2362**](https://github.com/hapijs/hapi/issues/2362) Don't respond to connections until listening is started
+- [**#2363**](https://github.com/hapijs/hapi/issues/2363) Refuse to handle incoming request after server is stopped
+- [**#2347**](https://github.com/hapijs/hapi/issues/2347) Improve error message when validation.payload is set but type is GET
+- [**#2309**](https://github.com/hapijs/hapi/issues/2309) Fixes #2308 by logging boom error object instead of just message
+- [**#2308**](https://github.com/hapijs/hapi/issues/2308) Logging boom errors from handlers should send boom error to log not just message
+- [**#2372**](https://github.com/hapijs/hapi/issues/2372) inert 2.1.2
+- [**#2359**](https://github.com/hapijs/hapi/issues/2359) Remove '{}' payload from cors OPTIONS response
+- [**#2354**](https://github.com/hapijs/hapi/issues/2354) Update API.md for inert 2.1.0
+- [**#2366**](https://github.com/hapijs/hapi/issues/2366) Update hapijs/catbox to 4.2.1 from 4.2.0
+  - **hapijs/catbox 4.2.1**
+  - [**#116**](https://github.com/hapijs/catbox/issues/116) Prefix keys with a `'+'` when using object as a hash
+- [**#2355**](https://github.com/hapijs/hapi/issues/2355) Fix table labels
+
+## [**8.1.0**](https://github.com/hapijs/hapi/issues?milestone=133&state=closed)
+- [**#2335**](https://github.com/hapijs/hapi/issues/2335) Expose the request object in inject()
+- [**#2277**](https://github.com/hapijs/hapi/issues/2277) Fix invalid response for empty reply() (v8.x regression)
+- [**#2316**](https://github.com/hapijs/hapi/issues/2316) Update jshttp/mime-db to 1.5.0 from 1.3.1
+- [**#2302**](https://github.com/hapijs/hapi/issues/2302) allow replying with a stream as returned by node core http client methods
+- [**#2301**](https://github.com/hapijs/hapi/issues/2301) can't reply with stream returned by node core http client methods
+- [**#2291**](https://github.com/hapijs/hapi/issues/2291) external listener protocol issue
+- [**#2331**](https://github.com/hapijs/hapi/issues/2331) Revise range tests to not depend on the inert module
+- [**#2324**](https://github.com/hapijs/hapi/issues/2324) Remove catch call for promise replies
+- [**#2323**](https://github.com/hapijs/hapi/issues/2323) Promise support
+- [**#2300**](https://github.com/hapijs/hapi/issues/2300) Bumped mime-db version
 
 ## [**8.0.0**](https://github.com/hapijs/hapi/issues?milestone=127&state=closed)
 - [**#2271**](https://github.com/hapijs/hapi/issues/2271) Update jshttp/mime-db to 1.3.0 from 1.2.0
@@ -55,9 +86,9 @@
   - [**#107**](https://github.com/hapijs/hoek/issues/107) applyToDefaultsWithShallow() fail to retain defaults shallow key
 - [**#2216**](https://github.com/hapijs/hapi/issues/2216) Invalid deep cloning of bind context
 - [**#2217**](https://github.com/hapijs/hapi/issues/2217) Disable scope checking on a route
-- [**#2215**](https://github.com/hapijs/hapi/issues/2215) Revert change to trailing slash behavior 
+- [**#2215**](https://github.com/hapijs/hapi/issues/2215) Revert change to trailing slash behavior
 - [**#2209**](https://github.com/hapijs/hapi/issues/2209) Not possible to add route in plugins
-- [**#2203**](https://github.com/hapijs/hapi/issues/2203) Move connection route config to route with connections defaults 
+- [**#2203**](https://github.com/hapijs/hapi/issues/2203) Move connection route config to route with connections defaults
 - [**#2206**](https://github.com/hapijs/hapi/issues/2206) Change server.bind() and server.path() to apply only to routes that follow
 - [**#2205**](https://github.com/hapijs/hapi/issues/2205) Rename plugin register() `route` option to `routes`
 - [**#2201**](https://github.com/hapijs/hapi/issues/2201) Rename cacheControlStatus to cache.statuses
@@ -284,7 +315,7 @@
 - [**#1844**](https://github.com/hapijs/hapi/issues/1844) Replace async
 - [**#1842**](https://github.com/hapijs/hapi/issues/1842) Lab 4.00
 - [**#1840**](https://github.com/hapijs/hapi/issues/1840) No longer possible to load caches using CLI?
-- [**#1835**](https://github.com/hapijs/hapi/issues/1835) server.state ttl must be a number 
+- [**#1835**](https://github.com/hapijs/hapi/issues/1835) server.state ttl must be a number
 - [**#1795**](https://github.com/hapijs/hapi/issues/1795) request.server._views in plugin
 - [**#1832**](https://github.com/hapijs/hapi/issues/1832) Replace mime with mime-type
 - [**#1822**](https://github.com/hapijs/hapi/issues/1822) Added joi validation to manifest.
@@ -445,7 +476,7 @@
 - [**#1507**](https://github.com/hapijs/hapi/issues/1507) request.setUrl('') throws
 
 ## [**3.0.1**](https://github.com/hapijs/hapi/issues?milestone=88&state=closed)
-- [**#1503**](https://github.com/hapijs/hapi/issues/1503) plugin.method(name, fn, [options]) fails 
+- [**#1503**](https://github.com/hapijs/hapi/issues/1503) plugin.method(name, fn, [options]) fails
 
 ## [**3.0.0**](https://github.com/hapijs/hapi/issues?milestone=86&state=closed)
 - [**#1466**](https://github.com/hapijs/hapi/issues/1466) Drop support for server helpers
@@ -460,7 +491,7 @@
 ## [**2.6.0**](https://github.com/hapijs/hapi/issues?milestone=85&state=closed)
 - [**#1455**](https://github.com/hapijs/hapi/issues/1455) Print to console server logs based on debug config
 - [**#1451**](https://github.com/hapijs/hapi/issues/1451) Objects created in plugin.dependency or plugin.after are monitored by the wrong domain
-- [**#1452**](https://github.com/hapijs/hapi/issues/1452) Perhaps include `request.pre` in handler view context 
+- [**#1452**](https://github.com/hapijs/hapi/issues/1452) Perhaps include `request.pre` in handler view context
 - [**#1453**](https://github.com/hapijs/hapi/issues/1453) Include prerequisites in default view context. #1452
 - [**#1445**](https://github.com/hapijs/hapi/issues/1445) Server method bind option
 - [**#1450**](https://github.com/hapijs/hapi/issues/1450) Enable handlers to use the prerequisite method string notation
@@ -517,6 +548,11 @@
 
 ## [**2.1.1**](https://github.com/hapijs/hapi/issues?milestone=79&state=closed)
 - [**#1347**](https://github.com/hapijs/hapi/issues/1347) Views should not use basePath when path is absolute
+
+## [**2.1.0**](https://github.com/hapijs/hapi/issues?milestone=4&state=closed)
+- [**#204**](https://github.com/hapijs/hapi/issues/204) Add postResponse method to proxy
+- [**#200**](https://github.com/hapijs/hapi/issues/200) Fix tls config settings
+- [**#hapijs/inert#17**](https://github.com/hapijs/inert/issues/17) Handle Range requests explicitly
 
 ## [**2.1.0**](https://github.com/hapijs/hapi/issues?milestone=78&state=closed)
 - [**#1344**](https://github.com/hapijs/hapi/issues/1344) Use the plugin loader when configured to load view engines
@@ -948,7 +984,7 @@
 - [**#611**](https://github.com/hapijs/hapi/issues/611) Adding vhost tests
 - [**#609**](https://github.com/hapijs/hapi/issues/609) Virtual hosts support
 - [**#610**](https://github.com/hapijs/hapi/issues/610) Cleaning up test and stream response
-- [**#607**](https://github.com/hapijs/hapi/issues/607) Adding basic crumb CSRF information to reference guide 
+- [**#607**](https://github.com/hapijs/hapi/issues/607) Adding basic crumb CSRF information to reference guide
 - [**#602**](https://github.com/hapijs/hapi/issues/602) Relative paths
 - [**#595**](https://github.com/hapijs/hapi/issues/595) Fixing gzip stream test to use simple stream
 - [**#596**](https://github.com/hapijs/hapi/issues/596) Adding request payload section
@@ -1051,10 +1087,6 @@
 - [**#209**](https://github.com/hapijs/hapi/issues/209) Tests
 - [**#207**](https://github.com/hapijs/hapi/issues/207) Error refactor, custom error support (passThrough)
 - [**#206**](https://github.com/hapijs/hapi/issues/206) Fixing issue with error responses being cached + test
-
-## [**0.8.1**](https://github.com/hapijs/hapi/issues?milestone=4&state=closed)
-- [**#204**](https://github.com/hapijs/hapi/issues/204) Add postResponse method to proxy
-- [**#200**](https://github.com/hapijs/hapi/issues/200) Fix tls config settings
 
 ## [**0.8.0**](https://github.com/hapijs/hapi/issues?milestone=2&state=closed)
 - [**#183**](https://github.com/hapijs/hapi/issues/183) Cache segment validation
