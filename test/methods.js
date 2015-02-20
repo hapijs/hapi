@@ -39,6 +39,40 @@ describe('Methods', function () {
         });
     });
 
+    it('registers a method with leading _', function (done) {
+
+        var _add = function (a, b, next) {
+
+            return next(null, a + b);
+        };
+
+        var server = new Hapi.Server();
+        server.method('_add', _add);
+
+        server.methods._add(1, 5, function (err, result) {
+
+            expect(result).to.equal(6);
+            done();
+        });
+    });
+
+    it('registers a method with leading $', function (done) {
+
+        var $add = function (a, b, next) {
+
+            return next(null, a + b);
+        };
+
+        var server = new Hapi.Server();
+        server.method('$add', $add);
+
+        server.methods.$add(1, 5, function (err, result) {
+
+            expect(result).to.equal(6);
+            done();
+        });
+    });
+
     it('registers a method (no callback)', function (done) {
 
         var add = function (a, b) {
