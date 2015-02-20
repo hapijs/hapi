@@ -1,4 +1,4 @@
-# 8.2.x API Reference
+# 8.3.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -854,6 +854,22 @@ var after = function (server, next) {
 
     // Additional plugin registration logic
     return next();
+};
+```
+
+Dependencies can also be set via the register `attributes` property (does not support setting
+`after`):
+
+```js
+exports.register = function (server, options, next) {
+
+    return next();
+};
+
+register.attributes = {
+    name: 'test',
+    version: '1.0.0',
+    dependency: 'yar'
 };
 ```
 
@@ -1816,6 +1832,8 @@ The plugin function must include an `attributes` function property with the foll
   specified in the plugin's 'package.json' file.
 - `multiple` - if `true`, allows the plugin to be registered multiple times with the same server.
   Defaults to `false`.
+- `dependencies` - optional string or array of string indicating a plugin dependency. Same as
+  setting dependencies via [`server.dependency()`](#serverdependencydependencies-after).
 
 ```js
 var register = function (server, options, next) {

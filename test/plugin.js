@@ -675,6 +675,50 @@ describe('Plugin', function () {
             });
         });
 
+        it('sets multiple dependencies in attributes', function (done) {
+
+            var a = function (server, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                dependencies: ['b', 'c']
+            };
+
+            var b = function (server, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            var c = function (server, options, next) {
+
+                return next();
+            };
+
+            c.attributes = {
+                name: 'c'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.register(c, function (err) {
+
+                    server.register(a, function (err) {
+
+                        done();
+                    });
+                });
+            });
+        });
+
         it('sets multiple dependencies in multiple statements', function (done) {
 
             var a = function (server, options, next) {
@@ -686,6 +730,51 @@ describe('Plugin', function () {
 
             a.attributes = {
                 name: 'a'
+            };
+
+            var b = function (server, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            var c = function (server, options, next) {
+
+                return next();
+            };
+
+            c.attributes = {
+                name: 'c'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.register(c, function (err) {
+
+                    server.register(a, function (err) {
+
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('sets multiple dependencies in multiple locations', function (done) {
+
+            var a = function (server, options, next) {
+
+                server.dependency('b');
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                dependecies: 'c'
             };
 
             var b = function (server, options, next) {
@@ -760,122 +849,6 @@ describe('Plugin', function () {
                 server.register(a, function () {});
             }).to.throw('Invalid dependencies options (must be a string or an array of strings) [\n  null\n]\n\u001b[31m\n[1] value at position 0 fails because value must be a string\u001b[0m');
             done();
-        });
-
-        it('sets a single inline dependency', function (done) {
-
-            var registered = false;
-            var a = function (server, options, next) {
-
-                registered = true;
-                expect(server.plugins.b).to.exist();
-                next();
-            };
-            a.attributes = {
-                name: 'a',
-                dependencies: 'b'
-            };
-
-            var b = function (server, options, next) {
-
-                server.expose('hapi', 'joi');
-                next();
-            };
-            b.attributes = {
-                name: 'b'
-            };
-
-            var server = new Hapi.Server();
-            server.connection();
-            server.register([a, b], function () {
-
-                server.start(function () {
-
-                    expect(registered).to.be.true();
-                    done();
-                });
-            });
-        });
-
-        it('sets a single inline dependency with options', function (done) {
-
-            var registered = false;
-            var a = function (server, options, next) {
-
-                registered = true;
-                expect(server.plugins.b).to.exist();
-                expect(options).to.deep.equal({ foo: 'bar' });
-                next();
-            };
-            a.attributes = {
-                name: 'a',
-                dependencies: 'b'
-            };
-
-            var b = function (server, options, next) {
-
-                server.expose('hapi', 'joi');
-                next();
-            };
-            b.attributes = {
-                name: 'b'
-            };
-
-            var server = new Hapi.Server();
-            server.connection();
-            server.register([{ register: a, options: { foo: 'bar' }}, b], function () {
-
-                server.start(function () {
-
-                    expect(registered).to.be.true();
-                    done();
-                });
-            });
-        });
-
-        it('sets multiple inline dependencies', function (done) {
-
-            var registered = false;
-            var a = function (server, options, next) {
-
-                registered = true;
-                expect(server.plugins.b).to.exist();
-                expect(server.plugins.c).to.exist();
-                next();
-            };
-            a.attributes = {
-                name: 'a',
-                dependencies: ['b', 'c']
-            };
-
-            var b = function (server, options, next) {
-
-                server.expose('hapi', 'joi');
-                next();
-            };
-            b.attributes = {
-                name: 'b'
-            };
-
-            var c = function (server, options, next) {
-
-                server.expose('hapi', 'joi');
-                next();
-            };
-            c.attributes = {
-                name: 'c'
-            };
-
-            var server = new Hapi.Server();
-            server.connection();
-            server.register([a, b, c], function () {
-
-                server.start(function () {
-
-                    expect(registered).to.be.true();
-                    done();
-                });
-            });
         });
     });
 
@@ -1377,6 +1350,30 @@ describe('Plugin', function () {
             });
         });
 
+        it('fails to register single plugin with dependencies (attributes)', function (done) {
+
+            var test = function (server, options, next) {
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test',
+                dependencies: 'none'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(test, function (err) {
+
+                expect(function () {
+
+                    server.start();
+                }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
+                done();
+            });
+        });
+
         it('fails to register multiple plugins with dependencies', function (done) {
 
             var server = new Hapi.Server();
@@ -1449,6 +1446,39 @@ describe('Plugin', function () {
 
             b.attributes = {
                 name: 'b'
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ port: 80, host: 'localhost' });
+            server.register(a, function (err) {
+
+                expect(function () {
+
+                    server.start();
+                }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
+                done();
+            });
+        });
+
+        it('errors when missing inner dependencies (attributes)', function (done) {
+
+            var a = function (server, options, next) {
+
+                server.register(b, next);
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var b = function (server, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                dependencies: 'c'
             };
 
             var server = new Hapi.Server();
