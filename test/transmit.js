@@ -1371,7 +1371,7 @@ describe('transmission', function () {
                 return reply(stream);
             };
 
-            var server = new Hapi.Server();
+            var server = new Hapi.Server({ debug: false });
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 

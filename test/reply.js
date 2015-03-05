@@ -286,14 +286,14 @@ describe('Reply', function () {
 
                     expect(res.statusCode).to.equal(500);
                     expect(requestError).to.exist();
-                    expect(requestError.message).to.contain('Stream is not a streams2 Readable');
+                    expect(requestError.message).to.equal('Stream must have a streams2 readable interface');
 
                     requestError = undefined;
                     server.inject('/writable', function (res) {
 
                         expect(res.statusCode).to.equal(500);
                         expect(requestError).to.exist();
-                        expect(requestError.message).to.contain('Stream is not a streams2 Readable');
+                        expect(requestError.message).to.equal('Stream must have a streams2 readable interface');
                         done();
                     });
                 });
