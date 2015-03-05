@@ -590,7 +590,7 @@ var scheme = function (server, options) {
                 return reply(Boom.unauthorized(null, 'Custom'));
             }
 
-            return reply(null, { credentials: { user: 'john' } });
+            return reply.continue({ credentials: { user: 'john' } });
         }
     };
 };
@@ -1688,14 +1688,14 @@ Note that the server object should not be used to emit application events as its
 implementation is designed to fan events out to the various plugin selections and not for
 application events.
 
-When provided (as listed below) the `event` object include:
+When provided (as listed below) the `event` object includes:
 
 - `timestamp` - the event timestamp.
 - `request` - if the event relates to a request, the `request id`.
 - `server` - if the event relates to a server, the `server.info.uri`.
 - `tags` - an array of tags (e.g. `['error', 'http']`).
 - `data` - optional event-specific information.
-- `internal` -  `true` is the event was generated internally by the framework.
+- `internal` -  `true` if the event was generated internally by the framework.
 
 The `'log'` event includes the `event` object and a `tags` object (where each tag is a key with the
 value `true`):
@@ -1976,7 +1976,7 @@ server.route({ method: 'GET', path: '/user', config: user });
 
 #### Route options
 
-Each route can be customize to change the default behavior of the request lifecycle using the
+Each route can be customized to change the default behavior of the request lifecycle using the
 following options:
 - `app` - application-specific configuration. Should not be used by [plugins](#plugins) which
   should use `plugins[name]` instead.
@@ -3413,5 +3413,5 @@ var handler = function (request, reply) {
 };
 ```
 
-Changing to a permanent or non-rewriterable redirect is also available see
+Changing to a permanent or non-rewritable redirect is also available see
 [response object redirect](#response-object-redirect) for more information.
