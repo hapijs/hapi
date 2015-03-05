@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "8.2.0",
+  "version": "8.3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -40,14 +40,14 @@
     "statehood": "2.x.x",
     "subtext": "1.x.x",
     "topo": "1.x.x",
-    "vision": "2.x.x",
-    "wreck": "5.x.x"
+    "vision": "2.x.x"
   },
   "devDependencies": {
     "bluebird": "2.x.x",
     "code": "1.x.x",
     "handlebars": "2.x.x",
-    "lab": "5.x.x"
+    "lab": "5.x.x",
+    "wreck": "5.x.x"
   },
   "scripts": {
     "test": "node node_modules/lab/bin/lab -a code -t 100 -L",
