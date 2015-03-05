@@ -8,6 +8,7 @@ var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
+var Wreck = require('wreck');
 
 
 // Declare internals
@@ -150,6 +151,40 @@ describe('payload', function () {
             expect(res.result).to.exist();
             expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
             done();
+        });
+    });
+
+    it('returns 400 when payload is not consumed', function (done) {
+
+        var payload = new Buffer(10 * 1024 * 1024).toString();
+
+        var handler = function (request, reply) {
+
+            expect(request.payload.toString()).to.equal(payload);
+            return reply(request.payload);
+        };
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 10 } } });
+
+        server.start(function () {
+
+            var uri = 'http://localhost:' + server.info.port;
+
+            Wreck.post(uri, { payload: payload, agent: false }, function (err, res, body) {
+
+                expect(err).to.not.exist();
+                expect(res.statusCode).to.equal(400);
+                expect(body).to.exist();
+                Wreck.post(uri, { payload: payload, agent: false }, function (err, res, body) {
+
+                    expect(err).to.not.exist();
+                    expect(res.statusCode).to.equal(400);
+                    expect(body).to.exist();
+                    done();
+                });
+            });
         });
     });
 
