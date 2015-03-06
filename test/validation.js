@@ -753,6 +753,43 @@ describe('validation', function () {
         });
     });
 
+    it('validates response with context', function (done) {
+
+        var i = 0;
+        var handler = function (request, reply) {
+
+            return reply({ some: 'thing', more: 'stuff' });
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: Joi.object({
+                        some: Joi.string(),
+                        more: Joi.string()
+                    }).when('$query.user', { is: 'admin', otherwise: Joi.object({ more: Joi.forbidden() }) })
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/?user=admin', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('{"some":"thing","more":"stuff"}');
+
+            server.inject('/?user=test', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
     it('validates error response', function (done) {
 
         var i = 0;

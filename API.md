@@ -2148,10 +2148,10 @@ following options:
       expressed as one of:
         - `true` - any payload allowed (no validation performed). This is the default.
         - `false` - no payload allowed.
-        - a [Joi](http://github.com/hapijs/joi) validation object.
+        - a [Joi](http://github.com/hapijs/joi) validation object. This will receive the request's headers, params, query, payload, and auth credentials and isAuthenticated flags as context.
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the response object.
-            - `options` - the server validation options.
+            - `options` - the server validation options, merged with an object containing the request's headers, params, payload, and auth credentials object and isAuthenticated flag.
             - `next(err)` - the callback function called when validation is completed.
     - `status` - HTTP status-code-specific validation rules. The `status` key is set to an
       object where each key is a 3 digit HTTP status code and the value has the same
