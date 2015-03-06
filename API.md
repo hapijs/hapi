@@ -498,8 +498,12 @@ Sets a default strategy which is applied to every route where:
 
 The default does not apply when the route config specifies `auth` as `false`, or has an
 authentication strategy configured. Otherwise, the route authentication config is applied to the
-defaults. Note that the default only applies at time of route configuration, not at runtime.
-Calling `default()` after adding a route will have no impact on routes added prior.
+defaults.
+
+Note that if the route has authentication config, the default only applies at the time of adding
+the route, not at runtime. This means that calling `default()` after adding a route with some
+authentication config will have no impact on the routes added prior. However, the default will
+apply to routes added before `default()` is called if those routes lack any authentication config.
 
 The default auth strategy configuration can be accessed via `connection.auth.settings.default`.
 
