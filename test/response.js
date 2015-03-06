@@ -4,6 +4,7 @@ var Stream = require('stream');
 var Bluebird = require('bluebird');
 var Boom = require('boom');
 var Code = require('code');
+var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
@@ -839,6 +840,36 @@ describe('Response', function () {
                 expect(res.result.message).to.equal('this is not allowed!');
                 expect(res.statusCode).to.equal(403);
                 done();
+            });
+        });
+    });
+
+    describe('_marshal()', function () {
+
+        it('emits request-error when view file for handler not found', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            server.views({
+                engines: { 'html': Handlebars },
+                path: __dirname
+            });
+
+            server.once('request-error', function (request, err) {
+
+                expect(err).to.exist();
+                expect(err.message).to.contain('View file not found');
+                done();
+            });
+
+            server.route({ method: 'GET', path: '/{param}', handler: { view: 'noview' } });
+
+            server.inject('/hello', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist();
+                expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
     });

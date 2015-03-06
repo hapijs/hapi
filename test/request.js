@@ -409,6 +409,106 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('emits request-error once', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            var errs = 0;
+            var req = null;
+            server.on('request-error', function (request, err) {
+
+                errs++;
+                expect(err).to.exist();
+                expect(err.message).to.equal('boom2');
+                req = request;
+            });
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                return reply(new Error('boom2'));
+            });
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new Error('boom1')); } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist();
+                expect(res.result.message).to.equal('An internal server error occurred');
+            });
+
+            server.once('response', function () {
+
+                expect(errs).to.equal(1);
+                expect(req.getLog('error')[1].tags).to.deep.equal(['internal', 'error']);
+                done();
+            });
+        });
+
+        it('emits request-error on implementation error', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            var errs = 0;
+            var req = null;
+            server.on('request-error', function (request, err) {
+
+                errs++;
+                expect(err).to.exist();
+                expect(err.message).to.equal('Uncaught error: boom');
+                req = request;
+            });
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { throw new Error('boom'); } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist();
+                expect(res.result.message).to.equal('An internal server error occurred');
+            });
+
+            server.once('response', function () {
+
+                expect(errs).to.equal(1);
+                expect(req.getLog('error')[0].tags).to.deep.equal(['internal', 'implementation', 'error']);
+                done();
+            });
+        });
+
+        it('does not emit request-error when error is replaced with valid response', function (done) {
+
+            var server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            var errs = 0;
+            server.on('request-error', function (request, err) {
+
+                errs++;
+            });
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                return reply('ok');
+            });
+
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new Error('boom1')); } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('ok');
+            });
+
+            server.once('response', function () {
+
+                expect(errs).to.equal(0);
+                done();
+            });
+        });
     });
 
     describe('tail()', function () {
@@ -732,6 +832,34 @@ describe('Request', function () {
             });
         });
 
+        it('outputs log to debug console with error data', function (done) {
+
+            var handler = function (request, reply) {
+
+                request.log(['implementation'], new Error('boom'));
+                return reply();
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            var orig = console.error;
+            console.error = function () {
+
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('implementation');
+                expect(arguments[2]).to.contain('Error: boom');
+                console.error = orig;
+                done();
+            };
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+            });
+        });
+
         it('handles invalid log data object stringify', function (done) {
 
             var handler = function (request, reply) {
@@ -976,33 +1104,6 @@ describe('Request', function () {
 
                 expect(res.result).to.equal('value');
                 done();
-            });
-        });
-
-        it('emits request-error when view file for handler not found', function (done) {
-
-            var server = new Hapi.Server({ debug: false });
-            server.connection();
-
-            server.views({
-                engines: { 'html': Handlebars },
-                path: __dirname
-            });
-
-            server.once('request-error', function (request, err) {
-
-                expect(err).to.exist();
-                expect(err.message).to.contain('View file not found');
-                done();
-            });
-
-            server.route({ method: 'GET', path: '/{param}', handler: { view: 'noview' } });
-
-            server.inject('/hello', function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist();
-                expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
     });
