@@ -464,7 +464,7 @@ var server = new Hapi.Server();
 
 Adds a method to be called after all the plugin dependencies have been registered and before the
 server starts (only called if the server is started) where:
-- `after` - the method with signature `function(server, next)` where:
+- `method` - the method with signature `function(server, next)` where:
     - `server` - server object the `after()` method was called on.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
