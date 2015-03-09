@@ -1720,7 +1720,7 @@ The `'request'` and `'request-internal'` events include the [request object](#re
 server.on('request', function (request, event, tags) {
 
     if (tags.received) {
-        console.log('New request: ' + event.id);
+        console.log('New request: ' + request.id);
     }
 });
 ```
