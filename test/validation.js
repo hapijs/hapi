@@ -473,7 +473,7 @@ describe('validation', function () {
         server.inject('/?a=1', function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result.data.output.payload.message).to.deep.equal('a length must be at least 2 characters long');
+            expect(res.result.data.output.payload.message).to.deep.equal('child "a" fails because ["a" length must be at least 2 characters long]');
             done();
         });
     });
@@ -561,7 +561,7 @@ describe('validation', function () {
             expect(res.result).to.deep.equal({
                 statusCode: 400,
                 error: 'Bad Request',
-                message: 'a length must be at least 2 characters long',
+                message: 'child "a" fails because ["a" length must be at least 2 characters long]',
                 validation: {
                     source: 'query',
                     keys: ['a']
@@ -1000,7 +1000,7 @@ describe('validation', function () {
                 },
                 handler: handler
             });
-        }).to.throw(/modify conflict with forbidden peer sample/);
+        }).to.throw(/"modify" conflict with forbidden peer "sample"/);
         done();
     });
 
@@ -1289,7 +1289,7 @@ describe('validation', function () {
         server.on('request-internal', function (request, event, tags) {
 
             if (tags.validation) {
-                expect(event.data).to.equal('a is not allowed');
+                expect(event.data).to.equal('"a" is not allowed');
             }
         });
 

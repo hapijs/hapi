@@ -49,7 +49,7 @@ describe('Route', function () {
             var server = new Hapi.Server();
             server.connection();
             server.route({ path: '/', handler: function () { } });
-        }).to.throw(/method is required/);
+        }).to.throw(/"method" is required/);
         done();
     });
 

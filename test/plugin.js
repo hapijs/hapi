@@ -826,7 +826,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(a, function () {});
-            }).to.throw('Invalid dependencies options (must be a string or an array of strings) {\n  \"b\": true,\n  \u001b[41m\"0\"\u001b[0m\u001b[31m [1]: -- missing --\u001b[0m\n}\n\u001b[31m\n[1] single value of value fails because value must be a string\u001b[0m');
+            }).to.throw('Invalid dependencies options (must be a string or an array of strings) {\n  \"b\": true,\n  \u001b[41m\"0\"\u001b[0m\u001b[31m [1]: -- missing --\u001b[0m\n}\n\u001b[31m\n[1] "0" must be a string\u001b[0m');
             done();
         });
 
@@ -847,7 +847,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(a, function () {});
-            }).to.throw('Invalid dependencies options (must be a string or an array of strings) [\n  null\n]\n\u001b[31m\n[1] value at position 0 fails because value must be a string\u001b[0m');
+            }).to.throw('Invalid dependencies options (must be a string or an array of strings) [\n  null\n]\n\u001b[31m\n[1] "0" must be a string\u001b[0m');
             done();
         });
     });
