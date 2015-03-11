@@ -1,119 +1,117 @@
 {
-  "name": "hapi",
-  "version": "8.3.0",
-  "dependencies": {
-    "accept": {
-      "version": "1.0.0"
-    },
-    "ammo": {
-      "version": "1.0.0"
-    },
-    "boom": {
-      "version": "2.6.1"
-    },
-    "call": {
-      "version": "2.0.1"
-    },
-    "catbox": {
-      "version": "4.2.1"
-    },
-    "catbox-memory": {
-      "version": "1.1.1"
-    },
-    "cryptiles": {
-      "version": "2.0.4"
-    },
-    "h2o2": {
-      "version": "4.0.0",
-      "dependencies":  {
-        "wreck": {
-          "version": "5.2.0"
-        }
-      }
-    },
-    "heavy": {
-      "version": "3.0.0"
-    },
-    "hoek": {
-      "version": "2.11.1"
-    },
-    "inert": {
-      "version": "2.1.4",
-      "dependencies": {
-        "lru-cache": {
-          "version": "2.5.0"
-        }
-      }
-    },
-    "iron": {
-      "version": "2.1.2"
-    },
-    "items": {
-      "version": "1.1.0"
-    },
-    "joi": {
-      "version": "6.0.5",
-      "dependencies": {
-        "isemail": {
-          "version": "1.1.1"
+    "name": "hapi",
+    "version": "8.3.0",
+    "dependencies": {
+        "accept": {
+            "version": "1.0.0"
         },
-        "moment": {
-          "version": "2.9.0"
-        }
-      }
-    },
-    "kilt": {
-      "version": "1.1.1"
-    },
-    "mimos": {
-      "version": "2.0.2",
-      "dependencies": {
-        "mime-db": {
-          "version": "1.7.0"
-        }
-      }
-    },
-    "peekaboo": {
-      "version": "1.0.0"
-    },
-    "qs": {
-      "version": "2.3.3"
-    },
-    "shot": {
-      "version": "1.4.2"
-    },
-    "statehood": {
-      "version": "2.0.0"
-    },
-    "subtext": {
-      "version": "1.0.2",
-      "dependencies": {
-        "content": {
-          "version": "1.0.1"
+        "ammo": {
+            "version": "1.0.0"
         },
-        "pez": {
-          "version": "1.0.0",
-          "dependencies": {
-            "b64": {
-              "version": "2.0.0"
-            },
-            "nigel": {
-              "version": "1.0.1",
-              "dependencies": {
-                "vise": {
-                  "version": "1.0.0"
+        "boom": {
+            "version": "2.6.1"
+        },
+        "call": {
+            "version": "2.0.1"
+        },
+        "catbox": {
+            "version": "4.2.1"
+        },
+        "catbox-memory": {
+            "version": "1.1.1"
+        },
+        "cryptiles": {
+            "version": "2.0.4"
+        },
+        "h2o2": {
+            "version": "4.0.0"
+        },
+        "heavy": {
+            "version": "3.0.0"
+        },
+        "hoek": {
+            "version": "2.11.1"
+        },
+        "inert": {
+            "version": "2.1.4",
+            "dependencies": {
+                "lru-cache": {
+                    "version": "2.5.0"
                 }
-              }
             }
-          }
+        },
+        "iron": {
+            "version": "2.1.2"
+        },
+        "items": {
+            "version": "1.1.0"
+        },
+        "joi": {
+            "version": "6.0.5",
+            "dependencies": {
+                "isemail": {
+                    "version": "1.1.1"
+                },
+                "moment": {
+                    "version": "2.9.0"
+                }
+            }
+        },
+        "kilt": {
+            "version": "1.1.1"
+        },
+        "mimos": {
+            "version": "2.0.2",
+            "dependencies": {
+                "mime-db": {
+                    "version": "1.7.0"
+                }
+            }
+        },
+        "peekaboo": {
+            "version": "1.0.0"
+        },
+        "qs": {
+            "version": "2.3.3"
+        },
+        "shot": {
+            "version": "1.4.2"
+        },
+        "statehood": {
+            "version": "2.0.0"
+        },
+        "subtext": {
+            "version": "1.0.2",
+            "dependencies": {
+                "content": {
+                    "version": "1.0.1"
+                },
+                "pez": {
+                    "version": "1.0.0",
+                    "dependencies": {
+                        "b64": {
+                            "version": "2.0.0"
+                        },
+                        "nigel": {
+                            "version": "1.0.1",
+                            "dependencies": {
+                                "vise": {
+                                    "version": "1.0.0"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "topo": {
+            "version": "1.0.2"
+        },
+        "vision": {
+            "version": "2.0.0"
+        },
+        "wreck": {
+            "version": "5.2.0"
         }
-      }
-    },
-    "topo": {
-      "version": "1.0.2"
-    },
-    "vision": {
-      "version": "2.0.0"
     }
-  }
 }
