@@ -47,7 +47,7 @@
             "version": "1.1.0"
         },
         "joi": {
-            "version": "6.0.7",
+            "version": "6.0.8",
             "dependencies": {
                 "isemail": {
                     "version": "1.1.1"
