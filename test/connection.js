@@ -507,7 +507,7 @@ describe('Connection', function () {
             });
         });
 
-       it('refuses to handle new incoming requests', function (done) {
+        it('refuses to handle new incoming requests', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
@@ -519,7 +519,7 @@ describe('Connection', function () {
 
                 Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, function (err1, res, body) {
 
-                    server.stop(function() {
+                    server.stop(function () {
 
                         expect(err1).to.not.exist();
                         expect(body.toString()).to.equal('ok');
@@ -675,16 +675,16 @@ describe('Connection', function () {
 
         it('returns the labels for the connections', function (done) {
 
-          var server = new Hapi.Server();
-          server.connection({ labels: ['test'] });
+            var server = new Hapi.Server();
+            server.connection({ labels: ['test'] });
 
-          server.route({ path: '/test/', method: 'get', handler: function () { } });
-          server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
+            server.route({ path: '/test/', method: 'get', handler: function () { } });
+            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
-          var connection = server.table()[0];
+            var connection = server.table()[0];
 
-          expect(connection.labels).to.only.include(['test']);
-          done();
+            expect(connection.labels).to.only.include(['test']);
+            done();
         });
 
         it('returns an array of the current routes (connection)', function (done) {
@@ -1074,6 +1074,31 @@ describe('Connection', function () {
                     });
 
                     cmd.stdin.end();
+                });
+            });
+
+            it('executes multiple extensions', function (done) {
+
+                var server = new Hapi.Server();
+                server.connection();
+                server.ext('onPreResponse', function (request, reply) {
+
+                    request.response.source = request.response.source + '1';
+                    return reply.continue();
+                });
+
+                server.ext('onPreResponse', function (request, reply) {
+
+                    request.response.source = request.response.source + '2';
+                    return reply.continue();
+                });
+
+                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('0'); } });
+
+                server.inject({ method: 'GET', url: '/' }, function (res) {
+
+                    expect(res.result).to.equal('012');
+                    done();
                 });
             });
         });
