@@ -1888,6 +1888,8 @@ Each incoming request passes through a pre-defined list of steps, along with opt
       methods. Calls to these methods will impact how the request is routed and can be used for
       rewrite rules.
     - `request.route` is not yet populated at this point.
+    - JSONP configuration is ignored for any response returned from the extension point since no
+      route is matched yet and the JSONP configuration is unavailable.
 - Lookup route using request path
 - Parse cookies
 - **`'onPreAuth'`** extension point

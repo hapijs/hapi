@@ -490,6 +490,44 @@ describe('transmission', function () {
             });
         });
 
+        it('returns an JSONP handler error', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(Boom.badRequest('wrong'));
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject('/?callback=me', function (res) {
+
+                expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"wrong"});');
+                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+                done();
+            });
+        });
+
+        it('returns an JSONP state error', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } }, function (res) {
+
+                expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"Invalid cookie header"});');
+                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+                done();
+            });
+        });
+
         it('sets caching headers', function (done) {
 
             var server = new Hapi.Server();
