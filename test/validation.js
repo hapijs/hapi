@@ -46,6 +46,34 @@ describe('validation', function () {
         });
     });
 
+    it('validates both params and query', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/b/{x}',
+            handler: function (request, reply) { return reply(request.params.x + request.query.a); },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number().integer().min(0).default(0)
+                    },
+                    params: {
+                        x: Joi.number()
+                    }
+                }
+            }
+        });
+
+        server.inject('/b/456?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(579);
+            done();
+        });
+    });
+
     it('validates valid input using context', function (done) {
 
         var server = new Hapi.Server();
