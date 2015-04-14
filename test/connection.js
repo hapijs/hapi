@@ -635,6 +635,31 @@ describe('Connection', function () {
             });
         });
 
+        it('passes the options.artifacts object', function (done) {
+
+            var handler = function (request, reply) {
+                return reply(request.auth.artifacts);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            var options = {
+                url: '/',
+                credentials: { foo: 'bar' },
+                artifacts: { bar: 'baz' }
+            };
+
+            server.connections[0].inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.bar).to.equal('baz');
+                expect(options.artifacts).to.exist();
+                done();
+            });
+        });
+
         it('returns the request object', function (done) {
 
             var handler = function (request, reply) {

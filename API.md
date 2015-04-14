@@ -1029,6 +1029,9 @@ for performing injections, with some additional options and response properties:
     - `credentials` - an optional credentials object containing authentication information. The
       `credentials` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Defaults to no credentials.
+    - `artifacts` - an optional artifacts object containing authentication artifact information. The
+      `artifacts` are used to bypass the default authentication strategies, and are validated
+      directly as if they were received via an authentication scheme. Defaults to no artifacts.
     - `simulate` - an object with options used to simulate client request stream conditions for
       testing:
         - `error` - if `true`, emits an `'error'` event after payload transmission (if any).
