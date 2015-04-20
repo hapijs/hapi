@@ -1891,6 +1891,7 @@ Each incoming request passes through a pre-defined list of steps, along with opt
     - JSONP configuration is ignored for any response returned from the extension point since no
       route is matched yet and the JSONP configuration is unavailable.
 - Lookup route using request path
+- Process query extensions (e.g. JSONP)
 - Parse cookies
 - **`'onPreAuth'`** extension point
 - Authenticate request
@@ -1898,7 +1899,6 @@ Each incoming request passes through a pre-defined list of steps, along with opt
 - Authenticate request payload
 - **`'onPostAuth'`** extension point
 - Validate path parameters
-- Process query extensions (e.g. JSONP)
 - Validate query
 - Validate payload
 - **`'onPreHandler'`** extension point
