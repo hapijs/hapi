@@ -2277,8 +2277,7 @@ following options:
           'function(request, reply, source, error)` where:
             - `request` - the [request object](#request-object).
             - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'path'`, `'query'`,
-              `'payload'`).
+            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`, `'payload'`).
             - `error` - the error object prepared for the client response (including the
               validation function error under `error.data`).
 
