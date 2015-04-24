@@ -1023,8 +1023,7 @@ for performing injections, with some additional options and response properties:
       used to automatically set an HTTP 'Host' header, unless one was specified in `headers`.
     - `headers` - an object with optional request headers where each key is the header name and the
       value is the header content. Defaults to no additions to the default Shot headers.
-    - `payload` - an optional string or buffer containing the request payload (object must be
-      manually converted to a string first). Defaults to no payload. Note that payload processing
+    - `payload` - an optional string, buffer or object containing the request payload. In case of an object it will be converted to a string for you. Defaults to no payload. Note that payload processing
       defaults to `'application/json'` if no 'Content-Type' header provided.
     - `credentials` - an optional credentials object containing authentication information. The
       `credentials` are used to bypass the default authentication strategies, and are validated
