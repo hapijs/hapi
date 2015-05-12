@@ -2108,7 +2108,7 @@ following options:
           values are presented as text while files are provided as streams. File streams from a
           'multipart/form-data' upload will also have a property `hapi` containing `filename`
           and `headers` properties.
-        - `'file'` - the incoming payload in written to temporary file in the directory
+        - `'file'` - the incoming payload is written to temporary file in the directory
           specified by the server's `payload.uploads` settings. If the payload is
           'multipart/form-data' and `parse` is `true`, fields values are presented as text
           while files are saved. Note that it is the sole responsibility of the application to
