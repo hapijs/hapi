@@ -1110,6 +1110,7 @@ describe('handler', function () {
             };
 
             handler.defaults = function (method) {
+
                 return {
                     app: {
                         x: method

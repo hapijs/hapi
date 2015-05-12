@@ -91,6 +91,7 @@ describe('Route', function () {
         var server = new Hapi.Server();
         server.connection();
         expect(function () {
+
             server.route({ method: 'GET', path: '/', config: {} });
         }).to.throw('Missing or undefined handler: GET /');
         done();
