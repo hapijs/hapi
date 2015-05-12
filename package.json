@@ -50,7 +50,7 @@
     "wreck": "5.x.x"
   },
   "scripts": {
-    "test": "node node_modules/lab/bin/lab -a code -t 100 -L",
+    "test": "node node_modules/lab/bin/lab -a code -t 100 -L --lint-errors-threshold 0 --lint-warnings-threshold 0",
     "test-tap": "node node_modules/lab/bin/lab -a code -r tap -o tests.tap"
   },
   "licenses": [
