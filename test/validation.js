@@ -1366,7 +1366,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+                
+                return reply('ok');
+            },
             config: {
                 validate: {
                     headers: {
