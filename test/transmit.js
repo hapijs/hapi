@@ -2197,6 +2197,7 @@ describe('transmission', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
+
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-methods']).to.exist();

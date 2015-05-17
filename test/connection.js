@@ -638,6 +638,7 @@ describe('Connection', function () {
         it('passes the options.artifacts object', function (done) {
 
             var handler = function (request, reply) {
+
                 return reply(request.auth.artifacts);
             };
 
@@ -1252,6 +1253,7 @@ describe('Connection', function () {
 
             var table = server.table()[0].table;
             var paths = table.map(function (route) {
+
                 var obj = {
                     method: route.method,
                     path: route.path

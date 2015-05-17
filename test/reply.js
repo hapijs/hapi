@@ -460,6 +460,7 @@ describe('Reply', function () {
 
                 var response = reply('123').hold();
                 setTimeout(function () {
+
                     response.send();
                 }, 10);
             };
@@ -557,6 +558,7 @@ describe('Reply', function () {
             };
 
             var handler = function (request, reply) {
+
                 return reply(request.pre.m3);
             };
 
