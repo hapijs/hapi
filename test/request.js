@@ -744,6 +744,31 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('accepts querystring parser options', function (done) {
+
+            var url = 'http://localhost/page?a=1&b=1&c=1&d=1&e=1&f=1&g=1&h=1&i=1&j=1&k=1&l=1&m=1&n=1&o=1&p=1&q=1&r=1&s=1&t=1&u=1&v=1&w=1&x=1&y=1&z=1';
+            var qsParserOptions = {
+                parameterLimit: 26
+            };
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onRequest', function (request, reply) {
+
+                request.setUrl(url, null, qsParserOptions);
+                return reply(request.query);
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.deep.equal({
+                    a: '1', b: '1', c: '1', d: '1', e: '1', f: '1', g: '1', h: '1', i: '1',
+                    j: '1', k: '1', l: '1', m: '1', n: '1', o: '1', p: '1', q: '1', r: '1',
+                    s: '1', t: '1', u: '1', v: '1', w: '1', x: '1', y: '1', z: '1'
+                });
+                done();
+            });
+        });
     });
 
     describe('log()', { parallel: false }, function () {
