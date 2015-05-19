@@ -55,10 +55,5 @@
     "test-cov-html": "node node_modules/lab/bin/lab -a code -r html -o coverage.html",
     "changelog": "mdchangelog --no-prologue --no-orphan-issues --overwrite --order-milestones semver --order-issues closed_at --dependents --remote hapijs/hapi --same-org --timeout 120000"
   },
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "http://github.com/hapijs/hapi/raw/master/LICENSE"
-    }
-  ]
+  "license": "BSD-3-Clause"
 }
