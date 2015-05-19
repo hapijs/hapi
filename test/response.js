@@ -562,7 +562,7 @@ describe('Response', function () {
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
-                return reply.file('../Makefile').type('application/example');
+                return reply.file('../LICENSE').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
