@@ -628,7 +628,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches scope while using request context (single to single)', function (done) {
+        it('matches dynamic scope (single to single)', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
@@ -648,6 +648,54 @@ describe('authentication', function () {
             server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('matches dynamic scope with multiple parts (single to single)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test-admin' } } });
+            server.route({
+                method: 'GET',
+                path: '/{id}/{role}',
+                config: {
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    auth: {
+                        scope: 'one-{params.id}-{params.role}'
+                    }
+                }
+            });
+
+            server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('does not match broken dynamic scope (single to single)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test' } } });
+            server.route({
+                method: 'GET',
+                path: '/{id}',
+                config: {
+                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    auth: {
+                        scope: 'one-params.id}'
+                    }
+                }
+            });
+
+            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
