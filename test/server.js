@@ -91,8 +91,15 @@ describe('Server', function () {
             var started = 0;
             var stopped = 0;
 
-            server.on('start', function () { ++started; });
-            server.on('stop', function () { ++stopped; });
+            server.on('start', function () {
+
+                ++started;
+            });
+
+            server.on('stop', function () {
+
+                ++stopped;
+            });
 
             server.start(function () {
 

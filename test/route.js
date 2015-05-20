@@ -121,9 +121,14 @@ describe('Route', function () {
 
     it('sets route plugins and app settings', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.route.settings.app.x + request.route.settings.plugins.x.y);
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(request.route.settings.app.x + request.route.settings.plugins.x.y); }, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
+        server.route({ method: 'GET', path: '/', config: { handler: handler, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('ok');
@@ -166,9 +171,14 @@ describe('Route', function () {
 
     it('ignores validation on * route when request is GET', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply();
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: '*', path: '/', handler: function (request, reply) { return reply(); }, config: { validate: { payload: { a: Joi.required() } } } });
+        server.route({ method: '*', path: '/', handler: handler, config: { validate: { payload: { a: Joi.required() } } } });
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(200);
@@ -178,9 +188,14 @@ describe('Route', function () {
 
     it('ignores default validation on GET', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply();
+        };
+
         var server = new Hapi.Server();
         server.connection({ routes: { validate: { payload: { a: Joi.required() } } } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(200);
@@ -204,7 +219,12 @@ describe('Route', function () {
             }
         });
 
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(this.key + (this === context)); }, config: { bind: context } });
+        var handler = function (request, reply) {
+
+            return reply(this.key + (this === context));
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler, config: { bind: context } });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');
@@ -229,8 +249,13 @@ describe('Route', function () {
             }
         });
 
+        var handler = function (request, reply) {
+
+            return reply(this.key + (this === context));
+        };
+
         server.bind(context);
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(this.key + (this === context)); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');
@@ -254,8 +279,13 @@ describe('Route', function () {
             }
         });
 
+        var handler = function (request, reply) {
+
+            return reply(this.key + (this === context));
+        };
+
         server.connection({ routes: { bind: context } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('' + this.key + (this === context)); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');
@@ -278,9 +308,14 @@ describe('Route', function () {
             }
         });
 
+        var handler = function (request, reply) {
+
+            return reply(this.key + (this === context));
+        };
+
         var server = new Hapi.Server({ connections: { routes: { bind: context } } });
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(this.key + (this === context)); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
 
             expect(res.result).to.equal('is true');

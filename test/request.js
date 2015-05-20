@@ -115,10 +115,15 @@ describe('Request', function () {
 
     it('generates unique request id', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.id);
+        };
+
         var server = new Hapi.Server();
         server.connection();
         server.connections[0]._requestCounter = { value: 10, min: 10, max: 11 };
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.id); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res1) {
 
             server.inject('/', function (res2) {
@@ -429,7 +434,12 @@ describe('Request', function () {
                 return reply(new Error('boom2'));
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new Error('boom1')); } });
+            var handler = function (request, reply) {
+
+                return reply(new Error('boom1'));
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -461,7 +471,12 @@ describe('Request', function () {
                 req = request;
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { throw new Error('boom'); } });
+            var handler = function (request, reply) {
+
+                throw new Error('boom');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -494,7 +509,12 @@ describe('Request', function () {
                 return reply('ok');
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new Error('boom1')); } });
+            var handler = function (request, reply) {
+
+                return reply(new Error('boom1'));
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -711,9 +731,14 @@ describe('Request', function () {
 
         it('strips trailing slash', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/test', handler: handler });
             server.inject('/test/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -723,9 +748,14 @@ describe('Request', function () {
 
         it('does not strip trailing slash on /', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -735,9 +765,14 @@ describe('Request', function () {
 
         it('strips trailing slash with query', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/test', handler: handler });
             server.inject('/test/?a=b', function (res) {
 
                 expect(res.statusCode).to.equal(200);

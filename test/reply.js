@@ -27,9 +27,14 @@ describe('Reply', function () {
 
     it('throws when reply called twice', function (done) {
 
+        var handler = function (request, reply) {
+
+            reply('ok'); return reply('not ok');
+        };
+
         var server = new Hapi.Server({ debug: false });
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { reply('ok'); return reply('not ok'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(500);
@@ -39,9 +44,14 @@ describe('Reply', function () {
 
     it('redirects from handler', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply.redirect('/elsewhere');
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply.redirect('/elsewhere'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
 
             expect(res.statusCode).to.equal(302);
@@ -54,9 +64,14 @@ describe('Reply', function () {
 
         it('uses reply(null, result) for result', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(null, 'steve');
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(null, 'steve'); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -67,9 +82,14 @@ describe('Reply', function () {
 
         it('uses reply(null, err) for err', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(null, Boom.badRequest());
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(null, Boom.badRequest()); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(400);
@@ -79,9 +99,14 @@ describe('Reply', function () {
 
         it('ignores result when err provided in reply(err, result)', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(Boom.badRequest(), 'steve');
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(Boom.badRequest(), 'steve'); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(400);
@@ -94,9 +119,14 @@ describe('Reply', function () {
 
         it('returns null', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(null, null);
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(null, null); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
