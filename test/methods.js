@@ -394,7 +394,13 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return '' + (id + 1); } });
+
+        var generateKey = function (id) {
+
+            return '' + (id + 1);
+        };
+
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: generateKey });
 
         server.start(function () {
 
@@ -420,7 +426,13 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return null; } });
+
+        var generateKey = function (id) {
+
+            return null;
+        };
+
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: generateKey });
 
         server.start(function () {
 
@@ -442,7 +454,13 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: function (id) { return 123; } });
+
+        var generateKey = function (id) {
+
+            return 123;
+        };
+
+        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: generateKey });
 
         server.start(function () {
 
@@ -617,7 +635,13 @@ describe('Methods', function () {
     it('returns a valid result when calling a method without using the cache', function (done) {
 
         var server = new Hapi.Server();
-        server.method('user', function (id, next) { return next(null, { id: id }); });
+
+        var method = function (id, next) {
+
+            return next(null, { id: id });
+        };
+
+        server.method('user', method);
         server.methods.user(4, function (err, result) {
 
             expect(result.id).to.equal(4);
@@ -631,7 +655,12 @@ describe('Methods', function () {
         server.connection();
         server.start(function () {
 
-            server.method('user', function (id, str, next) { return next(null, { id: id, str: str }); }, { cache: { expiresIn: 1000 } });
+            var method = function (id, str, next) {
+
+                return next(null, { id: id, str: str });
+            };
+
+            server.method('user', method, { cache: { expiresIn: 1000 } });
             server.methods.user(4, 'something', function (err, result) {
 
                 expect(result.id).to.equal(4);
@@ -644,7 +673,13 @@ describe('Methods', function () {
     it('returns an error result when calling a method that returns an error', function (done) {
 
         var server = new Hapi.Server();
-        server.method('user', function (id, next) { return next(new Error()); });
+
+        var method = function (id, next) {
+
+            return next(new Error());
+        };
+
+        server.method('user', method);
         server.methods.user(4, function (err, result) {
 
             expect(err).to.exist();
@@ -655,8 +690,14 @@ describe('Methods', function () {
     it('returns a different result when calling a method without using the cache', function (done) {
 
         var server = new Hapi.Server();
+
         var gen = 0;
-        server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); });
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: ++gen });
+        };
+
+        server.method('user', method);
         server.methods.user(4, function (err, result1) {
 
             expect(result1.id).to.equal(4);
@@ -676,7 +717,12 @@ describe('Methods', function () {
         server.connection();
 
         var gen = 0;
-        server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: ++gen });
+        };
+
+        server.method('user', method, { cache: { expiresIn: 2000 } });
 
         server.start(function () {
 
@@ -738,7 +784,12 @@ describe('Methods', function () {
 
         var gen = 0;
         var terms = 'I agree to give my house';
-        server.method('tos', function (next) { return next(null, { gen: gen++, terms: terms }); }, { cache: { expiresIn: 2000 } });
+        var method = function (next) {
+
+            return next(null, { gen: gen++, terms: terms });
+        };
+
+        server.method('tos', method, { cache: { expiresIn: 2000 } });
 
         server.start(function () {
 
@@ -761,7 +812,12 @@ describe('Methods', function () {
         var server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
         var gen = 0;
-        server.method('user', function (id, next) { return next(null, { id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+        var method = function (id, next) {
+
+            return next(null, { id: id, gen: ++gen });
+        };
+
+        server.method('user', method, { cache: { expiresIn: 2000 } });
         server.start(function () {
 
             var id1 = Math.random();
