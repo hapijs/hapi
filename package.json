@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
   },
-  "main": "index",
+  "main": "lib/index.js",
   "keywords": [
     "framework",
     "http",
