@@ -111,7 +111,7 @@
             "version": "2.0.0"
         },
         "wreck": {
-            "version": "5.2.0"
+            "version": "5.5.1"
         }
     }
 }
