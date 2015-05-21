@@ -33,10 +33,10 @@
             "version": "2.11.1"
         },
         "inert": {
-            "version": "2.1.4",
+            "version": "2.1.5",
             "dependencies": {
                 "lru-cache": {
-                    "version": "2.5.0"
+                    "version": "2.6.4"
                 }
             }
         },
