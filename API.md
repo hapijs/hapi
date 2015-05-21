@@ -802,6 +802,7 @@ var admin = server.connection({ port: 8001, host: 'example.com', labels: ['admin
 
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
+    - `'request'` - adds methods to the [Request object](#request-object).
     - `'reply'` - adds methods to the [reply interface](#reply-interface).
     - `'server'` - adds methods to the [Server](#server) object.
 - `property` - the object decoration key name.
