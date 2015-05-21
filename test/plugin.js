@@ -1298,6 +1298,33 @@ describe('Plugin', function () {
 
     describe('decorate()', function () {
 
+        it('decorates request', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('request', 'getId', function () {
+
+                return this.id;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.getId());
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.match(/^.*\:.*\:.*\:.*\:.*$/);
+                done();
+            });
+        });
+
         it('decorates reply', function (done) {
 
             var server = new Hapi.Server();

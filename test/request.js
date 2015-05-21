@@ -24,6 +24,38 @@ var it = lab.it;
 var expect = Code.expect;
 
 
+describe('Request.Generator', function () {
+
+    it('decorates request multiple times', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.decorate('request', 'x2', function () {
+
+            return 2;
+        });
+
+        server.decorate('request', 'abc', 1);
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply(request.x2() + request.abc);
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(3);
+            done();
+        });
+    });
+});
+
 describe('Request', function () {
 
     it('sets client address', function (done) {

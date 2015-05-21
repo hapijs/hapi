@@ -60,7 +60,7 @@ describe('Reply', function () {
         });
     });
 
-    describe('_interface()', function () {
+    describe('interface()', function () {
 
         it('uses reply(null, result) for result', function (done) {
 
@@ -110,6 +110,23 @@ describe('Reply', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(400);
+                done();
+            });
+        });
+
+        it('skips decorations on minimal server', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(reply.view === undefined);
+            };
+
+            var server = new Hapi.Server({ minimal: true });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal(true);
                 done();
             });
         });
