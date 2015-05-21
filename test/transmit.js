@@ -1656,6 +1656,25 @@ describe('transmission', function () {
             });
         });
 
+        it('head request retains content-length header', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            var handler = function (request, reply) {
+
+                return reply('x').bytes(1);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.equal(1);
+                done();
+            });
+        });
+
         describe('response range', function () {
 
             var fileStreamHandler = function (request, reply) {
