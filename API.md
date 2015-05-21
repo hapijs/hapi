@@ -2724,8 +2724,9 @@ _Available only in `'onRequest'` extension methods._
 
 Changes the request URI before the router begins processing the request where:
  - `url` - the new request path value.
- - `stripTrailingSlash` - if truthy, strip the trailing slash from the path.
- - `qsParserOptions` - an object of options to pass to [Qs.parse()](https://www.npmjs.com/package/qs#parsing-objects), which parses the URL's query string, if present.
+ - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
+ - `parserOptions` - optional URI parsing [options](https://www.npmjs.com/package/qs#parsing-objects).
+   Defaults to the **qs** module parsing defaults.
 
 ```js
 var Hapi = require('hapi');
