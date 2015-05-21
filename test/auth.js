@@ -740,7 +740,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/{id}',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         scope: 'one-{params.id}'
                     }
@@ -764,7 +767,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/{id}/{role}',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         scope: 'one-{params.id}-{params.role}'
                     }
@@ -788,7 +794,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/{id}',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         scope: 'one-params.id}'
                     }
