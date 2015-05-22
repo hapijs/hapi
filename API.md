@@ -2017,9 +2017,10 @@ following options:
         - `scope` - the application scope required to access the route. Value can be a scope
           string or an array of scope strings. The authenticated credentials object `scope`
           property must contain at least one of the scopes defined to access the route.
-          You may also access properties on the request object to populate a dynamic scope
-          by using `{}` characters around the property name, such as `'user-{params.id}'`.
-          Set to `false` to remove scope requirements. Defaults to no scope required.
+          You may also access properties on the request object (`query` and `params`} to populate a
+		  dynamic scope by using `{}` characters around the property name, such as
+		  `'user-{params.id}'`. Set to `false` to remove scope requirements. Defaults to no scope
+		  required.
         - `entity` - the required authenticated entity type. If set, must match the `entity`
           value of the authentication credentials. Available values:
             - `any` - the authentication can be on behalf of a user or application. This is the

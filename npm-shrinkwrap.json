@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "8.5.0",
+    "version": "8.5.1",
     "dependencies": {
         "accept": {
             "version": "1.0.0"
@@ -30,7 +30,7 @@
             "version": "3.0.0"
         },
         "hoek": {
-            "version": "2.13.0"
+            "version": "2.14.0"
         },
         "inert": {
             "version": "2.1.5",
