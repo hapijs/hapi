@@ -1830,6 +1830,17 @@ describe('Plugin', function () {
                 });
             });
         });
+
+        it('throws when adding ext without connections', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.ext('onRequest', function () { });
+            }).to.throw('Cannot add ext without a connection');
+
+            done();
+        });
     });
 
     describe('handler()', function () {
@@ -2538,6 +2549,20 @@ describe('Plugin', function () {
         });
     });
 
+    describe('state()', function () {
+
+        it('throws when adding state without connections', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.state('sid', { encoding: 'base64' });
+            }).to.throw('Cannot add state without a connection');
+
+            done();
+        });
+    });
+
     describe('views()', function () {
 
         it('requires plugin with views', function (done) {
@@ -2715,23 +2740,29 @@ internals.plugins = {
             return next();
         });
 
-        server.select('a').ext('onRequest', function (request, reply) {
+        var selection = server.select('a');
+        if (selection.connections.length) {
+            selection.ext('onRequest', function (request, reply) {
 
-            request.app.deps = request.app.deps || '|';
-            request.app.deps += '1|';
-            return reply.continue();
-        }, { after: 'deps3' });
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '1|';
+                return reply.continue();
+            }, { after: 'deps3' });
+        }
 
         return next();
     },
     deps2: function (server, options, next) {
 
-        server.select('b').ext('onRequest', function (request, reply) {
+        var selection = server.select('b');
+        if (selection.connections.length) {
+            selection.ext('onRequest', function (request, reply) {
 
-            request.app.deps = request.app.deps || '|';
-            request.app.deps += '2|';
-            return reply.continue();
-        }, { after: 'deps3', before: 'deps1' });
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '2|';
+                return reply.continue();
+            }, { after: 'deps3', before: 'deps1' });
+        }
 
         server.expose('breaking', 'bad');
 
@@ -2739,12 +2770,15 @@ internals.plugins = {
     },
     deps3: function (server, options, next) {
 
-        server.select('c').ext('onRequest', function (request, reply) {
+        var selection = server.select('c');
+        if (selection.connections.length) {
+            selection.ext('onRequest', function (request, reply) {
 
-            request.app.deps = request.app.deps || '|';
-            request.app.deps += '3|';
-            return reply.continue();
-        });
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '3|';
+                return reply.continue();
+            });
+        }
 
         return next();
     },

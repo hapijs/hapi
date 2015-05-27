@@ -1761,7 +1761,9 @@ Emitted by the server `'request-internal'` event:
 - `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
   non-error response (e.g. a redirect to a login page).
 - `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed
-  authentication strategy.
+  authentication strategy (invalid credentials).
+- `auth` `unauthenticated` `missing` `{strategy}` - the request failed to pass the listed
+  authentication strategy (no credentials found).
 - `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
   authentication strategy in `'try'` mode and will continue.
 - `auth` `scope` `error` `{strategy}` - the request authenticated but failed to meet the scope
