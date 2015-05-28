@@ -29,7 +29,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -46,6 +49,37 @@ describe('validation', function () {
         });
     });
 
+    it('validates both params and query', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/b/{x}',
+            handler: function (request, reply) {
+
+                return reply(request.params.x + request.query.a);
+            },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number().integer().min(0).default(0)
+                    },
+                    params: {
+                        x: Joi.number()
+                    }
+                }
+            }
+        });
+
+        server.inject('/b/456?a=123', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(579);
+            done();
+        });
+    });
+
     it('validates valid input using context', function (done) {
 
         var server = new Hapi.Server();
@@ -53,7 +87,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/{user?}',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -105,7 +142,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/{user?}',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -149,7 +189,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -173,7 +216,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -197,7 +243,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: null
@@ -219,7 +268,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: function (value, options, next) {
@@ -250,7 +302,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: function (value, options, next) {
@@ -275,7 +330,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/{seq}',
-            handler: function (request, reply) { return reply(request.params.seq + 1); },
+            handler: function (request, reply) {
+
+                return reply(request.params.seq + 1);
+            },
             config: {
                 validate: {
                     params: {
@@ -300,7 +358,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/{seq}',
-            handler: function (request, reply) { return reply(request.orig.params.seq + 1); },
+            handler: function (request, reply) {
+
+                return reply(request.orig.params.seq + 1);
+            },
             config: {
                 validate: {
                     params: {
@@ -325,7 +386,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: false
@@ -347,7 +411,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: false
@@ -375,7 +442,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: Joi.object({
@@ -399,7 +469,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -428,7 +501,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -485,7 +561,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -514,7 +593,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -542,7 +624,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     query: {
@@ -580,7 +665,10 @@ describe('validation', function () {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     payload: {
@@ -609,7 +697,10 @@ describe('validation', function () {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     payload: {
@@ -633,7 +724,10 @@ describe('validation', function () {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     payload: {
@@ -658,7 +752,10 @@ describe('validation', function () {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     payload: {
@@ -702,14 +799,16 @@ describe('validation', function () {
         });
 
         var count = 0;
-        internals.times(500, function (next) {
+        var action = function (next) {
 
             server.inject('/', function (res) {
 
                 count += (res.statusCode === 500 ? 1 : 0);
                 return next(null, res.statusCode);
             });
-        }, function (err, codes) {
+        };
+
+        internals.times(500, action, function (err, codes) {
 
             expect(err).to.not.exist();
             expect(count).to.be.within(200, 300);
@@ -964,7 +1063,10 @@ describe('validation', function () {
                         204: false
                     }
                 },
-                handler: function (request, reply) { reply().code(204); }
+                handler: function (request, reply) {
+
+                    reply().code(204);
+                }
             }
         });
 
@@ -1094,14 +1196,16 @@ describe('validation', function () {
         });
 
         var count = 0;
-        internals.times(500, function (next) {
+        var action = function (next) {
 
             server.inject('/', function (res) {
 
                 count += (res.statusCode === 500 ? 1 : 0);
                 return next(null, res.statusCode);
             });
-        }, function (err, codes) {
+        };
+
+        internals.times(500, action, function (err, codes) {
 
             expect(err).to.not.exist();
             expect(count).to.equal(0);
@@ -1307,7 +1411,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     headers: {
@@ -1318,13 +1425,15 @@ describe('validation', function () {
             }
         });
 
-        server.inject({
+        var request = {
             url: '/',
             method: 'GET',
             headers: {
                 Accept: 'application/json'
             }
-        }, function (res) {
+        };
+
+        server.inject(request, function (res) {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -1338,7 +1447,10 @@ describe('validation', function () {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) { return reply('ok'); },
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
             config: {
                 validate: {
                     headers: {
@@ -1349,13 +1461,15 @@ describe('validation', function () {
             }
         });
 
-        server.inject({
+        var request = {
             url: '/',
             method: 'GET',
             headers: {
                 Accept: 'application/json'
             }
-        }, function (res) {
+        };
+
+        server.inject(request, function (res) {
 
             expect(res.statusCode).to.equal(400);
             done();

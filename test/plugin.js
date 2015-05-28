@@ -49,11 +49,51 @@ describe('Plugin', function () {
                 expect(memoryx.connections.length).to.equal(1);
                 expect(sodd.connections.length).to.equal(2);
 
-                server.route({ method: 'GET', path: '/all', handler: function (request, reply) { return reply('all'); } });
-                a.route({ method: 'GET', path: '/a', handler: function (request, reply) { return reply('a'); } });
-                ab.route([{ method: 'GET', path: '/ab', handler: function (request, reply) { return reply('ab'); } }]);
-                memoryx.route({ method: 'GET', path: '/memoryx', handler: function (request, reply) { return reply('memoryx'); } });
-                sodd.route({ method: 'GET', path: '/sodd', handler: function (request, reply) { return reply('sodd'); } });
+                server.route({
+                    method: 'GET',
+                    path: '/all',
+                    handler: function (request, reply) {
+
+                        return reply('all');
+                    }
+                });
+
+                a.route({
+                    method: 'GET',
+                    path: '/a',
+                    handler: function (request, reply) {
+
+                        return reply('a');
+                    }
+                });
+
+                ab.route({
+                    method: 'GET',
+                    path: '/ab',
+                    handler: function (request, reply) {
+
+                        return reply('ab');
+                    }
+                });
+
+                memoryx.route({
+
+                    method: 'GET',
+                    path: '/memoryx',
+                    handler: function (request, reply) {
+
+                        return reply('memoryx');
+                    }
+                });
+
+                sodd.route({
+                    method: 'GET',
+                    path: '/sodd',
+                    handler: function (request, reply) {
+
+                        return reply('sodd');
+                    }
+                });
 
                 memoryx.state('sid', { encoding: 'base64' });
                 server.method({
@@ -185,7 +225,13 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             expect(function () {
 
-                server.register({ register: function (server, options, next) { return next(); } }, function (err) { });
+                server.register({
+                    register: function (server, options, next) {
+
+                        return next();
+                    }
+                }, function (err) { });
+
             }).to.throw('Invalid plugin object - invalid or missing register function attributes property');
 
             done();
@@ -276,7 +322,14 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(server.version); } });
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply(server.version);
+                    }
+                });
                 return next();
             };
 
@@ -305,7 +358,15 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.route({ method: 'GET', path: '/a', handler: function (request, reply) { return reply('a'); } });
+                server.route({
+                    method: 'GET',
+                    path: '/a',
+                    handler: function (request, reply) {
+
+                        return reply('a');
+                    }
+                });
+
                 return next();
             };
 
@@ -429,7 +490,14 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
                 return next();
             };
 
@@ -455,7 +523,14 @@ describe('Plugin', function () {
             var a = function () { };
             a.register = function (server, options, next) {
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
                 return next();
             };
 
@@ -565,7 +640,14 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
                 return next();
             };
 
@@ -601,7 +683,14 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
                 server.expose('super', 'trooper');
                 return next();
             };
@@ -970,7 +1059,14 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection({ labels: 'a' });
             server.connection({ labels: 'b' });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('authenticated!'); } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('authenticated!');
+                }
+            });
 
             server.register(internals.plugins.auth, function (err) {
 
@@ -1202,6 +1298,33 @@ describe('Plugin', function () {
 
     describe('decorate()', function () {
 
+        it('decorates request', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('request', 'getId', function () {
+
+                return this.id;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.getId());
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.match(/^.*\:.*\:.*\:.*\:.*$/);
+                done();
+            });
+        });
+
         it('decorates reply', function (done) {
 
             var server = new Hapi.Server();
@@ -1212,7 +1335,15 @@ describe('Plugin', function () {
                 return this.response({ status: 'ok' });
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply.success(); } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply.success();
+                }
+            });
+
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -1257,7 +1388,14 @@ describe('Plugin', function () {
 
             server.decorate('server', 'ok', function (path) {
 
-                server.route({ method: 'GET', path: path, handler: function (request, reply) { return reply('ok'); } });
+                server.route({
+                    method: 'GET',
+                    path: path,
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
             });
 
             server.ok('/');
@@ -1277,7 +1415,14 @@ describe('Plugin', function () {
 
             server.decorate('server', 'ok', function (path) {
 
-                server.route({ method: 'GET', path: path, handler: function (request, reply) { return reply('ok'); } });
+                server.route({
+                    method: 'GET',
+                    path: path,
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
             });
 
             expect(function () {
@@ -1605,7 +1750,15 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.route({ method: 'GET', path: '/b', handler: function (request, reply) { return reply('b'); } });
+                server.route({
+                    method: 'GET',
+                    path: '/b',
+                    handler: function (request, reply) {
+
+                        return reply('b');
+                    }
+                });
+
                 server.ext('onRequest', function (request, reply) {
 
                     request.setUrl('/b');
@@ -1676,6 +1829,17 @@ describe('Plugin', function () {
                     });
                 });
             });
+        });
+
+        it('throws when adding ext without connections', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.ext('onRequest', function () { });
+            }).to.throw('Cannot add ext without a connection');
+
+            done();
         });
     });
 
@@ -1981,7 +2145,19 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(); }, id: 'root', app: { test: 123 } } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply();
+                    },
+                    id: 'root',
+                    app: { test: 123 }
+                }
+            });
+
             var root = server.lookup('root');
             expect(root.path).to.equal('/');
             expect(root.settings.app.test).to.equal(123);
@@ -2015,11 +2191,67 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(); }, id: 'root' } });
-            server.route({ method: 'GET', path: '/abc', config: { handler: function (request, reply) { return reply(); }, id: 'abc' } });
-            server.route({ method: 'POST', path: '/abc', config: { handler: function (request, reply) { return reply(); }, id: 'post' } });
-            server.route({ method: 'GET', path: '/{p}/{x}', config: { handler: function (request, reply) { return reply(); }, id: 'params' } });
-            server.route({ method: 'GET', path: '/abc', vhost: 'example.com', config: { handler: function (request, reply) { return reply(); }, id: 'vhost' } });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply();
+                    },
+                    id: 'root'
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/abc',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply();
+                    },
+                    id: 'abc'
+                }
+            });
+
+            server.route({
+                method: 'POST',
+                path: '/abc',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply();
+                    },
+                    id: 'post'
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/{p}/{x}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply();
+                    },
+                    id: 'params'
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/abc',
+                vhost: 'example.com',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply();
+                    },
+                    id: 'vhost'
+                }
+            });
 
             expect(server.match('GET', '/').settings.id).to.equal('root');
             expect(server.match('GET', '/none')).to.equal(null);
@@ -2090,7 +2322,17 @@ describe('Plugin', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/{p}', config: { handler: function (request, reply) { return reply(); } } });
+            server.route({
+                method: 'GET',
+                path: '/{p}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply();
+                    }
+                }
+            });
+
             expect(function () {
 
                 server.match('GET', '/%p');
@@ -2119,7 +2361,10 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.method('log', function (methodNext) { return methodNext(null); });
+                server.method('log', function (methodNext) {
+
+                    return methodNext(null);
+                });
                 return next();
             };
 
@@ -2142,7 +2387,10 @@ describe('Plugin', function () {
             var test = function (server, options, next) {
 
                 server.bind({ x: 1 });
-                server.method('log', function (methodNext) { return methodNext(null, this.x); });
+                server.method('log', function (methodNext) {
+
+                    return methodNext(null, this.x);
+                });
                 return next();
             };
 
@@ -2168,7 +2416,10 @@ describe('Plugin', function () {
 
             var test = function (server, options, next) {
 
-                server.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
+                server.method('log', function (methodNext) {
+
+                    return methodNext(null, this.x);
+                }, { bind: { x: 2 } });
                 return next();
             };
 
@@ -2195,7 +2446,10 @@ describe('Plugin', function () {
             var test = function (server, options, next) {
 
                 server.bind({ x: 1 });
-                server.method('log', function (methodNext) { return methodNext(null, this.x); }, { bind: { x: 2 } });
+                server.method('log', function (methodNext) {
+
+                    return methodNext(null, this.x);
+                }, { bind: { x: 2 } });
                 return next();
             };
 
@@ -2292,6 +2546,20 @@ describe('Plugin', function () {
                 expect(rendered).to.contain('Hapi');
                 done();
             });
+        });
+    });
+
+    describe('state()', function () {
+
+        it('throws when adding state without connections', function (done) {
+
+            var server = new Hapi.Server();
+            expect(function () {
+
+                server.state('sid', { encoding: 'base64' });
+            }).to.throw('Cannot add state without a connection');
+
+            done();
         });
     });
 
@@ -2447,7 +2715,11 @@ internals.plugins = {
 
         server.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
 
-        server.auth.scheme('special', function () { return { authenticate: function () { } }; });
+        server.auth.scheme('special', function () {
+
+            return { authenticate: function () { } };
+        });
+
         server.auth.strategy('special', 'special', {});
 
         return next();
@@ -2468,23 +2740,29 @@ internals.plugins = {
             return next();
         });
 
-        server.select('a').ext('onRequest', function (request, reply) {
+        var selection = server.select('a');
+        if (selection.connections.length) {
+            selection.ext('onRequest', function (request, reply) {
 
-            request.app.deps = request.app.deps || '|';
-            request.app.deps += '1|';
-            return reply.continue();
-        }, { after: 'deps3' });
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '1|';
+                return reply.continue();
+            }, { after: 'deps3' });
+        }
 
         return next();
     },
     deps2: function (server, options, next) {
 
-        server.select('b').ext('onRequest', function (request, reply) {
+        var selection = server.select('b');
+        if (selection.connections.length) {
+            selection.ext('onRequest', function (request, reply) {
 
-            request.app.deps = request.app.deps || '|';
-            request.app.deps += '2|';
-            return reply.continue();
-        }, { after: 'deps3', before: 'deps1' });
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '2|';
+                return reply.continue();
+            }, { after: 'deps3', before: 'deps1' });
+        }
 
         server.expose('breaking', 'bad');
 
@@ -2492,12 +2770,15 @@ internals.plugins = {
     },
     deps3: function (server, options, next) {
 
-        server.select('c').ext('onRequest', function (request, reply) {
+        var selection = server.select('c');
+        if (selection.connections.length) {
+            selection.ext('onRequest', function (request, reply) {
 
-            request.app.deps = request.app.deps || '|';
-            request.app.deps += '3|';
-            return reply.continue();
-        });
+                request.app.deps = request.app.deps || '|';
+                request.app.deps += '3|';
+                return reply.continue();
+            });
+        }
 
         return next();
     },
@@ -2528,7 +2809,14 @@ internals.plugins = {
     },
     test2: function (server, options, next) {
 
-        server.route({ path: '/test2', method: 'GET', handler: function (request, reply) { return reply('testing123'); } });
+        server.route({
+            path: '/test2',
+            method: 'GET',
+            handler: function (request, reply) {
+
+                return reply('testing123');
+            }
+        });
         server.log('test', 'abc');
         return next();
     }

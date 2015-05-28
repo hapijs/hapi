@@ -177,10 +177,15 @@ describe('Connection', function () {
 
     it('uses a provided listener', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
         var listener = Http.createServer();
         var server = new Hapi.Server();
         server.connection({ listener: listener });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         server.start(function () {
 
@@ -196,10 +201,15 @@ describe('Connection', function () {
 
     it('uses a provided listener (TLS)', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
         var listener = Http.createServer();
         var server = new Hapi.Server();
         server.connection({ listener: listener, tls: true });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         server.start(function () {
 
@@ -211,10 +221,15 @@ describe('Connection', function () {
 
     it('uses a provided listener with manual listen', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
         var listener = Http.createServer();
         var server = new Hapi.Server();
         server.connection({ listener: listener, autoListen: false });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         listener.listen(0, 'localhost', function () {
 
@@ -284,9 +299,14 @@ describe('Connection', function () {
 
     it('disables node socket timeout', { parallel: false }, function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply();
+        };
+
         var server = new Hapi.Server();
         server.connection({ routes: { timeout: { socket: false } } });
-        server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(); } } });
+        server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
         server.start(function () {
 
@@ -509,9 +529,14 @@ describe('Connection', function () {
 
         it('refuses to handle new incoming requests', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function () {
 
                 var agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
@@ -616,7 +641,10 @@ describe('Connection', function () {
 
         it('keeps the options.credentials object untouched', function (done) {
 
-            var handler = function (request, reply) { return reply(); };
+            var handler = function (request, reply) {
+
+                return reply();
+            };
 
             var server = new Hapi.Server();
             server.connection();
@@ -638,6 +666,7 @@ describe('Connection', function () {
         it('passes the options.artifacts object', function (done) {
 
             var handler = function (request, reply) {
+
                 return reply(request.auth.artifacts);
             };
 
@@ -811,7 +840,12 @@ describe('Connection', function () {
                 }
             ]);
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.app.x); } });
+            var handler = function (request, reply) {
+
+                return reply(request.app.x);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -830,7 +864,12 @@ describe('Connection', function () {
                 return reply.continue();
             }, { bind: { y: 42 } });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.app.x); } });
+            var handler = function (request, reply) {
+
+                return reply(request.app.x);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -941,7 +980,13 @@ describe('Connection', function () {
                     return reply(null, Boom.badRequest('boom'));
                 });
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+
+                var handler = function (request, reply) {
+
+                    return reply('ok');
+                };
+
+                server.route({ method: 'GET', path: '/', handler: handler });
 
                 server.inject('/', function (res) {
 
@@ -964,7 +1009,12 @@ describe('Connection', function () {
                     return reply.view('test', { message: 'hola!' });
                 });
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+                var handler = function (request, reply) {
+
+                    return reply('ok');
+                };
+
+                server.route({ method: 'GET', path: '/', handler: handler });
 
                 server.inject('/', function (res) {
 
@@ -989,8 +1039,23 @@ describe('Connection', function () {
                     return reply.continue();
                 });
 
-                server.route({ method: 'GET', path: '/text', handler: function (request, reply) { return reply('ok'); } });
-                server.route({ method: 'GET', path: '/obj', handler: function (request, reply) { return reply({ status: 'ok' }); } });
+                server.route({
+                    method: 'GET',
+                    path: '/text',
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
+
+                server.route({
+                    method: 'GET',
+                    path: '/obj',
+                    handler: function (request, reply) {
+
+                        return reply({ status: 'ok' });
+                    }
+                });
 
                 server.inject({ method: 'GET', url: '/text' }, function (res) {
 
@@ -1118,7 +1183,12 @@ describe('Connection', function () {
                     return reply.continue();
                 });
 
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('0'); } });
+                var handler = function (request, reply) {
+
+                    return reply('0');
+                };
+
+                server.route({ method: 'GET', path: '/', handler: handler });
 
                 server.inject({ method: 'GET', url: '/' }, function (res) {
 
@@ -1133,9 +1203,14 @@ describe('Connection', function () {
 
         it('overrides the default notFound handler', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('found');
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: '*', path: '/{p*}', handler: function (request, reply) { return reply('found'); } });
+            server.route({ method: '*', path: '/{p*}', handler: handler });
             server.inject({ method: 'GET', url: '/page' }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -1146,9 +1221,14 @@ describe('Connection', function () {
 
         it('responds to HEAD requests for a GET route', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('ok').etag('test').code(205);
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('test').code(205); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
                 expect(res.statusCode).to.equal(205);
@@ -1162,9 +1242,14 @@ describe('Connection', function () {
 
         it('returns 404 on HEAD requests for non-GET routes', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply('ok'); } });
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
@@ -1184,7 +1269,12 @@ describe('Connection', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var config = { method: ['GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: function (request, reply) { return reply(request.route.method); } };
+            var handler = function (request, reply) {
+
+                return reply(request.route.method);
+            };
+
+            var config = { method: ['GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: handler };
             server.route(config);
             server.inject({ method: 'HEAD', url: '/' }, function (res) {
 
@@ -1220,38 +1310,44 @@ describe('Connection', function () {
 
         it('adds routes using single and array methods', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.route([
                 {
                     method: 'GET',
                     path: '/api/products',
-                    handler: function (request, reply) { return reply(); }
+                    handler: handler
                 },
                 {
                     method: 'GET',
                     path: '/api/products/{id}',
-                    handler: function (request, reply) { return reply(); }
+                    handler: handler
                 },
                 {
                     method: 'POST',
                     path: '/api/products',
-                    handler: function (request, reply) { return reply(); }
+                    handler: handler
                 },
                 {
                     method: ['PUT', 'PATCH'],
                     path: '/api/products/{id}',
-                    handler: function (request, reply) { return reply(); }
+                    handler: handler
                 },
                 {
                     method: 'DELETE',
                     path: '/api/products/{id}',
-                    handler: function (request, reply) { return reply(); }
+                    handler: handler
                 }
             ]);
 
             var table = server.table()[0].table;
             var paths = table.map(function (route) {
+
                 var obj = {
                     method: route.method,
                     path: route.path
@@ -1287,9 +1383,14 @@ describe('Connection', function () {
 
         it('returns 404 on OPTIONS when cors disabled', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection({ routes: { cors: false } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ method: 'OPTIONS', url: '/' }, function (res) {
 
@@ -1300,9 +1401,14 @@ describe('Connection', function () {
 
         it('returns 400 on bad request', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/a/{p}', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/a/{p}', handler: handler });
             server.inject('/a/%', function (res) {
 
                 expect(res.statusCode).to.equal(400);

@@ -86,7 +86,17 @@ describe('handler', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { handler: function (request, reply) { return reply(this.x); }, bind: item } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(this.x);
+                    },
+                    bind: item
+                }
+            });
 
             server.inject('/', function (res) {
 
@@ -123,7 +133,14 @@ describe('handler', function () {
 
             var upstream = new Hapi.Server();
             upstream.connection();
-            upstream.route({ method: 'GET', path: '/item', handler: function (request, reply) { return reply({ a: 1 }); } });
+            upstream.route({
+                method: 'GET',
+                path: '/item',
+                handler: function (request, reply) {
+
+                    return reply({ a: 1 });
+                }
+            });
             upstream.start(function () {
 
                 var handler = function (request, reply) {
@@ -905,8 +922,16 @@ describe('handler', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    pre: [{ method: function (request, reply) { return reply(this.x); }, assign: 'x' }],
-                    handler: function (request, reply) { return reply(request.pre.x); },
+                    pre: [{
+                        method: function (request, reply) {
+
+                            return reply(this.x);
+                        }, assign: 'x'
+                    }],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre.x);
+                    },
                     bind: item
                 }
             });
@@ -1110,6 +1135,7 @@ describe('handler', function () {
             };
 
             handler.defaults = function (method) {
+
                 return {
                     app: {
                         x: method

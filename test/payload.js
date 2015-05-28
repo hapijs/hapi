@@ -158,9 +158,14 @@ describe('payload', function () {
 
         var payload = new Buffer(10 * 1024 * 1024).toString();
 
+        var handler = function (request, reply) {
+
+            return reply();
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: function (request, reply) { return reply(); }, payload: { maxBytes: 1024 * 1024 } } });
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 1024 * 1024 } } });
 
         server.start(function () {
 
@@ -216,10 +221,15 @@ describe('payload', function () {
 
     it('handles gzipped payload', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.payload);
+        };
+
         var message = { 'msg': 'This message is going to be gzipped.' };
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+        server.route({ method: 'POST', path: '/', handler: handler });
 
         Zlib.gzip(JSON.stringify(message), function (err, buf) {
 
@@ -339,9 +349,14 @@ describe('payload', function () {
 
     it('ignores unsupported mime type', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.payload);
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: function (request, reply) { return reply(request.payload); }, payload: { failAction: 'ignore' } } });
+        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { failAction: 'ignore' } } });
 
         server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, function (res) {
 
@@ -353,9 +368,14 @@ describe('payload', function () {
 
     it('returns 200 on octet mime type', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply('ok'); } });
+        server.route({ method: 'POST', path: '/', handler: handler });
 
         server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
 
@@ -559,9 +579,14 @@ describe('payload', function () {
 
     it('times out when client request taking too long', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('fast');
+        };
+
         var server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/fast', config: { handler: function (request, reply) { return reply('fast'); } } });
+        server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
         server.start(function () {
 
             var timer = new Hoek.Bench();
@@ -592,9 +617,14 @@ describe('payload', function () {
 
     it('times out when client request taking too long (route override)', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('fast');
+        };
+
         var server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: false } } });
-        server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: function (request, reply) { return reply('fast'); } } });
+        server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: handler } });
         server.start(function () {
 
             var timer = new Hoek.Bench();
@@ -625,9 +655,14 @@ describe('payload', function () {
 
     it('returns payload when timeout is not triggered', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('fast');
+        };
+
         var server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/fast', config: { handler: function (request, reply) { return reply('fast'); } } });
+        server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
         server.start(function () {
 
             var options = {

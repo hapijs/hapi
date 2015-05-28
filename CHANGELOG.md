@@ -1,3 +1,151 @@
+
+## [**8.5.0**](https://github.com/hapijs/hapi/issues?milestone=139&state=open)
+- [**#2481**](https://github.com/hapijs/hapi/issues/2481) Feature: server.decorate('request' ... )
+- [**#2544**](https://github.com/hapijs/hapi/issues/2544) Retain content-length header for HEAD requests
+- [**#2552**](https://github.com/hapijs/hapi/issues/2552) Update hapijs/wreck to 5.5.1 from 5.2.0
+  - **hapijs/wreck 5.5.0**
+  - [**#81**](https://github.com/hapijs/wreck/issues/81) Added uri to event payloads.
+  - **hapijs/wreck 5.4.0**
+  - [**#79**](https://github.com/hapijs/wreck/issues/79) Add start time to response event
+  - **hapijs/wreck 5.3.0**
+  - [**#77**](https://github.com/hapijs/wreck/issues/77) Add event for response and logging
+  - [**#73**](https://github.com/hapijs/wreck/issues/73) Fix issues with node 0.12
+- [**#2472**](https://github.com/hapijs/hapi/issues/2472) Update hapijs/qs to 2.4.2 from 2.4.0
+  - **hapijs/qs 2.4.1**
+  - [**#73**](https://github.com/hapijs/qs/issues/73) Property 'hasOwnProperty' of object #<Object> is not a function
+- [**#2551**](https://github.com/hapijs/hapi/issues/2551) Update jshttp/mime-db to 1.10.0 from 1.9.1
+- [**#2550**](https://github.com/hapijs/hapi/issues/2550) Update moment/moment to 2.10.3 from 2.9.0
+- [**#2549**](https://github.com/hapijs/hapi/issues/2549) Update hapijs/joi to 6.4.1 from 6.0.8
+  - **hapijs/joi 6.4.0**
+  - [**#629**](https://github.com/hapijs/joi/issues/629) help with `.or()`
+  - **hapijs/joi 6.2.0**
+  - [**#413**](https://github.com/hapijs/joi/issues/413) Create default [highly nested] object easily?
+  - **hapijs/joi 6.1.2**
+  - [**#628**](https://github.com/hapijs/joi/issues/628) Alternatives throw typeError when "is: null" is used
+  - **hapijs/joi 6.1.1**
+  - [**#627**](https://github.com/hapijs/joi/issues/627) Property is always required even when my When() condition isn't met.
+  - **hapijs/joi 6.1.0**
+  - [**#583**](https://github.com/hapijs/joi/issues/583) do ref-able operations support referring to a list?
+  - [**#616**](https://github.com/hapijs/joi/issues/616) Add ignoreUndefined flag for rename()
+  - [**#609**](https://github.com/hapijs/joi/issues/609) number min/max/greater/less do not allow decimal values
+- [**#2548**](https://github.com/hapijs/hapi/issues/2548) Update hapijs/hoek to 2.13.0 from 2.11.1
+  - **hapijs/hoek 2.13.0**
+  - [**#140**](https://github.com/hapijs/hoek/issues/140) Add isNullOverride to applyToDefaults
+  - **hapijs/hoek 2.12.0**
+  - [**#133**](https://github.com/hapijs/hoek/issues/133) Added option parameter to deepEqual.
+- [**#2547**](https://github.com/hapijs/hapi/issues/2547) Update hapijs/boom to 2.7.2 from 2.6.1
+  - **hapijs/boom 2.7.2**
+  - [**#59**](https://github.com/hapijs/boom/issues/59) Update license attribute
+  - **hapijs/boom 2.7.1**
+  - [**#52**](https://github.com/hapijs/boom/issues/52) Coerse statusCode to an Integer
+  - [**#51**](https://github.com/hapijs/boom/issues/51) Make sure Boom initialize method auto cast string statusCode to Integer if possible
+  - **hapijs/boom 2.7.0**
+  - [**#45**](https://github.com/hapijs/boom/issues/45) Added isServer
+  - [**#41**](https://github.com/hapijs/boom/issues/41) Easy way to determine if the client or server is at fault
+- [**#2546**](https://github.com/hapijs/hapi/issues/2546) Update hapijs/inert to 2.1.5 from 2.1.4
+  - **hapijs/inert 2.1.5**
+  - [**#26**](https://github.com/hapijs/inert/issues/26) Misc. Closes #25
+- [**#2545**](https://github.com/hapijs/hapi/issues/2545) Update isaacs/node-lru-cache to 2.6.4 from 2.5.0
+- [**#2501**](https://github.com/hapijs/hapi/issues/2501) server.inject does not allow me to set auth artifacts, only auth credentials
+- [**#2538**](https://github.com/hapijs/hapi/issues/2538) closes #2480: Ability to pass options to qs for payload parsing
+- [**#2532**](https://github.com/hapijs/hapi/issues/2532) Dynamic authentication scopes
+- [**#2509**](https://github.com/hapijs/hapi/issues/2509) Update jshttp/mime-db to 1.9.1 from 1.7.0
+- [**#2502**](https://github.com/hapijs/hapi/issues/2502) Fix Hapi Issue #2501, pass on auth artifacts object in server.inject
+- [**#2503**](https://github.com/hapijs/hapi/issues/2503) Update hapijs/shot to 1.5.0 from 1.4.2
+  - **hapijs/shot 1.5.0**
+  - [**#28**](https://github.com/hapijs/shot/issues/28) Add 'content-length' header matching payload length if none set
+
+## [**8.4.0**](https://github.com/hapijs/hapi/issues?milestone=138&state=closed)
+- [**#2470**](https://github.com/hapijs/hapi/issues/2470) JSONP requests not always returning wrapped response
+- [**#2469**](https://github.com/hapijs/hapi/issues/2469) Update hapijs/qs to 2.4.0 from 2.3.3
+  - **hapijs/qs 2.4.0**
+  - [**#70**](https://github.com/hapijs/qs/issues/70) Add arrayFormat option
+- [**#2468**](https://github.com/hapijs/hapi/issues/2468) Proxy handler not forwarding request payload
+- [**#2465**](https://github.com/hapijs/hapi/issues/2465) Update hapijs/catbox to 4.2.2 from 4.2.1
+  - **hapijs/catbox 4.2.2**
+  - [**#120**](https://github.com/hapijs/catbox/issues/120) Upgrade to Joi 6
+- [**#2464**](https://github.com/hapijs/hapi/issues/2464) Update hapijs/joi to 6.0.8 from 6.0.5
+  - **hapijs/joi 6.0.7**
+  - [**#580**](https://github.com/hapijs/joi/issues/580) Annotate fails on circular objects
+  - **hapijs/joi 6.0.6**
+  - [**#602**](https://github.com/hapijs/joi/issues/602) Validate multiple options with presence key in it
+  - [**#601**](https://github.com/hapijs/joi/issues/601) Error: stripUnknown should be one of required, optional, forbidden, ignore
+- [**#2463**](https://github.com/hapijs/hapi/issues/2463) Update shrinkwrap to joi 6.0.7
+
+## [**8.3.1**](https://github.com/hapijs/hapi/issues?milestone=137&state=closed)
+- [**#2461**](https://github.com/hapijs/hapi/issues/2461) Missing dependency in 8.3
+
+## [**8.3.0**](https://github.com/hapijs/hapi/issues?milestone=136&state=closed)
+- [**#2459**](https://github.com/hapijs/hapi/issues/2459) Fix for node 0.10 for changes in #2429
+- [**#2453**](https://github.com/hapijs/hapi/issues/2453) Update hapijs/joi to 6.0.5 from 5.0.2
+  - **hapijs/joi 6.0.5**
+  - [**#600**](https://github.com/hapijs/joi/issues/600) Fix regression on unsafe string escaping in language
+  - **hapijs/joi 6.0.4**
+  - [**#593**](https://github.com/hapijs/joi/issues/593) .rename() does not work when new value is undefined
+  - **hapijs/joi 6.0.3**
+  - [**#589**](https://github.com/hapijs/joi/issues/589) Joi.array().items(...) error message changes
+  - **hapijs/joi 6.0.1**
+  - [**#585**](https://github.com/hapijs/joi/issues/585) No conversion is done inside Joi.array().items
+  - **hapijs/joi 6.0.0**
+  - [**#457**](https://github.com/hapijs/joi/issues/457) Add URI Validation
+  - [**#578**](https://github.com/hapijs/joi/issues/578) respect stripUnknown in arrays
+  - [**#572**](https://github.com/hapijs/joi/issues/572) add any.strip for objects and arrays
+  - [**#567**](https://github.com/hapijs/joi/issues/567) Object with 'or', keys contains an array with a 'null' element
+  - [**#569**](https://github.com/hapijs/joi/issues/569) Lost key after validation on assert
+  - [**#559**](https://github.com/hapijs/joi/issues/559) deprecate array.includes and array.excludes, use array.items and allow required and forbidden within
+  - [**#536**](https://github.com/hapijs/joi/issues/536) Consider renaming 'valid' to 'enum' or an alias
+  - [**#553**](https://github.com/hapijs/joi/issues/553) Does array include allow nested object properties 
+  - [**#555**](https://github.com/hapijs/joi/issues/555) add some additional guards and tests for #363
+  - [**#545**](https://github.com/hapijs/joi/issues/545) allow passing a method to .default(), for #363
+  - [**#363**](https://github.com/hapijs/joi/issues/363) support factory-function in .default() ?
+  - [**#547**](https://github.com/hapijs/joi/issues/547) string hex characters only
+  - [**#546**](https://github.com/hapijs/joi/issues/546) Really custom messages are impossible
+  - [**#484**](https://github.com/hapijs/joi/issues/484) Helpful regexp message
+  - [**#488**](https://github.com/hapijs/joi/issues/488) Allow options to be passed to string.email().
+  - [**#538**](https://github.com/hapijs/joi/issues/538) added number.multiple()
+  - [**#495**](https://github.com/hapijs/joi/issues/495) joi.array().includes path and errors mismatch
+  - [**#511**](https://github.com/hapijs/joi/issues/511) throw when invalid options are provided
+  - [**#534**](https://github.com/hapijs/joi/issues/534) Bad behavior of Joi.object().concat()
+  - **hapijs/joi 5.1.0**
+  - [**#525**](https://github.com/hapijs/joi/issues/525) Strange behaviour with date + raw
+  - [**#404**](https://github.com/hapijs/joi/issues/404) Possible referencing date field to other date field?
+  - [**#510**](https://github.com/hapijs/joi/issues/510) Add new requiredKeys option specifically for object keys
+  - [**#513**](https://github.com/hapijs/joi/issues/513) Make alternatives.describe more consistent
+  - [**#509**](https://github.com/hapijs/joi/issues/509) Option to validate a date format but not convert to a date object
+- [**#2457**](https://github.com/hapijs/hapi/issues/2457) Update hapijs/inert to 2.1.4 from 2.1.3
+  - **hapijs/inert 2.1.4**
+  - [**#23**](https://github.com/hapijs/inert/issues/23) Upgrade to joi 6.0
+- [**#2455**](https://github.com/hapijs/hapi/issues/2455) Update hapijs/shot to 1.4.2 from 1.4.1
+- [**#2454**](https://github.com/hapijs/hapi/issues/2454) Update moment/moment to 2.9.0 from 2.8.4
+- [**#2452**](https://github.com/hapijs/hapi/issues/2452) Update hapijs/hoek to 2.11.1 from 2.10.0
+  - **hapijs/hoek 2.11.1**
+  - [**#131**](https://github.com/hapijs/hoek/issues/131) Clone even non-enumerable properties.
+  - [**#127**](https://github.com/hapijs/hoek/issues/127) deepEqual behaving unexpectedly with empty object
+  - [**#128**](https://github.com/hapijs/hoek/issues/128) Fix deepEqual on empty objects. Fixes #127.
+  - **hapijs/hoek 2.11.0**
+  - [**#115**](https://github.com/hapijs/hoek/issues/115) Adds ability to do Hoek.reach with negative index
+  - [**#117**](https://github.com/hapijs/hoek/issues/117) Throw error directly if it is the only thing passed in as the message
+- [**#2326**](https://github.com/hapijs/hapi/issues/2326) request-error logged before `onPostHandler` or `onPreResponse`
+- [**#2427**](https://github.com/hapijs/hapi/issues/2427) Issue uploading file with io.js or node > 0.11.6
+- [**#2439**](https://github.com/hapijs/hapi/issues/2439) pass context to response schema validation
+- [**#2429**](https://github.com/hapijs/hapi/issues/2429) Fix for #2427
+- [**#2382**](https://github.com/hapijs/hapi/issues/2382) Return explicit error when trying to stream a non-Readable stream
+- [**#2368**](https://github.com/hapijs/hapi/issues/2368) response.streamify assumes stream has attribute _readableState
+- [**#2446**](https://github.com/hapijs/hapi/issues/2446) Update hapijs/wreck to 5.2.0 from 5.0.1
+  - **hapijs/wreck 5.2.0**
+  - [**#70**](https://github.com/hapijs/wreck/issues/70) Added 'smart' and 'force' modes to json option.
+  - **hapijs/wreck 5.1.0**
+  - [**#69**](https://github.com/hapijs/wreck/issues/69) Dont try to parse JSON if the statusCode is 204 (No Content)
+  - [**#55**](https://github.com/hapijs/wreck/issues/55) Added ability to set secureProtocol to a value.
+- [**#2418**](https://github.com/hapijs/hapi/issues/2418) Add regex to allow leading $ and _
+- [**#2420**](https://github.com/hapijs/hapi/issues/2420) Update hapijs/shot to 1.4.1 from 1.4.0
+  - **hapijs/shot 1.4.1**
+  - [**#22**](https://github.com/hapijs/shot/issues/22) Use hoek to assign defaults to options passed to inject
+- [**#2423**](https://github.com/hapijs/hapi/issues/2423) Update mime-db to 1.7.0 from 1.6.1
+- [**#2405**](https://github.com/hapijs/hapi/issues/2405) Support inline dependencies on plugins
+- [**#2402**](https://github.com/hapijs/hapi/issues/2402) Improved validation of route method label
+- [**#2332**](https://github.com/hapijs/hapi/issues/2332) Replacing plugin.dependency() with attributes key
+
 ## [**8.2.0**](https://github.com/hapijs/hapi/issues?milestone=135&state=closed)
 - [**#2396**](https://github.com/hapijs/hapi/issues/2396) Inert 2.1.3 update
 - [**#2397**](https://github.com/hapijs/hapi/issues/2397) throw when attaching route handlers without a connection
@@ -86,9 +234,9 @@
   - [**#107**](https://github.com/hapijs/hoek/issues/107) applyToDefaultsWithShallow() fail to retain defaults shallow key
 - [**#2216**](https://github.com/hapijs/hapi/issues/2216) Invalid deep cloning of bind context
 - [**#2217**](https://github.com/hapijs/hapi/issues/2217) Disable scope checking on a route
-- [**#2215**](https://github.com/hapijs/hapi/issues/2215) Revert change to trailing slash behavior
+- [**#2215**](https://github.com/hapijs/hapi/issues/2215) Revert change to trailing slash behavior 
 - [**#2209**](https://github.com/hapijs/hapi/issues/2209) Not possible to add route in plugins
-- [**#2203**](https://github.com/hapijs/hapi/issues/2203) Move connection route config to route with connections defaults
+- [**#2203**](https://github.com/hapijs/hapi/issues/2203) Move connection route config to route with connections defaults 
 - [**#2206**](https://github.com/hapijs/hapi/issues/2206) Change server.bind() and server.path() to apply only to routes that follow
 - [**#2205**](https://github.com/hapijs/hapi/issues/2205) Rename plugin register() `route` option to `routes`
 - [**#2201**](https://github.com/hapijs/hapi/issues/2201) Rename cacheControlStatus to cache.statuses
@@ -315,7 +463,7 @@
 - [**#1844**](https://github.com/hapijs/hapi/issues/1844) Replace async
 - [**#1842**](https://github.com/hapijs/hapi/issues/1842) Lab 4.00
 - [**#1840**](https://github.com/hapijs/hapi/issues/1840) No longer possible to load caches using CLI?
-- [**#1835**](https://github.com/hapijs/hapi/issues/1835) server.state ttl must be a number
+- [**#1835**](https://github.com/hapijs/hapi/issues/1835) server.state ttl must be a number 
 - [**#1795**](https://github.com/hapijs/hapi/issues/1795) request.server._views in plugin
 - [**#1832**](https://github.com/hapijs/hapi/issues/1832) Replace mime with mime-type
 - [**#1822**](https://github.com/hapijs/hapi/issues/1822) Added joi validation to manifest.
@@ -476,7 +624,7 @@
 - [**#1507**](https://github.com/hapijs/hapi/issues/1507) request.setUrl('') throws
 
 ## [**3.0.1**](https://github.com/hapijs/hapi/issues?milestone=88&state=closed)
-- [**#1503**](https://github.com/hapijs/hapi/issues/1503) plugin.method(name, fn, [options]) fails
+- [**#1503**](https://github.com/hapijs/hapi/issues/1503) plugin.method(name, fn, [options]) fails 
 
 ## [**3.0.0**](https://github.com/hapijs/hapi/issues?milestone=86&state=closed)
 - [**#1466**](https://github.com/hapijs/hapi/issues/1466) Drop support for server helpers
@@ -491,7 +639,7 @@
 ## [**2.6.0**](https://github.com/hapijs/hapi/issues?milestone=85&state=closed)
 - [**#1455**](https://github.com/hapijs/hapi/issues/1455) Print to console server logs based on debug config
 - [**#1451**](https://github.com/hapijs/hapi/issues/1451) Objects created in plugin.dependency or plugin.after are monitored by the wrong domain
-- [**#1452**](https://github.com/hapijs/hapi/issues/1452) Perhaps include `request.pre` in handler view context
+- [**#1452**](https://github.com/hapijs/hapi/issues/1452) Perhaps include `request.pre` in handler view context 
 - [**#1453**](https://github.com/hapijs/hapi/issues/1453) Include prerequisites in default view context. #1452
 - [**#1445**](https://github.com/hapijs/hapi/issues/1445) Server method bind option
 - [**#1450**](https://github.com/hapijs/hapi/issues/1450) Enable handlers to use the prerequisite method string notation
@@ -984,7 +1132,7 @@
 - [**#611**](https://github.com/hapijs/hapi/issues/611) Adding vhost tests
 - [**#609**](https://github.com/hapijs/hapi/issues/609) Virtual hosts support
 - [**#610**](https://github.com/hapijs/hapi/issues/610) Cleaning up test and stream response
-- [**#607**](https://github.com/hapijs/hapi/issues/607) Adding basic crumb CSRF information to reference guide
+- [**#607**](https://github.com/hapijs/hapi/issues/607) Adding basic crumb CSRF information to reference guide 
 - [**#602**](https://github.com/hapijs/hapi/issues/602) Relative paths
 - [**#595**](https://github.com/hapijs/hapi/issues/595) Fixing gzip stream test to use simple stream
 - [**#596**](https://github.com/hapijs/hapi/issues/596) Adding request payload section

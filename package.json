@@ -2,12 +2,12 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "8.4.0",
+  "version": "8.5.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
   },
-  "main": "index",
+  "main": "lib/index.js",
   "keywords": [
     "framework",
     "http",
@@ -27,7 +27,7 @@
     "cryptiles": "2.x.x",
     "h2o2": "4.x.x",
     "heavy": "3.x.x",
-    "hoek": "^2.10.x",
+    "hoek": "^2.14.x",
     "inert": "2.x.x",
     "iron": "2.x.x",
     "items": "1.x.x",
@@ -50,13 +50,10 @@
     "wreck": "5.x.x"
   },
   "scripts": {
-    "test": "node node_modules/lab/bin/lab -a code -t 100 -L",
-    "test-tap": "node node_modules/lab/bin/lab -a code -r tap -o tests.tap"
+    "test": "lab -a code -t 100 -L",
+    "test-tap": "lab -a code -r tap -o tests.tap",
+    "test-cov-html": "lab -a code -r html -o coverage.html",
+    "changelog": "mdchangelog --no-prologue --no-orphan-issues --overwrite --order-milestones semver --order-issues closed_at --dependents --remote hapijs/hapi --same-org --timeout 120000"
   },
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "http://github.com/hapijs/hapi/raw/master/LICENSE"
-    }
-  ]
+  "license": "BSD-3-Clause"
 }

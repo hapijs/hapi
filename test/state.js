@@ -22,9 +22,14 @@ describe('state', function () {
 
     it('parses cookies', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.state);
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.state); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
@@ -35,9 +40,14 @@ describe('state', function () {
 
     it('skips parsing cookies', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.state);
+        };
+
         var server = new Hapi.Server();
         server.connection({ routes: { state: { parse: false } } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.state); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
@@ -138,9 +148,14 @@ describe('state', function () {
 
     it('sets cookie value automatically', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.state('always', { autoValue: 'present' });
 
         server.inject('/', function (res) {
@@ -178,9 +193,14 @@ describe('state', function () {
             return next(null, request.params.x);
         };
 
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/{x}', handler: function (request, reply) { return reply('ok'); } });
+        server.route({ method: 'GET', path: '/{x}', handler: handler });
         server.state('always', { autoValue: present });
 
         server.inject('/sweet', function (res) {
@@ -198,9 +218,14 @@ describe('state', function () {
             return next(new Error());
         };
 
+        var handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
         var server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.state('always', { autoValue: present });
 
         server.inject('/', function (res) {
@@ -213,10 +238,15 @@ describe('state', function () {
 
     it('sets cookie value with null ttl', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('ok').state('a', 'b');
+        };
+
         var server = new Hapi.Server();
         server.connection();
         server.state('a', { ttl: null });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').state('a', 'b'); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
 

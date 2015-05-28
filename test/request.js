@@ -24,6 +24,38 @@ var it = lab.it;
 var expect = Code.expect;
 
 
+describe('Request.Generator', function () {
+
+    it('decorates request multiple times', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.decorate('request', 'x2', function () {
+
+            return 2;
+        });
+
+        server.decorate('request', 'abc', 1);
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply(request.x2() + request.abc);
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(3);
+            done();
+        });
+    });
+});
+
 describe('Request', function () {
 
     it('sets client address', function (done) {
@@ -115,10 +147,15 @@ describe('Request', function () {
 
     it('generates unique request id', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.id);
+        };
+
         var server = new Hapi.Server();
         server.connection();
         server.connections[0]._requestCounter = { value: 10, min: 10, max: 11 };
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.id); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res1) {
 
             server.inject('/', function (res2) {
@@ -429,7 +466,12 @@ describe('Request', function () {
                 return reply(new Error('boom2'));
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new Error('boom1')); } });
+            var handler = function (request, reply) {
+
+                return reply(new Error('boom1'));
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -461,7 +503,12 @@ describe('Request', function () {
                 req = request;
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { throw new Error('boom'); } });
+            var handler = function (request, reply) {
+
+                throw new Error('boom');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -494,7 +541,12 @@ describe('Request', function () {
                 return reply('ok');
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new Error('boom1')); } });
+            var handler = function (request, reply) {
+
+                return reply(new Error('boom1'));
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -711,9 +763,14 @@ describe('Request', function () {
 
         it('strips trailing slash', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/test', handler: handler });
             server.inject('/test/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -723,9 +780,14 @@ describe('Request', function () {
 
         it('does not strip trailing slash on /', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -735,12 +797,42 @@ describe('Request', function () {
 
         it('strips trailing slash with query', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
             var server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler: function (request, reply) { return reply(); } });
+            server.route({ method: 'GET', path: '/test', handler: handler });
             server.inject('/test/?a=b', function (res) {
 
                 expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('accepts querystring parser options', function (done) {
+
+            var url = 'http://localhost/page?a=1&b=1&c=1&d=1&e=1&f=1&g=1&h=1&i=1&j=1&k=1&l=1&m=1&n=1&o=1&p=1&q=1&r=1&s=1&t=1&u=1&v=1&w=1&x=1&y=1&z=1';
+            var qsParserOptions = {
+                parameterLimit: 26
+            };
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onRequest', function (request, reply) {
+
+                request.setUrl(url, null, qsParserOptions);
+                return reply(request.query);
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.deep.equal({
+                    a: '1', b: '1', c: '1', d: '1', e: '1', f: '1', g: '1', h: '1', i: '1',
+                    j: '1', k: '1', l: '1', m: '1', n: '1', o: '1', p: '1', q: '1', r: '1',
+                    s: '1', t: '1', u: '1', v: '1', w: '1', x: '1', y: '1', z: '1'
+                });
                 done();
             });
         });

@@ -64,7 +64,12 @@ describe('transmission', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').header('last-modified', 'some crap'); } });
+            var handler = function (request, reply) {
+
+                return reply('ok').header('last-modified', 'some crap');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } }, function (res2) {
 
@@ -96,7 +101,7 @@ describe('transmission', function () {
                         var count = 0;
                         var lines = lsof.split('\n');
                         for (var i = 0, il = lines.length; i < il; ++i) {
-                            count += !!lines[i].match(/package.json/);
+                            count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
 
                         expect(count).to.equal(0);
@@ -112,7 +117,13 @@ describe('transmission', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/file', handler: function (request, reply) { return reply(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc'); } });
+
+            var handler = function (request, reply) {
+
+                return reply(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc');
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
 
             server.inject('/file', function (res1) {
 
@@ -131,7 +142,7 @@ describe('transmission', function () {
                         var count = 0;
                         var lines = lsof.split('\n');
                         for (var i = 0, il = lines.length; i < il; ++i) {
-                            count += !!lines[i].match(/package.json/);
+                            count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
 
                         expect(count).to.equal(0);
@@ -258,7 +269,13 @@ describe('transmission', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply().code(304); } });
+
+            var handler = function (request, reply) {
+
+                return reply().code(304);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -549,7 +566,13 @@ describe('transmission', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').code(204); } });
+
+            var handler = function (request, reply) {
+
+                return reply('ok').code(204);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(204);
@@ -562,7 +585,13 @@ describe('transmission', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -767,12 +796,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+
+            var handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -791,12 +825,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: gzip is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(data); } });
+
+            var handler = function (request, reply) {
+
+                return reply(data);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -815,12 +854,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: * is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+
+            var handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -836,12 +880,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: * is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(data); } });
+
+            var handler = function (request, reply) {
+
+                return reply(data);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -857,11 +906,16 @@ describe('transmission', function () {
 
         it('returns a deflate response on a post request when accept-encoding: deflate is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+
+            var handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -880,11 +934,16 @@ describe('transmission', function () {
 
         it('returns a deflate response on a get request when accept-encoding: deflate is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(data); } });
+
+            var handler = function (request, reply) {
+
+                return reply(data);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -903,12 +962,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+
+            var handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -927,12 +991,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(data); } });
+
+            var handler = function (request, reply) {
+
+                return reply(data);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -951,12 +1020,17 @@ describe('transmission', function () {
 
         it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+
+            var handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -975,12 +1049,17 @@ describe('transmission', function () {
 
         it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(data); } });
+
+            var handler = function (request, reply) {
+
+                return reply(data);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -999,12 +1078,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+
+            var handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -1023,12 +1107,17 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(data); } });
+
+            var handler = function (request, reply) {
+
+                return reply(data);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -1047,12 +1136,17 @@ describe('transmission', function () {
 
         it('returns an identity response on a post request when accept-encoding is missing', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(request.payload); } });
+
+            var handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -1068,12 +1162,19 @@ describe('transmission', function () {
 
         it('returns an identity response on a get request when accept-encoding is missing', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(data); } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(data);
+                }
+            });
+
             server.start(function () {
 
                 var uri = 'http://localhost:' + server.info.port;
@@ -1089,14 +1190,19 @@ describe('transmission', function () {
 
         it('returns a gzip response when forced by the handler', function (done) {
 
-            var message = { 'msg': 'This message is going to be gzipped.' };
             var data = '{"test":"true"}';
 
             Zlib.gzip(new Buffer(data), function (err, zipped) {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'POST', path: '/', handler: function (request, reply) { return reply(zipped).type('text/plain').header('content-encoding', 'gzip'); } });
+
+                var handler = function (request, reply) {
+
+                    return reply(zipped).type('text/plain').header('content-encoding', 'gzip');
+                };
+
+                server.route({ method: 'POST', path: '/', handler: handler });
                 server.start(function () {
 
                     var uri = 'http://localhost:' + server.info.port;
@@ -1122,7 +1228,11 @@ describe('transmission', function () {
 
                 server.ext('onPreResponse', function (request, reply) {
 
-                    request.response._marshal = function () { throw new Error('not called'); };
+                    request.response._marshal = function () {
+
+                        throw new Error('not called');
+                    };
+
                     return reply.continue();
                 });
 
@@ -1530,7 +1640,12 @@ describe('transmission', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').header('content-encoding', 'gzip').etag('abc'); } });
+            var handler = function (request, reply) {
+
+                return reply('x').header('content-encoding', 'gzip').etag('abc');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -1540,6 +1655,26 @@ describe('transmission', function () {
                 done();
             });
         });
+
+        it('head request retains content-length header', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            var handler = function (request, reply) {
+
+                return reply('x').bytes(1);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.equal(1);
+                done();
+            });
+        });
+
         describe('response range', function () {
 
             var fileStreamHandler = function (request, reply) {
@@ -1772,7 +1907,12 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new TestStream()); } });
+                var handler = function (request, reply) {
+
+                    return reply(new TestStream());
+                };
+
+                server.route({ method: 'GET', path: '/', handler: handler });
 
                 server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } }, function (res) {
 
@@ -1818,7 +1958,12 @@ describe('transmission', function () {
 
                 var server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(new TestStream()); } });
+                var handler = function (request, reply) {
+
+                    return reply(new TestStream());
+                };
+
+                server.route({ method: 'GET', path: '/', handler: handler });
 
                 server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, function (res) {
 
@@ -2197,6 +2342,7 @@ describe('transmission', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
+
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-methods']).to.exist();
@@ -2636,7 +2782,6 @@ describe('transmission', function () {
                 expect(res.headers['x-content-type-options']).to.equal('nosniff');
                 done();
             });
-
         });
 
         it('returns only default xframe header when security.xframe is true', function (done) {
