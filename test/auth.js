@@ -1117,7 +1117,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.artifacts); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.artifacts);
+                    },
                     auth: 'default'
                 }
             });
@@ -1130,6 +1133,7 @@ describe('authentication', function () {
             };
 
             server.inject(options, function (res) {
+
                 expect(res.statusCode).to.equal(200);
                 expect(res.result.bar).to.equal('baz');
                 done();
