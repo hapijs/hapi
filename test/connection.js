@@ -399,6 +399,24 @@ describe('Connection', function () {
                 });
             });
         });
+
+        it('will return an error if the port is aleady in use', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                server.connection({ port: server.info.port });
+                server.start(function (err) {
+
+                    expect(err).to.exist();
+                    expect(err.message).to.match(/EADDRINUSE/);
+                    done();
+                });
+            });
+        });
     });
 
     describe('_stop()', function () {
