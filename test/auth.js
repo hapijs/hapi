@@ -1106,6 +1106,43 @@ describe('authentication', function () {
                 done();
             });
         });
+
+        it('passes the options.artifacts object, even with an auth filter', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.artifacts);
+                    },
+                    auth: 'default'
+                }
+            });
+
+            var options = {
+                url: '/',
+                headers: { authorization: 'Custom steve' },
+                credentials: { foo: 'bar' },
+                artifacts: { bar: 'baz' }
+            };
+
+            server.inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.bar).to.equal('baz');
+                done();
+            });
+
+
+
+        });
+
     });
 
     describe('payload()', function () {
