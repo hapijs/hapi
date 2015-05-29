@@ -857,6 +857,25 @@ describe('Response', function () {
             });
         });
 
+        it('handles promises that resolve (response object)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(Bluebird.resolve(request.generateResponse({ status: 'ok' }).code(201)));
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result.status).to.equal('ok');
+                expect(res.statusCode).to.equal(201);
+                done();
+            });
+        });
+
         it('handles promises that reject', function (done) {
 
             var handler = function (request, reply) {
