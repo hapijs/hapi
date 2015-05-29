@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "8.5.2",
+    "version": "8.5.3",
     "dependencies": {
         "accept": {
             "version": "1.0.0"
@@ -24,7 +24,7 @@
             "version": "2.0.4"
         },
         "h2o2": {
-            "version": "4.0.0"
+            "version": "4.0.1"
         },
         "heavy": {
             "version": "3.0.0"
