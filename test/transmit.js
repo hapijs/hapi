@@ -460,7 +460,7 @@ describe('transmission', function () {
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
                 expect(res.headers.vary).to.equal('accept-encoding');
-                Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, result) {
+                Zlib.unzip(res.rawPayload, function (err, result) {
 
                     expect(err).to.not.exist();
                     expect(result.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
@@ -1695,7 +1695,7 @@ describe('transmission', function () {
                     expect(res.headers['content-length']).to.equal(5);
                     expect(res.headers['content-range']).to.equal('bytes 0-4/42010');
                     expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.payload).to.equal('\x89PNG\r');
+                    expect(res.rawPayload.toString('binary')).to.equal('\x89PNG\r');
                     done();
                 });
             });
@@ -1729,7 +1729,7 @@ describe('transmission', function () {
                     expect(res.headers['content-length']).to.equal(5);
                     expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
                     expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.payload).to.equal('D\xAEB\x60\x82');
+                    expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
                     done();
                 });
             });
@@ -1746,7 +1746,7 @@ describe('transmission', function () {
                     expect(res.headers['content-length']).to.equal(5);
                     expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
                     expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.payload).to.equal('D\xAEB\x60\x82');
+                    expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
                     done();
                 });
             });
@@ -1763,7 +1763,7 @@ describe('transmission', function () {
                     expect(res.headers['content-length']).to.equal(5);
                     expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
                     expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.payload).to.equal('D\xAEB\x60\x82');
+                    expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
                     done();
                 });
             });
@@ -1784,7 +1784,7 @@ describe('transmission', function () {
                             expect(res2.headers['content-length']).to.equal(5);
                             expect(res2.headers['content-range']).to.equal('bytes 42005-42009/42010');
                             expect(res2.headers['accept-ranges']).to.equal('bytes');
-                            expect(res2.payload).to.equal('D\xAEB\x60\x82');
+                            expect(res2.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
                             done();
                         });
                     });
