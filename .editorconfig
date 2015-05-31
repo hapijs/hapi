@@ -1,0 +1,16 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.js]
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[{package.json,.travis.yml,.eslintrc}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true

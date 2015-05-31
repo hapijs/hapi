@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "accept": "1.x.x",
-    "ammo":  "1.x.x",
+    "ammo": "1.x.x",
     "boom": "^2.5.x",
     "call": "2.x.x",
     "catbox": "^4.2.x",
@@ -45,6 +45,8 @@
   "devDependencies": {
     "bluebird": "2.x.x",
     "code": "1.x.x",
+    "eslint": "0.19.x",
+    "eslint-plugin-hapi": "^1.0.0",
     "handlebars": "2.x.x",
     "lab": "5.x.x",
     "wreck": "5.x.x"
