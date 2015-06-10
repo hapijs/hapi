@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "accept": "1.x.x",
-    "ammo":  "1.x.x",
+    "ammo": "1.x.x",
     "boom": "^2.5.x",
     "call": "2.x.x",
     "catbox": "^4.2.x",
@@ -38,7 +38,7 @@
     "qs": "2.x.x",
     "shot": "1.x.x",
     "statehood": "2.x.x",
-    "subtext": "https://github.com/kpjf/subtext/tarball/master",
+    "subtext": "1.x.x",
     "topo": "1.x.x",
     "vision": "2.x.x"
   },
