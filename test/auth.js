@@ -26,11 +26,16 @@ describe('authentication', function () {
 
     it('requires and authenticates a request', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply(request.auth.credentials.user);
+        };
+
         var server = new Hapi.Server();
         server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject('/', function (res) {
 
@@ -46,11 +51,16 @@ describe('authentication', function () {
 
     it('defaults cache to private if request authenticated', function (done) {
 
+        var handler = function (request, reply) {
+
+            return reply('ok').ttl(1000);
+        };
+
         var server = new Hapi.Server();
         server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').ttl(1000); } });
+        server.route({ method: 'GET', path: '/', handler: handler });
 
         server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -64,11 +74,16 @@ describe('authentication', function () {
 
         it('fails when options default to null', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server({ debug: false });
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true);
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -142,7 +157,14 @@ describe('authentication', function () {
             server.auth.scheme('custom', implementation);
             server.auth.strategy('default', 'custom', true);
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(); } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply();
+                }
+            });
 
             server.inject('/view', function (res) {
 
@@ -170,7 +192,12 @@ describe('authentication', function () {
             server.auth.default('default');
             expect(server.connections[0].auth.settings.default).to.deep.equal({ strategies: ['default'], mode: 'required' });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -186,12 +213,17 @@ describe('authentication', function () {
 
         it('sets default with object', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: {} } });
             server.auth.default({ strategy: 'default' });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
@@ -299,7 +331,14 @@ describe('authentication', function () {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.mode); } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.auth.mode);
+                }
+            });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -320,7 +359,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.strategy); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.strategy);
+                    },
                     auth: {
                         strategies: ['first', 'second']
                     }
@@ -351,8 +393,13 @@ describe('authentication', function () {
                 });
             };
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             server.route({ method: 'GET', path: '/1', handler: doubleHandler });
-            server.route({ method: 'GET', path: '/2', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/2', handler: handler });
 
             server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -363,6 +410,11 @@ describe('authentication', function () {
 
         it('authenticates a request with custom auth settings', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -371,7 +423,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         strategy: 'default'
                     }
@@ -387,6 +439,11 @@ describe('authentication', function () {
 
         it('authenticates a request with auth strategy name config', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -395,7 +452,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: 'default'
                 }
             });
@@ -445,11 +502,16 @@ describe('authentication', function () {
 
         it('errors on invalid authenticate callback missing both error and credentials', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server({ debug: false });
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom' } }, function (res) {
 
@@ -460,11 +522,16 @@ describe('authentication', function () {
 
         it('logs error', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.on('request-internal', function (request, event, tags) {
 
@@ -481,11 +548,16 @@ describe('authentication', function () {
 
         it('returns a non Error error response', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { message: 'in a bottle' } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom message' } }, function (res) {
 
@@ -507,7 +579,12 @@ describe('authentication', function () {
                 expect(err.message).to.equal('Uncaught error: Boom');
             });
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+            var handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -518,11 +595,16 @@ describe('authentication', function () {
 
         it('passes non Error error response when set to try ', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', 'try', { users: { message: 'in a bottle' } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom message' } }, function (res) {
 
@@ -534,6 +616,11 @@ describe('authentication', function () {
 
         it('matches scope (array to single)', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -542,7 +629,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: 'one'
                     }
@@ -558,6 +645,11 @@ describe('authentication', function () {
 
         it('matches scope (array to array)', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -566,7 +658,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: ['one', 'three']
                     }
@@ -582,6 +674,11 @@ describe('authentication', function () {
 
         it('matches scope (single to array)', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -590,7 +687,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: ['one', 'three']
                     }
@@ -606,6 +703,11 @@ describe('authentication', function () {
 
         it('matches scope (single to single)', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -614,7 +716,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: 'one'
                     }
@@ -628,7 +730,93 @@ describe('authentication', function () {
             });
         });
 
+        it('matches dynamic scope (single to single)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test' } } });
+            server.route({
+                method: 'GET',
+                path: '/{id}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        scope: 'one-{params.id}'
+                    }
+                }
+            });
+
+            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('matches dynamic scope with multiple parts (single to single)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test-admin' } } });
+            server.route({
+                method: 'GET',
+                path: '/{id}/{role}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        scope: 'one-{params.id}-{params.role}'
+                    }
+                }
+            });
+
+            server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('does not match broken dynamic scope (single to single)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test' } } });
+            server.route({
+                method: 'GET',
+                path: '/{id}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        scope: 'one-params.id}'
+                    }
+                }
+            });
+
+            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(403);
+                done();
+            });
+        });
+
         it('does not match scope (single to single)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
 
             var server = new Hapi.Server();
             server.connection();
@@ -638,7 +826,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: 'onex'
                     }
@@ -654,6 +842,11 @@ describe('authentication', function () {
 
         it('errors on missing scope', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -662,7 +855,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: 'b'
                     }
@@ -678,6 +871,11 @@ describe('authentication', function () {
 
         it('errors on missing scope property', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -686,7 +884,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: 'b'
                     }
@@ -702,6 +900,11 @@ describe('authentication', function () {
 
         it('errors on missing scope using arrays', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
@@ -710,7 +913,7 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: handler,
                     auth: {
                         scope: ['c', 'd']
                     }
@@ -739,7 +942,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         scope: false
                     }
@@ -763,7 +969,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         entity: 'user'
                     }
@@ -787,7 +996,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         entity: 'user'
                     }
@@ -811,7 +1023,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         entity: 'app'
                     }
@@ -835,7 +1050,10 @@ describe('authentication', function () {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         entity: 'app'
                     }
@@ -865,7 +1083,14 @@ describe('authentication', function () {
 
             server.auth.strategy('test', 'test', true, {});
 
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('test'); } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('test');
+                }
+            });
 
             var result;
             server.on('request-internal', function (request, event, tags) {
@@ -881,6 +1106,43 @@ describe('authentication', function () {
                 done();
             });
         });
+
+        it('passes the options.artifacts object, even with an auth filter', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.artifacts);
+                    },
+                    auth: 'default'
+                }
+            });
+
+            var options = {
+                url: '/',
+                headers: { authorization: 'Custom steve' },
+                credentials: { foo: 'bar' },
+                artifacts: { bar: 'baz' }
+            };
+
+            server.inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.bar).to.equal('baz');
+                done();
+            });
+
+
+
+        });
+
     });
 
     describe('payload()', function () {
@@ -895,7 +1157,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         payload: 'required'
                     }
@@ -919,7 +1184,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); }
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    }
                 }
             });
 
@@ -940,7 +1208,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {}
                 }
             });
@@ -962,7 +1233,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         payload: true
                     }
@@ -988,7 +1262,10 @@ describe('authentication', function () {
                     method: 'POST',
                     path: '/',
                     config: {
-                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                        handler: function (request, reply) {
+
+                            return reply(request.auth.credentials.user);
+                        },
                         auth: {
                             payload: 'optional'
                         }
@@ -1002,7 +1279,10 @@ describe('authentication', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var implementation = function () { return { authenticate: internals.implementation().authenticate }; };
+            var implementation = function () {
+
+                return { authenticate: internals.implementation().authenticate };
+            };
 
             server.auth.scheme('custom', implementation);
             server.auth.strategy('default', 'custom', true, {});
@@ -1012,7 +1292,10 @@ describe('authentication', function () {
                     method: 'POST',
                     path: '/',
                     config: {
-                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                        handler: function (request, reply) {
+
+                            return reply(request.auth.credentials.user);
+                        },
                         auth: {
                             payload: 'required'
                         }
@@ -1026,7 +1309,10 @@ describe('authentication', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var implementation = function () { return { authenticate: internals.implementation().authenticate }; };
+            var implementation = function () {
+
+                return { authenticate: internals.implementation().authenticate };
+            };
 
             server.auth.scheme('custom', implementation);
             server.auth.strategy('default', 'custom', true, {});
@@ -1036,7 +1322,10 @@ describe('authentication', function () {
                     method: 'POST',
                     path: '/',
                     config: {
-                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                        handler: function (request, reply) {
+
+                            return reply(request.auth.credentials.user);
+                        },
                         auth: {
                             payload: 'optional'
                         }
@@ -1050,7 +1339,10 @@ describe('authentication', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            var implementation = function () { return { authenticate: internals.implementation().authenticate }; };
+            var implementation = function () {
+
+                return { authenticate: internals.implementation().authenticate };
+            };
 
             server.auth.scheme('custom1', implementation);
             server.auth.scheme('custom2', internals.implementation);
@@ -1062,7 +1354,10 @@ describe('authentication', function () {
                     method: 'POST',
                     path: '/',
                     config: {
-                        handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                        handler: function (request, reply) {
+
+                            return reply(request.auth.credentials.user);
+                        },
                         auth: {
                             strategies: ['default2', 'default1'],
                             payload: 'optional'
@@ -1083,7 +1378,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); }
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    }
                 }
             });
 
@@ -1104,7 +1402,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(); },
+                    handler: function (request, reply) {
+
+                        return reply();
+                    },
                     auth: {
                         mode: 'try',
                         payload: 'required'
@@ -1129,7 +1430,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         payload: 'optional'
                     }
@@ -1153,7 +1457,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         payload: 'required'
                     }
@@ -1177,7 +1484,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         payload: 'required'
                     }
@@ -1201,7 +1511,10 @@ describe('authentication', function () {
                 method: 'POST',
                 path: '/',
                 config: {
-                    handler: function (request, reply) { return reply(request.auth.credentials.user); },
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
                     auth: {
                         payload: 'required'
                     }
@@ -1221,11 +1534,16 @@ describe('authentication', function () {
 
         it('fails on response error', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: { response: Boom.internal() } } });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
 
@@ -1282,7 +1600,14 @@ internals.implementation = function (server, options) {
     if (settings &&
         settings.route) {
 
-        server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply(request.auth.credentials.user); } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            }
+        });
     }
 
     var scheme = {

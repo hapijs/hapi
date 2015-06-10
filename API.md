@@ -1,4 +1,4 @@
-# 8.4.x API Reference
+# 8.5.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -802,6 +802,7 @@ var admin = server.connection({ port: 8001, host: 'example.com', labels: ['admin
 
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
+    - `'request'` - adds methods to the [Request object](#request-object).
     - `'reply'` - adds methods to the [reply interface](#reply-interface).
     - `'server'` - adds methods to the [Server](#server) object.
 - `property` - the object decoration key name.
@@ -1023,12 +1024,14 @@ for performing injections, with some additional options and response properties:
       used to automatically set an HTTP 'Host' header, unless one was specified in `headers`.
     - `headers` - an object with optional request headers where each key is the header name and the
       value is the header content. Defaults to no additions to the default Shot headers.
-    - `payload` - an optional string or buffer containing the request payload (object must be
-      manually converted to a string first). Defaults to no payload. Note that payload processing
+    - `payload` - an optional string, buffer or object containing the request payload. In case of an object it will be converted to a string for you. Defaults to no payload. Note that payload processing
       defaults to `'application/json'` if no 'Content-Type' header provided.
     - `credentials` - an optional credentials object containing authentication information. The
       `credentials` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Defaults to no credentials.
+    - `artifacts` - an optional artifacts object containing authentication artifact information. The
+      `artifacts` are used to bypass the default authentication strategies, and are validated
+      directly as if they were received via an authentication scheme. Defaults to no artifacts.
     - `simulate` - an object with options used to simulate client request stream conditions for
       testing:
         - `error` - if `true`, emits an `'error'` event after payload transmission (if any).
@@ -1758,7 +1761,9 @@ Emitted by the server `'request-internal'` event:
 - `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
   non-error response (e.g. a redirect to a login page).
 - `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed
-  authentication strategy.
+  authentication strategy (invalid credentials).
+- `auth` `unauthenticated` `missing` `{strategy}` - the request failed to pass the listed
+  authentication strategy (no credentials found).
 - `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
   authentication strategy in `'try'` mode and will continue.
 - `auth` `scope` `error` `{strategy}` - the request authenticated but failed to meet the scope
@@ -1891,6 +1896,7 @@ Each incoming request passes through a pre-defined list of steps, along with opt
     - JSONP configuration is ignored for any response returned from the extension point since no
       route is matched yet and the JSONP configuration is unavailable.
 - Lookup route using request path
+- Process query extensions (e.g. JSONP)
 - Parse cookies
 - **`'onPreAuth'`** extension point
 - Authenticate request
@@ -1898,7 +1904,6 @@ Each incoming request passes through a pre-defined list of steps, along with opt
 - Authenticate request payload
 - **`'onPostAuth'`** extension point
 - Validate path parameters
-- Process query extensions (e.g. JSONP)
 - Validate query
 - Validate payload
 - **`'onPreHandler'`** extension point
@@ -2014,7 +2019,10 @@ following options:
         - `scope` - the application scope required to access the route. Value can be a scope
           string or an array of scope strings. The authenticated credentials object `scope`
           property must contain at least one of the scopes defined to access the route.
-          Set to `false` to remove scope requirements. Defaults to no scope required.
+          You may also access properties on the request object (`query` and `params`} to populate a
+		  dynamic scope by using `{}` characters around the property name, such as
+		  `'user-{params.id}'`. Set to `false` to remove scope requirements. Defaults to no scope
+		  required.
         - `entity` - the required authenticated entity type. If set, must match the `entity`
           value of the authentication credentials. Available values:
             - `any` - the authentication can be on behalf of a user or application. This is the
@@ -2106,7 +2114,7 @@ following options:
           values are presented as text while files are provided as streams. File streams from a
           'multipart/form-data' upload will also have a property `hapi` containing `filename`
           and `headers` properties.
-        - `'file'` - the incoming payload in written to temporary file in the directory
+        - `'file'` - the incoming payload is written to temporary file in the directory
           specified by the server's `payload.uploads` settings. If the payload is
           'multipart/form-data' and `parse` is `true`, fields values are presented as text
           while files are saved. Note that it is the sole responsibility of the application to
@@ -2277,8 +2285,7 @@ following options:
           'function(request, reply, source, error)` where:
             - `request` - the [request object](#request-object).
             - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'path'`, `'query'`,
-              `'payload'`).
+            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`, `'payload'`).
             - `error` - the error object prepared for the client response (including the
               validation function error under `error.data`).
 
@@ -2715,12 +2722,15 @@ Each request object includes the following properties:
   definition.
 - `url` - the parsed request URI.
 
-#### `request.setUrl(url)`
+#### `request.setUrl(url, [stripTrailingSlash], [qsParserOptions])`
 
 _Available only in `'onRequest'` extension methods._
 
 Changes the request URI before the router begins processing the request where:
  - `url` - the new request path value.
+ - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
+ - `parserOptions` - optional URI parsing [options](https://www.npmjs.com/package/qs#parsing-objects).
+   Defaults to the **qs** module parsing defaults.
 
 ```js
 var Hapi = require('hapi');

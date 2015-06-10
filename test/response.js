@@ -290,9 +290,14 @@ describe('Response', function () {
 
         it('sets etag', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('ok').etag('abc');
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('abc'); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -303,9 +308,14 @@ describe('Response', function () {
 
         it('sets weak etag', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('ok').etag('abc', { weak: true });
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('abc', { weak: true }); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -316,9 +326,15 @@ describe('Response', function () {
 
         it('ignores varyEtag when etag header is removed', function (done) {
 
+            var handler = function (request, reply) {
+
+                var response = reply('ok').etag('abc').vary('x');
+                delete response.headers.etag;
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { var response = reply('ok').etag('abc').vary('x'); delete response.headers.etag; } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -329,9 +345,14 @@ describe('Response', function () {
 
         it('leaves etag header when varyEtag is false', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('ok').etag('abc', { vary: false }).vary('x');
+            };
+
             var server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok').etag('abc', { vary: false }).vary('x'); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(200);
@@ -513,9 +534,14 @@ describe('Response', function () {
 
         it('errors when called on wrong type', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('x').replacer(['x']);
+            };
+
             var server = new Hapi.Server({ debug: false });
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').replacer(['x']); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(500);
@@ -528,9 +554,14 @@ describe('Response', function () {
 
         it('errors when called on wrong type', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('x').spaces(2);
+            };
+
             var server = new Hapi.Server({ debug: false });
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').spaces(2); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(500);
@@ -543,9 +574,14 @@ describe('Response', function () {
 
         it('errors when called on wrong type', function (done) {
 
+            var handler = function (request, reply) {
+
+                return reply('x').suffix('x');
+            };
+
             var server = new Hapi.Server({ debug: false });
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('x').suffix('x'); } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(500);
@@ -562,7 +598,7 @@ describe('Response', function () {
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
-                return reply.file('../Makefile').type('application/example');
+                return reply.file('../LICENSE').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -807,6 +843,25 @@ describe('Response', function () {
             var handler = function (request, reply) {
 
                 return reply(Bluebird.resolve({ status: 'ok' })).code(201);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result.status).to.equal('ok');
+                expect(res.statusCode).to.equal(201);
+                done();
+            });
+        });
+
+        it('handles promises that resolve (response object)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(Bluebird.resolve(request.generateResponse({ status: 'ok' }).code(201)));
             };
 
             var server = new Hapi.Server();

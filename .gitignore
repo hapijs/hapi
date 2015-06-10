@@ -13,3 +13,4 @@ config.json
 */._*
 */*/._*
 coverage.*
+.settings
