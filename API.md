@@ -874,7 +874,7 @@ exports.register = function (server, options, next) {
 register.attributes = {
     name: 'test',
     version: '1.0.0',
-    dependency: 'yar'
+    dependencies: 'yar'
 };
 ```
 
