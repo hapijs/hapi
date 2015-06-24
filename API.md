@@ -3099,7 +3099,7 @@ When using the `redirect()` method, the response object provides these additiona
     - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
 - `permanent(isPermanent)` - sets the status code to `301` or `308` (based on the `rewritable()`
   setting) where:
-    - `isPermanent` - if `true`, sets status to temporary. Defaults to `false`.
+    - `isPermanent` - if `false`, sets status to temporary. Defaults to `true`.
 - `rewritable(isRewritable)` - sets the status code to `301`/`302` for rewritable (allows changing
   the request method from 'POST' to 'GET') or `307`/`308` for non-rewritable (does not allow
   changing the request method from 'POST' to 'GET'). Exact code based on the `temporary()` or
