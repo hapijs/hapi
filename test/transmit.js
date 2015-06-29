@@ -2480,15 +2480,15 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
 
-                        defaults.get('b', function (err, value, cached, report) {
+                        defaults.get('b', function (err, value1, cached1, report1) {
 
                             expect(err).to.not.exist();
-                            expect(value).to.equal(1);
+                            expect(value1).to.equal(1);
 
-                            primary.get('b', function (err, value, cached, report) {
+                            primary.get('b', function (err, value2, cached2, report2) {
 
                                 expect(err).to.not.exist();
-                                expect(cached.item).to.equal(2);
+                                expect(cached2.item).to.equal(2);
                                 server.stop();
                                 done();
                             });
