@@ -836,6 +836,35 @@ describe('Request', function () {
                 done();
             });
         });
+
+        it('overrides qs settings', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({
+                query: {
+                    qs: {
+                        parseArrays: false
+                    }
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.query);
+                    }
+                }
+            });
+
+            server.inject('/?a[0]=b&a[1]=c', function (res) {
+
+                expect(res.result).to.equal({ a: { 0: 'b', 1: 'c' } });
+                done();
+            });
+        });
     });
 
     describe('log()', { parallel: false }, function () {

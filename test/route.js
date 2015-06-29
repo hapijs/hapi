@@ -371,4 +371,31 @@ describe('Route', function () {
         }).to.not.throw();
         done();
     });
+
+    it('overrides qs settings', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            config: {
+                payload: {
+                    qs: {
+                        parseArrays: false
+                    }
+                },
+                handler: function (request, reply) {
+
+                    return reply(request.payload);
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: 'a[0]=b&a[1]=c', headers: { 'content-type': 'application/x-www-form-urlencoded' } }, function (res) {
+
+            expect(res.result).to.deep.equal({ a: { 0: 'b', 1: 'c' } });
+            done();
+        });
+    });
 });

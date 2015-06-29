@@ -1,4 +1,4 @@
-# 8.5.x API Reference
+# 8.8.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -147,6 +147,10 @@ Creates a new `Server` object where:
            value is the configuration. Note the difference between `connection.settings.plugins`
            which is used to store configuration values and `connection.plugins` which is meant for
            storing run-time state.
+
+        - `query` - incoming request query component parsing options:
+            - `qs` - optional URI parsing [options](https://www.npmjs.com/package/qs#parsing-objects).
+              Defaults to the **qs** module parsing defaults.
 
         - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are
           matched against the routing table:
@@ -2730,7 +2734,8 @@ Changes the request URI before the router begins processing the request where:
  - `url` - the new request path value.
  - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
  - `parserOptions` - optional URI parsing [options](https://www.npmjs.com/package/qs#parsing-objects).
-   Defaults to the **qs** module parsing defaults.
+   Defaults to the route connection `query.qs` settings if present, otherwise the **qs** module
+   parsing defaults.
 
 ```js
 var Hapi = require('hapi');
