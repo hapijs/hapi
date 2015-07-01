@@ -100,21 +100,21 @@ describe('validation', function () {
             }
         });
 
-        server.inject('/?verbose=true', function (res) {
+        server.inject('/?verbose=true', function (res1) {
 
-            expect(res.statusCode).to.equal(400);
+            expect(res1.statusCode).to.equal(400);
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res2) {
 
-                expect(res.statusCode).to.equal(200);
+                expect(res2.statusCode).to.equal(200);
 
-                server.inject('/steve?verbose=true', function (res) {
+                server.inject('/steve?verbose=true', function (res3) {
 
-                    expect(res.statusCode).to.equal(200);
+                    expect(res3.statusCode).to.equal(200);
 
-                    server.inject('/steve?verbose=x', function (res) {
+                    server.inject('/steve?verbose=x', function (res4) {
 
-                        expect(res.statusCode).to.equal(400);
+                        expect(res4.statusCode).to.equal(400);
                         done();
                     });
                 });
@@ -127,7 +127,7 @@ describe('validation', function () {
         var server = new Hapi.Server();
         server.connection();
 
-        server.auth.scheme('none', function (server, options) {
+        server.auth.scheme('none', function (authServer, options) {
 
             return {
                 authenticate: function (request, reply) {
@@ -155,25 +155,25 @@ describe('validation', function () {
             }
         });
 
-        server.inject('/?me=true', function (res) {
+        server.inject('/?me=true', function (res1) {
 
-            expect(res.statusCode).to.equal(400);
+            expect(res1.statusCode).to.equal(400);
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res2) {
 
-                expect(res.statusCode).to.equal(200);
+                expect(res2.statusCode).to.equal(200);
 
-                server.inject('/steve?me=true', function (res) {
+                server.inject('/steve?me=true', function (res3) {
 
-                    expect(res.statusCode).to.equal(400);
+                    expect(res3.statusCode).to.equal(400);
 
-                    server.inject('/john?me=true', function (res) {
+                    server.inject('/john?me=true', function (res4) {
 
-                        expect(res.statusCode).to.equal(200);
+                        expect(res4.statusCode).to.equal(200);
 
-                        server.inject('/john?me=x', function (res) {
+                        server.inject('/john?me=x', function (res5) {
 
-                            expect(res.statusCode).to.equal(400);
+                            expect(res5.statusCode).to.equal(400);
                             done();
                         });
                     });
@@ -282,14 +282,14 @@ describe('validation', function () {
             }
         });
 
-        server.inject('/?a=123', function (res) {
+        server.inject('/?a=123', function (res1) {
 
-            expect(res.statusCode).to.equal(200);
+            expect(res1.statusCode).to.equal(200);
 
-            server.inject('/?a=456', function (res) {
+            server.inject('/?a=456', function (res2) {
 
-                expect(res.statusCode).to.equal(400);
-                expect(res.result.message).to.equal('Bad query');
+                expect(res2.statusCode).to.equal(400);
+                expect(res2.result.message).to.equal('Bad query');
                 done();
             });
         });
@@ -839,14 +839,14 @@ describe('validation', function () {
             handler: handler
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', function (res1) {
 
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('{"some":"value"}');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.payload).to.equal('{"some":"value"}');
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res2) {
 
-                expect(res.statusCode).to.equal(500);
+                expect(res2.statusCode).to.equal(500);
                 done();
             });
         });
@@ -876,14 +876,14 @@ describe('validation', function () {
             handler: handler
         });
 
-        server.inject('/?user=admin', function (res) {
+        server.inject('/?user=admin', function (res1) {
 
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('{"some":"thing","more":"stuff"}');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.payload).to.equal('{"some":"thing","more":"stuff"}');
 
-            server.inject('/?user=test', function (res) {
+            server.inject('/?user=test', function (res2) {
 
-                expect(res.statusCode).to.equal(500);
+                expect(res2.statusCode).to.equal(500);
                 done();
             });
         });
@@ -919,12 +919,12 @@ describe('validation', function () {
             handler: handler
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', function (res1) {
 
-            expect(res.statusCode).to.equal(400);
-            server.inject('/', function (res) {
+            expect(res1.statusCode).to.equal(400);
+            server.inject('/', function (res2) {
 
-                expect(res.statusCode).to.equal(500);
+                expect(res2.statusCode).to.equal(500);
                 done();
             });
         });
@@ -966,15 +966,15 @@ describe('validation', function () {
             handler: handler
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', function (res1) {
 
-            expect(res.statusCode).to.equal(200);
-            server.inject('/', function (res) {
+            expect(res1.statusCode).to.equal(200);
+            server.inject('/', function (res2) {
 
-                expect(res.statusCode).to.equal(400);
-                server.inject('/', function (res) {
+                expect(res2.statusCode).to.equal(400);
+                server.inject('/', function (res3) {
 
-                    expect(res.statusCode).to.equal(500);
+                    expect(res3.statusCode).to.equal(500);
                     done();
                 });
             });
@@ -1130,14 +1130,14 @@ describe('validation', function () {
             handler: handler
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', function (res1) {
 
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('{"some":"value"}');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.payload).to.equal('{"some":"value"}');
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res2) {
 
-                expect(res.statusCode).to.equal(500);
+                expect(res2.statusCode).to.equal(500);
                 done();
             });
         });
@@ -1425,7 +1425,7 @@ describe('validation', function () {
             }
         });
 
-        var request = {
+        var settings = {
             url: '/',
             method: 'GET',
             headers: {
@@ -1433,7 +1433,7 @@ describe('validation', function () {
             }
         };
 
-        server.inject(request, function (res) {
+        server.inject(settings, function (res) {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -1461,7 +1461,7 @@ describe('validation', function () {
             }
         });
 
-        var request = {
+        var settings = {
             url: '/',
             method: 'GET',
             headers: {
@@ -1469,7 +1469,7 @@ describe('validation', function () {
             }
         };
 
-        server.inject(request, function (res) {
+        server.inject(settings, function (res) {
 
             expect(res.statusCode).to.equal(400);
             done();
