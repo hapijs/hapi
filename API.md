@@ -845,8 +845,9 @@ Used within a plugin to declares a required dependency on other [plugins](#plugi
 - `after` - an optional function called after all the specified dependencies have been registered
   and before the server starts. The function is only called if the server is started. If a circular
   dependency is detected, an exception is thrown (e.g. two plugins each has an `after` function
-  to be called after the other). The function signature is `function(server, next)` where:
+  to be called after the other). The function signature is `function(server, options, next)` where:
     - `server` - the server the `dependency()` method was called on.
+    - `options` - the options object passed to the plugin during registration.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
         - `err` - internal error condition, which is returned back via the
@@ -859,7 +860,7 @@ exports.register = function (server, options, next) {
     return next();
 };
 
-var after = function (server, next) {
+var after = function (server, options, next) {
 
     // Additional plugin registration logic
     return next();

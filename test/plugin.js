@@ -1637,6 +1637,50 @@ describe('Plugin', function () {
                 done();
             });
         });
+
+        it('passes server, options, next to after method', function (done) {
+
+            var a = {
+                register: function (server, options, next) {
+
+                    server.dependency(['b'], afterA);
+                    next();
+                },
+                options: {
+                    optionsFor: 'a'
+                }
+            };
+
+            var afterA = function (server, options, next) {
+
+                expect(next).to.be.a.function();
+                expect(options).to.equal(a.options);
+                done();
+            };
+
+            a.register.attributes = {
+                name: 'a'
+            };
+
+            var b = function (server, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ port: 80, host: 'localhost' });
+            server.register(a, function (err) {
+
+                server.register(b, function (err) {
+
+                    server.start();
+                });
+            });
+        });
     });
 
     describe('events', function () {
@@ -2734,7 +2778,7 @@ internals.plugins = {
     },
     deps1: function (server, options, next) {
 
-        server.dependency('deps2', function (server, next) {
+        server.dependency('deps2', function (server, options, next) {
 
             server.expose('breaking', server.plugins.deps2.breaking);
             return next();
