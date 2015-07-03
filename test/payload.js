@@ -175,7 +175,7 @@ describe('payload', function () {
 
                 expect(err).to.not.exist();
                 expect(res.statusCode).to.equal(400);
-                expect(body).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
+                expect(body.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
 
                 done();
             });

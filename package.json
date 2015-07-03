@@ -47,7 +47,7 @@
     "code": "1.x.x",
     "handlebars": "2.x.x",
     "lab": "5.x.x",
-    "wreck": "5.x.x"
+    "wreck": "6.x.x"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L",

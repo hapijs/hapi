@@ -436,15 +436,15 @@ describe('Connection', function () {
 
                     socket2.connect(server.info.port, '127.0.0.1', function () {
 
-                        server.listener.getConnections(function (err, count) {
+                        server.listener.getConnections(function (err, count1) {
 
-                            expect(count).to.be.greaterThan(0);
+                            expect(count1).to.be.greaterThan(0);
 
                             server.stop(function () {
 
-                                server.listener.getConnections(function (err, count) {
+                                server.listener.getConnections(function (err, count2) {
 
-                                    expect(count).to.equal(0);
+                                    expect(count2).to.equal(0);
                                     done();
                                 });
                             });
@@ -519,16 +519,16 @@ describe('Connection', function () {
 
                     socket2.connect(server.info.port, server.connections[0].settings.host, function () {
 
-                        server.listener.getConnections(function (err, count) {
+                        server.listener.getConnections(function (err, count1) {
 
-                            expect(count).to.be.greaterThan(0);
+                            expect(count1).to.be.greaterThan(0);
                             var timer = new Hoek.Bench();
 
                             server.stop(function () {
 
-                                server.listener.getConnections(function (err, count) {
+                                server.listener.getConnections(function (err, count2) {
 
-                                    expect(count).to.equal(0);
+                                    expect(count2).to.equal(0);
                                     expect(timer.elapsed()).to.be.at.least(9);
                                     done();
                                 });
@@ -576,7 +576,6 @@ describe('Connection', function () {
 
                     err2 = err;
                 });
-
             });
         });
 
@@ -636,15 +635,15 @@ describe('Connection', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function (err) {
 
-                server.inject('/', function (res) {
+                server.inject('/', function (res1) {
 
-                    expect(res.statusCode).to.equal(200);
+                    expect(res1.statusCode).to.equal(200);
 
                     setImmediate(function () {
 
-                        server.inject('/', function (res) {
+                        server.inject('/', function (res2) {
 
-                            expect(res.statusCode).to.equal(503);
+                            expect(res2.statusCode).to.equal(503);
                             expect(logged.rss > 10000).to.equal(true);
                             server.stop();
                             done();
@@ -1075,12 +1074,12 @@ describe('Connection', function () {
                     }
                 });
 
-                server.inject({ method: 'GET', url: '/text' }, function (res) {
+                server.inject({ method: 'GET', url: '/text' }, function (res1) {
 
-                    expect(res.result.message).to.equal('boom');
-                    server.inject({ method: 'GET', url: '/obj' }, function (res) {
+                    expect(res1.result.message).to.equal('boom');
+                    server.inject({ method: 'GET', url: '/obj' }, function (res2) {
 
-                        expect(res.result.status).to.equal('ok');
+                        expect(res2.result.status).to.equal('ok');
                         done();
                     });
                 });
@@ -1268,15 +1267,15 @@ describe('Connection', function () {
             var server = new Hapi.Server();
             server.connection();
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+            server.inject({ method: 'HEAD', url: '/' }, function (res1) {
 
-                expect(res.statusCode).to.equal(404);
-                expect(res.result).to.not.exist();
+                expect(res1.statusCode).to.equal(404);
+                expect(res1.result).to.not.exist();
 
-                server.inject({ method: 'HEAD', url: '/not-there' }, function (res) {
+                server.inject({ method: 'HEAD', url: '/not-there' }, function (res2) {
 
-                    expect(res.statusCode).to.equal(404);
-                    expect(res.result).to.not.exist();
+                    expect(res2.statusCode).to.equal(404);
+                    expect(res2.result).to.not.exist();
                     done();
                 });
             });
@@ -1294,29 +1293,29 @@ describe('Connection', function () {
 
             var config = { method: ['GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: handler };
             server.route(config);
-            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+            server.inject({ method: 'HEAD', url: '/' }, function (res1) {
 
-                expect(res.statusCode).to.equal(200);
+                expect(res1.statusCode).to.equal(200);
 
-                server.inject({ method: 'GET', url: '/' }, function (res) {
+                server.inject({ method: 'GET', url: '/' }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.payload).to.equal('get');
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.payload).to.equal('get');
 
-                    server.inject({ method: 'PUT', url: '/' }, function (res) {
+                    server.inject({ method: 'PUT', url: '/' }, function (res3) {
 
-                        expect(res.statusCode).to.equal(200);
-                        expect(res.payload).to.equal('put');
+                        expect(res3.statusCode).to.equal(200);
+                        expect(res3.payload).to.equal('put');
 
-                        server.inject({ method: 'POST', url: '/' }, function (res) {
+                        server.inject({ method: 'POST', url: '/' }, function (res4) {
 
-                            expect(res.statusCode).to.equal(200);
-                            expect(res.payload).to.equal('post');
+                            expect(res4.statusCode).to.equal(200);
+                            expect(res4.payload).to.equal('post');
 
-                            server.inject({ method: 'DELETE', url: '/' }, function (res) {
+                            server.inject({ method: 'DELETE', url: '/' }, function (res5) {
 
-                                expect(res.statusCode).to.equal(200);
-                                expect(res.payload).to.equal('delete');
+                                expect(res5.statusCode).to.equal(200);
+                                expect(res5.payload).to.equal('delete');
                                 expect(config.method).to.deep.equal(['GET', 'PUT', 'POST', 'DELETE']);
                                 done();
                             });

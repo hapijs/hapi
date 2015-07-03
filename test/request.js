@@ -81,7 +81,7 @@ describe('Request', function () {
 
             Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
-                expect(body).to.equal('ok');
+                expect(body.toString()).to.equal('ok');
                 done();
             });
         });

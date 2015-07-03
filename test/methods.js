@@ -212,12 +212,12 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.tools.add(1, 5, function (err, result) {
+            server.methods.tools.add(1, 5, function (err, result1) {
 
-                expect(result).to.equal(6);
-                server.methods.tools.sub(1, 5, function (err, result) {
+                expect(result1).to.equal(6);
+                server.methods.tools.sub(1, 5, function (err, result2) {
 
-                    expect(result).to.equal(-4);
+                    expect(result2).to.equal(-4);
                     done();
                 });
             });
@@ -272,13 +272,13 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
-                expect(result.gen).to.equal(0);
+                expect(result1.gen).to.equal(0);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
-                    expect(result.gen).to.equal(1);
+                    expect(result2.gen).to.equal(1);
                     done();
                 });
             });
@@ -299,15 +299,15 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
                 expect(err).to.not.exist();
-                expect(result.gen).to.equal(0);
+                expect(result1.gen).to.equal(0);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
                     expect(err).to.not.exist();
-                    expect(result.gen).to.equal(0);
+                    expect(result2.gen).to.equal(0);
                     done();
                 });
             });
@@ -328,15 +328,15 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
                 expect(err).to.not.exist();
-                expect(result.gen).to.equal(0);
+                expect(result1.gen).to.equal(0);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
                     expect(err).to.not.exist();
-                    expect(result.gen).to.equal(0);
+                    expect(result2.gen).to.equal(0);
                     done();
                 });
             });
@@ -363,17 +363,17 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
                 expect(err).to.not.exist();
-                expect(result.gen).to.equal(0);
+                expect(result1.gen).to.equal(0);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
                     expect(err).to.not.exist();
-                    expect(result.gen).to.equal(0);
+                    expect(result2.gen).to.equal(0);
 
-                    server.methods.test(2, function (err, result) {
+                    server.methods.test(2, function (err, result3) {
 
                         expect(err).to.exist();
                         expect(err.message).to.equal('boom');
@@ -404,13 +404,13 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
-                expect(result.gen).to.equal(0);
+                expect(result1.gen).to.equal(0);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
-                    expect(result.gen).to.equal(0);
+                    expect(result2.gen).to.equal(0);
                     done();
                 });
             });
@@ -487,13 +487,13 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
-                expect(result.gen).to.equal(0);
+                expect(result1.gen).to.equal(0);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
-                    expect(result.gen).to.equal(1);
+                    expect(result2.gen).to.equal(1);
                     done();
                 });
             });
@@ -514,16 +514,16 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.dropTest(2, function (err, result) {
+            server.methods.dropTest(2, function (err, result1) {
 
-                expect(result.gen).to.equal(0);
+                expect(result1.gen).to.equal(0);
                 server.methods.dropTest.cache.drop(2, function (err) {
 
                     expect(err).to.not.exist();
 
-                    server.methods.dropTest(2, function (err, result) {
+                    server.methods.dropTest(2, function (err, result2) {
 
-                        expect(result.gen).to.equal(1);
+                        expect(result2.gen).to.equal(1);
                         done();
                     });
                 });
@@ -877,13 +877,13 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
-                expect(result.gen).to.equal(7);
+                expect(result1.gen).to.equal(7);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
-                    expect(result.gen).to.equal(8);
+                    expect(result2.gen).to.equal(8);
                     done();
                 });
             });
@@ -903,13 +903,13 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
-                expect(result.gen).to.equal(7);
+                expect(result1.gen).to.equal(7);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
-                    expect(result.gen).to.equal(7);
+                    expect(result2.gen).to.equal(7);
                     done();
                 });
             });
@@ -930,14 +930,14 @@ describe('Methods', function () {
 
         server.start(function () {
 
-            server.methods.test(1, function (err, result) {
+            server.methods.test(1, function (err, result1) {
 
-                expect(result.gen).to.equal(7);
-                expect(result.bound).to.equal(true);
+                expect(result1.gen).to.equal(7);
+                expect(result1.bound).to.equal(true);
 
-                server.methods.test(1, function (err, result) {
+                server.methods.test(1, function (err, result2) {
 
-                    expect(result.gen).to.equal(7);
+                    expect(result2.gen).to.equal(7);
                     done();
                 });
             });

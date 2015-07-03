@@ -816,7 +816,7 @@ describe('transmission', function () {
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(zipped.toString());
+                        expect(body.toString()).to.equal(zipped.toString());
                         done();
                     });
                 });
@@ -845,7 +845,7 @@ describe('transmission', function () {
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(zipped.toString());
+                        expect(body.toString()).to.equal(zipped.toString());
                         done();
                     });
                 });
@@ -872,7 +872,7 @@ describe('transmission', function () {
                 Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
 
                     expect(err).to.not.exist();
-                    expect(body).to.equal(data);
+                    expect(body.toString()).to.equal(data);
                     done();
                 });
             });
@@ -898,7 +898,7 @@ describe('transmission', function () {
                 Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
 
                     expect(err).to.not.exist();
-                    expect(body).to.equal(data);
+                    expect(body.toString()).to.equal(data);
                     done();
                 });
             });
@@ -925,7 +925,7 @@ describe('transmission', function () {
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(deflated.toString());
+                        expect(body.toString()).to.equal(deflated.toString());
                         done();
                     });
                 });
@@ -953,7 +953,7 @@ describe('transmission', function () {
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(deflated.toString());
+                        expect(body.toString()).to.equal(deflated.toString());
                         done();
                     });
                 });
@@ -982,7 +982,7 @@ describe('transmission', function () {
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(zipped.toString());
+                        expect(body.toString()).to.equal(zipped.toString());
                         done();
                     });
                 });
@@ -1011,7 +1011,7 @@ describe('transmission', function () {
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(zipped.toString());
+                        expect(body.toString()).to.equal(zipped.toString());
                         done();
                     });
                 });
@@ -1040,7 +1040,7 @@ describe('transmission', function () {
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(deflated.toString());
+                        expect(body.toString()).to.equal(deflated.toString());
                         done();
                     });
                 });
@@ -1069,7 +1069,7 @@ describe('transmission', function () {
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(deflated.toString());
+                        expect(body.toString()).to.equal(deflated.toString());
                         done();
                     });
                 });
@@ -1098,7 +1098,7 @@ describe('transmission', function () {
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(zipped.toString());
+                        expect(body.toString()).to.equal(zipped.toString());
                         done();
                     });
                 });
@@ -1127,7 +1127,7 @@ describe('transmission', function () {
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(zipped.toString());
+                        expect(body.toString()).to.equal(zipped.toString());
                         done();
                     });
                 });
@@ -1154,7 +1154,7 @@ describe('transmission', function () {
                 Wreck.post(uri, { payload: data }, function (err, res, body) {
 
                     expect(err).to.not.exist();
-                    expect(body).to.equal(data);
+                    expect(body.toString()).to.equal(data);
                     done();
                 });
             });
@@ -1182,7 +1182,7 @@ describe('transmission', function () {
                 Wreck.get(uri, {}, function (err, res, body) {
 
                     expect(err).to.not.exist();
-                    expect(body.toString()).to.equal(data);
+                    expect(body.toString().toString()).to.equal(data);
                     done();
                 });
             });
@@ -1210,7 +1210,7 @@ describe('transmission', function () {
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
 
                         expect(err).to.not.exist();
-                        expect(body).to.equal(zipped.toString());
+                        expect(body.toString()).to.equal(zipped.toString());
                         done();
                     });
                 });
@@ -1356,7 +1356,7 @@ describe('transmission', function () {
                 Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
                     expect(err).to.not.exist();
-                    expect(body === expectedBody).to.equal(true);
+                    expect(body.toString()).to.equal(expectedBody);
                     done();
                 });
             });
@@ -1406,7 +1406,7 @@ describe('transmission', function () {
                 Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, function (err, res, body) {
 
                     expect(err).to.not.exist();
-                    expect(body === expectedBody).to.equal(true);
+                    expect(body.toString()).to.equal(expectedBody);
                     done();
                 });
             });

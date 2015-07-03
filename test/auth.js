@@ -37,13 +37,13 @@ describe('authentication', function () {
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.inject('/', function (res) {
+        server.inject('/', function (res1) {
 
-            expect(res.statusCode).to.equal(401);
+            expect(res1.statusCode).to.equal(401);
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res2) {
 
-                expect(res.statusCode).to.equal(200);
+                expect(res2.statusCode).to.equal(200);
                 done();
             });
         });
@@ -110,13 +110,13 @@ describe('authentication', function () {
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} }, route: true });
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.statusCode).to.equal(401);
+                expect(res1.statusCode).to.equal(401);
 
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
+                    expect(res2.statusCode).to.equal(200);
                     done();
                 });
             });
@@ -166,14 +166,14 @@ describe('authentication', function () {
                 }
             });
 
-            server.inject('/view', function (res) {
+            server.inject('/view', function (res1) {
 
-                expect(res.result).to.equal('<h1>steve</h1>');
+                expect(res1.result).to.equal('<h1>steve</h1>');
 
-                server.inject('/', function (res) {
+                server.inject('/', function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result).to.equal('<h1>xyz</h1>');
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.result).to.equal('<h1>xyz</h1>');
                     done();
                 });
             });
@@ -199,13 +199,13 @@ describe('authentication', function () {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.statusCode).to.equal(401);
+                expect(res1.statusCode).to.equal(401);
 
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
+                    expect(res2.statusCode).to.equal(200);
                     done();
                 });
             });
@@ -225,13 +225,13 @@ describe('authentication', function () {
             server.auth.default({ strategy: 'default' });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.statusCode).to.equal(401);
+                expect(res1.statusCode).to.equal(401);
 
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
+                    expect(res2.statusCode).to.equal(200);
                     done();
                 });
             });
@@ -311,15 +311,15 @@ describe('authentication', function () {
             };
             server.route({ method: 'GET', path: '/', config: { handler: handler, auth: { mode: 'optional' } } });
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('false');
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.payload).to.equal('false');
 
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.payload).to.equal('true');
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.payload).to.equal('true');
                     done();
                 });
             });
@@ -477,23 +477,23 @@ describe('authentication', function () {
             server.auth.strategy('default', 'custom', 'try', { users: { steve: {} } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.statusCode).to.equal(200);
-                expect(res.result.status).to.equal(false);
-                expect(res.result.error.message).to.equal('Missing authentication');
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.result.status).to.equal(false);
+                expect(res1.result.error.message).to.equal('Missing authentication');
 
-                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, function (res) {
+                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result.status).to.equal(false);
-                    expect(res.result.error.message).to.equal('Missing credentials');
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.result.status).to.equal(false);
+                    expect(res2.result.error.message).to.equal('Missing credentials');
 
-                    server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+                    server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res3) {
 
-                        expect(res.statusCode).to.equal(200);
-                        expect(res.result.status).to.equal(true);
-                        expect(res.result.error).to.not.exist();
+                        expect(res3.statusCode).to.equal(200);
+                        expect(res3.result.status).to.equal(true);
+                        expect(res3.result.error).to.not.exist();
                         done();
                     });
                 });
@@ -1071,7 +1071,7 @@ describe('authentication', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.auth.scheme('test', function (server, options) {
+            server.auth.scheme('test', function (srv, options) {
 
                 return {
                     authenticate: function (request, reply) {
@@ -1575,16 +1575,16 @@ describe('authentication', function () {
             server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.statusCode).to.equal(200);
-                expect(res.result.status).to.equal(false);
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.result.status).to.equal(false);
 
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result.status).to.equal(true);
-                    expect(res.result.user).to.equal('steve');
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.result.status).to.equal(true);
+                    expect(res2.result.user).to.equal('steve');
                     done();
                 });
             });
