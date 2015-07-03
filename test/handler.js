@@ -1039,13 +1039,13 @@ describe('handler', function () {
 
             server.start(function () {
 
-                server.inject('/user/5', function (res) {
+                server.inject('/user/5', function (res1) {
 
-                    expect(res.result).to.equal(0);
+                    expect(res1.result).to.equal(0);
 
-                    server.inject('/user/5', function (res) {
+                    server.inject('/user/5', function (res2) {
 
-                        expect(res.result).to.equal(0);
+                        expect(res2.result).to.equal(0);
                         done();
                     });
                 });

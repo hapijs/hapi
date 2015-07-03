@@ -26,17 +26,17 @@ describe('Server', function () {
         server.connection({ routes: { files: { relativeTo: __dirname } } });
         server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
 
-        server.inject('/note', function (res) {
+        server.inject('/note', function (res1) {
 
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('Test');
-            expect(res.headers.etag).to.not.exist();
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.result).to.equal('Test');
+            expect(res1.headers.etag).to.not.exist();
 
-            server.inject('/note', function (res) {
+            server.inject('/note', function (res2) {
 
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('Test');
-                expect(res.headers.etag).to.not.exist();
+                expect(res2.statusCode).to.equal(200);
+                expect(res2.result).to.equal('Test');
+                expect(res2.headers.etag).to.not.exist();
                 done();
             });
         });
@@ -176,15 +176,15 @@ describe('Server', function () {
 
                 cache.set('a', 'going in', 0, function (err) {
 
-                    cache.get('a', function (err, value, cached, report) {
+                    cache.get('a', function (err, value1, cached1, report1) {
 
-                        expect(value).to.equal('going in');
+                        expect(value1).to.equal('going in');
 
                         server.stop(function () {
 
-                            cache.get('a', function (err, value, cached, report) {
+                            cache.get('a', function (err, value2, cached2, report2) {
 
-                                expect(value).to.equal(null);
+                                expect(value2).to.equal(null);
                                 done();
                             });
                         });
@@ -274,19 +274,19 @@ describe('Server', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function (err) {
 
-                server.inject('/', function (res) {
+                server.inject('/', function (res1) {
 
                     expect(server.load.eventLoopDelay).to.equal(0);
 
                     setImmediate(function () {
 
-                        server.inject('/', function (res) {
+                        server.inject('/', function (res2) {
 
                             expect(server.load.eventLoopDelay).to.be.above(0);
 
                             setImmediate(function () {
 
-                                server.inject('/', function (res) {
+                                server.inject('/', function (res3) {
 
                                     expect(server.load.eventLoopDelay).to.be.above(0);
                                     expect(server.load.heapUsed).to.be.above(1024 * 1024);

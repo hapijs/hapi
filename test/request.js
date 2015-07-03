@@ -861,7 +861,7 @@ describe('Request', function () {
 
             server.inject('/?a[0]=b&a[1]=c', function (res) {
 
-                expect(res.result).to.equal({ a: { 0: 'b', 1: 'c' } });
+                expect(res.result).to.deep.equal({ a: { 0: 'b', 1: 'c' } });
                 done();
             });
         });
@@ -901,7 +901,7 @@ describe('Request', function () {
 
             var handler = function (request, reply) {
 
-                server.on('request', function (request, event, tags) {
+                server.on('request', function (req, event, tags) {
 
                     expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
                     expect(event.data).to.equal('data');

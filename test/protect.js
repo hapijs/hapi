@@ -81,16 +81,16 @@ describe('Protect', function () {
 
         Hoek.inherits(Client, Events.EventEmitter);
 
-        var test = function (plugin, options, next) {
+        var test = function (srv, options, next) {
 
-            plugin.after(function (plugin, afterNext) {
+            srv.after(function (plugin, afterNext) {
 
                 var client = new Client();                      // Created in the global domain
                 plugin.bind({ client: client });
                 afterNext();
             });
 
-            plugin.route({
+            srv.route({
                 method: 'GET',
                 path: '/',
                 handler: function (request, reply) {

@@ -36,20 +36,20 @@ describe('Plugin', function () {
             server.connection({ labels: ['s3', 'a', 'b', 'd'] });
             server.connection({ labels: ['s4', 'b', 'x'] });
 
-            var register = function (server, options, next) {
+            var register = function (srv, options, next) {
 
-                var a = server.select('a');
+                var a = srv.select('a');
                 var ab = a.select('b');
-                var memoryx = server.select('x', 's4');
-                var sodd = server.select(['s2', 's4']);
+                var memoryx = srv.select('x', 's4');
+                var sodd = srv.select(['s2', 's4']);
 
-                expect(server.connections.length).to.equal(4);
+                expect(srv.connections.length).to.equal(4);
                 expect(a.connections.length).to.equal(3);
                 expect(ab.connections.length).to.equal(2);
                 expect(memoryx.connections.length).to.equal(1);
                 expect(sodd.connections.length).to.equal(2);
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/all',
                     handler: function (request, reply) {
@@ -96,20 +96,20 @@ describe('Plugin', function () {
                 });
 
                 memoryx.state('sid', { encoding: 'base64' });
-                server.method({
-                    name: 'testMethod', method: function (next) {
+                srv.method({
+                    name: 'testMethod', method: function (nxt) {
 
-                        return next(null, '123');
+                        return nxt(null, '123');
                     }, options: { cache: { expiresIn: 1000 } }
                 });
 
-                server.methods.testMethod(function (err, result) {
+                srv.methods.testMethod(function (err, result1) {
 
-                    expect(result).to.equal('123');
+                    expect(result1).to.equal('123');
 
-                    server.methods.testMethod(function (err, result) {
+                    srv.methods.testMethod(function (err, result2) {
 
-                        expect(result).to.equal('123');
+                        expect(result2).to.equal('123');
                         return next();
                     });
                 });
@@ -142,9 +142,9 @@ describe('Plugin', function () {
             var server2 = server.connections[1];
             var server3 = server.connections[2];
 
-            var child = function (server, options, next) {
+            var child = function (srv, options, next) {
 
-                server.expose('key2', server.connections.length);
+                srv.expose('key2', srv.connections.length);
                 return next();
             };
 
@@ -152,10 +152,10 @@ describe('Plugin', function () {
                 name: 'child'
             };
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.expose('key1', server.connections.length);
-                server.select('a').register(child, next);
+                srv.expose('key1', srv.connections.length);
+                srv.select('a').register(child, next);
             };
 
             test.attributes = {
@@ -179,7 +179,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
                 expect(options.something).to.be.true();
                 return next();
@@ -202,7 +202,7 @@ describe('Plugin', function () {
             server.connection({ labels: ['a', 'b'] });
 
             var test = {
-                register: function (server, options, next) {
+                register: function (srv, options, next) {
 
                     expect(options.something).to.be.true();
                     return next();
@@ -226,7 +226,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register({
-                    register: function (server, options, next) {
+                    register: function (srv, options, next) {
 
                         return next();
                     }
@@ -239,7 +239,7 @@ describe('Plugin', function () {
 
         it('throws on bad plugin (missing name)', function (done) {
 
-            var register = function (server, options, next) {
+            var register = function (srv, options, next) {
 
                 return next();
             };
@@ -257,7 +257,7 @@ describe('Plugin', function () {
 
         it('throws on bad plugin (empty pkg)', function (done) {
 
-            var register = function (server, options, next) {
+            var register = function (srv, options, next) {
 
                 return next();
             };
@@ -280,7 +280,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
                 expect(options.something).to.be.true();
                 return next();
@@ -299,7 +299,7 @@ describe('Plugin', function () {
 
         it('returns plugin error', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
                 return next(new Error('from plugin'));
             };
@@ -320,14 +320,14 @@ describe('Plugin', function () {
 
         it('sets version to 0.0.0 if missing', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/',
                     handler: function (request, reply) {
 
-                        return reply(server.version);
+                        return reply(srv.version);
                     }
                 });
                 return next();
@@ -356,9 +356,9 @@ describe('Plugin', function () {
 
         it('prevents plugin from multiple registrations', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/a',
                     handler: function (request, reply) {
@@ -390,9 +390,9 @@ describe('Plugin', function () {
 
         it('allows plugin multiple registrations (attributes)', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.app.x = server.app.x ? server.app.x + 1 : 1;
+                srv.app.x = srv.app.x ? srv.app.x + 1 : 1;
                 return next();
             };
 
@@ -488,9 +488,9 @@ describe('Plugin', function () {
 
         it('registers a plugin with routes path prefix and plugin root route', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/',
                     handler: function (request, reply) {
@@ -521,9 +521,9 @@ describe('Plugin', function () {
         it('ignores the type of the plugin value', function (done) {
 
             var a = function () { };
-            a.register = function (server, options, next) {
+            a.register = function (srv, options, next) {
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/',
                     handler: function (request, reply) {
@@ -616,13 +616,13 @@ describe('Plugin', function () {
             server.register(internals.plugins.test1, { routes: { vhost: 'example.com' } }, function (err) {
 
                 expect(err).to.not.exist();
-                server.inject('/test1', function (res) {
+                server.inject('/test1', function (res1) {
 
-                    expect(res.statusCode).to.equal(404);
+                    expect(res1.statusCode).to.equal(404);
 
-                    server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res) {
+                    server.inject({ url: '/test1', headers: { host: 'example.com' } }, function (res2) {
 
-                        expect(res.result).to.equal('testing123');
+                        expect(res2.result).to.equal('testing123');
                         done();
                     });
                 });
@@ -638,9 +638,9 @@ describe('Plugin', function () {
             var server1 = server.connections[0];
             var server2 = server.connections[1];
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/',
                     handler: function (request, reply) {
@@ -658,12 +658,12 @@ describe('Plugin', function () {
             server.register(test, { select: 'a' }, function (err) {
 
                 expect(err).to.not.exist();
-                server1.inject('/', function (res) {
+                server1.inject('/', function (res1) {
 
-                    expect(res.statusCode).to.equal(200);
-                    server2.inject('/', function (res) {
+                    expect(res1.statusCode).to.equal(200);
+                    server2.inject('/', function (res2) {
 
-                        expect(res.statusCode).to.equal(404);
+                        expect(res2.statusCode).to.equal(404);
                         done();
                     });
                 });
@@ -681,9 +681,9 @@ describe('Plugin', function () {
             var server2 = server.connections[1];
             var server3 = server.connections[2];
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/',
                     handler: function (request, reply) {
@@ -691,7 +691,7 @@ describe('Plugin', function () {
                         return reply('ok');
                     }
                 });
-                server.expose('super', 'trooper');
+                srv.expose('super', 'trooper');
                 return next();
             };
 
@@ -704,15 +704,15 @@ describe('Plugin', function () {
                 expect(err).to.not.exist();
                 expect(server.plugins.test.super).to.equal('trooper');
 
-                server1.inject('/', function (res) {
+                server1.inject('/', function (res1) {
 
-                    expect(res.statusCode).to.equal(200);
-                    server2.inject('/', function (res) {
+                    expect(res1.statusCode).to.equal(200);
+                    server2.inject('/', function (res2) {
 
-                        expect(res.statusCode).to.equal(404);
-                        server3.inject('/', function (res) {
+                        expect(res2.statusCode).to.equal(404);
+                        server3.inject('/', function (res3) {
 
-                            expect(res.statusCode).to.equal(200);
+                            expect(res3.statusCode).to.equal(200);
                             done();
                         });
                     });
@@ -722,9 +722,9 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in one statement', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
-                server.dependency(['b', 'c']);
+                srv.dependency(['b', 'c']);
                 return next();
             };
 
@@ -732,7 +732,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (server, options, next) {
+            var b = function (srv, options, next) {
 
                 return next();
             };
@@ -741,7 +741,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (server, options, next) {
+            var c = function (srv, options, next) {
 
                 return next();
             };
@@ -766,7 +766,7 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in attributes', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
                 return next();
             };
@@ -776,7 +776,7 @@ describe('Plugin', function () {
                 dependencies: ['b', 'c']
             };
 
-            var b = function (server, options, next) {
+            var b = function (srv, options, next) {
 
                 return next();
             };
@@ -785,7 +785,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (server, options, next) {
+            var c = function (srv, options, next) {
 
                 return next();
             };
@@ -810,10 +810,10 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in multiple statements', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
-                server.dependency('b');
-                server.dependency('c');
+                srv.dependency('b');
+                srv.dependency('c');
                 return next();
             };
 
@@ -821,7 +821,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (server, options, next) {
+            var b = function (srv, options, next) {
 
                 return next();
             };
@@ -830,7 +830,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (server, options, next) {
+            var c = function (srv, options, next) {
 
                 return next();
             };
@@ -855,9 +855,9 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in multiple locations', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
-                server.dependency('b');
+                srv.dependency('b');
                 return next();
             };
 
@@ -866,7 +866,7 @@ describe('Plugin', function () {
                 dependecies: 'c'
             };
 
-            var b = function (server, options, next) {
+            var b = function (srv, options, next) {
 
                 return next();
             };
@@ -875,7 +875,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (server, options, next) {
+            var c = function (srv, options, next) {
 
                 return next();
             };
@@ -900,7 +900,7 @@ describe('Plugin', function () {
 
         it('throws when dependencies is an object', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
                 next();
             };
@@ -921,7 +921,7 @@ describe('Plugin', function () {
 
         it('throws when dependencies contain something else than a string', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
                 next();
             };
@@ -945,9 +945,9 @@ describe('Plugin', function () {
 
         it('calls method after plugin', function (done) {
 
-            var x = function (server, options, next) {
+            var x = function (srv, options, next) {
 
-                server.expose('a', 'b');
+                srv.expose('a', 'b');
                 return next();
             };
 
@@ -961,9 +961,9 @@ describe('Plugin', function () {
             expect(server.plugins.x).to.not.exist();
 
             var called = false;
-            server.after(function (server, next) {
+            server.after(function (srv, next) {
 
-                expect(server.plugins.x.a).to.equal('b');
+                expect(srv.plugins.x.a).to.equal('b');
                 called = true;
                 return next();
             }, 'x');
@@ -985,7 +985,7 @@ describe('Plugin', function () {
             server.connection();
 
             var called = false;
-            server.after(function (server, next) {
+            server.after(function (srv, next) {
 
                 called = true;
                 return next();
@@ -1004,7 +1004,7 @@ describe('Plugin', function () {
             server.connection();
 
             var called = false;
-            server.after(function (server, next) {
+            server.after(function (srv, next) {
 
                 called = true;
                 return next();
@@ -1019,14 +1019,14 @@ describe('Plugin', function () {
 
         it('fails to start server when after method fails', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.after(function (server, finish) {
+                srv.after(function (inner, finish) {
 
                     return finish();
                 });
 
-                server.after(function (server, finish) {
+                srv.after(function (inner, finish) {
 
                     return finish(new Error('Not in the mood'));
                 });
@@ -1072,13 +1072,13 @@ describe('Plugin', function () {
 
                 expect(err).to.not.exist();
 
-                server.inject('/', function (res) {
+                server.inject('/', function (res1) {
 
-                    expect(res.statusCode).to.equal(401);
-                    server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } }, function (res) {
+                    expect(res1.statusCode).to.equal(401);
+                    server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } }, function (res2) {
 
-                        expect(res.statusCode).to.equal(200);
-                        expect(res.result).to.equal('authenticated!');
+                        expect(res2.statusCode).to.equal(200);
+                        expect(res2.result).to.equal('authenticated!');
                         done();
                     });
                 });
@@ -1090,16 +1090,16 @@ describe('Plugin', function () {
 
         it('sets plugin context', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
                 var bind = {
                     value: 'in context',
                     suffix: ' throughout'
                 };
 
-                server.bind(bind);
+                srv.bind(bind);
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/',
                     handler: function (request, reply) {
@@ -1108,7 +1108,7 @@ describe('Plugin', function () {
                     }
                 });
 
-                server.ext('onPreResponse', function (request, reply) {
+                srv.ext('onPreResponse', function (request, reply) {
 
                     return reply(request.response.source + this.suffix);
                 });
@@ -1242,10 +1242,10 @@ describe('Plugin', function () {
 
         it('uses plugin cache interface', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                var cache = server.cache({ expiresIn: 10 });
-                server.expose({
+                var cache = srv.cache({ expiresIn: 10 });
+                srv.expose({
                     get: function (key, callback) {
 
                         cache.get(key, function (err, value, cached, report) {
@@ -1276,16 +1276,16 @@ describe('Plugin', function () {
                     server.plugins.test.set('a', '1', function (err) {
 
                         expect(err).to.not.exist();
-                        server.plugins.test.get('a', function (err, value) {
+                        server.plugins.test.get('a', function (err, value1) {
 
                             expect(err).to.not.exist();
-                            expect(value).to.equal('1');
+                            expect(value1).to.equal('1');
                             setTimeout(function () {
 
-                                server.plugins.test.get('a', function (err, value) {
+                                server.plugins.test.get('a', function (err, value2) {
 
                                     expect(err).to.not.exist();
-                                    expect(value).to.equal(null);
+                                    expect(value2).to.equal(null);
                                     done();
                                 });
                             }, 11);
@@ -1473,9 +1473,9 @@ describe('Plugin', function () {
 
         it('fails to register single plugin with dependencies', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.dependency('none');
+                srv.dependency('none');
                 return next();
             };
 
@@ -1497,7 +1497,7 @@ describe('Plugin', function () {
 
         it('fails to register single plugin with dependencies (attributes)', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
                 return next();
             };
@@ -1535,16 +1535,16 @@ describe('Plugin', function () {
 
         it('recognizes dependencies from peer plugins', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
-                server.register(b, next);
+                srv.register(b, next);
             };
 
             a.attributes = {
                 name: 'a'
             };
 
-            var b = function (server, options, next) {
+            var b = function (srv, options, next) {
 
                 return next();
             };
@@ -1553,9 +1553,9 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (server, options, next) {
+            var c = function (srv, options, next) {
 
-                server.dependency('b');
+                srv.dependency('b');
                 return next();
             };
 
@@ -1574,18 +1574,18 @@ describe('Plugin', function () {
 
         it('errors when missing inner dependencies', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
-                server.register(b, next);
+                srv.register(b, next);
             };
 
             a.attributes = {
                 name: 'a'
             };
 
-            var b = function (server, options, next) {
+            var b = function (srv, options, next) {
 
-                server.dependency('c');
+                srv.dependency('c');
                 return next();
             };
 
@@ -1607,16 +1607,16 @@ describe('Plugin', function () {
 
         it('errors when missing inner dependencies (attributes)', function (done) {
 
-            var a = function (server, options, next) {
+            var a = function (srv, options, next) {
 
-                server.register(b, next);
+                srv.register(b, next);
             };
 
             a.attributes = {
                 name: 'a'
             };
 
-            var b = function (server, options, next) {
+            var b = function (srv, options, next) {
 
                 return next();
             };
@@ -1643,9 +1643,9 @@ describe('Plugin', function () {
 
         it('plugin event handlers receive more than 2 arguments when they exist', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.once('request-internal', function () {
+                srv.once('request-internal', function () {
 
                     expect(arguments).to.have.length(3);
                     done();
@@ -1679,14 +1679,14 @@ describe('Plugin', function () {
             var server3 = server.connections[2];
 
             var counter = 0;
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.select(['a', 'b']).on('test', function () {
+                srv.select(['a', 'b']).on('test', function () {
 
                     ++counter;
                 });
 
-                server.select(['a']).on('start', function () {
+                srv.select(['a']).on('start', function () {
 
                     ++counter;
                 });
@@ -1748,9 +1748,9 @@ describe('Plugin', function () {
 
         it('extends onRequest point', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/b',
                     handler: function (request, reply) {
@@ -1759,7 +1759,7 @@ describe('Plugin', function () {
                     }
                 });
 
-                server.ext('onRequest', function (request, reply) {
+                srv.ext('onRequest', function (request, reply) {
 
                     request.setUrl('/b');
                     return reply.continue();
@@ -1812,17 +1812,17 @@ describe('Plugin', function () {
                     expect(err).to.not.exist();
                     expect(server.plugins.deps1.breaking).to.equal('bad');
 
-                    server.connections[0].inject('/', function (res) {
+                    server.connections[0].inject('/', function (res1) {
 
-                        expect(res.result).to.equal('|2|1|');
+                        expect(res1.result).to.equal('|2|1|');
 
-                        server.connections[1].inject('/', function (res) {
+                        server.connections[1].inject('/', function (res2) {
 
-                            expect(res.result).to.equal('|3|1|');
+                            expect(res2.result).to.equal('|3|1|');
 
-                            server.connections[2].inject('/', function (res) {
+                            server.connections[2].inject('/', function (res3) {
 
-                                expect(res.result).to.equal('|3|2|');
+                                expect(res3.result).to.equal('|3|2|');
                                 done();
                             });
                         });
@@ -1847,9 +1847,9 @@ describe('Plugin', function () {
 
         it('add new handler', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options1, next) {
 
-                server.handler('bar', function (route, options) {
+                srv.handler('bar', function (route, options2) {
 
                     return function (request, reply) {
 
@@ -2105,9 +2105,9 @@ describe('Plugin', function () {
         it('emits server log events once', function (done) {
 
             var pc = 0;
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.on('log', function (event, tags) {
+                srv.on('log', function (event, tags) {
 
                     ++pc;
                 });
@@ -2359,9 +2359,9 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.method('log', function (methodNext) {
+                srv.method('log', function (methodNext) {
 
                     return methodNext(null);
                 });
@@ -2384,10 +2384,10 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.bind({ x: 1 });
-                server.method('log', function (methodNext) {
+                srv.bind({ x: 1 });
+                srv.method('log', function (methodNext) {
 
                     return methodNext(null, this.x);
                 });
@@ -2414,9 +2414,9 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.method('log', function (methodNext) {
+                srv.method('log', function (methodNext) {
 
                     return methodNext(null, this.x);
                 }, { bind: { x: 2 } });
@@ -2443,10 +2443,10 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.bind({ x: 1 });
-                server.method('log', function (methodNext) {
+                srv.bind({ x: 1 });
+                srv.method('log', function (methodNext) {
 
                     return methodNext(null, this.x);
                 }, { bind: { x: 2 } });
@@ -2473,11 +2473,11 @@ describe('Plugin', function () {
 
         it('sets local path for directory route handler', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.path(Path.join(__dirname, '..'));
+                srv.path(Path.join(__dirname, '..'));
 
-                server.route({
+                srv.route({
                     method: 'GET',
                     path: '/handler/{file*}',
                     handler: {
@@ -2509,9 +2509,9 @@ describe('Plugin', function () {
 
         it('throws when plugin sets undefined path', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.path();
+                srv.path();
                 return next();
             };
 
@@ -2567,21 +2567,21 @@ describe('Plugin', function () {
 
         it('requires plugin with views', function (done) {
 
-            var test = function (server, options, next) {
+            var test = function (srv, options, next) {
 
-                server.path(__dirname);
+                srv.path(__dirname);
 
                 var views = {
                     engines: { 'html': Handlebars },
                     path: './templates/plugin'
                 };
 
-                server.views(views);
+                srv.views(views);
                 if (Object.keys(views).length !== 2) {
                     return next(new Error('plugin.view() modified options'));
                 }
 
-                server.route([
+                srv.route([
                     {
                         path: '/view', method: 'GET', handler: function (request, reply) {
 
@@ -2593,7 +2593,7 @@ describe('Plugin', function () {
                     }
                 ]);
 
-                server.ext('onRequest', function (request, reply) {
+                srv.ext('onRequest', function (request, reply) {
 
                     if (request.path === '/ext') {
                         return reply.view('test', { message: 'grabbed' });
@@ -2614,17 +2614,17 @@ describe('Plugin', function () {
             server.register({ register: test, options: { message: 'viewing it' } }, function (err) {
 
                 expect(err).to.not.exist();
-                server.inject('/view', function (res) {
+                server.inject('/view', function (res1) {
 
-                    expect(res.result).to.equal('<h1>viewing it</h1>');
+                    expect(res1.result).to.equal('<h1>viewing it</h1>');
 
-                    server.inject('/file', function (res) {
+                    server.inject('/file', function (res2) {
 
-                        expect(res.result).to.equal('<h1>{{message}}</h1>');
+                        expect(res2.result).to.equal('<h1>{{message}}</h1>');
 
-                        server.inject('/ext', function (res) {
+                        server.inject('/ext', function (res3) {
 
-                            expect(res.result).to.equal('<h1>grabbed</h1>');
+                            expect(res3.result).to.equal('<h1>grabbed</h1>');
                             done();
                         });
                     });
@@ -2657,9 +2657,9 @@ internals.routesList = function (server, label) {
 internals.plugins = {
     auth: function (server, options, next) {
 
-        server.auth.scheme('basic', function (server, options) {
+        server.auth.scheme('basic', function (srv, authOptions) {
 
-            var settings = Hoek.clone(options);
+            var settings = Hoek.clone(authOptions);
 
             var scheme = {
                 authenticate: function (request, reply) {
@@ -2734,10 +2734,10 @@ internals.plugins = {
     },
     deps1: function (server, options, next) {
 
-        server.dependency('deps2', function (server, next) {
+        server.dependency('deps2', function (srv, nxt) {
 
-            server.expose('breaking', server.plugins.deps2.breaking);
-            return next();
+            srv.expose('breaking', srv.plugins.deps2.breaking);
+            return nxt();
         });
 
         var selection = server.select('a');

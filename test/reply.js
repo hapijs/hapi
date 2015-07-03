@@ -280,19 +280,19 @@ describe('Reply', function () {
             server.connection({ routes: { cors: { origin: ['test.example.com'] } } });
             server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
-            server.inject('/stream', function (res) {
+            server.inject('/stream', function (res1) {
 
-                expect(res.result).to.equal('xy');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-                expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                expect(res1.result).to.equal('xy');
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+                expect(res1.headers['access-control-allow-origin']).to.equal('test.example.com');
 
-                server.inject({ method: 'HEAD', url: '/stream' }, function (res) {
+                server.inject({ method: 'HEAD', url: '/stream' }, function (res2) {
 
-                    expect(res.result).to.equal('');
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-                    expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
+                    expect(res2.result).to.equal('');
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+                    expect(res2.headers['access-control-allow-origin']).to.equal('test.example.com');
                     done();
                 });
             });
@@ -329,16 +329,16 @@ describe('Reply', function () {
 
             server.start(function () {
 
-                server.inject('/stream', function (res) {
+                server.inject('/stream', function (res1) {
 
-                    expect(res.statusCode).to.equal(500);
+                    expect(res1.statusCode).to.equal(500);
                     expect(requestError).to.exist();
                     expect(requestError.message).to.equal('Stream must have a streams2 readable interface');
 
                     requestError = undefined;
-                    server.inject('/writable', function (res) {
+                    server.inject('/writable', function (res2) {
 
-                        expect(res.statusCode).to.equal(500);
+                        expect(res2.statusCode).to.equal(500);
                         expect(requestError).to.exist();
                         expect(requestError.message).to.equal('Stream must have a streams2 readable interface');
                         done();

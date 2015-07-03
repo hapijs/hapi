@@ -353,15 +353,15 @@ describe('Response', function () {
             var server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.etag).to.equal('"abc"');
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.headers.etag).to.equal('"abc"');
 
-                server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } }, function (res) {
+                server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } }, function (res2) {
 
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.headers.etag).to.equal('"abc"');
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers.etag).to.equal('"abc"');
                     done();
                 });
             });
