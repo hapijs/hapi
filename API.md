@@ -729,7 +729,7 @@ Provisions a cache segment within the server cache facility where:
     - `cache` - the cache name configured in ['server.cache`](#server.config.cache). Defaults to
       the default cache.
     - `segment` - string segment name, used to isolate cached items within the cache partition.
-      When called within a plugin, defaults to '!name' where 'name' is the plugin name. Required
+      When called within a plugin, defaults to '!name' where 'name' is the plugin name. When called within a server       method, defaults to '#name' where 'name' is the server method name. Required
       when called outside of a plugin.
     - `shared` - if `true`, allows multiple cache provisions to share the same segment. Default to
       `false`.
