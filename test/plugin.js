@@ -1826,7 +1826,6 @@ describe('Plugin', function () {
 
                                 expect(res3.result.deps).to.equal('|3|2|');
                                 expect(res1.result.complexDeps).to.equal('|three|two|one|');
-
                                 done();
                             });
                         });
@@ -2756,7 +2755,7 @@ internals.plugins = {
 
         server.ext('onRequest', function (request, reply) {
 
-            request.app.complexDeps = request.app.complexDeps || '|'; 
+            request.app.complexDeps = request.app.complexDeps || '|';
             request.app.complexDeps += 'one|';
             return reply.continue();
         }, { after: 'deps2' });
@@ -2777,7 +2776,7 @@ internals.plugins = {
 
         server.ext('onRequest', function (request, reply) {
 
-            request.app.complexDeps = request.app.complexDeps || '|'; 
+            request.app.complexDeps = request.app.complexDeps || '|';
             request.app.complexDeps += 'two|';
             return reply.continue();
         });
