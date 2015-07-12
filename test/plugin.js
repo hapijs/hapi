@@ -1796,7 +1796,7 @@ describe('Plugin', function () {
 
             var handler = function (request, reply) {
 
-                return reply(request.app.deps);
+                return reply(request.app);
             };
 
             server.select('0').route({ method: 'GET', path: '/', handler: handler });
@@ -1814,15 +1814,19 @@ describe('Plugin', function () {
 
                     server.connections[0].inject('/', function (res1) {
 
-                        expect(res1.result).to.equal('|2|1|');
+                        expect(res1.result.deps).to.equal('|2|1|');
+                        expect(res1.result.complexDeps).to.equal('|three|two|one|');
 
                         server.connections[1].inject('/', function (res2) {
 
-                            expect(res2.result).to.equal('|3|1|');
+                            expect(res2.result.deps).to.equal('|3|1|');
+                            expect(res1.result.complexDeps).to.equal('|three|two|one|');
 
                             server.connections[2].inject('/', function (res3) {
 
-                                expect(res3.result).to.equal('|3|2|');
+                                expect(res3.result.deps).to.equal('|3|2|');
+                                expect(res1.result.complexDeps).to.equal('|three|two|one|');
+
                                 done();
                             });
                         });
@@ -2750,6 +2754,13 @@ internals.plugins = {
             }, { after: 'deps3' });
         }
 
+        server.ext('onRequest', function (request, reply) {
+
+            request.app.complexDeps = request.app.complexDeps || '|'; 
+            request.app.complexDeps += 'one|';
+            return reply.continue();
+        }, { after: 'deps2' });
+
         return next();
     },
     deps2: function (server, options, next) {
@@ -2763,6 +2774,13 @@ internals.plugins = {
                 return reply.continue();
             }, { after: 'deps3', before: 'deps1' });
         }
+
+        server.ext('onRequest', function (request, reply) {
+
+            request.app.complexDeps = request.app.complexDeps || '|'; 
+            request.app.complexDeps += 'two|';
+            return reply.continue();
+        });
 
         server.expose('breaking', 'bad');
 
@@ -2779,6 +2797,13 @@ internals.plugins = {
                 return reply.continue();
             });
         }
+
+        server.ext('onRequest', function (request, reply) {
+
+            request.app.complexDeps = request.app.complexDeps || '|';
+            request.app.complexDeps += 'three|';
+            return reply.continue();
+        }, { before: ['deps1', 'deps2'] });
 
         return next();
     },
