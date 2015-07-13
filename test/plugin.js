@@ -1823,7 +1823,7 @@ describe('Plugin', function () {
                             server.connections[2].inject('/', function (res3) {
 
                                 expect(res3.result.deps).to.equal('|3|2|');
-                                expect(res1.result.complexDeps).to.equal('|three|two|one|');
+                                expect(res3.result.complexDeps).to.equal('|three|two|one|');
                                 done();
                             });
                         });
@@ -2753,7 +2753,7 @@ internals.plugins = {
 
         selection = server.select('2');
         if (selection.connections.length) {
-            server.ext('onRequest', function (request, reply) {
+            selection.ext('onRequest', function (request, reply) {
 
                 request.app.complexDeps = request.app.complexDeps || '|';
                 request.app.complexDeps += 'one|';
@@ -2777,7 +2777,7 @@ internals.plugins = {
 
         selection = server.select('2');
         if (selection.connections.length) {
-            server.ext('onRequest', function (request, reply) {
+            selection.ext('onRequest', function (request, reply) {
 
                 request.app.complexDeps = request.app.complexDeps || '|';
                 request.app.complexDeps += 'two|';
@@ -2803,7 +2803,7 @@ internals.plugins = {
 
         selection = server.select('2');
         if (selection.connections.length) {
-            server.ext('onRequest', function (request, reply) {
+            selection.ext('onRequest', function (request, reply) {
 
                 request.app.complexDeps = request.app.complexDeps || '|';
                 request.app.complexDeps += 'three|';
