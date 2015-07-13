@@ -1815,12 +1815,10 @@ describe('Plugin', function () {
                     server.connections[0].inject('/', function (res1) {
 
                         expect(res1.result.deps).to.equal('|2|1|');
-                        expect(res1.result.complexDeps).to.equal('|three|two|one|');
 
                         server.connections[1].inject('/', function (res2) {
 
                             expect(res2.result.deps).to.equal('|3|1|');
-                            expect(res1.result.complexDeps).to.equal('|three|two|one|');
 
                             server.connections[2].inject('/', function (res3) {
 
@@ -2753,12 +2751,15 @@ internals.plugins = {
             }, { after: 'deps3' });
         }
 
-        server.ext('onRequest', function (request, reply) {
+        selection = server.select('2');
+        if (selection.connections.length) {
+            server.ext('onRequest', function (request, reply) {
 
-            request.app.complexDeps = request.app.complexDeps || '|';
-            request.app.complexDeps += 'one|';
-            return reply.continue();
-        }, { after: 'deps2' });
+                request.app.complexDeps = request.app.complexDeps || '|';
+                request.app.complexDeps += 'one|';
+                return reply.continue();
+            }, { after: 'deps2' });
+        }
 
         return next();
     },
@@ -2774,12 +2775,15 @@ internals.plugins = {
             }, { after: 'deps3', before: 'deps1' });
         }
 
-        server.ext('onRequest', function (request, reply) {
+        selection = server.select('2');
+        if (selection.connections.length) {
+            server.ext('onRequest', function (request, reply) {
 
-            request.app.complexDeps = request.app.complexDeps || '|';
-            request.app.complexDeps += 'two|';
-            return reply.continue();
-        });
+                request.app.complexDeps = request.app.complexDeps || '|';
+                request.app.complexDeps += 'two|';
+                return reply.continue();
+            });
+        }
 
         server.expose('breaking', 'bad');
 
@@ -2797,12 +2801,15 @@ internals.plugins = {
             });
         }
 
-        server.ext('onRequest', function (request, reply) {
+        selection = server.select('2');
+        if (selection.connections.length) {
+            server.ext('onRequest', function (request, reply) {
 
-            request.app.complexDeps = request.app.complexDeps || '|';
-            request.app.complexDeps += 'three|';
-            return reply.continue();
-        }, { before: ['deps1', 'deps2'] });
+                request.app.complexDeps = request.app.complexDeps || '|';
+                request.app.complexDeps += 'three|';
+                return reply.continue();
+            }, { before: ['deps1', 'deps2'] });
+        }
 
         return next();
     },
