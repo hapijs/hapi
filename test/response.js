@@ -366,6 +366,26 @@ describe('Response', function () {
                 });
             });
         });
+
+        it('applies varyEtag when returning 304 due to if-modified-since match', function (done) {
+
+            var mdate = new Date().toUTCString();
+
+            var handler = function (request, reply) {
+
+                return reply('ok').etag('abc').header('last-modified', mdate);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject({ url: '/', headers: { 'if-modified-since': mdate, 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.statusCode).to.equal(304);
+                expect(res.headers.etag).to.equal('"abc-gzip"');
+                done();
+            });
+        });
     });
 
     describe('passThrough()', function () {
