@@ -2912,7 +2912,7 @@ function arguments. The reply interface acts as both a callback interface to ret
 framework and a response generator.
 
 When `reply()` is called with an error or result response, that value is used as the response sent
-to the client. When `reply()` is called within a prerequisite, the value is saves for future use
+to the client. When `reply()` is called within a prerequisite, the value is saved for future use
 and is not used as the response. In all other places except for the handler, calling `reply()` will
 be considered an error and will abort the [request lifecycle](#request-lifecycle), jumping directly
 to the `'onPreResponse'` event.
