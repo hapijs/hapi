@@ -53,7 +53,7 @@
     "test": "lab -a code -t 100 -L",
     "test-tap": "lab -a code -r tap -o tests.tap",
     "test-cov-html": "lab -a code -r html -o coverage.html",
-    "changelog": "mdchangelog --no-prologue --no-orphan-issues --overwrite --order-milestones semver --order-issues closed_at --dependents --remote hapijs/hapi --same-org --timeout 120000"
+    "changelog": "mdchangelog --no-prologue --sanitize --no-orphan-issues --overwrite --order-milestones semver --order-issues closed_at --dependents --remote hapijs/hapi --same-org --timeout 120000"
   },
   "license": "BSD-3-Clause"
 }

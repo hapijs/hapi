@@ -1,5 +1,90 @@
 
-## [**8.5.0**](https://github.com/hapijs/hapi/issues?milestone=139&state=open)
+## [**8.8.1**](https://github.com/hapijs/hapi/issues?milestone=148&state=open)
+- [**#2631**](https://github.com/hapijs/hapi/issues/2631) Update inert to 2.1.6
+
+## [**8.8.0**](https://github.com/hapijs/hapi/issues?milestone=147&state=closed)
+- [**#2627**](https://github.com/hapijs/hapi/issues/2627) Update hapijs/subtext to 1.1.1 from 1.1.0
+  - **hapijs/subtext 1.1.1**
+  - [**#5**](https://github.com/hapijs/subtext/issues/5) Error for payloads with content-encoding that fail maxBytes test
+- [**#2613**](https://github.com/hapijs/hapi/issues/2613) Update jshttp/mime-db to 1.14.0 from 1.11.0
+- [**#2612**](https://github.com/hapijs/hapi/issues/2612) Update hapijs/vision to 2.0.1 from 2.0.0
+  - **hapijs/vision 2.0.1**
+  - [**#24**](https://github.com/hapijs/vision/issues/24) Ensure _loaderHelpers registers actual filenames
+  - [**#25**](https://github.com/hapijs/vision/issues/25) Update dependencies.
+  - [**#22**](https://github.com/hapijs/vision/issues/22) Helpful path location checked
+- [**#2625**](https://github.com/hapijs/hapi/issues/2625) Update hapijs/wreck to 6.0.0 from 5.5.1
+  - **hapijs/wreck 6.0.0**
+  - [**#75**](https://github.com/hapijs/wreck/issues/75) Read automatically converts payload from Buffer to UTF-8 String
+  - [**#95**](https://github.com/hapijs/wreck/issues/95) Payload returns as a buffer. Fixes Issue #75
+  - **hapijs/wreck 5.6.1**
+  - [**#71**](https://github.com/hapijs/wreck/issues/71) Attempt to call `destroy()` on `Gunzip` object
+  - [**#94**](https://github.com/hapijs/wreck/issues/94) Skip res.destroy() when not present. Closes #71
+  - [**#93**](https://github.com/hapijs/wreck/issues/93) Fix missing options when redirecting
+  - **hapijs/wreck 5.6.0**
+  - [**#92**](https://github.com/hapijs/wreck/issues/92) More robust baseUrl and uri merging
+  - [**#86**](https://github.com/hapijs/wreck/issues/86) Add support for the `baseUrl` option
+  - [**#85**](https://github.com/hapijs/wreck/issues/85) add support for defaults
+  - [**#89**](https://github.com/hapijs/wreck/issues/89) support for detecting/parsing +json suffix types i.e. application/*+json
+  - [**#88**](https://github.com/hapijs/wreck/issues/88) Maintenance
+  - [**#87**](https://github.com/hapijs/wreck/issues/87) Update license attribute
+- [**#2623**](https://github.com/hapijs/hapi/issues/2623) Update hapijs/qs to 4.0.0 from 2.4.2
+  - **hapijs/qs 4.0.0**
+  - [**#98**](https://github.com/hapijs/qs/issues/98) make returning plain objects and allowing prototype overwriting properties optional
+  - **hapijs/qs 3.1.0**
+  - [**#89**](https://github.com/hapijs/qs/issues/89) Add option to disable "Transform dot notation to bracket notation"
+  - **hapijs/qs 3.0.0**
+  - [**#77**](https://github.com/hapijs/qs/issues/77) Perf boost
+  - [**#60**](https://github.com/hapijs/qs/issues/60) Add explicit option to disable array parsing
+  - [**#80**](https://github.com/hapijs/qs/issues/80) qs.parse silently drops properties
+  - [**#74**](https://github.com/hapijs/qs/issues/74) Bad parse when turning array into object
+  - [**#81**](https://github.com/hapijs/qs/issues/81) Add a `filter` option
+  - [**#68**](https://github.com/hapijs/qs/issues/68) Fixed issue with recursion and passing strings into objects.
+  - [**#66**](https://github.com/hapijs/qs/issues/66) Add mixed array and object dot notation support Closes: #47
+  - [**#76**](https://github.com/hapijs/qs/issues/76) RFC 3986
+  - [**#85**](https://github.com/hapijs/qs/issues/85) No equal sign
+  - [**#84**](https://github.com/hapijs/qs/issues/84) update license attribute
+- [**#2622**](https://github.com/hapijs/hapi/issues/2622) Support qs options in payload and query parsing
+
+## [**8.7.0**](https://github.com/hapijs/hapi/issues?milestone=146&state=closed)
+- [**#2587**](https://github.com/hapijs/hapi/issues/2587) Update hapijs/catbox to 4.3.0 from 4.2.2
+  - **hapijs/catbox 4.3.0**
+  - [**#114**](https://github.com/hapijs/catbox/issues/114) Expose cache engine connection isReady as public method
+
+## [**8.6.1**](https://github.com/hapijs/hapi/issues?milestone=145&state=closed)
+- [**#2586**](https://github.com/hapijs/hapi/issues/2586) Update hapijs/shot to 1.5.1 from 1.5.0
+  - **hapijs/shot 1.5.1**
+  - [**#30**](https://github.com/hapijs/shot/issues/30) fix #7
+  - [**#7**](https://github.com/hapijs/shot/issues/7) deprecated encoding 'binary' is used
+- [**#2584**](https://github.com/hapijs/hapi/issues/2584) Update jshttp/mime-db to 1.11.0 from 1.10.0
+- [**#2583**](https://github.com/hapijs/hapi/issues/2583) Update hapijs/statehood to 2.1.1 from 2.0.0
+  - **hapijs/statehood 2.1.0**
+  - [**#12**](https://github.com/hapijs/statehood/issues/12) Support isNullOverride in applyToDefaults
+
+## [**8.6.0**](https://github.com/hapijs/hapi/issues?milestone=144&state=closed)
+- [**#2570**](https://github.com/hapijs/hapi/issues/2570) Added "error" event listener
+- [**#2573**](https://github.com/hapijs/hapi/issues/2573) allow returning a response object inside a promise
+
+## [**8.5.3**](https://github.com/hapijs/hapi/issues?milestone=143&state=closed)
+- [**#2571**](https://github.com/hapijs/hapi/issues/2571) Update hapijs/h2o2 to 4.0.1 from 4.0.0
+  - **hapijs/h2o2 4.0.1**
+  - [**#11**](https://github.com/hapijs/h2o2/issues/11) Bump Joi to v6.x.x
+- [**#2569**](https://github.com/hapijs/hapi/issues/2569) Make sure auth filter passes on request auth artifacts when injecting, too
+
+## [**8.5.2**](https://github.com/hapijs/hapi/issues?milestone=142&state=closed)
+- [**#2564**](https://github.com/hapijs/hapi/issues/2564) Auth error log should not report missing or try as error
+
+## [**8.5.1**](https://github.com/hapijs/hapi/issues?milestone=140&state=closed)
+- [**#2555**](https://github.com/hapijs/hapi/issues/2555) fix dynamic scopes
+- [**#2554**](https://github.com/hapijs/hapi/issues/2554) Dynamic scope uses undefined request.payload
+- [**#2553**](https://github.com/hapijs/hapi/issues/2553) Update hapijs/hoek to 2.14.0 from 2.13.0
+  - **hapijs/hoek 2.14.0**
+  - [**#147**](https://github.com/hapijs/hoek/issues/147) Reach template
+  - [**#139**](https://github.com/hapijs/hoek/issues/139) Clone fails on objects with null prototypes
+  - **hapijs/hoek 2.13.1**
+  - [**#134**](https://github.com/hapijs/hoek/issues/134) Allow for deep partial contain
+  - [**#145**](https://github.com/hapijs/hoek/issues/145) options for deepEqual don't pass on to recursive calls in arrays
+
+## [**8.5.0**](https://github.com/hapijs/hapi/issues?milestone=139&state=closed)
 - [**#2481**](https://github.com/hapijs/hapi/issues/2481) Feature: server.decorate('request' ... )
 - [**#2544**](https://github.com/hapijs/hapi/issues/2544) Retain content-length header for HEAD requests
 - [**#2552**](https://github.com/hapijs/hapi/issues/2552) Update hapijs/wreck to 5.5.1 from 5.2.0
@@ -12,7 +97,7 @@
   - [**#73**](https://github.com/hapijs/wreck/issues/73) Fix issues with node 0.12
 - [**#2472**](https://github.com/hapijs/hapi/issues/2472) Update hapijs/qs to 2.4.2 from 2.4.0
   - **hapijs/qs 2.4.1**
-  - [**#73**](https://github.com/hapijs/qs/issues/73) Property 'hasOwnProperty' of object #<Object> is not a function
+  - [**#73**](https://github.com/hapijs/qs/issues/73) Property 'hasOwnProperty' of object #&lt;Object&gt; is not a function
 - [**#2551**](https://github.com/hapijs/hapi/issues/2551) Update jshttp/mime-db to 1.10.0 from 1.9.1
 - [**#2550**](https://github.com/hapijs/hapi/issues/2550) Update moment/moment to 2.10.3 from 2.9.0
 - [**#2549**](https://github.com/hapijs/hapi/issues/2549) Update hapijs/joi to 6.4.1 from 6.0.8
@@ -126,7 +211,7 @@
   - [**#115**](https://github.com/hapijs/hoek/issues/115) Adds ability to do Hoek.reach with negative index
   - [**#117**](https://github.com/hapijs/hoek/issues/117) Throw error directly if it is the only thing passed in as the message
 - [**#2326**](https://github.com/hapijs/hapi/issues/2326) request-error logged before `onPostHandler` or `onPreResponse`
-- [**#2427**](https://github.com/hapijs/hapi/issues/2427) Issue uploading file with io.js or node > 0.11.6
+- [**#2427**](https://github.com/hapijs/hapi/issues/2427) Issue uploading file with io.js or node &gt; 0.11.6
 - [**#2439**](https://github.com/hapijs/hapi/issues/2439) pass context to response schema validation
 - [**#2429**](https://github.com/hapijs/hapi/issues/2429) Fix for #2427
 - [**#2382**](https://github.com/hapijs/hapi/issues/2382) Return explicit error when trying to stream a non-Readable stream
@@ -260,7 +345,7 @@
 - [**#2181**](https://github.com/hapijs/hapi/issues/2181) Remove server method cache key 'h' prefix
 - [**#2179**](https://github.com/hapijs/hapi/issues/2179) server.register() doesn't work with direct require of plugins (-rc1)
 - [**#2156**](https://github.com/hapijs/hapi/issues/2156) Rewrite reply() interface section
-- [**#1945**](https://github.com/hapijs/hapi/issues/1945) IE <=8 doesn't accept application/javascript as a mimetype
+- [**#1945**](https://github.com/hapijs/hapi/issues/1945) IE &lt;=8 doesn't accept application/javascript as a mimetype
 - [**#2178**](https://github.com/hapijs/hapi/issues/2178) Update hapijs/mimos to 2.0.2 from 1.0.1
   - **hapijs/mimos 2.0.2**
   - [**#8**](https://github.com/hapijs/mimos/issues/8) Change source from hapi to mimos
@@ -274,7 +359,7 @@
 - [**#2175**](https://github.com/hapijs/hapi/issues/2175) Update jshttp/mime-db to 1.2.0 from 1.1.2
 - [**#2174**](https://github.com/hapijs/hapi/issues/2174) Update hapijs/qs to 2.3.3 from 2.3.2
   - **hapijs/qs 2.3.3**
-  - [**#59**](https://github.com/hapijs/qs/issues/59) make sure array indexes are >= 0, closes #57
+  - [**#59**](https://github.com/hapijs/qs/issues/59) make sure array indexes are &gt;= 0, closes #57
   - [**#58**](https://github.com/hapijs/qs/issues/58) make qs usable for browser loader
 - [**#2173**](https://github.com/hapijs/hapi/issues/2173) Update hapijs/catbox-memory to 1.1.1 from 1.1.0
 - [**#2172**](https://github.com/hapijs/hapi/issues/2172) Update hapijs/boom to 2.6.0 from 2.5.1
@@ -697,16 +782,16 @@
 ## [**2.1.1**](https://github.com/hapijs/hapi/issues?milestone=79&state=closed)
 - [**#1347**](https://github.com/hapijs/hapi/issues/1347) Views should not use basePath when path is absolute
 
-## [**2.1.0**](https://github.com/hapijs/hapi/issues?milestone=4&state=closed)
-- [**#204**](https://github.com/hapijs/hapi/issues/204) Add postResponse method to proxy
-- [**#200**](https://github.com/hapijs/hapi/issues/200) Fix tls config settings
-- [**#hapijs/inert#17**](https://github.com/hapijs/inert/issues/17) Handle Range requests explicitly
-
 ## [**2.1.0**](https://github.com/hapijs/hapi/issues?milestone=78&state=closed)
 - [**#1344**](https://github.com/hapijs/hapi/issues/1344) Use the plugin loader when configured to load view engines
 - [**#1245**](https://github.com/hapijs/hapi/issues/1245) Replace request with nipple in tests
 - [**#1336**](https://github.com/hapijs/hapi/issues/1336) Allow custom view layout folder
 - [**#1335**](https://github.com/hapijs/hapi/issues/1335) Allow view layout to contain a string and boolean
+
+## [**2.1.0**](https://github.com/hapijs/hapi/issues?milestone=4&state=closed)
+- [**#204**](https://github.com/hapijs/hapi/issues/204) Add postResponse method to proxy
+- [**#200**](https://github.com/hapijs/hapi/issues/200) Fix tls config settings
+- [**#hapijs/inert#17**](https://github.com/hapijs/inert/issues/17) Handle Range requests explicitly
 
 ## [**2.0.0**](https://github.com/hapijs/hapi/issues?milestone=69&state=closed)
 - [**#1322**](https://github.com/hapijs/hapi/issues/1322) Does Hapi support multiple view templates?
@@ -715,7 +800,7 @@
 - [**#1332**](https://github.com/hapijs/hapi/issues/1332) Payload always logging an error regardless of error state
 - [**#1327**](https://github.com/hapijs/hapi/issues/1327) Better debug support for object data
 - [**#1324**](https://github.com/hapijs/hapi/issues/1324) When no query params are sent, request.params is null instead of {}.
-- [**#1301**](https://github.com/hapijs/hapi/issues/1301) `querystring` => `qs`, adds support for nested objects
+- [**#1301**](https://github.com/hapijs/hapi/issues/1301) `querystring` =&gt; `qs`, adds support for nested objects
 - [**#1314**](https://github.com/hapijs/hapi/issues/1314) Replace old payload try mode with failAction
 - [**#1313**](https://github.com/hapijs/hapi/issues/1313) Change redirectToSlash default value to true
 - [**#1312**](https://github.com/hapijs/hapi/issues/1312) Remove special values for server config 'files.relativeTo'
@@ -1174,7 +1259,7 @@
 - [**#474**](https://github.com/hapijs/hapi/issues/474) 0.13.2
 - [**#466**](https://github.com/hapijs/hapi/issues/466) Directory listing at top level folders now link correctly
 - [**#472**](https://github.com/hapijs/hapi/issues/472) Fix matching of wildcard path param with trailing /
-- [**#463**](https://github.com/hapijs/hapi/issues/463) Typo: req.session.used -> req.session.user
+- [**#463**](https://github.com/hapijs/hapi/issues/463) Typo: req.session.used -&gt; req.session.user
 
 ## [**0.13.0**](https://github.com/hapijs/hapi/issues?milestone=17&state=closed)
 - [**#448**](https://github.com/hapijs/hapi/issues/448) Fixed typos
