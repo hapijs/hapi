@@ -1213,6 +1213,36 @@ describe('validation', function () {
         });
     });
 
+    it('does not delete the response object from the route when sample is 0', function (done) {
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                },
+                response: {
+                    sample: 0,
+                    schema: {
+                        b: Joi.string()
+                    }
+                }
+            }
+        });
+
+        server.inject('/', function (res) {
+
+            expect(res.request.route.settings.response).to.exist();
+            expect(res.request.route.settings.response.sample).to.equal(0);
+            expect(res.request.route.settings.response.schema).to.exist();
+            done();
+        });
+    });
+
     it('fails response validation with options', function (done) {
 
         var server = new Hapi.Server({ debug: false });
