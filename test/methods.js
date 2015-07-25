@@ -1097,4 +1097,21 @@ describe('Methods', function () {
             done();
         });
     });
+
+    it('throws an error if unknown keys are present when making a server method using an object', function (done) {
+
+        var fn = function () { };
+        var server = new Hapi.Server();
+
+        expect(function () {
+
+            server.method({
+                name: 'fn',
+                method: fn,
+                cache: { }
+            });
+        }).to.throw();
+
+        done();
+    });
 });
