@@ -1833,17 +1833,44 @@ describe('Plugin', function () {
 
         it('adds multiple ext functions with complex dependencies', function (done) {
 
-            var server = new Hapi.Server();
-            server.connection({ labels: ['0'] });
+            // Generate a plugin with a specific index and ext dependencies.
+
+            var pluginCurrier = function (num, deps) {
+
+                var plugin = function (server, options, next) {
+
+                    server.ext('onRequest', function (request, reply) {
+
+                        request.app.complexDeps = request.app.complexDeps || '|';
+                        request.app.complexDeps += num + '|';
+                        return reply.continue();
+                    }, deps);
+
+                    next();
+                };
+
+                plugin.attributes = {
+                  name: 'deps' + num
+                };
+
+                return plugin;
+            };
 
             var handler = function (request, reply) {
 
                 return reply(request.app.complexDeps);
             };
 
+            var server = new Hapi.Server();
+            server.connection();
+
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.register([internals.plugins.deps1, internals.plugins.deps2, internals.plugins.deps3], function (err) {
+            server.register([
+                pluginCurrier(1, { after: 'deps2' }),
+                pluginCurrier(2),
+                pluginCurrier(3, { before: ['deps1', 'deps2'] })
+            ], function (err) {
 
                 expect(err).to.not.exist();
 
@@ -1853,7 +1880,7 @@ describe('Plugin', function () {
 
                     server.inject('/', function (res) {
 
-                        expect(res.result).to.equal('|three|two|one|');
+                        expect(res.result).to.equal('|3|2|1|');
                         done();
                     });
                 });
@@ -2779,16 +2806,6 @@ internals.plugins = {
             }, { after: 'deps3' });
         }
 
-        selection = server.select('0');
-        if (selection.connections.length) {
-            selection.ext('onRequest', function (request, reply) {
-
-                request.app.complexDeps = request.app.complexDeps || '|';
-                request.app.complexDeps += 'one|';
-                return reply.continue();
-            }, { after: 'deps2' });
-        }
-
         return next();
     },
     deps2: function (server, options, next) {
@@ -2801,16 +2818,6 @@ internals.plugins = {
                 request.app.deps += '2|';
                 return reply.continue();
             }, { after: 'deps3', before: 'deps1' });
-        }
-
-        selection = server.select('0');
-        if (selection.connections.length) {
-            selection.ext('onRequest', function (request, reply) {
-
-                request.app.complexDeps = request.app.complexDeps || '|';
-                request.app.complexDeps += 'two|';
-                return reply.continue();
-            });
         }
 
         server.expose('breaking', 'bad');
@@ -2827,16 +2834,6 @@ internals.plugins = {
                 request.app.deps += '3|';
                 return reply.continue();
             });
-        }
-
-        selection = server.select('0');
-        if (selection.connections.length) {
-            selection.ext('onRequest', function (request, reply) {
-
-                request.app.complexDeps = request.app.complexDeps || '|';
-                request.app.complexDeps += 'three|';
-                return reply.continue();
-            }, { before: ['deps1', 'deps2'] });
         }
 
         return next();
