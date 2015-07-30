@@ -455,6 +455,58 @@ describe('Plugin', function () {
             });
         });
 
+        it('Throws an error when registering multiple plugins with a single alias', function (done) {
+
+            var test1 = function (srv, options, next) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/a',
+                    handler: function (request, reply) {
+
+                        return reply('a');
+                    }
+                });
+
+                return next();
+            };
+
+            test1.attributes = {
+                name: 'test1'
+            };
+
+            var test2 = function (srv, options, next) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/b',
+                    handler: function (request, reply) {
+
+                        return reply('b');
+                    }
+                });
+
+                return next();
+            };
+
+            test2.attributes = {
+                name: 'test2'
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ host: 'example.com' });
+            expect(function () {
+
+                return server.register(
+                    [test1, test2],
+                    { alias: 'pluginAlias' },
+                    function (err) { }
+                );
+
+            }).to.throw('Cannot specify an alias when registering multiple plugins at once');
+
+            done();
+        });
         it('registers a child plugin', function (done) {
 
             var server = new Hapi.Server();
@@ -1741,6 +1793,33 @@ describe('Plugin', function () {
 
                 done();
             });
+        });
+
+        it('exposes an alias', function (done) {
+
+            var server = new Hapi.Server();
+            var pluginOptions = { alias: 'alias1' };
+            server.connection({ labels: ['s1', 'a', 'b'] });
+            server.connection({ labels: ['s2', 'a', 'test'] });
+            server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+            server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
+
+            server.register(
+                internals.plugins.test1,
+                pluginOptions,
+                function (err) {
+
+                    expect(err).to.not.exist();
+
+                    expect(server.plugins.test1.add(1, 3)).to.equal(4);
+                    expect(server.plugins.test1.glue('1', '3')).to.equal('13');
+                    expect(server.plugins.alias1.add(1, 3)).to.equal(4);
+                    expect(server.plugins.alias1.glue('1', '3')).to.equal('13');
+                    expect(server.plugins.alias1).to.deep.equal(server.plugins.test1);
+
+                    done();
+                }
+            );
         });
     });
 
