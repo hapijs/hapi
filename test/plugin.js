@@ -1850,7 +1850,7 @@ describe('Plugin', function () {
                 };
 
                 plugin.attributes = {
-                  name: 'deps' + num
+                    name: 'deps' + num
                 };
 
                 return plugin;
