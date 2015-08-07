@@ -43,7 +43,7 @@
     "bluebird": "2.x.x",
     "code": "1.x.x",
     "handlebars": "2.x.x",
-    "inert": "2.x.x",
+    "inert": "3.x.x",
     "lab": "5.x.x",
     "vision": "2.x.x",
     "wreck": "6.x.x"
