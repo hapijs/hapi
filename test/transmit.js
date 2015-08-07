@@ -220,47 +220,50 @@ describe('transmission', function () {
                     expect(res2.headers.etag).to.exist();
                     expect(res2.headers.etag).to.not.contain('-');
 
+                    var baseTag = res2.headers.etag.slice(0, -1);
+                    var gzipTag = baseTag + '-gzip"';
+
                     // Conditional request
 
                     server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } }, function (res3) {
 
                         expect(res3.statusCode).to.equal(304);
-                        expect(res3.headers.etag).to.not.contain('-');
+                        expect(res3.headers.etag).to.equal(res2.headers.etag);
 
                         // Conditional request with accept-encoding
 
                         server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } }, function (res4) {
 
                             expect(res4.statusCode).to.equal(304);
-                            expect(res4.headers.etag).to.not.contain('-');
+                            expect(res4.headers.etag).to.equal(gzipTag);
 
                             // Conditional request with vary etag
 
-                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag.slice(0, -1) + '-gzip"', 'accept-encoding': 'gzip' } }, function (res5) {
+                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } }, function (res5) {
 
                                 expect(res5.statusCode).to.equal(304);
-                                expect(res5.headers.etag).to.match(/-gzip"$/);
+                                expect(res5.headers.etag).to.equal(gzipTag);
 
                                 // Request with accept-encoding (gzip)
 
                                 server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res6) {
 
                                     expect(res6.statusCode).to.equal(200);
-                                    expect(res6.headers.etag).to.match(/-gzip"$/);
+                                    expect(res6.headers.etag).to.equal(gzipTag);
 
                                     // Request with accept-encoding (deflate)
 
                                     server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } }, function (res7) {
 
                                         expect(res7.statusCode).to.equal(200);
-                                        expect(res7.headers.etag).to.match(/-deflate"$/);
+                                        expect(res7.headers.etag).to.equal(baseTag + '-deflate"');
 
                                         // Conditional request with accept-encoding (gzip)
 
                                         server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } }, function (res8) {
 
                                             expect(res8.statusCode).to.equal(304);
-                                            expect(res8.headers.etag).to.match(/-deflate"$/);
+                                            expect(res8.headers.etag).to.equal(gzipTag);
                                             done();
                                         });
                                     });
