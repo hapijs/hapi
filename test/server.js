@@ -22,29 +22,6 @@ var expect = Code.expect;
 
 describe('Server', function () {
 
-    it('does not cache etags', function (done) {
-
-        var server = new Hapi.Server({ files: { etagsCacheMaxSize: 0 } });
-        server.register(Inert, Hoek.ignore);
-        server.connection({ routes: { files: { relativeTo: __dirname } } });
-        server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
-
-        server.inject('/note', function (res1) {
-
-            expect(res1.statusCode).to.equal(200);
-            expect(res1.result).to.equal('Test');
-            expect(res1.headers.etag).to.not.exist();
-
-            server.inject('/note', function (res2) {
-
-                expect(res2.statusCode).to.equal(200);
-                expect(res2.result).to.equal('Test');
-                expect(res2.headers.etag).to.not.exist();
-                done();
-            });
-        });
-    });
-
     it('sets connections defaults', function (done) {
 
         var server = new Hapi.Server({ connections: { app: { message: 'test defaults' } } });
