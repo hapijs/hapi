@@ -609,6 +609,25 @@ describe('transmission', function () {
             });
         });
 
+        it('sets vary header when accept-encoding is present but does not match', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                return reply('abc');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject({ url: '/', headers: { 'accept-encoding': 'example' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('accept-encoding');
+                done();
+            });
+        });
+
         it('handles stream errors on the response after the response has been piped', function (done) {
 
             var handler = function (request, reply) {
