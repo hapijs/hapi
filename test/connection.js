@@ -727,6 +727,44 @@ describe('Connection', function () {
                 done();
             });
         });
+
+        it('can set a client remoteAddress', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(request.info.remoteAddress);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject({ url: '/', remoteAddress: '1.2.3.4' }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('1.2.3.4');
+                done();
+            });
+        });
+
+        it('sets a default remoteAddress of 127.0.0.1', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(request.info.remoteAddress);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('127.0.0.1');
+                done();
+            });
+        });
     });
 
     describe('table()', function () {
