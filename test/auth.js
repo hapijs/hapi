@@ -7,6 +7,7 @@ var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
 var Lab = require('lab');
+var Vision = require('vision');
 
 
 // Declare internals
@@ -147,6 +148,7 @@ describe('authentication', function () {
             };
 
             var server = new Hapi.Server();
+            server.register(Vision, Hoek.ignore);
             server.connection();
 
             server.views({

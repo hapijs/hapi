@@ -2,9 +2,11 @@
 
 var Boom = require('boom');
 var Code = require('code');
-var Lab = require('lab');
-var Joi = require('joi');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Inert = require('inert');
+var Joi = require('joi');
+var Lab = require('lab');
 
 
 // Declare internals
@@ -1345,6 +1347,7 @@ describe('validation', function () {
     it('errors on non-plain-object responses', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.register(Inert, Hoek.ignore);
         server.connection();
         server.route({
             method: 'GET',

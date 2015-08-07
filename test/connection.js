@@ -12,7 +12,9 @@ var Code = require('code');
 var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var Inert = require('inert');
 var Lab = require('lab');
+var Vision = require('vision');
 var Wreck = require('wreck');
 
 
@@ -898,6 +900,7 @@ describe('Connection', function () {
         it('uses server views for ext added via server', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Vision, Hoek.ignore);
             server.connection();
 
             server.views({
@@ -1015,7 +1018,9 @@ describe('Connection', function () {
             it('replies with a view', function (done) {
 
                 var server = new Hapi.Server();
+                server.register(Vision, Hoek.ignore);
                 server.connection();
+
                 server.views({
                     engines: { 'html': Handlebars },
                     path: __dirname + '/templates'
@@ -1105,6 +1110,7 @@ describe('Connection', function () {
             it('intercepts 404 when using directory handler and file is missing', function (done) {
 
                 var server = new Hapi.Server();
+                server.register(Inert, Hoek.ignore);
                 server.connection();
 
                 server.ext('onPreResponse', function (request, reply) {
@@ -1126,6 +1132,7 @@ describe('Connection', function () {
             it('intercepts 404 when using file handler and file is missing', function (done) {
 
                 var server = new Hapi.Server();
+                server.register(Inert, Hoek.ignore);
                 server.connection();
 
                 server.ext('onPreResponse', function (request, reply) {
@@ -1147,6 +1154,7 @@ describe('Connection', function () {
             it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, function (done) {
 
                 var server = new Hapi.Server();
+                server.register(Inert, Hoek.ignore);
                 server.connection();
 
                 server.ext('onPreResponse', function (request, reply) {

@@ -5,7 +5,10 @@ var Boom = require('boom');
 var Code = require('code');
 var Handlebars = require('handlebars');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Inert = require('inert');
 var Lab = require('lab');
+var Vision = require('vision');
 
 
 // Declare internals
@@ -129,41 +132,10 @@ describe('handler', function () {
 
     describe('register()', function () {
 
-        it('proxies from handler', function (done) {
-
-            var upstream = new Hapi.Server();
-            upstream.connection();
-            upstream.route({
-                method: 'GET',
-                path: '/item',
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                }
-            });
-            upstream.start(function () {
-
-                var handler = function (request, reply) {
-
-                    return reply.proxy({ uri: 'http://localhost:' + upstream.info.port + '/item' });
-                };
-
-                var server = new Hapi.Server();
-                server.connection();
-                server.route({ method: 'GET', path: '/handler', handler: handler });
-
-                server.inject('/handler', function (res) {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.payload).to.contain('"a":1');
-                    done();
-                });
-            });
-        });
-
         it('returns a file', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
@@ -186,7 +158,9 @@ describe('handler', function () {
         it('returns a view', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Vision, Hoek.ignore);
             server.connection();
+
             server.views({
                 engines: { 'html': Handlebars },
                 relativeTo: Path.join(__dirname, '/templates/plugin')

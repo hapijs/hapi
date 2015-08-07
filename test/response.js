@@ -7,7 +7,9 @@ var Code = require('code');
 var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var Inert = require('inert');
 var Lab = require('lab');
+var Vision = require('vision');
 
 
 // Declare internals
@@ -595,6 +597,7 @@ describe('Response', function () {
         it('returns a file in the response with the correct headers using custom mime type', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
@@ -904,6 +907,7 @@ describe('Response', function () {
         it('emits request-error when view file for handler not found', function (done) {
 
             var server = new Hapi.Server({ debug: false });
+            server.register(Vision, Hoek.ignore);
             server.connection();
 
             server.views({

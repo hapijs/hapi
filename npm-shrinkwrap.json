@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "8.8.1",
+    "version": "9.0.0",
     "dependencies": {
         "accept": {
             "version": "1.0.0"
@@ -23,22 +23,11 @@
         "cryptiles": {
             "version": "2.0.4"
         },
-        "h2o2": {
-            "version": "4.0.1"
-        },
         "heavy": {
             "version": "3.0.0"
         },
         "hoek": {
             "version": "2.14.0"
-        },
-        "inert": {
-            "version": "2.1.6",
-            "dependencies": {
-                "lru-cache": {
-                    "version": "2.6.5"
-                }
-            }
         },
         "iron": {
             "version": "2.1.2"
@@ -106,9 +95,6 @@
         },
         "topo": {
             "version": "1.0.3"
-        },
-        "vision": {
-            "version": "2.0.1"
         },
         "wreck": {
             "version": "6.0.0"

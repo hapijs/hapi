@@ -2,6 +2,8 @@
 
 var Code = require('code');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Inert = require('inert');
 var Joi = require('joi');
 var Lab = require('lab');
 
@@ -327,6 +329,7 @@ describe('Route', function () {
     it('overrides server relativeTo', function (done) {
 
         var server = new Hapi.Server();
+        server.register(Inert, Hoek.ignore);
         server.connection();
         var handler = function (request, reply) {
 

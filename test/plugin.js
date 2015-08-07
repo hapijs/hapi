@@ -8,7 +8,9 @@ var Code = require('code');
 var Handlebars = require('handlebars');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var Inert = require('inert');
 var Lab = require('lab');
+var Vision = require('vision');
 
 
 // Declare internals
@@ -1850,7 +1852,7 @@ describe('Plugin', function () {
                 };
 
                 plugin.attributes = {
-                  name: 'deps' + num
+                    name: 'deps' + num
                 };
 
                 return plugin;
@@ -1944,12 +1946,13 @@ describe('Plugin', function () {
         it('errors on duplicate handler', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
 
             expect(function () {
 
-                server.handler('proxy', function () { });
-            }).to.throw('Handler name already exists: proxy');
+                server.handler('file', function () { });
+            }).to.throw('Handler name already exists: file');
             done();
         });
 
@@ -2551,6 +2554,7 @@ describe('Plugin', function () {
             };
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             server.register(test, function (err) {
 
@@ -2590,6 +2594,7 @@ describe('Plugin', function () {
         it('renders view', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Vision, Hoek.ignore);
             server.connection();
             server.views({
                 engines: { html: Handlebars },
@@ -2666,6 +2671,7 @@ describe('Plugin', function () {
             };
 
             var server = new Hapi.Server();
+            server.register([Inert, Vision], Hoek.ignore);
             server.connection();
             server.register({ register: test, options: { message: 'viewing it' } }, function (err) {
 

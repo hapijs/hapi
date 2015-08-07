@@ -2,6 +2,8 @@
 
 var Code = require('code');
 var Hapi = require('..');
+var Hoek = require('hoek');
+var Inert = require('inert');
 var Lab = require('lab');
 
 
@@ -23,6 +25,7 @@ describe('Server', function () {
     it('does not cache etags', function (done) {
 
         var server = new Hapi.Server({ files: { etagsCacheMaxSize: 0 } });
+        server.register(Inert, Hoek.ignore);
         server.connection({ routes: { files: { relativeTo: __dirname } } });
         server.route({ method: 'GET', path: '/note', handler: { file: './file/note.txt' } });
 
@@ -68,13 +71,6 @@ describe('Server', function () {
         var server = new Hapi.Server(options);
         expect(server.mime.path('file.npm').type).to.equal('node/module');
         expect(server.mime.path('file.npm').source).to.equal('steve');
-        done();
-    });
-
-    it('skips loading built-in plugins', function (done) {
-
-        var server = new Hapi.Server({ minimal: true });
-        expect(server.views).to.not.exist();
         done();
     });
 

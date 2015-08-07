@@ -12,6 +12,7 @@ var CatboxMemory = require('catbox-memory');
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
+var Inert = require('inert');
 var Lab = require('lab');
 var Wreck = require('wreck');
 
@@ -36,6 +37,7 @@ describe('transmission', function () {
         it('returns valid http date responses in last-modified header', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -50,6 +52,7 @@ describe('transmission', function () {
         it('returns 200 if if-modified-since is invalid', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -81,6 +84,7 @@ describe('transmission', function () {
         it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -157,6 +161,7 @@ describe('transmission', function () {
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -177,6 +182,7 @@ describe('transmission', function () {
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -196,6 +202,7 @@ describe('transmission', function () {
         it('matches etag with content-encoding', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
 
@@ -548,6 +555,7 @@ describe('transmission', function () {
         it('sets caching headers', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
@@ -647,6 +655,7 @@ describe('transmission', function () {
         it('matches etag header list value', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -669,6 +678,7 @@ describe('transmission', function () {
         it('changes etag when content encoding is used', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -696,6 +706,7 @@ describe('transmission', function () {
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
@@ -717,6 +728,7 @@ describe('transmission', function () {
         it('returns a plain file when not compressible', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
@@ -738,6 +750,7 @@ describe('transmission', function () {
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             var handler = function (request, reply) {
 
@@ -1221,6 +1234,7 @@ describe('transmission', function () {
         it('does not open file stream on 304', function (done) {
 
             var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
