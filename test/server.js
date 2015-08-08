@@ -174,21 +174,43 @@ describe('Server', function () {
             });
         });
 
-        it('stops with only an option object', function (done) {
+        it('returns an extension error', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
+            server.ext('onPreStop', function (srv, next) {
 
-            server.connections[0]._stop = function (options, callback) {
+                return next(new Error('failed cleanup'));
+            });
 
-                expect(options).to.deep.equal({
-                    timeout: 1
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                server.stop(function (err) {
+
+                    expect(err.message).to.equal('failed cleanup');
+                    done();
                 });
-                done();
+            });
+        });
+
+        it('returns a connection stop error', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.connections[0]._stop = function (options, next) {
+
+                return next(new Error('stop failed'));
             };
 
-            server.stop({
-                timeout: 1
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                server.stop(function (err) {
+
+                    expect(err.message).to.equal('stop failed');
+                    done();
+                });
             });
         });
     });
