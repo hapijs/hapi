@@ -1815,9 +1815,9 @@ describe('Plugin', function () {
 
                     expect(server.plugins.test1.add(1, 3)).to.equal(4);
                     expect(server.plugins.test1.glue('1', '3')).to.equal('13');
-                    expect(server.plugins.alias1.add(1, 3)).to.equal(4);
-                    expect(server.plugins.alias1.glue('1', '3')).to.equal('13');
-                    expect(server.plugins.alias1).to.deep.equal(server.plugins.test1);
+                    expect(server.aka.alias1.add(1, 3)).to.equal(4);
+                    expect(server.aka.alias1.glue('1', '3')).to.equal('13');
+                    expect(server.aka.alias1).to.deep.equal(server.plugins.test1);
 
                     done();
                 }
