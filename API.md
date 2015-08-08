@@ -39,9 +39,9 @@
     - [`server.register(plugins, [options], callback)`](#serverregisterplugins-options-callback)
     - [`server.route(options)`](#serverrouteoptions)
     - [`server.select(labels)`](#serverselectlabels)
-    - [`server.start([callback])`](#serverstartcallback)
+    - [`server.start(callback)`](#serverstartcallback)
     - [`server.state(name, [options])`](#serverstatename-options)
-    - [`server.stop([options], [callback])`](#serverstopoptions-callback)
+    - [`server.stop([options], callback)`](#serverstopoptions-callback)
     - [`server.table([host])`](#servertablehost)
     - [Server events](#server-events)
         - [Internal events](#internal-events)
@@ -952,7 +952,7 @@ var handler = function (request, reply) {
 };
 
 server.route({ method: 'GET', path: '/test', handler: handler });
-server.start();
+server.start(function (err) { });
 
 // All requests will get routed to '/test'
 ```
@@ -987,7 +987,7 @@ server.route({
     handler: { test: { msg: 'test' } }
 });
 
-server.start();
+server.start(function (err) { });
 ```
 
 The `method` function can have a `defaults` object or function property. If the property is set to
@@ -1388,11 +1388,11 @@ var a = server.select('a');     // 80, 8080
 var ac = a.select('c');         // 8080
 ```
 
-### `server.start([callback])`
+### `server.start(callback)`
 
 Starts the server connections by listening for incoming requests on the configured port of each
 listener (unless the connection was configured with `autoListen` set to `false`), where:
-- `callback` - optional callback when server startup is completed or failed with the signature
+- `callback` - the callback method when server startup is completed or failed with the signature
   `function(err)` where:
     - `err` - any startup error condition.
 
@@ -1499,7 +1499,7 @@ server.on('request-internal', function (request, event, tags) {
 });
 ```
 
-### `server.stop([options], [callback])`
+### `server.stop([options], callback)`
 
 Stops the server's connections by refusing to accept any new connections or requests (existing
 connections will continue until closed or timeout), where:
@@ -1514,7 +1514,7 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.stop({ timeout: 60 * 1000 }, function () {
+server.stop({ timeout: 60 * 1000 }, function (err) {
 
     console.log('Server stopped');
 });
