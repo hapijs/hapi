@@ -3,16 +3,16 @@
     "version": "9.0.0",
     "dependencies": {
         "accept": {
-            "version": "1.0.0"
+            "version": "1.1.0"
         },
         "ammo": {
-            "version": "1.0.0"
+            "version": "1.0.1"
         },
         "boom": {
-            "version": "2.7.2"
+            "version": "2.8.0"
         },
         "call": {
-            "version": "2.0.1"
+            "version": "2.0.2"
         },
         "catbox": {
             "version": "5.0.0"
@@ -30,19 +30,19 @@
             "version": "2.14.0"
         },
         "iron": {
-            "version": "2.1.2"
+            "version": "2.1.3"
         },
         "items": {
             "version": "1.1.0"
         },
         "joi": {
-            "version": "6.4.1",
+            "version": "6.6.1",
             "dependencies": {
                 "isemail": {
                     "version": "1.1.1"
                 },
                 "moment": {
-                    "version": "2.10.3"
+                    "version": "2.10.6"
                 }
             }
         },
@@ -73,7 +73,7 @@
             "version": "2.0.0",
             "dependencies": {
                 "content": {
-                    "version": "1.0.1"
+                    "version": "1.0.2"
                 },
                 "pez": {
                     "version": "1.0.0",
