@@ -184,6 +184,7 @@ describe('Plugin', function () {
             var test = function (srv, options, next) {
 
                 expect(options.something).to.be.true();
+                expect(srv.realm.pluginOptions).to.equal(options);
                 return next();
             };
 

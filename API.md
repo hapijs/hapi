@@ -401,6 +401,7 @@ used by the framework when adding routes, extensions, and other properties.
         - `vhost` - the route virtual host settings used by any calls to
           [`server.route()`](#serverrouteoptions) from the server.
 - `plugin` - the active plugin name (empty string if at the server root).
+- `pluginOptions` - the plugin options object passed at registration.
 - `plugins` - plugin-specific state to be shared only among activities sharing the same active
   state. `plugins` is an object where each key is a plugin name and the value is the plugin state.
 - `settings` - settings overrides:
