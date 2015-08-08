@@ -2590,6 +2590,42 @@ describe('transmission', function () {
                 done();
             });
         });
+
+        it('includes caching header with 304', function (done) {
+
+            var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
+            server.connection();
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    expect(res2.headers['cache-control']).to.equal('max-age=60, must-revalidate');
+                    done();
+                });
+            });
+        });
+
+        it('forbids caching on 304 if 200 is not included', function (done) {
+
+            var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
+            server.connection({ routes: { cache: { statuses: [400] } } });
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
+
+            server.inject('/file', function (res1) {
+
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
+
+                    expect(res2.statusCode).to.equal(304);
+                    expect(res2.headers['cache-control']).to.equal('no-cache');
+                    done();
+                });
+            });
+        });
     });
 
     describe('security()', function () {
