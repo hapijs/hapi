@@ -756,9 +756,6 @@ Adds an incoming server connection where:
   `listener` uses TLS, set `tls` to `true`.
 - `autoListen` - indicates that the `connection.listener` will be started manually outside the
   framework. Cannot be specified with a `port` setting. Defaults to `true`.
-- `cache` - caching headers configuration:
-    - `statuses` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
-      a valid caching directive. Defaults to `[200]`.
 - `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
   specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
 - `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
@@ -1919,6 +1916,8 @@ following options:
       item was saved in the cache. Cannot be used together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which
       point all cache records for the route expire. Cannot be used together with `expiresIn`.
+    - `statuses` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
+      a valid caching directive. Defaults to `[200]`.
 
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows
   browsers to make cross-origin API calls. CORS is required by web applications running
