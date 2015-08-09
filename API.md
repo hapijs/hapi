@@ -1019,6 +1019,7 @@ for performing injections, with some additional options and response properties:
     - `artifacts` - an optional artifacts object containing authentication artifact information. The
       `artifacts` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Defaults to no artifacts.
+    - `remoteAddress` - sets the remote address for the incoming connection.
     - `simulate` - an object with options used to simulate client request stream conditions for
       testing:
         - `error` - if `true`, emits an `'error'` event after payload transmission (if any).
