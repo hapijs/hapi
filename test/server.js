@@ -136,6 +136,22 @@ describe('Server', function () {
             }).to.throw('No connections to start');
             done();
         });
+
+        it('fails to start server when registration incomplete', function (done) {
+
+            var plugin = function () { };
+            plugin.attributes = { name: 'plugin' };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(plugin, Hoek.ignore);
+
+            expect(function () {
+
+                server.start();
+            }).to.throw('Cannot start server before plugins finished registration');
+            done();
+        });
     });
 
     describe('stop()', function () {
