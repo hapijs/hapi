@@ -236,7 +236,7 @@ describe('Methods', function () {
         expect(function () {
 
             server.method('tools.add', add);
-        }).to.throw('Server method function name already exists');
+        }).to.throw('Server method function name already exists: tools.add');
 
         done();
     });
@@ -295,7 +295,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 } });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -324,7 +324,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 }, callback: false });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
         server.start(function () {
 
@@ -359,7 +359,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 }, callback: false });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
         server.start(function () {
 
@@ -400,7 +400,7 @@ describe('Methods', function () {
             return '' + (id + 1);
         };
 
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: generateKey });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
 
         server.start(function () {
 
@@ -432,7 +432,7 @@ describe('Methods', function () {
             return null;
         };
 
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: generateKey });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
 
         server.start(function () {
 
@@ -460,7 +460,7 @@ describe('Methods', function () {
             return 123;
         };
 
-        server.method('test', method, { cache: { expiresIn: 1000 }, generateKey: generateKey });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
 
         server.start(function () {
 
@@ -483,7 +483,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { cache: { expiresIn: 1000 } });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -510,7 +510,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('dropTest', method, { cache: { expiresIn: 1000 } });
+        server.method('dropTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -541,7 +541,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('dropErrTest', method, { cache: { expiresIn: 1000 } });
+        server.method('dropErrTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -627,7 +627,7 @@ describe('Methods', function () {
         expect(function () {
 
             var server = new Hapi.Server({ cache: CatboxMemory });
-            server.method('user', function () { }, { cache: { x: 'y' } });
+            server.method('user', function () { }, { cache: { x: 'y', generateTimeout: 10 } });
         }).to.throw(/Invalid cache policy configuration/);
         done();
     });
@@ -660,7 +660,7 @@ describe('Methods', function () {
                 return next(null, { id: id, str: str });
             };
 
-            server.method('user', method, { cache: { expiresIn: 1000 } });
+            server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
             server.methods.user(4, 'something', function (err, result) {
 
                 expect(result.id).to.equal(4);
@@ -722,7 +722,7 @@ describe('Methods', function () {
             return next(null, { id: id, gen: ++gen });
         };
 
-        server.method('user', method, { cache: { expiresIn: 2000 } });
+        server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -789,7 +789,7 @@ describe('Methods', function () {
             return next(null, { gen: gen++, terms: terms });
         };
 
-        server.method('tos', method, { cache: { expiresIn: 2000 } });
+        server.method('tos', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -817,7 +817,7 @@ describe('Methods', function () {
             return next(null, { id: id, gen: ++gen });
         };
 
-        server.method('user', method, { cache: { expiresIn: 2000 } });
+        server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
         server.start(function () {
 
             var id1 = Math.random();
@@ -846,7 +846,7 @@ describe('Methods', function () {
             return next(null, { id: id });
         };
 
-        server.method([{ name: 'user', method: method, options: { cache: { expiresIn: 2000 } } }]);
+        server.method([{ name: 'user', method: method, options: { cache: { expiresIn: 2000, generateTimeout: 10 } } }]);
 
         server.start(function () {
 
@@ -899,7 +899,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { bind: { gen: 7 }, cache: { expiresIn: 1000 } });
+        server.method('test', method, { bind: { gen: 7 }, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -926,7 +926,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { bind: bind, cache: { expiresIn: 1000 } });
+        server.method('test', method, { bind: bind, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.start(function () {
 
@@ -1053,7 +1053,7 @@ describe('Methods', function () {
         };
 
         var server = new Hapi.Server();
-        server.method('add', add, { cache: { expiresIn: 10 }, callback: false });
+        server.method('add', add, { cache: { expiresIn: 10, generateTimeout: 10 }, callback: false });
 
         server._methods._normalized.add(1, 5, function (err, result) {
 
@@ -1070,7 +1070,7 @@ describe('Methods', function () {
         };
 
         var server = new Hapi.Server();
-        server.method('add', add, { cache: { expiresIn: 10 }, callback: false });
+        server.method('add', add, { cache: { expiresIn: 10, generateTimeout: 10 }, callback: false });
 
         server._methods._normalized.add(1, 5, function (err, result) {
 
@@ -1088,7 +1088,7 @@ describe('Methods', function () {
         };
 
         var server = new Hapi.Server();
-        server.method('add', add, { cache: { expiresIn: 10 }, callback: false });
+        server.method('add', add, { cache: { expiresIn: 10, generateTimeout: 10 }, callback: false });
 
         server._methods._normalized.add(1, 5, function (err, result) {
 

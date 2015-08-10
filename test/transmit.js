@@ -2401,7 +2401,7 @@ describe('transmission', function () {
                     'id': 'fa0dbda9b1b',
                     'name': 'John Doe'
                 });
-            }, { cache: { expiresIn: 120000 } });
+            }, { cache: { expiresIn: 120000, generateTimeout: 10 } });
 
             var profileHandler = function (request, reply) {
 

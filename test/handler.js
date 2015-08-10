@@ -961,7 +961,7 @@ describe('handler', function () {
             server.method('user', function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            }, { cache: { expiresIn: 1000 } });
+            }, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             server.route({
                 method: 'GET',
@@ -977,12 +977,15 @@ describe('handler', function () {
                 }
             });
 
-            server.inject('/user/5', function (res) {
+            server.start(function (err) {
 
-                expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
-                expect(res.result[0].internal).to.equal(true);
-                expect(res.result[0].data.msec).to.exist();
-                done();
+                server.inject('/user/5', function (res) {
+
+                    expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
+                    expect(res.result[0].internal).to.equal(true);
+                    expect(res.result[0].data.msec).to.exist();
+                    done();
+                });
             });
         });
 
@@ -995,7 +998,7 @@ describe('handler', function () {
             server.method('user', function (id, next) {
 
                 return next(null, { id: id, name: 'Bob', gen: gen++ });
-            }, { cache: { expiresIn: 1000 } });
+            }, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             server.route({
                 method: 'GET',

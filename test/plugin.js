@@ -102,7 +102,7 @@ describe('Plugin', function () {
                     name: 'testMethod', method: function (nxt) {
 
                         return nxt(null, '123');
-                    }, options: { cache: { expiresIn: 1000 } }
+                    }, options: { cache: { expiresIn: 1000, generateTimeout: 10 } }
                 });
 
                 srv.methods.testMethod(function (err, result1) {

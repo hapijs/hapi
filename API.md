@@ -710,7 +710,12 @@ Provisions a cache segment within the server cache facility where:
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
     - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the
       `generateFunc` function takes too long to return a value. When the value is eventually
-      returned, it is stored in the cache for future requests.
+      returned, it is stored in the cache for future requests. Required if `generateFunc` is
+      present. Set to `false` to disable timeouts which may cause all `get()` requests to get stuck
+      forever.
+    - `generateOnGetError` - if `false`, an upstream cache error will stop the `cache.get()` method
+      from calling the generate function and will instead pass back the cache error. Defaults to
+      `true`.
     - `cache` - the cache name configured in ['server.cache`](#server.config.cache). Defaults to
       the default cache.
     - `segment` - string segment name, used to isolate cached items within the cache partition.
@@ -1172,7 +1177,8 @@ Methods are registered via `server.method(name, method, [options])` where:
     - `bind` - a context object passed back to the method function (via `this`) when called.
       Defaults to active context (set via [`server.bind()`](#serverbindcontext) when the method is
       registered.
-    - `cache` - the same cache configuration used in [`server.cache()`](#servercacheoptions).
+    - `cache` - the same cache configuration used in [`server.cache()`](#servercacheoptions). The
+      `generateTimeout` option is required.
     - `callback` - if `false`, expects the `method` to be a synchronous function. Note that using a
       synchronous function with caching will convert the method interface to require a callback as
       an additional argument with the signature `function(err, result, cached, report)` since the

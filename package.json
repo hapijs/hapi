@@ -22,7 +22,7 @@
     "ammo":  "1.x.x",
     "boom": "^2.5.x",
     "call": "2.x.x",
-    "catbox": "^4.2.x",
+    "catbox": "5.x.x",
     "catbox-memory": "1.x.x",
     "cryptiles": "2.x.x",
     "heavy": "3.x.x",
