@@ -61,7 +61,7 @@
     - [Route prerequisites](#route-prerequisites)
     - [Request object](#request-object)
         - [Request properties](#request-properties)
-        - [`request.setUrl(url)`](#requestseturlurl)
+        - [`request.setUrl(url, [stripTrailingSlash], [parserOptions])`](#requestseturlurlstripTrailingSlashparserOptions)
         - [`request.setMethod(method)`](#requestsetmethodmethod)
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags], [internal])`](#requestgetlogtags-internal)
@@ -2083,12 +2083,14 @@ following options:
       Allowing very large payloads may cause the server to run out of memory. Defaults to
       `1048576` (1MB).
     - `timeout` - payload reception timeout in milliseconds. Sets the maximum time allowed for the
-      client to transmit the request payload (body) before giving up and responding with a Request Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
+      client to transmit the request payload (body) before giving up and responding with a Request
+      Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
     - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
     - `failAction` - determines how to handle payload parsing errors. Allowed values are:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action and continue processing the request.
+    - `qs` - optional parsing options object passed to the [**qs** module](https://github.com/hapijs/qs).
 
 - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
   name and the value is the plugin configuration.
@@ -2102,10 +2104,12 @@ following options:
       expressed as one of:
         - `true` - any payload allowed (no validation performed). This is the default.
         - `false` - no payload allowed.
-        - a [Joi](http://github.com/hapijs/joi) validation object. This will receive the request's headers, params, query, payload, and auth credentials and isAuthenticated flags as context.
+        - a [Joi](http://github.com/hapijs/joi) validation object. This will receive the request's
+          headers, params, query, payload, and auth credentials and isAuthenticated flags as context.
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the response object.
-            - `options` - the server validation options, merged with an object containing the request's headers, params, payload, and auth credentials object and isAuthenticated flag.
+            - `options` - the server validation options, merged with an object containing the request's
+              headers, params, payload, and auth credentials object and isAuthenticated flag.
             - `next(err)` - the callback function called when validation is completed.
     - `status` - HTTP status-code-specific validation rules. The `status` key is set to an
       object where each key is a 3 digit HTTP status code and the value has the same
@@ -2225,7 +2229,8 @@ following options:
           `function(request, reply, source, error)` where:
             - `request` - the [request object](#request-object).
             - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`, `'payload'`).
+            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`,
+              `'payload'`).
             - `error` - the error object prepared for the client response (including the
               validation function error under `error.data`).
 
@@ -2518,7 +2523,7 @@ Each request object includes the following properties:
   definition.
 - `url` - the parsed request URI.
 
-#### `request.setUrl(url, [stripTrailingSlash], [qsParserOptions])`
+#### `request.setUrl(url, [stripTrailingSlash], [parserOptions])`
 
 _Available only in `'onRequest'` extension methods._
 
