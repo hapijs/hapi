@@ -1762,6 +1762,8 @@ Emitted by the server `'log'` event:
 - `internal` `implementation` `error` - a function provided by the user failed with an exception
   during request execution. The log appears under the server logs when the exception cannot be
   associated with the request that generated it.
+- `connection` `client` `error` - a `clientError` event was received from the HTTP or HTTPS
+  listener. The event data is the error object received.
 
 ## Plugins
 

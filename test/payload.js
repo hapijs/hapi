@@ -100,6 +100,12 @@ describe('payload', function () {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
+        var message = null;
+        server.on('log', function (event, tags) {
+
+            message = event.data.message;
+        });
+
         server.start(function (err) {
 
             expect(err).to.not.exist();
@@ -122,6 +128,7 @@ describe('payload', function () {
 
             req.on('error', function (err) {
 
+                expect(message).to.equal('Parse Error');
                 expect(err.code).to.equal('ECONNRESET');
                 server.stop(done);
             });
