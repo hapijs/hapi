@@ -310,7 +310,7 @@ describe('Reply', function () {
                 requestError = err;
             });
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
 
@@ -349,7 +349,7 @@ describe('Reply', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
 

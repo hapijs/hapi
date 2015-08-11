@@ -977,7 +977,7 @@ describe('handler', function () {
                 }
             });
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
 
@@ -1016,7 +1016,7 @@ describe('handler', function () {
                 }
             });
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
 

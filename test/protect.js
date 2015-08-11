@@ -117,7 +117,7 @@ describe('Protect', function () {
 
             expect(err).to.not.exist();
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
                 server.inject('/', function (res) {

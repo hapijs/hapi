@@ -29,6 +29,7 @@
     - [`server.expose(obj)`](#serverexposeobj)
     - [`server.ext(event, method, [options])`](#serverextevent-method-options)
     - [`server.handler(name, method)`](#serverhandlername-method)
+    - [`server.initialize(callback)`](#serverinitializecallback)
     - [`server.inject(options, callback)`](#serverinjectoptions-callback)
     - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
     - [`server.lookup(id)`](#serverlookupid)
@@ -1021,6 +1022,33 @@ handler.defaults = {
 server.handler('test', handler);
 ```
 
+### `server.initialize(callback)`
+
+Initializes the server (starts the caches, finalizes plugin registration) but does not start listening
+on the connection ports, where:
+- `callback` - the callback method when server initialization is completed or failed with the signature
+  `function(err)` where:
+    - `err` - any initialization error condition.
+
+Note that if the method fails and the callback includes an error, the server is considered to be in
+an undefined state and should be shut down. In most cases it would be impossible to fully recover as
+the various plugins, caches, and other event listeners will get confused by repeated attempts to
+start the server or make assumptions about the healthy state of the environment. It is recommended
+to assert that no error has been returned after calling `initialize()` to abort the process when the
+server fails to start properly. If you must try to resume after an error, call `server.stop()`
+first to reset the server state.
+
+```js
+var Hapi = require('hapi');
+var Hoek = require('hoek');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.initialize(function (err) {
+
+    Hoek.assert(!err, err);
+});
+
 ### `server.inject(options, callback)`
 
 When the server contains exactly one connection, injects a request into the sole connection
@@ -1398,13 +1426,27 @@ listener (unless the connection was configured with `autoListen` set to `false`)
   `function(err)` where:
     - `err` - any startup error condition.
 
+Note that if the method fails and the callback includes an error, the server is considered to be in
+an undefined state and should be shut down. In most cases it would be impossible to fully recover as
+the various plugins, caches, and other event listeners will get confused by repeated attempts to
+start the server or make assumptions about the healthy state of the environment. It is recommended
+to assert that no error has been returned after calling `start()` to abort the process when the
+server fails to start properly. If you must try to resume after a start error, call `server.stop()`
+first to reset the server state.
+
+If a started server is started again, the second call to `start()` will only start new connections
+add after the initial `start()` was called. No events will be emitted and no extension points
+invoked.
+
 ```js
 var Hapi = require('hapi');
+var Hoek = require('hoek');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
 
 server.start(function (err) {
 
+    Hoek.assert(!err, err);
     console.log('Server started at: ' + server.info.uri);
 });
 ```

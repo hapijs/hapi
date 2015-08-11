@@ -854,7 +854,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -885,7 +885,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -914,7 +914,7 @@ describe('transmission', function () {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(data);
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -942,7 +942,7 @@ describe('transmission', function () {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(data);
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -971,7 +971,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1001,7 +1001,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1032,7 +1032,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1063,7 +1063,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1094,7 +1094,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1125,7 +1125,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1156,7 +1156,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1187,7 +1187,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
             });
@@ -1216,7 +1216,7 @@ describe('transmission', function () {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(data);
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -1246,7 +1246,7 @@ describe('transmission', function () {
 
                     expect(err).to.not.exist();
                     expect(body.toString().toString()).to.equal(data);
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -1276,7 +1276,7 @@ describe('transmission', function () {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
-                        done();
+                        server.stop(done);
                     });
                 });
 
@@ -1425,7 +1425,7 @@ describe('transmission', function () {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(expectedBody);
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -1477,7 +1477,7 @@ describe('transmission', function () {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(expectedBody);
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -1511,7 +1511,7 @@ describe('transmission', function () {
 
                 stream.once('end', function () {
 
-                    done();
+                    server.stop(done);
                 });
 
                 return reply(stream);
@@ -1585,7 +1585,7 @@ describe('transmission', function () {
 
                 stream.once('end', function () {
 
-                    done();
+                    server.stop(done);
                 });
 
                 return reply(stream);
@@ -1633,7 +1633,7 @@ describe('transmission', function () {
 
                 stream.once('end', function () {
 
-                    done();
+                    server.stop(done);
                 });
 
                 return reply(stream);
@@ -1687,7 +1687,7 @@ describe('transmission', function () {
 
                 stream.once('end', function () {
 
-                    done();
+                    server.stop(done);
                 });
 
                 setTimeout(function () {

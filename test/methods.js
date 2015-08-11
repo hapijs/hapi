@@ -151,7 +151,7 @@ describe('Methods', function () {
         server.connection();
         server.method('tools.add', add);
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -212,7 +212,7 @@ describe('Methods', function () {
         server.method('tools.add', add);
         server.method('tools.sub', sub);
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -274,7 +274,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method);
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -303,7 +303,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -334,7 +334,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -371,7 +371,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -414,7 +414,7 @@ describe('Methods', function () {
 
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -448,7 +448,7 @@ describe('Methods', function () {
 
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -478,7 +478,7 @@ describe('Methods', function () {
 
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -503,7 +503,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -532,7 +532,7 @@ describe('Methods', function () {
         server.connection();
         server.method('dropTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -565,7 +565,7 @@ describe('Methods', function () {
         server.connection();
         server.method('dropErrTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -677,7 +677,7 @@ describe('Methods', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -750,7 +750,7 @@ describe('Methods', function () {
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -785,7 +785,7 @@ describe('Methods', function () {
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 3 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -821,7 +821,7 @@ describe('Methods', function () {
 
         server.method('tos', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -850,7 +850,7 @@ describe('Methods', function () {
         };
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -882,7 +882,7 @@ describe('Methods', function () {
 
         server.method([{ name: 'user', method: method, options: { cache: { expiresIn: 2000, generateTimeout: 10 } } }]);
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -911,7 +911,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method, { bind: { gen: 7 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -939,7 +939,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method, { bind: { gen: 7 }, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 
@@ -968,7 +968,7 @@ describe('Methods', function () {
         server.connection();
         server.method('test', method, { bind: bind, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.start(function (err) {
+        server.initialize(function (err) {
 
             expect(err).to.not.exist();
 

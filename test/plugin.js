@@ -974,7 +974,7 @@ describe('Plugin', function () {
             server.register(x, function (err) {
 
                 expect(err).to.not.exist();
-                server.start(function (err) {
+                server.initialize(function (err) {
 
                     expect(err).to.not.exist();
                     expect(called).to.be.true();
@@ -995,7 +995,7 @@ describe('Plugin', function () {
                 return next();
             });
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
                 expect(called).to.be.true();
@@ -1015,7 +1015,7 @@ describe('Plugin', function () {
                 return next();
             }, 'x');
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
                 expect(called).to.be.true();
@@ -1049,7 +1049,7 @@ describe('Plugin', function () {
             server.register(test, function (err) {
 
                 expect(err).to.not.exist();
-                server.start(function (err) {
+                server.initialize(function (err) {
 
                     expect(err).to.exist();
                     done();
@@ -1147,7 +1147,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
             var cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
 
@@ -1156,8 +1156,7 @@ describe('Plugin', function () {
                     cache.get('a', function (err, value, cached, report) {
 
                         expect(value).to.equal('going in');
-
-                        server.stop(done);
+                        done();
                     });
                 });
             });
@@ -1179,7 +1178,7 @@ describe('Plugin', function () {
             var server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
             server.connection();
             var cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
 
@@ -1189,8 +1188,7 @@ describe('Plugin', function () {
 
                         expect(value).to.equal('going in');
                         expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
-
-                        server.stop(done);
+                        done();
                     });
                 });
             });
@@ -1275,7 +1273,7 @@ describe('Plugin', function () {
             server.register(test, function (err) {
 
                 expect(err).to.not.exist();
-                server.start(function (err) {
+                server.initialize(function (err) {
 
                     expect(err).to.not.exist();
 
@@ -1495,7 +1493,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start(Hoek.ignore);
+                    server.initialize(Hoek.ignore);
                 }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
                 done();
             });
@@ -1519,7 +1517,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start(Hoek.ignore);
+                    server.initialize(Hoek.ignore);
                 }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
                 done();
             });
@@ -1533,7 +1531,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start(Hoek.ignore);
+                    server.initialize(Hoek.ignore);
                 }).to.throw('Plugin deps1 missing dependency deps2 in connection: http://localhost:80');
                 done();
             });
@@ -1605,7 +1603,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start(Hoek.ignore);
+                    server.initialize(Hoek.ignore);
                 }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
                 done();
             });
@@ -1638,7 +1636,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start(Hoek.ignore);
+                    server.initialize(Hoek.ignore);
                 }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
                 done();
             });
@@ -1816,7 +1814,7 @@ describe('Plugin', function () {
 
                 expect(err).to.not.exist();
 
-                server.start(function (err) {
+                server.initialize(function (err) {
 
                     expect(err).to.not.exist();
                     expect(server.plugins.deps1.breaking).to.equal('bad');
@@ -1883,7 +1881,7 @@ describe('Plugin', function () {
 
                 expect(err).to.not.exist();
 
-                server.start(function (err) {
+                server.initialize(function (err) {
 
                     expect(err).to.not.exist();
 
@@ -1922,7 +1920,7 @@ describe('Plugin', function () {
                 return next();
             }, { bind: bind });
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
                 expect(bind.state).to.be.true();
@@ -1946,7 +1944,7 @@ describe('Plugin', function () {
                 return next();
             });
 
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
                 expect(bind.state).to.be.true();

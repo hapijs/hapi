@@ -84,7 +84,7 @@ describe('Request', function () {
             Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
                 expect(body.toString()).to.equal('ok');
-                done();
+                server.stop(done);
             });
         });
     });
@@ -268,7 +268,7 @@ describe('Request', function () {
                         setTimeout(check, 10);
                     }
                     else {
-                        done();
+                        server.stop(done);
                     }
                 };
 
@@ -305,7 +305,10 @@ describe('Request', function () {
                 setTimeout(function () {
 
                     reply(new Error('fail'));
-                    setTimeout(done, 10);
+                    setTimeout(function () {
+
+                        server.stop(done);
+                    }, 10);
                 }, 10);
             };
 
@@ -352,7 +355,7 @@ describe('Request', function () {
 
             server.on('tail', function () {
 
-                done();
+                server.stop(done);
             });
 
             server.start(function (err) {
@@ -1379,7 +1382,7 @@ describe('Request', function () {
 
                     expect(timer.elapsed()).to.be.at.least(60);
                     expect(res.statusCode).to.equal(200);
-                    done();
+                    server.stop({ timeout: 1 }, done);
                 });
 
                 req.write('\n');
@@ -1437,7 +1440,7 @@ describe('Request', function () {
                 var req = Http.request(options, function (res) {
 
                     expect(res.statusCode).to.equal(200);
-                    done();
+                    server.stop({ timeout: 1 }, done);
                 });
                 req.end();
             });
@@ -1485,7 +1488,7 @@ describe('Request', function () {
 
                     expect([503, 408]).to.contain(res.statusCode);
                     expect(timer.elapsed()).to.be.at.least(45);
-                    done();
+                    server.stop({ timeout: 1 }, done);
                 });
 
                 req.on('error', function (err) {

@@ -86,7 +86,7 @@ describe('Connection', function () {
             }
 
             expect(server.info.address).to.equal(expectedBoundAddress);
-            done();
+            server.stop(done);
         });
     });
 
@@ -99,7 +99,7 @@ describe('Connection', function () {
             expect(err).to.not.exist();
             expect(server.info.host).to.equal('no.such.domain.hapi');
             expect(server.info.address).to.equal('127.0.0.1');
-            done();
+            server.stop(done);
         });
     });
 
@@ -114,7 +114,7 @@ describe('Connection', function () {
             expect(server.info.host).to.equal('no.such.domain.hapi');
             expect(server.info.address).to.equal('127.0.0.1');
             expect(server.info.uri).to.equal('http://uri.example.com:8080');
-            done();
+            server.stop(done);
         });
     });
 
@@ -413,7 +413,7 @@ describe('Connection', function () {
             });
         });
 
-        it('will return an error if the port is aleady in use', function (done) {
+        it('will return an error if the port is already in use', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
@@ -426,7 +426,7 @@ describe('Connection', function () {
 
                     expect(err).to.exist();
                     expect(err.message).to.match(/EADDRINUSE/);
-                    done();
+                    server.stop(done);
                 });
             });
         });

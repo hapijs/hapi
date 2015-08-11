@@ -123,7 +123,7 @@ describe('payload', function () {
             req.on('error', function (err) {
 
                 expect(err.code).to.equal('ECONNRESET');
-                done();
+                server.stop(done);
             });
 
             setTimeout(function () {
@@ -181,7 +181,7 @@ describe('payload', function () {
                 expect(res.statusCode).to.equal(400);
                 expect(body.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
 
-                done();
+                server.stop(done);
             });
         });
     });
@@ -346,7 +346,7 @@ describe('payload', function () {
             var req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(415);
-                done();
+                server.stop({ timeout: 1 }, done);
             });
 
             req.end('{ "key": "value" }');
@@ -609,7 +609,7 @@ describe('payload', function () {
 
                 expect(res.statusCode).to.equal(408);
                 expect(timer.elapsed()).to.be.at.least(45);
-                done();
+                server.stop({ timeout: 1 }, done);
             });
 
             req.on('error', function (err) { });                    // Will error out, so don't allow error to escape test
@@ -649,7 +649,7 @@ describe('payload', function () {
 
                 expect(res.statusCode).to.equal(408);
                 expect(timer.elapsed()).to.be.at.least(45);
-                done();
+                server.stop({ timeout: 1 }, done);
             });
 
             req.on('error', function (err) { });                    // Will error out, so don't allow error to escape test
@@ -687,7 +687,7 @@ describe('payload', function () {
             var req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(200);
-                done();
+                server.stop({ timeout: 1 }, done);
             });
 
             req.end();

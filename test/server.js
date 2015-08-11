@@ -97,6 +97,96 @@ describe('Server', function () {
             });
         });
 
+        it('initializes, starts, and stops', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ labels: ['s1', 'a', 'b'] });
+            server.connection({ labels: ['s2', 'a', 'test'] });
+            server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+            server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
+
+            var started = 0;
+            var stopped = 0;
+
+            server.on('start', function () {
+
+                ++started;
+            });
+
+            server.on('stop', function () {
+
+                ++stopped;
+            });
+
+            server.initialize(function (err) {
+
+                expect(err).to.not.exist();
+
+                server.start(function (err) {
+
+                    expect(err).to.not.exist();
+
+                    server.connections.forEach(function (connection) {
+
+                        expect(connection._started).to.equal(true);
+                    });
+
+                    server.stop(function () {
+
+                        server.connections.forEach(function (connection) {
+
+                            expect(connection._started).to.equal(false);
+                        });
+
+                        expect(started).to.equal(1);
+                        expect(stopped).to.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('returns connection start error', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                server.connection({ port: server.info.port });
+                server.connection({ port: server.info.port });
+                server.stop(function (err) {
+
+                    expect(err).to.not.exist();
+                    server.start(function (err) {
+
+                        expect(err).to.exist();
+                        expect(err.message).to.match(/EADDRINUSE/);
+                        server.stop(done);
+                    });
+                });
+            });
+        });
+
+        it('returns onPostStart error', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.ext('onPostStart', function (srv, next) {
+
+                return next(new Error('boom'));
+            });
+
+            server.start(function (err) {
+
+                expect(err).to.exist();
+                expect(err.message).to.equal('boom');
+                server.stop(done);
+            });
+        });
+
         it('errors on bad cache start', function (done) {
 
             var cache = {
@@ -104,7 +194,8 @@ describe('Server', function () {
                     start: function (callback) {
 
                         return callback(new Error('oops'));
-                    }
+                    },
+                    stop: function () { }
                 }
             };
 
@@ -113,7 +204,7 @@ describe('Server', function () {
             server.start(function (err) {
 
                 expect(err.message).to.equal('oops');
-                done();
+                server.stop(done);
             });
         });
 
@@ -151,7 +242,7 @@ describe('Server', function () {
             var server = new Hapi.Server();
             server.connection();
             var cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.start(function (err) {
+            server.initialize(function (err) {
 
                 expect(err).to.not.exist();
 
@@ -174,11 +265,31 @@ describe('Server', function () {
             });
         });
 
-        it('returns an extension error', function (done) {
+        it('returns an extension error (onPreStop)', function (done) {
 
             var server = new Hapi.Server();
             server.connection();
             server.ext('onPreStop', function (srv, next) {
+
+                return next(new Error('failed cleanup'));
+            });
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                server.stop(function (err) {
+
+                    expect(err.message).to.equal('failed cleanup');
+                    done();
+                });
+            });
+        });
+
+        it('returns an extension error (onPostStop)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onPostStop', function (srv, next) {
 
                 return next(new Error('failed cleanup'));
             });
@@ -212,6 +323,20 @@ describe('Server', function () {
                     done();
                 });
             });
+        });
+
+        it('errors when stopping a stopping server', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.stop(Hoek.ignore);
+            expect(function () {
+
+                server.stop(Hoek.ignore);
+            }).to.throw('Cannot stop server while in stopping state');
+
+            done();
         });
     });
 
