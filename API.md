@@ -127,6 +127,8 @@ Creates a new `Server` object where:
           `connection.settings.app` which is used to store configuration values and
           `connection.app` which is meant for storing run-time state.
 
+        - `compression` - if `false`, response content encoding is disable. Defaults to `true`.
+
         - `load` - connection load limits configuration where:
             - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected
               with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).

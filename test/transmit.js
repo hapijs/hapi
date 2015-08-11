@@ -769,6 +769,27 @@ describe('transmission', function () {
             });
         });
 
+        it('returns a plain file when compression disabled', function (done) {
+
+            var server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
+            server.connection({ routes: { files: { relativeTo: __dirname } }, compression: false });
+            var handler = function (request, reply) {
+
+                return reply.file(__dirname + '/../package.json');
+            };
+
+            server.route({ method: 'GET', path: '/file', handler: handler });
+
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+                expect(res.headers['content-encoding']).to.not.exist();
+                expect(res.payload).to.exist();
+                done();
+            });
+        });
+
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
             var server = new Hapi.Server();
