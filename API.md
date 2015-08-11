@@ -397,7 +397,8 @@ used by the framework when adding routes, extensions, and other properties.
   [`server.register()`](#serverregisterplugins-options-callback) method and includes:
     - `route` - routes preferences:
         - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions)
-          from the server.
+          from the server. Note that if a prefix is used and the route path is set to `'/'`, the
+          resulting path will not include the trailing slash.
         - `vhost` - the route virtual host settings used by any calls to
           [`server.route()`](#serverrouteoptions) from the server.
 - `plugin` - the active plugin name (empty string if at the server root).
