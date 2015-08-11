@@ -2068,11 +2068,11 @@ following options:
       converted into an object when possible. If the format is unknown, a Bad Request (400)
       error response is sent. Defaults to `true`, except when a proxy handler is used. The
       supported mime types are:
-        - 'application/json'
-        - 'application/x-www-form-urlencoded'
-        - 'application/octet-stream'
-        - 'text/*'
-        - 'multipart/form-data'
+        - application/json
+        - application/x-www-form-urlencoded
+        - application/octet-stream
+        - text/*
+        - multipart/form-data
     - `allow` - a string or an array of strings with the allowed mime types for the endpoint.
       Defaults to any of the supported mime types listed above. Note that allowing other mime
       types not listed will not enable them to be parsed, and that if parsing mode is
@@ -2091,6 +2091,8 @@ following options:
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action and continue processing the request.
     - `qs` - optional parsing options object passed to the [**qs** module](https://github.com/hapijs/qs).
+    - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
+      Defaults to `'application/json'`.
 
 - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
   name and the value is the plugin configuration.

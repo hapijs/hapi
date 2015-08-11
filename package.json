@@ -36,7 +36,7 @@
     "qs": "4.x.x",
     "shot": "1.x.x",
     "statehood": "2.x.x",
-    "subtext": "1.x.x",
+    "subtext": "2.x.x",
     "topo": "1.x.x"
   },
   "devDependencies": {

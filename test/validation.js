@@ -772,7 +772,7 @@ describe('validation', function () {
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation).to.deep.equal({
                 source: 'payload',
-                keys: ['a']
+                keys: ['value']
             });
 
             done();

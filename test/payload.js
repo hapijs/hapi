@@ -367,7 +367,7 @@ describe('payload', function () {
         server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, function (res) {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.deep.equal({});
+            expect(res.result).to.deep.equal(null);
             done();
         });
     });
