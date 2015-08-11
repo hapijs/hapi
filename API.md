@@ -1625,6 +1625,8 @@ The server object inherits from `Events.EventEmitter` and emits the following ev
 - `'request-internal'` - [request events](#request-logs) generated internally by the framework
   (multiple events per request).
 - `'request-error'` - emitted whenever an Internal Server Error (500) error response is sent.
+  Note that this event is emitted only if the error response is sent to the client. If the error
+  is replaced with a different response before it is sent to the client, no event is emitted.
   Single event per request.
 - `'response'` - emitted after the response is sent back to the client (or when the client
   connection closed and no response sent, in which case `request.response` is `null`). Single event
