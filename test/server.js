@@ -74,7 +74,9 @@ describe('Server', function () {
                 ++stopped;
             });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 server.connections.forEach(function (connection) {
 
@@ -93,18 +95,6 @@ describe('Server', function () {
                     done();
                 });
             });
-        });
-
-        it('starts a server without callback', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-            server.start();
-            setTimeout(function () {
-
-                server.stop();
-                done();
-            }, 10);
         });
 
         it('errors on bad cache start', function (done) {
@@ -132,7 +122,7 @@ describe('Server', function () {
             var server = new Hapi.Server();
             expect(function () {
 
-                server.start();
+                server.start(Hoek.ignore);
             }).to.throw('No connections to start');
             done();
         });
@@ -148,7 +138,7 @@ describe('Server', function () {
 
             expect(function () {
 
-                server.start();
+                server.start(Hoek.ignore);
             }).to.throw('Cannot start server before plugins finished registration');
             done();
         });
@@ -161,7 +151,9 @@ describe('Server', function () {
             var server = new Hapi.Server();
             server.connection();
             var cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 cache.set('a', 'going in', 0, function (err) {
 
@@ -169,7 +161,7 @@ describe('Server', function () {
 
                         expect(value1).to.equal('going in');
 
-                        server.stop(function () {
+                        server.stop(function (err) {
 
                             cache.get('a', function (err, value2, cached2, report2) {
 
@@ -263,6 +255,8 @@ describe('Server', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function (err) {
 
+                expect(err).to.not.exist();
+
                 server.inject('/', function (res1) {
 
                     expect(server.load.eventLoopDelay).to.equal(0);
@@ -280,10 +274,7 @@ describe('Server', function () {
                                     expect(server.load.eventLoopDelay).to.be.above(0);
                                     expect(server.load.heapUsed).to.be.above(1024 * 1024);
                                     expect(server.load.rss).to.be.above(1024 * 1024);
-                                    server.stop(function () {
-
-                                        done();
-                                    });
+                                    server.stop(done);
                                 });
                             });
                         });

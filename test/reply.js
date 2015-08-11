@@ -310,7 +310,9 @@ describe('Reply', function () {
                 requestError = err;
             });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 server.inject('/stream', function (res1) {
 
@@ -347,7 +349,9 @@ describe('Reply', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 server.inject('/stream', function (res) {
 

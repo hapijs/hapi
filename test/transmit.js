@@ -842,7 +842,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -871,7 +873,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -900,7 +904,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -926,7 +932,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -951,7 +959,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -979,7 +989,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1008,7 +1020,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1037,7 +1051,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1066,7 +1082,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1095,7 +1113,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1124,7 +1144,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1153,7 +1175,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1182,7 +1206,9 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1210,7 +1236,9 @@ describe('transmission', function () {
                 }
             });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var uri = 'http://localhost:' + server.info.port;
 
@@ -1238,7 +1266,9 @@ describe('transmission', function () {
                 };
 
                 server.route({ method: 'POST', path: '/', handler: handler });
-                server.start(function () {
+                server.start(function (err) {
+
+                    expect(err).to.not.exist();
 
                     var uri = 'http://localhost:' + server.info.port;
 
@@ -1387,7 +1417,9 @@ describe('transmission', function () {
             var server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: fileHandler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
@@ -1437,7 +1469,9 @@ describe('transmission', function () {
             var server = new Hapi.Server();
             server.connection(config);
             server.route({ method: 'GET', path: '/', handler: fileHandler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, function (err, res, body) {
 
@@ -1487,7 +1521,9 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
@@ -1559,7 +1595,9 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
@@ -1605,7 +1643,9 @@ describe('transmission', function () {
             server.connection({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
 
@@ -1660,7 +1700,9 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 clientRequest = Http.request({
                     hostname: 'localhost',
@@ -2409,13 +2451,14 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 server.inject('/profile', function (res) {
 
                     expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
-                    server.stop();
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -2431,13 +2474,14 @@ describe('transmission', function () {
             };
 
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresAt: '10:00' } } });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 server.inject('/', function (res) {
 
                     expect(res.headers['cache-control']).to.match(/^max-age=\d+, must-revalidate$/);
-                    server.stop();
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -2492,8 +2536,7 @@ describe('transmission', function () {
             server.inject('/item2', function (res) {
 
                 expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
-                server.stop();
-                done();
+                server.stop(done);
             });
         });
 
@@ -2525,8 +2568,7 @@ describe('transmission', function () {
 
                                 expect(err).to.not.exist();
                                 expect(cached2.item).to.equal(2);
-                                server.stop();
-                                done();
+                                server.stop(done);
                             });
                         });
                     });

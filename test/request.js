@@ -77,7 +77,9 @@ describe('Request', function () {
 
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
 
@@ -239,7 +241,9 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var total = 2;
                 var createConnection = function () {
@@ -309,7 +313,9 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 clientRequest = Http.request({
                     hostname: 'localhost',
@@ -349,7 +355,9 @@ describe('Request', function () {
                 done();
             });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 clientRequest = Http.request({
                     hostname: 'localhost',
@@ -1356,7 +1364,9 @@ describe('Request', function () {
             var server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/responding', config: { handler: respondingHandler } });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var options = {
                     hostname: '127.0.0.1',
@@ -1413,7 +1423,9 @@ describe('Request', function () {
             var server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var options = {
                     hostname: '127.0.0.1',
@@ -1457,7 +1469,9 @@ describe('Request', function () {
             server.connection({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
             server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var timer = new Hoek.Bench();
                 var options = {

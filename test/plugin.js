@@ -457,58 +457,6 @@ describe('Plugin', function () {
             });
         });
 
-        it('Throws an error when registering multiple plugins with a single alias', function (done) {
-
-            var test1 = function (srv, options, next) {
-
-                srv.route({
-                    method: 'GET',
-                    path: '/a',
-                    handler: function (request, reply) {
-
-                        return reply('a');
-                    }
-                });
-
-                return next();
-            };
-
-            test1.attributes = {
-                name: 'test1'
-            };
-
-            var test2 = function (srv, options, next) {
-
-                srv.route({
-                    method: 'GET',
-                    path: '/b',
-                    handler: function (request, reply) {
-
-                        return reply('b');
-                    }
-                });
-
-                return next();
-            };
-
-            test2.attributes = {
-                name: 'test2'
-            };
-
-            var server = new Hapi.Server();
-            server.connection({ host: 'example.com' });
-            expect(function () {
-
-                return server.register(
-                    [test1, test2],
-                    { alias: 'pluginAlias' },
-                    function (err) { }
-                );
-
-            }).to.throw('Cannot specify an alias when registering multiple plugins at once');
-
-            done();
-        });
         it('registers a child plugin', function (done) {
 
             var server = new Hapi.Server();
@@ -1027,6 +975,7 @@ describe('Plugin', function () {
                 expect(err).to.not.exist();
                 server.start(function (err) {
 
+                    expect(err).to.not.exist();
                     expect(called).to.be.true();
                     done();
                 });
@@ -1047,6 +996,7 @@ describe('Plugin', function () {
 
             server.start(function (err) {
 
+                expect(err).to.not.exist();
                 expect(called).to.be.true();
                 done();
             });
@@ -1066,6 +1016,7 @@ describe('Plugin', function () {
 
             server.start(function (err) {
 
+                expect(err).to.not.exist();
                 expect(called).to.be.true();
                 done();
             });
@@ -1195,7 +1146,9 @@ describe('Plugin', function () {
             var server = new Hapi.Server();
             server.connection();
             var cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 cache.set('a', 'going in', 0, function (err) {
 
@@ -1203,10 +1156,7 @@ describe('Plugin', function () {
 
                         expect(value).to.equal('going in');
 
-                        server.stop(function () {
-
-                            done();
-                        });
+                        server.stop(done);
                     });
                 });
             });
@@ -1228,7 +1178,9 @@ describe('Plugin', function () {
             var server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
             server.connection();
             var cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 cache.set('a', 'going in', 0, function (err) {
 
@@ -1237,10 +1189,7 @@ describe('Plugin', function () {
                         expect(value).to.equal('going in');
                         expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
 
-                        server.stop(function () {
-
-                            done();
-                        });
+                        server.stop(done);
                     });
                 });
             });
@@ -1325,7 +1274,9 @@ describe('Plugin', function () {
             server.register(test, function (err) {
 
                 expect(err).to.not.exist();
-                server.start(function () {
+                server.start(function (err) {
+
+                    expect(err).to.not.exist();
 
                     server.plugins.test.set('a', '1', function (err) {
 
@@ -1543,7 +1494,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start();
+                    server.start(Hoek.ignore);
                 }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
                 done();
             });
@@ -1567,7 +1518,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start();
+                    server.start(Hoek.ignore);
                 }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
                 done();
             });
@@ -1581,7 +1532,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start();
+                    server.start(Hoek.ignore);
                 }).to.throw('Plugin deps1 missing dependency deps2 in connection: http://localhost:80');
                 done();
             });
@@ -1653,7 +1604,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start();
+                    server.start(Hoek.ignore);
                 }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
                 done();
             });
@@ -1686,7 +1637,7 @@ describe('Plugin', function () {
 
                 expect(function () {
 
-                    server.start();
+                    server.start(Hoek.ignore);
                 }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
                 done();
             });
@@ -1759,10 +1710,13 @@ describe('Plugin', function () {
                 server2.emit('test');
                 server3.emit('test');
 
-                server.start(function () {
+                server.start(function (err) {
 
-                    server.stop(function () {
+                    expect(err).to.not.exist();
 
+                    server.stop(function (err) {
+
+                        expect(err).to.not.exist();
                         expect(counter).to.equal(3);
                         done();
                     });
@@ -1795,33 +1749,6 @@ describe('Plugin', function () {
 
                 done();
             });
-        });
-
-        it('exposes an alias', function (done) {
-
-            var server = new Hapi.Server();
-            var pluginOptions = { alias: 'alias1' };
-            server.connection({ labels: ['s1', 'a', 'b'] });
-            server.connection({ labels: ['s2', 'a', 'test'] });
-            server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
-            server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
-
-            server.register(
-                internals.plugins.test1,
-                pluginOptions,
-                function (err) {
-
-                    expect(err).to.not.exist();
-
-                    expect(server.plugins.test1.add(1, 3)).to.equal(4);
-                    expect(server.plugins.test1.glue('1', '3')).to.equal('13');
-                    expect(server.aka.alias1.add(1, 3)).to.equal(4);
-                    expect(server.aka.alias1.glue('1', '3')).to.equal('13');
-                    expect(server.aka.alias1).to.deep.equal(server.plugins.test1);
-
-                    done();
-                }
-            );
         });
     });
 
@@ -1977,6 +1904,97 @@ describe('Plugin', function () {
             }).to.throw('Cannot add ext without a connection');
 
             done();
+        });
+
+        it('binds server ext to context (options)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var bind = {
+                state: false
+            };
+
+            server.ext('onPreStart', function (srv, next) {
+
+                this.state = true;
+                return next();
+            }, { bind: bind });
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                expect(bind.state).to.be.true();
+                done();
+            });
+        });
+
+        it('binds server ext to context (realm)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var bind = {
+                state: false
+            };
+
+            server.bind(bind);
+            server.ext('onPreStart', function (srv, next) {
+
+                this.state = true;
+                return next();
+            });
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                expect(bind.state).to.be.true();
+                done();
+            });
+        });
+
+        it('extends server actions', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var result = '';
+            server.ext('onPreStart', function (srv, next) {
+
+                result += '1';
+                return next();
+            });
+
+            server.ext('onPostStart', function (srv, next) {
+
+                result += '2';
+                return next();
+            });
+
+            server.ext('onPreStop', function (srv, next) {
+
+                result += '3';
+                return next();
+            });
+
+            server.ext('onPreStop', function (srv, next) {
+
+                result += '4';
+                return next();
+            });
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                expect(result).to.equal('12');
+
+                server.stop(function (err) {
+
+                    expect(err).to.not.exist();
+                    expect(result).to.equal('1234');
+                    done();
+                });
+            });
         });
     });
 

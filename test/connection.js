@@ -76,7 +76,9 @@ describe('Connection', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var expectedBoundAddress = '0.0.0.0';
             if (Net.isIPv6(server.listener.address().address)) {
@@ -92,8 +94,9 @@ describe('Connection', function () {
 
         var server = new Hapi.Server();
         server.connection({ host: 'no.such.domain.hapi', address: 'localhost' });
-        server.start(function () {
+        server.start(function (err) {
 
+            expect(err).to.not.exist();
             expect(server.info.host).to.equal('no.such.domain.hapi');
             expect(server.info.address).to.equal('127.0.0.1');
             done();
@@ -105,8 +108,9 @@ describe('Connection', function () {
         var server = new Hapi.Server();
         server.connection({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
         expect(server.info.uri).to.equal('http://uri.example.com:8080');
-        server.start(function () {
+        server.start(function (err) {
 
+            expect(err).to.not.exist();
             expect(server.info.host).to.equal('no.such.domain.hapi');
             expect(server.info.address).to.equal('127.0.0.1');
             expect(server.info.uri).to.equal('http://uri.example.com:8080');
@@ -132,11 +136,14 @@ describe('Connection', function () {
 
         expect(server.connections[0].type).to.equal('socket');
 
-        server.start(function () {
+        server.start(function (err) {
 
+            expect(err).to.not.exist();
             var absSocketPath = Path.resolve(port);
             expect(server.info.port).to.equal(absSocketPath);
-            server.stop(function () {
+            server.stop(function (err) {
+
+                expect(err).to.not.exist();
 
                 if (Fs.existsSync(port)) {
                     Fs.unlinkSync(port);
@@ -154,13 +161,10 @@ describe('Connection', function () {
 
         expect(server.connections[0].type).to.equal('socket');
 
-        server.start(function () {
+        server.start(function (err) {
 
             expect(server.info.port).to.equal(port);
-            server.stop(function () {
-
-                done();
-            });
+            server.stop(done);
         });
     });
 
@@ -189,14 +193,14 @@ describe('Connection', function () {
         server.connection({ listener: listener });
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.start(function () {
+        server.start(function (err) {
 
+            expect(err).to.not.exist();
             Wreck.get('http://localhost:' + server.info.port + '/', {}, function (err, res, body) {
 
-                server.stop();
                 expect(err).to.not.exist();
                 expect(body.toString()).to.equal('ok');
-                done();
+                server.stop(done);
             });
         });
     });
@@ -213,11 +217,11 @@ describe('Connection', function () {
         server.connection({ listener: listener, tls: true });
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.start(function () {
+        server.start(function (err) {
 
+            expect(err).to.not.exist();
             expect(server.info.protocol).to.equal('https');
-            server.stop();
-            done();
+            server.stop(done);
         });
     });
 
@@ -235,14 +239,14 @@ describe('Connection', function () {
 
         listener.listen(0, 'localhost', function () {
 
-            server.start(function () {
+            server.start(function (err) {
 
+                expect(err).to.not.exist();
                 Wreck.get('http://localhost:' + server.info.port + '/', {}, function (err, res, body) {
 
-                    server.stop();
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal('ok');
-                    done();
+                    server.stop(done);
                 });
             });
         });
@@ -287,14 +291,14 @@ describe('Connection', function () {
             }
         });
 
-        server.start(function () {
+        server.start(function (err) {
 
+            expect(err).to.not.exist();
             Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
 
-                server.stop();
                 expect(err).to.exist();
                 expect(err.message).to.equal('Client request error: socket hang up');
-                done();
+                server.stop(done);
             });
         });
     });
@@ -310,7 +314,9 @@ describe('Connection', function () {
         server.connection({ routes: { timeout: { socket: false } } });
         server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var timeout;
             var orig = Net.Socket.prototype.setTimeout;
@@ -323,10 +329,12 @@ describe('Connection', function () {
 
             Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
 
-                server.stop();
-                expect(err).to.not.exist();
-                expect(timeout).to.equal('gotcha');
-                done();
+                Wreck.read(res, {}, function (err, payload) {
+
+                    expect(err).to.not.exist();
+                    expect(timeout).to.equal('gotcha');
+                    server.stop(done);
+                });
             });
         });
     });
@@ -337,8 +345,9 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.start(function () {
+            server.start(function (err) {
 
+                expect(err).to.not.exist();
                 var expectedBoundAddress = '0.0.0.0';
                 if (Net.isIPv6(server.listener.address().address)) {
                     expectedBoundAddress = '::';
@@ -347,8 +356,7 @@ describe('Connection', function () {
                 expect(server.info.host).to.equal(Os.hostname());
                 expect(server.info.address).to.equal(expectedBoundAddress);
                 expect(server.info.port).to.be.a.number().and.above(1);
-                server.stop();
-                done();
+                server.stop(done);
             });
         });
 
@@ -361,12 +369,12 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection({ host: '0.0.0.0', port: 0, tls: tlsOptions });
-            server.start(function () {
+            server.start(function (err) {
 
+                expect(err).to.not.exist();
                 expect(server.info.host).to.equal('0.0.0.0');
                 expect(server.info.port).to.not.equal(0);
-                server.stop();
-                done();
+                server.stop(done);
             });
         });
 
@@ -390,12 +398,15 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.start(function () {
+            server.start(function (err) {
 
-                server.start(function () {
+                expect(err).to.not.exist();
+                server.start(function (err) {
 
-                    server.stop(function () {
+                    expect(err).to.not.exist();
+                    server.stop(function (err) {
 
+                        expect(err).to.not.exist();
                         done();
                     });
                 });
@@ -427,8 +438,9 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.start(function () {
+            server.start(function (err) {
 
+                expect(err).to.not.exist();
                 var socket1 = new Net.Socket();
                 var socket2 = new Net.Socket();
                 socket1.on('error', function () { });
@@ -442,7 +454,9 @@ describe('Connection', function () {
 
                             expect(count1).to.be.greaterThan(0);
 
-                            server.stop(function () {
+                            server.stop(function (err) {
+
+                                expect(err).to.not.exist();
 
                                 server.listener.getConnections(function (err, count2) {
 
@@ -463,7 +477,9 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var socket1 = new Net.Socket();
                 var socket2 = new Net.Socket();
@@ -487,8 +503,9 @@ describe('Connection', function () {
                             expect(count).to.be.greaterThan(0);
                             var timer = new Hoek.Bench();
 
-                            server.stop({ timeout: 20 }, function () {
+                            server.stop({ timeout: 20 }, function (err) {
 
+                                expect(err).to.not.exist();
                                 expect(timer.elapsed()).to.be.at.least(19);
                                 done();
                             });
@@ -502,7 +519,9 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var socket1 = new Net.Socket();
                 var socket2 = new Net.Socket();
@@ -526,7 +545,9 @@ describe('Connection', function () {
                             expect(count1).to.be.greaterThan(0);
                             var timer = new Hoek.Bench();
 
-                            server.stop(function () {
+                            server.stop(function (err) {
+
+                                expect(err).to.not.exist();
 
                                 server.listener.getConnections(function (err, count2) {
 
@@ -557,15 +578,18 @@ describe('Connection', function () {
             var server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 var agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
                 var err2;
 
                 Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, function (err1, res, body) {
 
-                    server.stop(function () {
+                    server.stop(function (err3) {
 
+                        expect(err3).to.not.exist();
                         expect(err1).to.not.exist();
                         expect(body.toString()).to.equal('ok');
                         expect(server.connections[0]._started).to.equal(false);
@@ -586,16 +610,23 @@ describe('Connection', function () {
             var server = new Hapi.Server();
             server.connection();
             var initial = server.listener.listeners('connection').length;
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 expect(server.listener.listeners('connection').length).to.be.greaterThan(initial);
 
-                server.stop(function () {
+                server.stop(function (err) {
 
-                    server.start(function () {
+                    expect(err).to.not.exist();
 
-                        server.stop(function () {
+                    server.start(function (err) {
 
+                        expect(err).to.not.exist();
+
+                        server.stop(function (err) {
+
+                            expect(err).to.not.exist();
                             expect(server.listener.listeners('connection').length).to.equal(initial);
                             done();
                         });
@@ -608,9 +639,10 @@ describe('Connection', function () {
 
             var server = new Hapi.Server();
             server.connection();
-            server.stop();
-            server.stop();
-            done();
+            server.stop(function (err) {
+
+                server.stop(done);
+            });
         });
     });
 
@@ -637,6 +669,8 @@ describe('Connection', function () {
             server.route({ method: 'GET', path: '/', handler: handler });
             server.start(function (err) {
 
+                expect(err).to.not.exist();
+
                 server.inject('/', function (res1) {
 
                     expect(res1.statusCode).to.equal(200);
@@ -647,8 +681,7 @@ describe('Connection', function () {
 
                             expect(res2.statusCode).to.equal(503);
                             expect(logged.rss > 10000).to.equal(true);
-                            server.stop();
-                            done();
+                            server.stop(done);
                         });
                     });
                 });

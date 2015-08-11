@@ -979,6 +979,8 @@ describe('handler', function () {
 
             server.start(function (err) {
 
+                expect(err).to.not.exist();
+
                 server.inject('/user/5', function (res) {
 
                     expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
@@ -1014,7 +1016,9 @@ describe('handler', function () {
                 }
             });
 
-            server.start(function () {
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
 
                 server.inject('/user/5', function (res1) {
 

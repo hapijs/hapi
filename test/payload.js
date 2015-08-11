@@ -100,7 +100,9 @@ describe('payload', function () {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var options = {
                 hostname: 'localhost',
@@ -167,7 +169,9 @@ describe('payload', function () {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 1024 * 1024 } } });
 
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var uri = 'http://localhost:' + server.info.port;
 
@@ -324,7 +328,9 @@ describe('payload', function () {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var options = {
                 hostname: 'localhost',
@@ -587,7 +593,9 @@ describe('payload', function () {
         var server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var timer = new Hoek.Bench();
             var options = {
@@ -625,7 +633,9 @@ describe('payload', function () {
         var server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: false } } });
         server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: handler } });
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var timer = new Hoek.Bench();
             var options = {
@@ -663,7 +673,9 @@ describe('payload', function () {
         var server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
-        server.start(function () {
+        server.start(function (err) {
+
+            expect(err).to.not.exist();
 
             var options = {
                 hostname: '127.0.0.1',
