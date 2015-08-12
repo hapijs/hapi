@@ -2,7 +2,7 @@
 
 ### Web and services application framework
 
-<img src="http://blog.sideway.com/wp-content/uploads/logo-300x114.png" align="right" />
+<a href="https://sideway.com"><img src="http://blog.sideway.com/wp-content/uploads/logo-300x114.png" align="right" /></a>
 
 Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
