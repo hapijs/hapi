@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "9.0.0",
+    "version": "9.0.1",
     "dependencies": {
         "accept": {
             "version": "1.1.0"
@@ -90,6 +90,9 @@
                             }
                         }
                     }
+                },
+                "wreck": {
+                    "version": "6.1.0"
                 }
             }
         },
