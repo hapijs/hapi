@@ -720,9 +720,11 @@ Provisions a cache segment within the server cache facility where:
       returned, it is stored in the cache for future requests. Required if `generateFunc` is
       present. Set to `false` to disable timeouts which may cause all `get()` requests to get stuck
       forever.
-    - `generateOnGetError` - if `false`, an upstream cache error will stop the `cache.get()` method
-      from calling the generate function and will instead pass back the cache error. Defaults to
-      `true`.
+    - `generateOnReadError` - if `false`, an upstream cache read error will stop the `cache.get()`
+      method from calling the generate function and will instead pass back the cache error. Defaults
+      to `true`.
+    - `generateIgnoreWriteError` - if `false`, an upstream cache write error when calling
+      `cache.get()` will be passed back with the generated value when calling. Defaults to `true`.
     - `cache` - the cache name configured in ['server.cache`](#server.config.cache). Defaults to
       the default cache.
     - `segment` - string segment name, used to isolate cached items within the cache partition.
