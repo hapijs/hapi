@@ -4,6 +4,10 @@
 
 Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
+<img src="https://sideway.com/images/logo.png" />
+**hapi** sponsored by [Sideway](https://sideway.com). Sideway is [hiring a front end developer](http://blog.sideway.com/2015/08/hiring-a-front-end-developer/).
+
+
 **hapi** is a simple to use configuration-centric framework with built-in support for input validation, caching,
 authentication, and other essential facilities for building web and services applications. **hapi** enables
 developers to focus on writing reusable application in a highly modular and prescriptive approach. 
