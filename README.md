@@ -2,9 +2,10 @@
 
 ### Web and services application framework
 
+<img src="http://blog.sideway.com/wp-content/uploads/logo-300x114.png" align="right" />
+
 Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
-<img src="http://blog.sideway.com/wp-content/uploads/logo-300x114.png" align="right" />
 **hapi** sponsored by [Sideway](https://sideway.com). Sideway is [hiring a front end developer](http://blog.sideway.com/2015/08/hiring-a-front-end-developer/).
 
 
