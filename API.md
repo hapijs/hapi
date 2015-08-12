@@ -2054,7 +2054,9 @@ following options:
   the function name used to wrap the response payload. For example, if the value is
   `'callback'`, a request comes in with `'callback=me'`, and the JSON response is
   `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Does not work with stream
-  responses.
+  responses. Headers `content-type` and `x-content-type-options` are set to
+  `text/javascript` and `nosniff` respectively, and will override those
+  headers even if explicitly set by `response.type()`
 
 - `payload` - determines how the request payload is processed:
     - `output` - the type of payload representation requested. The value must be one of:
