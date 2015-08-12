@@ -1368,6 +1368,11 @@ Registers a plugin where:
     - `err` - an error returned from the registration function. Note that exceptions thrown by the
       registration function are not handled by the framework.
 
+Note that plugin registration are recorded on each of the available connections. When plugins
+express a dependency on other plugins, both have to be loaded into the same connections for the
+dependency requirement to be fulfilled. It is recommended that plugin registration happen after
+all the server connections are created via `server.connection()`.
+
 ```js
 server.register({
     register: require('plugin_name'),
