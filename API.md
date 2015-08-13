@@ -2106,6 +2106,7 @@ following options:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action and continue processing the request.
+        - `function` - takes a callback with optional params '(request, reply, source, error)'.
     - `qs` - optional parsing options object passed to the [**qs** module](https://github.com/hapijs/qs).
     - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
       Defaults to `'application/json'`.
@@ -2139,6 +2140,7 @@ following options:
         - `error` - return an Internal Server Error (500) error response. This is the default
           value.
         - `log` - log the error but send the response.
+        - `function` - takes a callback with optional params '(request, reply, source, error)'.
     - `modify` - if `true`, applies the validation rule changes to the response. Defaults to
       `false`.
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
@@ -2185,6 +2187,7 @@ following options:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action.
+        - `function` - takes a callback with optional params '(request, reply, source, error)'.
 
 - `validate` - request input validation rules for various request components. When using a
   [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (i.e.
@@ -2406,6 +2409,7 @@ are called in parallel. `pre` can be assigned a mixed array of:
         - `'log'` - logs the error but continues processing the request. If `assign` is used, the
           error will be assigned.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
+        - `function` - takes a callback with optional params '(request, reply, source, error)'.
 - functions - same as including an object with a single `method` key.
 - strings - special short-hand notation for registered
   [server methods](#servermethodname-method-options) using the format 'name(args)' (e.g.
