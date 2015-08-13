@@ -1052,6 +1052,7 @@ server.initialize(function (err) {
 
     Hoek.assert(!err, err);
 });
+```
 
 ### `server.inject(options, callback)`
 
