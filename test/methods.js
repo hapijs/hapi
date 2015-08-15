@@ -656,6 +656,28 @@ describe('Methods', function () {
         done();
     });
 
+    it('throws an error when genreateTimeout is not present', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.method('test', function () { }, { cache: {} });
+        }).to.throw('Method caching requires a timeout value in generateTimeout: test');
+
+        done();
+    });
+
+    it('allows genreateTimeout to be false', function (done) {
+
+        var server = new Hapi.Server();
+        expect(function () {
+
+            server.method('test', function () { }, { cache: { generateTimeout: false } });
+        }).to.throw('Method caching requires a timeout value in generateTimeout: test');
+
+        done();
+    });
+
     it('returns a valid result when calling a method without using the cache', function (done) {
 
         var server = new Hapi.Server();
@@ -1150,7 +1172,7 @@ describe('Methods', function () {
             server.method({
                 name: 'fn',
                 method: fn,
-                cache: { }
+                cache: {}
             });
         }).to.throw();
 
