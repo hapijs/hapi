@@ -656,7 +656,7 @@ describe('Methods', function () {
         done();
     });
 
-    it('throws an error when genreateTimeout is not present', function (done) {
+    it('throws an error when generateTimeout is not present', function (done) {
 
         var server = new Hapi.Server();
         expect(function () {
@@ -667,7 +667,7 @@ describe('Methods', function () {
         done();
     });
 
-    it('allows genreateTimeout to be false', function (done) {
+    it('allows generateTimeout to be false', function (done) {
 
         var server = new Hapi.Server();
         expect(function () {
