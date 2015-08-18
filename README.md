@@ -18,3 +18,6 @@ Development version: **9.0.x** ([release notes](https://github.com/hapijs/hapi/i
 
 For the latest updates, [change log](http://hapijs.com/updates), and release information visit [hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter. If you have questions, please open an issue in the
 [discussion forum](https://github.com/hapijs/discuss).
+## Books
+- [hapi.js in Action](http://manning.com/harrison/) by Matt Harrison
+ (Manning Publications). [Chapter 1](http://manning.com/harrison/HapijsinA_MEAP_ch1.pdf)
