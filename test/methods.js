@@ -673,7 +673,7 @@ describe('Methods', function () {
         expect(function () {
 
             server.method('test', function () { }, { cache: { generateTimeout: false } });
-        }).to.throw('Method caching requires a timeout value in generateTimeout: test');
+        }).to.not.throw();
 
         done();
     });
