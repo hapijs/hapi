@@ -11,7 +11,7 @@ Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
 **hapi** is a simple to use configuration-centric framework with built-in support for input validation, caching,
 authentication, and other essential facilities for building web and services applications. **hapi** enables
-developers to focus on writing reusable application in a highly modular and prescriptive approach. 
+developers to focus on writing reusable application logic in a highly modular and prescriptive approach. 
 
 Development version: **9.0.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
 [![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg)](http://travis-ci.org/hapijs/hapi)
