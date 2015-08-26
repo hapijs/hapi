@@ -233,6 +233,17 @@ describe('Server', function () {
             }).to.throw('Cannot start server before plugins finished registration');
             done();
         });
+
+        it('fails to start when no callback is passed', function (done) {
+
+            var server = new Hapi.Server();
+
+            expect(function () {
+
+                server.start();
+            }).to.throw('Missing required start callback function');
+            done();
+        });
     });
 
     describe('stop()', function () {
