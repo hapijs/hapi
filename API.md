@@ -2427,13 +2427,6 @@ are called in parallel. `pre` can be assigned a mixed array of:
         - `'log'` - logs the error but continues processing the request. If `assign` is used, the
           error will be assigned.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
-        - a custom error handler function with the signature `function(request, reply, source, error)` where:
-            - `request` - the [request object](#request-object).
-            - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`,
-              `'payload'`).
-            - `error` - the error object prepared for the client response (including the
-              validation function error under `error.data`).
 - functions - same as including an object with a single `method` key.
 - strings - special short-hand notation for registered
   [server methods](#servermethodname-method-options) using the format 'name(args)' (e.g.
