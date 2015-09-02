@@ -942,6 +942,135 @@ describe('Plugin', function () {
             }).to.throw('Invalid dependencies options (must be a string or an array of strings) [\n  null\n]\n\u001b[31m\n[1] "0" must be a string\u001b[0m');
             done();
         });
+
+        it('exposes server decorations to next register', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var a = function (srv, options, next) {
+
+                srv.decorate('server', 'a', function () {
+
+                    return 'a';
+                });
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var b = function (srv, options, next) {
+
+                return next(typeof srv.a === 'function' ? null : new Error('Missing decoration'));
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            server.register([a, b], function (err) {
+
+                expect(err).to.not.exist();
+                server.initialize(function (err) {
+
+                    expect(err).to.not.exist();
+                    done();
+                });
+            });
+        });
+
+        it('exposes server decorations to dependency (dependency first)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var a = function (srv, options, next) {
+
+                srv.decorate('server', 'a', function () {
+
+                    return 'a';
+                });
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var b = function (srv, options, next) {
+
+                srv.dependency('a', function (srv2, next2) {
+
+                    return next2(typeof srv2.a === 'function' ? null : new Error('Missing decoration'));
+                });
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            server.register([a, b], function (err) {
+
+                expect(err).to.not.exist();
+                server.initialize(function (err) {
+
+                    expect(err).to.not.exist();
+                    done();
+                });
+            });
+        });
+
+        it('exposes server decorations to dependency (dependency second)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var a = function (srv, options, next) {
+
+                srv.decorate('server', 'a', function () {
+
+                    return 'a';
+                });
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var b = function (srv, options, next) {
+
+                srv.realm.x = 1;
+                srv.dependency('a', function (srv2, next2) {
+
+                    expect(srv2.realm.x).to.equal(1);
+                    return next2(typeof srv2.a === 'function' ? null : new Error('Missing decoration'));
+                });
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            server.register([b, a], function (err) {
+
+                expect(err).to.not.exist();
+                server.initialize(function (err) {
+
+                    expect(err).to.not.exist();
+                    done();
+                });
+            });
+        });
     });
 
     describe('after()', function () {
