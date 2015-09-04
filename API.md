@@ -1,4 +1,4 @@
-# 9.0.x API Reference
+# 9.1.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -2043,7 +2043,11 @@ following options:
 - `handler` - an alternative location for the route `handler` option.
 
 - `id` - an optional unique identifier used to look up the route using
-  [`server.lookup()`](#serverlookupid).
+  [`server.lookup()`](#serverlookupid). Cannot be assigned to routes with an array of methods.
+
+- `isInternal` - if `true`, the route cannot be accessed through the HTTP connection but only
+  through the `server.inject()` interface. Used for internal routes that should not be accessible
+  to the outside world. Defaults to `false`.
 
 - `json` - optional arguments passed to `JSON.stringify()` when converting an object or
   error response to a string payload. Supports the following:

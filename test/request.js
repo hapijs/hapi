@@ -372,6 +372,40 @@ describe('Request', function () {
                 clientRequest.end();
             });
         });
+
+        it('returns not found on internal only route', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/some/route',
+                config: {
+                    isInternal: true,
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                }
+            });
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                Wreck.get('http://localhost:' + server.info.port, function (err, res1, body) {
+
+                    expect(res1.statusCode).to.equal(404);
+                    expect(body.toString()).to.equal('{"statusCode":404,"error":"Not Found"}');
+
+                    server.inject('/some/route', function (res2) {
+
+                        expect(res2.statusCode).to.equal(200);
+                        expect(res2.result).to.equal('ok');
+                        server.stop(done);
+                    });
+                });
+            });
+        });
     });
 
     describe('_finalize()', function (done) {
