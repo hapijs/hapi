@@ -1462,6 +1462,28 @@ describe('Connection', function () {
             ]);
             done();
         });
+
+        it('throws on methods array with id', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(function () {
+
+                server.route({
+                    method: ['GET', 'PUT', 'POST', 'DELETE'],
+                    path: '/',
+                    config: {
+                        id: 'abc',
+                        handler: function (request, reply) {
+
+                            return reply(request.route.method);
+                        }
+                    }
+                });
+            }).to.throw('Route id abc for path / conflicts with existing path /');
+            done();
+        });
     });
 
     describe('_defaultRoutes()', function () {
