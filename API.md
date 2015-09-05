@@ -1,4 +1,4 @@
-# 9.1.x API Reference
+# 9.2.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -501,7 +501,8 @@ the route, not at runtime. This means that calling `default()` after adding a ro
 authentication config will have no impact on the routes added prior. However, the default will
 apply to routes added before `default()` is called if those routes lack any authentication config.
 
-The default auth strategy configuration can be accessed via `connection.auth.settings.default`.
+The default auth strategy configuration can be accessed via `connection.auth.settings.default`. To
+obtain the active authentication configuration of a route, use `connection.auth.lookup(request.route)`.
 
 ```js
 var server = new Hapi.Server();

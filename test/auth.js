@@ -298,6 +298,34 @@ describe('authentication', function () {
         });
     });
 
+    describe('lookup', function () {
+
+        it('returns the route auth config', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(request.connection.auth.lookup(request.route));
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.deep.equal({
+                    strategies: ['default'],
+                    mode: 'required'
+                });
+
+                done();
+            });
+        });
+    });
+
     describe('authenticate()', function () {
 
         it('setups route with optional authentication', function (done) {
