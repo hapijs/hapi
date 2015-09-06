@@ -1,4 +1,4 @@
-# 9.2.x API Reference
+# 9.3.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -1075,7 +1075,10 @@ for performing injections, with some additional options and response properties:
       directly as if they were received via an authentication scheme. Defaults to no credentials.
     - `artifacts` - an optional artifacts object containing authentication artifact information. The
       `artifacts` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. Defaults to no artifacts.
+      directly as if they were received via an authentication scheme. Ignored if set without
+      `credentials`. Defaults to no artifacts.
+    - `allowInternals` - allows access to routes with `config.isInternal` set to `true. Defaults to
+      `false`.
     - `remoteAddress` - sets the remote address for the incoming connection.
     - `simulate` - an object with options used to simulate client request stream conditions for
       testing:
@@ -2047,8 +2050,8 @@ following options:
   [`server.lookup()`](#serverlookupid). Cannot be assigned to routes with an array of methods.
 
 - `isInternal` - if `true`, the route cannot be accessed through the HTTP connection but only
-  through the `server.inject()` interface. Used for internal routes that should not be accessible
-  to the outside world. Defaults to `false`.
+  through the `server.inject()` interface with the `allowInternals` option set to `true`. Used
+  for internal routes that should not be accessible to the outside world. Defaults to `false`.
 
 - `json` - optional arguments passed to `JSON.stringify()` when converting an object or
   error response to a string payload. Supports the following:

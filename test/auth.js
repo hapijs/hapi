@@ -412,7 +412,7 @@ describe('authentication', function () {
             var server = new Hapi.Server();
             server.connection();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
 
             var doubleHandler = function (request, reply) {
 
@@ -434,6 +434,39 @@ describe('authentication', function () {
             server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, function (res) {
 
                 expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('steve');
+                done();
+            });
+        });
+
+        it('authenticates using credentials object (with artifacts)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+
+            var doubleHandler = function (request, reply) {
+
+                var options = { url: '/2', credentials: request.auth.credentials, artifacts: '!' };
+                server.inject(options, function (res) {
+
+                    return reply(res.result);
+                });
+            };
+
+            var handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user + request.auth.artifacts);
+            };
+
+            server.route({ method: 'GET', path: '/1', handler: doubleHandler });
+            server.route({ method: 'GET', path: '/2', handler: handler });
+
+            server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('steve!');
                 done();
             });
         });
