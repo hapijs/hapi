@@ -1077,7 +1077,7 @@ for performing injections, with some additional options and response properties:
       `artifacts` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Ignored if set without
       `credentials`. Defaults to no artifacts.
-    - `allowInternals` - allows access to routes with `config.isInternal` set to `true. Defaults to
+    - `allowInternals` - allows access to routes with `config.isInternal` set to `true`. Defaults to
       `false`.
     - `remoteAddress` - sets the remote address for the incoming connection.
     - `simulate` - an object with options used to simulate client request stream conditions for
