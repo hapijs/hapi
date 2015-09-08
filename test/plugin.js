@@ -1071,6 +1071,49 @@ describe('Plugin', function () {
                 });
             });
         });
+
+        it('exposes server decorations to next register when nested', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var a = function (srv, options, next) {
+
+                srv.decorate('server', 'a', function () {
+
+                    return 'a';
+                });
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var b = function (srv, options, next) {
+
+                srv.register(a, function (err) {
+
+                    expect(err).to.not.exist();
+                    return next(typeof srv.a === 'function' ? null : new Error('Missing decoration'));
+                });
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            server.register([b], function (err) {
+
+                expect(err).to.not.exist();
+                server.initialize(function (err) {
+
+                    expect(err).to.not.exist();
+                    done();
+                });
+            });
+        });
     });
 
     describe('after()', function () {
