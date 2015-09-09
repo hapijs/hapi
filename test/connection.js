@@ -1111,7 +1111,9 @@ describe('Connection', function () {
 
                 server.inject('/', function (res) {
 
-                    expect(res.result).to.equal('<div>\n    <h1>hola!</h1>\n</div>\n');
+                    var EOL = Os.EOL;
+                    var html = '<div>' + EOL + '    <h1>hola!</h1>' + EOL + '</div>' + EOL;
+                    expect(res.result).to.equal(html);
                     done();
                 });
             });
