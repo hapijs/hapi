@@ -2114,13 +2114,6 @@ following options:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action and continue processing the request.
-        - a custom error handler function with the signature `function(request, reply, source, error)` where:
-            - `request` - the [request object](#request-object).
-            - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`,
-              `'payload'`).
-            - `error` - the error object prepared for the client response (including the
-              validation function error under `error.data`).
     - `qs` - optional parsing options object passed to the [**qs** module](https://github.com/hapijs/qs).
     - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
       Defaults to `'application/json'`.
@@ -2154,13 +2147,6 @@ following options:
         - `error` - return an Internal Server Error (500) error response. This is the default
           value.
         - `log` - log the error but send the response.
-        - a custom error handler function with the signature `function(request, reply, source, error)` where:
-            - `request` - the [request object](#request-object).
-            - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`,
-              `'payload'`).
-            - `error` - the error object prepared for the client response (including the
-              validation function error under `error.data`).
     - `modify` - if `true`, applies the validation rule changes to the response. Defaults to
       `false`.
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
@@ -2207,13 +2193,6 @@ following options:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action.
-        - a custom error handler function with the signature `function(request, reply, source, error)` where:
-            - `request` - the [request object](#request-object).
-            - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`,
-              `'payload'`).
-            - `error` - the error object prepared for the client response (including the
-              validation function error under `error.data`).
 
 - `validate` - request input validation rules for various request components. When using a
   [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (i.e.
