@@ -1111,7 +1111,7 @@ describe('Connection', function () {
 
                 server.inject('/', function (res) {
 
-                    expect(res.result).to.equal('<div>\n    <h1>hola!</h1>\n</div>\n');
+                    expect(res.result.replace(/\r/g, '')).to.equal('<div>\n    <h1>hola!</h1>\n</div>\n');
                     done();
                 });
             });
