@@ -2,11 +2,11 @@
 
 ### Web and services application framework
 
-<a href="https://sideway.com"><img src="http://blog.sideway.com/wp-content/uploads/logo-300x114.png" align="right" /></a>
+<a href="https://andyet.com"><img src="https://s3.amazonaws.com/static.andyet.com/images/%26yet-logo.png" align="right" /></a>
 
 Lead Maintainer: [Nathan LaFreniere](https://github.com/nlf)
 
-**hapi** is sponsored by [Sideway](https://sideway.com).
+**hapi** LTS is sponsored by [&yet](https://andyet.com).
 
 **hapi** is a simple to use configuration-centric framework with built-in support for input validation, caching,
 authentication, and other essential facilities for building web and services applications. **hapi** enables
