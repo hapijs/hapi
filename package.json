@@ -1,5 +1,5 @@
 {
-  "name": "hapi",
+  "name": "hapi-lts",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
   "version": "9.3.1",
