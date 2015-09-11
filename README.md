@@ -2,7 +2,7 @@
 
 ### Web and services application framework
 
-<a href="https://andyet.com"><img src="https://s3.amazonaws.com/static.andyet.com/images/%26yet-logo.png" align="right" /></a>
+<a href="https://andyet.com"><img src="https://s3.amazonaws.com/static.andyet.com/images/%26yet-logo.svg" align="right" /></a>
 
 Lead Maintainer: [Nathan LaFreniere](https://github.com/nlf)
 
