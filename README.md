@@ -4,7 +4,7 @@
 
 <a href="https://sideway.com"><img src="http://blog.sideway.com/wp-content/uploads/logo-300x114.png" align="right" /></a>
 
-Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
+Lead Maintainer: [Nathan LaFreniere](https://github.com/nlf)
 
 **hapi** is sponsored by [Sideway](https://sideway.com).
 
