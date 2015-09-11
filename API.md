@@ -1,4 +1,4 @@
-# 9.3.x API Reference
+# 10.0.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
