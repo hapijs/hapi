@@ -95,6 +95,30 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('throws error on non-ascii value', function (done) {
+
+            var thrown = false;
+
+            var handler = function (request, reply) {
+
+                try {
+                    return reply('ok').header('set-cookie', decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar'));
+                } catch (e) {
+                    expect(e.message).to.equal('Header values must be ascii text');
+                    thrown = true;
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(thrown).to.equal(true);
+                done();
+            });
+        });
     });
 
     describe('created()', function () {
