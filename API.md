@@ -475,9 +475,11 @@ var Hapi = require('hapi');
 var server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.after(function () {
+server.after(function (server, next) {
 
     // Perform some pre-start logic
+
+    next();
 });
 
 server.start(function (err) {
