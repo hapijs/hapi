@@ -2843,14 +2843,14 @@ describe('transmission', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: { maxAge: 123456789, includeSubdomains: true } } } });
+            server.connection({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject({ url: '/' }, function (res) {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789; includeSubdomains');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789; includeSubDomains');
                 done();
             });
         });
@@ -2890,7 +2890,47 @@ describe('transmission', function () {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubdomains');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains');
+                done();
+            });
+        });
+
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('Test');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ routes: { security: { hsts: { includeSubDomains: true } } } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('Test');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains');
+                done();
+            });
+        });
+
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains and preload', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('Test');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/' }, function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('Test');
+                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains; preload');
                 done();
             });
         });
