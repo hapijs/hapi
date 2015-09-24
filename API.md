@@ -2153,8 +2153,8 @@ following options:
       `false`.
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
       global options such as `stripUnknown` or `abortEarly` (the complete list is available
-      [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to
-      no options.
+      [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+      Defaults to no options.
 
 - `security` - sets common security headers (disabled by default). To enable set `security` to
   `true` or to an object with the following options:
@@ -2264,8 +2264,8 @@ following options:
 
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
       global options such as `stripUnknown` or `abortEarly` (the complete list is available
-      [here](https://github.com/hapijs/joi#validatevalue-schema-options-callback)). Defaults to
-      no options.
+      [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+      Defaults to no options.
 
 - `timeout` - define timeouts for processing durations:
     - `server` - response timeout in milliseconds. Sets the maximum time allowed for the
