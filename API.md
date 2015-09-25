@@ -2163,8 +2163,11 @@ following options:
       be set to that number. Defaults to `true`. You may also specify an object with the
       following fields:
         - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
-        - `includeSubdomains` - a boolean specifying whether to add the `includeSubdomains`
+        - `includeSubDomains` - a boolean specifying whether to add the `includeSubDomains`
           flag to the header.
+        - `preload` - a boolean specifying whether to add the 'preload' flag (used to submit
+          domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list)
+          to the header.
     - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will
       be set to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To
       use the 'allow-from' rule, you must set this to an object with the following fields:
