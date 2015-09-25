@@ -1451,6 +1451,7 @@ describe('validation', function () {
             config: {
                 validate: {
                     headers: {
+                        host: 'localhost',
                         accept: Joi.string().valid('application/json').required(),
                         'user-agent': Joi.string().optional()
                     }

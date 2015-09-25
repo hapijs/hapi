@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "10.0.0",
+    "version": "10.1.0",
     "dependencies": {
         "accept": {
             "version": "1.1.0"
@@ -9,7 +9,7 @@
             "version": "1.0.1"
         },
         "boom": {
-            "version": "2.8.0"
+            "version": "2.9.0"
         },
         "call": {
             "version": "2.0.2"
@@ -21,13 +21,13 @@
             "version": "1.1.2"
         },
         "cryptiles": {
-            "version": "2.0.4"
+            "version": "2.0.5"
         },
         "heavy": {
             "version": "3.0.0"
         },
         "hoek": {
-            "version": "2.14.0"
+            "version": "2.16.3"
         },
         "iron": {
             "version": "2.1.3"
@@ -53,7 +53,7 @@
             "version": "2.0.2",
             "dependencies": {
                 "mime-db": {
-                    "version": "1.18.0"
+                    "version": "1.19.0"
                 }
             }
         },
@@ -64,7 +64,7 @@
             "version": "4.0.0"
         },
         "shot": {
-            "version": "1.6.0"
+            "version": "1.6.1"
         },
         "statehood": {
             "version": "2.1.1"
@@ -79,7 +79,7 @@
                     "version": "1.0.0",
                     "dependencies": {
                         "b64": {
-                            "version": "2.0.0"
+                            "version": "2.0.1"
                         },
                         "nigel": {
                             "version": "1.0.1",
@@ -92,7 +92,7 @@
                     }
                 },
                 "wreck": {
-                    "version": "6.1.0"
+                    "version": "6.2.0"
                 }
             }
         },
