@@ -547,10 +547,18 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
+            var validState = false;
+            server.ext('onPreResponse', function (request, reply) {
+
+                validState = request.state && typeof request.state === 'object';
+                reply.continue();
+            });
+
             server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } }, function (res) {
 
                 expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"Invalid cookie header"});');
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+                expect(validState).to.equal(true);
                 done();
             });
         });
