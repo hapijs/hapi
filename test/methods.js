@@ -577,6 +577,31 @@ describe('Methods', function () {
         });
     });
 
+    it('reports cache stats', function (done) {
+
+        var method = function (id, next) {
+
+            return next(null, { id: id });
+        };
+
+        var server = new Hapi.Server();
+        server.connection();
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
+
+        server.initialize(function (err) {
+
+            expect(err).to.not.exist();
+
+            server.methods.test(1, function (err) {
+
+                expect(err).to.not.exist();
+                expect(server.methods.test.cache.stats.gets).to.equal(1);
+                done();
+            });
+        });
+    });
+
+
     it('throws an error when name is not a string', function (done) {
 
         expect(function () {
