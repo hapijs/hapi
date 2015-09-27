@@ -1212,12 +1212,14 @@ to use the built-in cache and share across multiple request handlers without hav
 common module.
 
 Methods are registered via `server.method(name, method, [options])` where:
-- `name` - a unique method name used to invoke the method via `server.methods[name]`. When
-  configured with caching enabled, `server.methods[name].cache.drop(arg1, arg2, ..., argn, callback)`
-  can be used to clear the cache for a given key. Supports using nested names such as
-  `utils.users.get` which will automatically create the missing path under
-  [`server.methods`](#servermethods) and can be accessed for the previous example via
-  `server.methods.utils.users.get`.
+- `name` - a unique method name used to invoke the method via `server.methods[name]`.
+  Supports using nested names such as `utils.users.get` which will automatically
+  create the missing path under [`server.methods`](#servermethods) and can be accessed
+  for the previous example via `server.methods.utils.users.get`.
+  When configured with caching enabled, `server.methods[name].cache` will be an object
+  with the following properties and methods:
+    - `drop(arg1, arg2, ..., argn, callback)` - function that can be used to clear the cache for a given key.
+    - `stats` - an object with cache statistics, see stats documentation for **catbox**.
 - `method` - the method function with the signature is one of:
     - `function(arg1, arg2, ..., argn, next)` where:
         - `arg1`, `arg2`, etc. - the method function arguments.
