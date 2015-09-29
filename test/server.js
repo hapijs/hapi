@@ -3,7 +3,6 @@
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
-var Inert = require('inert');
 var Lab = require('lab');
 
 

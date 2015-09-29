@@ -694,8 +694,6 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            var result = null;
-
             server.once('tail', function () {
 
                 done();

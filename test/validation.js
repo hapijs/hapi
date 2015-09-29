@@ -856,7 +856,6 @@ describe('validation', function () {
 
     it('validates response with context', function (done) {
 
-        var i = 0;
         var handler = function (request, reply) {
 
             return reply({ some: 'thing', more: 'stuff' });

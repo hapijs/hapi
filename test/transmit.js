@@ -3,7 +3,6 @@
 var ChildProcess = require('child_process');
 var Fs = require('fs');
 var Http = require('http');
-var Os = require('os');
 var Path = require('path');
 var Stream = require('stream');
 var Zlib = require('zlib');

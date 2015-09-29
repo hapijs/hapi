@@ -35,7 +35,7 @@ describe('handler', function () {
 
             var handler = function (request) {
 
-                var x = a.b.c;
+                a.b.c;
             };
 
             server.route({ method: 'GET', path: '/domain', handler: handler });
@@ -53,7 +53,7 @@ describe('handler', function () {
 
                 setImmediate(function () {
 
-                    var x = not.here;
+                    not.here;
                 });
             };
 
@@ -1166,7 +1166,7 @@ describe('handler', function () {
             server.connection();
             server.ext('onRequest', function (request, next) {
 
-                var x = a.b.c;
+                a.b.c;
             });
 
             var handler = function (request, reply) {

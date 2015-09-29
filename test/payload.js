@@ -622,7 +622,6 @@ describe('payload', function () {
             req.on('error', function (err) { });                    // Will error out, so don't allow error to escape test
 
             req.write('{}\n');
-            var now = Date.now();
             setTimeout(function () {
 
                 req.end();
@@ -662,7 +661,6 @@ describe('payload', function () {
             req.on('error', function (err) { });                    // Will error out, so don't allow error to escape test
 
             req.write('{}\n');
-            var now = Date.now();
             setTimeout(function () {
 
                 req.end();

@@ -1,6 +1,5 @@
 // Load modules
 
-var Os = require('os');
 var Path = require('path');
 var Boom = require('boom');
 var CatboxMemory = require('catbox-memory');
@@ -139,10 +138,6 @@ describe('Plugin', function () {
             server.connection({ labels: ['a'] });
             server.connection({ labels: ['b'] });
             server.connection({ labels: ['c'] });
-
-            var server1 = server.connections[0];
-            var server2 = server.connections[1];
-            var server3 = server.connections[2];
 
             var child = function (srv, options, next) {
 
@@ -1396,8 +1391,8 @@ describe('Plugin', function () {
             server.connection();
             expect(function () {
 
-                var a1 = server.cache({ segment: 'a', expiresIn: 1000 });
-                var a2 = server.cache({ segment: 'a', expiresIn: 1000 });
+                server.cache({ segment: 'a', expiresIn: 1000 });
+                server.cache({ segment: 'a', expiresIn: 1000 });
             }).to.not.throw();
             done();
         });
@@ -1408,8 +1403,8 @@ describe('Plugin', function () {
             server.connection();
             expect(function () {
 
-                var a1 = server.cache({ segment: 'a', expiresIn: 1000 });
-                var a2 = server.cache({ segment: 'a', expiresIn: 1000, shared: true });
+                server.cache({ segment: 'a', expiresIn: 1000 });
+                server.cache({ segment: 'a', expiresIn: 1000, shared: true });
             }).to.not.throw();
             done();
         });
