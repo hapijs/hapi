@@ -2604,10 +2604,11 @@ server.ext('onRequest', function (request, reply) {
 
 _Always available._
 
-Returns an [`response`](#response-object) which you can pass into the [reply interface](#reply-interface).  For example inside a promise to create a response object to return up to the [reply interface](#reply-interface).
-
+Returns a [`response`](#response-object) which you can pass into the [reply interface](#reply-interface) where:
 - `source` - the object to set as the source of the [reply interface](#reply-interface).
 - `options` - options for the method, optional.
+
+For example it can be used inside a promise to create a response object which has a non-error code to resolve with the [reply interface](#reply-interface):
 
 ```js
 var handler = function (request, reply) {
@@ -2615,7 +2616,7 @@ var handler = function (request, reply) {
     var result = promiseMethod().then(function (thing) {
     
         if (!thing) {
-            return request.generateResponse(Boom.notFound());
+            return request.generateResponse().code(214);
         }
         return thing;
     });
