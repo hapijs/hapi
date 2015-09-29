@@ -1782,6 +1782,45 @@ describe('transmission', function () {
             });
         });
 
+        it('does not set accept-encoding multiple times', function (done) {
+
+            var headersHandler = function (request, reply) {
+
+                reply({ status: 'success' })
+                    .vary('X-Custom3');
+            };
+
+            var upstream = new Hapi.Server();
+            upstream.connection();
+            upstream.route({ method: 'GET', path: '/headers', handler: headersHandler });
+            upstream.start(function () {
+
+                var proxyHandler = function (request, reply) {
+
+                    var options = {};
+                    options.headers = Hoek.clone(request.headers);
+                    delete options.headers.host;
+
+                    Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options, function (err, res) {
+
+                        reply(res).code(res.statusCode);
+                    });
+                };
+
+                var server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/headers', handler: proxyHandler });
+
+                server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.headers.vary).to.equal('X-Custom3,accept-encoding');
+
+                    upstream.stop(done);
+                });
+            });
+        });
+
         describe('response range', function () {
 
             var fileStreamHandler = function (request, reply) {
