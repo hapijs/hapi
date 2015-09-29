@@ -2600,6 +2600,28 @@ server.ext('onRequest', function (request, reply) {
 });
 ```
 
+#### `request.generateResponse(source, [options])`
+
+_Always available._
+
+Returns an [`response`](#response-object) which you can pass into the [reply interface](#reply-interface).  Useful inside a promise to create a response object to return up to the [reply interface](#reply-interface).
+
+- `source` - the object to set as the source of the [reply interface](#reply-interface).
+- `options` - options for the method, optional.
+
+```js
+var handler = function (request, reply) {
+  var result = promiseMethod().then(function (thing) {
+    if (!thing) {
+      return request.generateResponse(Boom.notFound());
+    }
+
+    return thing;
+  });
+  return reply(result);
+};
+```
+
 #### `request.log(tags, [data, [timestamp]])`
 
 _Always available._
