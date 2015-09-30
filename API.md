@@ -3064,14 +3064,16 @@ a different response object.
 
 ```js
 var Hapi = require('hapi');
-var Inert = require('inert');
 var server = new Hapi.Server();
-server.register(Inert);
+
 server.connection({ port: 80 });
-server.views({
-    engines: {
-        html: require('handlebars')
-    }
+
+server.register(require('vision'), function (err) {
+  server.views({
+      engines: {
+          html: require('handlebars')
+      }
+  });
 });
 
 server.ext('onPreResponse', function (request, reply) {
