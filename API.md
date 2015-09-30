@@ -3064,12 +3064,8 @@ a different response object.
 
 ```js
 var Hapi = require('hapi');
-var Inert = require('inert');
 var server = new Hapi.Server();
 
-server.register(Inert, function(err) {
-  if(err) console.log(err);
-});
 server.connection({ port: 80 });
 
 server.register(require('vision'), function (err) {
