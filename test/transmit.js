@@ -2082,6 +2082,25 @@ describe('transmission', function () {
                 });
             });
         });
+
+        it('skips undefined header values', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                return reply('ok').header('x', undefined);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.x).to.not.exist();
+                done();
+            });
+        });
     });
 
     describe('cors()', function () {
