@@ -195,6 +195,9 @@ Creates a new `Server` object where:
       used to store static configuration values and [`server.plugins`](#serverplugins) which is
       meant for storing run-time state. Defaults to `{}`.
 
+    - `useDomains` - if `false`, will not use node domains to protect against exceptions thrown in
+      handlers and other external code. Defaults to `true`.
+
 Note that the `options` object is deeply cloned and cannot contain any values that are unsafe to
 perform deep copy on.
 
@@ -1982,9 +1985,9 @@ following options:
           string or an array of scope strings. The authenticated credentials object `scope`
           property must contain at least one of the scopes defined to access the route.
           You may also access properties on the request object (`query` and `params`} to populate a
-		  dynamic scope by using `{}` characters around the property name, such as
-		  `'user-{params.id}'`. Set to `false` to remove scope requirements. Defaults to no scope
-		  required.
+          dynamic scope by using `{}` characters around the property name, such as
+          `'user-{params.id}'`. Set to `false` to remove scope requirements. Defaults to no scope
+          required.
         - `entity` - the required authenticated entity type. If set, must match the `entity`
           value of the authentication credentials. Available values:
             - `any` - the authentication can be on behalf of a user or application. This is the
@@ -2508,7 +2511,8 @@ Each request object includes the following properties:
       [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
 - `domain` - the node domain object used to protect against exceptions thrown in extensions,
   handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback
-  functions otherwise bound to other domains.
+  functions otherwise bound to other domains. Set to `null` when the server `useDomains` options is
+  `false`.
 - `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
 - `info` - request information:

@@ -1,6 +1,7 @@
 // Load modules
 
 var Events = require('events');
+var Domain = require('domain');
 var Code = require('code');
 var Hapi = require('..');
 var Hoek = require('hoek');
@@ -21,6 +22,33 @@ var expect = Code.expect;
 
 
 describe('Protect', function () {
+
+    it('does not handle errors when useDomains is false', function (done) {
+
+        var server = new Hapi.Server({ useDomains: false, debug: false });
+        server.connection();
+
+        var handler = function (request, reply) {
+
+            process.nextTick(function () {
+
+                throw new Error('no domain');
+            });
+        };
+
+        server.route({ method: 'GET', path: '/', handler: handler });
+        var domain = Domain.createDomain();
+        domain.once('error', function (err) {
+
+            expect(err.message).to.equal('no domain');
+            done();
+        });
+
+        domain.run(function () {
+
+            server.inject('/', function (res) { });
+        });
+    });
 
     it('catches error when handler throws after reply() is called', function (done) {
 
