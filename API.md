@@ -12,6 +12,7 @@
         - [`server.mime`](#servermime)
         - [`server.plugins`](#serverplugins)
         - [`server.realm`](#serverrealm)
+        - [`server.registrations`](#serverregistrations)
         - [`server.root`](#serverroot)
         - [`server.settings`](#serversettings)
         - [`server.version`](#serverversion)
@@ -426,6 +427,15 @@ exports.register = function (server, options, next) {
     return next();
 };
 ```
+
+#### `server.registrations`
+
+When the server contains exactly one connection, `registrations` is an object where each key is a
+registered plugin name and value contains:
+- `version` - the plugin version.
+
+When the server contains more than one connection, each [`server.connections`](#serverconnections)
+array member provides its own `connection.registrations`.
 
 #### `server.root`
 
