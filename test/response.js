@@ -95,6 +95,100 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('sets null header', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok').header('set-cookie', null);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['set-cookie']).to.not.exist();
+                done();
+            });
+        });
+
+        it('throws error on non-ascii value', function (done) {
+
+            var thrown = false;
+
+            var handler = function (request, reply) {
+
+                try {
+                    return reply('ok').header('set-cookie', decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar'));
+                }
+                catch (err) {
+                    expect(err.message).to.equal('Header value cannot contain or convert into non-ascii characters: set-cookie');
+                    thrown = true;
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(thrown).to.equal(true);
+                done();
+            });
+        });
+
+        it('throws error on non-ascii value (header name)', function (done) {
+
+            var thrown = false;
+
+            var handler = function (request, reply) {
+
+                var badName = decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar');
+                try {
+                    return reply('ok').header(badName, 'value');
+                }
+                catch (err) {
+                    expect(err.message).to.equal('Header value cannot contain or convert into non-ascii characters: ' + badName);
+                    thrown = true;
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(thrown).to.equal(true);
+                done();
+            });
+        });
+
+        it('throws error on non-ascii value (buffer)', function (done) {
+
+            var thrown = false;
+
+            var handler = function (request, reply) {
+
+                try {
+                    return reply('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
+                }
+                catch (err) {
+                    expect(err.message).to.equal('Header value cannot contain or convert into non-ascii characters: set-cookie');
+                    thrown = true;
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(thrown).to.equal(true);
+                done();
+            });
+        });
     });
 
     describe('created()', function () {
