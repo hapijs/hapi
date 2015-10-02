@@ -230,7 +230,7 @@ describe('Plugin', function () {
                     }
                 }, function (err) { });
 
-            }).to.throw('Invalid plugin object - invalid or missing register function attributes property');
+            }).to.throw();
 
             done();
         });
@@ -248,7 +248,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(register, function (err) { });
-            }).to.throw('Missing plugin name');
+            }).to.throw();
 
             done();
         });
@@ -268,7 +268,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(register, function (err) { });
-            }).to.throw('Missing plugin name');
+            }).to.throw();
 
             done();
         });
@@ -484,6 +484,22 @@ describe('Plugin', function () {
             });
         });
 
+        it('registers a plugin with routes path prefix (plugin options)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register({ register: internals.plugins.test1, routes: { prefix: '/abc' } }, { routes: { prefix: '/xyz' } }, function (err) {
+
+                expect(server.plugins.test1.prefix).to.equal('/abc');
+                expect(err).to.not.exist();
+                server.inject('/abc/test1', function (res) {
+
+                    expect(res.result).to.equal('testing123');
+                    done();
+                });
+            });
+        });
+
         it('registers a plugin with routes path prefix and plugin root route', function (done) {
 
             var test = function (srv, options, next) {
@@ -627,6 +643,26 @@ describe('Plugin', function () {
             });
         });
 
+        it('registers a plugin with routes vhost (plugin options)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register({ register: internals.plugins.test1, routes: { vhost: 'example.org' } }, { routes: { vhost: 'example.com' } }, function (err) {
+
+                expect(err).to.not.exist();
+                server.inject('/test1', function (res1) {
+
+                    expect(res1.statusCode).to.equal(404);
+
+                    server.inject({ url: '/test1', headers: { host: 'example.org' } }, function (res2) {
+
+                        expect(res2.result).to.equal('testing123');
+                        done();
+                    });
+                });
+            });
+        });
+
         it('registers plugins with pre-selected label', function (done) {
 
             var server = new Hapi.Server();
@@ -698,6 +734,56 @@ describe('Plugin', function () {
             };
 
             server.register(test, { select: ['a', 'c'] }, function (err) {
+
+                expect(err).to.not.exist();
+                expect(server.plugins.test.super).to.equal('trooper');
+
+                server1.inject('/', function (res1) {
+
+                    expect(res1.statusCode).to.equal(200);
+                    server2.inject('/', function (res2) {
+
+                        expect(res2.statusCode).to.equal(404);
+                        server3.inject('/', function (res3) {
+
+                            expect(res3.statusCode).to.equal(200);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('registers plugins with pre-selected labels (plugin options)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ labels: ['a'] });
+            server.connection({ labels: ['b'] });
+            server.connection({ labels: ['c'] });
+
+            var server1 = server.connections[0];
+            var server2 = server.connections[1];
+            var server3 = server.connections[2];
+
+            var test = function (srv, options, next) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply('ok');
+                    }
+                });
+                srv.expose('super', 'trooper');
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            server.register({ register: test, select: ['a', 'c'] }, { select: ['b'] }, function (err) {
 
                 expect(err).to.not.exist();
                 expect(server.plugins.test.super).to.equal('trooper');
@@ -861,7 +947,7 @@ describe('Plugin', function () {
 
             a.attributes = {
                 name: 'a',
-                dependecies: 'c'
+                dependencies: 'c'
             };
 
             var b = function (srv, options, next) {
@@ -913,7 +999,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(a, function () {});
-            }).to.throw('Invalid dependencies options (must be a string or an array of strings) {\n  \"b\": true,\n  \u001b[41m\"0\"\u001b[0m\u001b[31m [1]: -- missing --\u001b[0m\n}\n\u001b[31m\n[1] "0" must be a string\u001b[0m');
+            }).to.throw();
             done();
         });
 
@@ -934,7 +1020,7 @@ describe('Plugin', function () {
             expect(function () {
 
                 server.register(a, function () {});
-            }).to.throw('Invalid dependencies options (must be a string or an array of strings) [\n  null\n]\n\u001b[31m\n[1] "0" must be a string\u001b[0m');
+            }).to.throw();
             done();
         });
 

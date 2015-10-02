@@ -29,7 +29,7 @@
     "hoek": "^2.14.x",
     "iron": "2.x.x",
     "items": "1.x.x",
-    "joi": "6.x.x",
+    "joi": "^6.8.1",
     "kilt": "^1.1.x",
     "mimos": "2.x.x",
     "peekaboo": "1.x.x",

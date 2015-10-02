@@ -1368,6 +1368,7 @@ Registers a plugin where:
     - an object with the following:
         - `register` - the plugin registration function.
         - `options` - optional options passed to the registration function when called.
+        - `select`, `routes` - optional plugin-specific registration options as defined below.
 - `options` - optional registration options (different from the options passed to the registration
   function):
     - `select` - a string or array of string labels used to pre-select connections for plugin

@@ -36,10 +36,10 @@
             "version": "1.1.0"
         },
         "joi": {
-            "version": "6.6.1",
+            "version": "6.8.1",
             "dependencies": {
                 "isemail": {
-                    "version": "1.1.1"
+                    "version": "1.2.0"
                 },
                 "moment": {
                     "version": "2.10.6"
