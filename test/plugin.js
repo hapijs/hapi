@@ -1442,6 +1442,22 @@ describe('Plugin', function () {
                 });
             });
         });
+
+        it('errors when added after initialization', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.initialize(function (err) {
+
+                expect(function () {
+
+                    server.after(function () { });
+                }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
+
+                done();
+            });
+        });
     });
 
     describe('auth', function () {
