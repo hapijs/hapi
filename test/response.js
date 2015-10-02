@@ -286,6 +286,26 @@ describe('Response', function () {
                 done();
             });
         });
+
+        it('sets Vary header with multiple similar and identical values', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok').vary('x').vary('xyz').vary('xy').vary('x');
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('ok');
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.vary).to.equal('x,xyz,xy');
+                done();
+            });
+        });
     });
 
     describe('etag()', function () {
