@@ -341,12 +341,12 @@ describe('Server', function () {
             server.connection();
 
             server.stop(Hoek.ignore);
-            expect(function () {
+            server.stop(function (err) {
 
-                server.stop(Hoek.ignore);
-            }).to.throw('Cannot stop server while in stopping state');
-
-            done();
+                expect(err).to.exist();
+                expect(err.message).to.equal('Cannot stop server while in stopping state');
+                done();
+            });
         });
     });
 
