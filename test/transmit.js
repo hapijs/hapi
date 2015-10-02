@@ -2220,7 +2220,7 @@ describe('transmission', function () {
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.not.exist();
-                expect(res.headers['access-control-allow-methods']).to.equal('GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
+                expect(res.headers['access-control-allow-methods']).to.equal('GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS');
                 done();
             });
         });
@@ -2281,6 +2281,26 @@ describe('transmission', function () {
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.equal('something');
+                done();
+            });
+        });
+
+        it('merges CORS origin header when override is merge', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok').header('access-control-allow-methods', 'something');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ routes: { cors: { additionalMethods: ['xyz'], override: 'merge' } } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-allow-methods']).to.equal('something,GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS,xyz');
                 done();
             });
         });

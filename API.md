@@ -2050,7 +2050,8 @@ following options:
     - `credentials` - if `true`, allows user credentials to be sent
       ('Access-Control-Allow-Credentials'). Defaults to `false`.
     - `override` - if `false`, preserves existing CORS headers set manually before the
-      response is sent. Defaults to `true`.
+      response is sent. If set to `'merge'`, appends the configured values to the manually set
+      headers. Defaults to `true`.
 
 - <a name="route.config.files"></a>`files` - defines the behavior for accessing files:
     - `relativeTo` - determines the folder relative paths are resolved against.
