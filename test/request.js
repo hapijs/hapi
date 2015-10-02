@@ -1431,7 +1431,7 @@ describe('Request', function () {
                 setTimeout(function () {
 
                     s.emit('end');
-                }, 60);
+                }, 65);
             };
 
             var timer = new Hoek.Bench();

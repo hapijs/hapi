@@ -1809,6 +1809,9 @@ The plugin function must include an `attributes` function property with the foll
   Defaults to `false`.
 - `dependencies` - optional string or array of string indicating a plugin dependency. Same as
   setting dependencies via [`server.dependency()`](#serverdependencydependencies-after).
+- `connections` - if `false`, does not allow the plugin to call server APIs that modify the
+  connections such as adding a route or configuring state. This flag allows the plugin to be
+  registered before connections are added and to pass dependency requirements. Defaults to `true`.
 
 ```js
 var register = function (server, options, next) {

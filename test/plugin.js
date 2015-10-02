@@ -343,7 +343,7 @@ describe('Plugin', function () {
             server.register(test, function (err) {
 
                 expect(err).to.not.exist();
-                expect(server.connections[0]._registrations.steve.version).to.equal('0.0.0');
+                expect(server.connections[0].registrations.steve.version).to.equal('0.0.0');
                 server.inject('/', function (res) {
 
                     expect(res.result).to.equal(require('../package.json').version);
@@ -842,7 +842,11 @@ describe('Plugin', function () {
 
                     server.register(a, function (err) {
 
-                        done();
+                        server.initialize(function (err) {
+
+                            expect(err).to.not.exist();
+                            done();
+                        });
                     });
                 });
             });
@@ -886,7 +890,11 @@ describe('Plugin', function () {
 
                     server.register(a, function (err) {
 
-                        done();
+                        server.initialize(function (err) {
+
+                            expect(err).to.not.exist();
+                            done();
+                        });
                     });
                 });
             });
@@ -931,7 +939,11 @@ describe('Plugin', function () {
 
                     server.register(a, function (err) {
 
-                        done();
+                        server.initialize(function (err) {
+
+                            expect(err).to.not.exist();
+                            done();
+                        });
                     });
                 });
             });
@@ -976,6 +988,127 @@ describe('Plugin', function () {
 
                     server.register(a, function (err) {
 
+                        server.initialize(function (err) {
+
+                            expect(err).to.not.exist();
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('errors when dependency loaded before connection was added', function (done) {
+
+            var a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                dependencies: 'b'
+            };
+
+            var b = function (srv, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.connection();
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.exist();
+                        expect(err.message).to.equal('Plugin a missing dependency b in connection: ' + server.info.uri);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('set dependency on previously loaded connectionless plugin', function (done) {
+
+            var a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                dependencies: 'b'
+            };
+
+            var b = function (srv, options, next) {
+
+                expect(srv.connections).to.be.null();
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.connection();
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.not.exist();
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('allows multiple connectionless plugin', function (done) {
+
+            var a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                dependencies: 'b'
+            };
+
+            var b = function (srv, options, next) {
+
+                expect(srv.connections).to.be.null();
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false,
+                multiple: true
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register([b, b], function (err) {
+
+                server.connection();
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.not.exist();
                         done();
                     });
                 });
@@ -1744,11 +1877,12 @@ describe('Plugin', function () {
             server.connection();
             server.register(test, function (err) {
 
-                expect(function () {
+                server.initialize(function (err) {
 
-                    server.initialize(Hoek.ignore);
-                }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
-                done();
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Plugin test missing dependency none in connection: ' + server.info.uri);
+                    done();
+                });
             });
         });
 
@@ -1768,11 +1902,12 @@ describe('Plugin', function () {
             server.connection();
             server.register(test, function (err) {
 
-                expect(function () {
+                server.initialize(function (err) {
 
-                    server.initialize(Hoek.ignore);
-                }).to.throw('Plugin test missing dependency none in connection: ' + server.info.uri);
-                done();
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Plugin test missing dependency none in connection: ' + server.info.uri);
+                    done();
+                });
             });
         });
 
@@ -1782,11 +1917,12 @@ describe('Plugin', function () {
             server.connection({ port: 80, host: 'localhost' });
             server.register([internals.plugins.deps1, internals.plugins.deps3], function (err) {
 
-                expect(function () {
+                server.initialize(function (err) {
 
-                    server.initialize(Hoek.ignore);
-                }).to.throw('Plugin deps1 missing dependency deps2 in connection: http://localhost:80');
-                done();
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Plugin deps1 missing dependency deps2 in connection: ' + server.info.uri);
+                    done();
+                });
             });
         });
 
@@ -1854,11 +1990,12 @@ describe('Plugin', function () {
             server.connection({ port: 80, host: 'localhost' });
             server.register(a, function (err) {
 
-                expect(function () {
+                server.initialize(function (err) {
 
-                    server.initialize(Hoek.ignore);
-                }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
-                done();
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Plugin b missing dependency c in connection: ' + server.info.uri);
+                    done();
+                });
             });
         });
 
@@ -1887,11 +2024,12 @@ describe('Plugin', function () {
             server.connection({ port: 80, host: 'localhost' });
             server.register(a, function (err) {
 
-                expect(function () {
+                server.initialize(function (err) {
 
-                    server.initialize(Hoek.ignore);
-                }).to.throw('Plugin b missing dependency c in connection: http://localhost:80');
-                done();
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Plugin b missing dependency c in connection: ' + server.info.uri);
+                    done();
+                });
             });
         });
     });
