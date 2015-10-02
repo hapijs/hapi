@@ -2896,6 +2896,9 @@ The response object provides the following methods:
           `','`.
         - `override` - if `false`, the header value is not set if an existing value present.
           Defaults to `true`.
+        - `duplicate` - if `false`, the header value is not modified if the provided value is
+          already included. Does not apply when `append` is `false` or if the `name` is
+          `'set-cookie'`. Defaults to `true`.
 - `location(uri)` - sets the HTTP 'Location' header where:
     - `uri` - an absolute or relative URI used as the 'Location' header value.
 - `redirect(uri)` - sets an HTTP redirection response (302) and decorates the response with
