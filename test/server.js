@@ -210,11 +210,12 @@ describe('Server', function () {
         it('fails to start server without connections', function (done) {
 
             var server = new Hapi.Server();
-            expect(function () {
+            server.start(function (err) {
 
-                server.start(Hoek.ignore);
-            }).to.throw('No connections to start');
-            done();
+                expect(err).to.exist();
+                expect(err.message).to.equal('No connections to start');
+                done();
+            });
         });
 
         it('fails to start server when registration incomplete', function (done) {
@@ -225,12 +226,12 @@ describe('Server', function () {
             var server = new Hapi.Server();
             server.connection();
             server.register(plugin, Hoek.ignore);
+            server.start(function (err) {
 
-            expect(function () {
-
-                server.start(Hoek.ignore);
-            }).to.throw('Cannot start server before plugins finished registration');
-            done();
+                expect(err).to.exist();
+                expect(err.message).to.equal('Cannot start server before plugins finished registration');
+                done();
+            });
         });
 
         it('fails to start when no callback is passed', function (done) {
@@ -242,6 +243,40 @@ describe('Server', function () {
                 server.start();
             }).to.throw('Missing required start callback function');
             done();
+        });
+
+        it('fails to initialize server when not stopped', function (done) {
+
+            var plugin = function () { };
+            plugin.attributes = { name: 'plugin' };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.start(function (err) {
+
+                server.initialize(function (err) {
+
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Cannot initialize server while it is in started state');
+                    done();
+                });
+            });
+        });
+
+        it('fails to start server when starting', function (done) {
+
+            var plugin = function () { };
+            plugin.attributes = { name: 'plugin' };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.start(Hoek.ignore);
+            server.start(function (err) {
+
+                expect(err).to.exist();
+                expect(err.message).to.equal('Cannot start server while it is in initializing state');
+                done();
+            });
         });
     });
 
