@@ -618,7 +618,7 @@ describe('Request', function () {
             var req = null;
             server.on('request-error', function (request, err) {
 
-                errs++;
+                ++errs;
                 expect(err).to.exist();
                 expect(err.message).to.equal('Uncaught error: boom');
                 req = request;
@@ -631,18 +631,18 @@ describe('Request', function () {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist();
-                expect(res.result.message).to.equal('An internal server error occurred');
-            });
-
             server.once('response', function () {
 
                 expect(errs).to.equal(1);
                 expect(req.getLog('error')[0].tags).to.deep.equal(['internal', 'implementation', 'error']);
                 done();
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result).to.exist();
+                expect(res.result.message).to.equal('An internal server error occurred');
             });
         });
 
