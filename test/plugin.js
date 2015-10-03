@@ -1029,7 +1029,7 @@ describe('Plugin', function () {
                     server.initialize(function (err) {
 
                         expect(err).to.exist();
-                        expect(err.message).to.equal('Plugin a missing dependency b in connection: ' + server.info.uri);
+                        expect(err.message).to.equal('Plugin a missing dependency b in connection: ' + server.connections[1].info.uri);
                         done();
                     });
                 });
@@ -1714,10 +1714,10 @@ describe('Plugin', function () {
 
                 expect(err).to.not.exist();
 
-                server.inject('/', function (res1) {
+                server.select('a').inject('/', function (res1) {
 
                     expect(res1.statusCode).to.equal(401);
-                    server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } }, function (res2) {
+                    server.select('a').inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } }, function (res2) {
 
                         expect(res2.statusCode).to.equal(200);
                         expect(res2.result).to.equal('authenticated!');

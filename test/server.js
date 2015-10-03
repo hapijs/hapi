@@ -153,8 +153,10 @@ describe('Server', function () {
             server.start(function (err) {
 
                 expect(err).to.not.exist();
-                server.connection({ port: server.info.port });
-                server.connection({ port: server.info.port });
+                var port = server.info.port;
+
+                server.connection({ port: port });
+                server.connection({ port: port });
                 server.stop(function (err) {
 
                     expect(err).to.not.exist();
@@ -426,6 +428,18 @@ describe('Server', function () {
             expect(server.connections[0].settings.routes.security.hsts).to.equal(2);
             expect(server.connections[0].settings.routes.security.xss).to.be.false();
             expect(server.connections[0].settings.routes.security.xframe).to.equal('deny');
+            done();
+        });
+
+        it('decorates and clears single connection shortcuts', function (done) {
+
+            var server = new Hapi.Server();
+            expect(server.info).to.not.exist();
+            server.connection();
+            expect(server.info).to.exist();
+            server.connection();
+            expect(server.info).to.not.exist();
+
             done();
         });
     });
