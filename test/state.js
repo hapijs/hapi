@@ -60,7 +60,8 @@ describe('state', function () {
 
         var server = new Hapi.Server();
         server.connection();
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab', clearInvalid: true } }, function (res) {
+        server.state('vab', { encoding: 'base64json', clearInvalid: true });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } }, function (res) {
 
             expect(res.statusCode).to.equal(400);
             expect(res.headers['set-cookie']).to.not.exists();

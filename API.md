@@ -866,7 +866,9 @@ Used within a plugin to declares a required dependency on other [plugins](#plugi
         - `err` - internal error condition, which is returned back via the
           [`server.start()`](#serverstartcallback) callback.
 
-The `after` method is identical to setting a server extension point on `'onPreStart'`.
+The `after` method is identical to setting a server extension point on `'onPreStart'`. Connectionless
+plugins (those with `attributes.connections` set to `false`) can only depend on other connectionless
+plugins (server initialization will fail even of the dependency is loaded but is not connectionless).
 
 ```js
 exports.register = function (server, options, next) {
@@ -1383,7 +1385,9 @@ Registers a plugin where:
 - `options` - optional registration options (different from the options passed to the registration
   function):
     - `once` - if `true`, the registration is skipped for any connection already registered with.
-      Cannot be used with plugin options. Defaults to `false`. 
+      Cannot be used with plugin options. If the plugin does not have a `connections` attribute set
+      to `false` and the registration selection is empty, registration will be skipped as no connections
+      are available to register once. Defaults to `false`. 
     - `routes` - modifiers applied to each route added by the plugin:
         - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin
           registers a child plugin the `prefix` is passed on to the child or is added in front of
