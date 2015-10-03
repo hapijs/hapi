@@ -1552,6 +1552,43 @@ describe('Plugin', function () {
                 expect(srv.plugins.x.a).to.equal('b');
                 called = true;
                 return next();
+            }, { after: 'x' });
+
+            server.register(x, function (err) {
+
+                expect(err).to.not.exist();
+                server.initialize(function (err) {
+
+                    expect(err).to.not.exist();
+                    expect(called).to.be.true();
+                    done();
+                });
+            });
+        });
+
+        it('calls method after plugin (legacy)', function (done) {
+
+            var x = function (srv, options, next) {
+
+                srv.expose('a', 'b');
+                return next();
+            };
+
+            x.attributes = {
+                name: 'x'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(server.plugins.x).to.not.exist();
+
+            var called = false;
+            server.after(function (srv, next) {
+
+                expect(srv.plugins.x.a).to.equal('b');
+                called = true;
+                return next();
             }, 'x');
 
             server.register(x, function (err) {
@@ -1596,7 +1633,7 @@ describe('Plugin', function () {
 
                 called = true;
                 return next();
-            }, 'x');
+            }, { after: 'x' });
 
             server.initialize(function (err) {
 
