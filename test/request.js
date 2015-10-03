@@ -1419,45 +1419,36 @@ describe('Request', function () {
 
         it('does not return an error when server is responding when the timeout occurs', function (done) {
 
+            var ended = false;
             var respondingHandler = function (request, reply) {
 
                 var s = new Stream.PassThrough();
                 reply(s);
 
-                for (var i = 10000; i > 0; --i) {
-                    s.write(i.toString());
-                }
+                s.write(new Buffer(10240));
 
                 setTimeout(function () {
 
+                    ended = true;
                     s.emit('end');
-                }, 65);
+                }, 150);
             };
 
             var timer = new Hoek.Bench();
 
             var server = new Hapi.Server();
-            server.connection({ routes: { timeout: { server: 50 } } });
-            server.route({ method: 'GET', path: '/responding', config: { handler: respondingHandler } });
+            server.connection({ routes: { timeout: { server: 100 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: respondingHandler } });
             server.start(function (err) {
 
                 expect(err).to.not.exist();
+                Wreck.get(server.info.uri, {}, function (err, res, payload) {
 
-                var options = {
-                    hostname: '127.0.0.1',
-                    port: server.info.port,
-                    path: '/responding',
-                    method: 'GET'
-                };
-
-                var req = Http.request(options, function (res) {
-
-                    expect(timer.elapsed()).to.be.at.least(60);
+                    expect(ended).to.be.true();
+                    expect(timer.elapsed()).to.be.at.least(150);
                     expect(res.statusCode).to.equal(200);
                     server.stop({ timeout: 1 }, done);
                 });
-
-                req.write('\n');
             });
         });
 

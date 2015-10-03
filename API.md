@@ -1378,17 +1378,19 @@ Registers a plugin where:
     - an object with the following:
         - `register` - the plugin registration function.
         - `options` - optional options passed to the registration function when called.
-        - `select`, `routes` - optional plugin-specific registration options as defined below.
+        - `once`, `select`, `routes` - optional plugin-specific registration options as defined below.
 - `options` - optional registration options (different from the options passed to the registration
   function):
-    - `select` - a string or array of string labels used to pre-select connections for plugin
-      registration.
+    - `once` - if `true`, the registration is skipped for any connection already registered with.
+      Cannot be used with plugin options. Defaults to `false`. 
     - `routes` - modifiers applied to each route added by the plugin:
         - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin
           registers a child plugin the `prefix` is passed on to the child or is added in front of
           the child-specific prefix.
         - `vhost` - virtual host string (or array of strings) applied to every route. The
           outer-most `vhost` overrides the any nested configuration.
+    - `select` - a string or array of string labels used to pre-select connections for plugin
+      registration.
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from the registration function. Note that exceptions thrown by the
       registration function are not handled by the framework.

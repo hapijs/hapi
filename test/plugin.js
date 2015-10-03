@@ -1115,6 +1115,203 @@ describe('Plugin', function () {
             });
         });
 
+        it('register a plugin once per connection', function (done) {
+
+            var a = function (srv, options, next) {
+
+                server.register(b, { once: true }, function (err) {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var count = 0;
+            var b = function (srv, options, next) {
+
+                ++count;
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.connection();
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.not.exist();
+                        expect(count).to.equal(2);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('register a plugin once per connection (skip empty selection)', function (done) {
+
+            var a = function (srv, options, next) {
+
+                server.register(b, { once: true }, function (err) {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var count = 0;
+            var b = function (srv, options, next) {
+
+                ++count;
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.not.exist();
+                        expect(count).to.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('register a connectionless plugin once', function (done) {
+
+            var a = function (srv, options, next) {
+
+                server.register(b, { once: true }, function (err) {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var count = 0;
+            var b = function (srv, options, next) {
+
+                ++count;
+                expect(srv.connections).to.be.null();
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.connection();
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.not.exist();
+                        expect(count).to.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('register a connectionless plugin once (plugin options)', function (done) {
+
+            var a = function (srv, options, next) {
+
+                server.register({ register: b, once: true }, function (err) {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var count = 0;
+            var b = function (srv, options, next) {
+
+                ++count;
+                expect(srv.connections).to.be.null();
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.connection();
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.not.exist();
+                        expect(count).to.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('throws when once used with plugin options', function (done) {
+
+            var a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            expect(function () {
+
+                server.register({ register: a, options: {}, once: true }, function (err) { });
+            }).to.throw();
+
+            done();
+        });
+
         it('throws when dependencies is an object', function (done) {
 
             var a = function (srv, options, next) {
@@ -1131,7 +1328,7 @@ describe('Plugin', function () {
 
             expect(function () {
 
-                server.register(a, function () {});
+                server.register(a, function () { });
             }).to.throw();
             done();
         });
@@ -1152,7 +1349,7 @@ describe('Plugin', function () {
 
             expect(function () {
 
-                server.register(a, function () {});
+                server.register(a, function () { });
             }).to.throw();
             done();
         });
