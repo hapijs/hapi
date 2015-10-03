@@ -2266,7 +2266,10 @@ following options:
       allowed:
         - `true` - any payload allowed (no validation performed). This is the default.
         - `false` - no payload allowed.
-        - a [Joi](http://github.com/hapijs/joi) validation object.
+        - a [Joi](http://github.com/hapijs/joi) validation object. Note that empty payloads
+          are represented by a `null` value. If a validation schema is provided and empty
+          payload are supported, it must be explicitly defined by setting the `payload` value
+          to a **joi** schema with `null` allowed (e.g. `Joi.object({ /* keys here */ }).allow('null')`).
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the payload object.
             - `options` - the server validation options.
