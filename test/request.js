@@ -489,11 +489,11 @@ describe('Request', function () {
                     };
 
                     return reply(stream);
-                }, 10);
+                }, 100);
             };
 
             var server = new Hapi.Server();
-            server.connection({ routes: { timeout: { server: 5 } } });
+            server.connection({ routes: { timeout: { server: 50 } } });
             server.route({
                 method: 'GET',
                 path: '/',

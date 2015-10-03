@@ -417,8 +417,8 @@ used by the framework when adding routes, extensions, and other properties.
     - `bind`
 
 The `server.realm` object should be considered read-only and must not be changed directly except
-for the `plugins` property can be directly manipulated by the plugins (each setting its own under
-`plugins[name]`).
+for the `plugins` property which can be directly manipulated by each plugin, setting its properties
+inside `plugins[name]`.
 
 ```js
 exports.register = function (server, options, next) {
