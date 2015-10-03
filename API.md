@@ -835,11 +835,11 @@ silently).
 
 For example:
 ```js
-exports.register = function (app, options, next) {
+exports.register = function (srv, options, next) {
 
-    // Use the 'app' argument to add a new connection
+    // Use the 'srv' argument to add a new connection
 
-    var server = app.root.connection();
+    var server = srv.root.connection();
 
     // Use the 'server' return value to manage the new connection
 
