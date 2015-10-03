@@ -816,6 +816,51 @@ var admin = server.connection({ port: 8001, host: 'example.com', labels: ['admin
 // admin.connections.length === 1
 ```
 
+Special care must be taken when adding connections inside a plugin `register()` method. Because
+plugin connections selection happens before registration, any connection added inside the plugin
+will not be included in the `server.connections` array. For this reason, the `server` object
+provided to the `register()` method does not support the `connection()` method. Instead, the
+`server.root.connection()` method must be called.
+
+However, connectionless plugins (plugins with `attributes.connections` set to `false`) provide
+a powerful bridge and allow plugins to add connections. This is done by using the `register()`
+`server` argument only for adding the new connection using `server.root.connection()` and then
+using the return value from the `connection()` method (which is another `server` with the new
+connection selected) to perform any other actions that should include the new connection (only).
+
+While this pattern can be accomplished without setting the plugin to connectionless mode, it
+makes the code safer and easier to maintain because it will prevent trying to use the `server`
+argument to manage the new connection and will throw an exception (instead of just failing
+silently).
+
+For example:
+```js
+exports.register = function (server, options, next) {
+
+    // Use the 'server' argument to add a new connection
+
+    var srv = server.root.connection();
+
+    // Use the 'srv' return value to manage the new connection
+
+    srv.route({
+        path: '/',
+        method: 'GET',
+        handler: function (request, reply) {
+
+            return reply('hello');
+        }
+    });
+
+    return next();
+};
+
+exports.register.attributes = {
+    name: 'example',
+    connections: false
+};
+```
+
 ### `server.decorate(type, property, method)`
 
 Extends various framework interfaces with custom methods where:
