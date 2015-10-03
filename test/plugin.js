@@ -563,6 +563,64 @@ describe('Plugin', function () {
             });
         });
 
+        it('ignores unknown plugin properties', function (done) {
+
+            var a = {
+                register: function (srv, options, next) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: function (request, reply) {
+
+                            return reply('ok');
+                        }
+                    });
+                    return next();
+                },
+                other: {}
+            };
+
+            a.register.attributes = { name: 'a' };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(a, function (err) {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
+        it('ignores unknown plugin properties (with options)', function (done) {
+
+            var a = {
+                register: function (srv, options, next) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: function (request, reply) {
+
+                            return reply('ok');
+                        }
+                    });
+                    return next();
+                },
+                other: {}
+            };
+
+            a.register.attributes = { name: 'a' };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register({ register: a }, function (err) {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
         it('registers a child plugin with parent routes path prefix', function (done) {
 
             var server = new Hapi.Server();
