@@ -326,7 +326,43 @@ describe('Request', function () {
                     method: 'GET'
                 });
 
-                clientRequest.on('error', function () { /* NOP */ });
+                clientRequest.on('error', Hoek.ignore);
+                clientRequest.end();
+            });
+        });
+
+        it('does not fail on abort (onPreHandler)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: Hoek.ignore });
+
+            var clientRequest;
+
+            server.ext('onPreHandler', function (request, reply) {
+
+                clientRequest.abort();
+                setTimeout(function () {
+
+                    reply.continue();
+                    setTimeout(function () {
+
+                        server.stop(done);
+                    }, 10);
+                }, 10);
+            });
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+
+                clientRequest = Http.request({
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    method: 'GET'
+                });
+
+                clientRequest.on('error', Hoek.ignore);
                 clientRequest.end();
             });
         });
@@ -368,7 +404,7 @@ describe('Request', function () {
                     method: 'GET'
                 });
 
-                clientRequest.on('error', function () { /* NOP */ });
+                clientRequest.on('error', Hoek.ignore);
                 clientRequest.end();
             });
         });
@@ -1333,17 +1369,22 @@ describe('Request', function () {
 
         it('returns server error message when server timeout happens during request execution (and handler yields)', function (done) {
 
-            var slowHandler = function (request, reply) {
+            var handler = function (request, reply) {
 
                 setTimeout(function () {
 
-                    return reply('Slow');
-                }, 30);
+                    return reply();
+                }, 20);
             };
 
             var server = new Hapi.Server();
-            server.connection({ routes: { timeout: { server: 2 } } });
-            server.route({ method: 'GET', path: '/', config: { handler: slowHandler } });
+            server.connection({ routes: { timeout: { server: 10 } } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            server.ext('onPostHandler', function (request, reply) {
+
+                return reply.continue();
+            });
 
             server.inject('/', function (res) {
 

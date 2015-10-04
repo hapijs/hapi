@@ -913,6 +913,52 @@ describe('Connection', function () {
 
     describe('ext()', function () {
 
+        it('executes along the request lifecycle', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onRequest', function (request, reply) {
+
+                request.app.x = '1';
+                return reply.continue();
+            });
+
+            server.ext('onPreAuth', function (request, reply) {
+
+                request.app.x += '2';
+                return reply.continue();
+            });
+
+            server.ext('onPostAuth', function (request, reply) {
+
+                request.app.x += '3';
+                return reply.continue();
+            });
+
+            server.ext('onPreHandler', function (request, reply) {
+
+                request.app.x += '4';
+                return reply.continue();
+            });
+
+            server.ext('onPostHandler', function (request, reply) {
+
+                request.app.x += '5';
+                return reply.continue();
+            });
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                return reply(request.app.x + '6');
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('123456');
+                done();
+            });
+        });
+
         it('supports adding an array of methods', function (done) {
 
             var server = new Hapi.Server();
