@@ -2123,6 +2123,44 @@ describe('Plugin', function () {
         });
     });
 
+    describe('connection()', function () {
+
+        it('returns a selection object within the same realm', function (done) {
+
+            var plugin = function (srv, options, next) {
+
+                srv.bind({ some: 'context' });
+                var con = srv.connection();
+                con.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply(this.some);
+                    }
+                });
+
+                return next();
+            };
+
+            plugin.attributes = {
+                name: 'test',
+                connections: false
+            };
+
+            var server = new Hapi.Server();
+            server.register(plugin, function (err) {
+
+                expect(err).to.not.exist();
+                server.connections[0].inject('/', function (res) {
+
+                    expect(res.result).to.equal('context');
+                    done();
+                });
+            });
+        });
+    });
+
     describe('decorate()', function () {
 
         it('decorates request', function (done) {
