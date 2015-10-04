@@ -1407,6 +1407,52 @@ describe('Plugin', function () {
             });
         });
 
+        it('register a connectionless plugin once (plugin attributes)', function (done) {
+
+            var a = function (srv, options, next) {
+
+                srv.register(b, function (err) {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            var count = 0;
+            var b = function (srv, options, next) {
+
+                ++count;
+                expect(srv.connections).to.be.null();
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false,
+                once: true
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(b, function (err) {
+
+                server.connection();
+                server.register(a, function (err) {
+
+                    server.initialize(function (err) {
+
+                        expect(err).to.not.exist();
+                        expect(count).to.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
         it('register a connectionless plugin once (plugin options)', function (done) {
 
             var a = function (srv, options, next) {

@@ -1,4 +1,4 @@
-# 10.3.x API Reference
+# 10.4.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -1875,6 +1875,9 @@ The plugin function must include an `attributes` function property with the foll
 - `connections` - if `false`, does not allow the plugin to call server APIs that modify the
   connections such as adding a route or configuring state. This flag allows the plugin to be
   registered before connections are added and to pass dependency requirements. Defaults to `true`.
+- `once` - if `true`, will only register the plugin once per connection (or once per server for a
+  connectionless plugin). If set, overrides the `once` option passed to `server.register()`.
+  Defaults to `undefined` (registration will be based on the `server.register()` option `once`).
 
 ```js
 var register = function (server, options, next) {
