@@ -3117,6 +3117,80 @@ describe('Plugin', function () {
                 });
             });
         });
+
+        it('combine route extensions', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.ext('onPreAuth', function (request, reply) {
+
+                request.app.x = '1';
+                return reply.continue();
+            });
+
+            var plugin = function (srv, options, next) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    config: {
+                        ext: {
+                            onPreAuth: {
+                                method: function (request, reply) {
+
+                                    request.app.x += '2';
+                                    return reply.continue();
+                                }
+                            }
+                        },
+                        handler: function (request, reply) {
+
+                            return reply(request.app.x);
+                        }
+                    }
+                });
+
+                srv.ext('onPreAuth', function (request, reply) {
+
+                    request.app.x += '3';
+                    return reply.continue();
+                }, { sandbox: 'plugin' });
+
+                return next();
+            };
+
+            plugin.attributes = {
+                name: 'test'
+            };
+
+            server.register(plugin, function (err) {
+
+                expect(err).to.not.exist();
+
+                server.route({
+                    method: 'GET',
+                    path: '/a',
+                    config: {
+                        handler: function (request, reply) {
+
+                            return reply(request.app.x);
+                        }
+                    }
+                });
+
+                server.inject('/', function (res1) {
+
+                    expect(res1.result).to.equal('123');
+
+                    server.inject('/a', function (res2) {
+
+                        expect(res2.result).to.equal('1');
+                        done();
+                    });
+                });
+            });
+        });
     });
 
     describe('handler()', function () {

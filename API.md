@@ -1005,6 +1005,11 @@ Registers an extension function in one of the available extension points where:
         - `after` - a string or array of strings of plugin names this method must execute after (on the
           same event). Otherwise, extension methods are executed in the order added.
         - `bind` - a context object passed back to the provided method (via `this`) when called.
+        - `sandbox` - if set to `'plugin'` when adding a [request extension points](#request-lifecycle)
+          the extension is only added to routes defined by the current plugin. Not allowed when
+          configuring route-level extensions, or when adding server extensions. Defaults to
+          `'connection'` which applies to any route added to the connection the extension is added
+          to.
 
 ```js
 var Hapi = require('hapi');
@@ -2149,6 +2154,11 @@ following options:
     - `override` - if `false`, preserves existing CORS headers set manually before the
       response is sent. If set to `'merge'`, appends the configured values to the manually set
       headers. Defaults to `true`.
+
+- `ext` - defined a route-level [request extension points](#request-lifecycle) by setting
+  the option to an object with a key for each of the desired extension points (`'onRequest'`
+  is not allowed), and the value is the same as the [`server.ext(events)`](#serverextevents)
+  `event` argument.
 
 - <a name="route.config.files"></a>`files` - defines the behavior for accessing files:
     - `relativeTo` - determines the folder relative paths are resolved against.

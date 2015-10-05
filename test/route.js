@@ -401,4 +401,236 @@ describe('Route', function () {
             done();
         });
     });
+
+    describe('extensions', function () {
+
+        it('combine connection extensions (route last)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onRequest', function (request, reply) {
+
+                request.app.x = '1';
+                return reply.continue();
+            });
+
+            server.ext('onPreAuth', function (request, reply) {
+
+                request.app.x += '2';
+                return reply.continue();
+            });
+
+            server.ext('onPostAuth', function (request, reply) {
+
+                request.app.x += '3';
+                return reply.continue();
+            });
+
+            server.ext('onPreHandler', function (request, reply) {
+
+                request.app.x += '4';
+                return reply.continue();
+            });
+
+            server.ext('onPostHandler', function (request, reply) {
+
+                request.response.source += '5';
+                return reply.continue();
+            });
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                request.response.source += '6';
+                return reply.continue();
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.app.x);
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('123456');
+                done();
+            });
+        });
+
+        it('combine connection extensions (route first)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.app.x);
+                }
+            });
+
+            server.ext('onRequest', function (request, reply) {
+
+                request.app.x = '1';
+                return reply.continue();
+            });
+
+            server.ext('onPreAuth', function (request, reply) {
+
+                request.app.x += '2';
+                return reply.continue();
+            });
+
+            server.ext('onPostAuth', function (request, reply) {
+
+                request.app.x += '3';
+                return reply.continue();
+            });
+
+            server.ext('onPreHandler', function (request, reply) {
+
+                request.app.x += '4';
+                return reply.continue();
+            });
+
+            server.ext('onPostHandler', function (request, reply) {
+
+                request.response.source += '5';
+                return reply.continue();
+            });
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                request.response.source += '6';
+                return reply.continue();
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('123456');
+                done();
+            });
+        });
+
+        it('combine connection extensions (route middle)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onRequest', function (request, reply) {
+
+                request.app.x = '1';
+                return reply.continue();
+            });
+
+            server.ext('onPreAuth', function (request, reply) {
+
+                request.app.x += '2';
+                return reply.continue();
+            });
+
+            server.ext('onPostAuth', function (request, reply) {
+
+                request.app.x += '3';
+                return reply.continue();
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.app.x);
+                }
+            });
+
+            server.ext('onPreHandler', function (request, reply) {
+
+                request.app.x += '4';
+                return reply.continue();
+            });
+
+            server.ext('onPostHandler', function (request, reply) {
+
+                request.response.source += '5';
+                return reply.continue();
+            });
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                request.response.source += '6';
+                return reply.continue();
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('123456');
+                done();
+            });
+        });
+
+        it('combine connection extensions (mixed sources)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.ext('onPreAuth', function (request, reply) {
+
+                request.app.x = '1';
+                return reply.continue();
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    ext: {
+                        onPreAuth: {
+                            method: function (request, reply) {
+
+                                request.app.x += '2';
+                                return reply.continue();
+                            }
+                        }
+                    },
+                    handler: function (request, reply) {
+
+                        return reply(request.app.x);
+                    }
+                }
+            });
+
+            server.ext('onPreAuth', function (request, reply) {
+
+                request.app.x += '3';
+                return reply.continue();
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/a',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.app.x);
+                    }
+                }
+            });
+
+            server.inject('/', function (res1) {
+
+                expect(res1.result).to.equal('123');
+
+                server.inject('/a', function (res2) {
+
+                    expect(res2.result).to.equal('13');
+                    done();
+                });
+            });
+        });
+    });
 });
