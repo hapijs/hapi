@@ -28,6 +28,7 @@
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
     - [`server.expose(key, value)`](#serverexposekey-value)
     - [`server.expose(obj)`](#serverexposeobj)
+    - [`server.ext(events)`](#serverextevents)
     - [`server.ext(event, method, [options])`](#serverextevent-method-options)
     - [`server.handler(name, method)`](#serverhandlername-method)
     - [`server.initialize(callback)`](#serverinitializecallback)
@@ -973,38 +974,68 @@ exports.register = function (server, options, next) {
 };
 ```
 
-### `server.ext(event, method, [options])`
+### `server.ext(events)`
 
 Registers an extension function in one of the available extension points where:
-- `event` - the event name.
-- `method` - a function or an array of functions to be executed at a specified point during request
-  processing. The required extension function signature is:
-    - server extension points: `function(server, next)` where:
-        - `server` - the server object.
-        - `next` - the continuation method with signature `function(err)`.
-        - `this` - the object provided via `options.bind` or the current active context set with
-          [`server.bind()`](#serverbindcontext).
-    - request extension points: `function(request, reply)` where:
-        - `request` - the [request object](#request-object).
-        - `reply` - the [reply interface](#reply-interface) which is used to return control back to the
-          framework. To continue normal execution of the [request lifecycle](#request-lifecycle),
-          `reply.continue()` must be called. To abort processing and return a response to the client,
-          call `reply(value)` where value is an error or any other valid response.
-        - `this` - the object provided via `options.bind` or the current active context set with
-          [`server.bind()`](#serverbindcontext).
-- `options` - an optional object with the following:
-    - `before` - a string or array of strings of plugin names this method must execute before (on
-      the same event). Otherwise, extension methods are executed in the order added.
-    - `after` - a string or array of strings of plugin names this method must execute after (on the
-      same event). Otherwise, extension methods are executed in the order added.
-    - `bind` - a context object passed back to the provided method (via `this`) when called.
+- `events` - an object or array of objects with the following:
+    - `type` - the extension point event name. The available extension points include the
+      [request extension points](#request-lifecycle) as well as the following server extension points:
+        - `'onPreStart'` - called before the connection listeners are started.
+        - `'onPostStart'` - called after the connection listeners are started.
+        - `'onPreStop'` - called before the connection listeners are stopped.
+        - `'onPostStop'` - called after the connection listeners are stopped.
+    - `method` - a function or an array of functions to be executed at a specified point during request
+      processing. The required extension function signature is:
+        - server extension points: `function(server, next)` where:
+            - `server` - the server object.
+            - `next` - the continuation method with signature `function(err)`.
+            - `this` - the object provided via `options.bind` or the current active context set with
+              [`server.bind()`](#serverbindcontext).
+        - request extension points: `function(request, reply)` where:
+            - `request` - the [request object](#request-object).
+            - `reply` - the [reply interface](#reply-interface) which is used to return control back to the
+              framework. To continue normal execution of the [request lifecycle](#request-lifecycle),
+              `reply.continue()` must be called. To abort processing and return a response to the client,
+              call `reply(value)` where value is an error or any other valid response.
+            - `this` - the object provided via `options.bind` or the current active context set with
+              [`server.bind()`](#serverbindcontext).
+    - `options` - an optional object with the following:
+        - `before` - a string or array of strings of plugin names this method must execute before (on
+          the same event). Otherwise, extension methods are executed in the order added.
+        - `after` - a string or array of strings of plugin names this method must execute after (on the
+          same event). Otherwise, extension methods are executed in the order added.
+        - `bind` - a context object passed back to the provided method (via `this`) when called.
 
-The available extension points include the [request extension points](#request-lifecycle) as well
-as the following server extension points:
-- `'onPreStart'` - called before the connection listeners are started.
-- `'onPostStart'` - called after the connection listeners are started.
-- `'onPreStop'` - called before the connection listeners are stopped.
-- `'onPostStop'` - called after the connection listeners are stopped.
+```js
+var Hapi = require('hapi');
+var server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.ext({
+    type: 'onRequest',
+    method: function (request, reply) {
+
+        // Change all requests to '/test'
+        request.setUrl('/test');
+        return reply.continue();
+    }
+});
+
+var handler = function (request, reply) {
+
+    return reply({ status: 'ok' });
+};
+
+server.route({ method: 'GET', path: '/test', handler: handler });
+server.start(function (err) { });
+
+// All requests will get routed to '/test'
+```
+
+### `server.ext(event, method, [options])`
+
+Registers a single extension event using the same properties as used in
+[`server.ext(events)`](#serverextevents), but passed as arguments.
 
 ```js
 var Hapi = require('hapi');

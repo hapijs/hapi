@@ -3062,6 +3062,61 @@ describe('Plugin', function () {
                 });
             });
         });
+
+        it('extends server actions (single call)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var result = '';
+            server.ext([
+                {
+                    type: 'onPreStart',
+                    method: function (srv, next) {
+
+                        result += '1';
+                        return next();
+                    }
+                },
+                {
+                    type: 'onPostStart',
+                    method: function (srv, next) {
+
+                        result += '2';
+                        return next();
+                    }
+                },
+                {
+                    type: 'onPreStop',
+                    method: function (srv, next) {
+
+                        result += '3';
+                        return next();
+                    }
+                },
+                {
+                    type: 'onPreStop',
+                    method: function (srv, next) {
+
+                        result += '4';
+                        return next();
+                    }
+                }
+            ]);
+
+            server.start(function (err) {
+
+                expect(err).to.not.exist();
+                expect(result).to.equal('12');
+
+                server.stop(function (err) {
+
+                    expect(err).to.not.exist();
+                    expect(result).to.equal('1234');
+                    done();
+                });
+            });
+        });
     });
 
     describe('handler()', function () {
