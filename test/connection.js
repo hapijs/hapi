@@ -715,6 +715,83 @@ describe('Connection', function () {
             });
         });
 
+        it('sets credentials (with host header)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            var options = {
+                url: '/',
+                credentials: { foo: 'bar' },
+                headers: {
+                    host: 'something'
+                }
+            };
+
+            server.inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(options.credentials).to.exist();
+                done();
+            });
+        });
+
+        it('sets credentials (with authority)', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(request.headers.host);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            var options = {
+                url: '/',
+                credentials: { foo: 'bar' },
+                authority: 'something'
+            };
+
+            server.inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('something');
+                expect(options.credentials).to.exist();
+                done();
+            });
+        });
+
+        it('sets authority', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply(request.headers.host);
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            var options = {
+                url: '/',
+                authority: 'something'
+            };
+
+            server.inject(options, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('something');
+                done();
+            });
+        });
+
         it('passes the options.artifacts object', function (done) {
 
             var handler = function (request, reply) {
@@ -795,6 +872,26 @@ describe('Connection', function () {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.payload).to.equal('127.0.0.1');
+                done();
+            });
+        });
+
+        it('sets correct host header', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ host: 'example.com', port: 2080 });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    reply(request.headers.host);
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.equal('example.com:2080');
                 done();
             });
         });

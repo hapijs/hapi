@@ -34,7 +34,7 @@
     "mimos": "2.x.x",
     "peekaboo": "1.x.x",
     "qs": "4.x.x",
-    "shot": "1.x.x",
+    "shot": "^1.7.x",
     "statehood": "2.x.x",
     "subtext": "2.x.x",
     "topo": "^1.1.x"
