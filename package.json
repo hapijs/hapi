@@ -37,7 +37,7 @@
     "shot": "1.x.x",
     "statehood": "2.x.x",
     "subtext": "2.x.x",
-    "topo": "1.x.x"
+    "topo": "^1.1.x"
   },
   "devDependencies": {
     "bluebird": "2.x.x",
