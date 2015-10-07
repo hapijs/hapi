@@ -2,7 +2,7 @@
   "name": "hapi-lts",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "9.4.0",
+  "version": "9.4.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "accept": "1.x.x",
-    "ammo":  "1.x.x",
+    "ammo": "1.x.x",
     "boom": "^2.5.x",
     "call": "2.x.x",
     "catbox": "6.x.x",
