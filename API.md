@@ -435,7 +435,6 @@ When the server contains exactly one connection, `registrations` is an object wh
 registered plugin name and value contains:
 - `version` - the plugin version.
 - `name` - the plugin name.
-- `multiple` - the plugin multiple status.
 - `options` - options used to register the plugin.
 - `attributes` - plugin registration attributes.
 

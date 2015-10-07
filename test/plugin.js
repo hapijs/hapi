@@ -388,7 +388,7 @@ describe('Plugin', function () {
                 expect(bob).to.exist();
                 expect(bob).to.be.an.object();
                 expect(bob.version).to.equal('1.2.3');
-                expect(bob.multiple).to.be.true();
+                expect(bob.attributes.multiple).to.be.true();
                 expect(bob.options.foo).to.equal('bar');
                 server.inject('/', function (res) {
 
