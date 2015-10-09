@@ -352,6 +352,52 @@ describe('Plugin', function () {
             });
         });
 
+        it('exposes plugin registration information', function (done) {
+
+            var test = function (srv, options, next) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function (request, reply) {
+
+                        return reply(srv.version);
+                    }
+                });
+                return next();
+            };
+
+            test.attributes = {
+                multiple: true,
+                pkg: {
+                    name: 'bob',
+                    version: '1.2.3'
+                }
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.register({
+                register: test,
+                options: { foo: 'bar' }
+            }, function (err) {
+
+                expect(err).to.not.exist();
+                var bob = server.connections[0].registrations.bob;
+                expect(bob).to.exist();
+                expect(bob).to.be.an.object();
+                expect(bob.version).to.equal('1.2.3');
+                expect(bob.attributes.multiple).to.be.true();
+                expect(bob.options.foo).to.equal('bar');
+                server.inject('/', function (res) {
+
+                    expect(res.result).to.equal(require('../package.json').version);
+                    done();
+                });
+            });
+        });
+
         it('prevents plugin from multiple registrations', function (done) {
 
             var test = function (srv, options, next) {

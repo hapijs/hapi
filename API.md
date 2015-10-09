@@ -434,6 +434,9 @@ exports.register = function (server, options, next) {
 When the server contains exactly one connection, `registrations` is an object where each key is a
 registered plugin name and value contains:
 - `version` - the plugin version.
+- `name` - the plugin name.
+- `options` - options used to register the plugin.
+- `attributes` - plugin registration attributes.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.registrations`.
@@ -1469,7 +1472,7 @@ Registers a plugin where:
     - `once` - if `true`, the registration is skipped for any connection already registered with.
       Cannot be used with plugin options. If the plugin does not have a `connections` attribute set
       to `false` and the registration selection is empty, registration will be skipped as no connections
-      are available to register once. Defaults to `false`. 
+      are available to register once. Defaults to `false`.
     - `routes` - modifiers applied to each route added by the plugin:
         - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin
           registers a child plugin the `prefix` is passed on to the child or is added in front of
@@ -2733,7 +2736,7 @@ For example it can be used inside a promise to create a response object which ha
 var handler = function (request, reply) {
 
     var result = promiseMethod().then(function (thing) {
-    
+
         if (!thing) {
             return request.generateResponse().code(214);
         }
