@@ -504,6 +504,37 @@ describe('handler', function () {
             });
         });
 
+        it('returns a user record using server method (nested method name)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.method('user.get', function (id, next) {
+
+                return next(null, { id: id, name: 'Bob' });
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                config: {
+                    pre: [
+                        'user.get(params.id)'
+                    ],
+                    handler: function (request, reply) {
+
+                        return reply(request.pre['user.get']);
+                    }
+                }
+            });
+
+            server.inject('/user/5', function (res) {
+
+                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                done();
+            });
+        });
+
         it('returns a user record using server method in object', function (done) {
 
             var server = new Hapi.Server();
