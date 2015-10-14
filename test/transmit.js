@@ -2155,12 +2155,18 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler, config: { cors: true } });
 
-            server.inject('/', function (res) {
+            server.inject('/', function (res1) {
 
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('ok');
-                expect(res.headers['access-control-allow-origin']).to.equal('*');
-                done();
+                expect(res1.result).to.exist();
+                expect(res1.result).to.equal('ok');
+                expect(res1.headers['access-control-allow-origin']).to.equal('*');
+
+                server.inject({ method: 'OPTIONS', url: '/' }, function (res2) {
+
+                    expect(res2.result).to.be.null();
+                    expect(res2.headers['access-control-allow-origin']).to.equal('*');
+                    done();
+                });
             });
         });
 
