@@ -2123,8 +2123,8 @@ following options:
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows
   browsers to make cross-origin API calls. CORS is required by web applications running
   inside a browser which are loaded from a different domain than the API server. CORS
-  headers are disabled by default. To enable, set `cors` to `true`, or to an object with
-  the following options:
+  headers are disabled by default (`false`). To enable, set `cors` to `true`, or to an object
+  with the following options:
     - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin').
       The array can contain any combination of fully qualified origins along with origin
       strings containing a wildcard '*' character, or a single `'*'` origin string. Defaults
