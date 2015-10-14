@@ -2534,7 +2534,7 @@ are called in parallel. `pre` can be assigned a mixed array of:
 - arrays containing the elements listed below, which are executed in parallel.
 - objects with:
     - `method` - the function to call (or short-hand method string as described below). the
-      function signature is identical to a route handler as describer in
+      function signature is identical to a route handler as described in
       [Route handler](#route-handler).
     - `assign` - key name to assign the result of the function to within `request.pre`.
     - `failAction` - determines how to handle errors returned by the method. Allowed values are:
