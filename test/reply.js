@@ -221,14 +221,13 @@ describe('Reply', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ routes: { cors: { credentials: true } } });
+            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(299);
                 expect(res.result).to.equal(null);
-                expect(res.headers['access-control-allow-credentials']).to.equal('true');
                 done();
             });
         });
@@ -260,7 +259,7 @@ describe('Reply', function () {
             };
 
             var server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['test.example.com'] } } });
+            server.connection();
             server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
             server.inject('/stream', function (res1) {
@@ -268,14 +267,12 @@ describe('Reply', function () {
                 expect(res1.result).to.equal('xy');
                 expect(res1.statusCode).to.equal(200);
                 expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-                expect(res1.headers['access-control-allow-origin']).to.equal('test.example.com');
 
                 server.inject({ method: 'HEAD', url: '/stream' }, function (res2) {
 
                     expect(res2.result).to.equal('');
                     expect(res2.statusCode).to.equal(200);
                     expect(res2.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-                    expect(res2.headers['access-control-allow-origin']).to.equal('test.example.com');
                     done();
                 });
             });
@@ -429,15 +426,13 @@ describe('Reply', function () {
                 };
 
                 var server = new Hapi.Server({ debug: false });
-                server.connection({ routes: { cors: { origin: ['test.example.com'] } } });
+                server.connection();
                 server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
                 server.inject('/stream', function (res) {
 
                     expect(res.result).to.equal('xy');
                     expect(res.statusCode).to.equal(299);
-                    expect(res.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-                    expect(res.headers['access-control-allow-origin']).to.equal('test.example.com');
                     done();
                 });
             });
