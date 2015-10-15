@@ -1,4 +1,4 @@
-# 10.4.x API Reference
+# 10.5.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -1757,6 +1757,9 @@ The server object inherits from `Events.EventEmitter` and emits the following ev
   per request.
 - `'tail'` - emitted when a request finished processing, including any registered tails. Single
   event per request.
+- `'route'` - emitted when a route is added to a connection. Note that if a route is added to
+  multiple connections at the same time, each will emit a separate event. Note that the `route`
+  object must not be modified.
 
 Note that the server object should not be used to emit application events as its internal
 implementation is designed to fan events out to the various plugin selections and not for
@@ -1813,6 +1816,17 @@ server.on('response', function (request) {
     console.log('Response sent for request: ' + request.id);
 });
 ```
+
+The `'route'` event includes the [route public interface](#route-public-interface), the connection,
+and the server object used to add the route (e.g. the result of a plugin select operation):
+
+```js
+server.on('route', function (route, connection, server) {
+
+    console.log('New route added: ' + route.path);
+});
+```
+
 
 #### Internal events
 

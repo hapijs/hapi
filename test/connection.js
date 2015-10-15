@@ -1557,6 +1557,28 @@ describe('Connection', function () {
 
     describe('route()', function () {
 
+        it('emits route event', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ labels: 'a' });
+            server.on('route', function (route, connection, srv) {
+
+                expect(route.path).to.equal('/');
+                expect(connection.settings.labels).to.deep.equal(['a']);
+                expect(srv).to.equal(server);
+                done();
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply();
+                }
+            });
+        });
+
         it('overrides the default notFound handler', function (done) {
 
             var handler = function (request, reply) {
