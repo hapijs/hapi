@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "10.5.0",
+    "version": "11.0.0",
     "dependencies": {
         "accept": {
             "version": "1.1.0"
@@ -61,7 +61,7 @@
             "version": "1.0.0"
         },
         "qs": {
-            "version": "4.0.0"
+            "version": "5.2.0"
         },
         "shot": {
             "version": "1.7.0"
