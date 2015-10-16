@@ -1461,7 +1461,7 @@ describe('Request', function () {
         it('does not return an error when server is responding when the timeout occurs', function (done) {
 
             var ended = false;
-            var respondingHandler = function (request, reply) {
+            var handler = function (request, reply) {
 
                 var s = new Stream.PassThrough();
                 reply(s);
@@ -1471,7 +1471,7 @@ describe('Request', function () {
                 setTimeout(function () {
 
                     ended = true;
-                    s.emit('end');
+                    s.end();
                 }, 150);
             };
 
@@ -1479,7 +1479,7 @@ describe('Request', function () {
 
             var server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 100 } } });
-            server.route({ method: 'GET', path: '/', config: { handler: respondingHandler } });
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
             server.start(function (err) {
 
                 expect(err).to.not.exist();
