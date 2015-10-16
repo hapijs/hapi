@@ -2157,10 +2157,6 @@ following options:
       Defaults to `['Authorization', 'Content-Type', 'If-None-Match']`.
     - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to
       keep the default headers in place.
-    - `methods` - a strings array of allowed HTTP methods ('Access-Control-Allow-Methods').
-      Defaults to `['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']`.
-    - `additionalMethods` - a strings array of additional methods to `methods`. Use this to
-      keep the default methods in place.
     - `exposedHeaders` - a strings array of exposed headers
       ('Access-Control-Expose-Headers'). Defaults to
       `['WWW-Authenticate', 'Server-Authorization']`.
@@ -2170,7 +2166,7 @@ following options:
       ('Access-Control-Allow-Credentials'). Defaults to `false`.
     - `override` - if `false`, preserves existing CORS headers set manually before the
       response is sent. If set to `'merge'`, appends the configured values to the manually set
-      headers. Defaults to `true`.
+      headers (applies only to Access-Control-Expose-Headers). Defaults to `true`.
 
 - `ext` - defined a route-level [request extension points](#request-lifecycle) by setting
   the option to an object with a key for each of the desired extension points (`'onRequest'`

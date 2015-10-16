@@ -227,6 +227,7 @@ describe('Reply', function () {
             server.inject('/', function (res) {
 
                 expect(res.statusCode).to.equal(299);
+                expect(res.headers['content-length']).to.equal(0);
                 expect(res.result).to.equal(null);
                 done();
             });

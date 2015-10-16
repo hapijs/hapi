@@ -68,7 +68,6 @@ describe('Response', function () {
             expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
             expect(res.headers['access-control-allow-origin']).to.equal('*');
             expect(res.headers['access-control-allow-credentials']).to.not.exist();
-            expect(res.headers['access-control-allow-methods']).to.equal('GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS');
             expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'always=present']);
             expect(res.headers.vary).to.equal('x-control,origin');
             expect(res.headers.combo).to.equal('o-k');
