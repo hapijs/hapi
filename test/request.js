@@ -241,6 +241,17 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
+            var disconnected = 0;
+            server.ext('onRequest', function (request, reply) {
+
+                request.once('disconnect', function () {
+
+                    ++disconnected;
+                });
+
+                return reply.continue();
+            });
+
             server.start(function (err) {
 
                 expect(err).to.not.exist();
@@ -256,7 +267,7 @@ describe('Request', function () {
 
                     client.on('data', function () {
 
-                        total--;
+                        --total;
                         client.destroy();
                     });
                 };
@@ -268,6 +279,7 @@ describe('Request', function () {
                         setTimeout(check, 10);
                     }
                     else {
+                        expect(disconnected).to.equal(4);       // Each connection sents two HTTP requests
                         server.stop(done);
                     }
                 };

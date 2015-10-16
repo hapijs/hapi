@@ -1216,6 +1216,41 @@ describe('Response', function () {
         });
     });
 
+    describe('_tap()', function () {
+
+        it('peeks into the response stream', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var output = '';
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    var response = reply('1234567890');
+
+                    response.on('peek', function (chunk) {
+
+                        output += chunk.toString();
+                    });
+
+                    response.once('finish', function () {
+
+                        output += '!';
+                    });
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(output).to.equal('1234567890!');
+                done();
+            });
+        });
+    });
+
     describe('_close()', function () {
 
         it('calls custom close processor', function (done) {

@@ -465,7 +465,7 @@ describe('Server', function () {
 
                 server.inject('/', function (res1) {
 
-                    expect(server.load.eventLoopDelay).to.equal(0);
+                    expect(server.load.eventLoopDelay).to.be.below(5);
 
                     setImmediate(function () {
 
