@@ -1463,16 +1463,32 @@ describe('Request', function () {
             var ended = false;
             var handler = function (request, reply) {
 
-                var s = new Stream.PassThrough();
-                reply(s);
+                var TestStream = function () {
 
-                s.write(new Buffer(10240));
+                    Stream.Readable.call(this);
+                };
 
-                setTimeout(function () {
+                Hoek.inherits(TestStream, Stream.Readable);
 
-                    ended = true;
-                    s.end();
-                }, 150);
+                TestStream.prototype._read = function (size) {
+
+                    var self = this;
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    self.push('Hello');
+
+                    setTimeout(function () {
+
+                        self.push(null);
+                        ended = true;
+                    }, 150);
+                };
+
+                return reply(new TestStream());
             };
 
             var timer = new Hoek.Bench();

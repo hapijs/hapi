@@ -2143,13 +2143,6 @@ following options:
       The array can contain any combination of fully qualified origins along with origin
       strings containing a wildcard '*' character, or a single `'*'` origin string. Defaults
       to any origin `['*']`.
-    - `matchOrigin` - if `true`, matches the value of the incoming 'Origin' header to the
-      list of `origin` values ('*' matches anything) and if a match is found, uses that as
-      the value of the 'Access-Control-Allow-Origin' response header. When false, the
-      `origin` config is returned as-is. Defaults to `true`.
-    - `isOriginExposed` - if `false`, prevents the connection from returning the full list
-      of non-wildcard `origin` values if the incoming origin header does not match any of
-      the values. Has no impact if `matchOrigin` is set to `false`. Defaults to `true`.
     - `maxAge` - number of seconds the browser should cache the CORS response
       ('Access-Control-Max-Age'). The greater the value, the longer it will take before the
       browser checks for changes in policy. Defaults to `86400` (one day).
@@ -2164,9 +2157,6 @@ following options:
       `exposedHeaders`. Use this to keep the default headers in place.
     - `credentials` - if `true`, allows user credentials to be sent
       ('Access-Control-Allow-Credentials'). Defaults to `false`.
-    - `override` - if `false`, preserves existing CORS headers set manually before the
-      response is sent. If set to `'merge'`, appends the configured values to the manually set
-      headers (applies only to Access-Control-Expose-Headers). Defaults to `true`.
 
 - `ext` - defined a route-level [request extension points](#request-lifecycle) by setting
   the option to an object with a key for each of the desired extension points (`'onRequest'`
