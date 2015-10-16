@@ -73,6 +73,79 @@ describe('Response', function () {
         });
     });
 
+    describe('_setSource()', function () {
+
+        it('returns an empty string reply', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('');
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.equal(0);
+                expect(res.headers['content-type']).to.not.exist();
+                expect(res.result).to.equal(null);
+                expect(res.payload).to.equal('');
+                done();
+            });
+        });
+
+        it('returns a null reply', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(null);
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.equal(0);
+                expect(res.result).to.equal(null);
+                expect(res.payload).to.equal('');
+                done();
+            });
+        });
+
+        it('returns an undefined reply', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply();
+                }
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.equal(0);
+                expect(res.result).to.equal(null);
+                expect(res.payload).to.equal('');
+                done();
+            });
+        });
+    });
+
     describe('header()', function () {
 
         it('appends to set-cookie header', function (done) {

@@ -1436,6 +1436,77 @@ describe('validation', function () {
         });
     });
 
+    it('validates string response', function (done) {
+
+        var value = 'abcd';
+        var handler = function (request, reply) {
+
+            return reply(value);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: Joi.string().min(5)
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res1) {
+
+            expect(res1.statusCode).to.equal(500);
+            value += 'e';
+
+            server.inject('/', function (res2) {
+
+                expect(res2.statusCode).to.equal(200);
+                expect(res2.payload).to.equal('abcde');
+                done();
+            });
+        });
+    });
+
+    it('validates boolean response', function (done) {
+
+        var value = 'abcd';
+        var handler = function (request, reply) {
+
+            return reply(value);
+        };
+
+        var server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    schema: Joi.boolean(),
+                    modify: true
+                }
+            },
+            handler: handler
+        });
+
+        server.inject('/', function (res1) {
+
+            expect(res1.statusCode).to.equal(500);
+            value = 'on';
+
+            server.inject('/', function (res2) {
+
+                expect(res2.statusCode).to.equal(200);
+                expect(res2.payload).to.equal('true');
+                done();
+            });
+        });
+    });
+
     it('validates valid header', function (done) {
 
         var server = new Hapi.Server();

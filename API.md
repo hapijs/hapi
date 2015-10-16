@@ -2209,9 +2209,8 @@ following options:
 - `pre` - an array with [route prerequisites](#route-prerequisites) methods which are executed
   in serial or in parallel before the handler is called.
 
-- `response` - validation rules for the outgoing response payload (response body). Can only
-  validate object response:
-    - `schema` - the default response object validation rules (for all non-error responses)
+- `response` - processing rules for the outgoing response:
+    - `schema` - the default response payload validation rules (for all non-error responses)
       expressed as one of:
         - `true` - any payload allowed (no validation performed). This is the default.
         - `false` - no payload allowed.
@@ -2222,17 +2221,17 @@ following options:
             - `options` - the server validation options, merged with an object containing the request's
               headers, params, payload, and auth credentials object and isAuthenticated flag.
             - `next(err)` - the callback function called when validation is completed.
-    - `status` - HTTP status-code-specific validation rules. The `status` key is set to an
+    - `status` - HTTP status-code-specific payload validation rules. The `status` key is set to an
       object where each key is a 3 digit HTTP status code and the value has the same
       definition as `schema`. If a response status code is not present in the `status` object,
       the `schema` definition is used, expect for errors which are not validated by default.
-    - `sample` - the percent of responses validated (0 - 100). Set to `0` to disable all
-      validation. Defaults to `100` (all responses).
-    - `failAction` - defines what to do when a response fails validation. Options are:
+    - `sample` - the percent of response payloads validated (0 - 100). Set to `0` to disable all
+      validation. Defaults to `100` (all response payloads).
+    - `failAction` - defines what to do when a response fails payload validation. Options are:
         - `error` - return an Internal Server Error (500) error response. This is the default
           value.
         - `log` - log the error but send the response.
-    - `modify` - if `true`, applies the validation rule changes to the response. Defaults to
+    - `modify` - if `true`, applies the validation rule changes to the response payload. Defaults to
       `false`.
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
       global options such as `stripUnknown` or `abortEarly` (the complete list is available
