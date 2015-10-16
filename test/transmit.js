@@ -599,6 +599,25 @@ describe('transmission', function () {
             });
         });
 
+        it('sends 204 on empty payload', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ routes: { response: { emptyStatusCode: 204 } } });
+
+            var handler = function (request, reply) {
+
+                return reply();
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(204);
+                expect(res.result).to.equal(null);
+                done();
+            });
+        });
+
         it('skips compression on empty', function (done) {
 
             var server = new Hapi.Server();

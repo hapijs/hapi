@@ -2210,6 +2210,10 @@ following options:
   in serial or in parallel before the handler is called.
 
 - `response` - processing rules for the outgoing response:
+    - `emptyStatusCode` - the default HTTP status code when the payload is empty. Value can
+      be `200` or `204`. Note that a `200` status code is converted to a `204` only at the time
+      or response transmission (the response status code will remain `200` throughout the
+      request lifecycle unless manually set). Defaults to `200`.
     - `schema` - the default response payload validation rules (for all non-error responses)
       expressed as one of:
         - `true` - any payload allowed (no validation performed). This is the default.
