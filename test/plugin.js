@@ -1864,173 +1864,6 @@ describe('Plugin', function () {
         });
     });
 
-    describe('after()', function () {
-
-        it('calls method after plugin', function (done) {
-
-            var x = function (srv, options, next) {
-
-                srv.expose('a', 'b');
-                return next();
-            };
-
-            x.attributes = {
-                name: 'x'
-            };
-
-            var server = new Hapi.Server();
-            server.connection();
-
-            expect(server.plugins.x).to.not.exist();
-
-            var called = false;
-            server.after(function (srv, next) {
-
-                expect(srv.plugins.x.a).to.equal('b');
-                called = true;
-                return next();
-            }, { after: 'x' });
-
-            server.register(x, function (err) {
-
-                expect(err).to.not.exist();
-                server.initialize(function (err) {
-
-                    expect(err).to.not.exist();
-                    expect(called).to.be.true();
-                    done();
-                });
-            });
-        });
-
-        it('calls method after plugin (legacy)', function (done) {
-
-            var x = function (srv, options, next) {
-
-                srv.expose('a', 'b');
-                return next();
-            };
-
-            x.attributes = {
-                name: 'x'
-            };
-
-            var server = new Hapi.Server();
-            server.connection();
-
-            expect(server.plugins.x).to.not.exist();
-
-            var called = false;
-            server.after(function (srv, next) {
-
-                expect(srv.plugins.x.a).to.equal('b');
-                called = true;
-                return next();
-            }, 'x');
-
-            server.register(x, function (err) {
-
-                expect(err).to.not.exist();
-                server.initialize(function (err) {
-
-                    expect(err).to.not.exist();
-                    expect(called).to.be.true();
-                    done();
-                });
-            });
-        });
-
-        it('calls method before start', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-
-            var called = false;
-            server.after(function (srv, next) {
-
-                called = true;
-                return next();
-            });
-
-            server.initialize(function (err) {
-
-                expect(err).to.not.exist();
-                expect(called).to.be.true();
-                done();
-            });
-        });
-
-        it('calls method before start even if plugin not registered', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-
-            var called = false;
-            server.after(function (srv, next) {
-
-                called = true;
-                return next();
-            }, { after: 'x' });
-
-            server.initialize(function (err) {
-
-                expect(err).to.not.exist();
-                expect(called).to.be.true();
-                done();
-            });
-        });
-
-        it('fails to start server when after method fails', function (done) {
-
-            var test = function (srv, options, next) {
-
-                srv.after(function (inner, finish) {
-
-                    return finish();
-                });
-
-                srv.after(function (inner, finish) {
-
-                    return finish(new Error('Not in the mood'));
-                });
-
-                return next();
-            };
-
-            test.attributes = {
-                name: 'test'
-            };
-
-            var server = new Hapi.Server();
-            server.connection();
-            server.register(test, function (err) {
-
-                expect(err).to.not.exist();
-                server.initialize(function (err) {
-
-                    expect(err).to.exist();
-                    done();
-                });
-            });
-        });
-
-        it('errors when added after initialization', function (done) {
-
-            var server = new Hapi.Server();
-            server.connection();
-
-            server.initialize(function (err) {
-
-                expect(function () {
-
-                    server.after(function () { });
-                }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
-
-                done();
-            });
-        });
-    });
-
     describe('auth', function () {
 
         it('adds auth strategy via plugin', function (done) {
@@ -3235,6 +3068,133 @@ describe('Plugin', function () {
                         done();
                     });
                 });
+            });
+        });
+
+        it('calls method after plugin', function (done) {
+
+            var x = function (srv, options, next) {
+
+                srv.expose('a', 'b');
+                return next();
+            };
+
+            x.attributes = {
+                name: 'x'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            expect(server.plugins.x).to.not.exist();
+
+            var called = false;
+            server.ext('onPreStart', function (srv, next) {
+
+                expect(srv.plugins.x.a).to.equal('b');
+                called = true;
+                return next();
+            }, { after: 'x' });
+
+            server.register(x, function (err) {
+
+                expect(err).to.not.exist();
+                server.initialize(function (err) {
+
+                    expect(err).to.not.exist();
+                    expect(called).to.be.true();
+                    done();
+                });
+            });
+        });
+
+        it('calls method before start', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var called = false;
+            server.ext('onPreStart', function (srv, next) {
+
+                called = true;
+                return next();
+            });
+
+            server.initialize(function (err) {
+
+                expect(err).to.not.exist();
+                expect(called).to.be.true();
+                done();
+            });
+        });
+
+        it('calls method before start even if plugin not registered', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var called = false;
+            server.ext('onPreStart', function (srv, next) {
+
+                called = true;
+                return next();
+            }, { after: 'x' });
+
+            server.initialize(function (err) {
+
+                expect(err).to.not.exist();
+                expect(called).to.be.true();
+                done();
+            });
+        });
+
+        it('fails to start server when after method fails', function (done) {
+
+            var test = function (srv, options, next) {
+
+                srv.ext('onPreStart', function (inner, finish) {
+
+                    return finish();
+                });
+
+                srv.ext('onPreStart', function (inner, finish) {
+
+                    return finish(new Error('Not in the mood'));
+                });
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register(test, function (err) {
+
+                expect(err).to.not.exist();
+                server.initialize(function (err) {
+
+                    expect(err).to.exist();
+                    done();
+                });
+            });
+        });
+
+        it('errors when added after initialization', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            server.initialize(function (err) {
+
+                expect(function () {
+
+                    server.ext('onPreStart', function () { });
+                }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
+
+                done();
             });
         });
     });

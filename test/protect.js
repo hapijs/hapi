@@ -111,7 +111,7 @@ describe('Protect', function () {
 
         var test = function (srv, options, next) {
 
-            srv.after(function (plugin, afterNext) {
+            srv.ext('onPreStart', function (plugin, afterNext) {
 
                 var client = new Client();                      // Created in the global domain
                 plugin.bind({ client: client });

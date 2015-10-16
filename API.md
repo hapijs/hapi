@@ -16,7 +16,6 @@
         - [`server.root`](#serverroot)
         - [`server.settings`](#serversettings)
         - [`server.version`](#serverversion)
-    - [`server.after(method, [options])`](#serveraftermethod-options)
     - [`server.auth.default(options)`](#serverauthdefaultoptions)
     - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
     - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
@@ -469,41 +468,6 @@ The **hapi** module version number.
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 // server.version === '8.0.0'
-```
-
-### `server.after(method, [options])`
-
-Adds a method to be called after all the plugin dependencies have been registered and before the
-server starts (only called if the server is started) where:
-- `method` - the method with signature `function(server, next)` where:
-    - `server` - server object the `after()` method was called on.
-    - `next` - the callback function the method must call to return control over to the application
-      and complete the registration process. The function signature is `function(err)` where:
-        - `err` - internal error which is returned back via the
-          [`server.start()`](#serverstartcallback) callback.
-- `options` - an optional object where:
-    - `after` - a string or array of string with the plugin names to call this method after
-      their `after()` methods. There is no requirement for the other [plugins](#plugins) to be
-      registered. Setting dependencies only arranges the after methods in the specified order.
-
-The `server.after()` method is identical to setting a server extension point on `'onPreStart'`.
-
-```js
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-server.connection({ port: 80 });
-
-server.after(function (srv, next) {
-
-    // Perform some pre-start logic
-
-    next();
-});
-
-server.start(function (err) {
-
-    // After method already executed
-});
 ```
 
 ### `server.auth.default(options)`
@@ -1826,7 +1790,6 @@ server.on('route', function (route, connection, server) {
     console.log('New route added: ' + route.path);
 });
 ```
-
 
 #### Internal events
 
