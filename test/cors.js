@@ -96,6 +96,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/b', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res2) {
 
                 expect(res2.statusCode).to.equal(404);
+                expect(res2.result.message).to.equal('CORS is disabled for this route');
                 expect(res2.headers['access-control-allow-origin']).to.not.exist();
                 done();
             });
@@ -130,6 +131,7 @@ describe('CORS', function () {
                 server.inject({ method: 'OPTIONS', url: '/c', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res3) {
 
                     expect(res3.statusCode).to.equal(404);
+                    expect(res3.result.message).to.equal('CORS is disabled for this route');
                     expect(res3.headers['access-control-allow-origin']).to.not.exist();
                     done();
                 });
@@ -455,6 +457,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { 'access-control-request-method': 'GET' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
+                expect(res.result.message).to.equal('Missing origin header');
                 done();
             });
         });
@@ -472,6 +475,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
+                expect(res.result.message).to.equal('Missing access-control-request-method header');
                 done();
             });
         });
@@ -484,6 +488,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
+                expect(res.result.message).to.equal('Missing route');
                 done();
             });
         });
@@ -501,6 +506,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
+                expect(res.result.message).to.equal('Origin header mismatch');
                 done();
             });
         });
@@ -554,6 +560,7 @@ describe('CORS', function () {
             }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
+                expect(res.result.message).to.equal('Some headers are not allowed');
                 done();
             });
         });
