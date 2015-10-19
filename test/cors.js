@@ -457,7 +457,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { 'access-control-request-method': 'GET' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
-                expect(res.result.message).to.equal('Missing origin header');
+                expect(res.result.message).to.equal('Missing Origin header');
                 done();
             });
         });
@@ -475,7 +475,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
-                expect(res.result.message).to.equal('Missing access-control-request-method header');
+                expect(res.result.message).to.equal('Missing Access-Control-Request-Method header');
                 done();
             });
         });
@@ -488,7 +488,6 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
-                expect(res.result.message).to.equal('Missing route');
                 done();
             });
         });
@@ -506,7 +505,7 @@ describe('CORS', function () {
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res) {
 
                 expect(res.statusCode).to.equal(404);
-                expect(res.result.message).to.equal('Origin header mismatch');
+                expect(res.result.message).to.equal('Origin not allowed');
                 done();
             });
         });
