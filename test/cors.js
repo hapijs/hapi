@@ -57,6 +57,24 @@ describe('CORS', function () {
         });
     });
 
+    it('returns OPTIONS response (server config)', function (done) {
+
+        var handler = function (request, reply) {
+
+            return reply(Boom.badRequest());
+        };
+
+        var server = new Hapi.Server({ connections: { routes: { cors: true } } });
+        server.connection();
+        server.route({ method: 'GET', path: '/x', handler: handler });
+
+        server.inject({ method: 'OPTIONS', url: '/x', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res) {
+
+            expect(res.headers['access-control-allow-origin']).to.equal('http://example.com/');
+            done();
+        });
+    });
+
     it('returns headers on single route', function (done) {
 
         var handler = function (request, reply) {
