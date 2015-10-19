@@ -2110,7 +2110,7 @@ following options:
       ('Access-Control-Max-Age'). The greater the value, the longer it will take before the
       browser checks for changes in policy. Defaults to `86400` (one day).
     - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers').
-      Defaults to `['Authorization', 'Content-Type', 'If-None-Match', 'Accept']`.
+      Defaults to `['Accept', 'Authorization', 'Content-Type', 'If-None-Match']`.
     - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to
       keep the default headers in place.
     - `exposedHeaders` - a strings array of exposed headers
