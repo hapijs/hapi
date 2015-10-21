@@ -306,6 +306,22 @@ describe('Request', function () {
             });
         });
 
+        it('returns empty params array when none present (not found)', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.ext('onPreResponse', function (request, reply) {
+
+                return reply(request.params);
+            });
+
+            server.inject('/', function (res) {
+
+                expect(res.result).to.deep.equal({});
+                done();
+            });
+        });
+
         it('does not fail on abort', function (done) {
 
             var clientRequest;
