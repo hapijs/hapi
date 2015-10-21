@@ -537,6 +537,33 @@ describe('CORS', function () {
             });
         });
 
+        it('matches allowed headers (case insensitive', function (done) {
+
+            var handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            var server = new Hapi.Server();
+            server.connection({ routes: { cors: true } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({
+                method: 'OPTIONS',
+                url: '/',
+                headers: {
+                    origin: 'http://test.example.com',
+                    'access-control-request-method': 'GET',
+                    'access-control-request-headers': 'authorization'
+                }
+            }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match');
+                done();
+            });
+        });
+
         it('errors on disallowed headers', function (done) {
 
             var handler = function (request, reply) {
