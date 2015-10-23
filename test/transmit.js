@@ -618,6 +618,39 @@ describe('transmission', function () {
             });
         });
 
+        it('does not send 204 for chunked transfer payloads', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection({ routes: { response: { emptyStatusCode: 204 } } });
+
+            var handler = function (request, reply) {
+
+                var TestStream = function () {
+
+                    Stream.Readable.call(this);
+                };
+
+                Hoek.inherits(TestStream, Stream.Readable);
+
+                TestStream.prototype._read = function () {
+
+                    this.push('success');
+                    this.push(null);
+                };
+
+                var stream = new TestStream();
+                return reply(stream);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('success');
+                done();
+            });
+        });
+
         it('skips compression on empty', function (done) {
 
             var server = new Hapi.Server();
@@ -625,7 +658,7 @@ describe('transmission', function () {
 
             var handler = function (request, reply) {
 
-                return reply();
+                return reply().type('text/html');
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
@@ -634,6 +667,39 @@ describe('transmission', function () {
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal(null);
                 expect(res.headers['content-encoding']).to.not.exist();
+                done();
+            });
+        });
+
+        it('does not skip compression for chunked transfer payloads', function (done) {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            var handler = function (request, reply) {
+
+                var TestStream = function () {
+
+                    Stream.Readable.call(this);
+                };
+
+                Hoek.inherits(TestStream, Stream.Readable);
+
+                TestStream.prototype._read = function () {
+
+                    this.push('success');
+                    this.push(null);
+                };
+
+                var stream = new TestStream();
+                return reply(stream).type('text/html');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-encoding']).to.equal('gzip');
                 done();
             });
         });
