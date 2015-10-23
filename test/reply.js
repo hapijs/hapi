@@ -2,39 +2,39 @@
 
 // Load modules
 
-var Http = require('http');
-var Stream = require('stream');
-var Bluebird = require('bluebird');
-var Boom = require('boom');
-var Code = require('code');
-var Hapi = require('..');
-var Hoek = require('hoek');
-var Lab = require('lab');
+const Http = require('http');
+const Stream = require('stream');
+const Bluebird = require('bluebird');
+const Boom = require('boom');
+const Code = require('code');
+const Hapi = require('..');
+const Hoek = require('hoek');
+const Lab = require('lab');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('Reply', function () {
 
     it('throws when reply called twice', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             reply('ok'); return reply('not ok');
         };
 
-        var server = new Hapi.Server({ debug: false });
+        const server = new Hapi.Server({ debug: false });
         server.connection();
         server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
@@ -46,12 +46,12 @@ describe('Reply', function () {
 
     it('redirects from handler', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply.redirect('/elsewhere');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'GET', path: '/', handler: handler });
         server.inject('/', function (res) {
@@ -66,12 +66,12 @@ describe('Reply', function () {
 
         it('uses reply(null, result) for result', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(null, 'steve');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
@@ -84,12 +84,12 @@ describe('Reply', function () {
 
         it('uses reply(null, err) for err', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(null, Boom.badRequest());
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
@@ -101,12 +101,12 @@ describe('Reply', function () {
 
         it('ignores result when err provided in reply(err, result)', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(Boom.badRequest(), 'steve');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
@@ -121,12 +121,12 @@ describe('Reply', function () {
 
         it('returns null', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(null, null);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', function (res) {
@@ -141,12 +141,12 @@ describe('Reply', function () {
 
         it('returns a buffer reply', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(new Buffer('Tada1')).code(299);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
@@ -161,12 +161,12 @@ describe('Reply', function () {
 
         it('returns an object response', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply({ a: 1, b: 2 });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -180,12 +180,12 @@ describe('Reply', function () {
 
         it('returns false', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(false);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -198,12 +198,12 @@ describe('Reply', function () {
 
         it('returns an error reply', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(new Error('boom'));
             };
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -217,12 +217,12 @@ describe('Reply', function () {
 
         it('returns an empty reply', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply().code(299);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -237,7 +237,7 @@ describe('Reply', function () {
 
         it('returns a stream reply', function (done) {
 
-            var TestStream = function () {
+            const TestStream = function () {
 
                 Stream.Readable.call(this);
             };
@@ -256,12 +256,12 @@ describe('Reply', function () {
                 this.push(null);
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(new TestStream()).ttl(2000);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
@@ -283,23 +283,23 @@ describe('Reply', function () {
 
         it('errors on non-readable stream reply', function (done) {
 
-            var streamHandler = function (request, reply) {
+            const streamHandler = function (request, reply) {
 
-                var stream = new Stream();
+                const stream = new Stream();
                 stream.writable = true;
 
                 reply(stream);
             };
 
-            var writableHandler = function (request, reply) {
+            const writableHandler = function (request, reply) {
 
-                var writable = new Stream.Writable();
+                const writable = new Stream.Writable();
                 writable._write = function () {};
 
                 reply(writable);
             };
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
             server.route({ method: 'GET', path: '/writable', handler: writableHandler });
@@ -334,17 +334,17 @@ describe('Reply', function () {
 
         it('errors on an http client stream reply', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 reply('just a string');
             };
 
-            var streamHandler = function (request, reply) {
+            const streamHandler = function (request, reply) {
 
                 reply(Http.get(request.server.info + '/'));
             };
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
@@ -363,7 +363,7 @@ describe('Reply', function () {
 
         it('errors on objectMode stream reply', function (done) {
 
-            var TestStream = function () {
+            const TestStream = function () {
 
                 Stream.Readable.call(this, { objectMode: true });
             };
@@ -382,12 +382,12 @@ describe('Reply', function () {
                 this.push(null);
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(new TestStream());
             };
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -402,7 +402,7 @@ describe('Reply', function () {
 
             it('returns a stream', function (done) {
 
-                var TestStream = function () {
+                const TestStream = function () {
 
                     Stream.Readable.call(this);
 
@@ -423,12 +423,12 @@ describe('Reply', function () {
                     this.push(null);
                 };
 
-                var handler = function (request, reply) {
+                const handler = function (request, reply) {
 
                     return reply(Bluebird.resolve(new TestStream())).ttl(2000).code(299);
                 };
 
-                var server = new Hapi.Server({ debug: false });
+                const server = new Hapi.Server({ debug: false });
                 server.connection();
                 server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
@@ -442,12 +442,12 @@ describe('Reply', function () {
 
             it('returns a buffer', function (done) {
 
-                var handler = function (request, reply) {
+                const handler = function (request, reply) {
 
                     return reply(Bluebird.resolve(new Buffer('buffer content'))).code(299).type('something/special');
                 };
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -466,10 +466,10 @@ describe('Reply', function () {
 
         it('undo scheduled next tick in reply interface', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('123').hold().send();
             };
@@ -485,12 +485,12 @@ describe('Reply', function () {
 
         it('sends reply after timed handler', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var response = reply('123').hold();
+                const response = reply('123').hold();
                 setTimeout(function () {
 
                     response.send();
@@ -511,13 +511,13 @@ describe('Reply', function () {
 
         it('returns a reply with manual end', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 request.raw.res.end();
                 return reply.close({ end: false });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
@@ -530,12 +530,12 @@ describe('Reply', function () {
 
         it('returns a reply with auto end', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.close();
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
@@ -551,12 +551,12 @@ describe('Reply', function () {
 
         it('sets empty reply on continue in handler', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.continue();
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
@@ -571,17 +571,17 @@ describe('Reply', function () {
 
         it('sets empty reply on continue in prerequisite', function (done) {
 
-            var pre1 = function (request, reply) {
+            const pre1 = function (request, reply) {
 
                 return reply.continue();
             };
 
-            var pre2 = function (request, reply) {
+            const pre2 = function (request, reply) {
 
                 return reply.continue();
             };
 
-            var pre3 = function (request, reply) {
+            const pre3 = function (request, reply) {
 
                 return reply({
                     m1: request.pre.m1,
@@ -589,12 +589,12 @@ describe('Reply', function () {
                 });
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.pre.m3);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',

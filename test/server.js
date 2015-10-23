@@ -2,30 +2,30 @@
 
 // Load modules
 
-var Code = require('code');
-var Hapi = require('..');
-var Hoek = require('hoek');
-var Lab = require('lab');
+const Code = require('code');
+const Hapi = require('..');
+const Hoek = require('hoek');
+const Lab = require('lab');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('Server', function () {
 
     it('sets connections defaults', function (done) {
 
-        var server = new Hapi.Server({ connections: { app: { message: 'test defaults' } } });
+        const server = new Hapi.Server({ connections: { app: { message: 'test defaults' } } });
         server.connection();
         expect(server.connections[0].settings.app.message).to.equal('test defaults');
         done();
@@ -33,7 +33,7 @@ describe('Server', function () {
 
     it('overrides mime settings', function (done) {
 
-        var options = {
+        const options = {
             mime: {
                 override: {
                     'node/module': {
@@ -46,7 +46,7 @@ describe('Server', function () {
             }
         };
 
-        var server = new Hapi.Server(options);
+        const server = new Hapi.Server(options);
         expect(server.mime.path('file.npm').type).to.equal('node/module');
         expect(server.mime.path('file.npm').source).to.equal('steve');
         done();
@@ -56,7 +56,7 @@ describe('Server', function () {
 
         it('starts and stops', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['s1', 'a', 'b'] });
             server.connection({ labels: ['s2', 'a', 'test'] });
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
@@ -100,7 +100,7 @@ describe('Server', function () {
 
         it('initializes, starts, and stops', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['s1', 'a', 'b'] });
             server.connection({ labels: ['s2', 'a', 'test'] });
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
@@ -149,13 +149,13 @@ describe('Server', function () {
 
         it('returns connection start error', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.start(function (err) {
 
                 expect(err).to.not.exist();
-                var port = server.info.port;
+                const port = server.info.port;
 
                 server.connection({ port: port });
                 server.connection({ port: port });
@@ -174,7 +174,7 @@ describe('Server', function () {
 
         it('returns onPostStart error', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.ext('onPostStart', function (srv, next) {
@@ -192,7 +192,7 @@ describe('Server', function () {
 
         it('errors on bad cache start', function (done) {
 
-            var cache = {
+            const cache = {
                 engine: {
                     start: function (callback) {
 
@@ -202,7 +202,7 @@ describe('Server', function () {
                 }
             };
 
-            var server = new Hapi.Server({ cache: cache });
+            const server = new Hapi.Server({ cache: cache });
             server.connection();
             server.start(function (err) {
 
@@ -213,7 +213,7 @@ describe('Server', function () {
 
         it('fails to start server without connections', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.start(function (err) {
 
                 expect(err).to.exist();
@@ -224,10 +224,10 @@ describe('Server', function () {
 
         it('fails to start server when registration incomplete', function (done) {
 
-            var plugin = function () { };
+            const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(plugin, Hoek.ignore);
             server.start(function (err) {
@@ -240,7 +240,7 @@ describe('Server', function () {
 
         it('fails to start when no callback is passed', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
 
             expect(function () {
 
@@ -251,10 +251,10 @@ describe('Server', function () {
 
         it('fails to initialize server when not stopped', function (done) {
 
-            var plugin = function () { };
+            const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.start(function (err) {
 
@@ -269,10 +269,10 @@ describe('Server', function () {
 
         it('fails to start server when starting', function (done) {
 
-            var plugin = function () { };
+            const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.start(Hoek.ignore);
             server.start(function (err) {
@@ -288,9 +288,9 @@ describe('Server', function () {
 
         it('stops the cache', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var cache = server.cache({ segment: 'test', expiresIn: 1000 });
+            const cache = server.cache({ segment: 'test', expiresIn: 1000 });
             server.initialize(function (err) {
 
                 expect(err).to.not.exist();
@@ -316,7 +316,7 @@ describe('Server', function () {
 
         it('returns an extension error (onPreStop)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.ext('onPreStop', function (srv, next) {
 
@@ -336,7 +336,7 @@ describe('Server', function () {
 
         it('returns an extension error (onPostStop)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.ext('onPostStop', function (srv, next) {
 
@@ -356,7 +356,7 @@ describe('Server', function () {
 
         it('returns a connection stop error', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.connections[0]._stop = function (options, next) {
 
@@ -376,7 +376,7 @@ describe('Server', function () {
 
         it('errors when stopping a stopping server', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.stop(Hoek.ignore);
@@ -393,9 +393,9 @@ describe('Server', function () {
 
         it('returns a server with only the selected connection', function (done) {
 
-            var server = new Hapi.Server();
-            var p1 = server.connection({ port: 1 });
-            var p2 = server.connection({ port: 2 });
+            const server = new Hapi.Server();
+            const p1 = server.connection({ port: 1 });
+            const p2 = server.connection({ port: 2 });
 
             expect(server.connections.length).to.equal(2);
             expect(p1.connections.length).to.equal(1);
@@ -407,7 +407,7 @@ describe('Server', function () {
 
         it('throws on invalid config', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             expect(function () {
 
                 server.connection({ something: false });
@@ -417,7 +417,7 @@ describe('Server', function () {
 
         it('combines configuration from server and connection (cors)', function (done) {
 
-            var server = new Hapi.Server({ connections: { routes: { cors: true } } });
+            const server = new Hapi.Server({ connections: { routes: { cors: true } } });
             server.connection({ routes: { cors: { origin: ['example.com'] } } });
             expect(server.connections[0].settings.routes.cors.origin).to.deep.equal(['example.com']);
             done();
@@ -425,7 +425,7 @@ describe('Server', function () {
 
         it('combines configuration from server and connection (security)', function (done) {
 
-            var server = new Hapi.Server({ connections: { routes: { security: { hsts: 1, xss: false } } } });
+            const server = new Hapi.Server({ connections: { routes: { security: { hsts: 1, xss: false } } } });
             server.connection({ routes: { security: { hsts: 2 } } });
             expect(server.connections[0].settings.routes.security.hsts).to.equal(2);
             expect(server.connections[0].settings.routes.security.xss).to.be.false();
@@ -435,7 +435,7 @@ describe('Server', function () {
 
         it('decorates and clears single connection shortcuts', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             expect(server.info).to.not.exist();
             server.connection();
             expect(server.info).to.exist();
@@ -450,12 +450,12 @@ describe('Server', function () {
 
         it('measures loop delay', function (done) {
 
-            var server = new Hapi.Server({ load: { sampleInterval: 4 } });
+            const server = new Hapi.Server({ load: { sampleInterval: 4 } });
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var start = Date.now();
+                const start = Date.now();
                 while (Date.now() - start < 5) { }
                 return reply('ok');
             };

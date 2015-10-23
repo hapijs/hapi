@@ -2,28 +2,28 @@
 
 // Load modules
 
-var Path = require('path');
-var Boom = require('boom');
-var Code = require('code');
-var Handlebars = require('handlebars');
-var Hapi = require('..');
-var Hoek = require('hoek');
-var Inert = require('inert');
-var Lab = require('lab');
-var Vision = require('vision');
+const Path = require('path');
+const Boom = require('boom');
+const Code = require('code');
+const Handlebars = require('handlebars');
+const Hapi = require('..');
+const Hoek = require('hoek');
+const Inert = require('inert');
+const Lab = require('lab');
+const Vision = require('vision');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('handler', function () {
@@ -32,10 +32,10 @@ describe('handler', function () {
 
         it('returns 500 on handler exception (same tick)', function (done) {
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
 
-            var handler = function (request) {
+            const handler = function (request) {
 
                 a.b.c;
             };
@@ -51,7 +51,7 @@ describe('handler', function () {
 
         it('returns 500 on handler exception (next tick)', { parallel: false }, function (done) {
 
-            var handler = function (request) {
+            const handler = function (request) {
 
                 setImmediate(function () {
 
@@ -59,7 +59,7 @@ describe('handler', function () {
                 });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
             server.on('request-error', function (request, err) {
@@ -68,7 +68,7 @@ describe('handler', function () {
                 done();
             });
 
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 console.error = orig;
@@ -87,9 +87,9 @@ describe('handler', function () {
 
         it('binds handler to route bind object', function (done) {
 
-            var item = { x: 123 };
+            const item = { x: 123 };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -112,10 +112,10 @@ describe('handler', function () {
 
         it('invokes handler with right arguments', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 expect(arguments.length).to.equal(2);
                 expect(reply.send).to.not.exist();
@@ -136,10 +136,10 @@ describe('handler', function () {
 
         it('returns a file', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.file('../package.json').code(499);
             };
@@ -159,7 +159,7 @@ describe('handler', function () {
 
         it('returns a view', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Vision, Hoek.ignore);
             server.connection();
 
@@ -168,7 +168,7 @@ describe('handler', function () {
                 relativeTo: Path.join(__dirname, '/templates/plugin')
             });
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.view('test', { message: 'steve' });
             };
@@ -187,17 +187,17 @@ describe('handler', function () {
 
         it('shows the complete prerequisite pipeline in the response', function (done) {
 
-            var pre1 = function (request, reply) {
+            const pre1 = function (request, reply) {
 
                 return reply('Hello').code(444);
             };
 
-            var pre2 = function (request, reply) {
+            const pre2 = function (request, reply) {
 
                 return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
             };
 
-            var pre3 = function (request, reply) {
+            const pre3 = function (request, reply) {
 
                 process.nextTick(function () {
 
@@ -205,22 +205,22 @@ describe('handler', function () {
                 });
             };
 
-            var pre4 = function (request, reply) {
+            const pre4 = function (request, reply) {
 
                 return reply('World');
             };
 
-            var pre5 = function (request, reply) {
+            const pre5 = function (request, reply) {
 
                 return reply(request.pre.m2 + '!');
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.pre.m5);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -248,17 +248,17 @@ describe('handler', function () {
 
         it('allows a single prerequisite', function (done) {
 
-            var pre = function (request, reply) {
+            const pre = function (request, reply) {
 
                 return reply('Hello');
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.pre.p);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.route({
@@ -281,12 +281,12 @@ describe('handler', function () {
 
         it('allows an empty prerequisite array', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Hello');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.route({
@@ -307,17 +307,17 @@ describe('handler', function () {
 
         it('takes over response', function (done) {
 
-            var pre1 = function (request, reply) {
+            const pre1 = function (request, reply) {
 
                 return reply('Hello');
             };
 
-            var pre2 = function (request, reply) {
+            const pre2 = function (request, reply) {
 
                 return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
             };
 
-            var pre3 = function (request, reply) {
+            const pre3 = function (request, reply) {
 
                 process.nextTick(function () {
 
@@ -325,22 +325,22 @@ describe('handler', function () {
                 });
             };
 
-            var pre4 = function (request, reply) {
+            const pre4 = function (request, reply) {
 
                 return reply('World');
             };
 
-            var pre5 = function (request, reply) {
+            const pre5 = function (request, reply) {
 
                 return reply(request.pre.m2 + '!');
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.pre.m5);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -368,22 +368,22 @@ describe('handler', function () {
 
         it('returns error if prerequisite returns error', function (done) {
 
-            var pre1 = function (request, reply) {
+            const pre1 = function (request, reply) {
 
                 return reply('Hello');
             };
 
-            var pre2 = function (request, reply) {
+            const pre2 = function (request, reply) {
 
                 return reply(Boom.internal('boom'));
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.pre.m1);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -406,17 +406,17 @@ describe('handler', function () {
 
         it('passes wrapped object', function (done) {
 
-            var pre = function (request, reply) {
+            const pre = function (request, reply) {
 
                 return reply('Hello').code(444);
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.preResponses.p);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -438,23 +438,23 @@ describe('handler', function () {
 
         it('returns 500 if prerequisite throws', function (done) {
 
-            var pre1 = function (request, reply) {
+            const pre1 = function (request, reply) {
 
                 return reply('Hello');
             };
 
-            var pre2 = function (request, reply) {
+            const pre2 = function (request, reply) {
 
                 a.b.c = 0;
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.pre.m1);
             };
 
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
             server.route({
                 method: 'GET',
@@ -477,7 +477,7 @@ describe('handler', function () {
 
         it('returns a user record using server method', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (id, next) {
@@ -508,7 +508,7 @@ describe('handler', function () {
 
         it('returns a user record using server method (nested method name)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user.get', function (id, next) {
@@ -539,7 +539,7 @@ describe('handler', function () {
 
         it('returns a user record using server method in object', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (id, next) {
@@ -573,7 +573,7 @@ describe('handler', function () {
 
         it('returns a user name using multiple server methods', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (id, next) {
@@ -610,7 +610,7 @@ describe('handler', function () {
 
         it('returns a user record using server method with trailing space', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (id, next) {
@@ -641,7 +641,7 @@ describe('handler', function () {
 
         it('returns a user record using server method with leading space', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (id, next) {
@@ -672,7 +672,7 @@ describe('handler', function () {
 
         it('returns a user record using server method with zero args', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (next) {
@@ -703,7 +703,7 @@ describe('handler', function () {
 
         it('returns a user record using server method with no args', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (request, next) {
@@ -734,7 +734,7 @@ describe('handler', function () {
 
         it('returns a user record using server method with nested name', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user.get', function (next) {
@@ -765,9 +765,9 @@ describe('handler', function () {
 
         it('fails on bad method name', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var test = function () {
+            const test = function () {
 
                 server.route({
                     method: 'GET',
@@ -790,9 +790,9 @@ describe('handler', function () {
 
         it('fails on bad method syntax name', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var test = function () {
+            const test = function () {
 
                 server.route({
                     method: 'GET',
@@ -815,7 +815,7 @@ describe('handler', function () {
 
         it('sets pre failAction to error', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -846,7 +846,7 @@ describe('handler', function () {
 
         it('sets pre failAction to ignore', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -877,7 +877,7 @@ describe('handler', function () {
 
         it('sets pre failAction to log', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -921,9 +921,9 @@ describe('handler', function () {
 
         it('binds pre to route bind object', function (done) {
 
-            var item = { x: 123 };
+            const item = { x: 123 };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -952,7 +952,7 @@ describe('handler', function () {
 
         it('logs boom error instance as data if handler returns boom error', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -988,7 +988,7 @@ describe('handler', function () {
 
         it('logs server method using string notation when cache enabled', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('user', function (id, next) {
@@ -1026,7 +1026,7 @@ describe('handler', function () {
 
         it('uses server method with cache via string notation', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var gen = 0;
@@ -1071,7 +1071,7 @@ describe('handler', function () {
 
         it('uses string handler', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.method('handler.get', function (request, reply) {
 
@@ -1092,7 +1092,7 @@ describe('handler', function () {
 
         it('returns handler without defaults', function (done) {
 
-            var handler = function (route, options) {
+            const handler = function (route, options) {
 
                 return function (request, reply) {
 
@@ -1100,7 +1100,7 @@ describe('handler', function () {
                 };
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
@@ -1113,7 +1113,7 @@ describe('handler', function () {
 
         it('returns handler with object defaults', function (done) {
 
-            var handler = function (route, options) {
+            const handler = function (route, options) {
 
                 return function (request, reply) {
 
@@ -1127,7 +1127,7 @@ describe('handler', function () {
                 }
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
@@ -1140,7 +1140,7 @@ describe('handler', function () {
 
         it('returns handler with function defaults', function (done) {
 
-            var handler = function (route, options) {
+            const handler = function (route, options) {
 
                 return function (request, reply) {
 
@@ -1157,7 +1157,7 @@ describe('handler', function () {
                 };
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
@@ -1170,7 +1170,7 @@ describe('handler', function () {
 
         it('throws on handler with invalid defaults', function (done) {
 
-            var handler = function (route, options) {
+            const handler = function (route, options) {
 
                 return function (request, reply) {
 
@@ -1180,7 +1180,7 @@ describe('handler', function () {
 
             handler.defaults = 'invalid';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -1195,14 +1195,14 @@ describe('handler', function () {
 
         it('returns 500 on ext method exception (same tick)', function (done) {
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
             server.ext('onRequest', function (request, next) {
 
                 a.b.c;
             });
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('neven gonna happen');
             };

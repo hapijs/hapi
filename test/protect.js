@@ -2,35 +2,35 @@
 
 // Load modules
 
-var Events = require('events');
-var Domain = require('domain');
-var Code = require('code');
-var Hapi = require('..');
-var Hoek = require('hoek');
-var Lab = require('lab');
+const Events = require('events');
+const Domain = require('domain');
+const Code = require('code');
+const Hapi = require('..');
+const Hoek = require('hoek');
+const Lab = require('lab');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('Protect', function () {
 
     it('does not handle errors when useDomains is false', function (done) {
 
-        var server = new Hapi.Server({ useDomains: false, debug: false });
+        const server = new Hapi.Server({ useDomains: false, debug: false });
         server.connection();
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             process.nextTick(function () {
 
@@ -39,7 +39,7 @@ describe('Protect', function () {
         };
 
         server.route({ method: 'GET', path: '/', handler: handler });
-        var domain = Domain.createDomain();
+        const domain = Domain.createDomain();
         domain.once('error', function (err) {
 
             expect(err.message).to.equal('no domain');
@@ -54,10 +54,10 @@ describe('Protect', function () {
 
     it('catches error when handler throws after reply() is called', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        const server = new Hapi.Server({ debug: false });
         server.connection();
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             reply('ok');
             process.nextTick(function () {
@@ -76,10 +76,10 @@ describe('Protect', function () {
 
     it('catches error when handler throws twice after reply() is called', function (done) {
 
-        var server = new Hapi.Server({ debug: false });
+        const server = new Hapi.Server({ debug: false });
         server.connection();
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             reply('ok');
 
@@ -104,18 +104,18 @@ describe('Protect', function () {
 
     it('catches errors thrown during request handling in non-request domain', function (done) {
 
-        var Client = function () {
+        const Client = function () {
 
             Events.EventEmitter.call(this);
         };
 
         Hoek.inherits(Client, Events.EventEmitter);
 
-        var test = function (srv, options, next) {
+        const test = function (srv, options, next) {
 
             srv.ext('onPreStart', function (plugin, afterNext) {
 
-                var client = new Client();                      // Created in the global domain
+                const client = new Client();                      // Created in the global domain
                 plugin.bind({ client: client });
                 afterNext();
             });
@@ -141,7 +141,7 @@ describe('Protect', function () {
             name: 'test'
         };
 
-        var server = new Hapi.Server({ debug: false });
+        const server = new Hapi.Server({ debug: false });
         server.connection();
         server.register(test, function (err) {
 
@@ -160,7 +160,7 @@ describe('Protect', function () {
 
     it('logs to console after request completed', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             reply('ok');
             setTimeout(function () {
@@ -169,7 +169,7 @@ describe('Protect', function () {
             }, 10);
         };
 
-        var server = new Hapi.Server({ debug: false });
+        const server = new Hapi.Server({ debug: false });
         server.connection();
 
         server.on('log', function (event, tags) {

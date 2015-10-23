@@ -2,37 +2,37 @@
 
 // Load modules
 
-var Fs = require('fs');
-var Http = require('http');
-var Path = require('path');
-var Zlib = require('zlib');
-var Code = require('code');
-var Hapi = require('..');
-var Hoek = require('hoek');
-var Lab = require('lab');
-var Wreck = require('wreck');
+const Fs = require('fs');
+const Http = require('http');
+const Path = require('path');
+const Zlib = require('zlib');
+const Code = require('code');
+const Hapi = require('..');
+const Hoek = require('hoek');
+const Lab = require('lab');
+const Wreck = require('wreck');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('payload', function () {
 
     it('sets payload', function (done) {
 
-        var payload = '{"x":"1","y":"2","z":"3"}';
+        const payload = '{"x":"1","y":"2","z":"3"}';
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             expect(request.payload).to.exist();
             expect(request.payload.z).to.equal('3');
@@ -40,7 +40,7 @@ describe('payload', function () {
             return reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
@@ -54,12 +54,12 @@ describe('payload', function () {
 
     it('handles request socket error', function (done) {
 
-        var handler = function () {
+        const handler = function () {
 
             throw new Error('never called');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
@@ -73,12 +73,12 @@ describe('payload', function () {
 
     it('handles request socket close', function (done) {
 
-        var handler = function () {
+        const handler = function () {
 
             throw new Error('never called');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
@@ -93,12 +93,12 @@ describe('payload', function () {
 
     it('handles aborted request', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('Success');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
@@ -112,7 +112,7 @@ describe('payload', function () {
 
             expect(err).to.not.exist();
 
-            var options = {
+            const options = {
                 hostname: 'localhost',
                 port: server.info.port,
                 path: '/',
@@ -122,7 +122,7 @@ describe('payload', function () {
                 }
             };
 
-            var req = Http.request(options, function (res) {
+            const req = Http.request(options, function (res) {
 
             });
 
@@ -144,15 +144,15 @@ describe('payload', function () {
 
     it('errors when payload too big', function (done) {
 
-        var payload = '{"x":"1","y":"2","z":"3"}';
+        const payload = '{"x":"1","y":"2","z":"3"}';
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             expect(request.payload.toString()).to.equal(payload);
             return reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 10 } } });
 
@@ -167,14 +167,14 @@ describe('payload', function () {
 
     it('returns 400 with response when payload is not consumed', function (done) {
 
-        var payload = new Buffer(10 * 1024 * 1024).toString();
+        const payload = new Buffer(10 * 1024 * 1024).toString();
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply();
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 1024 * 1024 } } });
 
@@ -182,7 +182,7 @@ describe('payload', function () {
 
             expect(err).to.not.exist();
 
-            var uri = 'http://localhost:' + server.info.port;
+            const uri = 'http://localhost:' + server.info.port;
 
             Wreck.post(uri, { payload: payload }, function (err, res, body) {
 
@@ -198,9 +198,9 @@ describe('payload', function () {
     it('peeks at unparsed data', function (done) {
 
         var data = null;
-        var ext = function (request, reply) {
+        const ext = function (request, reply) {
 
-            var chunks = [];
+            const chunks = [];
             request.on('peek', function (chunk) {
 
                 chunks.push(chunk);
@@ -214,17 +214,17 @@ describe('payload', function () {
             return reply.continue();
         };
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(data);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.ext('onRequest', ext);
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
-        var payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+        const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
         server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
 
             expect(res.result).to.equal(payload);
@@ -234,19 +234,19 @@ describe('payload', function () {
 
     it('handles gzipped payload', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(request.payload);
         };
 
-        var message = { 'msg': 'This message is going to be gzipped.' };
-        var server = new Hapi.Server();
+        const message = { 'msg': 'This message is going to be gzipped.' };
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', handler: handler });
 
         Zlib.gzip(JSON.stringify(message), function (err, buf) {
 
-            var request = {
+            const request = {
                 method: 'POST',
                 url: '/',
                 headers: {
@@ -268,21 +268,21 @@ describe('payload', function () {
 
     it('saves a file after content decoding', function (done) {
 
-        var path = Path.join(__dirname, './file/image.jpg');
-        var sourceContents = Fs.readFileSync(path);
-        var stats = Fs.statSync(path);
+        const path = Path.join(__dirname, './file/image.jpg');
+        const sourceContents = Fs.readFileSync(path);
+        const stats = Fs.statSync(path);
 
         Zlib.gzip(sourceContents, function (err, compressed) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var receivedContents = Fs.readFileSync(request.payload.path);
+                const receivedContents = Fs.readFileSync(request.payload.path);
                 Fs.unlinkSync(request.payload.path);
                 expect(receivedContents).to.deep.equal(sourceContents);
                 return reply(request.payload.bytes);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
             server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
@@ -295,9 +295,9 @@ describe('payload', function () {
 
     it('errors saving a file without parse', function (done) {
 
-        var handler = function (request, reply) { };
+        const handler = function (request, reply) { };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
         server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, function (res) {
@@ -309,12 +309,12 @@ describe('payload', function () {
 
     it('sets parse mode when route methos is * and request is POST', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(request.payload.key);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: '*', path: '/any', handler: handler });
 
@@ -328,12 +328,12 @@ describe('payload', function () {
 
     it('returns an error on unsupported mime type', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(request.payload.key);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
@@ -341,7 +341,7 @@ describe('payload', function () {
 
             expect(err).to.not.exist();
 
-            var options = {
+            const options = {
                 hostname: 'localhost',
                 port: server.info.port,
                 path: '/?x=4',
@@ -352,7 +352,7 @@ describe('payload', function () {
                 }
             };
 
-            var req = Http.request(options, function (res) {
+            const req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(415);
                 server.stop({ timeout: 1 }, done);
@@ -364,12 +364,12 @@ describe('payload', function () {
 
     it('ignores unsupported mime type', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(request.payload);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { failAction: 'ignore' } } });
 
@@ -383,12 +383,12 @@ describe('payload', function () {
 
     it('returns 200 on octet mime type', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('ok');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/', handler: handler });
 
@@ -402,12 +402,12 @@ describe('payload', function () {
 
     it('returns 200 on text mime type', function (done) {
 
-        var textHandler = function (request, reply) {
+        const textHandler = function (request, reply) {
 
             return reply(request.payload + '+456');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
 
@@ -421,12 +421,12 @@ describe('payload', function () {
 
     it('returns 200 on override mime type', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(request.payload.key);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
 
@@ -440,12 +440,12 @@ describe('payload', function () {
 
     it('returns 200 on text mime type when allowed', function (done) {
 
-        var textHandler = function (request, reply) {
+        const textHandler = function (request, reply) {
 
             return reply(request.payload + '+456');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
 
@@ -459,12 +459,12 @@ describe('payload', function () {
 
     it('returns 415 on non text mime type when disallowed', function (done) {
 
-        var textHandler = function (request, reply) {
+        const textHandler = function (request, reply) {
 
             return reply(request.payload + '+456');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
 
@@ -477,12 +477,12 @@ describe('payload', function () {
 
     it('returns 200 on text mime type when allowed (array)', function (done) {
 
-        var textHandler = function (request, reply) {
+        const textHandler = function (request, reply) {
 
             return reply(request.payload + '+456');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
@@ -496,12 +496,12 @@ describe('payload', function () {
 
     it('returns 415 on non text mime type when disallowed (array)', function (done) {
 
-        var textHandler = function (request, reply) {
+        const textHandler = function (request, reply) {
 
             return reply(request.payload + '+456');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
@@ -514,7 +514,7 @@ describe('payload', function () {
 
     it('parses application/x-www-form-urlencoded with arrays', function (done) {
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
 
         server.route({
@@ -536,7 +536,7 @@ describe('payload', function () {
 
     it('returns parsed multipart data', function (done) {
 
-        var multipartPayload =
+        const multipartPayload =
                 '--AaB03x\r\n' +
                 'content-disposition: form-data; name="x"\r\n' +
                 '\r\n' +
@@ -564,20 +564,20 @@ describe('payload', function () {
                 '... contents of file1.txt ...\r\r\n' +
                 '--AaB03x--\r\n';
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
-            var result = {};
-            var keys = Object.keys(request.payload);
+            const result = {};
+            const keys = Object.keys(request.payload);
             for (var i = 0, il = keys.length; i < il; ++i) {
-                var key = keys[i];
-                var value = request.payload[key];
+                const key = keys[i];
+                const value = request.payload[key];
                 result[key] = value._readableState ? true : value;
             }
 
             return reply(result);
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/echo', config: { handler: handler } });
 
@@ -594,27 +594,27 @@ describe('payload', function () {
 
     it('times out when client request taking too long', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('fast');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
         server.start(function (err) {
 
             expect(err).to.not.exist();
 
-            var timer = new Hoek.Bench();
-            var options = {
+            const timer = new Hoek.Bench();
+            const options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,
                 path: '/fast',
                 method: 'POST'
             };
 
-            var req = Http.request(options, function (res) {
+            const req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(408);
                 expect(timer.elapsed()).to.be.at.least(45);
@@ -633,27 +633,27 @@ describe('payload', function () {
 
     it('times out when client request taking too long (route override)', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('fast');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: false } } });
         server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: handler } });
         server.start(function (err) {
 
             expect(err).to.not.exist();
 
-            var timer = new Hoek.Bench();
-            var options = {
+            const timer = new Hoek.Bench();
+            const options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,
                 path: '/fast',
                 method: 'POST'
             };
 
-            var req = Http.request(options, function (res) {
+            const req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(408);
                 expect(timer.elapsed()).to.be.at.least(45);
@@ -672,26 +672,26 @@ describe('payload', function () {
 
     it('returns payload when timeout is not triggered', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('fast');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
         server.start(function (err) {
 
             expect(err).to.not.exist();
 
-            var options = {
+            const options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,
                 path: '/fast',
                 method: 'POST'
             };
 
-            var req = Http.request(options, function (res) {
+            const req = Http.request(options, function (res) {
 
                 expect(res.statusCode).to.equal(200);
                 server.stop({ timeout: 1 }, done);

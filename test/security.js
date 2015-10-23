@@ -2,33 +2,33 @@
 
 // Load modules
 
-var Code = require('code');
-var Hapi = require('..');
-var Joi = require('joi');
-var Lab = require('lab');
+const Code = require('code');
+const Hapi = require('..');
+const Joi = require('joi');
+const Lab = require('lab');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('security', function () {
 
     it('blocks response splitting through the request.create method', function (done) {
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
 
-        var createItemHandler = function (request, reply) {
+        const createItemHandler = function (request, reply) {
 
             return reply('Moved').created('/item/' + request.payload.name);
         };
@@ -48,12 +48,12 @@ describe('security', function () {
 
     it('prevents xss with invalid content types', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('Success');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler: handler });
@@ -73,12 +73,12 @@ describe('security', function () {
 
     it('prevents xss with invalid cookie values in the request', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('Success');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler: handler });
@@ -98,12 +98,12 @@ describe('security', function () {
 
     it('prevents xss with invalid cookie name in the request', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('Success');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler: handler });
@@ -123,7 +123,7 @@ describe('security', function () {
 
     it('prevents xss in path validation response message', function (done) {
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.state('encoded', { encoding: 'iron' });
 
@@ -151,7 +151,7 @@ describe('security', function () {
 
     it('prevents xss in payload validation response message', function (done) {
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({
             method: 'POST', path: '/fail/payload', handler: function (request, reply) {
@@ -179,7 +179,7 @@ describe('security', function () {
 
     it('prevents xss in query validation response message', function (done) {
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({
             method: 'GET', path: '/fail/query', handler: function (request, reply) {

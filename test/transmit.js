@@ -2,33 +2,33 @@
 
 // Load modules
 
-var ChildProcess = require('child_process');
-var Fs = require('fs');
-var Http = require('http');
-var Path = require('path');
-var Stream = require('stream');
-var Zlib = require('zlib');
-var Boom = require('boom');
-var CatboxMemory = require('catbox-memory');
-var Code = require('code');
-var Hapi = require('..');
-var Hoek = require('hoek');
-var Inert = require('inert');
-var Lab = require('lab');
-var Wreck = require('wreck');
+const ChildProcess = require('child_process');
+const Fs = require('fs');
+const Http = require('http');
+const Path = require('path');
+const Stream = require('stream');
+const Zlib = require('zlib');
+const Boom = require('boom');
+const CatboxMemory = require('catbox-memory');
+const Code = require('code');
+const Hapi = require('..');
+const Hoek = require('hoek');
+const Inert = require('inert');
+const Lab = require('lab');
+const Wreck = require('wreck');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('transmission', function () {
@@ -37,7 +37,7 @@ describe('transmission', function () {
 
         it('returns valid http date responses in last-modified header', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -52,7 +52,7 @@ describe('transmission', function () {
 
         it('returns 200 if if-modified-since is invalid', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -66,9 +66,9 @@ describe('transmission', function () {
 
         it('returns 200 if last-modified is invalid', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok').header('last-modified', 'some crap');
             };
@@ -84,7 +84,7 @@ describe('transmission', function () {
 
         it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -94,7 +94,7 @@ describe('transmission', function () {
                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
-                    var cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                    const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     var lsof = '';
                     cmd.stdout.on('data', function (buffer) {
 
@@ -104,7 +104,7 @@ describe('transmission', function () {
                     cmd.stdout.on('end', function () {
 
                         var count = 0;
-                        var lines = lsof.split('\n');
+                        const lines = lsof.split('\n');
                         for (var i = 0, il = lines.length; i < il; ++i) {
                             count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
@@ -120,10 +120,10 @@ describe('transmission', function () {
 
         it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc');
             };
@@ -135,7 +135,7 @@ describe('transmission', function () {
                 server.inject({ url: '/file', headers: { 'if-none-match': res1.headers.etag } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
-                    var cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                    const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     var lsof = '';
                     cmd.stdout.on('data', function (buffer) {
 
@@ -145,7 +145,7 @@ describe('transmission', function () {
                     cmd.stdout.on('end', function () {
 
                         var count = 0;
-                        var lines = lsof.split('\n');
+                        const lines = lsof.split('\n');
                         for (var i = 0, il = lines.length; i < il; ++i) {
                             count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
@@ -161,14 +161,14 @@ describe('transmission', function () {
 
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', function (res1) {
 
-                var last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
+                const last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
                 server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } }, function (res2) {
 
                     expect(res2.statusCode).to.equal(304);
@@ -182,7 +182,7 @@ describe('transmission', function () {
 
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -202,7 +202,7 @@ describe('transmission', function () {
 
         it('matches etag with content-encoding', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
@@ -221,8 +221,8 @@ describe('transmission', function () {
                     expect(res2.headers.etag).to.exist();
                     expect(res2.headers.etag).to.not.contain('-');
 
-                    var baseTag = res2.headers.etag.slice(0, -1);
-                    var gzipTag = baseTag + '-gzip"';
+                    const baseTag = res2.headers.etag.slice(0, -1);
+                    const gzipTag = baseTag + '-gzip"';
 
                     // Conditional request
 
@@ -278,10 +278,10 @@ describe('transmission', function () {
 
         it('returns 304 when manually set to 304', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply().code(304);
             };
@@ -297,9 +297,9 @@ describe('transmission', function () {
 
         it('returns a stream reply with custom response headers', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var HeadersStream = function () {
+                const HeadersStream = function () {
 
                     Stream.Readable.call(this);
                     this.headers = { custom: 'header' };
@@ -321,7 +321,7 @@ describe('transmission', function () {
                 return reply(new HeadersStream());
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
@@ -335,9 +335,9 @@ describe('transmission', function () {
 
         it('returns a stream reply with custom response status code', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var HeadersStream = function () {
+                const HeadersStream = function () {
 
                     Stream.Readable.call(this);
                     this.statusCode = 201;
@@ -359,7 +359,7 @@ describe('transmission', function () {
                 return reply(new HeadersStream());
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
@@ -372,12 +372,12 @@ describe('transmission', function () {
 
         it('returns an JSONP response', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply({ some: 'value' });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -392,12 +392,12 @@ describe('transmission', function () {
 
         it('returns an JSONP response (no charset)', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply({ some: 'value' }).charset('');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -412,12 +412,12 @@ describe('transmission', function () {
 
         it('returns a X-Content-Type-Options: nosniff header on JSONP responses', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply({ some: 'value' });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -431,12 +431,12 @@ describe('transmission', function () {
 
         it('returns a normal response when JSONP enabled but not requested', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply({ some: 'value' });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -449,13 +449,13 @@ describe('transmission', function () {
 
         it('returns an JSONP response with compression', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var parts = request.params.name.split('/');
+                const parts = request.params.name.split('/');
                 return reply({ first: parts[0], last: parts[1] });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -482,12 +482,12 @@ describe('transmission', function () {
 
         it('returns an JSONP response when response is a buffer', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(new Buffer('value'));
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -501,12 +501,12 @@ describe('transmission', function () {
 
         it('returns response on bad JSONP parameter', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply({ some: 'value' });
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -520,12 +520,12 @@ describe('transmission', function () {
 
         it('returns an JSONP handler error', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(Boom.badRequest('wrong'));
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -539,12 +539,12 @@ describe('transmission', function () {
 
         it('returns an JSONP state error', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
@@ -566,7 +566,7 @@ describe('transmission', function () {
 
         it('sets caching headers', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
@@ -584,10 +584,10 @@ describe('transmission', function () {
 
         it('sends empty payload on 204', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok').code(204);
             };
@@ -603,10 +603,10 @@ describe('transmission', function () {
 
         it('sends 204 on empty payload', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { response: { emptyStatusCode: 204 } } });
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply();
             };
@@ -622,12 +622,12 @@ describe('transmission', function () {
 
         it('does not send 204 for chunked transfer payloads', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { response: { emptyStatusCode: 204 } } });
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var TestStream = function () {
+                const TestStream = function () {
 
                     Stream.Readable.call(this);
                 };
@@ -640,7 +640,7 @@ describe('transmission', function () {
                     this.push(null);
                 };
 
-                var stream = new TestStream();
+                const stream = new TestStream();
                 return reply(stream);
             };
 
@@ -655,10 +655,10 @@ describe('transmission', function () {
 
         it('skips compression on empty', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply().type('text/html');
             };
@@ -675,12 +675,12 @@ describe('transmission', function () {
 
         it('does not skip compression for chunked transfer payloads', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var TestStream = function () {
+                const TestStream = function () {
 
                     Stream.Readable.call(this);
                 };
@@ -693,7 +693,7 @@ describe('transmission', function () {
                     this.push(null);
                 };
 
-                var stream = new TestStream();
+                const stream = new TestStream();
                 return reply(stream).type('text/html');
             };
 
@@ -708,10 +708,10 @@ describe('transmission', function () {
 
         it('sets vary header when accept-encoding is present but does not match', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('abc');
             };
@@ -727,9 +727,9 @@ describe('transmission', function () {
 
         it('handles stream errors on the response after the response has been piped', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var TestStream = function () {
+                const TestStream = function () {
 
                     Stream.Readable.call(this);
                 };
@@ -738,7 +738,7 @@ describe('transmission', function () {
 
                 TestStream.prototype._read = function (size) {
 
-                    var self = this;
+                    const self = this;
 
                     if (this.isDone) {
                         return;
@@ -753,11 +753,11 @@ describe('transmission', function () {
                     });
                 };
 
-                var stream = new TestStream();
+                const stream = new TestStream();
                 return reply(stream);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -770,7 +770,7 @@ describe('transmission', function () {
 
         it('matches etag header list value', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -793,7 +793,7 @@ describe('transmission', function () {
 
         it('changes etag when content encoding is used', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -821,10 +821,10 @@ describe('transmission', function () {
 
         it('returns a gzipped file in the response when the request accepts gzip', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
             };
@@ -843,10 +843,10 @@ describe('transmission', function () {
 
         it('returns a plain file when not compressible', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/file/image.png');
             };
@@ -865,10 +865,10 @@ describe('transmission', function () {
 
         it('returns a plain file when compression disabled', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } }, compression: false });
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
             };
@@ -886,10 +886,10 @@ describe('transmission', function () {
 
         it('returns a deflated file in the response when the request accepts deflate', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
             };
@@ -908,12 +908,12 @@ describe('transmission', function () {
 
         it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', function (done) {
 
-            var streamHandler = function (request, reply) {
+            const streamHandler = function (request, reply) {
 
                 return reply(new internals.TimerStream());
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
@@ -927,12 +927,12 @@ describe('transmission', function () {
 
         it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', function (done) {
 
-            var streamHandler = function (request, reply) {
+            const streamHandler = function (request, reply) {
 
                 return reply(new internals.TimerStream());
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
@@ -946,12 +946,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.payload);
             };
@@ -961,7 +961,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
@@ -977,12 +977,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: gzip is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(data);
             };
@@ -992,7 +992,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
@@ -1008,12 +1008,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: * is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.payload);
             };
@@ -1023,7 +1023,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
 
@@ -1036,12 +1036,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: * is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(data);
             };
@@ -1051,7 +1051,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
 
@@ -1064,11 +1064,11 @@ describe('transmission', function () {
 
         it('returns a deflate response on a post request when accept-encoding: deflate is requested', function (done) {
 
-            var data = '{"test":"true"}';
-            var server = new Hapi.Server();
+            const data = '{"test":"true"}';
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.payload);
             };
@@ -1078,7 +1078,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
@@ -1094,11 +1094,11 @@ describe('transmission', function () {
 
         it('returns a deflate response on a get request when accept-encoding: deflate is requested', function (done) {
 
-            var data = '{"test":"true"}';
-            var server = new Hapi.Server();
+            const data = '{"test":"true"}';
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(data);
             };
@@ -1108,7 +1108,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
@@ -1124,12 +1124,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.payload);
             };
@@ -1139,7 +1139,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
@@ -1155,12 +1155,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(data);
             };
@@ -1170,7 +1170,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
@@ -1186,12 +1186,12 @@ describe('transmission', function () {
 
         it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.payload);
             };
@@ -1201,7 +1201,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
@@ -1217,12 +1217,12 @@ describe('transmission', function () {
 
         it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(data);
             };
@@ -1232,7 +1232,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
@@ -1248,12 +1248,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.payload);
             };
@@ -1263,7 +1263,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
@@ -1279,12 +1279,12 @@ describe('transmission', function () {
 
         it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(data);
             };
@@ -1294,7 +1294,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
@@ -1310,12 +1310,12 @@ describe('transmission', function () {
 
         it('returns an identity response on a post request when accept-encoding is missing', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.payload);
             };
@@ -1325,7 +1325,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Wreck.post(uri, { payload: data }, function (err, res, body) {
 
@@ -1338,9 +1338,9 @@ describe('transmission', function () {
 
         it('returns an identity response on a get request when accept-encoding is missing', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -1355,7 +1355,7 @@ describe('transmission', function () {
 
                 expect(err).to.not.exist();
 
-                var uri = 'http://localhost:' + server.info.port;
+                const uri = 'http://localhost:' + server.info.port;
 
                 Wreck.get(uri, {}, function (err, res, body) {
 
@@ -1368,14 +1368,14 @@ describe('transmission', function () {
 
         it('returns a gzip response when forced by the handler', function (done) {
 
-            var data = '{"test":"true"}';
+            const data = '{"test":"true"}';
 
             Zlib.gzip(new Buffer(data), function (err, zipped) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
 
-                var handler = function (request, reply) {
+                const handler = function (request, reply) {
 
                     return reply(zipped).type('text/plain').header('content-encoding', 'gzip');
                 };
@@ -1385,7 +1385,7 @@ describe('transmission', function () {
 
                     expect(err).to.not.exist();
 
-                    var uri = 'http://localhost:' + server.info.port;
+                    const uri = 'http://localhost:' + server.info.port;
 
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
 
@@ -1400,7 +1400,7 @@ describe('transmission', function () {
 
         it('does not open file stream on 304', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
@@ -1427,12 +1427,12 @@ describe('transmission', function () {
 
         it('object listeners are maintained after transmission is complete', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -1456,7 +1456,7 @@ describe('transmission', function () {
 
         it('stops processing the stream when the request closes', function (done) {
 
-            var ErrStream = function (request) {
+            const ErrStream = function (request) {
 
                 Stream.Readable.call(this);
 
@@ -1467,7 +1467,7 @@ describe('transmission', function () {
 
             ErrStream.prototype._read = function (size) {
 
-                var self = this;
+                const self = this;
 
                 if (this.isDone) {
                     return;
@@ -1484,12 +1484,12 @@ describe('transmission', function () {
                 });
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(new ErrStream(request)).bytes(0);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
@@ -1502,18 +1502,18 @@ describe('transmission', function () {
 
         it('does not truncate the response when stream finishes before response is done', function (done) {
 
-            var chunkTimes = 10;
-            var filePath = __dirname + '/response.js';
-            var block = Fs.readFileSync(filePath).toString();
+            const chunkTimes = 10;
+            const filePath = __dirname + '/response.js';
+            const block = Fs.readFileSync(filePath).toString();
 
             var expectedBody = '';
             for (var i = 0, il = chunkTimes; i < il; ++i) {
                 expectedBody += block;
             }
 
-            var fileHandler = function (request, reply) {
+            const fileHandler = function (request, reply) {
 
-                var fileStream = new Stream.Readable();
+                const fileStream = new Stream.Readable();
 
                 var readTimes = 0;
                 fileStream._read = function (size) {
@@ -1529,7 +1529,7 @@ describe('transmission', function () {
                 return reply(fileStream);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: fileHandler });
             server.start(function (err) {
@@ -1547,18 +1547,18 @@ describe('transmission', function () {
 
         it('does not truncate the response when stream finishes before response is done using https', function (done) {
 
-            var chunkTimes = 10;
-            var filePath = __dirname + '/response.js';
-            var block = Fs.readFileSync(filePath).toString();
+            const chunkTimes = 10;
+            const filePath = __dirname + '/response.js';
+            const block = Fs.readFileSync(filePath).toString();
 
             var expectedBody = '';
             for (var i = 0, il = chunkTimes; i < il; ++i) {
                 expectedBody += block;
             }
 
-            var fileHandler = function (request, reply) {
+            const fileHandler = function (request, reply) {
 
-                var fileStream = new Stream.Readable();
+                const fileStream = new Stream.Readable();
 
                 var readTimes = 0;
                 fileStream._read = function (size) {
@@ -1574,14 +1574,14 @@ describe('transmission', function () {
                 return reply(fileStream);
             };
 
-            var config = {
+            const config = {
                 tls: {
                     key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
                     cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
                 }
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection(config);
             server.route({ method: 'GET', path: '/', handler: fileHandler });
             server.start(function (err) {
@@ -1601,15 +1601,15 @@ describe('transmission', function () {
 
             var destroyed = false;
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var stream = new Stream.Readable();
+                const stream = new Stream.Readable();
 
                 stream._read = function (size) {
 
-                    var self = this;
+                    const self = this;
 
-                    var chunk = new Array(size).join('x');
+                    const chunk = new Array(size).join('x');
 
                     if (destroyed) {
                         this.push(chunk);
@@ -1632,7 +1632,7 @@ describe('transmission', function () {
                 return reply(stream);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -1657,12 +1657,12 @@ describe('transmission', function () {
 
             var destroyed = false;
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var stream = new Stream();
+                const stream = new Stream();
                 stream.readable = true;
 
-                var _read = function () {
+                const _read = function () {
 
                     setImmediate(function () {
 
@@ -1670,7 +1670,7 @@ describe('transmission', function () {
                             return;
                         }
 
-                        var chunk = new Array(1024).join('x');
+                        const chunk = new Array(1024).join('x');
 
                         if (destroyed) {
                             stream.emit('data', chunk);
@@ -1706,7 +1706,7 @@ describe('transmission', function () {
                 return reply(stream);
             };
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -1729,9 +1729,9 @@ describe('transmission', function () {
 
         it('does not leak stream data when request timeouts before stream drains', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
-                var stream = new Stream.Readable();
+                const stream = new Stream.Readable();
                 var count = 0;
                 stream._read = function (size) {
 
@@ -1754,7 +1754,7 @@ describe('transmission', function () {
                 return reply(stream);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -1774,18 +1774,18 @@ describe('transmission', function () {
 
             var clientRequest;
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 clientRequest.abort();
 
-                var stream = new Stream.Readable();
+                const stream = new Stream.Readable();
                 var responded = false;
 
                 stream._read = function (size) {
 
-                    var self = this;
+                    const self = this;
 
-                    var chunk = new Array(size).join('x');
+                    const chunk = new Array(size).join('x');
 
                     if (responded) {
                         this.push(chunk);
@@ -1811,7 +1811,7 @@ describe('transmission', function () {
                 }, 100);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -1831,9 +1831,9 @@ describe('transmission', function () {
 
         it('changes etag when content-encoding set manually', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('x').header('content-encoding', 'gzip').etag('abc');
             };
@@ -1851,9 +1851,9 @@ describe('transmission', function () {
 
         it('head request retains content-length header', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('x').bytes(1);
             };
@@ -1870,20 +1870,20 @@ describe('transmission', function () {
 
         it('does not set accept-encoding multiple times', function (done) {
 
-            var headersHandler = function (request, reply) {
+            const headersHandler = function (request, reply) {
 
                 reply({ status: 'success' })
                     .vary('X-Custom3');
             };
 
-            var upstream = new Hapi.Server();
+            const upstream = new Hapi.Server();
             upstream.connection();
             upstream.route({ method: 'GET', path: '/headers', handler: headersHandler });
             upstream.start(function () {
 
-                var proxyHandler = function (request, reply) {
+                const proxyHandler = function (request, reply) {
 
-                    var options = {};
+                    const options = {};
                     options.headers = Hoek.clone(request.headers);
                     delete options.headers.host;
 
@@ -1893,7 +1893,7 @@ describe('transmission', function () {
                     });
                 };
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/headers', handler: proxyHandler });
 
@@ -1909,15 +1909,15 @@ describe('transmission', function () {
 
         describe('response range', function () {
 
-            var fileStreamHandler = function (request, reply) {
+            const fileStreamHandler = function (request, reply) {
 
-                var filePath = Path.join(__dirname, 'file', 'image.png');
+                const filePath = Path.join(__dirname, 'file', 'image.png');
                 return reply(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size);
             };
 
             it('returns a subset of a fileStream (start)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -1934,7 +1934,7 @@ describe('transmission', function () {
 
             it('returns a subset of a fileStream (middle)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -1951,7 +1951,7 @@ describe('transmission', function () {
 
             it('returns a subset of a fileStream (-to)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -1968,7 +1968,7 @@ describe('transmission', function () {
 
             it('returns a subset of a fileStream (from-)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -1985,7 +1985,7 @@ describe('transmission', function () {
 
             it('returns a subset of a fileStream (beyond end)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2002,7 +2002,7 @@ describe('transmission', function () {
 
             it('returns a subset of a fileStream (if-range)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2025,7 +2025,7 @@ describe('transmission', function () {
 
             it('returns 200 on incorrect if-range', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2038,7 +2038,7 @@ describe('transmission', function () {
 
             it('returns 416 on invalid range (unit)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2052,7 +2052,7 @@ describe('transmission', function () {
 
             it('returns 416 on invalid range (inversed)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2066,7 +2066,7 @@ describe('transmission', function () {
 
             it('returns 416 on invalid range (format)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2080,7 +2080,7 @@ describe('transmission', function () {
 
             it('returns 416 on invalid range (empty range)', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2094,7 +2094,7 @@ describe('transmission', function () {
 
             it('returns 200 on multiple ranges', function (done) {
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
@@ -2108,7 +2108,7 @@ describe('transmission', function () {
 
             it('returns a subset of a stream', function (done) {
 
-                var TestStream = function () {
+                const TestStream = function () {
 
                     Stream.Readable.call(this);
                     this._count = -1;
@@ -2137,9 +2137,9 @@ describe('transmission', function () {
                     return 10;
                 };
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
-                var handler = function (request, reply) {
+                const handler = function (request, reply) {
 
                     return reply(new TestStream());
                 };
@@ -2159,7 +2159,7 @@ describe('transmission', function () {
 
             it('returns a consolidated range', function (done) {
 
-                var TestStream = function () {
+                const TestStream = function () {
 
                     Stream.Readable.call(this);
                     this._count = -1;
@@ -2188,9 +2188,9 @@ describe('transmission', function () {
                     return 10;
                 };
 
-                var server = new Hapi.Server();
+                const server = new Hapi.Server();
                 server.connection();
-                var handler = function (request, reply) {
+                const handler = function (request, reply) {
 
                     return reply(new TestStream());
                 };
@@ -2211,10 +2211,10 @@ describe('transmission', function () {
 
         it('skips undefined header values', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok').header('x', undefined);
             };
@@ -2233,7 +2233,7 @@ describe('transmission', function () {
 
         it('sets max-age value (method and route)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.method('profile', function (id, next) {
@@ -2244,7 +2244,7 @@ describe('transmission', function () {
                 });
             }, { cache: { expiresIn: 120000, generateTimeout: 10 } });
 
-            var profileHandler = function (request, reply) {
+            const profileHandler = function (request, reply) {
 
                 server.methods.profile(0, reply);
             };
@@ -2264,10 +2264,10 @@ describe('transmission', function () {
 
         it('sets max-age value (expiresAt)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply();
             };
@@ -2287,12 +2287,12 @@ describe('transmission', function () {
 
         it('returns no-cache on error', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(Boom.badRequest());
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
             server.inject('/', function (res) {
@@ -2304,12 +2304,12 @@ describe('transmission', function () {
 
         it('sets cache-control on error with status override', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(Boom.badRequest());
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cache: { statuses: [200, 400] } } });
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
             server.inject('/', function (res) {
@@ -2321,9 +2321,9 @@ describe('transmission', function () {
 
         it('does not return max-age value when route is not cached', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var activeItemHandler = function (request, reply) {
+            const activeItemHandler = function (request, reply) {
 
                 return reply({
                     'id': '55cf687663',
@@ -2341,10 +2341,10 @@ describe('transmission', function () {
 
         it('caches using non default cache', function (done) {
 
-            var server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
+            const server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
             server.connection();
-            var defaults = server.cache({ segment: 'a', expiresIn: 2000 });
-            var primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
+            const defaults = server.cache({ segment: 'a', expiresIn: 2000 });
+            const primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
 
             server.start(function (err) {
 
@@ -2377,13 +2377,13 @@ describe('transmission', function () {
 
         it('leaves existing cache-control header', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('text').code(400)
                     .header('cache-control', 'some value');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2397,12 +2397,12 @@ describe('transmission', function () {
 
         it('sets cache-control header from ttl without policy', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('text').ttl(10000);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2415,12 +2415,12 @@ describe('transmission', function () {
 
         it('leaves existing cache-control header (ttl)', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('text').ttl(1000).header('cache-control', 'none');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2434,7 +2434,7 @@ describe('transmission', function () {
 
         it('includes caching header with 304', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
@@ -2452,7 +2452,7 @@ describe('transmission', function () {
 
         it('forbids caching on 304 if 200 is not included', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection({ routes: { cache: { statuses: [400] } } });
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
@@ -2473,12 +2473,12 @@ describe('transmission', function () {
 
         it('does not set security headers by default', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2497,12 +2497,12 @@ describe('transmission', function () {
 
         it('returns default security headers when security is true', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2521,16 +2521,16 @@ describe('transmission', function () {
 
         it('does not set default security headers when the route sets security false', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var config = {
+            const config = {
                 security: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: handler, config: config });
 
@@ -2550,12 +2550,12 @@ describe('transmission', function () {
 
         it('does not return hsts header when secuirty.hsts is false', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2575,12 +2575,12 @@ describe('transmission', function () {
 
         it('returns only default hsts header when security.hsts is true', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2595,12 +2595,12 @@ describe('transmission', function () {
 
         it('returns correct hsts header when security.hsts is a number', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: 123456789 } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2615,12 +2615,12 @@ describe('transmission', function () {
 
         it('returns correct hsts header when security.hsts is an object', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2635,12 +2635,12 @@ describe('transmission', function () {
 
         it('returns the correct hsts header when security.hsts is an object only sepcifying maxAge', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { maxAge: 123456789 } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2655,12 +2655,12 @@ describe('transmission', function () {
 
         it('returns correct hsts header when security.hsts is an object only specifying includeSubdomains', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { includeSubdomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2675,12 +2675,12 @@ describe('transmission', function () {
 
         it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2695,12 +2695,12 @@ describe('transmission', function () {
 
         it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains and preload', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2715,12 +2715,12 @@ describe('transmission', function () {
 
         it('does not return the xframe header whe security.xframe is false', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2739,12 +2739,12 @@ describe('transmission', function () {
 
         it('returns only default xframe header when security.xframe is true', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2759,12 +2759,12 @@ describe('transmission', function () {
 
         it('returns correct xframe header when security.xframe is a string', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: 'sameorigin' } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2779,12 +2779,12 @@ describe('transmission', function () {
 
         it('returns correct xframe header when security.xframe is an object', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2799,12 +2799,12 @@ describe('transmission', function () {
 
         it('returns correct xframe header when security.xframe is an object', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: { rule: 'deny' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2819,12 +2819,12 @@ describe('transmission', function () {
 
         it('returns sameorigin xframe header when rule is allow-from but source is unspecified', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: { rule: 'allow-from' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2839,12 +2839,12 @@ describe('transmission', function () {
 
         it('does not set x-download-options if noOpen is false', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { noOpen: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2859,12 +2859,12 @@ describe('transmission', function () {
 
         it('does not set x-content-type-options if noSniff is false', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { noSniff: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2879,12 +2879,12 @@ describe('transmission', function () {
 
         it('does not set the x-xss-protection header when security.xss is false', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { security: { xss: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2906,12 +2906,12 @@ describe('transmission', function () {
 
         it('does not modify content-type header when charset manually set', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('text').type('text/plain; charset=ISO-8859-1');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2925,12 +2925,12 @@ describe('transmission', function () {
 
         it('does not modify content-type header when charset is unset', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('text').type('text/plain').charset();
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2944,12 +2944,12 @@ describe('transmission', function () {
 
         it('does not modify content-type header when charset is unset (default type)', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('text').charset();
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -2973,7 +2973,7 @@ Hoek.inherits(internals.TimerStream, Stream.Readable);
 
 internals.TimerStream.prototype._read = function (size) {
 
-    var self = this;
+    const self = this;
 
     if (this.isDone) {
         return;

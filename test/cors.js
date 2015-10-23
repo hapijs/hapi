@@ -2,35 +2,35 @@
 
 // Load modules
 
-var Boom = require('boom');
-var Code = require('code');
-var Hapi = require('..');
-var Lab = require('lab');
+const Boom = require('boom');
+const Code = require('code');
+const Hapi = require('..');
+const Lab = require('lab');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('CORS', function () {
 
     it('returns 404 on OPTIONS when cors disabled', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply();
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection({ routes: { cors: false } });
         server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -43,12 +43,12 @@ describe('CORS', function () {
 
     it('returns OPTIONS response', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(Boom.badRequest());
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection({ routes: { cors: true } });
         server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -61,12 +61,12 @@ describe('CORS', function () {
 
     it('returns OPTIONS response (server config)', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply(Boom.badRequest());
         };
 
-        var server = new Hapi.Server({ connections: { routes: { cors: true } } });
+        const server = new Hapi.Server({ connections: { routes: { cors: true } } });
         server.connection();
         server.route({ method: 'GET', path: '/x', handler: handler });
 
@@ -79,12 +79,12 @@ describe('CORS', function () {
 
     it('returns headers on single route', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('ok');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'GET', path: '/a', handler: handler, config: { cors: true } });
         server.route({ method: 'GET', path: '/b', handler: handler });
@@ -107,12 +107,12 @@ describe('CORS', function () {
 
     it('allows headers on multiple routes but not all', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('ok');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'GET', path: '/a', handler: handler, config: { cors: true } });
         server.route({ method: 'GET', path: '/b', handler: handler, config: { cors: true } });
@@ -143,12 +143,12 @@ describe('CORS', function () {
 
     it('allows same headers on multiple routes with same path', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('ok');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'GET', path: '/a', handler: handler, config: { cors: true } });
         server.route({ method: 'POST', path: '/a', handler: handler, config: { cors: true } });
@@ -164,12 +164,12 @@ describe('CORS', function () {
 
     it('returns headers on single route (overrides defaults)', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('ok');
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection({ routes: { cors: { origin: ['b'] } } });
         server.route({ method: 'GET', path: '/a', handler: handler, config: { cors: { origin: ['a'] } } });
         server.route({ method: 'GET', path: '/b', handler: handler });
@@ -192,12 +192,12 @@ describe('CORS', function () {
 
     it('sets access-control-allow-credentials header', function (done) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply();
         };
 
-        var server = new Hapi.Server();
+        const server = new Hapi.Server();
         server.connection({ routes: { cors: { credentials: true } } });
         server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -213,12 +213,12 @@ describe('CORS', function () {
 
         it('returns CORS origin (route level)', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler, config: { cors: true } });
 
@@ -239,12 +239,12 @@ describe('CORS', function () {
 
         it('returns CORS origin (GET)', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['http://x.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -259,12 +259,12 @@ describe('CORS', function () {
 
         it('returns CORS origin (OPTIONS)', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -279,12 +279,12 @@ describe('CORS', function () {
 
         it('merges CORS access-control-expose-headers header', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok').header('access-control-expose-headers', 'something');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { additionalExposedHeaders: ['xyz'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -299,12 +299,12 @@ describe('CORS', function () {
 
         it('returns no CORS headers when route CORS disabled', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler, config: { cors: false } });
 
@@ -319,12 +319,12 @@ describe('CORS', function () {
 
         it('returns matching CORS origin', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Tada').header('vary', 'x-test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -340,12 +340,12 @@ describe('CORS', function () {
 
         it('returns origin header when matching against *', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Tada').header('vary', 'x-test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['*'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -361,12 +361,12 @@ describe('CORS', function () {
 
         it('returns matching CORS origin wildcard', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Tada').header('vary', 'x-test');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -382,12 +382,12 @@ describe('CORS', function () {
 
         it('returns matching CORS origin wildcard when more than one wildcard', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('Tada').header('vary', 'x-test', true);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -403,12 +403,12 @@ describe('CORS', function () {
 
         it('does not set empty CORS expose headers', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { exposedHeaders: [] } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -431,7 +431,7 @@ describe('CORS', function () {
 
         it('ignores OPTIONS route', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'OPTIONS',
@@ -448,7 +448,7 @@ describe('CORS', function () {
 
         it('errors on missing origin header', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
             server.route({
                 method: 'GET',
@@ -466,7 +466,7 @@ describe('CORS', function () {
 
         it('errors on missing access-control-request-method header', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
             server.route({
                 method: 'GET',
@@ -484,7 +484,7 @@ describe('CORS', function () {
 
         it('errors on missing route', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
 
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, function (res) {
@@ -496,7 +496,7 @@ describe('CORS', function () {
 
         it('errors on mismatching origin header', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['a'] } } });
             server.route({
                 method: 'GET',
@@ -514,12 +514,12 @@ describe('CORS', function () {
 
         it('matches allowed headers', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -541,12 +541,12 @@ describe('CORS', function () {
 
         it('matches allowed headers (case insensitive', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -568,12 +568,12 @@ describe('CORS', function () {
 
         it('errors on disallowed headers', function (done) {
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply('ok');
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
@@ -595,7 +595,7 @@ describe('CORS', function () {
 
         it('allows credentials', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: { credentials: true } } });
             server.route({
                 method: 'GET',
@@ -616,7 +616,7 @@ describe('CORS', function () {
 
         it('skips CORS when missing origin header', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
             server.route({
                 method: 'GET',

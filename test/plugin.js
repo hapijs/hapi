@@ -2,29 +2,29 @@
 
 // Load modules
 
-var Path = require('path');
-var Boom = require('boom');
-var CatboxMemory = require('catbox-memory');
-var Code = require('code');
-var Handlebars = require('handlebars');
-var Hapi = require('..');
-var Hoek = require('hoek');
-var Inert = require('inert');
-var Lab = require('lab');
-var Vision = require('vision');
+const Path = require('path');
+const Boom = require('boom');
+const CatboxMemory = require('catbox-memory');
+const Code = require('code');
+const Handlebars = require('handlebars');
+const Hapi = require('..');
+const Hoek = require('hoek');
+const Inert = require('inert');
+const Lab = require('lab');
+const Vision = require('vision');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('Plugin', function () {
@@ -33,18 +33,18 @@ describe('Plugin', function () {
 
         it('creates a subset of connections for manipulation', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['s1', 'a', 'b'] });
             server.connection({ labels: ['s2', 'a', 'c'] });
             server.connection({ labels: ['s3', 'a', 'b', 'd'] });
             server.connection({ labels: ['s4', 'b', 'x'] });
 
-            var register = function (srv, options, next) {
+            const register = function (srv, options, next) {
 
-                var a = srv.select('a');
-                var ab = a.select('b');
-                var memoryx = srv.select('x', 's4');
-                var sodd = srv.select(['s2', 's4']);
+                const a = srv.select('a');
+                const ab = a.select('b');
+                const memoryx = srv.select('x', 's4');
+                const sodd = srv.select(['s2', 's4']);
 
                 expect(srv.connections.length).to.equal(4);
                 expect(a.connections.length).to.equal(3);
@@ -136,12 +136,12 @@ describe('Plugin', function () {
 
         it('registers a plugin on selection inside a plugin', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a'] });
             server.connection({ labels: ['b'] });
             server.connection({ labels: ['c'] });
 
-            var child = function (srv, options, next) {
+            const child = function (srv, options, next) {
 
                 srv.expose('key2', srv.connections.length);
                 return next();
@@ -151,7 +151,7 @@ describe('Plugin', function () {
                 name: 'child'
             };
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.expose('key1', srv.connections.length);
                 srv.select('a').register(child, next);
@@ -175,10 +175,10 @@ describe('Plugin', function () {
 
         it('registers plugin with options', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 expect(options.something).to.be.true();
                 expect(srv.realm.pluginOptions).to.equal(options);
@@ -198,10 +198,10 @@ describe('Plugin', function () {
 
         it('registers a required plugin', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            var test = {
+            const test = {
                 register: function (srv, options, next) {
 
                     expect(options.something).to.be.true();
@@ -222,7 +222,7 @@ describe('Plugin', function () {
 
         it('throws on bad plugin (missing attributes)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             expect(function () {
 
                 server.register({
@@ -239,14 +239,14 @@ describe('Plugin', function () {
 
         it('throws on bad plugin (missing name)', function (done) {
 
-            var register = function (srv, options, next) {
+            const register = function (srv, options, next) {
 
                 return next();
             };
 
             register.attributes = {};
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             expect(function () {
 
                 server.register(register, function (err) { });
@@ -257,7 +257,7 @@ describe('Plugin', function () {
 
         it('throws on bad plugin (empty pkg)', function (done) {
 
-            var register = function (srv, options, next) {
+            const register = function (srv, options, next) {
 
                 return next();
             };
@@ -266,7 +266,7 @@ describe('Plugin', function () {
                 pkg: {}
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             expect(function () {
 
                 server.register(register, function (err) { });
@@ -277,10 +277,10 @@ describe('Plugin', function () {
 
         it('throws when register is missing a callback function', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 expect(options.something).to.be.true();
                 return next();
@@ -299,7 +299,7 @@ describe('Plugin', function () {
 
         it('returns plugin error', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 return next(new Error('from plugin'));
             };
@@ -308,7 +308,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -320,7 +320,7 @@ describe('Plugin', function () {
 
         it('sets version to 0.0.0 if missing', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -339,7 +339,7 @@ describe('Plugin', function () {
                 }
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.register(test, function (err) {
@@ -356,7 +356,7 @@ describe('Plugin', function () {
 
         it('exposes plugin registration information', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -377,7 +377,7 @@ describe('Plugin', function () {
                 }
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.register({
@@ -386,7 +386,7 @@ describe('Plugin', function () {
             }, function (err) {
 
                 expect(err).to.not.exist();
-                var bob = server.connections[0].registrations.bob;
+                const bob = server.connections[0].registrations.bob;
                 expect(bob).to.exist();
                 expect(bob).to.be.an.object();
                 expect(bob.version).to.equal('1.2.3');
@@ -402,7 +402,7 @@ describe('Plugin', function () {
 
         it('prevents plugin from multiple registrations', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -420,7 +420,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ host: 'example.com' });
             server.register(test, function (err) {
 
@@ -436,7 +436,7 @@ describe('Plugin', function () {
 
         it('allows plugin multiple registrations (attributes)', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.app.x = srv.app.x ? srv.app.x + 1 : 1;
                 return next();
@@ -447,7 +447,7 @@ describe('Plugin', function () {
                 multiple: true
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -463,7 +463,7 @@ describe('Plugin', function () {
 
         it('registers multiple plugins', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             var log = null;
             server.once('log', function (event, tags) {
@@ -483,7 +483,7 @@ describe('Plugin', function () {
 
         it('registers multiple plugins (verbose)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             var log = null;
             server.once('log', function (event, tags) {
@@ -503,7 +503,7 @@ describe('Plugin', function () {
 
         it('registers a child plugin', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register(internals.plugins.child, function (err) {
 
@@ -518,7 +518,7 @@ describe('Plugin', function () {
 
         it('registers a plugin with routes path prefix', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register(internals.plugins.test1, { routes: { prefix: '/xyz' } }, function (err) {
 
@@ -534,7 +534,7 @@ describe('Plugin', function () {
 
         it('registers a plugin with routes path prefix (plugin options)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register({ register: internals.plugins.test1, routes: { prefix: '/abc' } }, { routes: { prefix: '/xyz' } }, function (err) {
 
@@ -550,7 +550,7 @@ describe('Plugin', function () {
 
         it('registers a plugin with routes path prefix and plugin root route', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -567,7 +567,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register(test, { routes: { prefix: '/xyz' } }, function (err) {
 
@@ -582,7 +582,7 @@ describe('Plugin', function () {
 
         it('ignores the type of the plugin value', function (done) {
 
-            var a = function () { };
+            const a = function () { };
             a.register = function (srv, options, next) {
 
                 srv.route({
@@ -598,7 +598,7 @@ describe('Plugin', function () {
 
             a.register.attributes = { name: 'a' };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register(a, { routes: { prefix: '/xyz' } }, function (err) {
 
@@ -613,7 +613,7 @@ describe('Plugin', function () {
 
         it('ignores unknown plugin properties', function (done) {
 
-            var a = {
+            const a = {
                 register: function (srv, options, next) {
 
                     srv.route({
@@ -631,7 +631,7 @@ describe('Plugin', function () {
 
             a.register.attributes = { name: 'a' };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(a, function (err) {
 
@@ -642,7 +642,7 @@ describe('Plugin', function () {
 
         it('ignores unknown plugin properties (with options)', function (done) {
 
-            var a = {
+            const a = {
                 register: function (srv, options, next) {
 
                     srv.route({
@@ -660,7 +660,7 @@ describe('Plugin', function () {
 
             a.register.attributes = { name: 'a' };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register({ register: a }, function (err) {
 
@@ -671,7 +671,7 @@ describe('Plugin', function () {
 
         it('registers a child plugin with parent routes path prefix', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register(internals.plugins.child, { routes: { prefix: '/xyz' } }, function (err) {
 
@@ -686,7 +686,7 @@ describe('Plugin', function () {
 
         it('registers a child plugin with parent routes vhost prefix', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register(internals.plugins.child, { routes: { vhost: 'example.com' } }, function (err) {
 
@@ -701,7 +701,7 @@ describe('Plugin', function () {
 
         it('registers a child plugin with parent routes path prefix and inner register prefix', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register({ register: internals.plugins.child, options: { routes: { prefix: '/inner' } } }, { routes: { prefix: '/xyz' } }, function (err) {
 
@@ -716,7 +716,7 @@ describe('Plugin', function () {
 
         it('registers a child plugin with parent routes vhost prefix and inner register vhost', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register({ register: internals.plugins.child, options: { routes: { vhost: 'example.net' } } }, { routes: { vhost: 'example.com' } }, function (err) {
 
@@ -731,7 +731,7 @@ describe('Plugin', function () {
 
         it('registers a plugin with routes vhost', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register(internals.plugins.test1, { routes: { vhost: 'example.com' } }, function (err) {
 
@@ -751,7 +751,7 @@ describe('Plugin', function () {
 
         it('registers a plugin with routes vhost (plugin options)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'test' });
             server.register({ register: internals.plugins.test1, routes: { vhost: 'example.org' } }, { routes: { vhost: 'example.com' } }, function (err) {
 
@@ -771,14 +771,14 @@ describe('Plugin', function () {
 
         it('registers plugins with pre-selected label', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a'] });
             server.connection({ labels: ['b'] });
 
-            var server1 = server.connections[0];
-            var server2 = server.connections[1];
+            const server1 = server.connections[0];
+            const server2 = server.connections[1];
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -812,16 +812,16 @@ describe('Plugin', function () {
 
         it('registers plugins with pre-selected labels', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a'] });
             server.connection({ labels: ['b'] });
             server.connection({ labels: ['c'] });
 
-            var server1 = server.connections[0];
-            var server2 = server.connections[1];
-            var server3 = server.connections[2];
+            const server1 = server.connections[0];
+            const server2 = server.connections[1];
+            const server3 = server.connections[2];
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -862,16 +862,16 @@ describe('Plugin', function () {
 
         it('registers plugins with pre-selected labels (plugin options)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a'] });
             server.connection({ labels: ['b'] });
             server.connection({ labels: ['c'] });
 
-            var server1 = server.connections[0];
-            var server2 = server.connections[1];
-            var server3 = server.connections[2];
+            const server1 = server.connections[0];
+            const server2 = server.connections[1];
+            const server3 = server.connections[2];
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -912,7 +912,7 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in one statement', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.dependency(['b', 'c']);
                 return next();
@@ -922,7 +922,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -931,7 +931,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (srv, options, next) {
+            const c = function (srv, options, next) {
 
                 return next();
             };
@@ -940,7 +940,7 @@ describe('Plugin', function () {
                 name: 'c'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -960,7 +960,7 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in attributes', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 return next();
             };
@@ -970,7 +970,7 @@ describe('Plugin', function () {
                 dependencies: ['b', 'c']
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -979,7 +979,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (srv, options, next) {
+            const c = function (srv, options, next) {
 
                 return next();
             };
@@ -988,7 +988,7 @@ describe('Plugin', function () {
                 name: 'c'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1008,7 +1008,7 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in multiple statements', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.dependency('b');
                 srv.dependency('c');
@@ -1019,7 +1019,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -1028,7 +1028,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (srv, options, next) {
+            const c = function (srv, options, next) {
 
                 return next();
             };
@@ -1037,7 +1037,7 @@ describe('Plugin', function () {
                 name: 'c'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1057,7 +1057,7 @@ describe('Plugin', function () {
 
         it('sets multiple dependencies in multiple locations', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.dependency('b');
                 return next();
@@ -1068,7 +1068,7 @@ describe('Plugin', function () {
                 dependencies: 'c'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -1077,7 +1077,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (srv, options, next) {
+            const c = function (srv, options, next) {
 
                 return next();
             };
@@ -1086,7 +1086,7 @@ describe('Plugin', function () {
                 name: 'c'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1106,7 +1106,7 @@ describe('Plugin', function () {
 
         it('errors when dependency loaded before connection was added', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 return next();
             };
@@ -1116,7 +1116,7 @@ describe('Plugin', function () {
                 dependencies: 'b'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -1125,7 +1125,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1144,7 +1144,7 @@ describe('Plugin', function () {
 
         it('set dependency on previously loaded connectionless plugin', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 return next();
             };
@@ -1154,7 +1154,7 @@ describe('Plugin', function () {
                 dependencies: 'b'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 expect(srv.connections).to.be.null();
                 return next();
@@ -1165,7 +1165,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1183,7 +1183,7 @@ describe('Plugin', function () {
 
         it('allows multiple connectionless plugin', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 return next();
             };
@@ -1193,7 +1193,7 @@ describe('Plugin', function () {
                 dependencies: 'b'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 expect(srv.connections).to.be.null();
                 return next();
@@ -1205,7 +1205,7 @@ describe('Plugin', function () {
                 multiple: true
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register([b, b], function (err) {
 
@@ -1223,7 +1223,7 @@ describe('Plugin', function () {
 
         it('register nested connectionless plugins', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, function (err) {
 
@@ -1236,7 +1236,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -1246,7 +1246,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(a, function (err) {
 
@@ -1257,7 +1257,7 @@ describe('Plugin', function () {
 
         it('throws when nested connectionless plugins select', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 expect(function () {
 
@@ -1271,7 +1271,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -1281,7 +1281,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(a, function (err) {
 
@@ -1292,7 +1292,7 @@ describe('Plugin', function () {
 
         it('register a plugin once per connection', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, { once: true }, function (err) {
 
@@ -1306,7 +1306,7 @@ describe('Plugin', function () {
             };
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 return next();
@@ -1316,7 +1316,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1335,7 +1335,7 @@ describe('Plugin', function () {
 
         it('register a plugin once per connection (skip empty selection)', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.select('none').register(b, { once: true }, function (err) {
 
@@ -1349,7 +1349,7 @@ describe('Plugin', function () {
             };
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 return next();
@@ -1359,7 +1359,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.connection();
             server.register(b, function (err) {
@@ -1379,7 +1379,7 @@ describe('Plugin', function () {
         it('register a connectionless plugin once (empty selection)', function (done) {
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 return next();
@@ -1390,7 +1390,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.connection();
             server.select('none').register(b, { once: true }, function (err) {
@@ -1403,7 +1403,7 @@ describe('Plugin', function () {
 
         it('register a plugin once per connection (no selection left)', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, { once: true }, function (err) {
 
@@ -1417,7 +1417,7 @@ describe('Plugin', function () {
             };
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 return next();
@@ -1427,7 +1427,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.connection();
             server.register(b, function (err) {
@@ -1447,7 +1447,7 @@ describe('Plugin', function () {
         it('register a plugin once (empty selection)', function (done) {
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 return next();
@@ -1457,7 +1457,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.connection();
             server.select('none').register(b, { once: true }, function (err) {
@@ -1470,7 +1470,7 @@ describe('Plugin', function () {
 
         it('register a connectionless plugin once', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, { once: true }, function (err) {
 
@@ -1484,7 +1484,7 @@ describe('Plugin', function () {
             };
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 expect(srv.connections).to.be.null();
@@ -1496,7 +1496,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1515,7 +1515,7 @@ describe('Plugin', function () {
 
         it('register a connectionless plugin once (plugin attributes)', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, function (err) {
 
@@ -1529,7 +1529,7 @@ describe('Plugin', function () {
             };
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 expect(srv.connections).to.be.null();
@@ -1542,7 +1542,7 @@ describe('Plugin', function () {
                 once: true
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1561,7 +1561,7 @@ describe('Plugin', function () {
 
         it('register a connectionless plugin once (plugin options)', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register({ register: b, once: true }, function (err) {
 
@@ -1575,7 +1575,7 @@ describe('Plugin', function () {
             };
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 expect(srv.connections).to.be.null();
@@ -1587,7 +1587,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(b, function (err) {
 
@@ -1607,7 +1607,7 @@ describe('Plugin', function () {
         it('register a connectionless plugin once (first time)', function (done) {
 
             var count = 0;
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 ++count;
                 expect(srv.connections).to.be.null();
@@ -1619,7 +1619,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.connection();
             server.register(b, { once: true }, function (err) {
@@ -1632,7 +1632,7 @@ describe('Plugin', function () {
 
         it('throws when once used with plugin options', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 return next();
             };
@@ -1641,7 +1641,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -1653,7 +1653,7 @@ describe('Plugin', function () {
 
         it('throws when dependencies is an object', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 next();
             };
@@ -1662,7 +1662,7 @@ describe('Plugin', function () {
                 dependencies: { b: true }
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -1674,7 +1674,7 @@ describe('Plugin', function () {
 
         it('throws when dependencies contain something else than a string', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 next();
             };
@@ -1683,7 +1683,7 @@ describe('Plugin', function () {
                 dependencies: [true]
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -1695,10 +1695,10 @@ describe('Plugin', function () {
 
         it('exposes server decorations to next register', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.decorate('server', 'a', function () {
 
@@ -1712,7 +1712,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next(typeof srv.a === 'function' ? null : new Error('Missing decoration'));
             };
@@ -1734,10 +1734,10 @@ describe('Plugin', function () {
 
         it('exposes server decorations to dependency (dependency first)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.decorate('server', 'a', function () {
 
@@ -1751,7 +1751,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 srv.dependency('a', function (srv2, next2) {
 
@@ -1778,10 +1778,10 @@ describe('Plugin', function () {
 
         it('exposes server decorations to dependency (dependency second)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.decorate('server', 'a', function () {
 
@@ -1795,7 +1795,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 srv.realm.x = 1;
                 srv.dependency('a', function (srv2, next2) {
@@ -1824,10 +1824,10 @@ describe('Plugin', function () {
 
         it('exposes server decorations to next register when nested', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.decorate('server', 'a', function () {
 
@@ -1841,7 +1841,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 srv.register(a, function (err) {
 
@@ -1870,7 +1870,7 @@ describe('Plugin', function () {
 
         it('adds auth strategy via plugin', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: 'a' });
             server.connection({ labels: 'b' });
             server.route({
@@ -1904,9 +1904,9 @@ describe('Plugin', function () {
 
         it('sets plugin context', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
-                var bind = {
+                const bind = {
                     value: 'in context',
                     suffix: ' throughout'
                 };
@@ -1934,7 +1934,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -1952,9 +1952,9 @@ describe('Plugin', function () {
 
         it('provisions a server cache', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var cache = server.cache({ segment: 'test', expiresIn: 1000 });
+            const cache = server.cache({ segment: 'test', expiresIn: 1000 });
             server.initialize(function (err) {
 
                 expect(err).to.not.exist();
@@ -1972,7 +1972,7 @@ describe('Plugin', function () {
 
         it('throws when missing segment', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -1983,9 +1983,9 @@ describe('Plugin', function () {
 
         it('provisions a server cache with custom partition', function (done) {
 
-            var server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
+            const server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
             server.connection();
-            var cache = server.cache({ segment: 'test', expiresIn: 1000 });
+            const cache = server.cache({ segment: 'test', expiresIn: 1000 });
             server.initialize(function (err) {
 
                 expect(err).to.not.exist();
@@ -2004,7 +2004,7 @@ describe('Plugin', function () {
 
         it('throws when allocating an invalid cache segment', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -2016,7 +2016,7 @@ describe('Plugin', function () {
 
         it('allows allocating a cache segment with empty options', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -2028,7 +2028,7 @@ describe('Plugin', function () {
 
         it('allows reusing the same cache segment (server)', function (done) {
 
-            var server = new Hapi.Server({ cache: { engine: CatboxMemory, shared: true } });
+            const server = new Hapi.Server({ cache: { engine: CatboxMemory, shared: true } });
             server.connection();
             expect(function () {
 
@@ -2040,7 +2040,7 @@ describe('Plugin', function () {
 
         it('allows reusing the same cache segment (cache)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -2052,9 +2052,9 @@ describe('Plugin', function () {
 
         it('uses plugin cache interface', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
-                var cache = srv.cache({ expiresIn: 10 });
+                const cache = srv.cache({ expiresIn: 10 });
                 srv.expose({
                     get: function (key, callback) {
 
@@ -2076,7 +2076,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -2112,10 +2112,10 @@ describe('Plugin', function () {
 
         it('returns a selection object within the same realm', function (done) {
 
-            var plugin = function (srv, options, next) {
+            const plugin = function (srv, options, next) {
 
                 srv.bind({ some: 'context' });
-                var con = srv.connection();
+                const con = srv.connection();
                 con.route({
                     method: 'GET',
                     path: '/',
@@ -2133,7 +2133,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(plugin, function (err) {
 
                 expect(err).to.not.exist();
@@ -2150,7 +2150,7 @@ describe('Plugin', function () {
 
         it('decorates request', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.decorate('request', 'getId', function () {
@@ -2177,7 +2177,7 @@ describe('Plugin', function () {
 
         it('decorates reply', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.decorate('reply', 'success', function () {
@@ -2204,7 +2204,7 @@ describe('Plugin', function () {
 
         it('throws on double reply decoration', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.decorate('reply', 'success', function () {
@@ -2221,7 +2221,7 @@ describe('Plugin', function () {
 
         it('throws on internal conflict', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -2233,7 +2233,7 @@ describe('Plugin', function () {
 
         it('decorates server', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.decorate('server', 'ok', function (path) {
@@ -2260,7 +2260,7 @@ describe('Plugin', function () {
 
         it('throws on double server decoration', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.decorate('server', 'ok', function (path) {
@@ -2284,7 +2284,7 @@ describe('Plugin', function () {
 
         it('throws on server decoration root conflict', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -2296,7 +2296,7 @@ describe('Plugin', function () {
 
         it('throws on server decoration plugin conflict', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -2308,7 +2308,7 @@ describe('Plugin', function () {
 
         it('throws on invalid decoration name', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -2323,7 +2323,7 @@ describe('Plugin', function () {
 
         it('fails to register single plugin with dependencies', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.dependency('none');
                 return next();
@@ -2333,7 +2333,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -2348,7 +2348,7 @@ describe('Plugin', function () {
 
         it('fails to register single plugin with dependencies (attributes)', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 return next();
             };
@@ -2358,7 +2358,7 @@ describe('Plugin', function () {
                 dependencies: 'none'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -2373,7 +2373,7 @@ describe('Plugin', function () {
 
         it('fails to register single plugin with dependencies (connectionless)', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.dependency('none');
                 return next();
@@ -2384,7 +2384,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -2399,7 +2399,7 @@ describe('Plugin', function () {
 
         it('fails to register plugin with multiple dependencies (connectionless)', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.dependency(['b', 'none']);
                 return next();
@@ -2410,7 +2410,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -2420,7 +2420,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register([test, b], function (err) {
 
@@ -2435,7 +2435,7 @@ describe('Plugin', function () {
 
         it('register plugin with multiple dependencies (connectionless)', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.dependency(['b']);
                 return next();
@@ -2446,7 +2446,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -2456,7 +2456,7 @@ describe('Plugin', function () {
                 connections: false
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register([test, b], function (err) {
 
@@ -2470,7 +2470,7 @@ describe('Plugin', function () {
 
         it('fails to register multiple plugins with dependencies', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ port: 80, host: 'localhost' });
             server.register([internals.plugins.deps1, internals.plugins.deps3], function (err) {
 
@@ -2485,7 +2485,7 @@ describe('Plugin', function () {
 
         it('recognizes dependencies from peer plugins', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, next);
             };
@@ -2494,7 +2494,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -2503,7 +2503,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var c = function (srv, options, next) {
+            const c = function (srv, options, next) {
 
                 srv.dependency('b');
                 return next();
@@ -2513,7 +2513,7 @@ describe('Plugin', function () {
                 name: 'c'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register([a, c], function (err) {
 
@@ -2524,7 +2524,7 @@ describe('Plugin', function () {
 
         it('errors when missing inner dependencies', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, next);
             };
@@ -2533,7 +2533,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 srv.dependency('c');
                 return next();
@@ -2543,7 +2543,7 @@ describe('Plugin', function () {
                 name: 'b'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ port: 80, host: 'localhost' });
             server.register(a, function (err) {
 
@@ -2558,7 +2558,7 @@ describe('Plugin', function () {
 
         it('errors when missing inner dependencies (attributes)', function (done) {
 
-            var a = function (srv, options, next) {
+            const a = function (srv, options, next) {
 
                 srv.register(b, next);
             };
@@ -2567,7 +2567,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var b = function (srv, options, next) {
+            const b = function (srv, options, next) {
 
                 return next();
             };
@@ -2577,7 +2577,7 @@ describe('Plugin', function () {
                 dependencies: 'c'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ port: 80, host: 'localhost' });
             server.register(a, function (err) {
 
@@ -2595,7 +2595,7 @@ describe('Plugin', function () {
 
         it('plugin event handlers receive more than 2 arguments when they exist', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.once('request-internal', function () {
 
@@ -2610,7 +2610,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -2621,17 +2621,17 @@ describe('Plugin', function () {
 
         it('listens to events on selected connections', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a'] });
             server.connection({ labels: ['b'] });
             server.connection({ labels: ['c'] });
 
-            var server1 = server.connections[0];
-            var server2 = server.connections[1];
-            var server3 = server.connections[2];
+            const server1 = server.connections[0];
+            const server2 = server.connections[1];
+            const server3 = server.connections[2];
 
             var counter = 0;
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.select(['a', 'b']).on('test', function () {
 
@@ -2676,7 +2676,7 @@ describe('Plugin', function () {
 
         it('exposes an api', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['s1', 'a', 'b'] });
             server.connection({ labels: ['s2', 'a', 'test'] });
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
@@ -2703,7 +2703,7 @@ describe('Plugin', function () {
 
         it('extends onRequest point', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -2727,7 +2727,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -2744,12 +2744,12 @@ describe('Plugin', function () {
 
         it('adds multiple ext functions with simple dependencies', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection({ labels: ['a', 'b', '0'] });
             server.connection({ labels: ['a', 'c', '1'] });
             server.connection({ labels: ['c', 'b', '2'] });
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.app.deps);
             };
@@ -2790,9 +2790,9 @@ describe('Plugin', function () {
 
             // Generate a plugin with a specific index and ext dependencies.
 
-            var pluginCurrier = function (num, deps) {
+            const pluginCurrier = function (num, deps) {
 
-                var plugin = function (server, options, next) {
+                const plugin = function (server, options, next) {
 
                     server.ext('onRequest', function (request, reply) {
 
@@ -2811,12 +2811,12 @@ describe('Plugin', function () {
                 return plugin;
             };
 
-            var handler = function (request, reply) {
+            const handler = function (request, reply) {
 
                 return reply(request.app.complexDeps);
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.route({ method: 'GET', path: '/', handler: handler });
@@ -2844,7 +2844,7 @@ describe('Plugin', function () {
 
         it('throws when adding ext without connections', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             expect(function () {
 
                 server.ext('onRequest', function () { });
@@ -2855,10 +2855,10 @@ describe('Plugin', function () {
 
         it('binds server ext to context (options)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var bind = {
+            const bind = {
                 state: false
             };
 
@@ -2878,10 +2878,10 @@ describe('Plugin', function () {
 
         it('binds server ext to context (realm)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var bind = {
+            const bind = {
                 state: false
             };
 
@@ -2902,7 +2902,7 @@ describe('Plugin', function () {
 
         it('extends server actions', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var result = '';
@@ -2946,7 +2946,7 @@ describe('Plugin', function () {
 
         it('extends server actions (single call)', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var result = '';
@@ -3001,7 +3001,7 @@ describe('Plugin', function () {
 
         it('combine route extensions', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.ext('onPreAuth', function (request, reply) {
@@ -3010,7 +3010,7 @@ describe('Plugin', function () {
                 return reply.continue();
             });
 
-            var plugin = function (srv, options, next) {
+            const plugin = function (srv, options, next) {
 
                 srv.route({
                     method: 'GET',
@@ -3075,7 +3075,7 @@ describe('Plugin', function () {
 
         it('calls method after plugin', function (done) {
 
-            var x = function (srv, options, next) {
+            const x = function (srv, options, next) {
 
                 srv.expose('a', 'b');
                 return next();
@@ -3085,7 +3085,7 @@ describe('Plugin', function () {
                 name: 'x'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(server.plugins.x).to.not.exist();
@@ -3112,7 +3112,7 @@ describe('Plugin', function () {
 
         it('calls method before start', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var called = false;
@@ -3132,7 +3132,7 @@ describe('Plugin', function () {
 
         it('calls method before start even if plugin not registered', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var called = false;
@@ -3152,7 +3152,7 @@ describe('Plugin', function () {
 
         it('fails to start server when after method fails', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.ext('onPreStart', function (inner, finish) {
 
@@ -3171,7 +3171,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -3186,7 +3186,7 @@ describe('Plugin', function () {
 
         it('errors when added after initialization', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.initialize(function (err) {
@@ -3205,7 +3205,7 @@ describe('Plugin', function () {
 
         it('add new handler', function (done) {
 
-            var test = function (srv, options1, next) {
+            const test = function (srv, options1, next) {
 
                 srv.handler('bar', function (route, options2) {
 
@@ -3222,7 +3222,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.register(test, function (err) {
 
@@ -3245,7 +3245,7 @@ describe('Plugin', function () {
 
         it('errors on duplicate handler', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection();
 
@@ -3258,7 +3258,7 @@ describe('Plugin', function () {
 
         it('errors on unknown handler', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -3270,7 +3270,7 @@ describe('Plugin', function () {
 
         it('errors on non-string name', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -3282,7 +3282,7 @@ describe('Plugin', function () {
 
         it('errors on non-function handler', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             expect(function () {
@@ -3297,7 +3297,7 @@ describe('Plugin', function () {
 
         it('emits a log event', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var count = 0;
@@ -3329,7 +3329,7 @@ describe('Plugin', function () {
 
         it('emits a log event and print to console', { parallel: false }, function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.once('log', function (event) {
@@ -3337,7 +3337,7 @@ describe('Plugin', function () {
                 expect(event.data).to.equal('log event 1');
             });
 
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 console.error = orig;
@@ -3352,10 +3352,10 @@ describe('Plugin', function () {
 
         it('outputs log data to debug console', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 console.error = orig;
@@ -3370,10 +3370,10 @@ describe('Plugin', function () {
 
         it('outputs log error data to debug console', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 console.error = orig;
@@ -3388,10 +3388,10 @@ describe('Plugin', function () {
 
         it('outputs log data to debug console without data', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 console.error = orig;
@@ -3406,11 +3406,11 @@ describe('Plugin', function () {
 
         it('does not output events when debug disabled', function (done) {
 
-            var server = new Hapi.Server({ debug: false });
+            const server = new Hapi.Server({ debug: false });
             server.connection();
 
             var i = 0;
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 ++i;
@@ -3425,11 +3425,11 @@ describe('Plugin', function () {
 
         it('does not output events when debug.log disabled', function (done) {
 
-            var server = new Hapi.Server({ debug: { log: false } });
+            const server = new Hapi.Server({ debug: { log: false } });
             server.connection();
 
             var i = 0;
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 ++i;
@@ -3444,11 +3444,11 @@ describe('Plugin', function () {
 
         it('does not output non-implementation events by default', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var i = 0;
-            var orig = console.error;
+            const orig = console.error;
             console.error = function () {
 
                 ++i;
@@ -3464,7 +3464,7 @@ describe('Plugin', function () {
         it('emits server log events once', function (done) {
 
             var pc = 0;
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.on('log', function (event, tags) {
 
@@ -3478,7 +3478,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             var sc = 0;
@@ -3502,7 +3502,7 @@ describe('Plugin', function () {
 
         it('returns route based on id', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -3517,7 +3517,7 @@ describe('Plugin', function () {
                 }
             });
 
-            var root = server.lookup('root');
+            const root = server.lookup('root');
             expect(root.path).to.equal('/');
             expect(root.settings.app.test).to.equal(123);
             done();
@@ -3525,16 +3525,16 @@ describe('Plugin', function () {
 
         it('returns null on unknown route', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
-            var root = server.lookup('root');
+            const root = server.lookup('root');
             expect(root).to.be.null();
             done();
         });
 
         it('throws on missing id', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3548,7 +3548,7 @@ describe('Plugin', function () {
 
         it('returns route based on path', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             server.route({
@@ -3624,7 +3624,7 @@ describe('Plugin', function () {
 
         it('throws on missing method', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3635,7 +3635,7 @@ describe('Plugin', function () {
 
         it('throws on invalid method', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3646,7 +3646,7 @@ describe('Plugin', function () {
 
         it('throws on missing path', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3657,7 +3657,7 @@ describe('Plugin', function () {
 
         it('throws on invalid path type', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3668,7 +3668,7 @@ describe('Plugin', function () {
 
         it('throws on invalid path prefix', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3679,7 +3679,7 @@ describe('Plugin', function () {
 
         it('throws on invalid path', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             server.route({
                 method: 'GET',
@@ -3701,7 +3701,7 @@ describe('Plugin', function () {
 
         it('throws on invalid host type', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3715,10 +3715,10 @@ describe('Plugin', function () {
 
         it('adds server method using arguments', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.method('log', function (methodNext) {
 
@@ -3740,10 +3740,10 @@ describe('Plugin', function () {
 
         it('adds server method with plugin bind', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.bind({ x: 1 });
                 srv.method('log', function (methodNext) {
@@ -3770,10 +3770,10 @@ describe('Plugin', function () {
 
         it('adds server method with method bind', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.method('log', function (methodNext) {
 
@@ -3799,10 +3799,10 @@ describe('Plugin', function () {
 
         it('adds server method with method and ext bind', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.bind({ x: 1 });
                 srv.method('log', function (methodNext) {
@@ -3832,7 +3832,7 @@ describe('Plugin', function () {
 
         it('sets local path for directory route handler', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.path(Path.join(__dirname, '..'));
 
@@ -3853,7 +3853,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
             server.connection({ routes: { files: { relativeTo: __dirname } } });
             server.register(test, function (err) {
@@ -3869,7 +3869,7 @@ describe('Plugin', function () {
 
         it('throws when plugin sets undefined path', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.path();
                 return next();
@@ -3879,7 +3879,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
             expect(function () {
 
@@ -3893,7 +3893,7 @@ describe('Plugin', function () {
 
         it('renders view', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register(Vision, Hoek.ignore);
             server.connection();
             server.views({
@@ -3914,7 +3914,7 @@ describe('Plugin', function () {
 
         it('throws when adding state without connections', function (done) {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             expect(function () {
 
                 server.state('sid', { encoding: 'base64' });
@@ -3928,11 +3928,11 @@ describe('Plugin', function () {
 
         it('requires plugin with views', function (done) {
 
-            var test = function (srv, options, next) {
+            const test = function (srv, options, next) {
 
                 srv.path(__dirname);
 
-                var views = {
+                const views = {
                     engines: { 'html': Handlebars },
                     path: './templates/plugin'
                 };
@@ -3970,7 +3970,7 @@ describe('Plugin', function () {
                 name: 'test'
             };
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.register([Inert, Vision], Hoek.ignore);
             server.connection();
             server.register({ register: test, options: { message: 'viewing it' } }, function (err) {
@@ -3999,13 +3999,13 @@ describe('Plugin', function () {
 
 internals.routesList = function (server, label) {
 
-    var tables = server.select(label || []).table();
+    const tables = server.select(label || []).table();
 
-    var list = [];
+    const list = [];
     for (var c = 0, cl = tables.length; c < cl; ++c) {
-        var routes = tables[c].table;
+        const routes = tables[c].table;
         for (var i = 0, il = routes.length; i < il; ++i) {
-            var route = routes[i];
+            const route = routes[i];
             if (route.method === 'get') {
                 list.push(route.path);
             }
@@ -4021,18 +4021,18 @@ internals.plugins = {
 
         server.auth.scheme('basic', function (srv, authOptions) {
 
-            var settings = Hoek.clone(authOptions);
+            const settings = Hoek.clone(authOptions);
 
-            var scheme = {
+            const scheme = {
                 authenticate: function (request, reply) {
 
-                    var req = request.raw.req;
-                    var authorization = req.headers.authorization;
+                    const req = request.raw.req;
+                    const authorization = req.headers.authorization;
                     if (!authorization) {
                         return reply(Boom.unauthorized(null, 'Basic'));
                     }
 
-                    var parts = authorization.split(/\s+/);
+                    const parts = authorization.split(/\s+/);
 
                     if (parts[0] &&
                         parts[0].toLowerCase() !== 'basic') {
@@ -4044,13 +4044,13 @@ internals.plugins = {
                         return reply(Boom.badRequest('Bad HTTP authentication header format', 'Basic'));
                     }
 
-                    var credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
+                    const credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
                     if (credentialsParts.length !== 2) {
                         return reply(Boom.badRequest('Bad header internal syntax', 'Basic'));
                     }
 
-                    var username = credentialsParts[0];
-                    var password = credentialsParts[1];
+                    const username = credentialsParts[0];
+                    const password = credentialsParts[1];
 
                     settings.validateFunc(username, password, function (err, isValid, credentials) {
 
@@ -4066,7 +4066,7 @@ internals.plugins = {
             return scheme;
         });
 
-        var loadUser = function (username, password, callback) {
+        const loadUser = function (username, password, callback) {
 
             if (username === 'john') {
                 return callback(null, password === '12345', { user: 'john' });
@@ -4102,7 +4102,7 @@ internals.plugins = {
             return nxt();
         });
 
-        var selection = server.select('a');
+        const selection = server.select('a');
         if (selection.connections.length) {
             selection.ext('onRequest', function (request, reply) {
 
@@ -4116,7 +4116,7 @@ internals.plugins = {
     },
     deps2: function (server, options, next) {
 
-        var selection = server.select('b');
+        const selection = server.select('b');
         if (selection.connections.length) {
             selection.ext('onRequest', function (request, reply) {
 
@@ -4132,7 +4132,7 @@ internals.plugins = {
     },
     deps3: function (server, options, next) {
 
-        var selection = server.select('c');
+        const selection = server.select('c');
         if (selection.connections.length) {
             selection.ext('onRequest', function (request, reply) {
 
@@ -4146,7 +4146,7 @@ internals.plugins = {
     },
     test1: function (server, options, next) {
 
-        var handler = function (request, reply) {
+        const handler = function (request, reply) {
 
             return reply('testing123' + ((server.settings.app && server.settings.app.my) || ''));
         };
