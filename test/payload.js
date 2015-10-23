@@ -568,7 +568,7 @@ describe('payload', function () {
 
             const result = {};
             const keys = Object.keys(request.payload);
-            for (let i = 0, il = keys.length; i < il; ++i) {
+            for (let i = 0; i < keys.length; ++i) {
                 const key = keys[i];
                 const value = request.payload[key];
                 result[key] = value._readableState ? true : value;

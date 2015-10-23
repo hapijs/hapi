@@ -1350,7 +1350,7 @@ describe('Connection', function () {
 
                         let count = 0;
                         const lines = lsof.split('\n');
-                        for (let i = 0, il = lines.length; i < il; ++i) {
+                        for (let i = 0; i < lines.length; ++i) {
                             count += !!lines[i].match(/package.json/);
                         }
 

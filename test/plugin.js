@@ -4002,10 +4002,10 @@ internals.routesList = function (server, label) {
     const tables = server.select(label || []).table();
 
     const list = [];
-    for (let c = 0, cl = tables.length; c < cl; ++c) {
-        const routes = tables[c].table;
-        for (let i = 0, il = routes.length; i < il; ++i) {
-            const route = routes[i];
+    for (let i = 0; i < tables.length; ++i) {
+        const routes = tables[i].table;
+        for (let j = 0; j < routes.length; ++j) {
+            const route = routes[j];
             if (route.method === 'get') {
                 list.push(route.path);
             }

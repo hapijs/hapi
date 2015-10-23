@@ -105,7 +105,7 @@ describe('transmission', function () {
 
                         let count = 0;
                         const lines = lsof.split('\n');
-                        for (let i = 0, il = lines.length; i < il; ++i) {
+                        for (let i = 0; i < lines.length; ++i) {
                             count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
 
@@ -146,7 +146,7 @@ describe('transmission', function () {
 
                         let count = 0;
                         const lines = lsof.split('\n');
-                        for (let i = 0, il = lines.length; i < il; ++i) {
+                        for (let i = 0; i < lines.length; ++i) {
                             count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
 
@@ -1507,7 +1507,7 @@ describe('transmission', function () {
             const block = Fs.readFileSync(filePath).toString();
 
             let expectedBody = '';
-            for (let i = 0, il = chunkTimes; i < il; ++i) {
+            for (let i = 0; i < chunkTimes; ++i) {
                 expectedBody += block;
             }
 
@@ -1552,7 +1552,7 @@ describe('transmission', function () {
             const block = Fs.readFileSync(filePath).toString();
 
             let expectedBody = '';
-            for (let i = 0, il = chunkTimes; i < il; ++i) {
+            for (let i = 0; i < chunkTimes; ++i) {
                 expectedBody += block;
             }
 
