@@ -2583,7 +2583,7 @@ Each request object includes the following properties:
   potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
   `plugins[name]`.
 - `auth` - authentication information:
-    - `isAuthenticated` - `true` is the request has been successfully authenticated, otherwise
+    - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise
       `false`.
     - `credentials` - the `credential` object received during the authentication process. The
       presence of an object does not mean successful authentication.
