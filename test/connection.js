@@ -82,7 +82,7 @@ describe('Connection', function () {
 
             expect(err).to.not.exist();
 
-            var expectedBoundAddress = '0.0.0.0';
+            let expectedBoundAddress = '0.0.0.0';
             if (Net.isIPv6(server.listener.address().address)) {
                 expectedBoundAddress = '::';
             }
@@ -320,7 +320,7 @@ describe('Connection', function () {
 
             expect(err).to.not.exist();
 
-            var timeout;
+            let timeout;
             const orig = Net.Socket.prototype.setTimeout;
             Net.Socket.prototype.setTimeout = function () {
 
@@ -350,7 +350,7 @@ describe('Connection', function () {
             server.start(function (err) {
 
                 expect(err).to.not.exist();
-                var expectedBoundAddress = '0.0.0.0';
+                let expectedBoundAddress = '0.0.0.0';
                 if (Net.isIPv6(server.listener.address().address)) {
                     expectedBoundAddress = '::';
                 }
@@ -585,7 +585,7 @@ describe('Connection', function () {
                 expect(err).to.not.exist();
 
                 const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
-                var err2;
+                let err2;
 
                 Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, function (err1, res, body) {
 
@@ -662,7 +662,7 @@ describe('Connection', function () {
                 return reply('ok');
             };
 
-            var logged = null;
+            let logged = null;
             server.once('log', function (event, tags) {
 
                 logged = (event.internal && tags.load && event.data);
@@ -1340,7 +1340,7 @@ describe('Connection', function () {
                     expect(res.result.something).to.equal('else');
 
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
-                    var lsof = '';
+                    let lsof = '';
                     cmd.stdout.on('data', function (buffer) {
 
                         lsof += buffer.toString();
@@ -1348,9 +1348,9 @@ describe('Connection', function () {
 
                     cmd.stdout.on('end', function () {
 
-                        var count = 0;
+                        let count = 0;
                         const lines = lsof.split('\n');
-                        for (var i = 0, il = lines.length; i < il; ++i) {
+                        for (let i = 0, il = lines.length; i < il; ++i) {
                             count += !!lines[i].match(/package.json/);
                         }
 

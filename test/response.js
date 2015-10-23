@@ -188,7 +188,7 @@ describe('Response', function () {
 
         it('throws error on non-ascii value', function (done) {
 
-            var thrown = false;
+            let thrown = false;
 
             const handler = function (request, reply) {
 
@@ -213,7 +213,7 @@ describe('Response', function () {
 
         it('throws error on non-ascii value (header name)', function (done) {
 
-            var thrown = false;
+            let thrown = false;
 
             const handler = function (request, reply) {
 
@@ -239,7 +239,7 @@ describe('Response', function () {
 
         it('throws error on non-ascii value (buffer)', function (done) {
 
-            var thrown = false;
+            let thrown = false;
 
             const handler = function (request, reply) {
 
@@ -1225,7 +1225,7 @@ describe('Response', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var output = '';
+            let output = '';
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1257,7 +1257,7 @@ describe('Response', function () {
 
         it('calls custom close processor', function (done) {
 
-            var closed = false;
+            let closed = false;
             const close = function (response) {
 
                 closed = true;

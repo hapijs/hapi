@@ -266,7 +266,7 @@ describe('Methods', function () {
 
     it('calls non cached method multiple times', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: gen++ });
@@ -295,7 +295,7 @@ describe('Methods', function () {
 
     it('caches method value', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: gen++ });
@@ -326,7 +326,7 @@ describe('Methods', function () {
 
     it('caches method value (no callback)', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id) {
 
             return { id: id, gen: gen++ };
@@ -357,7 +357,7 @@ describe('Methods', function () {
 
     it('caches method value (promise)', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const methodAsync = function (id, next) {
 
             if (id === 2) {
@@ -400,7 +400,7 @@ describe('Methods', function () {
 
     it('reuses cached method value with custom key function', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: gen++ });
@@ -495,7 +495,7 @@ describe('Methods', function () {
 
     it('does not cache value when ttl is 0', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: gen++ }, 0);
@@ -524,7 +524,7 @@ describe('Methods', function () {
 
     it('generates new value after cache drop', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: gen++ });
@@ -557,7 +557,7 @@ describe('Methods', function () {
 
     it('errors on invalid drop key', function (done) {
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: gen++ });
@@ -767,7 +767,7 @@ describe('Methods', function () {
 
         const server = new Hapi.Server();
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: ++gen });
@@ -792,7 +792,7 @@ describe('Methods', function () {
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: ++gen });
@@ -824,7 +824,7 @@ describe('Methods', function () {
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
 
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             setTimeout(function () {
@@ -862,7 +862,7 @@ describe('Methods', function () {
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
 
-        var gen = 0;
+        let gen = 0;
         const terms = 'I agree to give my house';
         const method = function (next) {
 
@@ -893,7 +893,7 @@ describe('Methods', function () {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
-        var gen = 0;
+        let gen = 0;
         const method = function (id, next) {
 
             return next(null, { id: id, gen: ++gen });

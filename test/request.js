@@ -67,7 +67,7 @@ describe('Request', function () {
 
         const handler = function (request, reply) {
 
-            var expectedClientAddress = '127.0.0.1';
+            let expectedClientAddress = '127.0.0.1';
             if (Net.isIPv6(server.listener.address().address)) {
                 expectedClientAddress = '::ffff:127.0.0.1';
             }
@@ -243,7 +243,7 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            var disconnected = 0;
+            let disconnected = 0;
             server.ext('onRequest', function (request, reply) {
 
                 request.once('disconnect', function () {
@@ -258,7 +258,7 @@ describe('Request', function () {
 
                 expect(err).to.not.exist();
 
-                var total = 2;
+                let total = 2;
                 const createConnection = function () {
 
                     const client = Net.connect(server.info.port, function () {
@@ -326,7 +326,7 @@ describe('Request', function () {
 
         it('does not fail on abort', function (done) {
 
-            var clientRequest;
+            let clientRequest;
 
             const handler = function (request, reply) {
 
@@ -367,7 +367,7 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: Hoek.ignore });
 
-            var clientRequest;
+            let clientRequest;
 
             server.ext('onPreHandler', function (request, reply) {
 
@@ -399,7 +399,7 @@ describe('Request', function () {
 
         it('does not fail on abort with ext', function (done) {
 
-            var clientRequest;
+            let clientRequest;
 
             const handler = function (request, reply) {
 
@@ -602,8 +602,8 @@ describe('Request', function () {
             const server = new Hapi.Server({ debug: false });
             server.connection();
 
-            var errs = 0;
-            var req = null;
+            let errs = 0;
+            let req = null;
             server.on('request-error', function (request, err) {
 
                 errs++;
@@ -644,8 +644,8 @@ describe('Request', function () {
             const server = new Hapi.Server({ debug: false });
             server.connection();
 
-            var errs = 0;
-            var req = null;
+            let errs = 0;
+            let req = null;
             server.on('request-error', function (request, err) {
 
                 ++errs;
@@ -681,7 +681,7 @@ describe('Request', function () {
             const server = new Hapi.Server({ debug: false });
             server.connection();
 
-            var errs = 0;
+            let errs = 0;
             server.on('request-error', function (request, err) {
 
                 errs++;
@@ -733,7 +733,7 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            var result = null;
+            let result = null;
 
             server.once('tail', function () {
 
@@ -1191,7 +1191,7 @@ describe('Request', function () {
             const server = new Hapi.Server({ debug: false });
             server.connection();
 
-            var i = 0;
+            let i = 0;
             const orig = console.error;
             console.error = function () {
 
@@ -1220,7 +1220,7 @@ describe('Request', function () {
             const server = new Hapi.Server({ debug: { request: false } });
             server.connection();
 
-            var i = 0;
+            let i = 0;
             const orig = console.error;
             console.error = function () {
 
@@ -1249,7 +1249,7 @@ describe('Request', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var i = 0;
+            let i = 0;
             const orig = console.error;
             console.error = function () {
 
@@ -1490,7 +1490,7 @@ describe('Request', function () {
 
         it('does not return an error when server is responding when the timeout occurs', function (done) {
 
-            var ended = false;
+            let ended = false;
             const handler = function (request, reply) {
 
                 const TestStream = function () {

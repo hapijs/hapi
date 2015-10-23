@@ -62,8 +62,8 @@ describe('Server', function () {
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
             server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
 
-            var started = 0;
-            var stopped = 0;
+            let started = 0;
+            let stopped = 0;
 
             server.on('start', function () {
 
@@ -106,8 +106,8 @@ describe('Server', function () {
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
             server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
 
-            var started = 0;
-            var stopped = 0;
+            let started = 0;
+            let stopped = 0;
 
             server.on('start', function () {
 

@@ -213,7 +213,7 @@ describe('Route', function () {
         server.connection();
         const context = { key: 'is ' };
 
-        var count = 0;
+        let count = 0;
         Object.defineProperty(context, 'test', {
             enumerable: true,
             configurable: true,
@@ -243,7 +243,7 @@ describe('Route', function () {
         server.connection();
         const context = { key: 'is ' };
 
-        var count = 0;
+        let count = 0;
         Object.defineProperty(context, 'test', {
             enumerable: true,
             configurable: true,
@@ -273,7 +273,7 @@ describe('Route', function () {
         const server = new Hapi.Server();
         const context = { key: 'is ' };
 
-        var count = 0;
+        let count = 0;
         Object.defineProperty(context, 'test', {
             enumerable: true,
             configurable: true,
@@ -302,7 +302,7 @@ describe('Route', function () {
 
         const context = { key: 'is ' };
 
-        var count = 0;
+        let count = 0;
         Object.defineProperty(context, 'test', {
             enumerable: true,
             configurable: true,

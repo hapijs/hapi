@@ -802,7 +802,7 @@ describe('validation', function () {
             }
         });
 
-        var count = 0;
+        let count = 0;
         const action = function (next) {
 
             server.inject('/', function (res) {
@@ -822,7 +822,7 @@ describe('validation', function () {
 
     it('validates response', function (done) {
 
-        var i = 0;
+        let i = 0;
         const handler = function (request, reply) {
 
             return reply({ some: i++ ? null : 'value' });
@@ -894,7 +894,7 @@ describe('validation', function () {
 
     it('validates error response', function (done) {
 
-        var i = 0;
+        let i = 0;
         const handler = function (request, reply) {
 
             const error = Boom.badRequest('Kaboom');
@@ -935,7 +935,7 @@ describe('validation', function () {
 
     it('validates error response and ignore 200', function (done) {
 
-        var i = 0;
+        let i = 0;
         const handler = function (request, reply) {
 
             if (i === 0) {
@@ -1111,7 +1111,7 @@ describe('validation', function () {
 
     it('validates response using custom validation function', function (done) {
 
-        var i = 0;
+        let i = 0;
         const handler = function (request, reply) {
 
             return reply({ some: i++ ? null : 'value' });
@@ -1148,7 +1148,7 @@ describe('validation', function () {
 
     it('catches error thrown by custom validation function', function (done) {
 
-        var i = 0;
+        let i = 0;
         const handler = function (request, reply) {
 
             return reply({ some: i++ ? null : 'value' });
@@ -1198,7 +1198,7 @@ describe('validation', function () {
             }
         });
 
-        var count = 0;
+        let count = 0;
         const action = function (next) {
 
             server.inject('/', function (res) {
@@ -1440,7 +1440,7 @@ describe('validation', function () {
 
     it('validates string response', function (done) {
 
-        var value = 'abcd';
+        let value = 'abcd';
         const handler = function (request, reply) {
 
             return reply(value);
@@ -1475,7 +1475,7 @@ describe('validation', function () {
 
     it('validates boolean response', function (done) {
 
-        var value = 'abcd';
+        let value = 'abcd';
         const handler = function (request, reply) {
 
             return reply(value);
@@ -1586,7 +1586,7 @@ describe('validation', function () {
 
 internals.times = function (count, method, callback) {
 
-    var counter = 0;
+    let counter = 0;
 
     const results = [];
     const done = function (err, result) {
@@ -1606,7 +1606,7 @@ internals.times = function (count, method, callback) {
         }
     };
 
-    for (var i = 0; i < count; ++i) {
+    for (let i = 0; i < count; ++i) {
         method(done);
     }
 };

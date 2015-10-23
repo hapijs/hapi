@@ -95,7 +95,7 @@ describe('transmission', function () {
 
                     expect(res2.statusCode).to.equal(304);
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
-                    var lsof = '';
+                    let lsof = '';
                     cmd.stdout.on('data', function (buffer) {
 
                         lsof += buffer.toString();
@@ -103,9 +103,9 @@ describe('transmission', function () {
 
                     cmd.stdout.on('end', function () {
 
-                        var count = 0;
+                        let count = 0;
                         const lines = lsof.split('\n');
-                        for (var i = 0, il = lines.length; i < il; ++i) {
+                        for (let i = 0, il = lines.length; i < il; ++i) {
                             count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
 
@@ -136,7 +136,7 @@ describe('transmission', function () {
 
                     expect(res2.statusCode).to.equal(304);
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
-                    var lsof = '';
+                    let lsof = '';
                     cmd.stdout.on('data', function (buffer) {
 
                         lsof += buffer.toString();
@@ -144,9 +144,9 @@ describe('transmission', function () {
 
                     cmd.stdout.on('end', function () {
 
-                        var count = 0;
+                        let count = 0;
                         const lines = lsof.split('\n');
-                        for (var i = 0, il = lines.length; i < il; ++i) {
+                        for (let i = 0, il = lines.length; i < il; ++i) {
                             count += (lines[i].match(/package.json/) === null ? 0 : 1);
                         }
 
@@ -548,7 +548,7 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            var validState = false;
+            let validState = false;
             server.ext('onPreResponse', function (request, reply) {
 
                 validState = request.state && typeof request.state === 'object';
@@ -1436,7 +1436,7 @@ describe('transmission', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            var response;
+            let response;
             server.ext('onPreResponse', function (request, reply) {
 
                 response = request.response;
@@ -1506,8 +1506,8 @@ describe('transmission', function () {
             const filePath = __dirname + '/response.js';
             const block = Fs.readFileSync(filePath).toString();
 
-            var expectedBody = '';
-            for (var i = 0, il = chunkTimes; i < il; ++i) {
+            let expectedBody = '';
+            for (let i = 0, il = chunkTimes; i < il; ++i) {
                 expectedBody += block;
             }
 
@@ -1515,7 +1515,7 @@ describe('transmission', function () {
 
                 const fileStream = new Stream.Readable();
 
-                var readTimes = 0;
+                let readTimes = 0;
                 fileStream._read = function (size) {
 
                     ++readTimes;
@@ -1551,8 +1551,8 @@ describe('transmission', function () {
             const filePath = __dirname + '/response.js';
             const block = Fs.readFileSync(filePath).toString();
 
-            var expectedBody = '';
-            for (var i = 0, il = chunkTimes; i < il; ++i) {
+            let expectedBody = '';
+            for (let i = 0, il = chunkTimes; i < il; ++i) {
                 expectedBody += block;
             }
 
@@ -1560,7 +1560,7 @@ describe('transmission', function () {
 
                 const fileStream = new Stream.Readable();
 
-                var readTimes = 0;
+                let readTimes = 0;
                 fileStream._read = function (size) {
 
                     ++readTimes;
@@ -1599,7 +1599,7 @@ describe('transmission', function () {
 
         it('does not leak stream data when request aborts before stream drains', function (done) {
 
-            var destroyed = false;
+            let destroyed = false;
 
             const handler = function (request, reply) {
 
@@ -1655,7 +1655,7 @@ describe('transmission', function () {
 
         it('does not leak classic stream data when passed to request and aborted', function (done) {
 
-            var destroyed = false;
+            let destroyed = false;
 
             const handler = function (request, reply) {
 
@@ -1683,7 +1683,7 @@ describe('transmission', function () {
                     });
                 };
 
-                var paused = true;
+                let paused = true;
                 stream.resume = function () {
 
                     if (paused) {
@@ -1732,7 +1732,7 @@ describe('transmission', function () {
             const handler = function (request, reply) {
 
                 const stream = new Stream.Readable();
-                var count = 0;
+                let count = 0;
                 stream._read = function (size) {
 
                     setTimeout(function () {
@@ -1772,14 +1772,14 @@ describe('transmission', function () {
 
         it('does not leak stream data when request aborts before stream is returned', function (done) {
 
-            var clientRequest;
+            let clientRequest;
 
             const handler = function (request, reply) {
 
                 clientRequest.abort();
 
                 const stream = new Stream.Readable();
-                var responded = false;
+                let responded = false;
 
                 stream._read = function (size) {
 

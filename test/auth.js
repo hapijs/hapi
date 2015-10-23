@@ -1157,7 +1157,7 @@ describe('authentication', function () {
                 }
             });
 
-            var result;
+            let result;
             server.on('request-internal', function (request, event, tags) {
 
                 if (tags.unauthenticated) {

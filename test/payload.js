@@ -102,7 +102,7 @@ describe('payload', function () {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
-        var message = null;
+        let message = null;
         server.on('log', function (event, tags) {
 
             message = event.data.message;
@@ -197,7 +197,7 @@ describe('payload', function () {
 
     it('peeks at unparsed data', function (done) {
 
-        var data = null;
+        let data = null;
         const ext = function (request, reply) {
 
             const chunks = [];
@@ -568,7 +568,7 @@ describe('payload', function () {
 
             const result = {};
             const keys = Object.keys(request.payload);
-            for (var i = 0, il = keys.length; i < il; ++i) {
+            for (let i = 0, il = keys.length; i < il; ++i) {
                 const key = keys[i];
                 const value = request.payload[key];
                 result[key] = value._readableState ? true : value;

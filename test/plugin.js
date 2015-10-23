@@ -465,7 +465,7 @@ describe('Plugin', function () {
 
             const server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            var log = null;
+            let log = null;
             server.once('log', function (event, tags) {
 
                 log = [event, tags];
@@ -485,7 +485,7 @@ describe('Plugin', function () {
 
             const server = new Hapi.Server();
             server.connection({ labels: 'test' });
-            var log = null;
+            let log = null;
             server.once('log', function (event, tags) {
 
                 log = [event, tags];
@@ -1305,7 +1305,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1348,7 +1348,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1378,7 +1378,7 @@ describe('Plugin', function () {
 
         it('register a connectionless plugin once (empty selection)', function (done) {
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1416,7 +1416,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1446,7 +1446,7 @@ describe('Plugin', function () {
 
         it('register a plugin once (empty selection)', function (done) {
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1483,7 +1483,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1528,7 +1528,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1574,7 +1574,7 @@ describe('Plugin', function () {
                 name: 'a'
             };
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -1606,7 +1606,7 @@ describe('Plugin', function () {
 
         it('register a connectionless plugin once (first time)', function (done) {
 
-            var count = 0;
+            let count = 0;
             const b = function (srv, options, next) {
 
                 ++count;
@@ -2630,7 +2630,7 @@ describe('Plugin', function () {
             const server2 = server.connections[1];
             const server3 = server.connections[2];
 
-            var counter = 0;
+            let counter = 0;
             const test = function (srv, options, next) {
 
                 srv.select(['a', 'b']).on('test', function () {
@@ -2905,7 +2905,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var result = '';
+            let result = '';
             server.ext('onPreStart', function (srv, next) {
 
                 result += '1';
@@ -2949,7 +2949,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var result = '';
+            let result = '';
             server.ext([
                 {
                     type: 'onPreStart',
@@ -3090,7 +3090,7 @@ describe('Plugin', function () {
 
             expect(server.plugins.x).to.not.exist();
 
-            var called = false;
+            let called = false;
             server.ext('onPreStart', function (srv, next) {
 
                 expect(srv.plugins.x.a).to.equal('b');
@@ -3115,7 +3115,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var called = false;
+            let called = false;
             server.ext('onPreStart', function (srv, next) {
 
                 called = true;
@@ -3135,7 +3135,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var called = false;
+            let called = false;
             server.ext('onPreStart', function (srv, next) {
 
                 called = true;
@@ -3300,7 +3300,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var count = 0;
+            let count = 0;
             server.once('log', function (event) {
 
                 ++count;
@@ -3409,7 +3409,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server({ debug: false });
             server.connection();
 
-            var i = 0;
+            let i = 0;
             const orig = console.error;
             console.error = function () {
 
@@ -3428,7 +3428,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server({ debug: { log: false } });
             server.connection();
 
-            var i = 0;
+            let i = 0;
             const orig = console.error;
             console.error = function () {
 
@@ -3447,7 +3447,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var i = 0;
+            let i = 0;
             const orig = console.error;
             console.error = function () {
 
@@ -3463,7 +3463,7 @@ describe('Plugin', function () {
 
         it('emits server log events once', function (done) {
 
-            var pc = 0;
+            let pc = 0;
             const test = function (srv, options, next) {
 
                 srv.on('log', function (event, tags) {
@@ -3481,7 +3481,7 @@ describe('Plugin', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var sc = 0;
+            let sc = 0;
             server.on('log', function (event, tags) {
 
                 ++sc;
@@ -4002,9 +4002,9 @@ internals.routesList = function (server, label) {
     const tables = server.select(label || []).table();
 
     const list = [];
-    for (var c = 0, cl = tables.length; c < cl; ++c) {
+    for (let c = 0, cl = tables.length; c < cl; ++c) {
         const routes = tables[c].table;
-        for (var i = 0, il = routes.length; i < il; ++i) {
+        for (let i = 0, il = routes.length; i < il; ++i) {
             const route = routes[i];
             if (route.method === 'get') {
                 list.push(route.path);

@@ -900,7 +900,7 @@ describe('handler', function () {
                 }
             });
 
-            var log = null;
+            let log = null;
             server.on('request-internal', function (request, event, tags) {
 
                 if (event.internal &&
@@ -965,7 +965,7 @@ describe('handler', function () {
                 }
             });
 
-            var log = null;
+            let log = null;
             server.on('request-internal', function (request, event, tags) {
 
                 if (event.internal &&
@@ -1029,7 +1029,7 @@ describe('handler', function () {
             const server = new Hapi.Server();
             server.connection();
 
-            var gen = 0;
+            let gen = 0;
             server.method('user', function (id, next) {
 
                 return next(null, { id: id, name: 'Bob', gen: gen++ });

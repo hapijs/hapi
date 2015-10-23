@@ -304,7 +304,7 @@ describe('Reply', function () {
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
             server.route({ method: 'GET', path: '/writable', handler: writableHandler });
 
-            var requestError;
+            let requestError;
             server.on('request-error', function (request, err) {
 
                 requestError = err;
