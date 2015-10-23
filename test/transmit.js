@@ -1,3 +1,5 @@
+'use strict';
+
 // Load modules
 
 var ChildProcess = require('child_process');

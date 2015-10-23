@@ -1,3 +1,5 @@
+'use strict';
+
 // Load modules
 
 var Code = require('code');
