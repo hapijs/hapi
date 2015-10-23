@@ -25,9 +25,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('authentication', function () {
+describe('authentication', () => {
 
-    it('requires and authenticates a request', function (done) {
+    it('requires and authenticates a request', (done) => {
 
         const handler = function (request, reply) {
 
@@ -52,7 +52,7 @@ describe('authentication', function () {
         });
     });
 
-    it('defaults cache to private if request authenticated', function (done) {
+    it('defaults cache to private if request authenticated', (done) => {
 
         const handler = function (request, reply) {
 
@@ -73,9 +73,9 @@ describe('authentication', function () {
         });
     });
 
-    describe('strategy()', function () {
+    describe('strategy()', () => {
 
-        it('fails when options default to null', function (done) {
+        it('fails when options default to null', (done) => {
 
             const handler = function (request, reply) {
 
@@ -95,7 +95,7 @@ describe('authentication', function () {
             });
         });
 
-        it('throws when strategy missing scheme', function (done) {
+        it('throws when strategy missing scheme', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -106,7 +106,7 @@ describe('authentication', function () {
             done();
         });
 
-        it('adds a route to server', function (done) {
+        it('adds a route to server', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -125,7 +125,7 @@ describe('authentication', function () {
             });
         });
 
-        it('uses views', function (done) {
+        it('uses views', (done) => {
 
             const implementation = function (server, options) {
 
@@ -184,9 +184,9 @@ describe('authentication', function () {
         });
     });
 
-    describe('default()', function () {
+    describe('default()', () => {
 
-        it('sets default', function (done) {
+        it('sets default', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -215,7 +215,7 @@ describe('authentication', function () {
             });
         });
 
-        it('sets default with object', function (done) {
+        it('sets default with object', (done) => {
 
             const handler = function (request, reply) {
 
@@ -241,7 +241,7 @@ describe('authentication', function () {
             });
         });
 
-        it('throws when setting default twice', function (done) {
+        it('throws when setting default twice', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -255,7 +255,7 @@ describe('authentication', function () {
             done();
         });
 
-        it('throws when setting default without strategy', function (done) {
+        it('throws when setting default without strategy', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -269,9 +269,9 @@ describe('authentication', function () {
         });
     });
 
-    describe('_setupRoute()', function () {
+    describe('_setupRoute()', () => {
 
-        it('throws when route refers to nonexistent strategy', function (done) {
+        it('throws when route refers to nonexistent strategy', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -300,9 +300,9 @@ describe('authentication', function () {
         });
     });
 
-    describe('lookup', function () {
+    describe('lookup', () => {
 
-        it('returns the route auth config', function (done) {
+        it('returns the route auth config', (done) => {
 
             const handler = function (request, reply) {
 
@@ -328,9 +328,9 @@ describe('authentication', function () {
         });
     });
 
-    describe('authenticate()', function () {
+    describe('authenticate()', () => {
 
-        it('setups route with optional authentication', function (done) {
+        it('setups route with optional authentication', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -357,7 +357,7 @@ describe('authentication', function () {
             });
         });
 
-        it('exposes mode', function (done) {
+        it('exposes mode', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -380,7 +380,7 @@ describe('authentication', function () {
             });
         });
 
-        it('authenticates using multiple strategies', function (done) {
+        it('authenticates using multiple strategies', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -409,7 +409,7 @@ describe('authentication', function () {
             });
         });
 
-        it('authenticates using credentials object', function (done) {
+        it('authenticates using credentials object', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -441,7 +441,7 @@ describe('authentication', function () {
             });
         });
 
-        it('authenticates using credentials object (with artifacts)', function (done) {
+        it('authenticates using credentials object (with artifacts)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -473,7 +473,7 @@ describe('authentication', function () {
             });
         });
 
-        it('authenticates a request with custom auth settings', function (done) {
+        it('authenticates a request with custom auth settings', (done) => {
 
             const handler = function (request, reply) {
 
@@ -502,7 +502,7 @@ describe('authentication', function () {
             });
         });
 
-        it('authenticates a request with auth strategy name config', function (done) {
+        it('authenticates a request with auth strategy name config', (done) => {
 
             const handler = function (request, reply) {
 
@@ -529,7 +529,7 @@ describe('authentication', function () {
             });
         });
 
-        it('tries to authenticate a request', function (done) {
+        it('tries to authenticate a request', (done) => {
 
             const handler = function (request, reply) {
 
@@ -565,7 +565,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on invalid authenticate callback missing both error and credentials', function (done) {
+        it('errors on invalid authenticate callback missing both error and credentials', (done) => {
 
             const handler = function (request, reply) {
 
@@ -585,7 +585,7 @@ describe('authentication', function () {
             });
         });
 
-        it('logs error', function (done) {
+        it('logs error', (done) => {
 
             const handler = function (request, reply) {
 
@@ -611,7 +611,7 @@ describe('authentication', function () {
             });
         });
 
-        it('returns a non Error error response', function (done) {
+        it('returns a non Error error response', (done) => {
 
             const handler = function (request, reply) {
 
@@ -632,7 +632,7 @@ describe('authentication', function () {
             });
         });
 
-        it('handles errors thrown inside authenticate', function (done) {
+        it('handles errors thrown inside authenticate', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -658,7 +658,7 @@ describe('authentication', function () {
             });
         });
 
-        it('passes non Error error response when set to try ', function (done) {
+        it('passes non Error error response when set to try ', (done) => {
 
             const handler = function (request, reply) {
 
@@ -679,7 +679,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches scope (array to single)', function (done) {
+        it('matches scope (array to single)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -708,7 +708,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches scope (array to array)', function (done) {
+        it('matches scope (array to array)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -737,7 +737,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches scope (single to array)', function (done) {
+        it('matches scope (single to array)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -766,7 +766,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches scope (single to single)', function (done) {
+        it('matches scope (single to single)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -795,7 +795,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches dynamic scope (single to single)', function (done) {
+        it('matches dynamic scope (single to single)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -822,7 +822,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches dynamic scope with multiple parts (single to single)', function (done) {
+        it('matches dynamic scope with multiple parts (single to single)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -849,7 +849,7 @@ describe('authentication', function () {
             });
         });
 
-        it('does not match broken dynamic scope (single to single)', function (done) {
+        it('does not match broken dynamic scope (single to single)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -876,7 +876,7 @@ describe('authentication', function () {
             });
         });
 
-        it('does not match scope (single to single)', function (done) {
+        it('does not match scope (single to single)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -905,7 +905,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on missing scope', function (done) {
+        it('errors on missing scope', (done) => {
 
             const handler = function (request, reply) {
 
@@ -934,7 +934,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on missing scope property', function (done) {
+        it('errors on missing scope property', (done) => {
 
             const handler = function (request, reply) {
 
@@ -963,7 +963,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on missing scope using arrays', function (done) {
+        it('errors on missing scope using arrays', (done) => {
 
             const handler = function (request, reply) {
 
@@ -992,7 +992,7 @@ describe('authentication', function () {
             });
         });
 
-        it('ignores default scope when override set to null', function (done) {
+        it('ignores default scope when override set to null', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1024,7 +1024,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches user entity', function (done) {
+        it('matches user entity', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1051,7 +1051,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on missing user entity', function (done) {
+        it('errors on missing user entity', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1078,7 +1078,7 @@ describe('authentication', function () {
             });
         });
 
-        it('matches app entity', function (done) {
+        it('matches app entity', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1105,7 +1105,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on missing app entity', function (done) {
+        it('errors on missing app entity', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1132,7 +1132,7 @@ describe('authentication', function () {
             });
         });
 
-        it('logs error code when authenticate returns a non-error error', function (done) {
+        it('logs error code when authenticate returns a non-error error', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1172,7 +1172,7 @@ describe('authentication', function () {
             });
         });
 
-        it('passes the options.artifacts object, even with an auth filter', function (done) {
+        it('passes the options.artifacts object, even with an auth filter', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1210,9 +1210,9 @@ describe('authentication', function () {
 
     });
 
-    describe('payload()', function () {
+    describe('payload()', () => {
 
-        it('authenticates request payload', function (done) {
+        it('authenticates request payload', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1239,7 +1239,7 @@ describe('authentication', function () {
             });
         });
 
-        it('skips when scheme does not support it', function (done) {
+        it('skips when scheme does not support it', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1263,7 +1263,7 @@ describe('authentication', function () {
             });
         });
 
-        it('authenticates request payload (required scheme)', function (done) {
+        it('authenticates request payload (required scheme)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1288,7 +1288,7 @@ describe('authentication', function () {
             });
         });
 
-        it('authenticates request payload (required scheme and required route)', function (done) {
+        it('authenticates request payload (required scheme and required route)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1315,7 +1315,7 @@ describe('authentication', function () {
             });
         });
 
-        it('throws when scheme requires payload authentication and route conflicts', function (done) {
+        it('throws when scheme requires payload authentication and route conflicts', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1340,7 +1340,7 @@ describe('authentication', function () {
             done();
         });
 
-        it('throws when strategy does not support payload authentication', function (done) {
+        it('throws when strategy does not support payload authentication', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1370,7 +1370,7 @@ describe('authentication', function () {
             done();
         });
 
-        it('throws when no strategy supports optional payload authentication', function (done) {
+        it('throws when no strategy supports optional payload authentication', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1400,7 +1400,7 @@ describe('authentication', function () {
             done();
         });
 
-        it('allows one strategy to supports optional payload authentication while another does not', function (done) {
+        it('allows one strategy to supports optional payload authentication while another does not', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1433,7 +1433,7 @@ describe('authentication', function () {
             done();
         });
 
-        it('skips request payload by default', function (done) {
+        it('skips request payload by default', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1457,7 +1457,7 @@ describe('authentication', function () {
             });
         });
 
-        it('skips request payload when unauthenticated', function (done) {
+        it('skips request payload when unauthenticated', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1485,7 +1485,7 @@ describe('authentication', function () {
             });
         });
 
-        it('skips optional payload', function (done) {
+        it('skips optional payload', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1512,7 +1512,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on missing payload when required', function (done) {
+        it('errors on missing payload when required', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1539,7 +1539,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on invalid payload auth when required', function (done) {
+        it('errors on invalid payload auth when required', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1566,7 +1566,7 @@ describe('authentication', function () {
             });
         });
 
-        it('errors on invalid request payload (non error)', function (done) {
+        it('errors on invalid request payload (non error)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1595,9 +1595,9 @@ describe('authentication', function () {
         });
     });
 
-    describe('response()', function () {
+    describe('response()', () => {
 
-        it('fails on response error', function (done) {
+        it('fails on response error', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1618,9 +1618,9 @@ describe('authentication', function () {
         });
     });
 
-    describe('test()', function () {
+    describe('test()', () => {
 
-        it('tests a request', function (done) {
+        it('tests a request', (done) => {
 
             const handler = function (request, reply) {
 

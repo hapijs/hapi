@@ -33,9 +33,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Connection', function () {
+describe('Connection', () => {
 
-    it('allows null port and host', function (done) {
+    it('allows null port and host', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
@@ -45,7 +45,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('removes duplicate labels', function (done) {
+    it('removes duplicate labels', (done) => {
 
         const server = new Hapi.Server();
         server.connection({ labels: ['a', 'b', 'a', 'c', 'b'] });
@@ -53,7 +53,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('throws when disabling autoListen and providing a port', function (done) {
+    it('throws when disabling autoListen and providing a port', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
@@ -63,7 +63,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('throws when disabling autoListen and providing special host', function (done) {
+    it('throws when disabling autoListen and providing special host', (done) => {
 
         const server = new Hapi.Server();
         const port = Path.join(__dirname, 'hapi-server.socket');
@@ -74,7 +74,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('defaults address to 0.0.0.0 or :: when no host is provided', function (done) {
+    it('defaults address to 0.0.0.0 or :: when no host is provided', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -92,7 +92,7 @@ describe('Connection', function () {
         });
     });
 
-    it('uses address when present instead of host', function (done) {
+    it('uses address when present instead of host', (done) => {
 
         const server = new Hapi.Server();
         server.connection({ host: 'no.such.domain.hapi', address: 'localhost' });
@@ -105,7 +105,7 @@ describe('Connection', function () {
         });
     });
 
-    it('uses uri when present instead of host and port', function (done) {
+    it('uses uri when present instead of host and port', (done) => {
 
         const server = new Hapi.Server();
         server.connection({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
@@ -120,7 +120,7 @@ describe('Connection', function () {
         });
     });
 
-    it('throws on uri ending with /', function (done) {
+    it('throws on uri ending with /', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
@@ -130,7 +130,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, function (done) {
+    it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, (done) => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
         const server = new Hapi.Server();
@@ -155,7 +155,7 @@ describe('Connection', function () {
         });
     });
 
-    it('creates a server listening on a windows named pipe', function (done) {
+    it('creates a server listening on a windows named pipe', (done) => {
 
         const port = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
         const server = new Hapi.Server();
@@ -170,7 +170,7 @@ describe('Connection', function () {
         });
     });
 
-    it('creates an https server when passed tls options', function (done) {
+    it('creates an https server when passed tls options', (done) => {
 
         const tlsOptions = {
             key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
@@ -183,7 +183,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('uses a provided listener', function (done) {
+    it('uses a provided listener', (done) => {
 
         const handler = function (request, reply) {
 
@@ -207,7 +207,7 @@ describe('Connection', function () {
         });
     });
 
-    it('uses a provided listener (TLS)', function (done) {
+    it('uses a provided listener (TLS)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -227,7 +227,7 @@ describe('Connection', function () {
         });
     });
 
-    it('uses a provided listener with manual listen', function (done) {
+    it('uses a provided listener with manual listen', (done) => {
 
         const handler = function (request, reply) {
 
@@ -239,7 +239,7 @@ describe('Connection', function () {
         server.connection({ listener: listener, autoListen: false });
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        listener.listen(0, 'localhost', function () {
+        listener.listen(0, 'localhost', () => {
 
             server.start(function (err) {
 
@@ -254,7 +254,7 @@ describe('Connection', function () {
         });
     });
 
-    it('sets info.uri with default localhost when no hostname', { parallel: false }, function (done) {
+    it('sets info.uri with default localhost when no hostname', { parallel: false }, (done) => {
 
         const orig = Os.hostname;
         Os.hostname = function () {
@@ -269,7 +269,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('sets info.uri without port when 0', function (done) {
+    it('sets info.uri without port when 0', (done) => {
 
         const server = new Hapi.Server();
         server.connection({ host: 'example.com' });
@@ -277,7 +277,7 @@ describe('Connection', function () {
         done();
     });
 
-    it('closes connection on socket timeout', { parallel: false }, function (done) {
+    it('closes connection on socket timeout', { parallel: false }, (done) => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
@@ -305,7 +305,7 @@ describe('Connection', function () {
         });
     });
 
-    it('disables node socket timeout', { parallel: false }, function (done) {
+    it('disables node socket timeout', { parallel: false }, (done) => {
 
         const handler = function (request, reply) {
 
@@ -341,9 +341,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('_start()', function () {
+    describe('_start()', () => {
 
-        it('starts connection', function (done) {
+        it('starts connection', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -362,7 +362,7 @@ describe('Connection', function () {
             });
         });
 
-        it('starts connection (tls)', function (done) {
+        it('starts connection (tls)', (done) => {
 
             const tlsOptions = {
                 key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
@@ -380,7 +380,7 @@ describe('Connection', function () {
             });
         });
 
-        it('sets info with defaults when missing hostname and address', { parallel: false }, function (done) {
+        it('sets info with defaults when missing hostname and address', { parallel: false }, (done) => {
 
             const hostname = Os.hostname;
             Os.hostname = function () {
@@ -396,7 +396,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('ignored repeated calls', function (done) {
+        it('ignored repeated calls', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -415,7 +415,7 @@ describe('Connection', function () {
             });
         });
 
-        it('will return an error if the port is already in use', function (done) {
+        it('will return an error if the port is already in use', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -434,9 +434,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('_stop()', function () {
+    describe('_stop()', () => {
 
-        it('waits to stop until all connections are closed', function (done) {
+        it('waits to stop until all connections are closed', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -445,12 +445,12 @@ describe('Connection', function () {
                 expect(err).to.not.exist();
                 const socket1 = new Net.Socket();
                 const socket2 = new Net.Socket();
-                socket1.on('error', function () { });
-                socket2.on('error', function () { });
+                socket1.on('error', () => { });
+                socket2.on('error', () => { });
 
-                socket1.connect(server.info.port, '127.0.0.1', function () {
+                socket1.connect(server.info.port, '127.0.0.1', () => {
 
-                    socket2.connect(server.info.port, '127.0.0.1', function () {
+                    socket2.connect(server.info.port, '127.0.0.1', () => {
 
                         server.listener.getConnections(function (err, count1) {
 
@@ -475,7 +475,7 @@ describe('Connection', function () {
             });
         });
 
-        it('waits to destroy connections until after the timeout', function (done) {
+        it('waits to destroy connections until after the timeout', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -496,9 +496,9 @@ describe('Connection', function () {
                     expect(err.errno).to.equal('ECONNRESET');
                 });
 
-                socket1.connect(server.info.port, server.connections[0].settings.host, function () {
+                socket1.connect(server.info.port, server.connections[0].settings.host, () => {
 
-                    socket2.connect(server.info.port, server.connections[0].settings.host, function () {
+                    socket2.connect(server.info.port, server.connections[0].settings.host, () => {
 
                         server.listener.getConnections(function (err, count) {
 
@@ -517,7 +517,7 @@ describe('Connection', function () {
             });
         });
 
-        it('waits to destroy connections if they close by themselves', function (done) {
+        it('waits to destroy connections if they close by themselves', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -538,9 +538,9 @@ describe('Connection', function () {
                     expect(err.errno).to.equal('ECONNRESET');
                 });
 
-                socket1.connect(server.info.port, server.connections[0].settings.host, function () {
+                socket1.connect(server.info.port, server.connections[0].settings.host, () => {
 
-                    socket2.connect(server.info.port, server.connections[0].settings.host, function () {
+                    socket2.connect(server.info.port, server.connections[0].settings.host, () => {
 
                         server.listener.getConnections(function (err, count1) {
 
@@ -570,7 +570,7 @@ describe('Connection', function () {
             });
         });
 
-        it('refuses to handle new incoming requests', function (done) {
+        it('refuses to handle new incoming requests', (done) => {
 
             const handler = function (request, reply) {
 
@@ -607,7 +607,7 @@ describe('Connection', function () {
             });
         });
 
-        it('removes connection event listeners after it stops', function (done) {
+        it('removes connection event listeners after it stops', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -637,7 +637,7 @@ describe('Connection', function () {
             });
         });
 
-        it('ignores repeated calls', function (done) {
+        it('ignores repeated calls', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -648,9 +648,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('_dispatch()', function () {
+    describe('_dispatch()', () => {
 
-        it('rejects request due to high rss load', { parallel: false }, function (done) {
+        it('rejects request due to high rss load', { parallel: false }, (done) => {
 
             const server = new Hapi.Server({ load: { sampleInterval: 5 } });
             server.connection({ load: { maxRssBytes: 1 } });
@@ -691,9 +691,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('inject()', function () {
+    describe('inject()', () => {
 
-        it('keeps the options.credentials object untouched', function (done) {
+        it('keeps the options.credentials object untouched', (done) => {
 
             const handler = function (request, reply) {
 
@@ -717,7 +717,7 @@ describe('Connection', function () {
             });
         });
 
-        it('sets credentials (with host header)', function (done) {
+        it('sets credentials (with host header)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -744,7 +744,7 @@ describe('Connection', function () {
             });
         });
 
-        it('sets credentials (with authority)', function (done) {
+        it('sets credentials (with authority)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -770,7 +770,7 @@ describe('Connection', function () {
             });
         });
 
-        it('sets authority', function (done) {
+        it('sets authority', (done) => {
 
             const handler = function (request, reply) {
 
@@ -794,7 +794,7 @@ describe('Connection', function () {
             });
         });
 
-        it('passes the options.artifacts object', function (done) {
+        it('passes the options.artifacts object', (done) => {
 
             const handler = function (request, reply) {
 
@@ -820,7 +820,7 @@ describe('Connection', function () {
             });
         });
 
-        it('returns the request object', function (done) {
+        it('returns the request object', (done) => {
 
             const handler = function (request, reply) {
 
@@ -840,7 +840,7 @@ describe('Connection', function () {
             });
         });
 
-        it('can set a client remoteAddress', function (done) {
+        it('can set a client remoteAddress', (done) => {
 
             const handler = function (request, reply) {
 
@@ -859,7 +859,7 @@ describe('Connection', function () {
             });
         });
 
-        it('sets a default remoteAddress of 127.0.0.1', function (done) {
+        it('sets a default remoteAddress of 127.0.0.1', (done) => {
 
             const handler = function (request, reply) {
 
@@ -878,7 +878,7 @@ describe('Connection', function () {
             });
         });
 
-        it('sets correct host header', function (done) {
+        it('sets correct host header', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ host: 'example.com', port: 2080 });
@@ -899,9 +899,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('table()', function () {
+    describe('table()', () => {
 
-        it('returns an array of the current routes', function (done) {
+        it('returns an array of the current routes', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -916,7 +916,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('returns the labels for the connections', function (done) {
+        it('returns the labels for the connections', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ labels: ['test'] });
@@ -930,7 +930,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('returns an array of the current routes (connection)', function (done) {
+        it('returns an array of the current routes (connection)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -945,7 +945,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('combines global and vhost routes', function (done) {
+        it('combines global and vhost routes', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -961,7 +961,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('combines global and vhost routes and filters based on host', function (done) {
+        it('combines global and vhost routes and filters based on host', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -977,7 +977,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('accepts a list of hosts', function (done) {
+        it('accepts a list of hosts', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -993,7 +993,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('ignores unknown host', function (done) {
+        it('ignores unknown host', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1010,9 +1010,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('ext()', function () {
+    describe('ext()', () => {
 
-        it('supports adding an array of methods', function (done) {
+        it('supports adding an array of methods', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1043,7 +1043,7 @@ describe('Connection', function () {
             });
         });
 
-        it('sets bind via options', function (done) {
+        it('sets bind via options', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1067,7 +1067,7 @@ describe('Connection', function () {
             });
         });
 
-        it('uses server views for ext added via server', function (done) {
+        it('uses server views for ext added via server', (done) => {
 
             const server = new Hapi.Server();
             server.register(Vision, Hoek.ignore);
@@ -1108,7 +1108,7 @@ describe('Connection', function () {
             });
         });
 
-        it('supports reply decorators on empty result', function (done) {
+        it('supports reply decorators on empty result', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1125,7 +1125,7 @@ describe('Connection', function () {
             });
         });
 
-        it('supports direct reply decorators', function (done) {
+        it('supports direct reply decorators', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1142,9 +1142,9 @@ describe('Connection', function () {
             });
         });
 
-        describe('onRequest', function (done) {
+        describe('onRequest', (done) => {
 
-            it('replies with custom response', function (done) {
+            it('replies with custom response', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1161,7 +1161,7 @@ describe('Connection', function () {
                 });
             });
 
-            it('replies with error using reply(null, result)', function (done) {
+            it('replies with error using reply(null, result)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1185,7 +1185,7 @@ describe('Connection', function () {
                 });
             });
 
-            it('replies with a view', function (done) {
+            it('replies with a view', (done) => {
 
                 const server = new Hapi.Server();
                 server.register(Vision, Hoek.ignore);
@@ -1216,9 +1216,9 @@ describe('Connection', function () {
             });
         });
 
-        describe('onPreResponse', function (done) {
+        describe('onPreResponse', (done) => {
 
-            it('replies with custom response', function (done) {
+            it('replies with custom response', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1260,7 +1260,7 @@ describe('Connection', function () {
                 });
             });
 
-            it('intercepts 404 responses', function (done) {
+            it('intercepts 404 responses', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1277,7 +1277,7 @@ describe('Connection', function () {
                 });
             });
 
-            it('intercepts 404 when using directory handler and file is missing', function (done) {
+            it('intercepts 404 when using directory handler and file is missing', (done) => {
 
                 const server = new Hapi.Server();
                 server.register(Inert, Hoek.ignore);
@@ -1299,7 +1299,7 @@ describe('Connection', function () {
                 });
             });
 
-            it('intercepts 404 when using file handler and file is missing', function (done) {
+            it('intercepts 404 when using file handler and file is missing', (done) => {
 
                 const server = new Hapi.Server();
                 server.register(Inert, Hoek.ignore);
@@ -1321,7 +1321,7 @@ describe('Connection', function () {
                 });
             });
 
-            it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, function (done) {
+            it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, (done) => {
 
                 const server = new Hapi.Server();
                 server.register(Inert, Hoek.ignore);
@@ -1346,7 +1346,7 @@ describe('Connection', function () {
                         lsof += buffer.toString();
                     });
 
-                    cmd.stdout.on('end', function () {
+                    cmd.stdout.on('end', () => {
 
                         let count = 0;
                         const lines = lsof.split('\n');
@@ -1362,7 +1362,7 @@ describe('Connection', function () {
                 });
             });
 
-            it('executes multiple extensions', function (done) {
+            it('executes multiple extensions', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1394,9 +1394,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('route()', function () {
+    describe('route()', () => {
 
-        it('emits route event', function (done) {
+        it('emits route event', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ labels: 'a' });
@@ -1418,7 +1418,7 @@ describe('Connection', function () {
             });
         });
 
-        it('overrides the default notFound handler', function (done) {
+        it('overrides the default notFound handler', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1436,7 +1436,7 @@ describe('Connection', function () {
             });
         });
 
-        it('responds to HEAD requests for a GET route', function (done) {
+        it('responds to HEAD requests for a GET route', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1457,7 +1457,7 @@ describe('Connection', function () {
             });
         });
 
-        it('returns 404 on HEAD requests for non-GET routes', function (done) {
+        it('returns 404 on HEAD requests for non-GET routes', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1481,7 +1481,7 @@ describe('Connection', function () {
             });
         });
 
-        it('allows methods array', function (done) {
+        it('allows methods array', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1525,7 +1525,7 @@ describe('Connection', function () {
             });
         });
 
-        it('adds routes using single and array methods', function (done) {
+        it('adds routes using single and array methods', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1584,7 +1584,7 @@ describe('Connection', function () {
             done();
         });
 
-        it('throws on methods array with id', function (done) {
+        it('throws on methods array with id', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1607,9 +1607,9 @@ describe('Connection', function () {
         });
     });
 
-    describe('_defaultRoutes()', function () {
+    describe('_defaultRoutes()', () => {
 
-        it('returns 404 when making a request to a route that does not exist', function (done) {
+        it('returns 404 when making a request to a route that does not exist', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1620,7 +1620,7 @@ describe('Connection', function () {
             });
         });
 
-        it('returns 400 on bad request', function (done) {
+        it('returns 400 on bad request', (done) => {
 
             const handler = function (request, reply) {
 

@@ -26,14 +26,14 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Request.Generator', function () {
+describe('Request.Generator', () => {
 
-    it('decorates request multiple times', function (done) {
+    it('decorates request multiple times', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
 
-        server.decorate('request', 'x2', function () {
+        server.decorate('request', 'x2', () => {
 
             return 2;
         });
@@ -58,9 +58,9 @@ describe('Request.Generator', function () {
     });
 });
 
-describe('Request', function () {
+describe('Request', () => {
 
-    it('sets client address', function (done) {
+    it('sets client address', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -91,7 +91,7 @@ describe('Request', function () {
         });
     });
 
-    it('sets referrer', function (done) {
+    it('sets referrer', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -111,7 +111,7 @@ describe('Request', function () {
         });
     });
 
-    it('sets referer', function (done) {
+    it('sets referer', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -131,7 +131,7 @@ describe('Request', function () {
         });
     });
 
-    it('sets headers', function (done) {
+    it('sets headers', (done) => {
 
         const handler = function (request, reply) {
 
@@ -149,7 +149,7 @@ describe('Request', function () {
         });
     });
 
-    it('generates unique request id', function (done) {
+    it('generates unique request id', (done) => {
 
         const handler = function (request, reply) {
 
@@ -175,9 +175,9 @@ describe('Request', function () {
         });
     });
 
-    describe('_execute()', function () {
+    describe('_execute()', () => {
 
-        it('returns 400 on invalid path', function (done) {
+        it('returns 400 on invalid path', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -188,7 +188,7 @@ describe('Request', function () {
             });
         });
 
-        it('returns error response on ext error', function (done) {
+        it('returns error response on ext error', (done) => {
 
             const handler = function (request, reply) {
 
@@ -213,7 +213,7 @@ describe('Request', function () {
             });
         });
 
-        it('handles aborted requests', { parallel: false }, function (done) {
+        it('handles aborted requests', { parallel: false }, (done) => {
 
             const handler = function (request, reply) {
 
@@ -246,7 +246,7 @@ describe('Request', function () {
             let disconnected = 0;
             server.ext('onRequest', function (request, reply) {
 
-                request.once('disconnect', function () {
+                request.once('disconnect', () => {
 
                     ++disconnected;
                 });
@@ -261,13 +261,13 @@ describe('Request', function () {
                 let total = 2;
                 const createConnection = function () {
 
-                    const client = Net.connect(server.info.port, function () {
+                    const client = Net.connect(server.info.port, () => {
 
                         client.write('GET / HTTP/1.1\r\n\r\n');
                         client.write('GET / HTTP/1.1\r\n\r\n');
                     });
 
-                    client.on('data', function () {
+                    client.on('data', () => {
 
                         --total;
                         client.destroy();
@@ -290,7 +290,7 @@ describe('Request', function () {
             });
         });
 
-        it('returns empty params array when none present', function (done) {
+        it('returns empty params array when none present', (done) => {
 
             const handler = function (request, reply) {
 
@@ -308,7 +308,7 @@ describe('Request', function () {
             });
         });
 
-        it('returns empty params array when none present (not found)', function (done) {
+        it('returns empty params array when none present (not found)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -324,7 +324,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not fail on abort', function (done) {
+        it('does not fail on abort', (done) => {
 
             let clientRequest;
 
@@ -361,7 +361,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not fail on abort (onPreHandler)', function (done) {
+        it('does not fail on abort (onPreHandler)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -397,7 +397,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not fail on abort with ext', function (done) {
+        it('does not fail on abort with ext', (done) => {
 
             let clientRequest;
 
@@ -419,7 +419,7 @@ describe('Request', function () {
                 return reply.continue();
             });
 
-            server.on('tail', function () {
+            server.on('tail', () => {
 
                 server.stop(done);
             });
@@ -439,7 +439,7 @@ describe('Request', function () {
             });
         });
 
-        it('returns not found on internal only route (external)', function (done) {
+        it('returns not found on internal only route (external)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -467,7 +467,7 @@ describe('Request', function () {
             });
         });
 
-        it('returns not found on internal only route (inject)', function (done) {
+        it('returns not found on internal only route (inject)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -490,7 +490,7 @@ describe('Request', function () {
             });
         });
 
-        it('allows internal only route (inject with allowInternals)', function (done) {
+        it('allows internal only route (inject with allowInternals)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -514,9 +514,9 @@ describe('Request', function () {
         });
     });
 
-    describe('_finalize()', function (done) {
+    describe('_finalize()', (done) => {
 
-        it('generate response event', function (done) {
+        it('generate response event', (done) => {
 
             const handler = function (request, reply) {
 
@@ -536,7 +536,7 @@ describe('Request', function () {
             server.inject('/', function (res) { });
         });
 
-        it('closes response after server timeout', function (done) {
+        it('closes response after server timeout', (done) => {
 
             const handler = function (request, reply) {
 
@@ -572,7 +572,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not attempt to close error response after server timeout', function (done) {
+        it('does not attempt to close error response after server timeout', (done) => {
 
             const handler = function (request, reply) {
 
@@ -597,7 +597,7 @@ describe('Request', function () {
             });
         });
 
-        it('emits request-error once', function (done) {
+        it('emits request-error once', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -631,7 +631,7 @@ describe('Request', function () {
                 expect(res.result.message).to.equal('An internal server error occurred');
             });
 
-            server.once('response', function () {
+            server.once('response', () => {
 
                 expect(errs).to.equal(1);
                 expect(req.getLog('error')[1].tags).to.deep.equal(['internal', 'error']);
@@ -639,7 +639,7 @@ describe('Request', function () {
             });
         });
 
-        it('emits request-error on implementation error', function (done) {
+        it('emits request-error on implementation error', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -661,7 +661,7 @@ describe('Request', function () {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.once('response', function () {
+            server.once('response', () => {
 
                 expect(errs).to.equal(1);
                 expect(req.getLog('error')[0].tags).to.deep.equal(['internal', 'implementation', 'error']);
@@ -676,7 +676,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not emit request-error when error is replaced with valid response', function (done) {
+        it('does not emit request-error when error is replaced with valid response', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -705,7 +705,7 @@ describe('Request', function () {
                 expect(res.result).to.equal('ok');
             });
 
-            server.once('response', function () {
+            server.once('response', () => {
 
                 expect(errs).to.equal(0);
                 done();
@@ -713,9 +713,9 @@ describe('Request', function () {
         });
     });
 
-    describe('tail()', function () {
+    describe('tail()', () => {
 
-        it('generates tail event', function (done) {
+        it('generates tail event', (done) => {
 
             const handler = function (request, reply) {
 
@@ -735,7 +735,7 @@ describe('Request', function () {
 
             let result = null;
 
-            server.once('tail', function () {
+            server.once('tail', () => {
 
                 expect(result).to.equal('Done');
                 done();
@@ -747,7 +747,7 @@ describe('Request', function () {
             });
         });
 
-        it('generates tail event without name', function (done) {
+        it('generates tail event without name', (done) => {
 
             const handler = function (request, reply) {
 
@@ -760,7 +760,7 @@ describe('Request', function () {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.once('tail', function () {
+            server.once('tail', () => {
 
                 done();
             });
@@ -771,9 +771,9 @@ describe('Request', function () {
         });
     });
 
-    describe('setMethod()', function () {
+    describe('setMethod()', () => {
 
-        it('changes method with a lowercase version of the value passed in', function (done) {
+        it('changes method with a lowercase version of the value passed in', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -792,7 +792,7 @@ describe('Request', function () {
             });
         });
 
-        it('errors on missing method', function (done) {
+        it('errors on missing method', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -810,7 +810,7 @@ describe('Request', function () {
             });
         });
 
-        it('errors on invalid method type', function (done) {
+        it('errors on invalid method type', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -829,9 +829,9 @@ describe('Request', function () {
         });
     });
 
-    describe('setUrl()', function () {
+    describe('setUrl()', () => {
 
-        it('parses nested query string', function (done) {
+        it('parses nested query string', (done) => {
 
             const handler = function (request, reply) {
 
@@ -849,7 +849,7 @@ describe('Request', function () {
             });
         });
 
-        it('sets url, path, and query', function (done) {
+        it('sets url, path, and query', (done) => {
 
             const url = 'http://localhost/page?param1=something';
             const server = new Hapi.Server();
@@ -869,7 +869,7 @@ describe('Request', function () {
             });
         });
 
-        it('normalizes a path', function (done) {
+        it('normalizes a path', (done) => {
 
             const rawPath = '/%0%1%2%3%4%5%6%7%8%9%a%b%c%d%e%f%10%11%12%13%14%15%16%17%18%19%1a%1b%1c%1d%1e%1f%20%21%22%23%24%25%26%27%28%29%2a%2b%2c%2d%2e%2f%30%31%32%33%34%35%36%37%38%39%3a%3b%3c%3d%3e%3f%40%41%42%43%44%45%46%47%48%49%4a%4b%4c%4d%4e%4f%50%51%52%53%54%55%56%57%58%59%5a%5b%5c%5d%5e%5f%60%61%62%63%64%65%66%67%68%69%6a%6b%6c%6d%6e%6f%70%71%72%73%74%75%76%77%78%79%7a%7b%7c%7d%7e%7f%80%81%82%83%84%85%86%87%88%89%8a%8b%8c%8d%8e%8f%90%91%92%93%94%95%96%97%98%99%9a%9b%9c%9d%9e%9f%a0%a1%a2%a3%a4%a5%a6%a7%a8%a9%aa%ab%ac%ad%ae%af%b0%b1%b2%b3%b4%b5%b6%b7%b8%b9%ba%bb%bc%bd%be%bf%c0%c1%c2%c3%c4%c5%c6%c7%c8%c9%ca%cb%cc%cd%ce%cf%d0%d1%d2%d3%d4%d5%d6%d7%d8%d9%da%db%dc%dd%de%df%e0%e1%e2%e3%e4%e5%e6%e7%e8%e9%ea%eb%ec%ed%ee%ef%f0%f1%f2%f3%f4%f5%f6%f7%f8%f9%fa%fb%fc%fd%fe%ff%0%1%2%3%4%5%6%7%8%9%A%B%C%D%E%F%10%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F%20%21%22%23%24%25%26%27%28%29%2A%2B%2C%2D%2E%2F%30%31%32%33%34%35%36%37%38%39%3A%3B%3C%3D%3E%3F%40%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%5B%5C%5D%5E%5F%60%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A%7B%7C%7D%7E%7F%80%81%82%83%84%85%86%87%88%89%8A%8B%8C%8D%8E%8F%90%91%92%93%94%95%96%97%98%99%9A%9B%9C%9D%9E%9F%A0%A1%A2%A3%A4%A5%A6%A7%A8%A9%AA%AB%AC%AD%AE%AF%B0%B1%B2%B3%B4%B5%B6%B7%B8%B9%BA%BB%BC%BD%BE%BF%C0%C1%C2%C3%C4%C5%C6%C7%C8%C9%CA%CB%CC%CD%CE%CF%D0%D1%D2%D3%D4%D5%D6%D7%D8%D9%DA%DB%DC%DD%DE%DF%E0%E1%E2%E3%E4%E5%E6%E7%E8%E9%EA%EB%EC%ED%EE%EF%F0%F1%F2%F3%F4%F5%F6%F7%F8%F9%FA%FB%FC%FD%FE%FF';
             const normPath = '/%0%1%2%3%4%5%6%7%8%9%a%b%c%d%e%f%10%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F%20!%22%23$%25&\'()*+,-.%2F0123456789:;%3C=%3E%3F@ABCDEFGHIJKLMNOPQRSTUVWXYZ%5B%5C%5D%5E_%60abcdefghijklmnopqrstuvwxyz%7B%7C%7D~%7F%80%81%82%83%84%85%86%87%88%89%8A%8B%8C%8D%8E%8F%90%91%92%93%94%95%96%97%98%99%9A%9B%9C%9D%9E%9F%A0%A1%A2%A3%A4%A5%A6%A7%A8%A9%AA%AB%AC%AD%AE%AF%B0%B1%B2%B3%B4%B5%B6%B7%B8%B9%BA%BB%BC%BD%BE%BF%C0%C1%C2%C3%C4%C5%C6%C7%C8%C9%CA%CB%CC%CD%CE%CF%D0%D1%D2%D3%D4%D5%D6%D7%D8%D9%DA%DB%DC%DD%DE%DF%E0%E1%E2%E3%E4%E5%E6%E7%E8%E9%EA%EB%EC%ED%EE%EF%F0%F1%F2%F3%F4%F5%F6%F7%F8%F9%FA%FB%FC%FD%FE%FF%0%1%2%3%4%5%6%7%8%9%A%B%C%D%E%F%10%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F%20!%22%23$%25&\'()*+,-.%2F0123456789:;%3C=%3E%3F@ABCDEFGHIJKLMNOPQRSTUVWXYZ%5B%5C%5D%5E_%60abcdefghijklmnopqrstuvwxyz%7B%7C%7D~%7F%80%81%82%83%84%85%86%87%88%89%8A%8B%8C%8D%8E%8F%90%91%92%93%94%95%96%97%98%99%9A%9B%9C%9D%9E%9F%A0%A1%A2%A3%A4%A5%A6%A7%A8%A9%AA%AB%AC%AD%AE%AF%B0%B1%B2%B3%B4%B5%B6%B7%B8%B9%BA%BB%BC%BD%BE%BF%C0%C1%C2%C3%C4%C5%C6%C7%C8%C9%CA%CB%CC%CD%CE%CF%D0%D1%D2%D3%D4%D5%D6%D7%D8%D9%DA%DB%DC%DD%DE%DF%E0%E1%E2%E3%E4%E5%E6%E7%E8%E9%EA%EB%EC%ED%EE%EF%F0%F1%F2%F3%F4%F5%F6%F7%F8%F9%FA%FB%FC%FD%FE%FF';
@@ -893,7 +893,7 @@ describe('Request', function () {
             });
         });
 
-        it('allows missing path', function (done) {
+        it('allows missing path', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -910,7 +910,7 @@ describe('Request', function () {
             });
         });
 
-        it('strips trailing slash', function (done) {
+        it('strips trailing slash', (done) => {
 
             const handler = function (request, reply) {
 
@@ -927,7 +927,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not strip trailing slash on /', function (done) {
+        it('does not strip trailing slash on /', (done) => {
 
             const handler = function (request, reply) {
 
@@ -944,7 +944,7 @@ describe('Request', function () {
             });
         });
 
-        it('strips trailing slash with query', function (done) {
+        it('strips trailing slash with query', (done) => {
 
             const handler = function (request, reply) {
 
@@ -961,7 +961,7 @@ describe('Request', function () {
             });
         });
 
-        it('accepts querystring parser options', function (done) {
+        it('accepts querystring parser options', (done) => {
 
             const url = 'http://localhost/page?a=1&b=1&c=1&d=1&e=1&f=1&g=1&h=1&i=1&j=1&k=1&l=1&m=1&n=1&o=1&p=1&q=1&r=1&s=1&t=1&u=1&v=1&w=1&x=1&y=1&z=1';
             const qsParserOptions = {
@@ -986,7 +986,7 @@ describe('Request', function () {
             });
         });
 
-        it('overrides qs settings', function (done) {
+        it('overrides qs settings', (done) => {
 
             const server = new Hapi.Server();
             server.connection({
@@ -1016,9 +1016,9 @@ describe('Request', function () {
         });
     });
 
-    describe('log()', { parallel: false }, function () {
+    describe('log()', { parallel: false }, () => {
 
-        it('outputs log data to debug console', function (done) {
+        it('outputs log data to debug console', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1046,7 +1046,7 @@ describe('Request', function () {
             });
         });
 
-        it('emits a request event', function (done) {
+        it('emits a request event', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1073,7 +1073,7 @@ describe('Request', function () {
             });
         });
 
-        it('outputs log to debug console without data', function (done) {
+        it('outputs log to debug console without data', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1101,7 +1101,7 @@ describe('Request', function () {
             });
         });
 
-        it('outputs log to debug console with error data', function (done) {
+        it('outputs log to debug console with error data', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1129,7 +1129,7 @@ describe('Request', function () {
             });
         });
 
-        it('handles invalid log data object stringify', function (done) {
+        it('handles invalid log data object stringify', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1160,7 +1160,7 @@ describe('Request', function () {
             });
         });
 
-        it('adds a log event to the request', function (done) {
+        it('adds a log event to the request', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1186,7 +1186,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not output events when debug disabled', function (done) {
+        it('does not output events when debug disabled', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -1215,7 +1215,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not output events when debug.request disabled', function (done) {
+        it('does not output events when debug.request disabled', (done) => {
 
             const server = new Hapi.Server({ debug: { request: false } });
             server.connection();
@@ -1244,7 +1244,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not output non-implementation events by default', function (done) {
+        it('does not output non-implementation events by default', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1274,9 +1274,9 @@ describe('Request', function () {
         });
     });
 
-    describe('_log()', { parallel: false }, function () {
+    describe('_log()', { parallel: false }, () => {
 
-        it('emits a request-internal event', function (done) {
+        it('emits a request-internal event', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1290,9 +1290,9 @@ describe('Request', function () {
         });
     });
 
-    describe('getLog()', function () {
+    describe('getLog()', () => {
 
-        it('returns the selected logs', function (done) {
+        it('returns the selected logs', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1314,9 +1314,9 @@ describe('Request', function () {
         });
     });
 
-    describe('_setResponse()', function () {
+    describe('_setResponse()', () => {
 
-        it('leaves the response open when the same response is set again', function (done) {
+        it('leaves the response open when the same response is set again', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1346,7 +1346,7 @@ describe('Request', function () {
             });
         });
 
-        it('leaves the response open when the same response source is set again', function (done) {
+        it('leaves the response open when the same response source is set again', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1377,9 +1377,9 @@ describe('Request', function () {
         });
     });
 
-    describe('timeout', { parallel: false }, function () {
+    describe('timeout', { parallel: false }, () => {
 
-        it('returns server error message when server taking too long', function (done) {
+        it('returns server error message when server taking too long', (done) => {
 
             const timeoutHandler = function (request, reply) { };
 
@@ -1397,7 +1397,7 @@ describe('Request', function () {
             });
         });
 
-        it('returns server error message when server timeout happens during request execution (and handler yields)', function (done) {
+        it('returns server error message when server timeout happens during request execution (and handler yields)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1423,7 +1423,7 @@ describe('Request', function () {
             });
         });
 
-        it('returns server error message when server timeout is short and already occurs when request executes', function (done) {
+        it('returns server error message when server timeout is short and already occurs when request executes', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 2 } } });
@@ -1443,7 +1443,7 @@ describe('Request', function () {
             });
         });
 
-        it('handles server handler timeout with onPreResponse ext', function (done) {
+        it('handles server handler timeout with onPreResponse ext', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1465,7 +1465,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not return an error response when server is slow but faster than timeout', function (done) {
+        it('does not return an error response when server is slow but faster than timeout', (done) => {
 
             const slowHandler = function (request, reply) {
 
@@ -1488,7 +1488,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not return an error when server is responding when the timeout occurs', function (done) {
+        it('does not return an error when server is responding when the timeout occurs', (done) => {
 
             let ended = false;
             const handler = function (request, reply) {
@@ -1539,7 +1539,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not return an error response when server is slower than timeout but response has started', function (done) {
+        it('does not return an error response when server is slower than timeout but response has started', (done) => {
 
             const streamHandler = function (request, reply) {
 
@@ -1596,7 +1596,7 @@ describe('Request', function () {
             });
         });
 
-        it('does not return an error response when server takes less than timeout to respond', function (done) {
+        it('does not return an error response when server takes less than timeout to respond', (done) => {
 
             const fastHandler = function (request, reply) {
 
@@ -1614,7 +1614,7 @@ describe('Request', function () {
             });
         });
 
-        it('handles race condition between equal client and server timeouts', function (done) {
+        it('handles race condition between equal client and server timeouts', (done) => {
 
             const timeoutHandler = function (request, reply) { };
 

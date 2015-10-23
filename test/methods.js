@@ -22,9 +22,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Methods', function () {
+describe('Methods', () => {
 
-    it('registers a method', function (done) {
+    it('registers a method', (done) => {
 
         const add = function (a, b, next) {
 
@@ -41,7 +41,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers a method with leading _', function (done) {
+    it('registers a method with leading _', (done) => {
 
         const _add = function (a, b, next) {
 
@@ -58,7 +58,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers a method with leading $', function (done) {
+    it('registers a method with leading $', (done) => {
 
         const $add = function (a, b, next) {
 
@@ -75,7 +75,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers a method with _', function (done) {
+    it('registers a method with _', (done) => {
 
         const _add = function (a, b, next) {
 
@@ -92,7 +92,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers a method with $', function (done) {
+    it('registers a method with $', (done) => {
 
         const $add = function (a, b, next) {
 
@@ -109,7 +109,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers a method (no callback)', function (done) {
+    it('registers a method (no callback)', (done) => {
 
         const add = function (a, b) {
 
@@ -123,7 +123,7 @@ describe('Methods', function () {
         done();
     });
 
-    it('registers a method (promise)', function (done) {
+    it('registers a method (promise)', (done) => {
 
         const addAsync = function (a, b, next) {
 
@@ -142,7 +142,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers a method with nested name', function (done) {
+    it('registers a method with nested name', (done) => {
 
         const add = function (a, b, next) {
 
@@ -165,7 +165,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers a method with bind and callback', function (done) {
+    it('registers a method with bind and callback', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -197,7 +197,7 @@ describe('Methods', function () {
         });
     });
 
-    it('registers two methods with shared nested name', function (done) {
+    it('registers two methods with shared nested name', (done) => {
 
         const add = function (a, b, next) {
 
@@ -230,7 +230,7 @@ describe('Methods', function () {
         });
     });
 
-    it('throws when registering a method with nested name twice', function (done) {
+    it('throws when registering a method with nested name twice', (done) => {
 
         const add = function (a, b, next) {
 
@@ -247,7 +247,7 @@ describe('Methods', function () {
         done();
     });
 
-    it('throws when registering a method with name nested through a function', function (done) {
+    it('throws when registering a method with name nested through a function', (done) => {
 
         const add = function (a, b, next) {
 
@@ -264,7 +264,7 @@ describe('Methods', function () {
         done();
     });
 
-    it('calls non cached method multiple times', function (done) {
+    it('calls non cached method multiple times', (done) => {
 
         let gen = 0;
         const method = function (id, next) {
@@ -293,7 +293,7 @@ describe('Methods', function () {
         });
     });
 
-    it('caches method value', function (done) {
+    it('caches method value', (done) => {
 
         let gen = 0;
         const method = function (id, next) {
@@ -324,7 +324,7 @@ describe('Methods', function () {
         });
     });
 
-    it('caches method value (no callback)', function (done) {
+    it('caches method value (no callback)', (done) => {
 
         let gen = 0;
         const method = function (id) {
@@ -355,7 +355,7 @@ describe('Methods', function () {
         });
     });
 
-    it('caches method value (promise)', function (done) {
+    it('caches method value (promise)', (done) => {
 
         let gen = 0;
         const methodAsync = function (id, next) {
@@ -398,7 +398,7 @@ describe('Methods', function () {
         });
     });
 
-    it('reuses cached method value with custom key function', function (done) {
+    it('reuses cached method value with custom key function', (done) => {
 
         let gen = 0;
         const method = function (id, next) {
@@ -433,7 +433,7 @@ describe('Methods', function () {
         });
     });
 
-    it('errors when custom key function return null', function (done) {
+    it('errors when custom key function return null', (done) => {
 
         const method = function (id, next) {
 
@@ -463,7 +463,7 @@ describe('Methods', function () {
         });
     });
 
-    it('does not cache when custom key function returns a non-string', function (done) {
+    it('does not cache when custom key function returns a non-string', (done) => {
 
         const method = function (id, next) {
 
@@ -493,7 +493,7 @@ describe('Methods', function () {
         });
     });
 
-    it('does not cache value when ttl is 0', function (done) {
+    it('does not cache value when ttl is 0', (done) => {
 
         let gen = 0;
         const method = function (id, next) {
@@ -522,7 +522,7 @@ describe('Methods', function () {
         });
     });
 
-    it('generates new value after cache drop', function (done) {
+    it('generates new value after cache drop', (done) => {
 
         let gen = 0;
         const method = function (id, next) {
@@ -555,7 +555,7 @@ describe('Methods', function () {
         });
     });
 
-    it('errors on invalid drop key', function (done) {
+    it('errors on invalid drop key', (done) => {
 
         let gen = 0;
         const method = function (id, next) {
@@ -579,7 +579,7 @@ describe('Methods', function () {
         });
     });
 
-    it('reports cache stats for each method', function (done) {
+    it('reports cache stats for each method', (done) => {
 
         const method = function (id, next) {
 
@@ -605,46 +605,46 @@ describe('Methods', function () {
         });
     });
 
-    it('throws an error when name is not a string', function (done) {
+    it('throws an error when name is not a string', (done) => {
 
         expect(function () {
 
             const server = new Hapi.Server();
-            server.method(0, function () { });
+            server.method(0, () => { });
         }).to.throw('name must be a string');
         done();
     });
 
-    it('throws an error when name is invalid', function (done) {
+    it('throws an error when name is invalid', (done) => {
 
         expect(function () {
 
             const server = new Hapi.Server();
-            server.method('0', function () { });
+            server.method('0', () => { });
         }).to.throw('Invalid name: 0');
 
         expect(function () {
 
             const server = new Hapi.Server();
-            server.method('a..', function () { });
+            server.method('a..', () => { });
         }).to.throw('Invalid name: a..');
 
         expect(function () {
 
             const server = new Hapi.Server();
-            server.method('a.0', function () { });
+            server.method('a.0', () => { });
         }).to.throw('Invalid name: a.0');
 
         expect(function () {
 
             const server = new Hapi.Server();
-            server.method('.a', function () { });
+            server.method('.a', () => { });
         }).to.throw('Invalid name: .a');
 
         done();
     });
 
-    it('throws an error when method is not a function', function (done) {
+    it('throws an error when method is not a function', (done) => {
 
         expect(function () {
 
@@ -654,59 +654,59 @@ describe('Methods', function () {
         done();
     });
 
-    it('throws an error when options is not an object', function (done) {
+    it('throws an error when options is not an object', (done) => {
 
         expect(function () {
 
             const server = new Hapi.Server();
-            server.method('user', function () { }, 'options');
+            server.method('user', () => { }, 'options');
         }).to.throw(/Invalid method options \(user\)/);
         done();
     });
 
-    it('throws an error when options.generateKey is not a function', function (done) {
+    it('throws an error when options.generateKey is not a function', (done) => {
 
         expect(function () {
 
             const server = new Hapi.Server();
-            server.method('user', function () { }, { generateKey: 'function' });
+            server.method('user', () => { }, { generateKey: 'function' });
         }).to.throw(/Invalid method options \(user\)/);
         done();
     });
 
-    it('throws an error when options.cache is not valid', function (done) {
+    it('throws an error when options.cache is not valid', (done) => {
 
         expect(function () {
 
             const server = new Hapi.Server({ cache: CatboxMemory });
-            server.method('user', function () { }, { cache: { x: 'y', generateTimeout: 10 } });
+            server.method('user', () => { }, { cache: { x: 'y', generateTimeout: 10 } });
         }).to.throw(/Invalid cache policy configuration/);
         done();
     });
 
-    it('throws an error when generateTimeout is not present', function (done) {
+    it('throws an error when generateTimeout is not present', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
 
-            server.method('test', function () { }, { cache: {} });
+            server.method('test', () => { }, { cache: {} });
         }).to.throw('Method caching requires a timeout value in generateTimeout: test');
 
         done();
     });
 
-    it('allows generateTimeout to be false', function (done) {
+    it('allows generateTimeout to be false', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
 
-            server.method('test', function () { }, { cache: { generateTimeout: false } });
+            server.method('test', () => { }, { cache: { generateTimeout: false } });
         }).to.not.throw();
 
         done();
     });
 
-    it('returns a valid result when calling a method without using the cache', function (done) {
+    it('returns a valid result when calling a method without using the cache', (done) => {
 
         const server = new Hapi.Server();
 
@@ -723,7 +723,7 @@ describe('Methods', function () {
         });
     });
 
-    it('returns a valid result when calling a method when using the cache', function (done) {
+    it('returns a valid result when calling a method when using the cache', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -746,7 +746,7 @@ describe('Methods', function () {
         });
     });
 
-    it('returns an error result when calling a method that returns an error', function (done) {
+    it('returns an error result when calling a method that returns an error', (done) => {
 
         const server = new Hapi.Server();
 
@@ -763,7 +763,7 @@ describe('Methods', function () {
         });
     });
 
-    it('returns a different result when calling a method without using the cache', function (done) {
+    it('returns a different result when calling a method without using the cache', (done) => {
 
         const server = new Hapi.Server();
 
@@ -787,7 +787,7 @@ describe('Methods', function () {
         });
     });
 
-    it('returns a valid result when calling a method using the cache', function (done) {
+    it('returns a valid result when calling a method using the cache', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
@@ -819,7 +819,7 @@ describe('Methods', function () {
         });
     });
 
-    it('returns timeout when method taking too long using the cache', function (done) {
+    it('returns timeout when method taking too long using the cache', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
@@ -857,7 +857,7 @@ describe('Methods', function () {
         });
     });
 
-    it('supports empty key method', function (done) {
+    it('supports empty key method', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
@@ -889,7 +889,7 @@ describe('Methods', function () {
         });
     });
 
-    it('returns valid results when calling a method (with different keys) using the cache', function (done) {
+    it('returns valid results when calling a method (with different keys) using the cache', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
@@ -920,7 +920,7 @@ describe('Methods', function () {
         });
     });
 
-    it('errors when key generation fails', function (done) {
+    it('errors when key generation fails', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
         server.connection();
@@ -950,7 +950,7 @@ describe('Methods', function () {
         });
     });
 
-    it('sets method bind without cache', function (done) {
+    it('sets method bind without cache', (done) => {
 
         const method = function (id, next) {
 
@@ -978,7 +978,7 @@ describe('Methods', function () {
         });
     });
 
-    it('sets method bind with cache', function (done) {
+    it('sets method bind with cache', (done) => {
 
         const method = function (id, next) {
 
@@ -1006,7 +1006,7 @@ describe('Methods', function () {
         });
     });
 
-    it('shallow copies bind config', function (done) {
+    it('shallow copies bind config', (done) => {
 
         const bind = { gen: 7 };
         const method = function (id, next) {
@@ -1036,9 +1036,9 @@ describe('Methods', function () {
         });
     });
 
-    describe('_add()', function () {
+    describe('_add()', () => {
 
-        it('normalizes no callback into callback (direct)', function (done) {
+        it('normalizes no callback into callback (direct)', (done) => {
 
             const add = function (a, b) {
 
@@ -1052,7 +1052,7 @@ describe('Methods', function () {
             done();
         });
 
-        it('normalizes no callback into callback (direct error)', function (done) {
+        it('normalizes no callback into callback (direct error)', (done) => {
 
             const add = function (a, b) {
 
@@ -1067,7 +1067,7 @@ describe('Methods', function () {
             done();
         });
 
-        it('normalizes no callback into callback (direct throw)', function (done) {
+        it('normalizes no callback into callback (direct throw)', (done) => {
 
             const add = function (a, b) {
 
@@ -1083,7 +1083,7 @@ describe('Methods', function () {
             done();
         });
 
-        it('normalizes no callback into callback (normalized)', function (done) {
+        it('normalizes no callback into callback (normalized)', (done) => {
 
             const add = function (a, b) {
 
@@ -1100,7 +1100,7 @@ describe('Methods', function () {
             });
         });
 
-        it('normalizes no callback into callback (normalized error)', function (done) {
+        it('normalizes no callback into callback (normalized error)', (done) => {
 
             const add = function (a, b) {
 
@@ -1118,7 +1118,7 @@ describe('Methods', function () {
             });
         });
 
-        it('normalizes no callback into callback (normalized throw)', function (done) {
+        it('normalizes no callback into callback (normalized throw)', (done) => {
 
             const add = function (a, b) {
 
@@ -1137,7 +1137,7 @@ describe('Methods', function () {
         });
     });
 
-    it('normalizes no callback into callback (cached)', function (done) {
+    it('normalizes no callback into callback (cached)', (done) => {
 
         const add = function (a, b) {
 
@@ -1154,7 +1154,7 @@ describe('Methods', function () {
         });
     });
 
-    it('normalizes no callback into callback (cached error)', function (done) {
+    it('normalizes no callback into callback (cached error)', (done) => {
 
         const add = function (a, b) {
 
@@ -1172,7 +1172,7 @@ describe('Methods', function () {
         });
     });
 
-    it('normalizes no callback into callback (cached throw)', function (done) {
+    it('normalizes no callback into callback (cached throw)', (done) => {
 
         const add = function (a, b) {
 
@@ -1190,7 +1190,7 @@ describe('Methods', function () {
         });
     });
 
-    it('throws an error if unknown keys are present when making a server method using an object', function (done) {
+    it('throws an error if unknown keys are present when making a server method using an object', (done) => {
 
         const fn = function () { };
         const server = new Hapi.Server();

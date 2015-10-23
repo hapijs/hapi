@@ -26,11 +26,11 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('handler', function () {
+describe('handler', () => {
 
-    describe('execute()', function () {
+    describe('execute()', () => {
 
-        it('returns 500 on handler exception (same tick)', function (done) {
+        it('returns 500 on handler exception (same tick)', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -49,7 +49,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns 500 on handler exception (next tick)', { parallel: false }, function (done) {
+        it('returns 500 on handler exception (next tick)', { parallel: false }, (done) => {
 
             const handler = function (request) {
 
@@ -83,9 +83,9 @@ describe('handler', function () {
         });
     });
 
-    describe('handler()', function () {
+    describe('handler()', () => {
 
-        it('binds handler to route bind object', function (done) {
+        it('binds handler to route bind object', (done) => {
 
             const item = { x: 123 };
 
@@ -110,7 +110,7 @@ describe('handler', function () {
             });
         });
 
-        it('invokes handler with right arguments', function (done) {
+        it('invokes handler with right arguments', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -132,9 +132,9 @@ describe('handler', function () {
         });
     });
 
-    describe('register()', function () {
+    describe('register()', () => {
 
-        it('returns a file', function (done) {
+        it('returns a file', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -157,7 +157,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a view', function (done) {
+        it('returns a view', (done) => {
 
             const server = new Hapi.Server();
             server.register(Vision, Hoek.ignore);
@@ -183,9 +183,9 @@ describe('handler', function () {
         });
     });
 
-    describe('prerequisites()', function () {
+    describe('prerequisites()', () => {
 
-        it('shows the complete prerequisite pipeline in the response', function (done) {
+        it('shows the complete prerequisite pipeline in the response', (done) => {
 
             const pre1 = function (request, reply) {
 
@@ -246,7 +246,7 @@ describe('handler', function () {
             });
         });
 
-        it('allows a single prerequisite', function (done) {
+        it('allows a single prerequisite', (done) => {
 
             const pre = function (request, reply) {
 
@@ -279,7 +279,7 @@ describe('handler', function () {
             });
         });
 
-        it('allows an empty prerequisite array', function (done) {
+        it('allows an empty prerequisite array', (done) => {
 
             const handler = function (request, reply) {
 
@@ -305,7 +305,7 @@ describe('handler', function () {
             });
         });
 
-        it('takes over response', function (done) {
+        it('takes over response', (done) => {
 
             const pre1 = function (request, reply) {
 
@@ -366,7 +366,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns error if prerequisite returns error', function (done) {
+        it('returns error if prerequisite returns error', (done) => {
 
             const pre1 = function (request, reply) {
 
@@ -404,7 +404,7 @@ describe('handler', function () {
             });
         });
 
-        it('passes wrapped object', function (done) {
+        it('passes wrapped object', (done) => {
 
             const pre = function (request, reply) {
 
@@ -436,7 +436,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns 500 if prerequisite throws', function (done) {
+        it('returns 500 if prerequisite throws', (done) => {
 
             const pre1 = function (request, reply) {
 
@@ -475,7 +475,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method', function (done) {
+        it('returns a user record using server method', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -506,7 +506,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method (nested method name)', function (done) {
+        it('returns a user record using server method (nested method name)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -537,7 +537,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method in object', function (done) {
+        it('returns a user record using server method in object', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -571,7 +571,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user name using multiple server methods', function (done) {
+        it('returns a user name using multiple server methods', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -608,7 +608,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method with trailing space', function (done) {
+        it('returns a user record using server method with trailing space', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -639,7 +639,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method with leading space', function (done) {
+        it('returns a user record using server method with leading space', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -670,7 +670,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method with zero args', function (done) {
+        it('returns a user record using server method with zero args', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -701,7 +701,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method with no args', function (done) {
+        it('returns a user record using server method with no args', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -732,7 +732,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns a user record using server method with nested name', function (done) {
+        it('returns a user record using server method with nested name', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -763,7 +763,7 @@ describe('handler', function () {
             });
         });
 
-        it('fails on bad method name', function (done) {
+        it('fails on bad method name', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -788,7 +788,7 @@ describe('handler', function () {
             done();
         });
 
-        it('fails on bad method syntax name', function (done) {
+        it('fails on bad method syntax name', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -813,7 +813,7 @@ describe('handler', function () {
             done();
         });
 
-        it('sets pre failAction to error', function (done) {
+        it('sets pre failAction to error', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -844,7 +844,7 @@ describe('handler', function () {
             });
         });
 
-        it('sets pre failAction to ignore', function (done) {
+        it('sets pre failAction to ignore', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -875,7 +875,7 @@ describe('handler', function () {
             });
         });
 
-        it('sets pre failAction to log', function (done) {
+        it('sets pre failAction to log', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -919,7 +919,7 @@ describe('handler', function () {
             });
         });
 
-        it('binds pre to route bind object', function (done) {
+        it('binds pre to route bind object', (done) => {
 
             const item = { x: 123 };
 
@@ -950,7 +950,7 @@ describe('handler', function () {
             });
         });
 
-        it('logs boom error instance as data if handler returns boom error', function (done) {
+        it('logs boom error instance as data if handler returns boom error', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -986,7 +986,7 @@ describe('handler', function () {
             });
         });
 
-        it('logs server method using string notation when cache enabled', function (done) {
+        it('logs server method using string notation when cache enabled', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1024,7 +1024,7 @@ describe('handler', function () {
             });
         });
 
-        it('uses server method with cache via string notation', function (done) {
+        it('uses server method with cache via string notation', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1067,9 +1067,9 @@ describe('handler', function () {
         });
     });
 
-    describe('fromString()', function () {
+    describe('fromString()', () => {
 
-        it('uses string handler', function (done) {
+        it('uses string handler', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1088,9 +1088,9 @@ describe('handler', function () {
         });
     });
 
-    describe('defaults()', function () {
+    describe('defaults()', () => {
 
-        it('returns handler without defaults', function (done) {
+        it('returns handler without defaults', (done) => {
 
             const handler = function (route, options) {
 
@@ -1111,7 +1111,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns handler with object defaults', function (done) {
+        it('returns handler with object defaults', (done) => {
 
             const handler = function (route, options) {
 
@@ -1138,7 +1138,7 @@ describe('handler', function () {
             });
         });
 
-        it('returns handler with function defaults', function (done) {
+        it('returns handler with function defaults', (done) => {
 
             const handler = function (route, options) {
 
@@ -1168,7 +1168,7 @@ describe('handler', function () {
             });
         });
 
-        it('throws on handler with invalid defaults', function (done) {
+        it('throws on handler with invalid defaults', (done) => {
 
             const handler = function (route, options) {
 
@@ -1191,9 +1191,9 @@ describe('handler', function () {
         });
     });
 
-    describe('invoke()', function () {
+    describe('invoke()', () => {
 
-        it('returns 500 on ext method exception (same tick)', function (done) {
+        it('returns 500 on ext method exception (same tick)', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();

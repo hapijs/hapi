@@ -25,9 +25,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Reply', function () {
+describe('Reply', () => {
 
-    it('throws when reply called twice', function (done) {
+    it('throws when reply called twice', (done) => {
 
         const handler = function (request, reply) {
 
@@ -44,7 +44,7 @@ describe('Reply', function () {
         });
     });
 
-    it('redirects from handler', function (done) {
+    it('redirects from handler', (done) => {
 
         const handler = function (request, reply) {
 
@@ -62,9 +62,9 @@ describe('Reply', function () {
         });
     });
 
-    describe('interface()', function () {
+    describe('interface()', () => {
 
-        it('uses reply(null, result) for result', function (done) {
+        it('uses reply(null, result) for result', (done) => {
 
             const handler = function (request, reply) {
 
@@ -82,7 +82,7 @@ describe('Reply', function () {
             });
         });
 
-        it('uses reply(null, err) for err', function (done) {
+        it('uses reply(null, err) for err', (done) => {
 
             const handler = function (request, reply) {
 
@@ -99,7 +99,7 @@ describe('Reply', function () {
             });
         });
 
-        it('ignores result when err provided in reply(err, result)', function (done) {
+        it('ignores result when err provided in reply(err, result)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -117,9 +117,9 @@ describe('Reply', function () {
         });
     });
 
-    describe('response()', function () {
+    describe('response()', () => {
 
-        it('returns null', function (done) {
+        it('returns null', (done) => {
 
             const handler = function (request, reply) {
 
@@ -139,7 +139,7 @@ describe('Reply', function () {
             });
         });
 
-        it('returns a buffer reply', function (done) {
+        it('returns a buffer reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -159,7 +159,7 @@ describe('Reply', function () {
             });
         });
 
-        it('returns an object response', function (done) {
+        it('returns an object response', (done) => {
 
             const handler = function (request, reply) {
 
@@ -178,7 +178,7 @@ describe('Reply', function () {
             });
         });
 
-        it('returns false', function (done) {
+        it('returns false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -196,7 +196,7 @@ describe('Reply', function () {
             });
         });
 
-        it('returns an error reply', function (done) {
+        it('returns an error reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -215,7 +215,7 @@ describe('Reply', function () {
             });
         });
 
-        it('returns an empty reply', function (done) {
+        it('returns an empty reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -235,7 +235,7 @@ describe('Reply', function () {
             });
         });
 
-        it('returns a stream reply', function (done) {
+        it('returns a stream reply', (done) => {
 
             const TestStream = function () {
 
@@ -281,7 +281,7 @@ describe('Reply', function () {
             });
         });
 
-        it('errors on non-readable stream reply', function (done) {
+        it('errors on non-readable stream reply', (done) => {
 
             const streamHandler = function (request, reply) {
 
@@ -332,7 +332,7 @@ describe('Reply', function () {
             });
         });
 
-        it('errors on an http client stream reply', function (done) {
+        it('errors on an http client stream reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -361,7 +361,7 @@ describe('Reply', function () {
             });
         });
 
-        it('errors on objectMode stream reply', function (done) {
+        it('errors on objectMode stream reply', (done) => {
 
             const TestStream = function () {
 
@@ -398,9 +398,9 @@ describe('Reply', function () {
             });
         });
 
-        describe('promises', function () {
+        describe('promises', () => {
 
-            it('returns a stream', function (done) {
+            it('returns a stream', (done) => {
 
                 const TestStream = function () {
 
@@ -440,7 +440,7 @@ describe('Reply', function () {
                 });
             });
 
-            it('returns a buffer', function (done) {
+            it('returns a buffer', (done) => {
 
                 const handler = function (request, reply) {
 
@@ -462,9 +462,9 @@ describe('Reply', function () {
         });
     });
 
-    describe('hold()', function () {
+    describe('hold()', () => {
 
-        it('undo scheduled next tick in reply interface', function (done) {
+        it('undo scheduled next tick in reply interface', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -483,7 +483,7 @@ describe('Reply', function () {
             });
         });
 
-        it('sends reply after timed handler', function (done) {
+        it('sends reply after timed handler', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -507,9 +507,9 @@ describe('Reply', function () {
         });
     });
 
-    describe('close()', function () {
+    describe('close()', () => {
 
-        it('returns a reply with manual end', function (done) {
+        it('returns a reply with manual end', (done) => {
 
             const handler = function (request, reply) {
 
@@ -528,7 +528,7 @@ describe('Reply', function () {
             });
         });
 
-        it('returns a reply with auto end', function (done) {
+        it('returns a reply with auto end', (done) => {
 
             const handler = function (request, reply) {
 
@@ -547,9 +547,9 @@ describe('Reply', function () {
         });
     });
 
-    describe('continue()', function () {
+    describe('continue()', () => {
 
-        it('sets empty reply on continue in handler', function (done) {
+        it('sets empty reply on continue in handler', (done) => {
 
             const handler = function (request, reply) {
 
@@ -569,7 +569,7 @@ describe('Reply', function () {
             });
         });
 
-        it('sets empty reply on continue in prerequisite', function (done) {
+        it('sets empty reply on continue in prerequisite', (done) => {
 
             const pre1 = function (request, reply) {
 

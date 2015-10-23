@@ -21,9 +21,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('CORS', function () {
+describe('CORS', () => {
 
-    it('returns 404 on OPTIONS when cors disabled', function (done) {
+    it('returns 404 on OPTIONS when cors disabled', (done) => {
 
         const handler = function (request, reply) {
 
@@ -41,7 +41,7 @@ describe('CORS', function () {
         });
     });
 
-    it('returns OPTIONS response', function (done) {
+    it('returns OPTIONS response', (done) => {
 
         const handler = function (request, reply) {
 
@@ -59,7 +59,7 @@ describe('CORS', function () {
         });
     });
 
-    it('returns OPTIONS response (server config)', function (done) {
+    it('returns OPTIONS response (server config)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -77,7 +77,7 @@ describe('CORS', function () {
         });
     });
 
-    it('returns headers on single route', function (done) {
+    it('returns headers on single route', (done) => {
 
         const handler = function (request, reply) {
 
@@ -105,7 +105,7 @@ describe('CORS', function () {
         });
     });
 
-    it('allows headers on multiple routes but not all', function (done) {
+    it('allows headers on multiple routes but not all', (done) => {
 
         const handler = function (request, reply) {
 
@@ -141,7 +141,7 @@ describe('CORS', function () {
         });
     });
 
-    it('allows same headers on multiple routes with same path', function (done) {
+    it('allows same headers on multiple routes with same path', (done) => {
 
         const handler = function (request, reply) {
 
@@ -162,7 +162,7 @@ describe('CORS', function () {
         });
     });
 
-    it('returns headers on single route (overrides defaults)', function (done) {
+    it('returns headers on single route (overrides defaults)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -190,7 +190,7 @@ describe('CORS', function () {
         });
     });
 
-    it('sets access-control-allow-credentials header', function (done) {
+    it('sets access-control-allow-credentials header', (done) => {
 
         const handler = function (request, reply) {
 
@@ -209,9 +209,9 @@ describe('CORS', function () {
         });
     });
 
-    describe('headers()', function () {
+    describe('headers()', () => {
 
-        it('returns CORS origin (route level)', function (done) {
+        it('returns CORS origin (route level)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -237,7 +237,7 @@ describe('CORS', function () {
             });
         });
 
-        it('returns CORS origin (GET)', function (done) {
+        it('returns CORS origin (GET)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -257,7 +257,7 @@ describe('CORS', function () {
             });
         });
 
-        it('returns CORS origin (OPTIONS)', function (done) {
+        it('returns CORS origin (OPTIONS)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -277,7 +277,7 @@ describe('CORS', function () {
             });
         });
 
-        it('merges CORS access-control-expose-headers header', function (done) {
+        it('merges CORS access-control-expose-headers header', (done) => {
 
             const handler = function (request, reply) {
 
@@ -297,7 +297,7 @@ describe('CORS', function () {
             });
         });
 
-        it('returns no CORS headers when route CORS disabled', function (done) {
+        it('returns no CORS headers when route CORS disabled', (done) => {
 
             const handler = function (request, reply) {
 
@@ -317,7 +317,7 @@ describe('CORS', function () {
             });
         });
 
-        it('returns matching CORS origin', function (done) {
+        it('returns matching CORS origin', (done) => {
 
             const handler = function (request, reply) {
 
@@ -338,7 +338,7 @@ describe('CORS', function () {
             });
         });
 
-        it('returns origin header when matching against *', function (done) {
+        it('returns origin header when matching against *', (done) => {
 
             const handler = function (request, reply) {
 
@@ -359,7 +359,7 @@ describe('CORS', function () {
             });
         });
 
-        it('returns matching CORS origin wildcard', function (done) {
+        it('returns matching CORS origin wildcard', (done) => {
 
             const handler = function (request, reply) {
 
@@ -380,7 +380,7 @@ describe('CORS', function () {
             });
         });
 
-        it('returns matching CORS origin wildcard when more than one wildcard', function (done) {
+        it('returns matching CORS origin wildcard when more than one wildcard', (done) => {
 
             const handler = function (request, reply) {
 
@@ -401,7 +401,7 @@ describe('CORS', function () {
             });
         });
 
-        it('does not set empty CORS expose headers', function (done) {
+        it('does not set empty CORS expose headers', (done) => {
 
             const handler = function (request, reply) {
 
@@ -427,9 +427,9 @@ describe('CORS', function () {
         });
     });
 
-    describe('options()', function () {
+    describe('options()', () => {
 
-        it('ignores OPTIONS route', function (done) {
+        it('ignores OPTIONS route', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -444,9 +444,9 @@ describe('CORS', function () {
         });
     });
 
-    describe('handler()', function () {
+    describe('handler()', () => {
 
-        it('errors on missing origin header', function (done) {
+        it('errors on missing origin header', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
@@ -464,7 +464,7 @@ describe('CORS', function () {
             });
         });
 
-        it('errors on missing access-control-request-method header', function (done) {
+        it('errors on missing access-control-request-method header', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
@@ -482,7 +482,7 @@ describe('CORS', function () {
             });
         });
 
-        it('errors on missing route', function (done) {
+        it('errors on missing route', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });
@@ -494,7 +494,7 @@ describe('CORS', function () {
             });
         });
 
-        it('errors on mismatching origin header', function (done) {
+        it('errors on mismatching origin header', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { cors: { origin: ['a'] } } });
@@ -512,7 +512,7 @@ describe('CORS', function () {
             });
         });
 
-        it('matches allowed headers', function (done) {
+        it('matches allowed headers', (done) => {
 
             const handler = function (request, reply) {
 
@@ -539,7 +539,7 @@ describe('CORS', function () {
             });
         });
 
-        it('matches allowed headers (case insensitive', function (done) {
+        it('matches allowed headers (case insensitive', (done) => {
 
             const handler = function (request, reply) {
 
@@ -566,7 +566,7 @@ describe('CORS', function () {
             });
         });
 
-        it('errors on disallowed headers', function (done) {
+        it('errors on disallowed headers', (done) => {
 
             const handler = function (request, reply) {
 
@@ -593,7 +593,7 @@ describe('CORS', function () {
             });
         });
 
-        it('allows credentials', function (done) {
+        it('allows credentials', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { cors: { credentials: true } } });
@@ -612,9 +612,9 @@ describe('CORS', function () {
         });
     });
 
-    describe('headers()', function () {
+    describe('headers()', () => {
 
-        it('skips CORS when missing origin header', function (done) {
+        it('skips CORS when missing origin header', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { cors: true } });

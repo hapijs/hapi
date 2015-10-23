@@ -26,9 +26,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('payload', function () {
+describe('payload', () => {
 
-    it('sets payload', function (done) {
+    it('sets payload', (done) => {
 
         const payload = '{"x":"1","y":"2","z":"3"}';
 
@@ -52,7 +52,7 @@ describe('payload', function () {
         });
     });
 
-    it('handles request socket error', function (done) {
+    it('handles request socket error', (done) => {
 
         const handler = function () {
 
@@ -71,7 +71,7 @@ describe('payload', function () {
         });
     });
 
-    it('handles request socket close', function (done) {
+    it('handles request socket close', (done) => {
 
         const handler = function () {
 
@@ -91,7 +91,7 @@ describe('payload', function () {
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) { });
     });
 
-    it('handles aborted request', function (done) {
+    it('handles aborted request', (done) => {
 
         const handler = function (request, reply) {
 
@@ -142,7 +142,7 @@ describe('payload', function () {
         });
     });
 
-    it('errors when payload too big', function (done) {
+    it('errors when payload too big', (done) => {
 
         const payload = '{"x":"1","y":"2","z":"3"}';
 
@@ -165,7 +165,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 400 with response when payload is not consumed', function (done) {
+    it('returns 400 with response when payload is not consumed', (done) => {
 
         const payload = new Buffer(10 * 1024 * 1024).toString();
 
@@ -195,7 +195,7 @@ describe('payload', function () {
         });
     });
 
-    it('peeks at unparsed data', function (done) {
+    it('peeks at unparsed data', (done) => {
 
         let data = null;
         const ext = function (request, reply) {
@@ -206,7 +206,7 @@ describe('payload', function () {
                 chunks.push(chunk);
             });
 
-            request.once('finish', function () {
+            request.once('finish', () => {
 
                 data = Buffer.concat(chunks);
             });
@@ -232,7 +232,7 @@ describe('payload', function () {
         });
     });
 
-    it('handles gzipped payload', function (done) {
+    it('handles gzipped payload', (done) => {
 
         const handler = function (request, reply) {
 
@@ -266,7 +266,7 @@ describe('payload', function () {
         });
     });
 
-    it('saves a file after content decoding', function (done) {
+    it('saves a file after content decoding', (done) => {
 
         const path = Path.join(__dirname, './file/image.jpg');
         const sourceContents = Fs.readFileSync(path);
@@ -293,7 +293,7 @@ describe('payload', function () {
         });
     });
 
-    it('errors saving a file without parse', function (done) {
+    it('errors saving a file without parse', (done) => {
 
         const handler = function (request, reply) { };
 
@@ -307,7 +307,7 @@ describe('payload', function () {
         });
     });
 
-    it('sets parse mode when route methos is * and request is POST', function (done) {
+    it('sets parse mode when route methos is * and request is POST', (done) => {
 
         const handler = function (request, reply) {
 
@@ -326,7 +326,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns an error on unsupported mime type', function (done) {
+    it('returns an error on unsupported mime type', (done) => {
 
         const handler = function (request, reply) {
 
@@ -362,7 +362,7 @@ describe('payload', function () {
         });
     });
 
-    it('ignores unsupported mime type', function (done) {
+    it('ignores unsupported mime type', (done) => {
 
         const handler = function (request, reply) {
 
@@ -381,7 +381,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 200 on octet mime type', function (done) {
+    it('returns 200 on octet mime type', (done) => {
 
         const handler = function (request, reply) {
 
@@ -400,7 +400,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 200 on text mime type', function (done) {
+    it('returns 200 on text mime type', (done) => {
 
         const textHandler = function (request, reply) {
 
@@ -419,7 +419,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 200 on override mime type', function (done) {
+    it('returns 200 on override mime type', (done) => {
 
         const handler = function (request, reply) {
 
@@ -438,7 +438,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 200 on text mime type when allowed', function (done) {
+    it('returns 200 on text mime type when allowed', (done) => {
 
         const textHandler = function (request, reply) {
 
@@ -457,7 +457,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 415 on non text mime type when disallowed', function (done) {
+    it('returns 415 on non text mime type when disallowed', (done) => {
 
         const textHandler = function (request, reply) {
 
@@ -475,7 +475,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 200 on text mime type when allowed (array)', function (done) {
+    it('returns 200 on text mime type when allowed (array)', (done) => {
 
         const textHandler = function (request, reply) {
 
@@ -494,7 +494,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns 415 on non text mime type when disallowed (array)', function (done) {
+    it('returns 415 on non text mime type when disallowed (array)', (done) => {
 
         const textHandler = function (request, reply) {
 
@@ -512,7 +512,7 @@ describe('payload', function () {
         });
     });
 
-    it('parses application/x-www-form-urlencoded with arrays', function (done) {
+    it('parses application/x-www-form-urlencoded with arrays', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -534,7 +534,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns parsed multipart data', function (done) {
+    it('returns parsed multipart data', (done) => {
 
         const multipartPayload =
                 '--AaB03x\r\n' +
@@ -592,7 +592,7 @@ describe('payload', function () {
         });
     });
 
-    it('times out when client request taking too long', function (done) {
+    it('times out when client request taking too long', (done) => {
 
         const handler = function (request, reply) {
 
@@ -631,7 +631,7 @@ describe('payload', function () {
         });
     });
 
-    it('times out when client request taking too long (route override)', function (done) {
+    it('times out when client request taking too long (route override)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -670,7 +670,7 @@ describe('payload', function () {
         });
     });
 
-    it('returns payload when timeout is not triggered', function (done) {
+    it('returns payload when timeout is not triggered', (done) => {
 
         const handler = function (request, reply) {
 

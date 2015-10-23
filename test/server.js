@@ -21,9 +21,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Server', function () {
+describe('Server', () => {
 
-    it('sets connections defaults', function (done) {
+    it('sets connections defaults', (done) => {
 
         const server = new Hapi.Server({ connections: { app: { message: 'test defaults' } } });
         server.connection();
@@ -31,7 +31,7 @@ describe('Server', function () {
         done();
     });
 
-    it('overrides mime settings', function (done) {
+    it('overrides mime settings', (done) => {
 
         const options = {
             mime: {
@@ -52,9 +52,9 @@ describe('Server', function () {
         done();
     });
 
-    describe('start()', function () {
+    describe('start()', () => {
 
-        it('starts and stops', function (done) {
+        it('starts and stops', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ labels: ['s1', 'a', 'b'] });
@@ -65,12 +65,12 @@ describe('Server', function () {
             let started = 0;
             let stopped = 0;
 
-            server.on('start', function () {
+            server.on('start', () => {
 
                 ++started;
             });
 
-            server.on('stop', function () {
+            server.on('stop', () => {
 
                 ++stopped;
             });
@@ -98,7 +98,7 @@ describe('Server', function () {
             });
         });
 
-        it('initializes, starts, and stops', function (done) {
+        it('initializes, starts, and stops', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ labels: ['s1', 'a', 'b'] });
@@ -109,12 +109,12 @@ describe('Server', function () {
             let started = 0;
             let stopped = 0;
 
-            server.on('start', function () {
+            server.on('start', () => {
 
                 ++started;
             });
 
-            server.on('stop', function () {
+            server.on('stop', () => {
 
                 ++stopped;
             });
@@ -147,7 +147,7 @@ describe('Server', function () {
             });
         });
 
-        it('returns connection start error', function (done) {
+        it('returns connection start error', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -172,7 +172,7 @@ describe('Server', function () {
             });
         });
 
-        it('returns onPostStart error', function (done) {
+        it('returns onPostStart error', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -190,7 +190,7 @@ describe('Server', function () {
             });
         });
 
-        it('errors on bad cache start', function (done) {
+        it('errors on bad cache start', (done) => {
 
             const cache = {
                 engine: {
@@ -211,7 +211,7 @@ describe('Server', function () {
             });
         });
 
-        it('fails to start server without connections', function (done) {
+        it('fails to start server without connections', (done) => {
 
             const server = new Hapi.Server();
             server.start(function (err) {
@@ -222,7 +222,7 @@ describe('Server', function () {
             });
         });
 
-        it('fails to start server when registration incomplete', function (done) {
+        it('fails to start server when registration incomplete', (done) => {
 
             const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
@@ -238,7 +238,7 @@ describe('Server', function () {
             });
         });
 
-        it('fails to start when no callback is passed', function (done) {
+        it('fails to start when no callback is passed', (done) => {
 
             const server = new Hapi.Server();
 
@@ -249,7 +249,7 @@ describe('Server', function () {
             done();
         });
 
-        it('fails to initialize server when not stopped', function (done) {
+        it('fails to initialize server when not stopped', (done) => {
 
             const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
@@ -267,7 +267,7 @@ describe('Server', function () {
             });
         });
 
-        it('fails to start server when starting', function (done) {
+        it('fails to start server when starting', (done) => {
 
             const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
@@ -284,9 +284,9 @@ describe('Server', function () {
         });
     });
 
-    describe('stop()', function () {
+    describe('stop()', () => {
 
-        it('stops the cache', function (done) {
+        it('stops the cache', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -314,7 +314,7 @@ describe('Server', function () {
             });
         });
 
-        it('returns an extension error (onPreStop)', function (done) {
+        it('returns an extension error (onPreStop)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -334,7 +334,7 @@ describe('Server', function () {
             });
         });
 
-        it('returns an extension error (onPostStop)', function (done) {
+        it('returns an extension error (onPostStop)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -354,7 +354,7 @@ describe('Server', function () {
             });
         });
 
-        it('returns a connection stop error', function (done) {
+        it('returns a connection stop error', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -374,7 +374,7 @@ describe('Server', function () {
             });
         });
 
-        it('errors when stopping a stopping server', function (done) {
+        it('errors when stopping a stopping server', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -389,9 +389,9 @@ describe('Server', function () {
         });
     });
 
-    describe('connection()', function () {
+    describe('connection()', () => {
 
-        it('returns a server with only the selected connection', function (done) {
+        it('returns a server with only the selected connection', (done) => {
 
             const server = new Hapi.Server();
             const p1 = server.connection({ port: 1 });
@@ -405,7 +405,7 @@ describe('Server', function () {
             done();
         });
 
-        it('throws on invalid config', function (done) {
+        it('throws on invalid config', (done) => {
 
             const server = new Hapi.Server();
             expect(function () {
@@ -415,7 +415,7 @@ describe('Server', function () {
             done();
         });
 
-        it('combines configuration from server and connection (cors)', function (done) {
+        it('combines configuration from server and connection (cors)', (done) => {
 
             const server = new Hapi.Server({ connections: { routes: { cors: true } } });
             server.connection({ routes: { cors: { origin: ['example.com'] } } });
@@ -423,7 +423,7 @@ describe('Server', function () {
             done();
         });
 
-        it('combines configuration from server and connection (security)', function (done) {
+        it('combines configuration from server and connection (security)', (done) => {
 
             const server = new Hapi.Server({ connections: { routes: { security: { hsts: 1, xss: false } } } });
             server.connection({ routes: { security: { hsts: 2 } } });
@@ -433,7 +433,7 @@ describe('Server', function () {
             done();
         });
 
-        it('decorates and clears single connection shortcuts', function (done) {
+        it('decorates and clears single connection shortcuts', (done) => {
 
             const server = new Hapi.Server();
             expect(server.info).to.not.exist();
@@ -446,9 +446,9 @@ describe('Server', function () {
         });
     });
 
-    describe('load', { parallel: false }, function () {
+    describe('load', { parallel: false }, () => {
 
-        it('measures loop delay', function (done) {
+        it('measures loop delay', (done) => {
 
             const server = new Hapi.Server({ load: { sampleInterval: 4 } });
             server.connection();

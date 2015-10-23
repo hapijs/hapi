@@ -23,9 +23,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Route', function () {
+describe('Route', () => {
 
-    it('throws an error when a route is missing a path', function (done) {
+    it('throws an error when a route is missing a path', (done) => {
 
         expect(function () {
 
@@ -36,7 +36,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws an error when a route is made without a connection', function (done) {
+    it('throws an error when a route is made without a connection', (done) => {
 
         expect(function () {
 
@@ -46,7 +46,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws an error when a route is missing a method', function (done) {
+    it('throws an error when a route is missing a method', (done) => {
 
         expect(function () {
 
@@ -57,7 +57,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws an error when a route has a malformed method name', function (done) {
+    it('throws an error when a route has a malformed method name', (done) => {
 
         expect(function () {
 
@@ -68,7 +68,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws an error when a route uses the HEAD method', function (done) {
+    it('throws an error when a route uses the HEAD method', (done) => {
 
         expect(function () {
 
@@ -79,7 +79,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws an error when a route is missing a handler', function (done) {
+    it('throws an error when a route is missing a handler', (done) => {
 
         expect(function () {
 
@@ -90,7 +90,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws when handler is missing in config', function (done) {
+    it('throws when handler is missing in config', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -101,7 +101,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws when path has trailing slash and server set to strip', function (done) {
+    it('throws when path has trailing slash and server set to strip', (done) => {
 
         const server = new Hapi.Server();
         server.connection({ router: { stripTrailingSlash: true } });
@@ -112,7 +112,7 @@ describe('Route', function () {
         done();
     });
 
-    it('allows / when path has trailing slash and server set to strip', function (done) {
+    it('allows / when path has trailing slash and server set to strip', (done) => {
 
         const server = new Hapi.Server();
         server.connection({ router: { stripTrailingSlash: true } });
@@ -123,7 +123,7 @@ describe('Route', function () {
         done();
     });
 
-    it('sets route plugins and app settings', function (done) {
+    it('sets route plugins and app settings', (done) => {
 
         const handler = function (request, reply) {
 
@@ -140,7 +140,7 @@ describe('Route', function () {
         });
     });
 
-    it('throws when validation is set without payload parsing', function (done) {
+    it('throws when validation is set without payload parsing', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -151,7 +151,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws when validation is set on GET', function (done) {
+    it('throws when validation is set on GET', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -162,7 +162,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws when payload parsing is set on GET', function (done) {
+    it('throws when payload parsing is set on GET', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -173,7 +173,7 @@ describe('Route', function () {
         done();
     });
 
-    it('ignores validation on * route when request is GET', function (done) {
+    it('ignores validation on * route when request is GET', (done) => {
 
         const handler = function (request, reply) {
 
@@ -190,7 +190,7 @@ describe('Route', function () {
         });
     });
 
-    it('ignores default validation on GET', function (done) {
+    it('ignores default validation on GET', (done) => {
 
         const handler = function (request, reply) {
 
@@ -207,7 +207,7 @@ describe('Route', function () {
         });
     });
 
-    it('shallow copies route config bind', function (done) {
+    it('shallow copies route config bind', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -237,7 +237,7 @@ describe('Route', function () {
         });
     });
 
-    it('shallow copies route config bind (server.bind())', function (done) {
+    it('shallow copies route config bind (server.bind())', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -268,7 +268,7 @@ describe('Route', function () {
         });
     });
 
-    it('shallow copies route config bind (connection defaults)', function (done) {
+    it('shallow copies route config bind (connection defaults)', (done) => {
 
         const server = new Hapi.Server();
         const context = { key: 'is ' };
@@ -298,7 +298,7 @@ describe('Route', function () {
         });
     });
 
-    it('shallow copies route config bind (server defaults)', function (done) {
+    it('shallow copies route config bind (server defaults)', (done) => {
 
         const context = { key: 'is ' };
 
@@ -328,7 +328,7 @@ describe('Route', function () {
         });
     });
 
-    it('overrides server relativeTo', function (done) {
+    it('overrides server relativeTo', (done) => {
 
         const server = new Hapi.Server();
         server.register(Inert, Hoek.ignore);
@@ -347,7 +347,7 @@ describe('Route', function () {
         });
     });
 
-    it('throws when server timeout is more then socket timeout', function (done) {
+    it('throws when server timeout is more then socket timeout', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
@@ -357,7 +357,7 @@ describe('Route', function () {
         done();
     });
 
-    it('throws when server timeout is more then socket timeout (node default)', function (done) {
+    it('throws when server timeout is more then socket timeout (node default)', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
@@ -367,7 +367,7 @@ describe('Route', function () {
         done();
     });
 
-    it('ignores large server timeout when socket timeout disabled', function (done) {
+    it('ignores large server timeout when socket timeout disabled', (done) => {
 
         const server = new Hapi.Server();
         expect(function () {
@@ -377,7 +377,7 @@ describe('Route', function () {
         done();
     });
 
-    it('overrides qs settings', function (done) {
+    it('overrides qs settings', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -404,9 +404,9 @@ describe('Route', function () {
         });
     });
 
-    describe('extensions', function () {
+    describe('extensions', () => {
 
-        it('combine connection extensions (route last)', function (done) {
+        it('combine connection extensions (route last)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -462,7 +462,7 @@ describe('Route', function () {
             });
         });
 
-        it('combine connection extensions (route first)', function (done) {
+        it('combine connection extensions (route first)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -519,7 +519,7 @@ describe('Route', function () {
             });
         });
 
-        it('combine connection extensions (route middle)', function (done) {
+        it('combine connection extensions (route middle)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -575,7 +575,7 @@ describe('Route', function () {
             });
         });
 
-        it('combine connection extensions (mixed sources)', function (done) {
+        it('combine connection extensions (mixed sources)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();

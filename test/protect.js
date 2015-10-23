@@ -23,9 +23,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Protect', function () {
+describe('Protect', () => {
 
-    it('does not handle errors when useDomains is false', function (done) {
+    it('does not handle errors when useDomains is false', (done) => {
 
         const server = new Hapi.Server({ useDomains: false, debug: false });
         server.connection();
@@ -52,7 +52,7 @@ describe('Protect', function () {
         });
     });
 
-    it('catches error when handler throws after reply() is called', function (done) {
+    it('catches error when handler throws after reply() is called', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -74,7 +74,7 @@ describe('Protect', function () {
         });
     });
 
-    it('catches error when handler throws twice after reply() is called', function (done) {
+    it('catches error when handler throws twice after reply() is called', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -102,7 +102,7 @@ describe('Protect', function () {
         });
     });
 
-    it('catches errors thrown during request handling in non-request domain', function (done) {
+    it('catches errors thrown during request handling in non-request domain', (done) => {
 
         const Client = function () {
 
@@ -158,7 +158,7 @@ describe('Protect', function () {
         });
     });
 
-    it('logs to console after request completed', function (done) {
+    it('logs to console after request completed', (done) => {
 
         const handler = function (request, reply) {
 

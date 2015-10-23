@@ -24,9 +24,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('validation', function () {
+describe('validation', () => {
 
-    it('validates valid input', function (done) {
+    it('validates valid input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -53,7 +53,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates both params and query', function (done) {
+    it('validates both params and query', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -84,7 +84,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates valid input using context', function (done) {
+    it('validates valid input using context', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -126,7 +126,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates valid input using auth context', function (done) {
+    it('validates valid input using auth context', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -186,7 +186,7 @@ describe('validation', function () {
         });
     });
 
-    it('fails valid input', function (done) {
+    it('fails valid input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -213,7 +213,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates valid input with validation options', function (done) {
+    it('validates valid input with validation options', (done) => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { validate: { options: { convert: false } } } });
@@ -240,7 +240,7 @@ describe('validation', function () {
         });
     });
 
-    it('allows any input when set to null', function (done) {
+    it('allows any input when set to null', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -265,7 +265,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates using custom validation', function (done) {
+    it('validates using custom validation', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -299,7 +299,7 @@ describe('validation', function () {
         });
     });
 
-    it('catches error thrown in custom validation', function (done) {
+    it('catches error thrown in custom validation', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -327,7 +327,7 @@ describe('validation', function () {
         });
     });
 
-    it('casts input to desired type', function (done) {
+    it('casts input to desired type', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -355,7 +355,7 @@ describe('validation', function () {
         });
     });
 
-    it('uses original value before schema conversion', function (done) {
+    it('uses original value before schema conversion', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -383,7 +383,7 @@ describe('validation', function () {
         });
     });
 
-    it('invalidates forbidden input', function (done) {
+    it('invalidates forbidden input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -408,7 +408,7 @@ describe('validation', function () {
         });
     });
 
-    it('retains the validation error', function (done) {
+    it('retains the validation error', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -439,7 +439,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates valid input (Object root)', function (done) {
+    it('validates valid input (Object root)', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -466,7 +466,7 @@ describe('validation', function () {
         });
     });
 
-    it('fails on invalid input', function (done) {
+    it('fails on invalid input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -498,7 +498,7 @@ describe('validation', function () {
         });
     });
 
-    it('ignores invalid input', function (done) {
+    it('ignores invalid input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -526,7 +526,7 @@ describe('validation', function () {
         });
     });
 
-    it('logs invalid input', function (done) {
+    it('logs invalid input', (done) => {
 
         const handler = function (request, reply) {
 
@@ -558,7 +558,7 @@ describe('validation', function () {
         });
     });
 
-    it('replaces error with message on invalid input', function (done) {
+    it('replaces error with message on invalid input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -590,7 +590,7 @@ describe('validation', function () {
         });
     });
 
-    it('catches error thrown in failAction', function (done) {
+    it('catches error thrown in failAction', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -621,7 +621,7 @@ describe('validation', function () {
         });
     });
 
-    it('customizes error on invalid input', function (done) {
+    it('customizes error on invalid input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -662,7 +662,7 @@ describe('validation', function () {
         });
     });
 
-    it('fails on invalid payload', function (done) {
+    it('fails on invalid payload', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -694,7 +694,7 @@ describe('validation', function () {
         });
     });
 
-    it('fails on text input', function (done) {
+    it('fails on text input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -721,7 +721,7 @@ describe('validation', function () {
         });
     });
 
-    it('fails on null input', function (done) {
+    it('fails on null input', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -749,7 +749,7 @@ describe('validation', function () {
         });
     });
 
-    it('fails on no payload', function (done) {
+    it('fails on no payload', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -781,7 +781,7 @@ describe('validation', function () {
         });
     });
 
-    it('samples responses', function (done) {
+    it('samples responses', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -820,7 +820,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates response', function (done) {
+    it('validates response', (done) => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -856,7 +856,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates response with context', function (done) {
+    it('validates response with context', (done) => {
 
         const handler = function (request, reply) {
 
@@ -892,7 +892,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates error response', function (done) {
+    it('validates error response', (done) => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -933,7 +933,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates error response and ignore 200', function (done) {
+    it('validates error response and ignore 200', (done) => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -984,7 +984,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates and modifies response', function (done) {
+    it('validates and modifies response', (done) => {
 
         const handler = function (request, reply) {
 
@@ -1015,7 +1015,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates and modifies error response', function (done) {
+    it('validates and modifies error response', (done) => {
 
         const handler = function (request, reply) {
 
@@ -1053,7 +1053,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates empty response', function (done) {
+    it('validates empty response', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -1080,7 +1080,7 @@ describe('validation', function () {
         });
     });
 
-    it('throws on sample with response modify', function (done) {
+    it('throws on sample with response modify', (done) => {
 
         const handler = function (request, reply) {
 
@@ -1109,7 +1109,7 @@ describe('validation', function () {
         done();
     });
 
-    it('validates response using custom validation function', function (done) {
+    it('validates response using custom validation function', (done) => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -1146,7 +1146,7 @@ describe('validation', function () {
         });
     });
 
-    it('catches error thrown by custom validation function', function (done) {
+    it('catches error thrown by custom validation function', (done) => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -1177,7 +1177,7 @@ describe('validation', function () {
         });
     });
 
-    it('skips response validation when sample is zero', function (done) {
+    it('skips response validation when sample is zero', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -1216,7 +1216,7 @@ describe('validation', function () {
         });
     });
 
-    it('does not delete the response object from the route when sample is 0', function (done) {
+    it('does not delete the response object from the route when sample is 0', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -1246,7 +1246,7 @@ describe('validation', function () {
         });
     });
 
-    it('fails response validation with options', function (done) {
+    it('fails response validation with options', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection({ routes: { response: { options: { convert: false } } } });
@@ -1273,7 +1273,7 @@ describe('validation', function () {
         });
     });
 
-    it('skips response validation when schema is true', function (done) {
+    it('skips response validation when schema is true', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -1298,7 +1298,7 @@ describe('validation', function () {
         });
     });
 
-    it('skips response validation when status is empty', function (done) {
+    it('skips response validation when status is empty', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -1323,7 +1323,7 @@ describe('validation', function () {
         });
     });
 
-    it('forbids response when schema is false', function (done) {
+    it('forbids response when schema is false', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -1348,7 +1348,7 @@ describe('validation', function () {
         });
     });
 
-    it('ignores error responses', function (done) {
+    it('ignores error responses', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -1375,7 +1375,7 @@ describe('validation', function () {
         });
     });
 
-    it('errors on non-plain-object responses', function (done) {
+    it('errors on non-plain-object responses', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.register(Inert, Hoek.ignore);
@@ -1403,7 +1403,7 @@ describe('validation', function () {
         });
     });
 
-    it('logs invalid responses', function (done) {
+    it('logs invalid responses', (done) => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
@@ -1438,7 +1438,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates string response', function (done) {
+    it('validates string response', (done) => {
 
         let value = 'abcd';
         const handler = function (request, reply) {
@@ -1473,7 +1473,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates boolean response', function (done) {
+    it('validates boolean response', (done) => {
 
         let value = 'abcd';
         const handler = function (request, reply) {
@@ -1509,7 +1509,7 @@ describe('validation', function () {
         });
     });
 
-    it('validates valid header', function (done) {
+    it('validates valid header', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -1546,7 +1546,7 @@ describe('validation', function () {
         });
     });
 
-    it('rejects invalid header', function (done) {
+    it('rejects invalid header', (done) => {
 
         const server = new Hapi.Server();
         server.connection();

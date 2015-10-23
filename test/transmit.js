@@ -31,11 +31,11 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('transmission', function () {
+describe('transmission', () => {
 
-    describe('marshal()', function () {
+    describe('marshal()', () => {
 
-        it('returns valid http date responses in last-modified header', function (done) {
+        it('returns valid http date responses in last-modified header', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -50,7 +50,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns 200 if if-modified-since is invalid', function (done) {
+        it('returns 200 if if-modified-since is invalid', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -64,7 +64,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns 200 if last-modified is invalid', function (done) {
+        it('returns 200 if last-modified is invalid', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -82,7 +82,7 @@ describe('transmission', function () {
             });
         });
 
-        it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, function (done) {
+        it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -101,7 +101,7 @@ describe('transmission', function () {
                         lsof += buffer.toString();
                     });
 
-                    cmd.stdout.on('end', function () {
+                    cmd.stdout.on('end', () => {
 
                         let count = 0;
                         const lines = lsof.split('\n');
@@ -118,7 +118,7 @@ describe('transmission', function () {
             });
         });
 
-        it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, function (done) {
+        it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -142,7 +142,7 @@ describe('transmission', function () {
                         lsof += buffer.toString();
                     });
 
-                    cmd.stdout.on('end', function () {
+                    cmd.stdout.on('end', () => {
 
                         let count = 0;
                         const lines = lsof.split('\n');
@@ -159,7 +159,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', function (done) {
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -180,7 +180,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', function (done) {
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -200,7 +200,7 @@ describe('transmission', function () {
             });
         });
 
-        it('matches etag with content-encoding', function (done) {
+        it('matches etag with content-encoding', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -276,7 +276,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns 304 when manually set to 304', function (done) {
+        it('returns 304 when manually set to 304', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -295,7 +295,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a stream reply with custom response headers', function (done) {
+        it('returns a stream reply with custom response headers', (done) => {
 
             const handler = function (request, reply) {
 
@@ -333,7 +333,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a stream reply with custom response status code', function (done) {
+        it('returns a stream reply with custom response status code', (done) => {
 
             const handler = function (request, reply) {
 
@@ -370,7 +370,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an JSONP response', function (done) {
+        it('returns an JSONP response', (done) => {
 
             const handler = function (request, reply) {
 
@@ -390,7 +390,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an JSONP response (no charset)', function (done) {
+        it('returns an JSONP response (no charset)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -410,7 +410,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a X-Content-Type-Options: nosniff header on JSONP responses', function (done) {
+        it('returns a X-Content-Type-Options: nosniff header on JSONP responses', (done) => {
 
             const handler = function (request, reply) {
 
@@ -429,7 +429,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a normal response when JSONP enabled but not requested', function (done) {
+        it('returns a normal response when JSONP enabled but not requested', (done) => {
 
             const handler = function (request, reply) {
 
@@ -447,7 +447,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an JSONP response with compression', function (done) {
+        it('returns an JSONP response with compression', (done) => {
 
             const handler = function (request, reply) {
 
@@ -480,7 +480,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an JSONP response when response is a buffer', function (done) {
+        it('returns an JSONP response when response is a buffer', (done) => {
 
             const handler = function (request, reply) {
 
@@ -499,7 +499,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns response on bad JSONP parameter', function (done) {
+        it('returns response on bad JSONP parameter', (done) => {
 
             const handler = function (request, reply) {
 
@@ -518,7 +518,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an JSONP handler error', function (done) {
+        it('returns an JSONP handler error', (done) => {
 
             const handler = function (request, reply) {
 
@@ -537,7 +537,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an JSONP state error', function (done) {
+        it('returns an JSONP state error', (done) => {
 
             const handler = function (request, reply) {
 
@@ -564,7 +564,7 @@ describe('transmission', function () {
             });
         });
 
-        it('sets caching headers', function (done) {
+        it('sets caching headers', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -580,9 +580,9 @@ describe('transmission', function () {
         });
     });
 
-    describe('transmit()', function () {
+    describe('transmit()', () => {
 
-        it('sends empty payload on 204', function (done) {
+        it('sends empty payload on 204', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -601,7 +601,7 @@ describe('transmission', function () {
             });
         });
 
-        it('sends 204 on empty payload', function (done) {
+        it('sends 204 on empty payload', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { response: { emptyStatusCode: 204 } } });
@@ -620,7 +620,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not send 204 for chunked transfer payloads', function (done) {
+        it('does not send 204 for chunked transfer payloads', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { response: { emptyStatusCode: 204 } } });
@@ -653,7 +653,7 @@ describe('transmission', function () {
             });
         });
 
-        it('skips compression on empty', function (done) {
+        it('skips compression on empty', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -673,7 +673,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not skip compression for chunked transfer payloads', function (done) {
+        it('does not skip compression for chunked transfer payloads', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -706,7 +706,7 @@ describe('transmission', function () {
             });
         });
 
-        it('sets vary header when accept-encoding is present but does not match', function (done) {
+        it('sets vary header when accept-encoding is present but does not match', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -725,7 +725,7 @@ describe('transmission', function () {
             });
         });
 
-        it('handles stream errors on the response after the response has been piped', function (done) {
+        it('handles stream errors on the response after the response has been piped', (done) => {
 
             const handler = function (request, reply) {
 
@@ -768,7 +768,7 @@ describe('transmission', function () {
             });
         });
 
-        it('matches etag header list value', function (done) {
+        it('matches etag header list value', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -791,7 +791,7 @@ describe('transmission', function () {
             });
         });
 
-        it('changes etag when content encoding is used', function (done) {
+        it('changes etag when content encoding is used', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -819,7 +819,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzipped file in the response when the request accepts gzip', function (done) {
+        it('returns a gzipped file in the response when the request accepts gzip', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -841,7 +841,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a plain file when not compressible', function (done) {
+        it('returns a plain file when not compressible', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -863,7 +863,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a plain file when compression disabled', function (done) {
+        it('returns a plain file when compression disabled', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -884,7 +884,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a deflated file in the response when the request accepts deflate', function (done) {
+        it('returns a deflated file in the response when the request accepts deflate', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -906,7 +906,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', function (done) {
+        it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', (done) => {
 
             const streamHandler = function (request, reply) {
 
@@ -925,7 +925,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', function (done) {
+        it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', (done) => {
 
             const streamHandler = function (request, reply) {
 
@@ -944,7 +944,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a post request when accept-encoding: gzip is requested', function (done) {
+        it('returns a gzip response on a post request when accept-encoding: gzip is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -975,7 +975,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a get request when accept-encoding: gzip is requested', function (done) {
+        it('returns a gzip response on a get request when accept-encoding: gzip is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1006,7 +1006,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a post request when accept-encoding: * is requested', function (done) {
+        it('returns a gzip response on a post request when accept-encoding: * is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1034,7 +1034,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a get request when accept-encoding: * is requested', function (done) {
+        it('returns a gzip response on a get request when accept-encoding: * is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1062,7 +1062,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a deflate response on a post request when accept-encoding: deflate is requested', function (done) {
+        it('returns a deflate response on a post request when accept-encoding: deflate is requested', (done) => {
 
             const data = '{"test":"true"}';
             const server = new Hapi.Server();
@@ -1092,7 +1092,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a deflate response on a get request when accept-encoding: deflate is requested', function (done) {
+        it('returns a deflate response on a get request when accept-encoding: deflate is requested', (done) => {
 
             const data = '{"test":"true"}';
             const server = new Hapi.Server();
@@ -1122,7 +1122,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
+        it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1153,7 +1153,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', function (done) {
+        it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1184,7 +1184,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
+        it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1215,7 +1215,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', function (done) {
+        it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1246,7 +1246,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', function (done) {
+        it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1277,7 +1277,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', function (done) {
+        it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1308,7 +1308,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an identity response on a post request when accept-encoding is missing', function (done) {
+        it('returns an identity response on a post request when accept-encoding is missing', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1336,7 +1336,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns an identity response on a get request when accept-encoding is missing', function (done) {
+        it('returns an identity response on a get request when accept-encoding is missing', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1366,7 +1366,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns a gzip response when forced by the handler', function (done) {
+        it('returns a gzip response when forced by the handler', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -1398,7 +1398,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not open file stream on 304', function (done) {
+        it('does not open file stream on 304', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -1425,7 +1425,7 @@ describe('transmission', function () {
             });
         });
 
-        it('object listeners are maintained after transmission is complete', function (done) {
+        it('object listeners are maintained after transmission is complete', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1440,7 +1440,7 @@ describe('transmission', function () {
             server.ext('onPreResponse', function (request, reply) {
 
                 response = request.response;
-                response.once('special', function () {
+                response.once('special', () => {
 
                     done();
                 });
@@ -1454,7 +1454,7 @@ describe('transmission', function () {
             });
         });
 
-        it('stops processing the stream when the request closes', function (done) {
+        it('stops processing the stream when the request closes', (done) => {
 
             const ErrStream = function (request) {
 
@@ -1500,7 +1500,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not truncate the response when stream finishes before response is done', function (done) {
+        it('does not truncate the response when stream finishes before response is done', (done) => {
 
             const chunkTimes = 10;
             const filePath = __dirname + '/response.js';
@@ -1545,7 +1545,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not truncate the response when stream finishes before response is done using https', function (done) {
+        it('does not truncate the response when stream finishes before response is done using https', (done) => {
 
             const chunkTimes = 10;
             const filePath = __dirname + '/response.js';
@@ -1597,7 +1597,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not leak stream data when request aborts before stream drains', function (done) {
+        it('does not leak stream data when request aborts before stream drains', (done) => {
 
             let destroyed = false;
 
@@ -1624,7 +1624,7 @@ describe('transmission', function () {
                     }
                 };
 
-                stream.once('end', function () {
+                stream.once('end', () => {
 
                     server.stop(done);
                 });
@@ -1653,7 +1653,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not leak classic stream data when passed to request and aborted', function (done) {
+        it('does not leak classic stream data when passed to request and aborted', (done) => {
 
             let destroyed = false;
 
@@ -1698,7 +1698,7 @@ describe('transmission', function () {
 
                 stream.resume();
 
-                stream.once('end', function () {
+                stream.once('end', () => {
 
                     server.stop(done);
                 });
@@ -1727,7 +1727,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not leak stream data when request timeouts before stream drains', function (done) {
+        it('does not leak stream data when request timeouts before stream drains', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1746,7 +1746,7 @@ describe('transmission', function () {
                     }, 10 * (count++));       // Must have back off here to hit the socket timeout
                 };
 
-                stream.once('end', function () {
+                stream.once('end', () => {
 
                     server.stop(done);
                 });
@@ -1770,7 +1770,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not leak stream data when request aborts before stream is returned', function (done) {
+        it('does not leak stream data when request aborts before stream is returned', (done) => {
 
             let clientRequest;
 
@@ -1800,7 +1800,7 @@ describe('transmission', function () {
                     }
                 };
 
-                stream.once('end', function () {
+                stream.once('end', () => {
 
                     server.stop(done);
                 });
@@ -1824,12 +1824,12 @@ describe('transmission', function () {
                     port: server.info.port,
                     method: 'GET'
                 });
-                clientRequest.on('error', function () { /* NOP */ });
+                clientRequest.on('error', () => { /* NOP */ });
                 clientRequest.end();
             });
         });
 
-        it('changes etag when content-encoding set manually', function (done) {
+        it('changes etag when content-encoding set manually', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1849,7 +1849,7 @@ describe('transmission', function () {
             });
         });
 
-        it('head request retains content-length header', function (done) {
+        it('head request retains content-length header', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1868,7 +1868,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not set accept-encoding multiple times', function (done) {
+        it('does not set accept-encoding multiple times', (done) => {
 
             const headersHandler = function (request, reply) {
 
@@ -1907,7 +1907,7 @@ describe('transmission', function () {
             });
         });
 
-        describe('response range', function () {
+        describe('response range', () => {
 
             const fileStreamHandler = function (request, reply) {
 
@@ -1915,7 +1915,7 @@ describe('transmission', function () {
                 return reply(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size);
             };
 
-            it('returns a subset of a fileStream (start)', function (done) {
+            it('returns a subset of a fileStream (start)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1932,7 +1932,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a fileStream (middle)', function (done) {
+            it('returns a subset of a fileStream (middle)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1949,7 +1949,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a fileStream (-to)', function (done) {
+            it('returns a subset of a fileStream (-to)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1966,7 +1966,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a fileStream (from-)', function (done) {
+            it('returns a subset of a fileStream (from-)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1983,7 +1983,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a fileStream (beyond end)', function (done) {
+            it('returns a subset of a fileStream (beyond end)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2000,7 +2000,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a fileStream (if-range)', function (done) {
+            it('returns a subset of a fileStream (if-range)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2023,7 +2023,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns 200 on incorrect if-range', function (done) {
+            it('returns 200 on incorrect if-range', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2036,7 +2036,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns 416 on invalid range (unit)', function (done) {
+            it('returns 416 on invalid range (unit)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2050,7 +2050,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns 416 on invalid range (inversed)', function (done) {
+            it('returns 416 on invalid range (inversed)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2064,7 +2064,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns 416 on invalid range (format)', function (done) {
+            it('returns 416 on invalid range (format)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2078,7 +2078,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns 416 on invalid range (empty range)', function (done) {
+            it('returns 416 on invalid range (empty range)', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2092,7 +2092,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns 200 on multiple ranges', function (done) {
+            it('returns 200 on multiple ranges', (done) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -2106,7 +2106,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a subset of a stream', function (done) {
+            it('returns a subset of a stream', (done) => {
 
                 const TestStream = function () {
 
@@ -2157,7 +2157,7 @@ describe('transmission', function () {
                 });
             });
 
-            it('returns a consolidated range', function (done) {
+            it('returns a consolidated range', (done) => {
 
                 const TestStream = function () {
 
@@ -2209,7 +2209,7 @@ describe('transmission', function () {
             });
         });
 
-        it('skips undefined header values', function (done) {
+        it('skips undefined header values', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -2229,9 +2229,9 @@ describe('transmission', function () {
         });
     });
 
-    describe('cache()', function () {
+    describe('cache()', () => {
 
-        it('sets max-age value (method and route)', function (done) {
+        it('sets max-age value (method and route)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -2262,7 +2262,7 @@ describe('transmission', function () {
             });
         });
 
-        it('sets max-age value (expiresAt)', function (done) {
+        it('sets max-age value (expiresAt)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -2285,7 +2285,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns no-cache on error', function (done) {
+        it('returns no-cache on error', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2302,7 +2302,7 @@ describe('transmission', function () {
             });
         });
 
-        it('sets cache-control on error with status override', function (done) {
+        it('sets cache-control on error with status override', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2319,7 +2319,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not return max-age value when route is not cached', function (done) {
+        it('does not return max-age value when route is not cached', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -2339,7 +2339,7 @@ describe('transmission', function () {
             });
         });
 
-        it('caches using non default cache', function (done) {
+        it('caches using non default cache', (done) => {
 
             const server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
             server.connection();
@@ -2375,7 +2375,7 @@ describe('transmission', function () {
             });
         });
 
-        it('leaves existing cache-control header', function (done) {
+        it('leaves existing cache-control header', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2395,7 +2395,7 @@ describe('transmission', function () {
             });
         });
 
-        it('sets cache-control header from ttl without policy', function (done) {
+        it('sets cache-control header from ttl without policy', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2413,7 +2413,7 @@ describe('transmission', function () {
             });
         });
 
-        it('leaves existing cache-control header (ttl)', function (done) {
+        it('leaves existing cache-control header (ttl)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2432,7 +2432,7 @@ describe('transmission', function () {
             });
         });
 
-        it('includes caching header with 304', function (done) {
+        it('includes caching header with 304', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -2450,7 +2450,7 @@ describe('transmission', function () {
             });
         });
 
-        it('forbids caching on 304 if 200 is not included', function (done) {
+        it('forbids caching on 304 if 200 is not included', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -2469,9 +2469,9 @@ describe('transmission', function () {
         });
     });
 
-    describe('security()', function () {
+    describe('security()', () => {
 
-        it('does not set security headers by default', function (done) {
+        it('does not set security headers by default', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2495,7 +2495,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns default security headers when security is true', function (done) {
+        it('returns default security headers when security is true', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2519,7 +2519,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not set default security headers when the route sets security false', function (done) {
+        it('does not set default security headers when the route sets security false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2548,7 +2548,7 @@ describe('transmission', function () {
 
         });
 
-        it('does not return hsts header when secuirty.hsts is false', function (done) {
+        it('does not return hsts header when secuirty.hsts is false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2573,7 +2573,7 @@ describe('transmission', function () {
 
         });
 
-        it('returns only default hsts header when security.hsts is true', function (done) {
+        it('returns only default hsts header when security.hsts is true', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2593,7 +2593,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct hsts header when security.hsts is a number', function (done) {
+        it('returns correct hsts header when security.hsts is a number', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2613,7 +2613,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct hsts header when security.hsts is an object', function (done) {
+        it('returns correct hsts header when security.hsts is an object', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2633,7 +2633,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns the correct hsts header when security.hsts is an object only sepcifying maxAge', function (done) {
+        it('returns the correct hsts header when security.hsts is an object only sepcifying maxAge', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2653,7 +2653,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct hsts header when security.hsts is an object only specifying includeSubdomains', function (done) {
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubdomains', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2673,7 +2673,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains', function (done) {
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2693,7 +2693,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains and preload', function (done) {
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains and preload', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2713,7 +2713,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not return the xframe header whe security.xframe is false', function (done) {
+        it('does not return the xframe header whe security.xframe is false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2737,7 +2737,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns only default xframe header when security.xframe is true', function (done) {
+        it('returns only default xframe header when security.xframe is true', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2757,7 +2757,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct xframe header when security.xframe is a string', function (done) {
+        it('returns correct xframe header when security.xframe is a string', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2777,7 +2777,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct xframe header when security.xframe is an object', function (done) {
+        it('returns correct xframe header when security.xframe is an object', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2797,7 +2797,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns correct xframe header when security.xframe is an object', function (done) {
+        it('returns correct xframe header when security.xframe is an object', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2817,7 +2817,7 @@ describe('transmission', function () {
             });
         });
 
-        it('returns sameorigin xframe header when rule is allow-from but source is unspecified', function (done) {
+        it('returns sameorigin xframe header when rule is allow-from but source is unspecified', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2837,7 +2837,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not set x-download-options if noOpen is false', function (done) {
+        it('does not set x-download-options if noOpen is false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2857,7 +2857,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not set x-content-type-options if noSniff is false', function (done) {
+        it('does not set x-content-type-options if noSniff is false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2877,7 +2877,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not set the x-xss-protection header when security.xss is false', function (done) {
+        it('does not set the x-xss-protection header when security.xss is false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2902,9 +2902,9 @@ describe('transmission', function () {
         });
     });
 
-    describe('content()', function () {
+    describe('content()', () => {
 
-        it('does not modify content-type header when charset manually set', function (done) {
+        it('does not modify content-type header when charset manually set', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2923,7 +2923,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not modify content-type header when charset is unset', function (done) {
+        it('does not modify content-type header when charset is unset', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2942,7 +2942,7 @@ describe('transmission', function () {
             });
         });
 
-        it('does not modify content-type header when charset is unset (default type)', function (done) {
+        it('does not modify content-type header when charset is unset (default type)', (done) => {
 
             const handler = function (request, reply) {
 

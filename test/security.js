@@ -21,9 +21,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('security', function () {
+describe('security', () => {
 
-    it('blocks response splitting through the request.create method', function (done) {
+    it('blocks response splitting through the request.create method', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -46,7 +46,7 @@ describe('security', function () {
         });
     });
 
-    it('prevents xss with invalid content types', function (done) {
+    it('prevents xss with invalid content types', (done) => {
 
         const handler = function (request, reply) {
 
@@ -71,7 +71,7 @@ describe('security', function () {
         });
     });
 
-    it('prevents xss with invalid cookie values in the request', function (done) {
+    it('prevents xss with invalid cookie values in the request', (done) => {
 
         const handler = function (request, reply) {
 
@@ -96,7 +96,7 @@ describe('security', function () {
         });
     });
 
-    it('prevents xss with invalid cookie name in the request', function (done) {
+    it('prevents xss with invalid cookie name in the request', (done) => {
 
         const handler = function (request, reply) {
 
@@ -121,7 +121,7 @@ describe('security', function () {
         });
     });
 
-    it('prevents xss in path validation response message', function (done) {
+    it('prevents xss in path validation response message', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -149,7 +149,7 @@ describe('security', function () {
         });
     });
 
-    it('prevents xss in payload validation response message', function (done) {
+    it('prevents xss in payload validation response message', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -177,7 +177,7 @@ describe('security', function () {
         });
     });
 
-    it('prevents xss in query validation response message', function (done) {
+    it('prevents xss in query validation response message', (done) => {
 
         const server = new Hapi.Server();
         server.connection();

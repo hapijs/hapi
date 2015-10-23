@@ -27,9 +27,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('Response', function () {
+describe('Response', () => {
 
-    it('returns a reply', function (done) {
+    it('returns a reply', (done) => {
 
         const handler = function (request, reply) {
 
@@ -75,9 +75,9 @@ describe('Response', function () {
         });
     });
 
-    describe('_setSource()', function () {
+    describe('_setSource()', () => {
 
-        it('returns an empty string reply', function (done) {
+        it('returns an empty string reply', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -101,7 +101,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a null reply', function (done) {
+        it('returns a null reply', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -124,7 +124,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns an undefined reply', function (done) {
+        it('returns an undefined reply', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -148,9 +148,9 @@ describe('Response', function () {
         });
     });
 
-    describe('header()', function () {
+    describe('header()', () => {
 
-        it('appends to set-cookie header', function (done) {
+        it('appends to set-cookie header', (done) => {
 
             const handler = function (request, reply) {
 
@@ -168,7 +168,7 @@ describe('Response', function () {
             });
         });
 
-        it('sets null header', function (done) {
+        it('sets null header', (done) => {
 
             const handler = function (request, reply) {
 
@@ -186,7 +186,7 @@ describe('Response', function () {
             });
         });
 
-        it('throws error on non-ascii value', function (done) {
+        it('throws error on non-ascii value', (done) => {
 
             let thrown = false;
 
@@ -211,7 +211,7 @@ describe('Response', function () {
             });
         });
 
-        it('throws error on non-ascii value (header name)', function (done) {
+        it('throws error on non-ascii value (header name)', (done) => {
 
             let thrown = false;
 
@@ -237,7 +237,7 @@ describe('Response', function () {
             });
         });
 
-        it('throws error on non-ascii value (buffer)', function (done) {
+        it('throws error on non-ascii value (buffer)', (done) => {
 
             let thrown = false;
 
@@ -263,9 +263,9 @@ describe('Response', function () {
         });
     });
 
-    describe('created()', function () {
+    describe('created()', () => {
 
-        it('returns a stream reply (created)', function (done) {
+        it('returns a stream reply (created)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -286,7 +286,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns error on created with GET', function (done) {
+        it('returns error on created with GET', (done) => {
 
             const handler = function (request, reply) {
 
@@ -305,9 +305,9 @@ describe('Response', function () {
         });
     });
 
-    describe('state()', function () {
+    describe('state()', () => {
 
-        it('returns an error on bad cookie', function (done) {
+        it('returns an error on bad cookie', (done) => {
 
             const handler = function (request, reply) {
 
@@ -329,9 +329,9 @@ describe('Response', function () {
         });
     });
 
-    describe('unstate()', function () {
+    describe('unstate()', () => {
 
-        it('allows options', function (done) {
+        it('allows options', (done) => {
 
             const handler = function (request, reply) {
 
@@ -351,9 +351,9 @@ describe('Response', function () {
         });
     });
 
-    describe('vary()', function () {
+    describe('vary()', () => {
 
-        it('sets Vary header with single value', function (done) {
+        it('sets Vary header with single value', (done) => {
 
             const handler = function (request, reply) {
 
@@ -373,7 +373,7 @@ describe('Response', function () {
             });
         });
 
-        it('sets Vary header with multiple values', function (done) {
+        it('sets Vary header with multiple values', (done) => {
 
             const handler = function (request, reply) {
 
@@ -393,7 +393,7 @@ describe('Response', function () {
             });
         });
 
-        it('sets Vary header with *', function (done) {
+        it('sets Vary header with *', (done) => {
 
             const handler = function (request, reply) {
 
@@ -413,7 +413,7 @@ describe('Response', function () {
             });
         });
 
-        it('leaves Vary header with * on additional values', function (done) {
+        it('leaves Vary header with * on additional values', (done) => {
 
             const handler = function (request, reply) {
 
@@ -433,7 +433,7 @@ describe('Response', function () {
             });
         });
 
-        it('drops other Vary header values when set to *', function (done) {
+        it('drops other Vary header values when set to *', (done) => {
 
             const handler = function (request, reply) {
 
@@ -453,7 +453,7 @@ describe('Response', function () {
             });
         });
 
-        it('sets Vary header with multiple similar and identical values', function (done) {
+        it('sets Vary header with multiple similar and identical values', (done) => {
 
             const handler = function (request, reply) {
 
@@ -474,9 +474,9 @@ describe('Response', function () {
         });
     });
 
-    describe('etag()', function () {
+    describe('etag()', () => {
 
-        it('sets etag', function (done) {
+        it('sets etag', (done) => {
 
             const handler = function (request, reply) {
 
@@ -494,7 +494,7 @@ describe('Response', function () {
             });
         });
 
-        it('sets weak etag', function (done) {
+        it('sets weak etag', (done) => {
 
             const handler = function (request, reply) {
 
@@ -512,7 +512,7 @@ describe('Response', function () {
             });
         });
 
-        it('ignores varyEtag when etag header is removed', function (done) {
+        it('ignores varyEtag when etag header is removed', (done) => {
 
             const handler = function (request, reply) {
 
@@ -531,7 +531,7 @@ describe('Response', function () {
             });
         });
 
-        it('leaves etag header when varyEtag is false', function (done) {
+        it('leaves etag header when varyEtag is false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -555,7 +555,7 @@ describe('Response', function () {
             });
         });
 
-        it('applies varyEtag when returning 304 due to if-modified-since match', function (done) {
+        it('applies varyEtag when returning 304 due to if-modified-since match', (done) => {
 
             const mdate = new Date().toUTCString();
 
@@ -576,9 +576,9 @@ describe('Response', function () {
         });
     });
 
-    describe('passThrough()', function () {
+    describe('passThrough()', () => {
 
-        it('passes stream headers and code through', function (done) {
+        it('passes stream headers and code through', (done) => {
 
             const TestStream = function () {
 
@@ -618,7 +618,7 @@ describe('Response', function () {
             });
         });
 
-        it('excludes stream headers and code when passThrough is false', function (done) {
+        it('excludes stream headers and code when passThrough is false', (done) => {
 
             const TestStream = function () {
 
@@ -658,7 +658,7 @@ describe('Response', function () {
             });
         });
 
-        it('ignores stream headers when empty', function (done) {
+        it('ignores stream headers when empty', (done) => {
 
             const TestStream = function () {
 
@@ -698,7 +698,7 @@ describe('Response', function () {
             });
         });
 
-        it('retains local headers with stream headers pass-through', function (done) {
+        it('retains local headers with stream headers pass-through', (done) => {
 
             const TestStream = function () {
 
@@ -738,9 +738,9 @@ describe('Response', function () {
         });
     });
 
-    describe('replacer()', function () {
+    describe('replacer()', () => {
 
-        it('errors when called on wrong type', function (done) {
+        it('errors when called on wrong type', (done) => {
 
             const handler = function (request, reply) {
 
@@ -758,9 +758,9 @@ describe('Response', function () {
         });
     });
 
-    describe('spaces()', function () {
+    describe('spaces()', () => {
 
-        it('errors when called on wrong type', function (done) {
+        it('errors when called on wrong type', (done) => {
 
             const handler = function (request, reply) {
 
@@ -778,9 +778,9 @@ describe('Response', function () {
         });
     });
 
-    describe('suffix()', function () {
+    describe('suffix()', () => {
 
-        it('errors when called on wrong type', function (done) {
+        it('errors when called on wrong type', (done) => {
 
             const handler = function (request, reply) {
 
@@ -798,9 +798,9 @@ describe('Response', function () {
         });
     });
 
-    describe('type()', function () {
+    describe('type()', () => {
 
-        it('returns a file in the response with the correct headers using custom mime type', function (done) {
+        it('returns a file in the response with the correct headers using custom mime type', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -820,9 +820,9 @@ describe('Response', function () {
         });
     });
 
-    describe('redirect()', function () {
+    describe('redirect()', () => {
 
-        it('returns a redirection reply', function (done) {
+        it('returns a redirection reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -842,7 +842,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a redirection reply using verbose call', function (done) {
+        it('returns a redirection reply using verbose call', (done) => {
 
             const handler = function (request, reply) {
 
@@ -863,7 +863,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 301 redirection reply', function (done) {
+        it('returns a 301 redirection reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -881,7 +881,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 302 redirection reply', function (done) {
+        it('returns a 302 redirection reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -899,7 +899,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 307 redirection reply', function (done) {
+        it('returns a 307 redirection reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -917,7 +917,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 308 redirection reply', function (done) {
+        it('returns a 308 redirection reply', (done) => {
 
             const handler = function (request, reply) {
 
@@ -935,7 +935,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 301 redirection reply (reveresed methods)', function (done) {
+        it('returns a 301 redirection reply (reveresed methods)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -953,7 +953,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 302 redirection reply (reveresed methods)', function (done) {
+        it('returns a 302 redirection reply (reveresed methods)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -971,7 +971,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 307 redirection reply (reveresed methods)', function (done) {
+        it('returns a 307 redirection reply (reveresed methods)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -989,7 +989,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 308 redirection reply (reveresed methods)', function (done) {
+        it('returns a 308 redirection reply (reveresed methods)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1007,7 +1007,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a 302 redirection reply (flip flop)', function (done) {
+        it('returns a 302 redirection reply (flip flop)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1026,9 +1026,9 @@ describe('Response', function () {
         });
     });
 
-    describe('_prepare()', function () {
+    describe('_prepare()', () => {
 
-        it('handles promises that resolve', function (done) {
+        it('handles promises that resolve', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1047,7 +1047,7 @@ describe('Response', function () {
             });
         });
 
-        it('handles promises that resolve (object)', function (done) {
+        it('handles promises that resolve (object)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1066,7 +1066,7 @@ describe('Response', function () {
             });
         });
 
-        it('handles promises that resolve (response object)', function (done) {
+        it('handles promises that resolve (response object)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1085,7 +1085,7 @@ describe('Response', function () {
             });
         });
 
-        it('handles promises that reject', function (done) {
+        it('handles promises that reject', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1108,9 +1108,9 @@ describe('Response', function () {
         });
     });
 
-    describe('_marshal()', function () {
+    describe('_marshal()', () => {
 
-        it('emits request-error when view file for handler not found', function (done) {
+        it('emits request-error when view file for handler not found', (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.register(Vision, Hoek.ignore);
@@ -1139,9 +1139,9 @@ describe('Response', function () {
         });
     });
 
-    describe('_streamify()', function () {
+    describe('_streamify()', () => {
 
-        it('returns a formatted response', function (done) {
+        it('returns a formatted response', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1159,7 +1159,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a response with options', function (done) {
+        it('returns a response with options', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1178,7 +1178,7 @@ describe('Response', function () {
             });
         });
 
-        it('returns a response with options (different order)', function (done) {
+        it('returns a response with options (different order)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1197,7 +1197,7 @@ describe('Response', function () {
             });
         });
 
-        it('captures object which cannot be stringify', function (done) {
+        it('captures object which cannot be stringify', (done) => {
 
             const handler = function (request, reply) {
 
@@ -1218,9 +1218,9 @@ describe('Response', function () {
         });
     });
 
-    describe('_tap()', function () {
+    describe('_tap()', () => {
 
-        it('peeks into the response stream', function (done) {
+        it('peeks into the response stream', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -1238,7 +1238,7 @@ describe('Response', function () {
                         output += chunk.toString();
                     });
 
-                    response.once('finish', function () {
+                    response.once('finish', () => {
 
                         output += '!';
                     });
@@ -1253,9 +1253,9 @@ describe('Response', function () {
         });
     });
 
-    describe('_close()', function () {
+    describe('_close()', () => {
 
-        it('calls custom close processor', function (done) {
+        it('calls custom close processor', (done) => {
 
             let closed = false;
             const close = function (response) {

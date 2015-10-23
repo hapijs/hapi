@@ -20,9 +20,9 @@ const it = lab.it;
 const expect = Code.expect;
 
 
-describe('state', function () {
+describe('state', () => {
 
-    it('parses cookies', function (done) {
+    it('parses cookies', (done) => {
 
         const handler = function (request, reply) {
 
@@ -40,7 +40,7 @@ describe('state', function () {
         });
     });
 
-    it('skips parsing cookies', function (done) {
+    it('skips parsing cookies', (done) => {
 
         const handler = function (request, reply) {
 
@@ -58,7 +58,7 @@ describe('state', function () {
         });
     });
 
-    it('does not clear invalid cookie if cannot parse', function (done) {
+    it('does not clear invalid cookie if cannot parse', (done) => {
 
         const server = new Hapi.Server();
         server.connection();
@@ -71,7 +71,7 @@ describe('state', function () {
         });
     });
 
-    it('ignores invalid cookies (state level config)', function (done) {
+    it('ignores invalid cookies (state level config)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -91,7 +91,7 @@ describe('state', function () {
         });
     });
 
-    it('ignores invalid cookies (header)', function (done) {
+    it('ignores invalid cookies (header)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -110,7 +110,7 @@ describe('state', function () {
         });
     });
 
-    it('logs invalid cookie (value)', function (done) {
+    it('logs invalid cookie (value)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -130,7 +130,7 @@ describe('state', function () {
         });
     });
 
-    it('clears invalid cookies (state level config)', function (done) {
+    it('clears invalid cookies (state level config)', (done) => {
 
         const handler = function (request, reply) {
 
@@ -149,7 +149,7 @@ describe('state', function () {
         });
     });
 
-    it('sets cookie value automatically', function (done) {
+    it('sets cookie value automatically', (done) => {
 
         const handler = function (request, reply) {
 
@@ -169,7 +169,7 @@ describe('state', function () {
         });
     });
 
-    it('appends handler set-cookie to server state', function (done) {
+    it('appends handler set-cookie to server state', (done) => {
 
         const handler = function (request, reply) {
 
@@ -189,7 +189,7 @@ describe('state', function () {
         });
     });
 
-    it('sets cookie value automatically using function', function (done) {
+    it('sets cookie value automatically using function', (done) => {
 
         const present = function (request, next) {
 
@@ -214,7 +214,7 @@ describe('state', function () {
         });
     });
 
-    it('fails to set cookie value automatically using function', function (done) {
+    it('fails to set cookie value automatically using function', (done) => {
 
         const present = function (request, next) {
 
@@ -239,7 +239,7 @@ describe('state', function () {
         });
     });
 
-    it('sets cookie value with null ttl', function (done) {
+    it('sets cookie value with null ttl', (done) => {
 
         const handler = function (request, reply) {
 
