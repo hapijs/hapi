@@ -42,7 +42,7 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/domain', handler: handler });
 
-            server.inject('/domain', function (res) {
+            server.inject('/domain', (res) => {
 
                 expect(res.statusCode).to.equal(500);
                 done();
@@ -53,7 +53,7 @@ describe('handler', () => {
 
             const handler = function (request) {
 
-                setImmediate(function () {
+                setImmediate(() => {
 
                     not.here;
                 });
@@ -62,7 +62,7 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.on('request-error', function (request, err) {
+            server.on('request-error', (request, err) => {
 
                 expect(err.message).to.equal('Uncaught error: not is not defined');
                 done();
@@ -76,7 +76,7 @@ describe('handler', () => {
                 expect(arguments[1]).to.equal('internal, implementation, error');
             };
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(500);
             });
@@ -103,7 +103,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal(item.x);
                 done();
@@ -124,7 +124,7 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('ok');
                 done();
@@ -146,7 +146,7 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.inject('/file', function (res) {
+            server.inject('/file', (res) => {
 
                 expect(res.statusCode).to.equal(499);
                 expect(res.payload).to.contain('hapi');
@@ -175,7 +175,7 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('<h1>steve</h1>');
                 done();
@@ -199,7 +199,7 @@ describe('handler', () => {
 
             const pre3 = function (request, reply) {
 
-                process.nextTick(function () {
+                process.nextTick(() => {
 
                     return reply(' ');
                 });
@@ -239,7 +239,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('Hello World!');
                 done();
@@ -272,7 +272,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('Hello');
                 done();
@@ -298,7 +298,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('Hello');
                 done();
@@ -319,7 +319,7 @@ describe('handler', () => {
 
             const pre3 = function (request, reply) {
 
-                process.nextTick(function () {
+                process.nextTick(() => {
 
                     return reply(' ').takeover();
                 });
@@ -359,7 +359,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal(' ');
                 done();
@@ -397,7 +397,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result.statusCode).to.equal(500);
                 done();
@@ -429,7 +429,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(444);
                 done();
@@ -468,7 +468,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result.statusCode).to.equal(500);
                 done();
@@ -480,10 +480,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            });
+            };
+
+            server.method('user', method);
 
             server.route({
                 method: 'GET',
@@ -499,7 +501,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user/5', function (res) {
+            server.inject('/user/5', (res) => {
 
                 expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
                 done();
@@ -511,10 +513,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user.get', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            });
+            };
+
+            server.method('user.get', method);
 
             server.route({
                 method: 'GET',
@@ -530,7 +534,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user/5', function (res) {
+            server.inject('/user/5', (res) => {
 
                 expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
                 done();
@@ -542,10 +546,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            });
+            };
+
+            server.method('user', method);
 
             server.route({
                 method: 'GET',
@@ -564,7 +570,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user/5', function (res) {
+            server.inject('/user/5', (res) => {
 
                 expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
                 done();
@@ -576,15 +582,19 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (id, next) {
+            const user = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            });
+            };
 
-            server.method('name', function (user, next) {
+            server.method('user', user);
 
-                return next(null, user.name);
-            });
+            const name = function (obj, next) {
+
+                return next(null, obj.name);
+            };
+
+            server.method('name', name);
 
             server.route({
                 method: 'GET',
@@ -601,7 +611,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user/5/name', function (res) {
+            server.inject('/user/5/name', (res) => {
 
                 expect(res.result).to.equal('Bob');
                 done();
@@ -613,10 +623,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            });
+            };
+
+            server.method('user', method);
 
             server.route({
                 method: 'GET',
@@ -632,7 +644,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user/5', function (res) {
+            server.inject('/user/5', (res) => {
 
                 expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
                 done();
@@ -644,10 +656,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            });
+            };
+
+            server.method('user', method);
 
             server.route({
                 method: 'GET',
@@ -663,7 +677,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user/5', function (res) {
+            server.inject('/user/5', (res) => {
 
                 expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
                 done();
@@ -675,10 +689,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (next) {
+            const method = function (next) {
 
                 return next(null, { name: 'Bob' });
-            });
+            };
+
+            server.method('user', method);
 
             server.route({
                 method: 'GET',
@@ -694,7 +710,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user', function (res) {
+            server.inject('/user', (res) => {
 
                 expect(res.result).to.deep.equal({ name: 'Bob' });
                 done();
@@ -706,10 +722,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (request, next) {
+            const method = function (request, next) {
 
                 return next(null, { id: request.params.id, name: 'Bob' });
-            });
+            };
+
+            server.method('user', method);
 
             server.route({
                 method: 'GET',
@@ -725,7 +743,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user/5', function (res) {
+            server.inject('/user/5', (res) => {
 
                 expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
                 done();
@@ -737,10 +755,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user.get', function (next) {
+            const method = function (next) {
 
                 return next(null, { name: 'Bob' });
-            });
+            };
+
+            server.method('user.get', method);
 
             server.route({
                 method: 'GET',
@@ -756,7 +776,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/user', function (res) {
+            server.inject('/user', (res) => {
 
                 expect(res.result).to.deep.equal({ name: 'Bob' });
                 done();
@@ -837,7 +857,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(403);
                 done();
@@ -868,7 +888,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 done();
@@ -901,7 +921,7 @@ describe('handler', () => {
             });
 
             let log = null;
-            server.on('request-internal', function (request, event, tags) {
+            server.on('request-internal', (request, event, tags) => {
 
                 if (event.internal &&
                     tags.pre &&
@@ -911,7 +931,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(log).to.equal('before');
@@ -943,7 +963,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal(item.x);
                 done();
@@ -966,7 +986,7 @@ describe('handler', () => {
             });
 
             let log = null;
-            server.on('request-internal', function (request, event, tags) {
+            server.on('request-internal', (request, event, tags) => {
 
                 if (event.internal &&
                     tags.handler &&
@@ -976,7 +996,7 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(403);
                 expect(log.data.isBoom).to.equal(true);
@@ -991,10 +1011,12 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('user', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob' });
-            }, { cache: { expiresIn: 1000, generateTimeout: 10 } });
+            };
+
+            server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             server.route({
                 method: 'GET',
@@ -1010,11 +1032,11 @@ describe('handler', () => {
                 }
             });
 
-            server.initialize(function (err) {
+            server.initialize((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/user/5', function (res) {
+                server.inject('/user/5', (res) => {
 
                     expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
                     expect(res.result[0].internal).to.equal(true);
@@ -1030,10 +1052,12 @@ describe('handler', () => {
             server.connection();
 
             let gen = 0;
-            server.method('user', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, { id: id, name: 'Bob', gen: gen++ });
-            }, { cache: { expiresIn: 1000, generateTimeout: 10 } });
+            };
+
+            server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             server.route({
                 method: 'GET',
@@ -1049,15 +1073,15 @@ describe('handler', () => {
                 }
             });
 
-            server.initialize(function (err) {
+            server.initialize((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/user/5', function (res1) {
+                server.inject('/user/5', (res1) => {
 
                     expect(res1.result).to.equal(0);
 
-                    server.inject('/user/5', function (res2) {
+                    server.inject('/user/5', (res2) => {
 
                         expect(res2.result).to.equal(0);
                         done();
@@ -1073,13 +1097,16 @@ describe('handler', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.method('handler.get', function (request, reply) {
+
+            const method = function (request, reply) {
 
                 return reply(null, request.params.x + request.params.y).code(299);
-            });
+            };
+
+            server.method('handler.get', method);
 
             server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
-            server.inject('/a/b', function (res) {
+            server.inject('/a/b', (res) => {
 
                 expect(res.statusCode).to.equal(299);
                 expect(res.result).to.equal('ab');
@@ -1104,7 +1131,7 @@ describe('handler', () => {
             server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.deep.equal({});
                 done();
@@ -1131,7 +1158,7 @@ describe('handler', () => {
             server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.deep.equal({ x: 1 });
                 done();
@@ -1161,7 +1188,7 @@ describe('handler', () => {
             server.connection();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.deep.equal({ x: 'get' });
                 done();
@@ -1182,7 +1209,7 @@ describe('handler', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            expect(function () {
+            expect(() => {
 
                 server.handler('test', handler);
             }).to.throw('Handler defaults property must be an object or function');
@@ -1197,10 +1224,13 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
-            server.ext('onRequest', function (request, next) {
+
+            const onRequest = function (request, next) {
 
                 a.b.c;
-            });
+            };
+
+            server.ext('onRequest', onRequest);
 
             const handler = function (request, reply) {
 
@@ -1209,7 +1239,7 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/domain', handler: handler });
 
-            server.inject('/domain', function (res) {
+            server.inject('/domain', (res) => {
 
                 expect(res.statusCode).to.equal(500);
                 done();

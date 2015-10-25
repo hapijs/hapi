@@ -42,7 +42,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', function (res) {
+            server.inject('/file', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['last-modified']).to.equal(Fs.statSync(__dirname + '/../package.json').mtime.toUTCString());
@@ -57,7 +57,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject({ url: '/file', headers: { 'if-modified-since': 'some crap' } }, function (res) {
+            server.inject({ url: '/file', headers: { 'if-modified-since': 'some crap' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 done();
@@ -75,7 +75,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } }, function (res2) {
+            server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } }, (res2) => {
 
                 expect(res2.statusCode).to.equal(200);
                 done();
@@ -89,9 +89,9 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
@@ -130,9 +130,9 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
-                server.inject({ url: '/file', headers: { 'if-none-match': res1.headers.etag } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-none-match': res1.headers.etag } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
@@ -166,10 +166,10 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
                 const last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
-                server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['content-length']).to.not.exist();
@@ -187,9 +187,9 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['content-length']).to.not.exist();
@@ -209,13 +209,13 @@ describe('transmission', () => {
 
             // Initial request - no etag
 
-            server.inject('/', function (res1) {
+            server.inject('/', (res1) => {
 
                 expect(res1.statusCode).to.equal(200);
 
                 // Second request - etag
 
-                server.inject('/', function (res2) {
+                server.inject('/', (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
                     expect(res2.headers.etag).to.exist();
@@ -226,42 +226,42 @@ describe('transmission', () => {
 
                     // Conditional request
 
-                    server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } }, function (res3) {
+                    server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } }, (res3) => {
 
                         expect(res3.statusCode).to.equal(304);
                         expect(res3.headers.etag).to.equal(res2.headers.etag);
 
                         // Conditional request with accept-encoding
 
-                        server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } }, function (res4) {
+                        server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } }, (res4) => {
 
                             expect(res4.statusCode).to.equal(304);
                             expect(res4.headers.etag).to.equal(gzipTag);
 
                             // Conditional request with vary etag
 
-                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } }, function (res5) {
+                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } }, (res5) => {
 
                                 expect(res5.statusCode).to.equal(304);
                                 expect(res5.headers.etag).to.equal(gzipTag);
 
                                 // Request with accept-encoding (gzip)
 
-                                server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res6) {
+                                server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res6) => {
 
                                     expect(res6.statusCode).to.equal(200);
                                     expect(res6.headers.etag).to.equal(gzipTag);
 
                                     // Request with accept-encoding (deflate)
 
-                                    server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } }, function (res7) {
+                                    server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } }, (res7) => {
 
                                         expect(res7.statusCode).to.equal(200);
                                         expect(res7.headers.etag).to.equal(baseTag + '-deflate"');
 
                                         // Conditional request with accept-encoding (gzip)
 
-                                        server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } }, function (res8) {
+                                        server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } }, (res8) => {
 
                                             expect(res8.statusCode).to.equal(304);
                                             expect(res8.headers.etag).to.equal(gzipTag);
@@ -288,7 +288,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(304);
                 done();
@@ -325,7 +325,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
-            server.inject('/stream', function (res) {
+            server.inject('/stream', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers.custom).to.equal('header');
@@ -363,7 +363,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
-            server.inject('/stream', function (res) {
+            server.inject('/stream', (res) => {
 
                 expect(res.statusCode).to.equal(201);
                 done();
@@ -381,7 +381,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            server.inject('/?callback=me', function (res) {
+            server.inject('/?callback=me', (res) => {
 
                 expect(res.payload).to.equal('/**/me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(25);
@@ -401,7 +401,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            server.inject('/?callback=me', function (res) {
+            server.inject('/?callback=me', (res) => {
 
                 expect(res.payload).to.equal('/**/me({"some":"value"});');
                 expect(res.headers['content-length']).to.equal(25);
@@ -421,7 +421,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            server.inject('/?callback=me', function (res) {
+            server.inject('/?callback=me', (res) => {
 
                 expect(res.payload).to.equal('/**/me({"some":"value"});');
                 expect(res.headers['x-content-type-options']).to.equal('nosniff');
@@ -440,7 +440,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.payload).to.equal('{"some":"value"}');
                 done();
@@ -466,7 +466,7 @@ describe('transmission', () => {
                 }
             });
 
-            server.inject({ url: '/user/1/2?callback=docall', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/user/1/2?callback=docall', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
@@ -491,7 +491,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            server.inject('/?callback=me', function (res) {
+            server.inject('/?callback=me', (res) => {
 
                 expect(res.payload).to.equal('/**/me(value);');
                 expect(res.headers['content-length']).to.equal(14);
@@ -510,7 +510,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            server.inject('/?callback=me*', function (res) {
+            server.inject('/?callback=me*', (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result.message).to.equal('Invalid JSONP parameter value');
@@ -529,7 +529,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
-            server.inject('/?callback=me', function (res) {
+            server.inject('/?callback=me', (res) => {
 
                 expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"wrong"});');
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
@@ -555,7 +555,7 @@ describe('transmission', () => {
                 reply.continue();
             });
 
-            server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } }, function (res) {
+            server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } }, (res) => {
 
                 expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"Invalid cookie header"});');
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
@@ -571,7 +571,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
-            server.inject('/public/transmit.js', function (res) {
+            server.inject('/public/transmit.js', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['cache-control']).to.equal('max-age=86400, must-revalidate, public');
@@ -593,7 +593,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(204);
                 expect(res.result).to.equal(null);
@@ -612,7 +612,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(204);
                 expect(res.result).to.equal(null);
@@ -645,7 +645,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('success');
@@ -664,7 +664,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal(null);
@@ -698,7 +698,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-encoding']).to.equal('gzip');
@@ -717,7 +717,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject({ url: '/', headers: { 'accept-encoding': 'example' } }, function (res) {
+            server.inject({ url: '/', headers: { 'accept-encoding': 'example' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers.vary).to.equal('accept-encoding');
@@ -747,7 +747,7 @@ describe('transmission', () => {
 
                     self.push('success');
 
-                    setImmediate(function () {
+                    setImmediate(() => {
 
                         self.emit('error', new Error());
                     });
@@ -761,7 +761,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('success');
                 done();
@@ -775,14 +775,14 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
-                server.inject('/file', function (res2) {
+                server.inject('/file', (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
                     expect(res2.headers.etag).to.exist();
 
-                    server.inject({ url: '/file', headers: { 'if-none-match': 'x, ' + res2.headers.etag } }, function (res3) {
+                    server.inject({ url: '/file', headers: { 'if-none-match': 'x, ' + res2.headers.etag } }, (res3) => {
 
                         expect(res3.statusCode).to.equal(304);
                         done();
@@ -798,15 +798,15 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
-                server.inject('/file', function (res2) {
+                server.inject('/file', (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
                     expect(res2.headers.etag).to.exist();
                     expect(res2.headers['last-modified']).to.exist();
 
-                    server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res3) {
+                    server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res3) => {
 
                         expect(res3.statusCode).to.equal(200);
                         expect(res3.headers.vary).to.equal('accept-encoding');
@@ -831,7 +831,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
@@ -853,7 +853,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.headers['content-type']).to.equal('image/png');
                 expect(res.headers['content-encoding']).to.not.exist();
@@ -875,7 +875,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-encoding']).to.not.exist();
@@ -896,7 +896,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler: handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'deflate' } }, function (res) {
+            server.inject({ url: '/file', headers: { 'accept-encoding': 'deflate' } }, (res) => {
 
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('deflate');
@@ -917,7 +917,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-length']).to.not.exist();
@@ -936,7 +936,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, function (res) {
+            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-length']).to.not.exist();
@@ -957,7 +957,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -965,7 +965,7 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
@@ -988,7 +988,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -996,7 +996,7 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, function (err, res, body) {
+                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
@@ -1019,13 +1019,13 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, function (err, res, body) {
+                Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, (err, res, body) => {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(data);
@@ -1047,13 +1047,13 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, function (err, res, body) {
+                Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, (err, res, body) => {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(data);
@@ -1074,7 +1074,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1082,7 +1082,7 @@ describe('transmission', () => {
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, function (err, res, body) {
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
@@ -1104,7 +1104,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1112,7 +1112,7 @@ describe('transmission', () => {
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, function (err, res, body) {
+                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
@@ -1135,7 +1135,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1143,7 +1143,7 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, function (err, res, body) {
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
@@ -1166,7 +1166,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1174,7 +1174,7 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, function (err, res, body) {
+                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
@@ -1197,7 +1197,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1205,7 +1205,7 @@ describe('transmission', () => {
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, function (err, res, body) {
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
@@ -1228,7 +1228,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1236,7 +1236,7 @@ describe('transmission', () => {
 
                 Zlib.deflate(new Buffer(data), function (err, deflated) {
 
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, function (err, res, body) {
+                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(deflated.toString());
@@ -1259,7 +1259,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1267,7 +1267,7 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, function (err, res, body) {
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
@@ -1290,7 +1290,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1298,7 +1298,7 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), function (err, zipped) {
 
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, function (err, res, body) {
+                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
@@ -1321,13 +1321,13 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Wreck.post(uri, { payload: data }, function (err, res, body) {
+                Wreck.post(uri, { payload: data }, (err, res, body) => {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(data);
@@ -1351,13 +1351,13 @@ describe('transmission', () => {
                 }
             });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Wreck.get(uri, {}, function (err, res, body) {
+                Wreck.get(uri, {}, (err, res, body) => {
 
                     expect(err).to.not.exist();
                     expect(body.toString().toString()).to.equal(data);
@@ -1381,13 +1381,13 @@ describe('transmission', () => {
                 };
 
                 server.route({ method: 'POST', path: '/', handler: handler });
-                server.start(function (err) {
+                server.start((err) => {
 
                     expect(err).to.not.exist();
 
                     const uri = 'http://localhost:' + server.info.port;
 
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, function (err, res, body) {
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(body.toString()).to.equal(zipped.toString());
@@ -1405,7 +1405,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
                 server.ext('onPreResponse', function (request, reply) {
 
@@ -1417,7 +1417,7 @@ describe('transmission', () => {
                     return reply.continue();
                 });
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     done();
@@ -1448,7 +1448,7 @@ describe('transmission', () => {
                 return reply.continue();
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 response.emit('special');
             });
@@ -1474,10 +1474,10 @@ describe('transmission', () => {
                 }
                 this.isDone = true;
                 this.push('here is the response');
-                process.nextTick(function () {
+                process.nextTick(() => {
 
                     self.request.raw.req.emit('close');
-                    process.nextTick(function () {
+                    process.nextTick(() => {
 
                         self.push(null);
                     });
@@ -1493,7 +1493,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/stream', handler: handler });
 
-            server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } }, function (res) {
+            server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 done();
@@ -1532,11 +1532,11 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: fileHandler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                Wreck.get('http://localhost:' + server.info.port, function (err, res, body) {
+                Wreck.get('http://localhost:' + server.info.port, (err, res, body) => {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(expectedBody);
@@ -1584,11 +1584,11 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.connection(config);
             server.route({ method: 'GET', path: '/', handler: fileHandler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, function (err, res, body) {
+                Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, (err, res, body) => {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal(expectedBody);
@@ -1617,7 +1617,7 @@ describe('transmission', () => {
                     }
                     else {
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             self.push(chunk);
                         }, 10);
@@ -1636,11 +1636,11 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
 
                     res.on('data', function (chunk) {
 
@@ -1664,7 +1664,7 @@ describe('transmission', () => {
 
                 const _read = function () {
 
-                    setImmediate(function () {
+                    setImmediate(() => {
 
                         if (paused) {
                             return;
@@ -1710,11 +1710,11 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
 
                     res.on('data', function (chunk) {
 
@@ -1735,7 +1735,7 @@ describe('transmission', () => {
                 let count = 0;
                 stream._read = function (size) {
 
-                    setTimeout(function () {
+                    setTimeout(() => {
 
                         if (request._isFinalized) {
                             stream.push(null);
@@ -1758,11 +1758,11 @@ describe('transmission', () => {
             server.connection({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, function (err, res) {
+                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
 
                     expect(err).to.not.exist();
                     res.on('data', function (chunk) { });
@@ -1792,7 +1792,7 @@ describe('transmission', () => {
                         this.push(null);
                     }
                     else {
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             responded = true;
                             self.push(chunk);
@@ -1805,7 +1805,7 @@ describe('transmission', () => {
                     server.stop(done);
                 });
 
-                setTimeout(function () {
+                setTimeout(() => {
 
                     return reply(stream);
                 }, 100);
@@ -1815,7 +1815,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -1840,7 +1840,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers.etag).to.exist();
@@ -1860,7 +1860,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+            server.inject({ method: 'HEAD', url: '/' }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-length']).to.equal(1);
@@ -1879,7 +1879,7 @@ describe('transmission', () => {
             const upstream = new Hapi.Server();
             upstream.connection();
             upstream.route({ method: 'GET', path: '/headers', handler: headersHandler });
-            upstream.start(function () {
+            upstream.start(() => {
 
                 const proxyHandler = function (request, reply) {
 
@@ -1887,7 +1887,7 @@ describe('transmission', () => {
                     options.headers = Hoek.clone(request.headers);
                     delete options.headers.host;
 
-                    Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options, function (err, res) {
+                    Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options, (err, res) => {
 
                         reply(res).code(res.statusCode);
                     });
@@ -1897,7 +1897,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/headers', handler: proxyHandler });
 
-                server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, function (res) {
+                server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers.vary).to.equal('X-Custom3,accept-encoding');
@@ -1921,7 +1921,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, (res) => {
 
                     expect(res.statusCode).to.equal(206);
                     expect(res.headers['content-length']).to.equal(5);
@@ -1938,7 +1938,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } }, (res) => {
 
                     expect(res.statusCode).to.equal(206);
                     expect(res.headers['content-length']).to.equal(5);
@@ -1955,7 +1955,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } }, (res) => {
 
                     expect(res.statusCode).to.equal(206);
                     expect(res.headers['content-length']).to.equal(5);
@@ -1972,7 +1972,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } }, (res) => {
 
                     expect(res.statusCode).to.equal(206);
                     expect(res.headers['content-length']).to.equal(5);
@@ -1989,7 +1989,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } }, (res) => {
 
                     expect(res.statusCode).to.equal(206);
                     expect(res.headers['content-length']).to.equal(5);
@@ -2006,11 +2006,11 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject('/file', function (res) {
+                server.inject('/file', (res) => {
 
-                    server.inject('/file', function (res1) {
+                    server.inject('/file', (res1) => {
 
-                        server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': res1.headers.etag } }, function (res2) {
+                        server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': res1.headers.etag } }, (res2) => {
 
                             expect(res2.statusCode).to.equal(206);
                             expect(res2.headers['content-length']).to.equal(5);
@@ -2029,7 +2029,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
                     done();
@@ -2042,7 +2042,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } }, (res) => {
 
                     expect(res.statusCode).to.equal(416);
                     expect(res.headers['content-range']).to.equal('bytes */42010');
@@ -2056,7 +2056,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } }, (res) => {
 
                     expect(res.statusCode).to.equal(416);
                     expect(res.headers['content-range']).to.equal('bytes */42010');
@@ -2070,7 +2070,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } }, (res) => {
 
                     expect(res.statusCode).to.equal(416);
                     expect(res.headers['content-range']).to.equal('bytes */42010');
@@ -2084,7 +2084,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=-' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=-' } }, (res) => {
 
                     expect(res.statusCode).to.equal(416);
                     expect(res.headers['content-range']).to.equal('bytes */42010');
@@ -2098,7 +2098,7 @@ describe('transmission', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } }, function (res) {
+                server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } }, (res) => {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers['content-length']).to.equal(42010);
@@ -2146,7 +2146,7 @@ describe('transmission', () => {
 
                 server.route({ method: 'GET', path: '/', handler: handler });
 
-                server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } }, function (res) {
+                server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } }, (res) => {
 
                     expect(res.statusCode).to.equal(206);
                     expect(res.headers['content-length']).to.equal(3);
@@ -2197,7 +2197,7 @@ describe('transmission', () => {
 
                 server.route({ method: 'GET', path: '/', handler: handler });
 
-                server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, function (res) {
+                server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, (res) => {
 
                     expect(res.statusCode).to.equal(206);
                     expect(res.headers['content-length']).to.equal(6);
@@ -2220,7 +2220,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers.x).to.not.exist();
@@ -2250,11 +2250,11 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/profile', function (res) {
+                server.inject('/profile', (res) => {
 
                     expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
                     server.stop(done);
@@ -2273,11 +2273,11 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresAt: '10:00' } } });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/', function (res) {
+                server.inject('/', (res) => {
 
                     expect(res.headers['cache-control']).to.match(/^max-age=\d+, must-revalidate$/);
                     server.stop(done);
@@ -2295,7 +2295,7 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.headers['cache-control']).to.equal('no-cache');
                 done();
@@ -2312,7 +2312,7 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.connection({ routes: { cache: { statuses: [200, 400] } } });
             server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
                 done();
@@ -2332,7 +2332,7 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/item2', config: { handler: activeItemHandler } });
-            server.inject('/item2', function (res) {
+            server.inject('/item2', (res) => {
 
                 expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
                 server.stop(done);
@@ -2346,15 +2346,15 @@ describe('transmission', () => {
             const defaults = server.cache({ segment: 'a', expiresIn: 2000 });
             const primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                defaults.set('b', 1, null, function (err) {
+                defaults.set('b', 1, null, (err) => {
 
                     expect(err).to.not.exist();
 
-                    primary.set('b', 2, null, function (err) {
+                    primary.set('b', 2, null, (err) => {
 
                         expect(err).to.not.exist();
 
@@ -2387,7 +2387,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(400);
                 expect(res.headers['cache-control']).to.equal('some value');
@@ -2406,7 +2406,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
                 done();
@@ -2424,7 +2424,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['cache-control']).to.equal('none');
@@ -2439,9 +2439,9 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['cache-control']).to.equal('max-age=60, must-revalidate');
@@ -2457,9 +2457,9 @@ describe('transmission', () => {
             server.connection({ routes: { cache: { statuses: [400] } } });
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
-            server.inject('/file', function (res1) {
+            server.inject('/file', (res1) => {
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, function (res2) {
+                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers['cache-control']).to.equal('no-cache');
@@ -2482,7 +2482,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2506,7 +2506,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2534,7 +2534,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: handler, config: config });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2559,7 +2559,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2584,7 +2584,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2604,7 +2604,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: 123456789 } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2624,7 +2624,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2644,7 +2644,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: { maxAge: 123456789 } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2664,7 +2664,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: { includeSubdomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2684,7 +2684,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: { includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2704,7 +2704,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2724,7 +2724,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { xframe: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2748,7 +2748,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { xframe: true } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2768,7 +2768,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { xframe: 'sameorigin' } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2788,7 +2788,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2808,7 +2808,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { xframe: { rule: 'deny' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2828,7 +2828,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { xframe: { rule: 'allow-from' } } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2848,7 +2848,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { noOpen: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2868,7 +2868,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { noSniff: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2888,7 +2888,7 @@ describe('transmission', () => {
             server.connection({ routes: { security: { xss: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject({ url: '/' }, function (res) {
+            server.inject({ url: '/' }, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Test');
@@ -2915,7 +2915,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-type']).to.equal('text/plain; charset=ISO-8859-1');
@@ -2934,7 +2934,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-type']).to.equal('text/plain');
@@ -2953,7 +2953,7 @@ describe('transmission', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['content-type']).to.equal('text/html');
@@ -2980,7 +2980,7 @@ internals.TimerStream.prototype._read = function (size) {
     }
     this.isDone = true;
 
-    setTimeout(function () {
+    setTimeout(() => {
 
         self.push('hi');
         self.push(null);

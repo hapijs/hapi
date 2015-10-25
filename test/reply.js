@@ -37,7 +37,7 @@ describe('Reply', () => {
         const server = new Hapi.Server({ debug: false });
         server.connection();
         server.route({ method: 'GET', path: '/', handler: handler });
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -54,7 +54,7 @@ describe('Reply', () => {
         const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'GET', path: '/', handler: handler });
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(302);
             expect(res.headers.location).to.equal('/elsewhere');
@@ -74,7 +74,7 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('steve');
@@ -92,7 +92,7 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(400);
                 done();
@@ -109,7 +109,7 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(400);
                 done();
@@ -129,7 +129,7 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal(null);
@@ -150,7 +150,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(299);
                 expect(res.result).to.equal('Tada1');
@@ -170,7 +170,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
                 expect(res.headers['content-length']).to.equal(13);
@@ -189,7 +189,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.payload).to.equal('false');
                 done();
@@ -207,7 +207,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(500);
                 expect(res.result).to.exist();
@@ -226,7 +226,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(299);
                 expect(res.headers['content-length']).to.equal(0);
@@ -265,13 +265,13 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
-            server.inject('/stream', function (res1) {
+            server.inject('/stream', (res1) => {
 
                 expect(res1.result).to.equal('xy');
                 expect(res1.statusCode).to.equal(200);
                 expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
 
-                server.inject({ method: 'HEAD', url: '/stream' }, function (res2) {
+                server.inject({ method: 'HEAD', url: '/stream' }, (res2) => {
 
                     expect(res2.result).to.equal('');
                     expect(res2.statusCode).to.equal(200);
@@ -305,23 +305,23 @@ describe('Reply', () => {
             server.route({ method: 'GET', path: '/writable', handler: writableHandler });
 
             let requestError;
-            server.on('request-error', function (request, err) {
+            server.on('request-error', (request, err) => {
 
                 requestError = err;
             });
 
-            server.initialize(function (err) {
+            server.initialize((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/stream', function (res1) {
+                server.inject('/stream', (res1) => {
 
                     expect(res1.statusCode).to.equal(500);
                     expect(requestError).to.exist();
                     expect(requestError.message).to.equal('Stream must have a streams2 readable interface');
 
                     requestError = undefined;
-                    server.inject('/writable', function (res2) {
+                    server.inject('/writable', (res2) => {
 
                         expect(res2.statusCode).to.equal(500);
                         expect(requestError).to.exist();
@@ -349,11 +349,11 @@ describe('Reply', () => {
             server.route({ method: 'GET', path: '/', handler: handler });
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.initialize(function (err) {
+            server.initialize((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/stream', function (res) {
+                server.inject('/stream', (res) => {
 
                     expect(res.statusCode).to.equal(500);
                     done();
@@ -391,7 +391,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(500);
                 done();
@@ -432,7 +432,7 @@ describe('Reply', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/stream', config: { handler: handler, cache: { expiresIn: 9999 } } });
 
-                server.inject('/stream', function (res) {
+                server.inject('/stream', (res) => {
 
                     expect(res.result).to.equal('xy');
                     expect(res.statusCode).to.equal(299);
@@ -451,7 +451,7 @@ describe('Reply', () => {
                 server.connection();
                 server.route({ method: 'GET', path: '/', handler: handler });
 
-                server.inject('/', function (res) {
+                server.inject('/', (res) => {
 
                     expect(res.statusCode).to.equal(299);
                     expect(res.result.toString()).to.equal('buffer content');
@@ -476,7 +476,7 @@ describe('Reply', () => {
 
             server.route({ method: 'GET', path: '/domain', handler: handler });
 
-            server.inject('/domain', function (res) {
+            server.inject('/domain', (res) => {
 
                 expect(res.result).to.equal('123');
                 done();
@@ -491,7 +491,7 @@ describe('Reply', () => {
             const handler = function (request, reply) {
 
                 const response = reply('123').hold();
-                setTimeout(function () {
+                setTimeout(() => {
 
                     response.send();
                 }, 10);
@@ -499,7 +499,7 @@ describe('Reply', () => {
 
             server.route({ method: 'GET', path: '/domain', handler: handler });
 
-            server.inject('/domain', function (res) {
+            server.inject('/domain', (res) => {
 
                 expect(res.result).to.equal('123');
                 done();
@@ -521,7 +521,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('');
                 done();
@@ -539,7 +539,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('');
                 done();
@@ -560,7 +560,7 @@ describe('Reply', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal(null);
@@ -609,7 +609,7 @@ describe('Reply', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.deep.equal({

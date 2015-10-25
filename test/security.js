@@ -39,7 +39,7 @@ describe('security', () => {
             method: 'POST', url: '/item',
             payload: '{"name": "foobar\r\nContent-Length: \r\n\r\nHTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 19\r\n\r\n<html>Shazam</html>"}',
             headers: { 'Content-Type': 'application/json' }
-        }, function (res) {
+        }, (res) => {
 
             expect(res.statusCode).to.equal(400);
             done();
@@ -64,7 +64,7 @@ describe('security', () => {
             payload: '{"something":"something"}',
             headers: { 'content-type': '<script>alert(1)</script>;' }
         },
-        function (res) {
+        (res) => {
 
             expect(res.result.message).to.not.contain('script');
             done();
@@ -89,7 +89,7 @@ describe('security', () => {
             payload: '{"something":"something"}',
             headers: { cookie: 'encoded="<script></script>";' }
         },
-        function (res) {
+        (res) => {
 
             expect(res.result.message).to.not.contain('<script>');
             done();
@@ -114,7 +114,7 @@ describe('security', () => {
             payload: '{"something":"something"}',
             headers: { cookie: '<script></script>=value;' }
         },
-        function (res) {
+        (res) => {
 
             expect(res.result.message).to.not.contain('<script>');
             done();
@@ -141,7 +141,7 @@ describe('security', () => {
             method: 'GET',
             url: '/fail/<script>'
         },
-        function (res) {
+        (res) => {
 
             expect(res.result.message).to.not.contain('<script>');
             expect(JSON.stringify(res.result.validation)).to.not.contain('<script>');
@@ -169,7 +169,7 @@ describe('security', () => {
             payload: '{"<script></script>":"other"}',
             headers: { 'content-type': 'application/json' }
         },
-        function (res) {
+        (res) => {
 
             expect(res.result.message).to.not.contain('<script>');
             expect(JSON.stringify(res.result.validation)).to.not.contain('<script>');
@@ -195,7 +195,7 @@ describe('security', () => {
             method: 'GET',
             url: '/fail/query?<script></script>=value'
         },
-        function (res) {
+        (res) => {
 
             expect(res.result.message).to.not.contain('<script>');
             expect(JSON.stringify(res.result.validation)).to.not.contain('<script>');

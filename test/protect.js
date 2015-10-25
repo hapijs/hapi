@@ -32,7 +32,7 @@ describe('Protect', () => {
 
         const handler = function (request, reply) {
 
-            process.nextTick(function () {
+            process.nextTick(() => {
 
                 throw new Error('no domain');
             });
@@ -40,15 +40,15 @@ describe('Protect', () => {
 
         server.route({ method: 'GET', path: '/', handler: handler });
         const domain = Domain.createDomain();
-        domain.once('error', function (err) {
+        domain.once('error', (err) => {
 
             expect(err.message).to.equal('no domain');
             done();
         });
 
-        domain.run(function () {
+        domain.run(() => {
 
-            server.inject('/', function (res) { });
+            server.inject('/', (res) => { });
         });
     });
 
@@ -60,14 +60,14 @@ describe('Protect', () => {
         const handler = function (request, reply) {
 
             reply('ok');
-            process.nextTick(function () {
+            process.nextTick(() => {
 
                 throw new Error('should not leave domain');
             });
         };
 
         server.route({ method: 'GET', path: '/', handler: handler });
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -83,19 +83,19 @@ describe('Protect', () => {
 
             reply('ok');
 
-            process.nextTick(function () {
+            process.nextTick(() => {
 
                 throw new Error('should not leave domain 1');
             });
 
-            process.nextTick(function () {
+            process.nextTick(() => {
 
                 throw new Error('should not leave domain 2');
             });
         };
 
         server.route({ method: 'GET', path: '/', handler: handler });
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -113,19 +113,21 @@ describe('Protect', () => {
 
         const test = function (srv, options, next) {
 
-            srv.ext('onPreStart', function (plugin, afterNext) {
+            const preStart = function (plugin, afterNext) {
 
                 const client = new Client();                      // Created in the global domain
                 plugin.bind({ client: client });
                 afterNext();
-            });
+            };
+
+            srv.ext('onPreStart', preStart);
 
             srv.route({
                 method: 'GET',
                 path: '/',
                 handler: function (request, reply) {
 
-                    this.client.on('event', request.domain.bind(function () {
+                    this.client.on('event', request.domain.bind(() => {
 
                         throw new Error('boom');                // Caught by the global domain by default, not request domain
                     }));
@@ -143,14 +145,14 @@ describe('Protect', () => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
-        server.register(test, function (err) {
+        server.register(test, (err) => {
 
             expect(err).to.not.exist();
 
-            server.initialize(function (err) {
+            server.initialize((err) => {
 
                 expect(err).to.not.exist();
-                server.inject('/', function (res) {
+                server.inject('/', (res) => {
 
                     done();
                 });
@@ -163,7 +165,7 @@ describe('Protect', () => {
         const handler = function (request, reply) {
 
             reply('ok');
-            setTimeout(function () {
+            setTimeout(() => {
 
                 throw new Error('After done');
             }, 10);
@@ -172,14 +174,14 @@ describe('Protect', () => {
         const server = new Hapi.Server({ debug: false });
         server.connection();
 
-        server.on('log', function (event, tags) {
+        server.on('log', (event, tags) => {
 
             expect(tags.implementation).to.exist();
             done();
         });
 
         server.route({ method: 'GET', path: '/', handler: handler });
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
         });

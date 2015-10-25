@@ -46,7 +46,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', function (res) {
+        server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -76,7 +76,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/b/456?a=123', function (res) {
+        server.inject('/b/456?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal(579);
@@ -104,19 +104,19 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?verbose=true', function (res1) {
+        server.inject('/?verbose=true', (res1) => {
 
             expect(res1.statusCode).to.equal(400);
 
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(200);
 
-                server.inject('/steve?verbose=true', function (res3) {
+                server.inject('/steve?verbose=true', (res3) => {
 
                     expect(res3.statusCode).to.equal(200);
 
-                    server.inject('/steve?verbose=x', function (res4) {
+                    server.inject('/steve?verbose=x', (res4) => {
 
                         expect(res4.statusCode).to.equal(400);
                         done();
@@ -159,23 +159,23 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?me=true', function (res1) {
+        server.inject('/?me=true', (res1) => {
 
             expect(res1.statusCode).to.equal(400);
 
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(200);
 
-                server.inject('/steve?me=true', function (res3) {
+                server.inject('/steve?me=true', (res3) => {
 
                     expect(res3.statusCode).to.equal(400);
 
-                    server.inject('/john?me=true', function (res4) {
+                    server.inject('/john?me=true', (res4) => {
 
                         expect(res4.statusCode).to.equal(200);
 
-                        server.inject('/john?me=x', function (res5) {
+                        server.inject('/john?me=x', (res5) => {
 
                             expect(res5.statusCode).to.equal(400);
                             done();
@@ -206,7 +206,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=abc', function (res) {
+        server.inject('/?a=abc', (res) => {
 
             expect(res.statusCode).to.equal(400);
             done();
@@ -233,7 +233,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', function (res) {
+        server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(400);
             done();
@@ -258,7 +258,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', function (res) {
+        server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -286,11 +286,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', function (res1) {
+        server.inject('/?a=123', (res1) => {
 
             expect(res1.statusCode).to.equal(200);
 
-            server.inject('/?a=456', function (res2) {
+            server.inject('/?a=456', (res2) => {
 
                 expect(res2.statusCode).to.equal(400);
                 expect(res2.result.message).to.equal('Bad query');
@@ -320,7 +320,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=456', function (res) {
+        server.inject('/?a=456', (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -347,7 +347,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/10', function (res) {
+        server.inject('/10', (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal(11);
@@ -375,7 +375,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/10', function (res) {
+        server.inject('/10', (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('101');
@@ -401,7 +401,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', function (res) {
+        server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(400);
             done();
@@ -431,7 +431,7 @@ describe('validation', () => {
             return reply(request.response.data.details[0].path);
         });
 
-        server.inject('/?a=123', function (res) {
+        server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('.a');
@@ -459,7 +459,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', function (res) {
+        server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -486,7 +486,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', function (res) {
+        server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation).to.deep.equal({
@@ -519,7 +519,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', function (res) {
+        server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -550,7 +550,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', function (res) {
+        server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result.data.output.payload.message).to.deep.equal('child "a" fails because ["a" length must be at least 2 characters long]');
@@ -582,7 +582,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', function (res) {
+        server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result).to.equal('Got error in query where a is bad');
@@ -614,7 +614,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', function (res) {
+        server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -644,7 +644,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', function (res) {
+        server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result).to.deep.equal({
@@ -682,7 +682,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: '{"a":"abc"}', headers: { 'content-type': 'application/json' } }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: '{"a":"abc"}', headers: { 'content-type': 'application/json' } }, (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation).to.deep.equal({
@@ -714,7 +714,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } }, function (res) {
+        server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } }, (res) => {
 
             expect(res.statusCode).to.equal(415);
             done();
@@ -741,7 +741,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } }, (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation.source).to.equal('payload');
@@ -769,7 +769,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/' }, function (res) {
+        server.inject({ method: 'POST', url: '/' }, (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation).to.deep.equal({
@@ -805,7 +805,7 @@ describe('validation', () => {
         let count = 0;
         const action = function (next) {
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 count += (res.statusCode === 500 ? 1 : 0);
                 return next(null, res.statusCode);
@@ -843,12 +843,12 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res1) {
+        server.inject('/', (res1) => {
 
             expect(res1.statusCode).to.equal(200);
             expect(res1.payload).to.equal('{"some":"value"}');
 
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(500);
                 done();
@@ -879,12 +879,12 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/?user=admin', function (res1) {
+        server.inject('/?user=admin', (res1) => {
 
             expect(res1.statusCode).to.equal(200);
             expect(res1.payload).to.equal('{"some":"thing","more":"stuff"}');
 
-            server.inject('/?user=test', function (res2) {
+            server.inject('/?user=test', (res2) => {
 
                 expect(res2.statusCode).to.equal(500);
                 done();
@@ -922,10 +922,10 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res1) {
+        server.inject('/', (res1) => {
 
             expect(res1.statusCode).to.equal(400);
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(500);
                 done();
@@ -969,13 +969,13 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res1) {
+        server.inject('/', (res1) => {
 
             expect(res1.statusCode).to.equal(200);
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(400);
-                server.inject('/', function (res3) {
+                server.inject('/', (res3) => {
 
                     expect(res3.statusCode).to.equal(500);
                     done();
@@ -1007,7 +1007,7 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.deep.equal({ a: 1 });
@@ -1045,7 +1045,7 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result.custom).to.equal(123);
@@ -1073,7 +1073,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(204);
             done();
@@ -1089,7 +1089,7 @@ describe('validation', () => {
 
         const server = new Hapi.Server({ debug: false });
         server.connection();
-        expect(function () {
+        expect(() => {
 
             server.route({
                 method: 'GET',
@@ -1133,12 +1133,12 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res1) {
+        server.inject('/', (res1) => {
 
             expect(res1.statusCode).to.equal(200);
             expect(res1.payload).to.equal('{"some":"value"}');
 
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(500);
                 done();
@@ -1170,7 +1170,7 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -1201,7 +1201,7 @@ describe('validation', () => {
         let count = 0;
         const action = function (next) {
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 count += (res.statusCode === 500 ? 1 : 0);
                 return next(null, res.statusCode);
@@ -1237,7 +1237,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.request.route.settings.response).to.exist();
             expect(res.request.route.settings.response.sample).to.equal(0);
@@ -1266,7 +1266,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -1291,7 +1291,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -1316,7 +1316,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -1341,7 +1341,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -1368,7 +1368,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(400);
             done();
@@ -1396,7 +1396,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -1431,7 +1431,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', function (res) {
+        server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -1459,12 +1459,12 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res1) {
+        server.inject('/', (res1) => {
 
             expect(res1.statusCode).to.equal(500);
             value += 'e';
 
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(200);
                 expect(res2.payload).to.equal('abcde');
@@ -1495,12 +1495,12 @@ describe('validation', () => {
             handler: handler
         });
 
-        server.inject('/', function (res1) {
+        server.inject('/', (res1) => {
 
             expect(res1.statusCode).to.equal(500);
             value = 'on';
 
-            server.inject('/', function (res2) {
+            server.inject('/', (res2) => {
 
                 expect(res2.statusCode).to.equal(200);
                 expect(res2.payload).to.equal('true');
@@ -1539,7 +1539,7 @@ describe('validation', () => {
             }
         };
 
-        server.inject(settings, function (res) {
+        server.inject(settings, (res) => {
 
             expect(res.statusCode).to.equal(200);
             done();
@@ -1575,7 +1575,7 @@ describe('validation', () => {
             }
         };
 
-        server.inject(settings, function (res) {
+        server.inject(settings, (res) => {
 
             expect(res.statusCode).to.equal(400);
             done();

@@ -44,7 +44,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-        server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: payload }, (res) => {
 
             expect(res.result).to.exist();
             expect(res.result.x).to.equal('1');
@@ -63,7 +63,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, (res) => {
 
             expect(res.result).to.exist();
             expect(res.result.statusCode).to.equal(500);
@@ -82,13 +82,13 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-        server.once('response', function (request) {
+        server.once('response', (request) => {
 
             expect(request._isBailed).to.equal(true);
             done();
         });
 
-        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, function (res) { });
+        server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, (res) => { });
     });
 
     it('handles aborted request', (done) => {
@@ -103,12 +103,12 @@ describe('payload', () => {
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
         let message = null;
-        server.on('log', function (event, tags) {
+        server.on('log', (event, tags) => {
 
             message = event.data.message;
         });
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
@@ -122,20 +122,20 @@ describe('payload', () => {
                 }
             };
 
-            const req = Http.request(options, function (res) {
+            const req = Http.request(options, (res) => {
 
             });
 
             req.write('Hello\n');
 
-            req.on('error', function (err) {
+            req.on('error', (err) => {
 
                 expect(message).to.equal('Parse Error');
                 expect(err.code).to.equal('ECONNRESET');
                 server.stop(done);
             });
 
-            setTimeout(function () {
+            setTimeout(() => {
 
                 req.abort();
             }, 15);
@@ -156,7 +156,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 10 } } });
 
-        server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-length': payload.length } }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-length': payload.length } }, (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result).to.exist();
@@ -178,13 +178,13 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 1024 * 1024 } } });
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
             const uri = 'http://localhost:' + server.info.port;
 
-            Wreck.post(uri, { payload: payload }, function (err, res, body) {
+            Wreck.post(uri, { payload: payload }, (err, res, body) => {
 
                 expect(err).to.not.exist();
                 expect(res.statusCode).to.equal(400);
@@ -201,7 +201,7 @@ describe('payload', () => {
         const ext = function (request, reply) {
 
             const chunks = [];
-            request.on('peek', function (chunk) {
+            request.on('peek', (chunk) => {
 
                 chunks.push(chunk);
             });
@@ -225,7 +225,7 @@ describe('payload', () => {
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
         const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
-        server.inject({ method: 'POST', url: '/', payload: payload }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: payload }, (res) => {
 
             expect(res.result).to.equal(payload);
             done();
@@ -244,7 +244,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', handler: handler });
 
-        Zlib.gzip(JSON.stringify(message), function (err, buf) {
+        Zlib.gzip(JSON.stringify(message), (err, buf) => {
 
             const request = {
                 method: 'POST',
@@ -257,7 +257,7 @@ describe('payload', () => {
                 payload: buf
             };
 
-            server.inject(request, function (res) {
+            server.inject(request, (res) => {
 
                 expect(res.result).to.exist();
                 expect(res.result).to.deep.equal(message);
@@ -272,20 +272,20 @@ describe('payload', () => {
         const sourceContents = Fs.readFileSync(path);
         const stats = Fs.statSync(path);
 
-        Zlib.gzip(sourceContents, function (err, compressed) {
+        const handler = function (request, reply) {
 
-            const handler = function (request, reply) {
+            const receivedContents = Fs.readFileSync(request.payload.path);
+            Fs.unlinkSync(request.payload.path);
+            expect(receivedContents).to.deep.equal(sourceContents);
+            return reply(request.payload.bytes);
+        };
 
-                const receivedContents = Fs.readFileSync(request.payload.path);
-                Fs.unlinkSync(request.payload.path);
-                expect(receivedContents).to.deep.equal(sourceContents);
-                return reply(request.payload.bytes);
-            };
+        Zlib.gzip(sourceContents, (err, compressed) => {
 
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
-            server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, function (res) {
+            server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, (res) => {
 
                 expect(res.result).to.equal(stats.size);
                 done();
@@ -300,7 +300,7 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
-        server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, function (res) {
+        server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, (res) => {
 
             expect(res.statusCode).to.equal(500);
             done();
@@ -318,7 +318,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: '*', path: '/any', handler: handler });
 
-        server.inject({ url: '/any', method: 'POST', payload: { key: '09876' } }, function (res) {
+        server.inject({ url: '/any', method: 'POST', payload: { key: '09876' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('09876');
@@ -337,7 +337,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler } });
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
@@ -352,7 +352,7 @@ describe('payload', () => {
                 }
             };
 
-            const req = Http.request(options, function (res) {
+            const req = Http.request(options, (res) => {
 
                 expect(res.statusCode).to.equal(415);
                 server.stop({ timeout: 1 }, done);
@@ -373,7 +373,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { failAction: 'ignore' } } });
 
-        server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.deep.equal(null);
@@ -392,7 +392,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', handler: handler });
 
-        server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('ok');
@@ -411,7 +411,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
 
-        server.inject({ method: 'POST', url: '/text', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
+        server.inject({ method: 'POST', url: '/text', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('testing123+456');
@@ -430,7 +430,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
 
-        server.inject({ method: 'POST', url: '/override', payload: '{"key":"cool"}', headers: { 'content-type': 'text/plain' } }, function (res) {
+        server.inject({ method: 'POST', url: '/override', payload: '{"key":"cool"}', headers: { 'content-type': 'text/plain' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('cool');
@@ -449,7 +449,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
 
-        server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
+        server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('testing123+456');
@@ -468,7 +468,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
 
-        server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
+        server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, (res) => {
 
             expect(res.statusCode).to.equal(415);
             done();
@@ -486,7 +486,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
-        server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, function (res) {
+        server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'text/plain' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('testing123+456');
@@ -505,7 +505,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
 
-        server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, function (res) {
+        server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, (res) => {
 
             expect(res.statusCode).to.equal(415);
             done();
@@ -526,7 +526,7 @@ describe('payload', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: 'x[y]=1&x[z]=2', headers: { 'content-type': 'application/x-www-form-urlencoded' } }, function (res) {
+        server.inject({ method: 'POST', url: '/', payload: 'x[y]=1&x[z]=2', headers: { 'content-type': 'application/x-www-form-urlencoded' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('12');
@@ -581,7 +581,7 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/echo', config: { handler: handler } });
 
-        server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, function (res) {
+        server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, (res) => {
 
             expect(Object.keys(res.result).length).to.equal(3);
             expect(res.result.field1).to.exist();
@@ -602,7 +602,7 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
@@ -614,17 +614,17 @@ describe('payload', () => {
                 method: 'POST'
             };
 
-            const req = Http.request(options, function (res) {
+            const req = Http.request(options, (res) => {
 
                 expect(res.statusCode).to.equal(408);
                 expect(timer.elapsed()).to.be.at.least(45);
                 server.stop({ timeout: 1 }, done);
             });
 
-            req.on('error', function (err) { });                    // Will error out, so don't allow error to escape test
+            req.on('error', (err) => { });                    // Will error out, so don't allow error to escape test
 
             req.write('{}\n');
-            setTimeout(function () {
+            setTimeout(() => {
 
                 req.end();
             }, 100);
@@ -641,7 +641,7 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: false } } });
         server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: handler } });
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
@@ -653,17 +653,17 @@ describe('payload', () => {
                 method: 'POST'
             };
 
-            const req = Http.request(options, function (res) {
+            const req = Http.request(options, (res) => {
 
                 expect(res.statusCode).to.equal(408);
                 expect(timer.elapsed()).to.be.at.least(45);
                 server.stop({ timeout: 1 }, done);
             });
 
-            req.on('error', function (err) { });                    // Will error out, so don't allow error to escape test
+            req.on('error', (err) => { });                    // Will error out, so don't allow error to escape test
 
             req.write('{}\n');
-            setTimeout(function () {
+            setTimeout(() => {
 
                 req.end();
             }, 100);
@@ -680,7 +680,7 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
         server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
@@ -691,7 +691,7 @@ describe('payload', () => {
                 method: 'POST'
             };
 
-            const req = Http.request(options, function (res) {
+            const req = Http.request(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 server.stop({ timeout: 1 }, done);

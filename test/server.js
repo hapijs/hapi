@@ -75,7 +75,7 @@ describe('Server', () => {
                 ++stopped;
             });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
@@ -84,7 +84,7 @@ describe('Server', () => {
                     expect(connection._started).to.equal(true);
                 });
 
-                server.stop(function () {
+                server.stop(() => {
 
                     server.connections.forEach(function (connection) {
 
@@ -119,11 +119,11 @@ describe('Server', () => {
                 ++stopped;
             });
 
-            server.initialize(function (err) {
+            server.initialize((err) => {
 
                 expect(err).to.not.exist();
 
-                server.start(function (err) {
+                server.start((err) => {
 
                     expect(err).to.not.exist();
 
@@ -132,7 +132,7 @@ describe('Server', () => {
                         expect(connection._started).to.equal(true);
                     });
 
-                    server.stop(function () {
+                    server.stop(() => {
 
                         server.connections.forEach(function (connection) {
 
@@ -152,17 +152,17 @@ describe('Server', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
                 const port = server.info.port;
 
                 server.connection({ port: port });
                 server.connection({ port: port });
-                server.stop(function (err) {
+                server.stop((err) => {
 
                     expect(err).to.not.exist();
-                    server.start(function (err) {
+                    server.start((err) => {
 
                         expect(err).to.exist();
                         expect(err.message).to.match(/EADDRINUSE/);
@@ -182,7 +182,7 @@ describe('Server', () => {
                 return next(new Error('boom'));
             });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('boom');
@@ -204,7 +204,7 @@ describe('Server', () => {
 
             const server = new Hapi.Server({ cache: cache });
             server.connection();
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err.message).to.equal('oops');
                 server.stop(done);
@@ -214,7 +214,7 @@ describe('Server', () => {
         it('fails to start server without connections', (done) => {
 
             const server = new Hapi.Server();
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('No connections to start');
@@ -230,7 +230,7 @@ describe('Server', () => {
             const server = new Hapi.Server();
             server.connection();
             server.register(plugin, Hoek.ignore);
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Cannot start server before plugins finished registration');
@@ -242,7 +242,7 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
 
-            expect(function () {
+            expect(() => {
 
                 server.start();
             }).to.throw('Missing required start callback function');
@@ -256,9 +256,9 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.start(function (err) {
+            server.start((err) => {
 
-                server.initialize(function (err) {
+                server.initialize((err) => {
 
                     expect(err).to.exist();
                     expect(err.message).to.equal('Cannot initialize server while it is in started state');
@@ -275,7 +275,7 @@ describe('Server', () => {
             const server = new Hapi.Server();
             server.connection();
             server.start(Hoek.ignore);
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Cannot start server while it is in initializing state');
@@ -291,17 +291,17 @@ describe('Server', () => {
             const server = new Hapi.Server();
             server.connection();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.initialize(function (err) {
+            server.initialize((err) => {
 
                 expect(err).to.not.exist();
 
-                cache.set('a', 'going in', 0, function (err) {
+                cache.set('a', 'going in', 0, (err) => {
 
                     cache.get('a', function (err, value1, cached1, report1) {
 
                         expect(value1).to.equal('going in');
 
-                        server.stop(function (err) {
+                        server.stop((err) => {
 
                             cache.get('a', function (err, value2, cached2, report2) {
 
@@ -323,10 +323,10 @@ describe('Server', () => {
                 return next(new Error('failed cleanup'));
             });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
-                server.stop(function (err) {
+                server.stop((err) => {
 
                     expect(err.message).to.equal('failed cleanup');
                     done();
@@ -343,10 +343,10 @@ describe('Server', () => {
                 return next(new Error('failed cleanup'));
             });
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
-                server.stop(function (err) {
+                server.stop((err) => {
 
                     expect(err.message).to.equal('failed cleanup');
                     done();
@@ -363,10 +363,10 @@ describe('Server', () => {
                 return next(new Error('stop failed'));
             };
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
-                server.stop(function (err) {
+                server.stop((err) => {
 
                     expect(err.message).to.equal('stop failed');
                     done();
@@ -380,7 +380,7 @@ describe('Server', () => {
             server.connection();
 
             server.stop(Hoek.ignore);
-            server.stop(function (err) {
+            server.stop((err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Cannot stop server while in stopping state');
@@ -408,7 +408,7 @@ describe('Server', () => {
         it('throws on invalid config', (done) => {
 
             const server = new Hapi.Server();
-            expect(function () {
+            expect(() => {
 
                 server.connection({ something: false });
             }).to.throw(/Invalid connection options/);
@@ -461,23 +461,23 @@ describe('Server', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/', function (res1) {
+                server.inject('/', (res1) => {
 
                     expect(server.load.eventLoopDelay).to.be.below(5);
 
-                    setImmediate(function () {
+                    setImmediate(() => {
 
-                        server.inject('/', function (res2) {
+                        server.inject('/', (res2) => {
 
                             expect(server.load.eventLoopDelay).to.be.above(0);
 
-                            setImmediate(function () {
+                            setImmediate(() => {
 
-                                server.inject('/', function (res3) {
+                                server.inject('/', (res3) => {
 
                                     expect(server.load.eventLoopDelay).to.be.above(0);
                                     expect(server.load.heapUsed).to.be.above(1024 * 1024);

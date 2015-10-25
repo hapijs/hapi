@@ -38,7 +38,7 @@ describe('Connection', () => {
     it('allows null port and host', (done) => {
 
         const server = new Hapi.Server();
-        expect(function () {
+        expect(() => {
 
             server.connection({ host: null, port: null });
         }).to.not.throw();
@@ -56,7 +56,7 @@ describe('Connection', () => {
     it('throws when disabling autoListen and providing a port', (done) => {
 
         const server = new Hapi.Server();
-        expect(function () {
+        expect(() => {
 
             server.connection({ port: 80, autoListen: false });
         }).to.throw('Cannot specify port when autoListen is false');
@@ -67,7 +67,7 @@ describe('Connection', () => {
 
         const server = new Hapi.Server();
         const port = Path.join(__dirname, 'hapi-server.socket');
-        expect(function () {
+        expect(() => {
 
             server.connection({ port: port, autoListen: false });
         }).to.throw('Cannot specify port when autoListen is false');
@@ -78,7 +78,7 @@ describe('Connection', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
@@ -96,7 +96,7 @@ describe('Connection', () => {
 
         const server = new Hapi.Server();
         server.connection({ host: 'no.such.domain.hapi', address: 'localhost' });
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
             expect(server.info.host).to.equal('no.such.domain.hapi');
@@ -110,7 +110,7 @@ describe('Connection', () => {
         const server = new Hapi.Server();
         server.connection({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
         expect(server.info.uri).to.equal('http://uri.example.com:8080');
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
             expect(server.info.host).to.equal('no.such.domain.hapi');
@@ -123,7 +123,7 @@ describe('Connection', () => {
     it('throws on uri ending with /', (done) => {
 
         const server = new Hapi.Server();
-        expect(function () {
+        expect(() => {
 
             server.connection({ uri: 'http://uri.example.com:8080/' });
         }).to.throw(/Invalid connection options/);
@@ -138,12 +138,12 @@ describe('Connection', () => {
 
         expect(server.connections[0].type).to.equal('socket');
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
             const absSocketPath = Path.resolve(port);
             expect(server.info.port).to.equal(absSocketPath);
-            server.stop(function (err) {
+            server.stop((err) => {
 
                 expect(err).to.not.exist();
 
@@ -163,7 +163,7 @@ describe('Connection', () => {
 
         expect(server.connections[0].type).to.equal('socket');
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(server.info.port).to.equal(port);
             server.stop(done);
@@ -195,10 +195,10 @@ describe('Connection', () => {
         server.connection({ listener: listener });
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
-            Wreck.get('http://localhost:' + server.info.port + '/', {}, function (err, res, body) {
+            Wreck.get('http://localhost:' + server.info.port + '/', {}, (err, res, body) => {
 
                 expect(err).to.not.exist();
                 expect(body.toString()).to.equal('ok');
@@ -219,7 +219,7 @@ describe('Connection', () => {
         server.connection({ listener: listener, tls: true });
         server.route({ method: 'GET', path: '/', handler: handler });
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
             expect(server.info.protocol).to.equal('https');
@@ -241,10 +241,10 @@ describe('Connection', () => {
 
         listener.listen(0, 'localhost', () => {
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
-                Wreck.get('http://localhost:' + server.info.port + '/', {}, function (err, res, body) {
+                Wreck.get('http://localhost:' + server.info.port + '/', {}, (err, res, body) => {
 
                     expect(err).to.not.exist();
                     expect(body.toString()).to.equal('ok');
@@ -285,7 +285,7 @@ describe('Connection', () => {
             method: 'GET', path: '/', config: {
                 handler: function (request, reply) {
 
-                    setTimeout(function () {
+                    setTimeout(() => {
 
                         return reply('too late');
                     }, 70);
@@ -293,10 +293,10 @@ describe('Connection', () => {
             }
         });
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
-            Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+            Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, (err, res) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Client request error: socket hang up');
@@ -316,7 +316,7 @@ describe('Connection', () => {
         server.connection({ routes: { timeout: { socket: false } } });
         server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-        server.start(function (err) {
+        server.start((err) => {
 
             expect(err).to.not.exist();
 
@@ -329,9 +329,9 @@ describe('Connection', () => {
                 return orig.apply(this, arguments);
             };
 
-            Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, function (err, res) {
+            Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, (err, res) => {
 
-                Wreck.read(res, {}, function (err, payload) {
+                Wreck.read(res, {}, (err, payload) => {
 
                     expect(err).to.not.exist();
                     expect(timeout).to.equal('gotcha');
@@ -347,7 +347,7 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
                 let expectedBoundAddress = '0.0.0.0';
@@ -371,7 +371,7 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection({ host: '0.0.0.0', port: 0, tls: tlsOptions });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
                 expect(server.info.host).to.equal('0.0.0.0');
@@ -400,13 +400,13 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
-                server.start(function (err) {
+                server.start((err) => {
 
                     expect(err).to.not.exist();
-                    server.stop(function (err) {
+                    server.stop((err) => {
 
                         expect(err).to.not.exist();
                         done();
@@ -420,11 +420,11 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
                 server.connection({ port: server.info.port });
-                server.start(function (err) {
+                server.start((err) => {
 
                     expect(err).to.exist();
                     expect(err.message).to.match(/EADDRINUSE/);
@@ -440,7 +440,7 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
                 const socket1 = new Net.Socket();
@@ -452,15 +452,15 @@ describe('Connection', () => {
 
                     socket2.connect(server.info.port, '127.0.0.1', () => {
 
-                        server.listener.getConnections(function (err, count1) {
+                        server.listener.getConnections((err, count1) => {
 
                             expect(count1).to.be.greaterThan(0);
 
-                            server.stop(function (err) {
+                            server.stop((err) => {
 
                                 expect(err).to.not.exist();
 
-                                server.listener.getConnections(function (err, count2) {
+                                server.listener.getConnections((err, count2) => {
 
                                     expect(count2).to.equal(0);
                                     done();
@@ -479,19 +479,19 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 const socket1 = new Net.Socket();
                 const socket2 = new Net.Socket();
 
-                socket1.once('error', function (err) {
+                socket1.once('error', (err) => {
 
                     expect(err.errno).to.equal('ECONNRESET');
                 });
 
-                socket2.once('error', function (err) {
+                socket2.once('error', (err) => {
 
                     expect(err.errno).to.equal('ECONNRESET');
                 });
@@ -500,12 +500,12 @@ describe('Connection', () => {
 
                     socket2.connect(server.info.port, server.connections[0].settings.host, () => {
 
-                        server.listener.getConnections(function (err, count) {
+                        server.listener.getConnections((err, count) => {
 
                             expect(count).to.be.greaterThan(0);
                             const timer = new Hoek.Bench();
 
-                            server.stop({ timeout: 20 }, function (err) {
+                            server.stop({ timeout: 20 }, (err) => {
 
                                 expect(err).to.not.exist();
                                 expect(timer.elapsed()).to.be.at.least(19);
@@ -521,19 +521,19 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 const socket1 = new Net.Socket();
                 const socket2 = new Net.Socket();
 
-                socket1.once('error', function (err) {
+                socket1.once('error', (err) => {
 
                     expect(err.errno).to.equal('ECONNRESET');
                 });
 
-                socket2.once('error', function (err) {
+                socket2.once('error', (err) => {
 
                     expect(err.errno).to.equal('ECONNRESET');
                 });
@@ -542,16 +542,16 @@ describe('Connection', () => {
 
                     socket2.connect(server.info.port, server.connections[0].settings.host, () => {
 
-                        server.listener.getConnections(function (err, count1) {
+                        server.listener.getConnections((err, count1) => {
 
                             expect(count1).to.be.greaterThan(0);
                             const timer = new Hoek.Bench();
 
-                            server.stop(function (err) {
+                            server.stop((err) => {
 
                                 expect(err).to.not.exist();
 
-                                server.listener.getConnections(function (err, count2) {
+                                server.listener.getConnections((err, count2) => {
 
                                     expect(count2).to.equal(0);
                                     expect(timer.elapsed()).to.be.at.least(9);
@@ -559,7 +559,7 @@ describe('Connection', () => {
                                 });
                             });
 
-                            setTimeout(function () {
+                            setTimeout(() => {
 
                                 socket1.end();
                                 socket2.end();
@@ -572,7 +572,7 @@ describe('Connection', () => {
 
         it('refuses to handle new incoming requests', (done) => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply('ok');
             };
@@ -580,16 +580,16 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
                 let err2;
 
-                Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, function (err1, res, body) {
+                Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, (err1, res, body) => {
 
-                    server.stop(function (err3) {
+                    server.stop((err3) => {
 
                         expect(err3).to.not.exist();
                         expect(err1).to.not.exist();
@@ -600,7 +600,7 @@ describe('Connection', () => {
                     });
                 });
 
-                Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, function (err, res, body) {
+                Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, (err, res, body) => {
 
                     err2 = err;
                 });
@@ -612,21 +612,21 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
             const initial = server.listener.listeners('connection').length;
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
                 expect(server.listener.listeners('connection').length).to.be.greaterThan(initial);
 
-                server.stop(function (err) {
+                server.stop((err) => {
 
                     expect(err).to.not.exist();
 
-                    server.start(function (err) {
+                    server.start((err) => {
 
                         expect(err).to.not.exist();
 
-                        server.stop(function (err) {
+                        server.stop((err) => {
 
                             expect(err).to.not.exist();
                             expect(server.listener.listeners('connection').length).to.equal(initial);
@@ -641,7 +641,7 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.stop(function (err) {
+            server.stop((err) => {
 
                 server.stop(done);
             });
@@ -663,23 +663,23 @@ describe('Connection', () => {
             };
 
             let logged = null;
-            server.once('log', function (event, tags) {
+            server.once('log', (event, tags) => {
 
                 logged = (event.internal && tags.load && event.data);
             });
 
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.start(function (err) {
+            server.start((err) => {
 
                 expect(err).to.not.exist();
 
-                server.inject('/', function (res1) {
+                server.inject('/', (res1) => {
 
                     expect(res1.statusCode).to.equal(200);
 
-                    setImmediate(function () {
+                    setImmediate(() => {
 
-                        server.inject('/', function (res2) {
+                        server.inject('/', (res2) => {
 
                             expect(res2.statusCode).to.equal(503);
                             expect(logged.rss > 10000).to.equal(true);
@@ -709,7 +709,7 @@ describe('Connection', () => {
                 credentials: { foo: 'bar' }
             };
 
-            server.connections[0].inject(options, function (res) {
+            server.connections[0].inject(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(options.credentials).to.exist();
@@ -736,7 +736,7 @@ describe('Connection', () => {
                 }
             };
 
-            server.inject(options, function (res) {
+            server.inject(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(options.credentials).to.exist();
@@ -761,7 +761,7 @@ describe('Connection', () => {
                 authority: 'something'
             };
 
-            server.inject(options, function (res) {
+            server.inject(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('something');
@@ -786,7 +786,7 @@ describe('Connection', () => {
                 authority: 'something'
             };
 
-            server.inject(options, function (res) {
+            server.inject(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('something');
@@ -811,7 +811,7 @@ describe('Connection', () => {
                 artifacts: { bar: 'baz' }
             };
 
-            server.connections[0].inject(options, function (res) {
+            server.connections[0].inject(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result.bar).to.equal('baz');
@@ -832,7 +832,7 @@ describe('Connection', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.request.app.key).to.equal('value');
@@ -851,7 +851,7 @@ describe('Connection', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject({ url: '/', remoteAddress: '1.2.3.4' }, function (res) {
+            server.inject({ url: '/', remoteAddress: '1.2.3.4' }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.payload).to.equal('1.2.3.4');
@@ -870,7 +870,7 @@ describe('Connection', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', config: { handler: handler } });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.payload).to.equal('127.0.0.1');
@@ -891,7 +891,7 @@ describe('Connection', () => {
                 }
             });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('example.com:2080');
                 done();
@@ -1036,7 +1036,7 @@ describe('Connection', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal('12');
                 done();
@@ -1047,11 +1047,13 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.ext('onPreHandler', function (request, reply) {
+            const preHandler = function (request, reply) {
 
                 request.app.x = this.y;
                 return reply.continue();
-            }, { bind: { y: 42 } });
+            };
+
+            server.ext('onPreHandler', preHandler, { bind: { y: 42 } });
 
             const handler = function (request, reply) {
 
@@ -1060,7 +1062,7 @@ describe('Connection', () => {
 
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (res) {
+            server.inject('/', (res) => {
 
                 expect(res.result).to.equal(42);
                 done();
@@ -1078,10 +1080,12 @@ describe('Connection', () => {
                 path: __dirname + '/templates'
             });
 
-            server.ext('onPreHandler', function (request, reply) {
+            const preHandler = function (request, reply) {
 
                 return reply.view('test');
-            });
+            };
+
+            server.ext('onPreHandler', preHandler);
 
             const test = function (plugin, options, next) {
 
@@ -1098,9 +1102,9 @@ describe('Connection', () => {
                 name: 'test'
             };
 
-            server.register(test, function (err) {
+            server.register(test, (err) => {
 
-                server.inject('/view', function (res) {
+                server.inject('/view', (res) => {
 
                     expect(res.statusCode).to.equal(200);
                     done();
@@ -1112,12 +1116,14 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.ext('onRequest', function (request, reply) {
+            const onRequest = function (request, reply) {
 
                 return reply().redirect('/elsewhere');
-            });
+            };
 
-            server.inject('/', function (res) {
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(302);
                 expect(res.headers.location).to.equal('/elsewhere');
@@ -1129,12 +1135,14 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.ext('onRequest', function (request, reply) {
+            const onRequest = function (request, reply) {
 
                 return reply.redirect('/elsewhere');
-            });
+            };
 
-            server.inject('/', function (res) {
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(302);
                 expect(res.headers.location).to.equal('/elsewhere');
@@ -1148,12 +1156,14 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.ext('onRequest', function (request, reply) {
+                const onRequest = function (request, reply) {
 
                     return reply(Boom.badRequest('boom'));
-                });
+                };
 
-                server.inject('/', function (res) {
+                server.ext('onRequest', onRequest);
+
+                server.inject('/', (res) => {
 
                     expect(res.statusCode).to.equal(400);
                     expect(res.result.message).to.equal('boom');
@@ -1165,10 +1175,12 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.ext('onRequest', function (request, reply) {
+                const onRequest = function (request, reply) {
 
                     return reply(null, Boom.badRequest('boom'));
-                });
+                };
+
+                server.ext('onRequest', onRequest);
 
 
                 const handler = function (request, reply) {
@@ -1178,7 +1190,7 @@ describe('Connection', () => {
 
                 server.route({ method: 'GET', path: '/', handler: handler });
 
-                server.inject('/', function (res) {
+                server.inject('/', (res) => {
 
                     expect(res.result.message).to.equal('boom');
                     done();
@@ -1196,10 +1208,12 @@ describe('Connection', () => {
                     path: __dirname + '/templates'
                 });
 
-                server.ext('onRequest', function (request, reply) {
+                const onRequest = function (request, reply) {
 
                     return reply.view('test', { message: 'hola!' });
-                });
+                };
+
+                server.ext('onRequest', onRequest);
 
                 const handler = function (request, reply) {
 
@@ -1208,7 +1222,7 @@ describe('Connection', () => {
 
                 server.route({ method: 'GET', path: '/', handler: handler });
 
-                server.inject('/', function (res) {
+                server.inject('/', (res) => {
 
                     expect(res.result).to.match(/<div>\r?\n    <h1>hola!<\/h1>\r?\n<\/div>\r?\n/);
                     done();
@@ -1222,14 +1236,17 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.ext('onPreResponse', function (request, reply) {
+
+                const preRequest = function (request, reply) {
 
                     if (typeof request.response.source === 'string') {
                         return reply(Boom.badRequest('boom'));
                     }
 
                     return reply.continue();
-                });
+                };
+
+                server.ext('onPreResponse', preRequest);
 
                 server.route({
                     method: 'GET',
@@ -1249,10 +1266,10 @@ describe('Connection', () => {
                     }
                 });
 
-                server.inject({ method: 'GET', url: '/text' }, function (res1) {
+                server.inject({ method: 'GET', url: '/text' }, (res1) => {
 
                     expect(res1.result.message).to.equal('boom');
-                    server.inject({ method: 'GET', url: '/obj' }, function (res2) {
+                    server.inject({ method: 'GET', url: '/obj' }, (res2) => {
 
                         expect(res2.result.status).to.equal('ok');
                         done();
@@ -1264,12 +1281,15 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.ext('onPreResponse', function (request, reply) {
+
+                const preResponse = function (request, reply) {
 
                     return reply(null, request.response.output.statusCode);
-                });
+                };
 
-                server.inject({ method: 'GET', url: '/missing' }, function (res) {
+                server.ext('onPreResponse', preResponse);
+
+                server.inject({ method: 'GET', url: '/missing' }, (res) => {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result).to.equal(404);
@@ -1283,15 +1303,17 @@ describe('Connection', () => {
                 server.register(Inert, Hoek.ignore);
                 server.connection();
 
-                server.ext('onPreResponse', function (request, reply) {
+                const preResponse = function (request, reply) {
 
                     const response = request.response;
                     return reply({ isBoom: response.isBoom });
-                });
+                };
+
+                server.ext('onPreResponse', preResponse);
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './somewhere', listing: false, index: true } } });
 
-                server.inject('/missing', function (res) {
+                server.inject('/missing', (res) => {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result.isBoom).to.equal(true);
@@ -1305,15 +1327,17 @@ describe('Connection', () => {
                 server.register(Inert, Hoek.ignore);
                 server.connection();
 
-                server.ext('onPreResponse', function (request, reply) {
+                const preResponse = function (request, reply) {
 
                     const response = request.response;
                     return reply({ isBoom: response.isBoom });
-                });
+                };
+
+                server.ext('onPreResponse', preResponse);
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { file: './somewhere/something.txt' } });
 
-                server.inject('/missing', function (res) {
+                server.inject('/missing', (res) => {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result.isBoom).to.equal(true);
@@ -1327,21 +1351,23 @@ describe('Connection', () => {
                 server.register(Inert, Hoek.ignore);
                 server.connection();
 
-                server.ext('onPreResponse', function (request, reply) {
+                const preResponse = function (request, reply) {
 
                     return reply({ something: 'else' });
-                });
+                };
+
+                server.ext('onPreResponse', preResponse);
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './' } } });
 
-                server.inject('/package.json', function (res) {
+                server.inject('/package.json', (res) => {
 
                     expect(res.statusCode).to.equal(200);
                     expect(res.result.something).to.equal('else');
 
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     let lsof = '';
-                    cmd.stdout.on('data', function (buffer) {
+                    cmd.stdout.on('data', (buffer) => {
 
                         lsof += buffer.toString();
                     });
@@ -1366,17 +1392,22 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.ext('onPreResponse', function (request, reply) {
+
+                const preResponse1 = function (request, reply) {
 
                     request.response.source = request.response.source + '1';
                     return reply.continue();
-                });
+                };
 
-                server.ext('onPreResponse', function (request, reply) {
+                server.ext('onPreResponse', preResponse1);
+
+                const preResponse2 = function (request, reply) {
 
                     request.response.source = request.response.source + '2';
                     return reply.continue();
-                });
+                };
+
+                server.ext('onPreResponse', preResponse2);
 
                 const handler = function (request, reply) {
 
@@ -1385,7 +1416,7 @@ describe('Connection', () => {
 
                 server.route({ method: 'GET', path: '/', handler: handler });
 
-                server.inject({ method: 'GET', url: '/' }, function (res) {
+                server.inject({ method: 'GET', url: '/' }, (res) => {
 
                     expect(res.result).to.equal('012');
                     done();
@@ -1400,7 +1431,7 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection({ labels: 'a' });
-            server.on('route', function (route, connection, srv) {
+            server.on('route', (route, connection, srv) => {
 
                 expect(route.path).to.equal('/');
                 expect(connection.settings.labels).to.deep.equal(['a']);
@@ -1428,7 +1459,7 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: '*', path: '/{p*}', handler: handler });
-            server.inject({ method: 'GET', url: '/page' }, function (res) {
+            server.inject({ method: 'GET', url: '/page' }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal('found');
@@ -1446,7 +1477,7 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
-            server.inject({ method: 'HEAD', url: '/' }, function (res) {
+            server.inject({ method: 'HEAD', url: '/' }, (res) => {
 
                 expect(res.statusCode).to.equal(205);
                 expect(res.headers['content-type']).to.contain('text/html');
@@ -1467,12 +1498,12 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'POST', path: '/', handler: handler });
-            server.inject({ method: 'HEAD', url: '/' }, function (res1) {
+            server.inject({ method: 'HEAD', url: '/' }, (res1) => {
 
                 expect(res1.statusCode).to.equal(404);
                 expect(res1.result).to.not.exist();
 
-                server.inject({ method: 'HEAD', url: '/not-there' }, function (res2) {
+                server.inject({ method: 'HEAD', url: '/not-there' }, (res2) => {
 
                     expect(res2.statusCode).to.equal(404);
                     expect(res2.result).to.not.exist();
@@ -1493,26 +1524,26 @@ describe('Connection', () => {
 
             const config = { method: ['GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: handler };
             server.route(config);
-            server.inject({ method: 'HEAD', url: '/' }, function (res1) {
+            server.inject({ method: 'HEAD', url: '/' }, (res1) => {
 
                 expect(res1.statusCode).to.equal(200);
 
-                server.inject({ method: 'GET', url: '/' }, function (res2) {
+                server.inject({ method: 'GET', url: '/' }, (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
                     expect(res2.payload).to.equal('get');
 
-                    server.inject({ method: 'PUT', url: '/' }, function (res3) {
+                    server.inject({ method: 'PUT', url: '/' }, (res3) => {
 
                         expect(res3.statusCode).to.equal(200);
                         expect(res3.payload).to.equal('put');
 
-                        server.inject({ method: 'POST', url: '/' }, function (res4) {
+                        server.inject({ method: 'POST', url: '/' }, (res4) => {
 
                             expect(res4.statusCode).to.equal(200);
                             expect(res4.payload).to.equal('post');
 
-                            server.inject({ method: 'DELETE', url: '/' }, function (res5) {
+                            server.inject({ method: 'DELETE', url: '/' }, (res5) => {
 
                                 expect(res5.statusCode).to.equal(200);
                                 expect(res5.payload).to.equal('delete');
@@ -1563,7 +1594,7 @@ describe('Connection', () => {
             ]);
 
             const table = server.table()[0].table;
-            const paths = table.map(function (route) {
+            const paths = table.map((route) => {
 
                 const obj = {
                     method: route.method,
@@ -1589,7 +1620,7 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            expect(function () {
+            expect(() => {
 
                 server.route({
                     method: ['GET', 'PUT', 'POST', 'DELETE'],
@@ -1613,7 +1644,7 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.inject({ method: 'GET', url: '/nope' }, function (res) {
+            server.inject({ method: 'GET', url: '/nope' }, (res) => {
 
                 expect(res.statusCode).to.equal(404);
                 done();
@@ -1630,7 +1661,7 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/a/{p}', handler: handler });
-            server.inject('/a/%', function (res) {
+            server.inject('/a/%', (res) => {
 
                 expect(res.statusCode).to.equal(400);
                 done();
