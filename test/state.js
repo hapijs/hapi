@@ -60,9 +60,15 @@ describe('state', () => {
 
     it('does not clear invalid cookie if cannot parse', (done) => {
 
+        const handler = function (request, reply) {
+
+            return reply(request.state);
+        };
+
         const server = new Hapi.Server();
         server.connection();
         server.state('vab', { encoding: 'base64json', clearInvalid: true });
+        server.route({ method: 'GET', path: '/', handler: handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } }, (res) => {
 
             expect(res.statusCode).to.equal(400);

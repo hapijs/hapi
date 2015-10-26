@@ -64,7 +64,7 @@ describe('Route', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: '"GET"', path: '/', handler: function () { } });
-        }).to.throw(/Invalid method name/);
+        }).to.throw(/Invalid route options/);
         done();
     });
 
@@ -158,7 +158,7 @@ describe('Route', () => {
         expect(() => {
 
             server.route({ method: 'GET', path: '/', handler: function () { }, config: { validate: { payload: {} } } });
-        }).to.throw('Cannot validate HEAD or GET requests: /');
+        }).to.throw('Cannot validate HEAD or GET requests: GET /');
         done();
     });
 
@@ -169,7 +169,7 @@ describe('Route', () => {
         expect(() => {
 
             server.route({ method: 'GET', path: '/', handler: function () { }, config: { payload: { parse: true } } });
-        }).to.throw('Cannot set payload settings on HEAD or GET request: /');
+        }).to.throw('Cannot set payload settings on HEAD or GET request: GET /');
         done();
     });
 
@@ -353,7 +353,7 @@ describe('Route', () => {
         expect(() => {
 
             server.connection({ routes: { timeout: { server: 60000, socket: 12000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout: /{p*}');
+        }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
         done();
     });
 
@@ -363,7 +363,7 @@ describe('Route', () => {
         expect(() => {
 
             server.connection({ routes: { timeout: { server: 6000000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout: /{p*}');
+        }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
         done();
     });
 
@@ -673,6 +673,45 @@ describe('Route', () => {
                     expect(res2.result).to.equal('13');
                     done();
                 });
+            });
+        });
+
+        it('skips inner extensions when not found', (done) => {
+
+            var server = new Hapi.Server();
+            server.connection();
+
+            let state = '';
+
+            const onRequest = function (request, reply) {
+
+                state += 1;
+                return reply.continue();
+            };
+
+            server.ext('onRequest', onRequest);
+
+            const preAuth = function (request, reply) {
+
+                state += 2;
+                return reply('ok');
+            };
+
+            server.ext('onPreAuth', preAuth);
+
+            const preResponse = function (request, reply) {
+
+                state += 3;
+                return reply.continue();
+            };
+
+            server.ext('onPreResponse', preResponse);
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(404);
+                expect(state).to.equal('13');
+                done();
             });
         });
     });

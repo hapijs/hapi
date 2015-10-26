@@ -52,6 +52,31 @@ describe('authentication', () => {
         });
     });
 
+    it('disables authentication on a route', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(request.auth.isAuthenticated);
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+        server.route({ method: 'POST', path: '/', config: { auth: false, handler: handler } });
+
+        server.inject({ url: '/', method: 'POST' }, (res1) => {
+
+            expect(res1.statusCode).to.equal(200);
+
+            server.inject({ url: '/', method: 'POST', headers: { authorization: 'Custom steve' } }, (res2) => {
+
+                expect(res2.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
+
     it('defaults cache to private if request authenticated', (done) => {
 
         const handler = function (request, reply) {

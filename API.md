@@ -662,7 +662,8 @@ Sets a global context used as the default bind object when adding a route or an 
   [extension methods](#serverextevent-method-options).
 
 When setting context inside a plugin, the context is applied only to methods set up by the plugin.
-Note that the context applies only to routes and extensions added after it has been set.
+Note that the context applies only to routes and extensions added after it has been set. Ignored if
+the method being bound is an arrow function.
 
 ```js
 const handler = function (request, reply) {
@@ -976,6 +977,7 @@ Registers an extension function in one of the available extension points where:
         - `after` - a string or array of strings of plugin names this method must execute after (on the
           same event). Otherwise, extension methods are executed in the order added.
         - `bind` - a context object passed back to the provided method (via `this`) when called.
+           Ignored if the method is an arrow function.
         - `sandbox` - if set to `'plugin'` when adding a [request extension points](#request-lifecycle)
           the extension is only added to routes defined by the current plugin. Not allowed when
           configuring route-level extensions, or when adding server extensions. Defaults to
@@ -1312,7 +1314,7 @@ Methods are registered via `server.method(name, method, [options])` where:
 - `options` - optional configuration:
     - `bind` - a context object passed back to the method function (via `this`) when called.
       Defaults to active context (set via [`server.bind()`](#serverbindcontext) when the method is
-      registered.
+      registered. Ignored if the method is an arrow function.
     - `cache` - the same cache configuration used in [`server.cache()`](#servercacheoptions). The
       `generateTimeout` option is required.
     - `callback` - if `false`, expects the `method` to be a synchronous function. Note that using a
@@ -1959,6 +1961,8 @@ Each incoming request passes through a pre-defined list of steps, along with opt
     - JSONP configuration is ignored for any response returned from the extension point since no
       route is matched yet and the JSONP configuration is unavailable.
 - Lookup route using request path
+    - if no route if found or if the path violates the HTTP specification, skips to the
+      **`'onPreResponse'`** extension point.
 - Process query extensions (e.g. JSONP)
 - Parse cookies
 - **`'onPreAuth'`** extension point
@@ -2094,6 +2098,7 @@ following options:
             - `app` - the authentication must be on behalf of an application.
 
 - `bind` - an object passed back to the provided `handler` (via `this`) when called.
+  Ignored if the method is an arrow function.
 
 - `cache` - if the route method is 'GET', the route can be configured to include caching
   directives in the response using the following options:
