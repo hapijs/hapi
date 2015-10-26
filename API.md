@@ -1961,7 +1961,7 @@ Each incoming request passes through a pre-defined list of steps, along with opt
     - JSONP configuration is ignored for any response returned from the extension point since no
       route is matched yet and the JSONP configuration is unavailable.
 - Lookup route using request path
-    - if no route if found or if the path violates the HTTP specification, skips to the
+    - if no route is found or if the path violates the HTTP specification, skips to the
       **`'onPreResponse'`** extension point.
 - Process query extensions (e.g. JSONP)
 - Parse cookies
