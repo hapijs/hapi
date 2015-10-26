@@ -3,7 +3,6 @@
 // Load modules
 
 const Stream = require('stream');
-const Bluebird = require('bluebird');
 const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
@@ -1035,7 +1034,10 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                return reply(Bluebird.resolve('promised response')).code(201);
+                return reply(new Promise((resolve, reject) => {
+
+                    return resolve('promised response');
+                })).code(201);
             };
 
             const server = new Hapi.Server();
@@ -1054,7 +1056,10 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                return reply(Bluebird.resolve({ status: 'ok' })).code(201);
+                return reply(new Promise((resolve, reject) => {
+
+                    return resolve({ status: 'ok' });
+                })).code(201);
             };
 
             const server = new Hapi.Server();
@@ -1073,7 +1078,10 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                return reply(Bluebird.resolve(request.generateResponse({ status: 'ok' }).code(201)));
+                return reply(new Promise((resolve, reject) => {
+
+                    return resolve(request.generateResponse({ status: 'ok' }).code(201));
+                }));
             };
 
             const server = new Hapi.Server();
@@ -1092,7 +1100,11 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                const promise = Bluebird.reject(Boom.forbidden('this is not allowed!'));
+                const promise = new Promise((resolve, reject) => {
+
+                    return reject(Boom.forbidden('this is not allowed!'));
+                });
+
                 promise.catch(Hoek.ignore);
 
                 return reply(promise).code(299);            // Code ignored

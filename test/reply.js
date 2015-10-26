@@ -4,7 +4,6 @@
 
 const Http = require('http');
 const Stream = require('stream');
-const Bluebird = require('bluebird');
 const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
@@ -425,8 +424,12 @@ describe('Reply', () => {
 
                 const handler = function (request, reply) {
 
-                    return reply(Bluebird.resolve(new TestStream())).ttl(2000).code(299);
+                    return reply(new Promise((resolve, reject) => {
+
+                        return resolve(new TestStream());
+                    })).ttl(2000).code(299);
                 };
+
 
                 const server = new Hapi.Server({ debug: false });
                 server.connection();
@@ -444,7 +447,10 @@ describe('Reply', () => {
 
                 const handler = function (request, reply) {
 
-                    return reply(Bluebird.resolve(new Buffer('buffer content'))).code(299).type('something/special');
+                    return reply(new Promise((resolve, reject) => {
+
+                        return resolve(new Buffer('buffer content'));
+                    })).code(299).type('something/special');
                 };
 
                 const server = new Hapi.Server();

@@ -2,7 +2,6 @@
 
 // Load modules
 
-const Bluebird = require('bluebird');
 const CatboxMemory = require('catbox-memory');
 const Code = require('code');
 const Hapi = require('..');
@@ -125,12 +124,13 @@ describe('Methods', () => {
 
     it('registers a method (promise)', (done) => {
 
-        const addAsync = function (a, b, next) {
+        const add = function (a, b) {
 
-            return next(null, a + b);
+            return new Promise((resolve, reject) => {
+
+                return resolve(a + b);
+            });
         };
-
-        const add = Bluebird.promisify(addAsync);
 
         const server = new Hapi.Server();
         server.method('add', add, { callback: false });
@@ -360,16 +360,17 @@ describe('Methods', () => {
     it('caches method value (promise)', (done) => {
 
         let gen = 0;
-        const methodAsync = function (id, next) {
+        const method = function (id, next) {
 
-            if (id === 2) {
-                return next(new Error('boom'));
-            }
+            return new Promise((resolve, reject) => {
 
-            return next(null, { id: id, gen: gen++ });
+                if (id === 2) {
+                    return reject(new Error('boom'));
+                }
+
+                return resolve({ id: id, gen: gen++ });
+            });
         };
-
-        const method = Bluebird.promisify(methodAsync);
 
         const server = new Hapi.Server();
         server.connection();

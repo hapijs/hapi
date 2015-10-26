@@ -40,7 +40,6 @@
     "topo": "^1.1.x"
   },
   "devDependencies": {
-    "bluebird": "2.x.x",
     "code": "1.x.x",
     "handlebars": "2.x.x",
     "inert": "3.x.x",
