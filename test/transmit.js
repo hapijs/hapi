@@ -96,7 +96,7 @@ describe('transmission', () => {
                     expect(res2.statusCode).to.equal(304);
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     let lsof = '';
-                    cmd.stdout.on('data', function (buffer) {
+                    cmd.stdout.on('data', (buffer) => {
 
                         lsof += buffer.toString();
                     });
@@ -137,7 +137,7 @@ describe('transmission', () => {
                     expect(res2.statusCode).to.equal(304);
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     let lsof = '';
-                    cmd.stdout.on('data', function (buffer) {
+                    cmd.stdout.on('data', (buffer) => {
 
                         lsof += buffer.toString();
                     });
@@ -471,7 +471,7 @@ describe('transmission', () => {
                 expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
                 expect(res.headers['content-encoding']).to.equal('gzip');
                 expect(res.headers.vary).to.equal('accept-encoding');
-                Zlib.unzip(res.rawPayload, function (err, result) {
+                Zlib.unzip(res.rawPayload, (err, result) => {
 
                     expect(err).to.not.exist();
                     expect(result.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
@@ -549,11 +549,13 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
             let validState = false;
-            server.ext('onPreResponse', function (request, reply) {
+            const preResponse = function (request, reply) {
 
                 validState = request.state && typeof request.state === 'object';
                 reply.continue();
-            });
+            };
+
+            server.ext('onPreResponse', preResponse);
 
             server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } }, (res) => {
 
@@ -963,7 +965,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), function (err, zipped) {
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
 
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, (err, res, body) => {
 
@@ -994,7 +996,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), function (err, zipped) {
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
 
@@ -1080,7 +1082,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), function (err, deflated) {
+                Zlib.deflate(new Buffer(data), (err, deflated) => {
 
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, (err, res, body) => {
 
@@ -1110,7 +1112,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), function (err, deflated) {
+                Zlib.deflate(new Buffer(data), (err, deflated) => {
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, (err, res, body) => {
 
@@ -1141,7 +1143,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), function (err, zipped) {
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
 
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, (err, res, body) => {
 
@@ -1172,7 +1174,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), function (err, zipped) {
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, (err, res, body) => {
 
@@ -1203,7 +1205,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), function (err, deflated) {
+                Zlib.deflate(new Buffer(data), (err, deflated) => {
 
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, (err, res, body) => {
 
@@ -1234,7 +1236,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), function (err, deflated) {
+                Zlib.deflate(new Buffer(data), (err, deflated) => {
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, (err, res, body) => {
 
@@ -1265,7 +1267,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), function (err, zipped) {
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
 
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, (err, res, body) => {
 
@@ -1296,7 +1298,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), function (err, zipped) {
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, (err, res, body) => {
 
@@ -1370,7 +1372,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
 
-            Zlib.gzip(new Buffer(data), function (err, zipped) {
+            Zlib.gzip(new Buffer(data), (err, zipped) => {
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1407,7 +1409,7 @@ describe('transmission', () => {
 
             server.inject('/file', (res1) => {
 
-                server.ext('onPreResponse', function (request, reply) {
+                const preResponse = function (request, reply) {
 
                     request.response._marshal = function () {
 
@@ -1415,7 +1417,9 @@ describe('transmission', () => {
                     };
 
                     return reply.continue();
-                });
+                };
+
+                server.ext('onPreResponse', preResponse);
 
                 server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, (res2) => {
 
@@ -1437,7 +1441,7 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/', handler: handler });
 
             let response;
-            server.ext('onPreResponse', function (request, reply) {
+            const preResponse = function (request, reply) {
 
                 response = request.response;
                 response.once('special', () => {
@@ -1446,7 +1450,9 @@ describe('transmission', () => {
                 });
 
                 return reply.continue();
-            });
+            };
+
+            server.ext('onPreResponse', preResponse);
 
             server.inject('/', (res) => {
 
@@ -1642,7 +1648,7 @@ describe('transmission', () => {
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
 
-                    res.on('data', function (chunk) {
+                    res.on('data', (chunk) => {
 
                         if (!destroyed) {
                             destroyed = true;
@@ -1716,7 +1722,7 @@ describe('transmission', () => {
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
 
-                    res.on('data', function (chunk) {
+                    res.on('data', (chunk) => {
 
                         if (!destroyed) {
                             destroyed = true;
@@ -1765,7 +1771,7 @@ describe('transmission', () => {
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
 
                     expect(err).to.not.exist();
-                    res.on('data', function (chunk) { });
+                    res.on('data', (chunk) => { });
                 });
             });
         });
@@ -2236,13 +2242,15 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.method('profile', function (id, next) {
+            const method = function (id, next) {
 
                 return next(null, {
                     'id': 'fa0dbda9b1b',
                     'name': 'John Doe'
                 });
-            }, { cache: { expiresIn: 120000, generateTimeout: 10 } });
+            };
+
+            server.method('profile', method, { cache: { expiresIn: 120000, generateTimeout: 10 } });
 
             const profileHandler = function (request, reply) {
 
@@ -2358,12 +2366,12 @@ describe('transmission', () => {
 
                         expect(err).to.not.exist();
 
-                        defaults.get('b', function (err, value1, cached1, report1) {
+                        defaults.get('b', (err, value1, cached1, report1) => {
 
                             expect(err).to.not.exist();
                             expect(value1).to.equal(1);
 
-                            primary.get('b', function (err, value2, cached2, report2) {
+                            primary.get('b', (err, value2, cached2, report2) => {
 
                                 expect(err).to.not.exist();
                                 expect(cached2.item).to.equal(2);

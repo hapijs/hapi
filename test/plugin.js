@@ -4079,7 +4079,7 @@ internals.routesList = function (server, label) {
 internals.plugins = {
     auth: function (server, options, next) {
 
-        var scheme = function (srv, authOptions) {
+        const scheme = function (srv, authOptions) {
 
             const settings = Hoek.clone(authOptions);
 

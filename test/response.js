@@ -54,12 +54,15 @@ describe('Response', () => {
         server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 9999 } } });
         server.state('sid', { encoding: 'base64' });
         server.state('always', { autoValue: 'present' });
-        server.ext('onPostHandler', function (request, reply) {
+
+        const postHandler = function (request, reply) {
 
             reply.state('test', '123');
             reply.unstate('empty');
             return reply.continue();
-        });
+        };
+
+        server.ext('onPostHandler', postHandler);
 
         server.inject('/', (res) => {
 
@@ -342,10 +345,10 @@ describe('Response', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
-            server.inject('/', function (unset) {
+            server.inject('/', (res) => {
 
-                expect(unset.statusCode).to.equal(200);
-                expect(unset.headers['set-cookie']).to.deep.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['set-cookie']).to.deep.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
                 done();
             });
         });
@@ -1121,7 +1124,7 @@ describe('Response', () => {
                 path: __dirname
             });
 
-            server.once('request-error', function (request, err) {
+            server.once('request-error', (request, err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.contain('View file not found');
@@ -1233,7 +1236,7 @@ describe('Response', () => {
 
                     const response = reply('1234567890');
 
-                    response.on('peek', function (chunk) {
+                    response.on('peek', (chunk) => {
 
                         output += chunk.toString();
                     });

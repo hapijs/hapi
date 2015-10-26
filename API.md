@@ -319,7 +319,7 @@ const server = new Hapi.Server();
 server.connection({ port: 80 });
 
 const io = SocketIO.listen(server.listener);
-io.sockets.on('connection', function(socket) {
+io.sockets.on('connection', (socket) => {
 
     socket.emit({ msg: 'welcome' });
 });
@@ -334,12 +334,14 @@ server method name is an object property.
 const Hapi = require('hapi');
 const server = new Hapi.Server();
 
-server.method('add', function (a, b, next) {
+const add = function (a, b, next) {
 
     return next(null, a + b);
-});
+};
 
-server.methods.add(1, 2, function (err, result) {
+server.method('add', add);
+
+server.methods.add(1, 2, (err, result) => {
 
     // result === 3
 });
@@ -641,7 +643,7 @@ server.route({
     path: '/',
     handler: function (request, reply) {
 
-        request.server.auth.test('default', request, function (err, credentials) {
+        request.server.auth.test('default', request, (err, credentials) => {
 
             if (err) {
                 return reply({ status: false });
@@ -724,9 +726,9 @@ const server = new Hapi.Server();
 server.connection({ port: 80 });
 
 const cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
-cache.set('norway', { capital: 'oslo' }, null, function (err) {
+cache.set('norway', { capital: 'oslo' }, null, (err) => {
 
-    cache.get('norway', function (err, value, cached, log) {
+    cache.get('norway', (err, value, cached, log) => {
 
         // value === { capital: 'oslo' };
     });
@@ -848,10 +850,12 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.decorate('reply', 'success', function () {
+const success = function () {
 
     return this.response({ status: 'ok' });
-});
+};
+
+server.decorate('reply', 'success', success);
 
 server.route({
     method: 'GET',
@@ -999,7 +1003,7 @@ const handler = function (request, reply) {
 };
 
 server.route({ method: 'GET', path: '/test', handler: handler });
-server.start(function (err) { });
+server.start((err) => { });
 
 // All requests will get routed to '/test'
 ```
@@ -1027,7 +1031,7 @@ const handler = function (request, reply) {
 };
 
 server.route({ method: 'GET', path: '/test', handler: handler });
-server.start(function (err) { });
+server.start((err) => { });
 
 // All requests will get routed to '/test'
 ```
@@ -1048,13 +1052,15 @@ const server = new Hapi.Server();
 server.connection({ host: 'localhost', port: 8000 });
 
 // Defines new handler for routes on this server
-server.handler('test', function (route, options) {
+const handler = function (route, options) {
 
     return function (request, reply) {
 
         return reply('new handler: ' + options.msg);
     }
-});
+};
+
+server.handler('test', handler);
 
 server.route({
     method: 'GET',
@@ -1116,7 +1122,7 @@ const Hoek = require('hoek');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.initialize(function (err) {
+server.initialize((err) => {
 
     Hoek.assert(!err, err);
 });
@@ -1184,7 +1190,7 @@ const handler = function (request, reply) {
 
 server.route({ method: 'GET', path: '/', handler: handler });
 
-server.inject('/', function (res) {
+server.inject('/', (res) => {
 
     console.log(res.result);
 });
@@ -1207,7 +1213,7 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.on('log', function (event, tags) {
+server.on('log', (event, tags) => {
 
     if (tags.error) {
         console.log(event);
@@ -1231,7 +1237,10 @@ server.route({
     method: 'GET',
     path: '/',
     config: {
-        handler: function (request, reply) { return reply(); },
+        handler: function (request, reply) {
+
+            return reply();
+        },
         id: 'root'
     }
 });
@@ -1258,7 +1267,10 @@ server.route({
     method: 'GET',
     path: '/',
     config: {
-        handler: function (request, reply) { return reply(); },
+        handler: function (request, reply) {
+
+            return reply();
+        },
         id: 'root'
     }
 });
@@ -1328,7 +1340,7 @@ const add = function (a, b, next) {
 
 server.method('sum', add, { cache: { expiresIn: 2000 } });
 
-server.methods.sum(4, 5, function (err, result) {
+server.methods.sum(4, 5, (err, result) => {
 
     console.log(result);
 });
@@ -1338,7 +1350,7 @@ server.methods.sum(4, 5, function (err, result) {
 const addArray = function (array, next) {
 
     let sum = 0;
-    array.forEach(function (item) {
+    array.forEach((item) => {
 
         sum += item;
     });
@@ -1354,7 +1366,7 @@ server.method('sumObj', addArray, {
     }
 });
 
-server.methods.sumObj([5, 6], function (err, result) {
+server.methods.sumObj([5, 6], (err, result) => {
 
     console.log(result);
 });
@@ -1368,7 +1380,7 @@ const addSync = function (a, b) {
 
 server.method('sumSync', addSync, { cache: { expiresIn: 2000 }, callback: false });
 
-server.methods.sumSync(4, 5, function (err, result) {
+server.methods.sumSync(4, 5, (err, result) => {
 
     console.log(result);
 });
@@ -1460,7 +1472,7 @@ server.register({
     options: {
         message: 'hello'
     }
- }, function (err) {
+ }, (err) => {
 
      if (err) {
          console.log('Failed loading plugin');
@@ -1532,7 +1544,7 @@ const Hoek = require('hoek');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.start(function (err) {
+server.start((err) => {
 
     Hoek.assert(!err, err);
     console.log('Server started at: ' + server.info.uri);
@@ -1623,7 +1635,7 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.on('request-internal', function (request, event, tags) {
+server.on('request-internal', (request, event, tags) => {
 
     if (tags.error && tags.state) {
         console.error(event);
@@ -1646,7 +1658,7 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.stop({ timeout: 60 * 1000 }, function (err) {
+server.stop({ timeout: 60 * 1000 }, (err) => {
 
     console.log('Server stopped');
 });
@@ -1742,7 +1754,7 @@ The `'log'` event includes the `event` object and a `tags` object (where each ta
 value `true`):
 
 ```js
-server.on('log', function (event, tags) {
+server.on('log', (event, tags) => {
 
     if (tags.error) {
         console.log('Server error: ' + (event.data || 'unspecified'));
@@ -1754,7 +1766,7 @@ The `'request'` and `'request-internal'` events include the [request object](#re
 `event` object, and a `tags` object (where each tag is a key with the value `true`):
 
 ```js
-server.on('request', function (request, event, tags) {
+server.on('request', (request, event, tags) => {
 
     if (tags.received) {
         console.log('New request: ' + request.id);
@@ -1766,7 +1778,7 @@ The `'request-error'` event includes the [request object](#request-object) and t
 `err` object:
 
 ```js
-server.on('request-error', function (request, err) {
+server.on('request-error', (request, err) => {
 
     console.log('Error response (500) sent for request: ' + request.id + ' because: ' + err.message);
 });
@@ -1775,7 +1787,7 @@ server.on('request-error', function (request, err) {
 The `'response'` and `'tail'` events include the [request object](#request-object):
 
 ```js
-server.on('response', function (request) {
+server.on('response', (request) => {
 
     console.log('Response sent for request: ' + request.id);
 });
@@ -1785,7 +1797,7 @@ The `'route'` event includes the [route public interface](#route-public-interfac
 and the server object used to add the route (e.g. the result of a plugin select operation):
 
 ```js
-server.on('route', function (route, connection, server) {
+server.on('route', (route, connection, server) => {
 
     console.log('New route added: ' + route.path);
 });
@@ -2660,12 +2672,14 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onRequest', function (request, reply) {
+const onRequest = function (request, reply) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
     return reply.continue();
-});
+};
+
+server.ext('onRequest', onRequest);
 ```
 
 #### `request.setMethod(method)`
@@ -2680,12 +2694,14 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onRequest', function (request, reply) {
+const onRequest = function (request, reply) {
 
     // Change all requests to 'GET'
     request.setMethod('GET');
     return reply.continue();
-});
+};
+
+server.ext('onRequest', onRequest);
 ```
 
 #### `request.generateResponse(source, [options])`
@@ -2701,7 +2717,7 @@ For example it can be used inside a promise to create a response object which ha
 ```js
 const handler = function (request, reply) {
 
-    const result = promiseMethod().then(function (thing) {
+    const result = promiseMethod().then((thing) => {
 
         if (!thing) {
             return request.generateResponse().code(214);
@@ -2732,7 +2748,7 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.on('request', function (request, event, tags) {
+server.on('request', (request, event, tags) => {
 
     if (tags.error) {
         console.log(event);
@@ -2791,7 +2807,7 @@ const get = function (request, reply) {
 
     const dbTail = request.tail('write to database');
 
-    db.save('key', 'value', function () {
+    db.save('key', 'value', () => {
 
         dbTail();
     });
@@ -2801,7 +2817,7 @@ const get = function (request, reply) {
 
 server.route({ method: 'GET', path: '/', handler: get });
 
-server.on('tail', function (request) {
+server.on('tail', (request) => {
 
     console.log('Request completed including db activity');
 });
@@ -2823,26 +2839,28 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onRequest', function (request, reply) {
+const onRequest = function (request, reply) {
 
     const hash = Crypto.createHash('sha1');
-    request.on('peek', function (chunk) {
+    request.on('peek', (chunk) => {
 
         hash.update(chunk);
     });
 
-    request.once('finish', function () {
+    request.once('finish', () => {
 
         console.log(hash.digest('hex'));
     });
 
-    request.once('disconnect', function () {
+    request.once('disconnect', () => {
 
         console.error('request aborted');
     });
 
     return reply.continue();
-});
+};
+
+server.ext('onRequest', onRequest);
 ```
 
 ## Reply interface
@@ -3078,7 +3096,7 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onPreResponse', function (request, reply) {
+const preResponse = function (request, reply) {
 
     const response = request.response;
     if (response.isBoom) {
@@ -3086,18 +3104,20 @@ server.ext('onPreResponse', function (request, reply) {
     }
 
     const hash = Crypto.createHash('sha1');
-    response.on('peek', function (chunk) {
+    response.on('peek', (chunk) => {
 
         hash.update(chunk);
     });
 
-    response.once('finish', function () {
+    response.once('finish', () => {
 
         console.log(hash.digest('hex'));
     });
 
     return reply.continue();
-});
+};
+
+server.ext('onPreResponse', preResponse);
 ```
 
 #### Error response
@@ -3181,7 +3201,7 @@ a different response object.
 const Hapi = require('hapi');
 const Vision = require('vision');
 const server = new Hapi.Server();
-server.register(Vision, function (err) {
+server.register(Vision, (err) => {
     server.views({
         engines: {
             html: require('handlebars')
@@ -3190,8 +3210,7 @@ server.register(Vision, function (err) {
 });
 server.connection({ port: 80 });
 
-
-server.ext('onPreResponse', function (request, reply) {
+const preResponse = function (request, reply) {
 
     const response = request.response;
     if (!response.isBoom) {
@@ -3206,7 +3225,9 @@ server.ext('onPreResponse', function (request, reply) {
       };
 
       return reply.view('error', ctx);
-});
+};
+
+server.ext('onPreResponse', preResponse);
 ```
 
 #### Flow control
@@ -3226,7 +3247,7 @@ const handler = function (request, reply) {
 
     const response = reply('success').hold();
 
-    setTimeout(function () {
+    setTimeout(() => {
 
         response.send();
     }, 1000);
@@ -3244,12 +3265,14 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.ext('onRequest', function (request, reply) {
+const onRequest = function (request, reply) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
     return reply.continue();
-});
+};
+
+server.ext('onRequest', onRequest);
 ```
 
 ### `reply.close([options])`

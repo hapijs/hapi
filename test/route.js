@@ -410,41 +410,53 @@ describe('Route', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.ext('onRequest', function (request, reply) {
+            const onRequest = function (request, reply) {
 
                 request.app.x = '1';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreAuth', function (request, reply) {
+            server.ext('onRequest', onRequest);
+
+            const preAuth = function (request, reply) {
 
                 request.app.x += '2';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPostAuth', function (request, reply) {
+            server.ext('onPreAuth', preAuth);
+
+            const postAuth = function (request, reply) {
 
                 request.app.x += '3';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreHandler', function (request, reply) {
+            server.ext('onPostAuth', postAuth);
+
+            const preHandler = function (request, reply) {
 
                 request.app.x += '4';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPostHandler', function (request, reply) {
+            server.ext('onPreHandler', preHandler);
+
+            const postHandler = function (request, reply) {
 
                 request.response.source += '5';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreResponse', function (request, reply) {
+            server.ext('onPostHandler', postHandler);
+
+            const preResponse = function (request, reply) {
 
                 request.response.source += '6';
                 return reply.continue();
-            });
+            };
+
+            server.ext('onPreResponse', preResponse);
 
             server.route({
                 method: 'GET',
@@ -476,41 +488,53 @@ describe('Route', () => {
                 }
             });
 
-            server.ext('onRequest', function (request, reply) {
+            const onRequest = function (request, reply) {
 
                 request.app.x = '1';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreAuth', function (request, reply) {
+            server.ext('onRequest', onRequest);
+
+            const preAuth = function (request, reply) {
 
                 request.app.x += '2';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPostAuth', function (request, reply) {
+            server.ext('onPreAuth', preAuth);
+
+            const postAuth = function (request, reply) {
 
                 request.app.x += '3';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreHandler', function (request, reply) {
+            server.ext('onPostAuth', postAuth);
+
+            const preHandler = function (request, reply) {
 
                 request.app.x += '4';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPostHandler', function (request, reply) {
+            server.ext('onPreHandler', preHandler);
+
+            const postHandler = function (request, reply) {
 
                 request.response.source += '5';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreResponse', function (request, reply) {
+            server.ext('onPostHandler', postHandler);
+
+            const preResponse = function (request, reply) {
 
                 request.response.source += '6';
                 return reply.continue();
-            });
+            };
+
+            server.ext('onPreResponse', preResponse);
 
             server.inject('/', (res) => {
 
@@ -523,23 +547,30 @@ describe('Route', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.ext('onRequest', function (request, reply) {
+
+            const onRequest = function (request, reply) {
 
                 request.app.x = '1';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreAuth', function (request, reply) {
+            server.ext('onRequest', onRequest);
+
+            const preAuth = function (request, reply) {
 
                 request.app.x += '2';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPostAuth', function (request, reply) {
+            server.ext('onPreAuth', preAuth);
+
+            const postAuth = function (request, reply) {
 
                 request.app.x += '3';
                 return reply.continue();
-            });
+            };
+
+            server.ext('onPostAuth', postAuth);
 
             server.route({
                 method: 'GET',
@@ -550,23 +581,29 @@ describe('Route', () => {
                 }
             });
 
-            server.ext('onPreHandler', function (request, reply) {
+            const preHandler = function (request, reply) {
 
                 request.app.x += '4';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPostHandler', function (request, reply) {
+            server.ext('onPreHandler', preHandler);
+
+            const postHandler = function (request, reply) {
 
                 request.response.source += '5';
                 return reply.continue();
-            });
+            };
 
-            server.ext('onPreResponse', function (request, reply) {
+            server.ext('onPostHandler', postHandler);
+
+            const preResponse = function (request, reply) {
 
                 request.response.source += '6';
                 return reply.continue();
-            });
+            };
+
+            server.ext('onPreResponse', preResponse);
 
             server.inject('/', (res) => {
 
@@ -580,11 +617,13 @@ describe('Route', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.ext('onPreAuth', function (request, reply) {
+            const preAuth1 = function (request, reply) {
 
                 request.app.x = '1';
                 return reply.continue();
-            });
+            };
+
+            server.ext('onPreAuth', preAuth1);
 
             server.route({
                 method: 'GET',
@@ -606,11 +645,13 @@ describe('Route', () => {
                 }
             });
 
-            server.ext('onPreAuth', function (request, reply) {
+            const preAuth3 = function (request, reply) {
 
                 request.app.x += '3';
                 return reply.continue();
-            });
+            };
+
+            server.ext('onPreAuth', preAuth3);
 
             server.route({
                 method: 'GET',

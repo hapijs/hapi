@@ -131,7 +131,7 @@ describe('validation', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        server.auth.scheme('none', function (authServer, options) {
+        const scheme = function (authServer, options) {
 
             return {
                 authenticate: function (request, reply) {
@@ -139,7 +139,9 @@ describe('validation', () => {
                     return reply.continue({ credentials: { name: 'john' } });
                 }
             };
-        });
+        };
+
+        server.auth.scheme('none', scheme);
 
         server.auth.strategy('default', 'none', true);
 
@@ -426,10 +428,12 @@ describe('validation', () => {
             }
         });
 
-        server.ext('onPreResponse', function (request, reply) {
+        const preResponse = function (request, reply) {
 
             return reply(request.response.data.details[0].path);
-        });
+        };
+
+        server.ext('onPreResponse', preResponse);
 
         server.inject('/?a=123', (res) => {
 
@@ -812,7 +816,7 @@ describe('validation', () => {
             });
         };
 
-        internals.times(500, action, function (err, codes) {
+        internals.times(500, action, (err, codes) => {
 
             expect(err).to.not.exist();
             expect(count).to.be.within(200, 300);
@@ -1208,7 +1212,7 @@ describe('validation', () => {
             });
         };
 
-        internals.times(500, action, function (err, codes) {
+        internals.times(500, action, (err, codes) => {
 
             expect(err).to.not.exist();
             expect(count).to.equal(0);
@@ -1424,7 +1428,7 @@ describe('validation', () => {
             }
         });
 
-        server.on('request-internal', function (request, event, tags) {
+        server.on('request-internal', (request, event, tags) => {
 
             if (tags.validation) {
                 expect(event.data).to.equal('"a" is not allowed');

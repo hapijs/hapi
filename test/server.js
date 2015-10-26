@@ -79,14 +79,14 @@ describe('Server', () => {
 
                 expect(err).to.not.exist();
 
-                server.connections.forEach(function (connection) {
+                server.connections.forEach((connection) => {
 
                     expect(connection._started).to.equal(true);
                 });
 
                 server.stop(() => {
 
-                    server.connections.forEach(function (connection) {
+                    server.connections.forEach((connection) => {
 
                         expect(connection._started).to.equal(false);
                     });
@@ -127,14 +127,14 @@ describe('Server', () => {
 
                     expect(err).to.not.exist();
 
-                    server.connections.forEach(function (connection) {
+                    server.connections.forEach((connection) => {
 
                         expect(connection._started).to.equal(true);
                     });
 
                     server.stop(() => {
 
-                        server.connections.forEach(function (connection) {
+                        server.connections.forEach((connection) => {
 
                             expect(connection._started).to.equal(false);
                         });
@@ -177,10 +177,12 @@ describe('Server', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.ext('onPostStart', function (srv, next) {
+            const postStart = function (srv, next) {
 
                 return next(new Error('boom'));
-            });
+            };
+
+            server.ext('onPostStart', postStart);
 
             server.start((err) => {
 
@@ -297,13 +299,13 @@ describe('Server', () => {
 
                 cache.set('a', 'going in', 0, (err) => {
 
-                    cache.get('a', function (err, value1, cached1, report1) {
+                    cache.get('a', (err, value1, cached1, report1) => {
 
                         expect(value1).to.equal('going in');
 
                         server.stop((err) => {
 
-                            cache.get('a', function (err, value2, cached2, report2) {
+                            cache.get('a', (err, value2, cached2, report2) => {
 
                                 expect(value2).to.equal(null);
                                 done();
@@ -318,10 +320,12 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.ext('onPreStop', function (srv, next) {
+            const preStop = function (srv, next) {
 
                 return next(new Error('failed cleanup'));
-            });
+            };
+
+            server.ext('onPreStop', preStop);
 
             server.start((err) => {
 
@@ -338,10 +342,13 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.ext('onPostStop', function (srv, next) {
+
+            const postStop = function (srv, next) {
 
                 return next(new Error('failed cleanup'));
-            });
+            };
+
+            server.ext('onPostStop', postStop);
 
             server.start((err) => {
 
