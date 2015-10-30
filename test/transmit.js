@@ -1682,7 +1682,8 @@ describe('transmission', () => {
                             stream.emit('data', chunk);
                             stream.readable = false;
                             stream.emit('end');
-                        } else {
+                        }
+                        else {
                             stream.emit('data', chunk);
                             _read();
                         }
