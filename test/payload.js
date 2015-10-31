@@ -307,7 +307,7 @@ describe('payload', () => {
         });
     });
 
-    it('sets parse mode when route methos is * and request is POST', (done) => {
+    it('sets parse mode when route method is * and request is POST', (done) => {
 
         const handler = function (request, reply) {
 
