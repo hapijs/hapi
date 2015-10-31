@@ -678,7 +678,7 @@ describe('Route', () => {
 
         it('skips inner extensions when not found', (done) => {
 
-            var server = new Hapi.Server();
+            const server = new Hapi.Server();
             server.connection();
 
             let state = '';
