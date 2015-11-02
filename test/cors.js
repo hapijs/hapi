@@ -534,37 +534,11 @@ describe('CORS', () => {
             }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match');
+                expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match,Origin');
                 done();
             });
         });
 
-        it('matches allowed headers (case insensitive', (done) => {
-
-            const handler = function (request, reply) {
-
-                return reply('ok');
-            };
-
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
-            server.route({ method: 'GET', path: '/', handler: handler });
-
-            server.inject({
-                method: 'OPTIONS',
-                url: '/',
-                headers: {
-                    origin: 'http://test.example.com',
-                    'access-control-request-method': 'GET',
-                    'access-control-request-headers': 'authorization'
-                }
-            }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match');
-                done();
-            });
-        });
 
         it('errors on disallowed headers', (done) => {
 
