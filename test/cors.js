@@ -539,7 +539,7 @@ describe('CORS', () => {
             });
         });
 
-        it('matches allowed headers (case insensitive', (done) => {
+        it('matches allowed headers (case insensitive)', (done) => {
 
             const handler = function (request, reply) {
 
@@ -557,6 +557,60 @@ describe('CORS', () => {
                     origin: 'http://test.example.com',
                     'access-control-request-method': 'GET',
                     'access-control-request-headers': 'authorization'
+                }
+            }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match');
+                done();
+            });
+        });
+
+        it('matches allowed headers (Origin explicit)', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { cors: { additionalHeaders: ['Origin'] } } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({
+                method: 'OPTIONS',
+                url: '/',
+                headers: {
+                    origin: 'http://test.example.com',
+                    'access-control-request-method': 'GET',
+                    'access-control-request-headers': 'Origin'
+                }
+            }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match,Origin');
+                done();
+            });
+        });
+
+        it('matches allowed headers (Origin implicit)', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { cors: true } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({
+                method: 'OPTIONS',
+                url: '/',
+                headers: {
+                    origin: 'http://test.example.com',
+                    'access-control-request-method': 'GET',
+                    'access-control-request-headers': 'Origin'
                 }
             }, (res) => {
 
