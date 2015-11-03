@@ -1525,33 +1525,31 @@ describe('Request', () => {
 
         it('does not return an error when server is responding when the timeout occurs', (done) => {
 
+            const TestStream = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Hoek.inherits(TestStream, Stream.Readable);
+
             let ended = false;
+            TestStream.prototype._read = function (size) {
+
+                if (this.isDone) {
+                    return;
+                }
+
+                this.isDone = true;
+                this.push('Hello');
+
+                setTimeout(() => {
+
+                    this.push(null);
+                    ended = true;
+                }, 150);
+            };
+
             const handler = function (request, reply) {
-
-                const TestStream = function () {
-
-                    Stream.Readable.call(this);
-                };
-
-                Hoek.inherits(TestStream, Stream.Readable);
-
-                TestStream.prototype._read = function (size) {
-
-                    const self = this;
-
-                    if (this.isDone) {
-                        return;
-                    }
-                    this.isDone = true;
-
-                    self.push('Hello');
-
-                    setTimeout(() => {
-
-                        self.push(null);
-                        ended = true;
-                    }, 150);
-                };
 
                 return reply(new TestStream());
             };
@@ -1560,11 +1558,11 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 100 } } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', handler: handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
-                Wreck.get(server.info.uri, {}, (err, res, payload) => {
+                Wreck.get('http://localhost:' + server.info.port, (err, res, payload) => {
 
                     expect(ended).to.be.true();
                     expect(timer.elapsed()).to.be.at.least(150);
@@ -1587,8 +1585,6 @@ describe('Request', () => {
 
                 TestStream.prototype._read = function (size) {
 
-                    const self = this;
-
                     if (this.isDone) {
                         return;
                     }
@@ -1596,12 +1592,12 @@ describe('Request', () => {
 
                     setTimeout(() => {
 
-                        self.push('Hello');
+                        this.push('Hello');
                     }, 30);
 
                     setTimeout(() => {
 
-                        self.push(null);
+                        this.push(null);
                     }, 60);
                 };
 

@@ -438,7 +438,7 @@ describe('validation', () => {
         server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('.a');
+            expect(res.result).to.equal('a');
             done();
         });
     });

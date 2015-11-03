@@ -740,18 +740,16 @@ describe('transmission', () => {
 
                 TestStream.prototype._read = function (size) {
 
-                    const self = this;
-
                     if (this.isDone) {
                         return;
                     }
                     this.isDone = true;
 
-                    self.push('success');
+                    this.push('success');
 
                     setImmediate(() => {
 
-                        self.emit('error', new Error());
+                        this.emit('error', new Error());
                     });
                 };
 
@@ -1473,8 +1471,6 @@ describe('transmission', () => {
 
             ErrStream.prototype._read = function (size) {
 
-                const self = this;
-
                 if (this.isDone) {
                     return;
                 }
@@ -1482,10 +1478,10 @@ describe('transmission', () => {
                 this.push('here is the response');
                 process.nextTick(() => {
 
-                    self.request.raw.req.emit('close');
+                    this.request.raw.req.emit('close');
                     process.nextTick(() => {
 
-                        self.push(null);
+                        this.push(null);
                     });
                 });
             };
@@ -1613,8 +1609,6 @@ describe('transmission', () => {
 
                 stream._read = function (size) {
 
-                    const self = this;
-
                     const chunk = new Array(size).join('x');
 
                     if (destroyed) {
@@ -1625,7 +1619,7 @@ describe('transmission', () => {
 
                         setTimeout(() => {
 
-                            self.push(chunk);
+                            this.push(chunk);
                         }, 10);
                     }
                 };
@@ -1790,8 +1784,6 @@ describe('transmission', () => {
 
                 stream._read = function (size) {
 
-                    const self = this;
-
                     const chunk = new Array(size).join('x');
 
                     if (responded) {
@@ -1802,7 +1794,7 @@ describe('transmission', () => {
                         setTimeout(() => {
 
                             responded = true;
-                            self.push(chunk);
+                            this.push(chunk);
                         }, 10);
                     }
                 };
@@ -2982,8 +2974,6 @@ Hoek.inherits(internals.TimerStream, Stream.Readable);
 
 internals.TimerStream.prototype._read = function (size) {
 
-    const self = this;
-
     if (this.isDone) {
         return;
     }
@@ -2991,7 +2981,7 @@ internals.TimerStream.prototype._read = function (size) {
 
     setTimeout(() => {
 
-        self.push('hi');
-        self.push(null);
+        this.push('hi');
+        this.push(null);
     }, 5);
 };
