@@ -1,4 +1,4 @@
-# 11.0.x API Reference
+# 11.1.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -23,7 +23,7 @@
     - [`server.bind(context)`](#serverbindcontext)
     - [`server.cache(options)`](#servercacheoptions)
     - [`server.connection([options])`](#serverconnectionoptions)
-    - [`server.decorate(type, property, method)`](#serverdecoratetype-property-method)
+    - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
     - [`server.expose(key, value)`](#serverexposekey-value)
     - [`server.expose(obj)`](#serverexposeobj)
@@ -833,7 +833,7 @@ exports.register.attributes = {
 };
 ```
 
-### `server.decorate(type, property, method)`
+### `server.decorate(type, property, method, [options])`
 
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
@@ -841,7 +841,11 @@ Extends various framework interfaces with custom methods where:
     - `'reply'` - adds methods to the [reply interface](#reply-interface).
     - `'server'` - adds methods to the [Server](#server) object.
 - `property` - the object decoration key name.
-- `method` - the extension function.
+- `method` - the extension function or other value.
+- `options` - if the `type` is `'request'`, supports the following optional settings:
+    - `apply` - if `true`, the `method` function is invoked using the signature `function(request)`
+      where `request` is the current request object and the returned value is assigned as the
+      decoration.
 
 Note that decorations apply to the entire server and all its connections regardless of current
 selection.

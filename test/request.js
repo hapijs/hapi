@@ -33,11 +33,32 @@ describe('Request.Generator', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        server.decorate('request', 'x2', () => {
+        server.decorate('request', 'x2', () => 2);
+        server.decorate('request', 'abc', () => 1);
 
-            return 2;
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply(request.x2() + request.abc());
+            }
         });
 
+        server.inject('/', (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(3);
+            done();
+        });
+    });
+
+    it('decorates request with non function method', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        server.decorate('request', 'x2', 2);
         server.decorate('request', 'abc', 1);
 
         server.route({
@@ -45,7 +66,7 @@ describe('Request.Generator', () => {
             path: '/',
             handler: function (request, reply) {
 
-                return reply(request.x2() + request.abc);
+                return reply(request.x2 + request.abc);
             }
         });
 
@@ -330,8 +351,10 @@ describe('Request', () => {
 
         it('does not fail on abort', (done) => {
 
-            let clientRequest;
+            const server = new Hapi.Server();
+            server.connection();
 
+            let clientRequest;
             const handler = function (request, reply) {
 
                 clientRequest.abort();
@@ -346,8 +369,6 @@ describe('Request', () => {
                 }, 10);
             };
 
-            const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.start((err) => {
@@ -1073,6 +1094,9 @@ describe('Request', () => {
 
         it('emits a request event', (done) => {
 
+            const server = new Hapi.Server();
+            server.connection();
+
             const handler = function (request, reply) {
 
                 server.on('request', (req, event, tags) => {
@@ -1087,8 +1111,6 @@ describe('Request', () => {
                 request.log(['test'], 'data');
             };
 
-            const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.inject('/', (res) => {

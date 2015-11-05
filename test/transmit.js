@@ -1601,8 +1601,10 @@ describe('transmission', () => {
 
         it('does not leak stream data when request aborts before stream drains', (done) => {
 
-            let destroyed = false;
+            const server = new Hapi.Server();
+            server.connection();
 
+            let destroyed = false;
             const handler = function (request, reply) {
 
                 const stream = new Stream.Readable();
@@ -1632,8 +1634,6 @@ describe('transmission', () => {
                 return reply(stream);
             };
 
-            const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.start((err) => {
@@ -1655,13 +1655,16 @@ describe('transmission', () => {
 
         it('does not leak classic stream data when passed to request and aborted', (done) => {
 
-            let destroyed = false;
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
 
+            let destroyed = false;
             const handler = function (request, reply) {
 
                 const stream = new Stream();
                 stream.readable = true;
 
+                let paused = true;
                 const _read = function () {
 
                     setImmediate(() => {
@@ -1684,7 +1687,6 @@ describe('transmission', () => {
                     });
                 };
 
-                let paused = true;
                 stream.resume = function () {
 
                     if (paused) {
@@ -1707,8 +1709,6 @@ describe('transmission', () => {
                 return reply(stream);
             };
 
-            const server = new Hapi.Server({ debug: false });
-            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.start((err) => {
@@ -1729,6 +1729,9 @@ describe('transmission', () => {
         });
 
         it('does not leak stream data when request timeouts before stream drains', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
 
             const handler = function (request, reply) {
 
@@ -1755,8 +1758,6 @@ describe('transmission', () => {
                 return reply(stream);
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.start((err) => {
@@ -1773,8 +1774,10 @@ describe('transmission', () => {
 
         it('does not leak stream data when request aborts before stream is returned', (done) => {
 
-            let clientRequest;
+            const server = new Hapi.Server();
+            server.connection();
 
+            let clientRequest;
             const handler = function (request, reply) {
 
                 clientRequest.abort();
@@ -1810,8 +1813,6 @@ describe('transmission', () => {
                 }, 100);
             };
 
-            const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler: handler });
 
             server.start((err) => {

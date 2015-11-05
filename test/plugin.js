@@ -1223,6 +1223,16 @@ describe('Plugin', () => {
 
         it('register nested connectionless plugins', (done) => {
 
+            const b = function (srv, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false
+            };
+
             const a = function (srv, options, next) {
 
                 srv.register(b, (err) => {
@@ -1236,16 +1246,6 @@ describe('Plugin', () => {
                 connections: false
             };
 
-            const b = function (srv, options, next) {
-
-                return next();
-            };
-
-            b.attributes = {
-                name: 'b',
-                connections: false
-            };
-
             const server = new Hapi.Server();
             server.connection();
             server.register(a, (err) => {
@@ -1256,6 +1256,16 @@ describe('Plugin', () => {
         });
 
         it('throws when nested connectionless plugins select', (done) => {
+
+            const b = function (srv, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false
+            };
 
             const a = function (srv, options, next) {
 
@@ -1271,16 +1281,6 @@ describe('Plugin', () => {
                 connections: false
             };
 
-            const b = function (srv, options, next) {
-
-                return next();
-            };
-
-            b.attributes = {
-                name: 'b',
-                connections: false
-            };
-
             const server = new Hapi.Server();
             server.connection();
             server.register(a, (err) => {
@@ -1291,6 +1291,18 @@ describe('Plugin', () => {
         });
 
         it('register a plugin once per connection', (done) => {
+
+            let count = 0;
+            const b = function (srv, options, next) {
+
+                ++count;
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
 
             const a = function (srv, options, next) {
 
@@ -1304,18 +1316,6 @@ describe('Plugin', () => {
             a.attributes = {
                 name: 'a'
             };
-
-            let count = 0;
-            const b = function (srv, options, next) {
-
-                ++count;
-                return next();
-            };
-
-            b.attributes = {
-                name: 'b'
-            };
-
             const server = new Hapi.Server();
             server.connection();
             server.register(b, (err) => {
@@ -1335,6 +1335,17 @@ describe('Plugin', () => {
 
         it('register a plugin once per connection (skip empty selection)', (done) => {
 
+            let count = 0;
+            const b = function (srv, options, next) {
+
+                ++count;
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
             const a = function (srv, options, next) {
 
                 srv.select('none').register(b, { once: true }, (err) => {
@@ -1346,17 +1357,6 @@ describe('Plugin', () => {
 
             a.attributes = {
                 name: 'a'
-            };
-
-            let count = 0;
-            const b = function (srv, options, next) {
-
-                ++count;
-                return next();
-            };
-
-            b.attributes = {
-                name: 'b'
             };
 
             const server = new Hapi.Server();
@@ -1403,6 +1403,17 @@ describe('Plugin', () => {
 
         it('register a plugin once per connection (no selection left)', (done) => {
 
+            let count = 0;
+            const b = function (srv, options, next) {
+
+                ++count;
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
             const a = function (srv, options, next) {
 
                 srv.register(b, { once: true }, (err) => {
@@ -1414,17 +1425,6 @@ describe('Plugin', () => {
 
             a.attributes = {
                 name: 'a'
-            };
-
-            let count = 0;
-            const b = function (srv, options, next) {
-
-                ++count;
-                return next();
-            };
-
-            b.attributes = {
-                name: 'b'
             };
 
             const server = new Hapi.Server();
@@ -1470,19 +1470,6 @@ describe('Plugin', () => {
 
         it('register a connectionless plugin once', (done) => {
 
-            const a = function (srv, options, next) {
-
-                srv.register(b, { once: true }, (err) => {
-
-                    expect(err).to.not.exist();
-                    return next();
-                });
-            };
-
-            a.attributes = {
-                name: 'a'
-            };
-
             let count = 0;
             const b = function (srv, options, next) {
 
@@ -1494,6 +1481,19 @@ describe('Plugin', () => {
             b.attributes = {
                 name: 'b',
                 connections: false
+            };
+
+            const a = function (srv, options, next) {
+
+                srv.register(b, { once: true }, (err) => {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
             };
 
             const server = new Hapi.Server();
@@ -1515,19 +1515,6 @@ describe('Plugin', () => {
 
         it('register a connectionless plugin once (plugin attributes)', (done) => {
 
-            const a = function (srv, options, next) {
-
-                srv.register(b, (err) => {
-
-                    expect(err).to.not.exist();
-                    return next();
-                });
-            };
-
-            a.attributes = {
-                name: 'a'
-            };
-
             let count = 0;
             const b = function (srv, options, next) {
 
@@ -1540,6 +1527,19 @@ describe('Plugin', () => {
                 name: 'b',
                 connections: false,
                 once: true
+            };
+
+            const a = function (srv, options, next) {
+
+                srv.register(b, (err) => {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
             };
 
             const server = new Hapi.Server();
@@ -1561,19 +1561,6 @@ describe('Plugin', () => {
 
         it('register a connectionless plugin once (plugin options)', (done) => {
 
-            const a = function (srv, options, next) {
-
-                srv.register({ register: b, once: true }, (err) => {
-
-                    expect(err).to.not.exist();
-                    return next();
-                });
-            };
-
-            a.attributes = {
-                name: 'a'
-            };
-
             let count = 0;
             const b = function (srv, options, next) {
 
@@ -1585,6 +1572,19 @@ describe('Plugin', () => {
             b.attributes = {
                 name: 'b',
                 connections: false
+            };
+
+            const a = function (srv, options, next) {
+
+                srv.register({ register: b, once: true }, (err) => {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
             };
 
             const server = new Hapi.Server();
@@ -1698,6 +1698,15 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
             server.connection();
 
+            const b = function (srv, options, next) {
+
+                return next(typeof srv.a === 'function' ? null : new Error('Missing decoration'));
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
             const a = function (srv, options, next) {
 
                 srv.decorate('server', 'a', () => {
@@ -1710,15 +1719,6 @@ describe('Plugin', () => {
 
             a.attributes = {
                 name: 'a'
-            };
-
-            const b = function (srv, options, next) {
-
-                return next(typeof srv.a === 'function' ? null : new Error('Missing decoration'));
-            };
-
-            b.attributes = {
-                name: 'b'
             };
 
             server.register([a, b], (err) => {
@@ -2183,6 +2183,30 @@ describe('Plugin', () => {
             });
         });
 
+        it('decorates request (apply)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('request', 'uri', (request) => request.server.info.uri, { apply: true });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.uri);
+                }
+            });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(server.info.uri);
+                done();
+            });
+        });
+
         it('decorates reply', (done) => {
 
             const server = new Hapi.Server();
@@ -2499,15 +2523,6 @@ describe('Plugin', () => {
 
         it('recognizes dependencies from peer plugins', (done) => {
 
-            const a = function (srv, options, next) {
-
-                srv.register(b, next);
-            };
-
-            a.attributes = {
-                name: 'a'
-            };
-
             const b = function (srv, options, next) {
 
                 return next();
@@ -2515,6 +2530,15 @@ describe('Plugin', () => {
 
             b.attributes = {
                 name: 'b'
+            };
+
+            const a = function (srv, options, next) {
+
+                srv.register(b, next);
+            };
+
+            a.attributes = {
+                name: 'a'
             };
 
             const c = function (srv, options, next) {
@@ -2538,6 +2562,12 @@ describe('Plugin', () => {
 
         it('errors when missing inner dependencies', (done) => {
 
+            const b = function (srv, options, next) {
+
+                srv.dependency('c');
+                return next();
+            };
+
             const a = function (srv, options, next) {
 
                 srv.register(b, next);
@@ -2545,12 +2575,6 @@ describe('Plugin', () => {
 
             a.attributes = {
                 name: 'a'
-            };
-
-            const b = function (srv, options, next) {
-
-                srv.dependency('c');
-                return next();
             };
 
             b.attributes = {
@@ -2572,15 +2596,6 @@ describe('Plugin', () => {
 
         it('errors when missing inner dependencies (attributes)', (done) => {
 
-            const a = function (srv, options, next) {
-
-                srv.register(b, next);
-            };
-
-            a.attributes = {
-                name: 'a'
-            };
-
             const b = function (srv, options, next) {
 
                 return next();
@@ -2589,6 +2604,15 @@ describe('Plugin', () => {
             b.attributes = {
                 name: 'b',
                 dependencies: 'c'
+            };
+
+            const a = function (srv, options, next) {
+
+                srv.register(b, next);
+            };
+
+            a.attributes = {
+                name: 'a'
             };
 
             const server = new Hapi.Server();
