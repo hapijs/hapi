@@ -820,6 +820,62 @@ describe('Connection', () => {
             });
         });
 
+        it('sets app settings', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.app.x);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            const options = {
+                url: '/',
+                authority: 'x',             // For coverage
+                app: {
+                    x: 123
+                }
+            };
+
+            server.inject(options, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(123);
+                done();
+            });
+        });
+
+        it('sets plugins settings', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.plugins.x.y);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+
+            const options = {
+                url: '/',
+                authority: 'x',             // For coverage
+                plugins: {
+                    x: {
+                        y: 123
+                    }
+                }
+            };
+
+            server.inject(options, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(123);
+                done();
+            });
+        });
+
         it('returns the request object', (done) => {
 
             const handler = function (request, reply) {
