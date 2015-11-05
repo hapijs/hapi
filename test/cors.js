@@ -664,6 +664,26 @@ describe('CORS', () => {
                 done();
             });
         });
+
+        it('correctly finds route when using vhost setting', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { cors: true } });
+            server.route({
+                method: 'POST',
+                vhost: 'example.com',
+                path: '/',
+                handler: function (request, reply) { }
+            });
+
+            server.inject({ method: 'OPTIONS', url: 'http://example.com:4000/', headers: { origin: 'http://localhost', 'access-control-request-method': 'POST' } }, (res) => {
+
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['access-control-allow-methods']).to.equal('POST');
+                done();
+            });
+        });
     });
 
     describe('headers()', () => {
