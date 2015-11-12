@@ -53,6 +53,16 @@ describe('Connection', () => {
         done();
     });
 
+    it('does not throw when given a default authentication strategy', (done) => {
+
+        expect(() => {
+
+            const server = new Hapi.Server({ connections: { routes: { auth: 'test' } } });
+            server.connection();
+        }).not.to.throw();
+        done();
+    });
+
     it('throws when disabling autoListen and providing a port', (done) => {
 
         const server = new Hapi.Server();
