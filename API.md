@@ -2278,7 +2278,7 @@ following options:
           domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list)
           to the header.
     - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will
-      be set to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. To
+      be set to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. Defaults to `true`. To
       use the 'allow-from' rule, you must set this to an object with the following fields:
         - `rule` - either 'deny', 'sameorigin', or 'allow-from'
         - `source` - when `rule` is 'allow-from' this is used to form the rest of the
