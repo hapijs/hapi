@@ -70,7 +70,7 @@
             "version": "3.0.0"
         },
         "subtext": {
-            "version": "3.0.0",
+            "version": "3.0.1",
             "dependencies": {
                 "content": {
                     "version": "3.0.0"
