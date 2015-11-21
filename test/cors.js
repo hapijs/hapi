@@ -649,6 +649,7 @@ describe('CORS', () => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match,Origin');
+                expect(res.headers['access-control-expose-headers']).to.equal('WWW-Authenticate,Server-Authorization');
                 done();
             });
         });
