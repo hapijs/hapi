@@ -297,6 +297,66 @@ describe('CORS', () => {
             });
         });
 
+        it('sets default CORS access-control-expose-headers with default cors configuration', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { cors: true } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-expose-headers']).to.equal('WWW-Authenticate,Server-Authorization');
+                done();
+            });
+        });
+
+        it('sets default CORS access-control-expose-headers with custom cors configuration', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { cors: { origin: ['http://example.com'] } } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-expose-headers']).to.equal('WWW-Authenticate,Server-Authorization');
+                done();
+            });
+        });
+
+        it('sets CORS access-control-expose-headers with specified headers', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { cors: { origin: ['http://example.com'], exposedHeaders: ['Foo', 'Bar'] } } });
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('ok');
+                expect(res.headers['access-control-expose-headers']).to.equal('Foo,Bar');
+                done();
+            });
+        });
+
         it('returns no CORS headers when route CORS disabled', (done) => {
 
             const handler = function (request, reply) {
@@ -589,6 +649,7 @@ describe('CORS', () => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match,Origin');
+                expect(res.headers['access-control-expose-headers']).to.equal('WWW-Authenticate,Server-Authorization');
                 done();
             });
         });
