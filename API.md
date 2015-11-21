@@ -874,7 +874,7 @@ server.route({
 
 ### `server.dependency(dependencies, [after])`
 
-Used within a plugin to declares a required dependency on other [plugins](#plugins) where:
+Used within a plugin to declare a required dependency on other [plugins](#plugins) where:
 - `dependencies` - a single string or array of plugin name strings which must be registered in
   order for this plugin to operate. Plugins listed must be registered before the server is started.
   Does not provide version dependency which should be implemented using
