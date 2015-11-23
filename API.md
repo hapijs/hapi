@@ -2501,7 +2501,7 @@ server.route({ method: '*', path: '/{p*}', handler: handler });
 
 ### Route handler
 
-The route handler function uses the signature `function(request, reply)` where:
+The route handler function uses the signature `function(request, reply)` (NOTE: do *not* use a fat arrow style function for route handlers as they do not allow context binding and will cause problems when used in conjunction with [server.bind](#server-bind)) where:
 - `request` - is the incoming [request object](#request-object) (this is not the node.js request
   object).
 - `reply` - the [reply interface](#reply-interface) the handler must call to set a response and
