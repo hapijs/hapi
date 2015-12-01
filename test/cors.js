@@ -59,6 +59,24 @@ describe('CORS', () => {
         });
     });
 
+    it('returns OPTIONS response if origin header is capitalized', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(Boom.badRequest());
+        };
+
+        const server = new Hapi.Server();
+        server.connection({ routes: { cors: true } });
+        server.route({ method: 'GET', path: '/', handler: handler });
+
+        server.inject({ method: 'OPTIONS', url: '/', headers: { Origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res) => {
+
+            expect(res.headers['access-control-allow-origin']).to.equal('http://example.com/');
+            done();
+        });
+    });
+
     it('returns OPTIONS response (server config)', (done) => {
 
         const handler = function (request, reply) {
