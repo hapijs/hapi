@@ -246,6 +246,8 @@ describe('payload', () => {
 
         Zlib.gzip(JSON.stringify(message), (err, buf) => {
 
+            expect(err).to.not.exist();
+
             const request = {
                 method: 'POST',
                 url: '/',
@@ -282,6 +284,7 @@ describe('payload', () => {
 
         Zlib.gzip(sourceContents, (err, compressed) => {
 
+            expect(err).to.not.exist();
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
@@ -621,7 +624,7 @@ describe('payload', () => {
                 server.stop({ timeout: 1 }, done);
             });
 
-            req.on('error', (err) => { });                    // Will error out, so don't allow error to escape test
+            req.on('error', Hoek.ignore);                    // Will error out, so don't allow error to escape test
 
             req.write('{}\n');
             setTimeout(() => {
@@ -660,7 +663,7 @@ describe('payload', () => {
                 server.stop({ timeout: 1 }, done);
             });
 
-            req.on('error', (err) => { });                    // Will error out, so don't allow error to escape test
+            req.on('error', Hoek.ignore);                    // Will error out, so don't allow error to escape test
 
             req.write('{}\n');
             setTimeout(() => {

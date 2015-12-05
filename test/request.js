@@ -106,6 +106,7 @@ describe('Request', () => {
 
             Wreck.get('http://localhost:' + server.info.port, (err, res, body) => {
 
+                expect(err).to.not.exist();
                 expect(body.toString()).to.equal('ok');
                 server.stop(done);
             });
@@ -488,6 +489,7 @@ describe('Request', () => {
                 expect(err).to.not.exist();
                 Wreck.get('http://localhost:' + server.info.port, (err, res, body) => {
 
+                    expect(err).to.not.exist();
                     expect(res.statusCode).to.equal(404);
                     expect(body.toString()).to.equal('{"statusCode":404,"error":"Not Found"}');
                     server.stop(done);
@@ -1586,6 +1588,7 @@ describe('Request', () => {
                 expect(err).to.not.exist();
                 Wreck.get('http://localhost:' + server.info.port, (err, res, payload) => {
 
+                    expect(err).to.not.exist();
                     expect(ended).to.be.true();
                     expect(timer.elapsed()).to.be.at.least(150);
                     expect(res.statusCode).to.equal(200);
@@ -1696,6 +1699,7 @@ describe('Request', () => {
 
                 req.on('error', (err) => {
 
+                    expect(err).to.not.exist();
                 });
 
                 req.write('\n');

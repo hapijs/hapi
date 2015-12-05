@@ -35,6 +35,7 @@ describe('Methods', () => {
 
         server.methods.add(1, 5, (err, result) => {
 
+            expect(err).to.not.exist();
             expect(result).to.equal(6);
             done();
         });
@@ -52,6 +53,7 @@ describe('Methods', () => {
 
         server.methods._add(1, 5, (err, result) => {
 
+            expect(err).to.not.exist();
             expect(result).to.equal(6);
             done();
         });
@@ -69,6 +71,7 @@ describe('Methods', () => {
 
         server.methods.$add(1, 5, (err, result) => {
 
+            expect(err).to.not.exist();
             expect(result).to.equal(6);
             done();
         });
@@ -86,6 +89,7 @@ describe('Methods', () => {
 
         server.methods.add_._that(1, 5, (err, result) => {
 
+            expect(err).to.not.exist();
             expect(result).to.equal(6);
             done();
         });
@@ -103,6 +107,7 @@ describe('Methods', () => {
 
         server.methods.add$.$that(1, 5, (err, result) => {
 
+            expect(err).to.not.exist();
             expect(result).to.equal(6);
             done();
         });
@@ -159,6 +164,7 @@ describe('Methods', () => {
 
             server.methods.tools.add(1, 5, (err, result) => {
 
+                expect(err).to.not.exist();
                 expect(result).to.equal(6);
                 done();
             });
@@ -222,9 +228,11 @@ describe('Methods', () => {
 
             server.methods.tools.add(1, 5, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1).to.equal(6);
                 server.methods.tools.sub(1, 5, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2).to.equal(-4);
                     done();
                 });
@@ -284,10 +292,12 @@ describe('Methods', () => {
 
             server.methods.test(1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.gen).to.equal(0);
 
                 server.methods.test(1, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.gen).to.equal(1);
                     done();
                 });
@@ -425,10 +435,12 @@ describe('Methods', () => {
 
             server.methods.test(1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.gen).to.equal(0);
 
                 server.methods.test(1, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.gen).to.equal(0);
                     done();
                 });
@@ -514,10 +526,12 @@ describe('Methods', () => {
 
             server.methods.test(1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.gen).to.equal(0);
 
                 server.methods.test(1, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.gen).to.equal(1);
                     done();
                 });
@@ -543,6 +557,7 @@ describe('Methods', () => {
 
             server.methods.dropTest(2, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.gen).to.equal(0);
                 server.methods.dropTest.cache.drop(2, (err) => {
 
@@ -550,6 +565,7 @@ describe('Methods', () => {
 
                     server.methods.dropTest(2, (err, result2) => {
 
+                        expect(err).to.not.exist();
                         expect(result2.gen).to.equal(1);
                         done();
                     });
@@ -722,6 +738,7 @@ describe('Methods', () => {
         server.method('user', method);
         server.methods.user(4, (err, result) => {
 
+            expect(err).to.not.exist();
             expect(result.id).to.equal(4);
             done();
         });
@@ -743,6 +760,7 @@ describe('Methods', () => {
             server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
             server.methods.user(4, 'something', (err, result) => {
 
+                expect(err).to.not.exist();
                 expect(result.id).to.equal(4);
                 expect(result.str).to.equal('something');
                 done();
@@ -780,10 +798,12 @@ describe('Methods', () => {
         server.method('user', method);
         server.methods.user(4, (err, result1) => {
 
+            expect(err).to.not.exist();
             expect(result1.id).to.equal(4);
             expect(result1.gen).to.equal(1);
             server.methods.user(4, (err, result2) => {
 
+                expect(err).to.not.exist();
                 expect(result2.id).to.equal(4);
                 expect(result2.gen).to.equal(2);
                 done();
@@ -811,10 +831,12 @@ describe('Methods', () => {
             const id = Math.random();
             server.methods.user(id, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.id).to.equal(id);
                 expect(result1.gen).to.equal(1);
                 server.methods.user(id, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.id).to.equal(id);
                     expect(result2.gen).to.equal(1);
                     done();
@@ -852,6 +874,7 @@ describe('Methods', () => {
 
                     server.methods.user(id, (err, result2) => {
 
+                        expect(err).to.not.exist();
                         expect(result2.id).to.equal(id);
                         expect(result2.gen).to.equal(1);
                         done();
@@ -881,10 +904,12 @@ describe('Methods', () => {
 
             server.methods.tos((err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.terms).to.equal(terms);
                 expect(result1.gen).to.equal(0);
                 server.methods.tos((err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.terms).to.equal(terms);
                     expect(result2.gen).to.equal(0);
                     done();
@@ -911,11 +936,13 @@ describe('Methods', () => {
             const id1 = Math.random();
             server.methods.user(id1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.id).to.equal(id1);
                 expect(result1.gen).to.equal(1);
                 const id2 = Math.random();
                 server.methods.user(id2, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.id).to.equal(id2);
                     expect(result2.gen).to.equal(2);
                     done();
@@ -942,6 +969,7 @@ describe('Methods', () => {
 
             server.methods.user(1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.id).to.equal(1);
 
                 const invalid = function () { };
@@ -973,10 +1001,12 @@ describe('Methods', () => {
 
             server.methods.test(1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.gen).to.equal(7);
 
                 server.methods.test(1, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.gen).to.equal(8);
                     done();
                 });
@@ -1001,10 +1031,12 @@ describe('Methods', () => {
 
             server.methods.test(1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.gen).to.equal(7);
 
                 server.methods.test(1, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.gen).to.equal(7);
                     done();
                 });
@@ -1030,11 +1062,13 @@ describe('Methods', () => {
 
             server.methods.test(1, (err, result1) => {
 
+                expect(err).to.not.exist();
                 expect(result1.gen).to.equal(7);
                 expect(result1.bound).to.equal(true);
 
                 server.methods.test(1, (err, result2) => {
 
+                    expect(err).to.not.exist();
                     expect(result2.gen).to.equal(7);
                     done();
                 });
@@ -1101,6 +1135,7 @@ describe('Methods', () => {
 
             server._methods._normalized.add(1, 5, (err, result) => {
 
+                expect(err).to.not.exist();
                 expect(result).to.equal(6);
                 done();
             });
@@ -1155,6 +1190,7 @@ describe('Methods', () => {
 
         server._methods._normalized.add(1, 5, (err, result) => {
 
+            expect(err).to.not.exist();
             expect(result).to.equal(6);
             done();
         });

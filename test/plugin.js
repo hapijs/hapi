@@ -108,10 +108,12 @@ describe('Plugin', () => {
 
                 srv.methods.testMethod((err, result1) => {
 
+                    expect(err).to.not.exist();
                     expect(result1).to.equal('123');
 
                     srv.methods.testMethod((err, result2) => {
 
+                        expect(err).to.not.exist();
                         expect(result2).to.equal('123');
                         return next();
                     });
@@ -230,7 +232,7 @@ describe('Plugin', () => {
 
                         return next();
                     }
-                }, (err) => { });
+                }, Hoek.ignore);
 
             }).to.throw();
 
@@ -249,7 +251,7 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
             expect(() => {
 
-                server.register(register, (err) => { });
+                server.register(register, Hoek.ignore);
             }).to.throw();
 
             done();
@@ -269,7 +271,7 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
             expect(() => {
 
-                server.register(register, (err) => { });
+                server.register(register, Hoek.ignore);
             }).to.throw();
 
             done();
@@ -427,7 +429,7 @@ describe('Plugin', () => {
                 expect(err).to.not.exist();
                 expect(() => {
 
-                    server.register(test, (err) => { });
+                    server.register(test, Hoek.ignore);
                 }).to.throw('Plugin test already registered in: http://example.com');
 
                 done();
@@ -944,10 +946,13 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.register(c, (err) => {
 
+                    expect(err).to.not.exist();
                     server.register(a, (err) => {
 
+                        expect(err).to.not.exist();
                         server.initialize((err) => {
 
                             expect(err).to.not.exist();
@@ -992,10 +997,13 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.register(c, (err) => {
 
+                    expect(err).to.not.exist();
                     server.register(a, (err) => {
 
+                        expect(err).to.not.exist();
                         server.initialize((err) => {
 
                             expect(err).to.not.exist();
@@ -1041,10 +1049,13 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.register(c, (err) => {
 
+                    expect(err).to.not.exist();
                     server.register(a, (err) => {
 
+                        expect(err).to.not.exist();
                         server.initialize((err) => {
 
                             expect(err).to.not.exist();
@@ -1090,10 +1101,13 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.register(c, (err) => {
 
+                    expect(err).to.not.exist();
                     server.register(a, (err) => {
 
+                        expect(err).to.not.exist();
                         server.initialize((err) => {
 
                             expect(err).to.not.exist();
@@ -1129,9 +1143,11 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.connection();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.exist();
@@ -1169,9 +1185,11 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.connection();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1209,9 +1227,11 @@ describe('Plugin', () => {
             server.connection();
             server.register([b, b], (err) => {
 
+                expect(err).to.not.exist();
                 server.connection();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1237,6 +1257,7 @@ describe('Plugin', () => {
 
                 srv.register(b, (err) => {
 
+                    expect(err).to.not.exist();
                     return next();
                 });
             };
@@ -1271,7 +1292,7 @@ describe('Plugin', () => {
 
                 expect(() => {
 
-                    srv.register(b, { select: 'none' }, (err) => { });
+                    srv.register(b, { select: 'none' }, Hoek.ignore);
                 }).to.throw('Cannot select inside a connectionless plugin');
                 return next();
             };
@@ -1320,9 +1341,11 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.connection();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1364,8 +1387,10 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1432,8 +1457,10 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1500,9 +1527,11 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.connection();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1546,9 +1575,11 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.connection();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1591,9 +1622,11 @@ describe('Plugin', () => {
             server.connection();
             server.register(b, (err) => {
 
+                expect(err).to.not.exist();
                 server.connection();
                 server.register(a, (err) => {
 
+                    expect(err).to.not.exist();
                     server.initialize((err) => {
 
                         expect(err).to.not.exist();
@@ -1645,7 +1678,7 @@ describe('Plugin', () => {
             server.connection();
             expect(() => {
 
-                server.register({ register: a, options: {}, once: true }, (err) => { });
+                server.register({ register: a, options: {}, once: true }, Hoek.ignore);
             }).to.throw();
 
             done();
@@ -1967,8 +2000,10 @@ describe('Plugin', () => {
 
                 cache.set('a', 'going in', 0, (err) => {
 
+                    expect(err).to.not.exist();
                     cache.get('a', (err, value, cached, report) => {
 
+                        expect(err).to.not.exist();
                         expect(value).to.equal('going in');
                         done();
                     });
@@ -1998,8 +2033,10 @@ describe('Plugin', () => {
 
                 cache.set('a', 'going in', 0, (err) => {
 
+                    expect(err).to.not.exist();
                     cache.get('a', (err, value, cached, report) => {
 
+                        expect(err).to.not.exist();
                         expect(value).to.equal('going in');
                         expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
                         done();
@@ -2375,6 +2412,7 @@ describe('Plugin', () => {
             server.connection();
             server.register(test, (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -2400,6 +2438,7 @@ describe('Plugin', () => {
             server.connection();
             server.register(test, (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -2426,6 +2465,7 @@ describe('Plugin', () => {
             server.connection();
             server.register(test, (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -2462,6 +2502,7 @@ describe('Plugin', () => {
             server.connection();
             server.register([test, b], (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -2498,6 +2539,7 @@ describe('Plugin', () => {
             server.connection();
             server.register([test, b], (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.not.exist();
@@ -2512,6 +2554,7 @@ describe('Plugin', () => {
             server.connection({ port: 80, host: 'localhost' });
             server.register([internals.plugins.deps1, internals.plugins.deps3], (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -2585,6 +2628,7 @@ describe('Plugin', () => {
             server.connection({ port: 80, host: 'localhost' });
             server.register(a, (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -2619,6 +2663,7 @@ describe('Plugin', () => {
             server.connection({ port: 80, host: 'localhost' });
             server.register(a, (err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -3259,6 +3304,7 @@ describe('Plugin', () => {
 
             server.initialize((err) => {
 
+                expect(err).to.not.exist();
                 expect(() => {
 
                     server.ext('onPreStart', () => { });
@@ -3836,6 +3882,7 @@ describe('Plugin', () => {
                 expect(err).to.not.exist();
                 server.methods.log((err, result) => {
 
+                    expect(err).to.not.exist();
                     expect(result).to.equal(1);
                     done();
                 });
@@ -3867,6 +3914,7 @@ describe('Plugin', () => {
                 expect(err).to.not.exist();
                 server.methods.log((err, result) => {
 
+                    expect(err).to.not.exist();
                     expect(result).to.equal(2);
                     done();
                 });
@@ -3899,6 +3947,7 @@ describe('Plugin', () => {
                 expect(err).to.not.exist();
                 server.methods.log((err, result) => {
 
+                    expect(err).to.not.exist();
                     expect(result).to.equal(2);
                     done();
                 });
@@ -3961,7 +4010,7 @@ describe('Plugin', () => {
             server.connection();
             expect(() => {
 
-                server.register(test, (err) => { });
+                server.register(test, Hoek.ignore);
             }).to.throw('relativeTo must be a non-empty string');
             done();
         });
@@ -3981,6 +4030,7 @@ describe('Plugin', () => {
 
             server.render('test', { title: 'test', message: 'Hapi' }, (err, rendered, config) => {
 
+                expect(err).to.not.exist();
                 expect(rendered).to.exist();
                 expect(rendered).to.contain('Hapi');
                 done();
@@ -4136,7 +4186,7 @@ internals.plugins = {
                     const username = credentialsParts[0];
                     const password = credentialsParts[1];
 
-                    settings.validateFunc(username, password, (err, isValid, credentials) => {
+                    settings.validateFunc(username, password, (ignoreErr, isValid, credentials) => {
 
                         if (!isValid) {
                             return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials: credentials });

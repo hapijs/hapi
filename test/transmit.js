@@ -965,6 +965,8 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), (err, zipped) => {
 
+                    expect(err).to.not.exist();
+
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
@@ -995,6 +997,8 @@ describe('transmission', () => {
                 const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), (err, zipped) => {
+
+                    expect(err).to.not.exist();
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
 
@@ -1082,6 +1086,8 @@ describe('transmission', () => {
 
                 Zlib.deflate(new Buffer(data), (err, deflated) => {
 
+                    expect(err).to.not.exist();
+
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
@@ -1111,6 +1117,8 @@ describe('transmission', () => {
                 const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.deflate(new Buffer(data), (err, deflated) => {
+
+                    expect(err).to.not.exist();
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, (err, res, body) => {
 
@@ -1143,6 +1151,8 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), (err, zipped) => {
 
+                    expect(err).to.not.exist();
+
                     Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
@@ -1173,6 +1183,8 @@ describe('transmission', () => {
                 const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), (err, zipped) => {
+
+                    expect(err).to.not.exist();
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, (err, res, body) => {
 
@@ -1205,6 +1217,8 @@ describe('transmission', () => {
 
                 Zlib.deflate(new Buffer(data), (err, deflated) => {
 
+                    expect(err).to.not.exist();
+
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
@@ -1235,6 +1249,8 @@ describe('transmission', () => {
                 const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.deflate(new Buffer(data), (err, deflated) => {
+
+                    expect(err).to.not.exist();
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, (err, res, body) => {
 
@@ -1267,6 +1283,8 @@ describe('transmission', () => {
 
                 Zlib.gzip(new Buffer(data), (err, zipped) => {
 
+                    expect(err).to.not.exist();
+
                     Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
@@ -1297,6 +1315,8 @@ describe('transmission', () => {
                 const uri = 'http://localhost:' + server.info.port;
 
                 Zlib.gzip(new Buffer(data), (err, zipped) => {
+
+                    expect(err).to.not.exist();
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, (err, res, body) => {
 
@@ -1371,6 +1391,8 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             Zlib.gzip(new Buffer(data), (err, zipped) => {
+
+                expect(err).to.not.exist();
 
                 const server = new Hapi.Server();
                 server.connection();
@@ -1642,6 +1664,8 @@ describe('transmission', () => {
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
 
+                    expect(err).to.not.exist();
+
                     res.on('data', (chunk) => {
 
                         if (!destroyed) {
@@ -1716,6 +1740,8 @@ describe('transmission', () => {
                 expect(err).to.not.exist();
 
                 Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
+
+                    expect(err).to.not.exist();
 
                     res.on('data', (chunk) => {
 
@@ -1889,6 +1915,7 @@ describe('transmission', () => {
 
                     Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options, (err, res) => {
 
+                        expect(err).to.not.exist();
                         reply(res).code(res.statusCode);
                     });
                 };

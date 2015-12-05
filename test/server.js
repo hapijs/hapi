@@ -260,6 +260,7 @@ describe('Server', () => {
             server.connection();
             server.start((err) => {
 
+                expect(err).to.not.exist();
                 server.initialize((err) => {
 
                     expect(err).to.exist();
@@ -296,17 +297,20 @@ describe('Server', () => {
             server.initialize((err) => {
 
                 expect(err).to.not.exist();
-
                 cache.set('a', 'going in', 0, (err) => {
 
+                    expect(err).to.not.exist();
                     cache.get('a', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1).to.equal('going in');
 
                         server.stop((err) => {
 
+                            expect(err).to.not.exist();
                             cache.get('a', (err, value2, cached2, report2) => {
 
+                                expect(err).to.exist();
                                 expect(value2).to.equal(null);
                                 done();
                             });

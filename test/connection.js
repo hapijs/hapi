@@ -175,6 +175,7 @@ describe('Connection', () => {
 
         server.start((err) => {
 
+            expect(err).to.not.exist();
             expect(server.info.port).to.equal(port);
             server.stop(done);
         });
@@ -341,6 +342,7 @@ describe('Connection', () => {
 
             Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, (err, res) => {
 
+                expect(err).to.not.exist();
                 Wreck.read(res, {}, (err, payload) => {
 
                     expect(err).to.not.exist();
@@ -464,6 +466,7 @@ describe('Connection', () => {
 
                         server.listener.getConnections((err, count1) => {
 
+                            expect(err).to.not.exist();
                             expect(count1).to.be.greaterThan(0);
 
                             server.stop((err) => {
@@ -472,6 +475,7 @@ describe('Connection', () => {
 
                                 server.listener.getConnections((err, count2) => {
 
+                                    expect(err).to.not.exist();
                                     expect(count2).to.equal(0);
                                     done();
                                 });
@@ -512,6 +516,7 @@ describe('Connection', () => {
 
                         server.listener.getConnections((err, count) => {
 
+                            expect(err).to.not.exist();
                             expect(count).to.be.greaterThan(0);
                             const timer = new Hoek.Bench();
 
@@ -554,6 +559,7 @@ describe('Connection', () => {
 
                         server.listener.getConnections((err, count1) => {
 
+                            expect(err).to.not.exist();
                             expect(count1).to.be.greaterThan(0);
                             const timer = new Hoek.Bench();
 
@@ -563,6 +569,7 @@ describe('Connection', () => {
 
                                 server.listener.getConnections((err, count2) => {
 
+                                    expect(err).to.not.exist();
                                     expect(count2).to.equal(0);
                                     expect(timer.elapsed()).to.be.at.least(9);
                                     done();
@@ -653,6 +660,7 @@ describe('Connection', () => {
             server.connection();
             server.stop((err) => {
 
+                expect(err).to.not.exist();
                 server.stop(done);
             });
         });
@@ -1170,6 +1178,7 @@ describe('Connection', () => {
 
             server.register(test, (err) => {
 
+                expect(err).to.not.exist();
                 server.inject('/view', (res) => {
 
                     expect(res.statusCode).to.equal(200);
