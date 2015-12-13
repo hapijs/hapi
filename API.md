@@ -2251,7 +2251,7 @@ following options:
     - `status` - HTTP status-code-specific payload validation rules. The `status` key is set to an
       object where each key is a 3 digit HTTP status code and the value has the same
       definition as `schema`. If a response status code is not present in the `status` object,
-      the `schema` definition is used, expect for errors which are not validated by default.
+      the `schema` definition is used, except for errors which are not validated by default.
     - `sample` - the percent of response payloads validated (0 - 100). Set to `0` to disable all
       validation. Defaults to `100` (all response payloads).
     - `failAction` - defines what to do when a response fails payload validation. Options are:
