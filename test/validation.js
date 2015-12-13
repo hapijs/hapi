@@ -1610,7 +1610,7 @@ describe('validation', () => {
                 }
             });
         }).to.throw(/"options.stripUnknown" failed to meet requirement of having peer modify set to true/);
-        
+
         done();
     });
 });
