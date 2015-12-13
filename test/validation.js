@@ -1585,6 +1585,34 @@ describe('validation', () => {
             done();
         });
     });
+
+    it('throws on options.stripUnknown without modify', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        expect(() => {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                },
+                config: {
+                    response: {
+                        schema: Joi.string(),
+                        options: {
+                            stripUnknown: true
+                        }
+                    }
+                }
+            });
+        }).to.throw(/"options.stripUnknown" failed to meet requirement of having peer modify set to true/);
+        
+        done();
+    });
 });
 
 
