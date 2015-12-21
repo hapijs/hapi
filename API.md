@@ -1580,7 +1580,7 @@ across multiple requests. Registers a cookie definitions where:
         - `'none'` - no encoding. When used, the cookie value must be a string. This is the default
           value.
         - `'base64'` - string value is encoded using Base64.
-        - `'base64json'` - object value is JSON-stringified than encoded using Base64.
+        - `'base64json'` - object value is JSON-stringified then encoded using Base64.
         - `'form'` - object value is encoded using the _x-www-form-urlencoded_ method.
         - `'iron'` - Encrypts and sign the value using
           [**iron**](https://github.com/hueniverse/iron).
