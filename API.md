@@ -1,4 +1,4 @@
-# 11.1.x API Reference
+# 12.0.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -62,7 +62,7 @@
     - [Route prerequisites](#route-prerequisites)
     - [Request object](#request-object)
         - [Request properties](#request-properties)
-        - [`request.setUrl(url, [stripTrailingSlash], [parserOptions])`](#requestseturlurlstripTrailingSlashparserOptions)
+        - [`request.setUrl(url, [stripTrailingSlash])`](#requestseturlurl-stripTrailingSlash)
         - [`request.setMethod(method)`](#requestsetmethodmethod)
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags], [internal])`](#requestgetlogtags-internal)
@@ -145,10 +145,6 @@ Creates a new `Server` object where:
            value is the configuration. Note the difference between `connection.settings.plugins`
            which is used to store configuration values and `connection.plugins` which is meant for
            storing run-time state.
-
-        - `query` - incoming request query component parsing options:
-            - `qs` - optional URI parsing [options](https://www.npmjs.com/package/qs#parsing-objects).
-              Defaults to the **qs** module parsing defaults.
 
         - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are
           matched against the routing table:
@@ -1960,7 +1956,7 @@ Each incoming request passes through a pre-defined list of steps, along with opt
 - **`'onRequest'`** extension point
     - always called
     - the [request object](#request-object) passed to the extension functions is decorated with the
-      [`request.setUrl()`](#requestseturlurl) and [`request.setMethod()`](#requestsetmethodmethod)
+      [`request.setUrl()`](#requestseturlurl-stripTrailingSlash) and [`request.setMethod()`](#requestsetmethodmethod)
       methods. Calls to these methods will impact how the request is routed and can be used for
       rewrite rules.
     - `request.route` is not yet populated at this point.
@@ -2222,7 +2218,6 @@ following options:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action and continue processing the request.
-    - `qs` - optional parsing options object passed to the [**qs** module](https://github.com/hapijs/qs).
     - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
       Defaults to `'application/json'`.
 
@@ -2338,8 +2333,7 @@ following options:
 
     - `query` - validation rules for an incoming request URI query component (the key-value
       part of the URI between '?' and '#'). The query is parsed into its individual key-value
-      pairs (using the [**qs** module](https://github.com/hapijs/qs)) and stored in
-      `request.query` prior to validation. Values allowed:
+      pairs and stored in `request.query` prior to validation. Values allowed:
         - `true` - any query parameters allowed (no validation performed). This is the default.
         - `false` - no query parameters allowed.
         - a [Joi](http://github.com/hapijs/joi) validation object.
@@ -2667,16 +2661,15 @@ Each request object includes the following properties:
   definition.
 - `url` - the parsed request URI.
 
-#### `request.setUrl(url, [stripTrailingSlash], [parserOptions])`
+#### `request.setUrl(url, [stripTrailingSlash]`
 
 _Available only in `'onRequest'` extension methods._
 
 Changes the request URI before the router begins processing the request where:
- - `url` - the new request path value.
+ - `url` - the new request URI. If `url` is a string, it is parsed with node's **URL**
+  `parse()` method. `url` can also be set to an object compatible with node's **URL**
+  `parse()` method output.
  - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
- - `parserOptions` - optional URI parsing [options](https://www.npmjs.com/package/qs#parsing-objects).
-   Defaults to the route connection `query.qs` settings if present, otherwise the **qs** module
-   parsing defaults.
 
 ```js
 const Hapi = require('hapi');
@@ -2692,6 +2685,30 @@ const onRequest = function (request, reply) {
 
 server.ext('onRequest', onRequest);
 ```
+
+To use another query string parser:
+
+```js
+const Url = require('url');
+const Hapi = require('hapi');
+const Qs = require('qs');
+
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+const onRequest = function (request, reply) {
+
+    const uri = request.raw.req.url;
+    const parsed = Url.parse(uri, false);
+    parsed.query = Qs.parse(parsed.query);
+    request.setUrl(parsed);
+
+    return reply.continue();
+};
+
+server.ext('onRequest', onRequest);
+```
+
 
 #### `request.setMethod(method)`
 

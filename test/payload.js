@@ -515,28 +515,6 @@ describe('payload', () => {
         });
     });
 
-    it('parses application/x-www-form-urlencoded with arrays', (done) => {
-
-        const server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                return reply(request.payload.x.y + request.payload.x.z);
-            }
-        });
-
-        server.inject({ method: 'POST', url: '/', payload: 'x[y]=1&x[z]=2', headers: { 'content-type': 'application/x-www-form-urlencoded' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('12');
-            done();
-        });
-    });
-
     it('returns parsed multipart data', (done) => {
 
         const multipartPayload =

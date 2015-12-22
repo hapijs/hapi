@@ -5,6 +5,7 @@
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
+const Url = require('url');
 const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
@@ -871,24 +872,6 @@ describe('Request', () => {
 
     describe('setUrl()', () => {
 
-        it('parses nested query string', (done) => {
-
-            const handler = function (request, reply) {
-
-                return reply(request.query);
-            };
-
-            const server = new Hapi.Server();
-            server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
-
-            server.inject('/?a[b]=5&d[ff]=ok', (res) => {
-
-                expect(res.result).to.deep.equal({ a: { b: '5' }, d: { ff: 'ok' } });
-                done();
-            });
-        });
-
         it('sets url, path, and query', (done) => {
 
             const url = 'http://localhost/page?param1=something';
@@ -907,6 +890,30 @@ describe('Request', () => {
             server.inject('/', (res) => {
 
                 expect(res.payload).to.equal(url + '|/page|something');
+                done();
+            });
+        });
+
+        it('overrides query string parsing', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                const uri = request.raw.req.url;
+                const parsed = Url.parse(uri, true);
+                parsed.query.a = 2;
+                request.setUrl(parsed);
+                return reply([request.url.href, request.path, request.query.a].join('|'));
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject('/?a=1', (res) => {
+
+                expect(res.payload).to.equal('/?a=1|/|2');
                 done();
             });
         });
@@ -1003,62 +1010,6 @@ describe('Request', () => {
             server.inject('/test/?a=b', (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                done();
-            });
-        });
-
-        it('accepts querystring parser options', (done) => {
-
-            const url = 'http://localhost/page?a=1&b=1&c=1&d=1&e=1&f=1&g=1&h=1&i=1&j=1&k=1&l=1&m=1&n=1&o=1&p=1&q=1&r=1&s=1&t=1&u=1&v=1&w=1&x=1&y=1&z=1';
-            const qsParserOptions = {
-                parameterLimit: 26
-            };
-            const server = new Hapi.Server();
-            server.connection();
-            const onRequest = function (request, reply) {
-
-                request.setUrl(url, null, qsParserOptions);
-                return reply(request.query);
-            };
-
-            server.ext('onRequest', onRequest);
-
-            server.inject('/', (res) => {
-
-                expect(res.result).to.deep.equal({
-                    a: '1', b: '1', c: '1', d: '1', e: '1', f: '1', g: '1', h: '1', i: '1',
-                    j: '1', k: '1', l: '1', m: '1', n: '1', o: '1', p: '1', q: '1', r: '1',
-                    s: '1', t: '1', u: '1', v: '1', w: '1', x: '1', y: '1', z: '1'
-                });
-                done();
-            });
-        });
-
-        it('overrides qs settings', (done) => {
-
-            const server = new Hapi.Server();
-            server.connection({
-                query: {
-                    qs: {
-                        parseArrays: false
-                    }
-                }
-            });
-
-            server.route({
-                method: 'GET',
-                path: '/',
-                config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.query);
-                    }
-                }
-            });
-
-            server.inject('/?a[0]=b&a[1]=c', (res) => {
-
-                expect(res.result).to.deep.equal({ a: { 0: 'b', 1: 'c' } });
                 done();
             });
         });
