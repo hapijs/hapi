@@ -209,6 +209,44 @@ describe('CORS', () => {
         });
     });
 
+    it('combines connection defaults with route config', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply();
+        };
+
+        const server = new Hapi.Server();
+        server.connection({ routes: { cors: { origin: ['http://example.com/'] } } });
+        server.route({ method: 'GET', path: '/', handler: handler, config: { cors: { credentials: true } } });
+
+        server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res1) => {
+
+            expect(res1.result).to.equal(null);
+            expect(res1.headers['access-control-allow-credentials']).to.equal('true');
+
+            server.inject({ methof: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/' } }, (res2) => {
+
+                expect(res2.result).to.equal(null);
+                expect(res2.headers['access-control-allow-credentials']).to.equal('true');
+
+                server.inject({ url: '/', headers: { origin: 'http://example.org/' } }, (res3) => {
+
+                    expect(res3.result).to.equal(null);
+                    expect(res3.headers['access-control-allow-credentials']).to.not.exist();
+
+                    server.inject({ methof: 'OPTIONS', url: '/', headers: { origin: 'http://example.org/' } }, (res4) => {
+
+                        expect(res4.result).to.equal(null);
+                        expect(res4.headers['access-control-allow-credentials']).to.not.exist();
+                        expect(res4.headers['access-control-allow-origin']).to.not.exist();
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
     describe('headers()', () => {
 
         it('returns CORS origin (route level)', (done) => {
