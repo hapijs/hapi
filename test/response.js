@@ -822,6 +822,55 @@ describe('Response', () => {
         });
     });
 
+    describe('charset()', () => {
+
+        it('sets charset with default type', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('text').charset('abc');
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-type']).to.equal('text/html; charset=abc');
+                done();
+            });
+        });
+
+        it('sets charset with default type in onPreResponse', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('text');
+            };
+
+            const onPreResponse = function (request, reply) {
+
+                request.response.charset('abc');
+                return reply.continue();
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.ext('onPreResponse', onPreResponse);
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-type']).to.equal('text/html; charset=abc');
+                done();
+            });
+        });
+    });
+
     describe('redirect()', () => {
 
         it('returns a redirection reply', (done) => {
