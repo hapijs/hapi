@@ -1934,6 +1934,34 @@ describe('transmission', () => {
             });
         });
 
+        it('ends response stream once', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            let count = 0;
+            const onRequest = function (request, reply) {
+
+                const res = request.raw.res;
+                const orig = res.end;
+
+                res.end = function () {
+
+                    ++count;
+                    return orig.call(res);
+                };
+
+                reply.continue();
+            };
+
+            server.ext('onRequest', onRequest);
+            server.inject('/', (res) => {
+
+                expect(count).to.equal(1);
+                done();
+            });
+        });
+
         describe('response range', () => {
 
             const fileStreamHandler = function (request, reply) {
