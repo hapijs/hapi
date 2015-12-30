@@ -289,8 +289,33 @@ describe('authentication', () => {
             expect(() => {
 
                 server.auth.default({ mode: 'required' });
-            }).to.throw('Default authentication strategy missing strategy name');
+            }).to.throw('Missing authentication strategy: default strategy');
             done();
+        });
+
+        it('matches dynamic scope', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one-test-admin' } } });
+            server.auth.default({ strategy: 'default', scope: 'one-{params.id}-{params.role}' });
+            server.route({
+                method: 'GET',
+                path: '/{id}/{role}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    }
+                }
+            });
+
+            server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
         });
     });
 
@@ -319,7 +344,7 @@ describe('authentication', () => {
                         }
                     }
                 });
-            }).to.throw('Unknown authentication strategy: c in path: /');
+            }).to.throw('Unknown authentication strategy c in /');
 
             done();
         });
@@ -1361,7 +1386,7 @@ describe('authentication', () => {
                         }
                     }
                 });
-            }).to.throw('Cannot set authentication payload to optional when a strategy requires payload validation /');
+            }).to.throw('Cannot set authentication payload to optional when a strategy requires payload validation in /');
             done();
         });
 
@@ -1391,7 +1416,7 @@ describe('authentication', () => {
                         }
                     }
                 });
-            }).to.throw('Payload validation can only be required when all strategies support it in path: /');
+            }).to.throw('Payload validation can only be required when all strategies support it in /');
             done();
         });
 
@@ -1421,7 +1446,7 @@ describe('authentication', () => {
                         }
                     }
                 });
-            }).to.throw('Payload authentication requires at least one strategy with payload support in path: /');
+            }).to.throw('Payload authentication requires at least one strategy with payload support in /');
             done();
         });
 

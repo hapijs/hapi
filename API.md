@@ -475,8 +475,8 @@ Sets a default strategy which is applied to every route where:
  strategies using the same format as the [route `auth` handler options](#route.config.auth).
 
 The default does not apply when the route config specifies `auth` as `false`, or has an
-authentication strategy configured. Otherwise, the route authentication config is applied to the
-defaults.
+authentication strategy configured (contains the `strategy` or `strategies` authentication settings).
+Otherwise, the route authentication config is applied to the defaults.
 
 Note that if the route has authentication config, the default only applies at the time of adding
 the route, not at runtime. This means that calling `default()` after adding a route with some
@@ -2096,8 +2096,12 @@ following options:
           value of the authentication credentials. Available values:
             - `any` - the authentication can be on behalf of a user or application. This is the
               default value.
-            - `user` - the authentication must be on behalf of a user.
-            - `app` - the authentication must be on behalf of an application.
+            - `user` - the authentication must be on behalf of a user which is identified by the
+              presence of a `user` attribute in the `credentials` object returned by the
+              authentication strategy.
+            - `app` - the authentication must be on behalf of an application which is identified
+              by the lack of presence of a `user` attribute in the `credentials` object returned
+              by the authentication strategy.
 
 - `bind` - an object passed back to the provided `handler` (via `this`) when called.
   Ignored if the method is an arrow function.
