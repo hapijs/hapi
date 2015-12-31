@@ -1743,4 +1743,63 @@ describe('Connection', () => {
             });
         });
     });
+
+    it('responds to requests which expect 100-continue by default', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'GET', path: '/', handler: handler });
+        server.inject({
+            method: 'HEAD', url: '/',
+            headers: {
+                expect: '100-continue'
+            }
+        }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.request.info.expectContinue).to.equal(false);
+            expect(res.headers['content-type']).to.contain('text/html');
+            expect(res.result).to.not.exist();
+            done();
+        });
+    });
+
+    it('does\'t responds to reqs which expect 100-continue if autoContinue is false', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: handler,
+            config: {
+                response: {
+                    autoContinue: false
+                }
+            }
+        });
+        server.inject({
+            method: 'HEAD', url: '/',
+            headers: {
+                expect: '100-continue'
+            }
+        }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.request.info.expectContinue).to.equal(true);
+            expect(res.headers['content-type']).to.contain('text/html');
+            expect(res.result).to.not.exist();
+            done();
+        });
+    });
 });
