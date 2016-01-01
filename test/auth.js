@@ -872,6 +872,60 @@ describe('authentication', () => {
             });
         });
 
+        it('matches multiple required dynamic scopes', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['test', 'one-test'] } } });
+            server.route({
+                method: 'GET',
+                path: '/{id}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        scope: ['+one-{params.id}', '+{params.id}']
+                    }
+                }
+            });
+
+            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('matches multiple required dynamic scopes (mixed types)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['test', 'one-test'] } } });
+            server.route({
+                method: 'GET',
+                path: '/{id}',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        scope: ['+one-{params.id}', '{params.id}']
+                    }
+                }
+            });
+
+            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
         it('matches dynamic scope with multiple parts (single to single)', (done) => {
 
             const server = new Hapi.Server();
@@ -1013,6 +1067,138 @@ describe('authentication', () => {
             });
         });
 
+        it('validates required scope', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, {
+                users: {
+                    steve: { scope: ['a', 'b'] },
+                    john: { scope: ['a', 'b', 'c'] }
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: handler,
+                    auth: {
+                        scope: ['+c', 'b']
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
+
+                expect(res1.statusCode).to.equal(403);
+                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it('validates forbidden scope', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, {
+                users: {
+                    steve: { scope: ['a', 'b'] },
+                    john: { scope: ['b', 'c'] }
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: handler,
+                    auth: {
+                        scope: ['!a', 'b']
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
+
+                expect(res1.statusCode).to.equal(403);
+                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it('validates complex scope', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, {
+                users: {
+                    steve: { scope: ['a', 'b', 'c'] },
+                    john: { scope: ['b', 'c'] },
+                    mary: { scope: ['b', 'd'] },
+                    lucy: { scope: 'b' },
+                    larry: { scope: ['c', 'd'] }
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: handler,
+                    auth: {
+                        scope: ['!a', '+b', 'c', 'd']
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
+
+                expect(res1.statusCode).to.equal(403);
+                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(200);
+                    server.inject({ url: '/', headers: { authorization: 'Custom mary' } }, (res3) => {
+
+                        expect(res3.statusCode).to.equal(200);
+                        server.inject({ url: '/', headers: { authorization: 'Custom lucy' } }, (res4) => {
+
+                            expect(res4.statusCode).to.equal(403);
+                            server.inject({ url: '/', headers: { authorization: 'Custom larry' } }, (res5) => {
+
+                                expect(res5.statusCode).to.equal(403);
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
         it('errors on missing scope using arrays', (done) => {
 
             const handler = function (request, reply) {
@@ -1133,6 +1319,40 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('errors on matching scope (access array)', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: handler,
+                    auth: {
+                        access: [
+                            { scope: 'two' },
+                            { scope: 'three' },
+                            { entity: 'user', scope: 'one' },
+                            { entity: 'app', scope: 'four' }
+                        ]
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
+
+                expect(res.statusCode).to.equal(403);
                 done();
             });
         });
