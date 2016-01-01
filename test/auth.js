@@ -1074,6 +1074,96 @@ describe('authentication', () => {
             });
         });
 
+        it('matches scope (access single)', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: handler,
+                    auth: {
+                        access: {
+                            scope: 'one'
+                        }
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('matches scope (access array)', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(request.auth.credentials.user);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: handler,
+                    auth: {
+                        access: [
+                            { scope: 'other' },
+                            { scope: 'one' }
+                        ]
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('matches any entity', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        entity: 'any'
+                    }
+                }
+            });
+
+            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
         it('matches user entity', (done) => {
 
             const server = new Hapi.Server();
