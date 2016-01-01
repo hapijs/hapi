@@ -2085,23 +2085,30 @@ following options:
               the scheme sets `options.payload` to `true`.
             - `'optional'` - payload authentication performed only when the client includes
               payload authentication information (e.g. `hash` attribute in Hawk).
-        - `scope` - the application scope required to access the route. Value can be a scope
-          string or an array of scope strings. The authenticated credentials object `scope`
-          property must contain at least one of the scopes defined to access the route.
-          You may also access properties on the request object (`query` and `params`} to populate a
-          dynamic scope by using `{}` characters around the property name, such as
-          `'user-{params.id}'`. Set to `false` to remove scope requirements. Defaults to no scope
-          required.
-        - `entity` - the required authenticated entity type. If set, must match the `entity`
-          value of the authentication credentials. Available values:
-            - `any` - the authentication can be on behalf of a user or application. This is the
-              default value.
-            - `user` - the authentication must be on behalf of a user which is identified by the
-              presence of a `user` attribute in the `credentials` object returned by the
-              authentication strategy.
-            - `app` - the authentication must be on behalf of an application which is identified
-              by the lack of presence of a `user` attribute in the `credentials` object returned
-              by the authentication strategy.
+        - `access` - an object or array of objects specifying the route access rules. Each
+          rule is evaluated against an incoming request and access is granted if at least one
+          rule matches. Each rule object must include at least one of:
+            - `scope` - the application scope required to access the route. Value can be a scope
+              string or an array of scope strings. The authenticated credentials object `scope`
+              property must contain at least one of the scopes defined to access the route.
+              You may also access properties on the request object (`query` and `params`} to populate a
+              dynamic scope by using `{}` characters around the property name, such as
+              `'user-{params.id}'`. Set to `false` to remove scope requirements. Defaults to no scope
+              required.
+            - `entity` - the required authenticated entity type. If set, must match the `entity`
+              value of the authentication credentials. Available values:
+                - `any` - the authentication can be on behalf of a user or application. This is the
+                  default value.
+                - `user` - the authentication must be on behalf of a user which is identified by the
+                  presence of a `user` attribute in the `credentials` object returned by the
+                  authentication strategy.
+                - `app` - the authentication must be on behalf of an application which is identified
+                  by the lack of presence of a `user` attribute in the `credentials` object returned
+                  by the authentication strategy.
+        - `entity` - a single route access `entity` rule. Same as `access.entity`. Cannot be specified
+          together with `access`.
+        - `scope` - a single route access `scope` rule. Same as `access.scope`. Cannot be specified
+          together with `access`.
 
 - `bind` - an object passed back to the provided `handler` (via `this`) when called.
   Ignored if the method is an arrow function.
