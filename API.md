@@ -2628,8 +2628,6 @@ Each request object includes the following properties:
       authentication-related actions.
     - `mode` - the route authentication mode.
     - `error` - the authentication error is failed and mode set to `'try'`.
-    - `session` - an object used by the
-      [`'cookie'` authentication scheme](https://github.com/hapijs/hapi-auth-cookie).
 - `domain` - the node domain object used to protect against exceptions thrown in extensions,
   handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback
   functions otherwise bound to other domains. Set to `null` when the server `useDomains` options is
@@ -2637,13 +2635,20 @@ Each request object includes the following properties:
 - `headers` - the raw request headers (references `request.raw.headers`).
 - `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
 - `info` - request information:
-    - `received` - request reception timestamp.
-    - `responded` - request response timestamp (`0` is not responded yet).
-    - `remoteAddress` - remote client IP address.
-    - `remotePort` - remote client port.
-    - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
+    - `acceptEncoding` - the request preferred encoding.
+    - `cors` - if CORS is enabled for the route, contains the following:
+        - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
+          restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
+          Note that this is only available after the `'onRequest'` extension point as CORS is
+          configured per-route and no routing decisions are made at that point in the request
+          lifecycle.
     - `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
     - `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
+    - `received` - request reception timestamp.
+    - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
+    - `remoteAddress` - remote client IP address.
+    - `remotePort` - remote client port.
+    - `responded` - request response timestamp (`0` is not responded yet).
 - `method` - the request method in lower case (e.g. `'get'`, `'post'`).
 - `mime` - the parsed content-type header. Only available when payload parsing enabled and no
   payload error occurred.
@@ -2673,9 +2678,6 @@ Each request object includes the following properties:
     - `res` - the node.js response object.
 - `route` - the [route public interface](#route-public-interface).
 - `server` - the server object.
-- `session` - Special key reserved for [plugins](#plugins) implementing session support. Plugins
-  utilizing this key must check for `null` value to ensure there is no conflict with another
-  similar server.
 - `state` - an object containing parsed HTTP state information (cookies) where each key is the
   cookie name and value is the matching cookie content after processing using any registered cookie
   definition.
