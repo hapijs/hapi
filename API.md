@@ -30,20 +30,20 @@
     - [`server.ext(events)`](#serverextevents)
     - [`server.ext(event, method, [options])`](#serverextevent-method-options)
     - [`server.handler(name, method)`](#serverhandlername-method)
-    - [`server.initialize(callback)`](#serverinitializecallback)
-    - [`server.inject(options, callback)`](#serverinjectoptions-callback)
+    - [`server.initialize([callback])`](#serverinitializecallback)
+    - [`server.inject(options, [callback])`](#serverinjectoptions-callback)
     - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
     - [`server.lookup(id)`](#serverlookupid)
     - [`server.match(method, path, [host])`](#servermatchmethod-path-host)
     - [`server.method(name, method, [options])`](#servermethodname-method-options)
     - [`server.method(methods)`](#servermethodmethods)
     - [`server.path(relativeTo)`](#serverpathrelativeto)
-    - [`server.register(plugins, [options], callback)`](#serverregisterplugins-options-callback)
+    - [`server.register(plugins, [options], [callback])`](#serverregisterplugins-options-callback)
     - [`server.route(options)`](#serverrouteoptions)
     - [`server.select(labels)`](#serverselectlabels)
-    - [`server.start(callback)`](#serverstartcallback)
+    - [`server.start([callback])`](#serverstartcallback)
     - [`server.state(name, [options])`](#serverstatename-options)
-    - [`server.stop([options], callback)`](#serverstopoptions-callback)
+    - [`server.stop([options], [callback])`](#serverstopoptions-callback)
     - [`server.table([host])`](#servertablehost)
     - [Server events](#server-events)
         - [Internal events](#internal-events)
@@ -1102,13 +1102,15 @@ handler.defaults = {
 server.handler('test', handler);
 ```
 
-### `server.initialize(callback)`
+### `server.initialize([callback])`
 
 Initializes the server (starts the caches, finalizes plugin registration) but does not start listening
 on the connection ports, where:
 - `callback` - the callback method when server initialization is completed or failed with the signature
   `function(err)` where:
     - `err` - any initialization error condition.
+
+If no `callback` is provided, a `Promise` object is returned.
 
 Note that if the method fails and the callback includes an error, the server is considered to be in
 an undefined state and should be shut down. In most cases it would be impossible to fully recover as
@@ -1130,7 +1132,7 @@ server.initialize((err) => {
 });
 ```
 
-### `server.inject(options, callback)`
+### `server.inject(options, [callback])`
 
 When the server contains exactly one connection, injects a request into the sole connection
 simulating an incoming HTTP request without making an actual socket connection. Injection is useful
@@ -1178,6 +1180,8 @@ for performing injections, with some additional options and response properties:
           inspection and reuse of the internal objects returned (instead of parsing the response
           string).
         - `request` - the [request object](#request-object).
+
+If no `callback` is provided, a `Promise` object is returned.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.inject()`.
@@ -1438,7 +1442,7 @@ exports.register = function (server, options, next) {
 };
 ```
 
-### `server.register(plugins, [options], callback)`
+### `server.register(plugins, [options], [callback])`
 
 Registers a plugin where:
 - `plugins` - an object or array of objects where each one is either:
@@ -1464,6 +1468,8 @@ Registers a plugin where:
 - `callback` - the callback function with signature `function(err)` where:
     - `err` - an error returned from the registration function. Note that exceptions thrown by the
       registration function are not handled by the framework.
+
+If no `callback` is provided, a `Promise` object is returned.
 
 Note that plugin registration are recorded on each of the available connections. When plugins
 express a dependency on other plugins, both have to be loaded into the same connections for the
@@ -1522,13 +1528,15 @@ const a = server.select('a');     // 80, 8080
 const ac = a.select('c');         // 8080
 ```
 
-### `server.start(callback)`
+### `server.start([callback])`
 
 Starts the server connections by listening for incoming requests on the configured port of each
 listener (unless the connection was configured with `autoListen` set to `false`), where:
 - `callback` - the callback method when server startup is completed or failed with the signature
   `function(err)` where:
     - `err` - any startup error condition.
+
+If no `callback` is provided, a `Promise` object is returned.
 
 Note that if the method fails and the callback includes an error, the server is considered to be in
 an undefined state and should be shut down. In most cases it would be impossible to fully recover as
@@ -1647,7 +1655,7 @@ server.on('request-internal', (request, event, tags) => {
 });
 ```
 
-### `server.stop([options], callback)`
+### `server.stop([options], [callback])`
 
 Stops the server's connections by refusing to accept any new connections or requests (existing
 connections will continue until closed or timeout), where:
@@ -1656,6 +1664,8 @@ connections will continue until closed or timeout), where:
       Defaults to `5000` (5 seconds).
 - `callback` - optional callback method with signature `function()` which is called once all the
   connections have ended and it is safe to exit the process.
+
+If no `callback` is provided, a `Promise` object is returned.
 
 ```js
 const Hapi = require('hapi');

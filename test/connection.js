@@ -711,6 +711,17 @@ describe('Connection', () => {
 
     describe('inject()', () => {
 
+        it('returns a promise', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.inject('/').then((res) => {
+
+                expect(res.statusCode).to.equal(404);
+                done();
+            });
+        });
+
         it('keeps the options.credentials object untouched', (done) => {
 
             const handler = function (request, reply) {

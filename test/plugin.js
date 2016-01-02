@@ -198,6 +198,28 @@ describe('Plugin', () => {
             });
         });
 
+        it('registers plugin with options (promise)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: ['a', 'b'] });
+
+            const test = function (srv, options, next) {
+
+                expect(options.something).to.be.true();
+                expect(srv.realm.pluginOptions).to.equal(options);
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            server.register({ register: test, options: { something: true } }).then(() => {
+
+                done();
+            });
+        });
+
         it('registers a required plugin', (done) => {
 
             const server = new Hapi.Server();
@@ -274,28 +296,6 @@ describe('Plugin', () => {
                 server.register(register, Hoek.ignore);
             }).to.throw();
 
-            done();
-        });
-
-        it('throws when register is missing a callback function', (done) => {
-
-            const server = new Hapi.Server();
-            server.connection({ labels: ['a', 'b'] });
-
-            const test = function (srv, options, next) {
-
-                expect(options.something).to.be.true();
-                return next();
-            };
-
-            test.attributes = {
-                name: 'test'
-            };
-
-            expect(() => {
-
-                server.register(test);
-            }).to.throw('A callback function is required to register a plugin');
             done();
         });
 

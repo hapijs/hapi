@@ -147,6 +147,51 @@ describe('Server', () => {
             });
         });
 
+        it('initializes, starts, and stops (promises)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: ['s1', 'a', 'b'] });
+            server.connection({ labels: ['s2', 'a', 'test'] });
+            server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
+            server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
+
+            let started = 0;
+            let stopped = 0;
+
+            server.on('start', () => {
+
+                ++started;
+            });
+
+            server.on('stop', () => {
+
+                ++stopped;
+            });
+
+            server.initialize().then(() => {
+
+                server.start().then(() => {
+
+                    server.connections.forEach((connection) => {
+
+                        expect(connection._started).to.equal(true);
+                    });
+
+                    server.stop().then(() => {
+
+                        server.connections.forEach((connection) => {
+
+                            expect(connection._started).to.equal(false);
+                        });
+
+                        expect(started).to.equal(1);
+                        expect(stopped).to.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
         it('returns connection start error', (done) => {
 
             const server = new Hapi.Server();
@@ -240,15 +285,20 @@ describe('Server', () => {
             });
         });
 
-        it('fails to start when no callback is passed', (done) => {
+        it('fails to start server when registration incomplete (promise)', (done) => {
+
+            const plugin = function () { };
+            plugin.attributes = { name: 'plugin' };
 
             const server = new Hapi.Server();
+            server.connection();
+            server.register(plugin, Hoek.ignore);
+            server.start().catch((err) => {
 
-            expect(() => {
-
-                server.start();
-            }).to.throw('Missing required start callback function');
-            done();
+                expect(err).to.exist();
+                expect(err.message).to.equal('Cannot start server before plugins finished registration');
+                done();
+            });
         });
 
         it('fails to initialize server when not stopped', (done) => {
@@ -316,6 +366,19 @@ describe('Server', () => {
                             });
                         });
                     });
+                });
+            });
+        });
+
+        it('stops the cache (promise)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.start().then(() => {
+
+                server.stop({}).then(() => {
+
+                    done();
                 });
             });
         });
