@@ -709,6 +709,9 @@ Provisions a cache segment within the server cache facility where:
       to `true`.
     - `generateIgnoreWriteError` - if `false`, an upstream cache write error when calling
       `cache.get()` will be passed back with the generated value when calling. Defaults to `true`.
+    - `pendingGenerateTimeout` - number of milliseconds while `generateFunc` call is in progress
+      for a given id, before a subsequent `generateFunc` call is allowed. Defaults to `0` (no
+      blocking of concurrent `generateFunc` calls beyond `staleTimeout`).
     - `cache` - the cache name configured in ['server.cache`](#server.config.cache). Defaults to
       the default cache.
     - `segment` - string segment name, used to isolate cached items within the cache partition.
