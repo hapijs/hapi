@@ -207,6 +207,31 @@ describe('authentication', () => {
                 });
             });
         });
+
+        it('exposes an api', (done) => {
+
+            const implementation = function (server, options) {
+
+                return {
+                    api: {
+                        x: 5
+                    },
+                    authenticate: function (request, reply) {
+
+                        return reply.continue(null, {});
+                    }
+                };
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.auth.scheme('custom', implementation);
+            server.auth.strategy('xyz', 'custom', true);
+
+            expect(server.auth.api.xyz.x).to.equal(5);
+            done();
+        });
     });
 
     describe('default()', () => {

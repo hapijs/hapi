@@ -1,4 +1,4 @@
-# 12.0.x API Reference
+# 12.1.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -16,6 +16,7 @@
         - [`server.root`](#serverroot)
         - [`server.settings`](#serversettings)
         - [`server.version`](#serverversion)
+    - [`server.auth.api`](#serverauthapi)
     - [`server.auth.default(options)`](#serverauthdefaultoptions)
     - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
     - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
@@ -468,6 +469,33 @@ const server = new Hapi.Server();
 // server.version === '8.0.0'
 ```
 
+### `server.auth.api`
+
+An object where each key is a strategy name and the value is the exposed strategy API. Available
+on when the authentication scheme exposes an API by returning an `api` key in the object returned
+from its implementation function.
+
+When the server contains more than one connection, each [`server.connections`](#serverconnections)
+array member provides its own `connection.auth.api` object.
+
+```js
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.auth.scheme('custom', scheme);
+server.auth.strategy('default', 'custom');
+server.auth.default('default');
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: function (request, reply) {
+
+        return reply(request.auth.credentials.user);
+    }
+});
+```
+
 ### `server.auth.default(options)`
 
 Sets a default strategy which is applied to every route where:
@@ -513,6 +541,7 @@ Registers an authentication scheme where:
     - `options` - optional scheme settings used to instantiate a strategy.
 
 The `scheme` method must return an object with the following keys:
+- `api` - optional object which is exposed via the [`server.auth.api`](#serverauthapi) object.
 - `authenticate(request, reply)` - required function called on each incoming request configured
   with the authentication scheme where:
     - `request` - the [request object](#request-object).
