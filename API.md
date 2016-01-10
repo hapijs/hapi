@@ -482,18 +482,31 @@ array member provides its own `connection.auth.api` object.
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
+const scheme = function (server, options) {
+
+    return {
+        api: {
+            settings: {
+                x: 5
+            }
+        },
+        authenticate: function (request, reply) {
+
+            const req = request.raw.req;
+            const authorization = req.headers.authorization;
+            if (!authorization) {
+                return reply(Boom.unauthorized(null, 'Custom'));
+            }
+
+            return reply.continue({ credentials: { user: 'john' } });
+        }
+    };
+};
+
 server.auth.scheme('custom', scheme);
 server.auth.strategy('default', 'custom');
-server.auth.default('default');
 
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: function (request, reply) {
-
-        return reply(request.auth.credentials.user);
-    }
-});
+console.log(server.auth.api.default.settings.x);    // 5
 ```
 
 ### `server.auth.default(options)`
