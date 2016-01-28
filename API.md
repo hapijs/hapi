@@ -1391,7 +1391,7 @@ const add = function (a, b, next) {
     return next(null, a + b);
 };
 
-server.method('sum', add, { cache: { expiresIn: 2000 } });
+server.method('sum', add, { cache: { expiresIn: 2000, generateTimeout: 100 } });
 
 server.methods.sum(4, 5, (err, result) => {
 
@@ -1412,7 +1412,7 @@ const addArray = function (array, next) {
 };
 
 server.method('sumObj', addArray, {
-    cache: { expiresIn: 2000 },
+    cache: { expiresIn: 2000, generateTimeout: 100 },
     generateKey: function (array) {
 
         return array.join(',');
@@ -1431,7 +1431,7 @@ const addSync = function (a, b) {
     return a + b;
 };
 
-server.method('sumSync', addSync, { cache: { expiresIn: 2000 }, callback: false });
+server.method('sumSync', addSync, { cache: { expiresIn: 2000, generateTimeout: 100 }, callback: false });
 
 server.methods.sumSync(4, 5, (err, result) => {
 
@@ -1460,7 +1460,8 @@ server.method({
     method: add,
     options: {
         cache: {
-            expiresIn: 2000
+            expiresIn: 2000,
+            generateTimeout: 100
         }
     }
 });
