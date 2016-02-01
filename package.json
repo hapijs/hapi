@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "12.1.0",
+  "version": "13.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -27,14 +27,14 @@
     "cryptiles": "3.x.x",
     "heavy": "4.x.x",
     "hoek": "3.x.x",
-    "iron": "3.x.x",
+    "iron": "4.x.x",
     "items": "2.x.x",
     "joi": "7.x.x",
     "kilt": "2.x.x",
     "mimos": "3.x.x",
     "peekaboo": "2.x.x",
     "shot": "3.x.x",
-    "statehood": "3.x.x",
+    "statehood": "4.x.x",
     "subtext": "4.x.x",
     "topo": "2.x.x"
   },

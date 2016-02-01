@@ -1,4 +1,4 @@
-# 12.1.x API Reference
+# 13.0.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -1639,8 +1639,8 @@ across multiple requests. Registers a cookie definitions where:
       Redundant when `'iron'` encoding is used. Options are:
         - `integrity` - algorithm options. Defaults to
           [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
-        - `password` - password used for HMAC key generation.
-    - `password` - password used for `'iron'` encoding.
+        - `password` - password used for HMAC key generation (must be at least 32 characters long).
+    - `password` - password used for `'iron'` encoding (must be at least 32 characters long).
     - `iron` - options for `'iron'` encoding. Defaults to
        [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
     - `ignoreErrors` - if `false`, errors are ignored and treated as missing cookies.
