@@ -42,12 +42,12 @@
     "code": "2.x.x",
     "handlebars": "4.x.x",
     "inert": "3.x.x",
-    "lab": "8.x.x",
+    "lab": "9.x.x",
     "vision": "2.x.x",
     "wreck": "7.x.x"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L",
+    "test": "lab -a code -t 100 -L --shuffle",
     "test-tap": "lab -a code -r tap -o tests.tap",
     "test-cov-html": "lab -a code -r html -o coverage.html"
   },
