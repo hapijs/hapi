@@ -47,7 +47,7 @@
     "wreck": "7.x.x"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L --shuffle",
+    "test": "lab -a code -t 100 -L",
     "test-tap": "lab -a code -r tap -o tests.tap",
     "test-cov-html": "lab -a code -r html -o coverage.html"
   },
