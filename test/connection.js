@@ -490,7 +490,7 @@ describe('Connection', () => {
             });
         });
 
-        it('waits to destroy connections until after the timeout', (done) => {
+        it('waits to destroy unhandled connections until after the timeout', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -529,6 +529,43 @@ describe('Connection', () => {
                             });
                         });
                     });
+                });
+            });
+        });
+
+        it('waits to destroy handled connections until after the timeout', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = (request, reply) => {
+
+                server.listener.getConnections((err, count) => {
+
+                    expect(err).to.not.exist();
+                    expect(count).to.be.greaterThan(0);
+                    const timer = new Hoek.Bench();
+
+                    server.stop({ timeout: 20 }, (err) => {
+
+                        expect(err).to.not.exist();
+                        expect(timer.elapsed()).to.be.at.least(19);
+                        reply();
+                        done();
+                    });
+                });
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                const socket = new Net.Socket();
+                socket.connect(server.info.port, server.connections[0].settings.host, () => {
+
+                    socket.write('GET / HTTP/1.0\nHost: test\n\n');
                 });
             });
         });
