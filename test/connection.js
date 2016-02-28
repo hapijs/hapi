@@ -18,6 +18,7 @@ const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
 const Wreck = require('wreck');
+const Stream = require('stream');
 
 
 // Declare internals
@@ -536,53 +537,40 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.connection();
+
+            const socket = new Net.Socket();
+
+            const handler = (request, reply) => {
+
+                const stream = new Stream.Readable();
+                stream._read = (size) => {
+
+                    const timer = new Hoek.Bench();
+                    server.stop({ timeout: 20 }, (err) => {
+
+                        expect(err).to.not.exist();
+                        expect(timer.elapsed()).to.be.at.least(9);
+                        expect(timer.elapsed()).to.be.at.most(19);
+                        done();
+                    });
+
+                    setTimeout(() => {
+
+                        socket.end();
+                    }, 10);
+                };
+
+                reply(stream);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
             server.start((err) => {
 
                 expect(err).to.not.exist();
+                socket.connect(server.info.port, server.connections[0].settings.host, () => {
 
-                const socket1 = new Net.Socket();
-                const socket2 = new Net.Socket();
-
-                socket1.once('error', (err) => {
-
-                    expect(err.errno).to.equal('ECONNRESET');
-                });
-
-                socket2.once('error', (err) => {
-
-                    expect(err.errno).to.equal('ECONNRESET');
-                });
-
-                socket1.connect(server.info.port, server.connections[0].settings.host, () => {
-
-                    socket2.connect(server.info.port, server.connections[0].settings.host, () => {
-
-                        server.listener.getConnections((err, count1) => {
-
-                            expect(err).to.not.exist();
-                            expect(count1).to.be.greaterThan(0);
-                            const timer = new Hoek.Bench();
-
-                            server.stop((err) => {
-
-                                expect(err).to.not.exist();
-
-                                server.listener.getConnections((err, count2) => {
-
-                                    expect(err).to.not.exist();
-                                    expect(count2).to.equal(0);
-                                    expect(timer.elapsed()).to.be.at.least(9);
-                                    done();
-                                });
-                            });
-
-                            setTimeout(() => {
-
-                                socket1.end();
-                                socket2.end();
-                            }, 10);
-                        });
-                    });
+                    socket.write('GET / HTTP/1.1\nHost: test\n\n');
                 });
             });
         });
