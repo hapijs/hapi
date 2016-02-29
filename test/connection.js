@@ -490,7 +490,7 @@ describe('Connection', () => {
             });
         });
 
-        it('waits to destroy unhandled connections until after the timeout', (done) => {
+        it('immediately destroys unhandled connections', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -524,7 +524,7 @@ describe('Connection', () => {
                             server.stop({ timeout: 20 }, (err) => {
 
                                 expect(err).to.not.exist();
-                                expect(timer.elapsed()).to.be.at.least(19);
+                                expect(timer.elapsed()).to.be.at.most(19);
                                 done();
                             });
                         });
@@ -612,6 +612,52 @@ describe('Connection', () => {
             });
         });
 
+        it('immediately destroys idle keep-alive connections', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = (request, reply) => {
+
+                return reply();
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                const socket = new Net.Socket();
+
+                socket.once('error', (err) => {
+
+                    expect(err.errno).to.equal('ECONNRESET');
+                });
+
+                socket.connect(server.info.port, server.connections[0].settings.host, () => {
+
+                    socket.write('GET / HTTP/1.1\nHost: test\nConnection: Keep-Alive\n\n\n');
+                    socket.on('data', (data) => {
+
+                        server.listener.getConnections((err, count) => {
+
+                            expect(err).to.not.exist();
+                            expect(count).to.be.greaterThan(0);
+                            const timer = new Hoek.Bench();
+
+                            server.stop({ timeout: 20 }, (err) => {
+
+                                expect(err).to.not.exist();
+                                expect(timer.elapsed()).to.be.at.most(19);
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
         it('refuses to handle new incoming requests on persistent connections', (done) => {
 
             const handler = (request, reply) => {
@@ -635,6 +681,7 @@ describe('Connection', () => {
 
                         expect(err3).to.not.exist();
                         expect(err1).to.not.exist();
+                        expect(res.headers.connection).to.equal('keep-alive');
                         expect(body.toString()).to.equal('ok');
                         expect(server.connections[0]._started).to.equal(false);
                         expect(err2).to.exist();
@@ -651,21 +698,19 @@ describe('Connection', () => {
 
         it('finishes in-progress requests and ends connection', (done) => {
 
-            let err1;
+            let err1 = true;
 
             const handler = (request, reply) => {
 
                 server.stop({ timeout: 200 }, (err) => {
 
-                    expect(err).to.not.exist();
-                    expect(err1).to.exist();
-                    done();
+                    err1 = err;
                 });
 
                 setImmediate(() => {
 
                     return reply('ok');
-                })
+                });
             };
 
             const server = new Hapi.Server();
@@ -680,12 +725,15 @@ describe('Connection', () => {
                 Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, (err, res, body) => {
 
                     expect(err).to.not.exist();
+                    expect(res.headers.connection).to.equal('close');
                     expect(body.toString()).to.equal('ok');
                 });
 
                 Wreck.get('http://localhost:' + server.info.port + '/404', { agent: agent }, (err, res, body) => {
 
-                    err1 = err;
+                    expect(err).to.exist();
+                    expect(err1).to.not.exist();
+                    done();
                 });
             });
         });
