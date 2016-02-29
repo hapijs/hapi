@@ -612,7 +612,7 @@ describe('Connection', () => {
             });
         });
 
-        it('refuses to handle new incoming requests', (done) => {
+        it('refuses to handle new incoming requests on persistent connections', (done) => {
 
             const handler = (request, reply) => {
 
@@ -645,6 +645,47 @@ describe('Connection', () => {
                 Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, (err, res, body) => {
 
                     err2 = err;
+                });
+            });
+        });
+
+        it('finishes in-progress requests and ends connection', (done) => {
+
+            let err1;
+
+            const handler = (request, reply) => {
+
+                server.stop({ timeout: 200 }, (err) => {
+
+                    expect(err).to.not.exist();
+                    expect(err1).to.exist();
+                    done();
+                });
+
+                setImmediate(() => {
+
+                    return reply('ok');
+                })
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
+
+                Wreck.get('http://localhost:' + server.info.port + '/', { agent: agent }, (err, res, body) => {
+
+                    expect(err).to.not.exist();
+                    expect(body.toString()).to.equal('ok');
+                });
+
+                Wreck.get('http://localhost:' + server.info.port + '/404', { agent: agent }, (err, res, body) => {
+
+                    err1 = err;
                 });
             });
         });
