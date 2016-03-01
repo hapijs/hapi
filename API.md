@@ -1727,8 +1727,9 @@ connections will continue until closed or timeout), where:
 - `options` - optional object with:
     - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
       Defaults to `5000` (5 seconds).
-- `callback` - optional callback method with signature `function()` which is called once all the
-  connections have ended and it is safe to exit the process.
+- `callback` - optional callback method which is called once all the connections have ended and
+it is safe to exit the process with signature `function(err)` where:
+    - `err` - any termination error condition.
 
 If no `callback` is provided, a `Promise` object is returned.
 
