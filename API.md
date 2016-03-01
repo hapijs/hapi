@@ -246,6 +246,25 @@ const a = server.select('a');
 // a.connections.length === 1
 ```
 
+Each connection object contains:
+- `settings` - the connection configuration object passed to
+  [`server.connection()`](#serverconnectionoptions) after applying the server defaults.
+- `server` - the connection's `Server` object.
+- `type` - set to `'tcp'` is the connection is listening on a TCP port, otherwise to `'socket'`(a
+  UNIX domain socket or a Windows named pipe).
+- `registrations` - 
+- `states` - 
+- `auth` - 
+- `plugins` - 
+- `app` - 
+- `listener` - 
+- `info` - 
+- `inject()` - 
+- `table()` - 
+- `lookup()` - 
+- `match()` - 
+
+
 #### `server.info`
 
 When the server contains exactly one connection, `info` is an object containing information about

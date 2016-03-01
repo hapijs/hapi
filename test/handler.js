@@ -183,7 +183,7 @@ describe('handler', () => {
         });
     });
 
-    describe('prerequisites()', () => {
+    describe('prerequisitesConfig()', () => {
 
         it('shows the complete prerequisite pipeline in the response', (done) => {
 
