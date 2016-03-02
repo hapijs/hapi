@@ -1662,7 +1662,7 @@ across multiple requests. Registers a cookie definitions where:
     - `password` - password used for `'iron'` encoding (must be at least 32 characters long).
     - `iron` - options for `'iron'` encoding. Defaults to
        [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
-    - `ignoreErrors` - if `false`, errors are ignored and treated as missing cookies.
+    - `ignoreErrors` - if `true`, errors are ignored and treated as missing cookies.
     - `clearInvalid` - if `true`, automatically instruct the client to remove invalid
       cookies. Defaults to `false`.
     - `strictHeader` - if `false`, allows any cookie value including values in
