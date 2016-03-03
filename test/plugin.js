@@ -550,35 +550,62 @@ describe('Plugin', () => {
             });
         });
 
-        it('registers plugin and adds options to realm that routes can access', (done) => {
+        it('registers plugins and adds options to realm that routes can access', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ labels: ['a', 'b'] });
 
-            const test = function (srv, options, next) {
+            const foo = function (srv, options, next) {
 
                 expect(options.something).to.be.true();
                 expect(srv.realm.pluginOptions).to.equal(options);
 
-                srv.route({ method: 'GET', path: '/', handler: (request, reply) => {
+                srv.route({ method: 'GET', path: '/foo', handler: (request, reply) => {
 
-                    expect(request.server.realm.pluginOptions).to.deep.equal(options);
-                    reply('works');
+                    expect(request.route.realm.pluginOptions).to.equal(options);
+                    expect(reply.realm.pluginOptions).to.equal(options);
+                    reply('foo');
                 } });
                 return next();
             };
 
-            test.attributes = {
-                name: 'test'
+            foo.attributes = {
+                name: 'foo'
             };
 
-            server.register({ register: test, options: { something: true } }, (err) => {
+            const bar = function (srv, options, next) {
+
+                expect(options.something).to.be.false();
+                expect(srv.realm.pluginOptions).to.equal(options);
+
+                srv.route({ method: 'GET', path: '/bar', handler: (request, reply) => {
+
+                    expect(request.route.realm.pluginOptions).to.equal(options);
+                    expect(reply.realm.pluginOptions).to.equal(options);
+                    reply('bar');
+                } });
+                return next();
+            };
+
+            bar.attributes = {
+                name: 'bar'
+            };
+
+            const plugins = [
+                { register: foo, options: { something: true } },
+                { register: bar, options: { something: false } }
+            ];
+            server.register(plugins, (err) => {
 
                 expect(err).to.not.exist();
-                server.inject('/', (res) => {
+                server.inject('/foo', (resFoo) => {
 
-                    expect(res.result).to.equal('works');
-                    done();
+                    expect(resFoo.result).to.equal('foo');
+                    server.inject('/bar', (resBar) => {
+
+                        expect(resBar.result).to.equal('bar');
+                        done();
+                    });
                 });
             });
         });

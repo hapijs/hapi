@@ -252,17 +252,17 @@ Each connection object contains:
 - `server` - the connection's `Server` object.
 - `type` - set to `'tcp'` is the connection is listening on a TCP port, otherwise to `'socket'`(a
   UNIX domain socket or a Windows named pipe).
-- `registrations` - 
-- `states` - 
-- `auth` - 
-- `plugins` - 
-- `app` - 
-- `listener` - 
-- `info` - 
-- `inject()` - 
-- `table()` - 
-- `lookup()` - 
-- `match()` - 
+- `registrations` -
+- `states` -
+- `auth` -
+- `plugins` -
+- `app` -
+- `listener` -
+- `info` -
+- `inject()` -
+- `table()` -
+- `lookup()` -
+- `match()` -
 
 
 #### `server.info`
@@ -3003,7 +3003,7 @@ where:
 - `err` - an optional error response.
 - `result` - an optional response payload.
 
-Since an request can only have one response regardless if it is an error or success, the `reply()`
+Since a request can only have one response regardless if it is an error or success, the `reply()`
 method can only result in a single response value. This means that passing both an `err` and
 `result` will only use the `err`. There is no requirement for either `err` or `result` to be (or
 not) an `Error` object. The framework will simply use the first argument if present, otherwise the
@@ -3069,6 +3069,10 @@ client. This means calling `reply()` with a value in an
 an error and will terminate the [request lifecycle](#request-lifecycle). With the exception of the
 handler function, all other methods provide the `reply.continue()` method which instructs the
 framework to continue processing the request without setting a response.
+
+Aside from being used for setting a response, the `reply` object has a couple of useful properties.
+- `realm` - the [active realm](#serverrealm) associated with the route.
+- `request` - the [request object](#request-object) for the request.
 
 #### Response object
 
