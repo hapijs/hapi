@@ -550,6 +550,39 @@ describe('Plugin', () => {
             });
         });
 
+        it('registers plugin and adds options to realm that routes can access', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: ['a', 'b'] });
+
+            const test = function (srv, options, next) {
+
+                expect(options.something).to.be.true();
+                expect(srv.realm.pluginOptions).to.equal(options);
+
+                srv.route({ method: 'GET', path: '/', handler: (request, reply) => {
+
+                    expect(request.server.realm.pluginOptions).to.deep.equal(options);
+                    reply('works');
+                } });
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            server.register({ register: test, options: { something: true } }, (err) => {
+
+                expect(err).to.not.exist();
+                server.inject('/', (res) => {
+
+                    expect(res.result).to.equal('works');
+                    done();
+                });
+            });
+        });
+
         it('registers a plugin with routes path prefix and plugin root route', (done) => {
 
             const test = function (srv, options, next) {
