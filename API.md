@@ -2134,7 +2134,7 @@ server.route({ method: 'GET', path: '/user', config: user });
 
 Each route can be customized to change the default behavior of the request lifecycle using the
 following options:
-- `app` - application-specific configuration. Should not be used by [plugins](#plugins) which
+- `app` - application-specific request state. Should not be used by [plugins](#plugins) which
   should use `plugins[name]` instead.
 
 - <a name="route.config.auth"></a>`auth` - authentication configuration. Value can be:
