@@ -1588,11 +1588,34 @@ describe('authentication', () => {
                 expect(res.result.bar).to.equal('baz');
                 done();
             });
-
-
-
         });
 
+        it('authenticates using payload', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { payload: 'payload' } });
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        parsePayloadBeforeAuth : true
+                    }
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom payload' }, payload : { foo : 'bar' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
     });
 
     describe('payload()', () => {
@@ -1694,6 +1717,34 @@ describe('authentication', () => {
             });
 
             server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('authenticates request payload (required scheme and required route) and payload is parsed before authenticate', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', true, { users: { payload: 'payload' }, options: { payload: true } });
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: function (request, reply) {
+
+                        return reply(request.auth.credentials.user);
+                    },
+                    auth: {
+                        payload: true,
+                        parsePayloadBeforeAuth : true
+                    }
+                }
+            });
+
+            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom payload' }, payload : { foo : 'bar' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 done();
@@ -2087,6 +2138,10 @@ internals.implementation = function (server, options) {
 
             if (credentials === 'throw') {
                 throw new Error('Boom');
+            }
+
+            if (credentials === 'payload'){
+                return reply(request.payload.foo);
             }
 
             if (typeof credentials === 'string') {
