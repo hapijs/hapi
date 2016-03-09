@@ -3104,9 +3104,9 @@ an error and will terminate the [request lifecycle](#request-lifecycle). With th
 handler function, all other methods provide the `reply.continue()` method which instructs the
 framework to continue processing the request without setting a response.
 
-Aside from being used for setting a response, the `reply` object has a couple of useful properties.
+The `reply` object includes the following properties:
 - `realm` - the [active realm](#serverrealm) associated with the route.
-- `request` - the [request object](#request-object) for the request.
+- `request` - the [request object](#request-object).
 
 #### Response object
 
