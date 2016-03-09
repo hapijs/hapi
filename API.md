@@ -111,7 +111,7 @@ Creates a new `Server` object where:
             - `name` - an identifier used later when provisioning or configuring caching for
               [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache
               name must be unique. A single item may omit the `name` option which defines the
-              default cache. If every cache includes a `name`, a default memory cache is provisions
+              default cache. If every cache includes a `name`, a default memory cache is provisioned
               as well.
             - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
               multiple methods using the same cache storage container). Default to `false`.
@@ -130,7 +130,7 @@ Creates a new `Server` object where:
           `connection.settings.app` which is used to store configuration values and
           `connection.app` which is meant for storing run-time state.
 
-        - `compression` - if `false`, response content encoding is disable. Defaults to `true`.
+        - `compression` - if `false`, response content encoding is disabled. Defaults to `true`.
 
         - `load` - connection load limits configuration where:
             - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected
@@ -1237,7 +1237,7 @@ simulating an incoming HTTP request without making an actual socket connection. 
 for testing purposes as well as for invoking routing logic internally without the overhead or
 limitations of the network stack. Utilizes the [**shot**](https://github.com/hapijs/shot) module
 for performing injections, with some additional options and response properties:
-- `options` - can be assign a string with the requested URI, or an object with:
+- `options` - can be assigned a string with the requested URI, or an object with:
     - `method` - the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
     - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is
       used to automatically set an HTTP 'Host' header, unless one was specified in `headers`.
@@ -3037,7 +3037,7 @@ where:
 - `err` - an optional error response.
 - `result` - an optional response payload.
 
-Since an request can only have one response regardless if it is an error or success, the `reply()`
+Since a request can only have one response regardless if it is an error or success, the `reply()`
 method can only result in a single response value. This means that passing both an `err` and
 `result` will only use the `err`. There is no requirement for either `err` or `result` to be (or
 not) an `Error` object. The framework will simply use the first argument if present, otherwise the
@@ -3110,7 +3110,7 @@ Every response includes the following properties:
 - `statusCode` - the HTTP response status code. Defaults to `200` (except for errors).
 - `headers` - an object containing the response headers where each key is a header field name. Note
   that this is an incomplete list of headers to be included with the response. Additional headers
-  will be added once the response is prepare for transmission.
+  will be added once the response is prepared for transmission.
 - `source` - the value provided using the [reply interface](#reply-interface).
 - `variety` - a string indicating the type of `source` with available values:
     - `'plain'` - a plain response such as string, number, `null`, or simple object (e.g. not a
@@ -3277,7 +3277,7 @@ error generation. **boom** provides an expressive interface to return HTTP error
 returned via the [reply interface](#reply-interface) is converted to a **boom** object and defaults
 to status code `500` if the error is not a **boom** object.
 
-When the error is sent back to the client, the responses contains a JSON object with the
+When the error is sent back to the client, the responses contain a JSON object with the
 `statusCode`, `error`, and `message` keys.
 
 ```js
