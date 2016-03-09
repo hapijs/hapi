@@ -2211,6 +2211,95 @@ describe('Plugin', () => {
         });
     });
 
+    describe('cache.provision()', () => {
+
+        it('provisions a server cache (before initialization)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.cache.provision({ engine: CatboxMemory, name: 'dynamic' }, (err) => {
+
+                expect(err).to.not.exist();
+                const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
+
+                cache.set('a', 'going in', 0, (err) => {
+
+                    expect(err).to.exist();
+
+                    server.initialize((err) => {
+
+                        expect(err).to.not.exist();
+
+                        cache.set('a', 'going in', 0, (err) => {
+
+                            expect(err).to.not.exist();
+                            cache.get('a', (err, value, cached, report) => {
+
+                                expect(err).to.not.exist();
+                                expect(value).to.equal('going in');
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it('provisions a server cache (after initialization)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.initialize((err) => {
+
+                expect(err).to.not.exist();
+                server.cache.provision({ engine: CatboxMemory, name: 'dynamic' }, (err) => {
+
+                    expect(err).to.not.exist();
+
+                    const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
+
+                    cache.set('a', 'going in', 0, (err) => {
+
+                        expect(err).to.not.exist();
+                        cache.get('a', (err, value, cached, report) => {
+
+                            expect(err).to.not.exist();
+                            expect(value).to.equal('going in');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('provisions a server cache (promise)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.initialize((err) => {
+
+                expect(err).to.not.exist();
+                server.cache.provision({ engine: CatboxMemory, name: 'dynamic' }).then(() => {
+
+                    const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
+
+                    cache.set('a', 'going in', 0, (err) => {
+
+                        expect(err).to.not.exist();
+                        cache.get('a', (err, value, cached, report) => {
+
+                            expect(err).to.not.exist();
+                            expect(value).to.equal('going in');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
     describe('connection()', () => {
 
         it('returns a selection object within the same realm', (done) => {

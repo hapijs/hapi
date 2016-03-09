@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "13.0.0",
+    "version": "13.1.0",
     "dependencies": {
         "accept": {
             "version": "2.1.0"
@@ -9,7 +9,7 @@
             "version": "2.0.0"
         },
         "boom": {
-            "version": "3.1.1"
+            "version": "3.1.2"
         },
         "call": {
             "version": "3.0.0"
@@ -36,13 +36,13 @@
             "version": "2.0.0"
         },
         "joi": {
-            "version": "7.1.0",
+            "version": "8.0.4",
             "dependencies": {
                 "isemail": {
                     "version": "2.1.0"
                 },
                 "moment": {
-                    "version": "2.11.0"
+                    "version": "2.12.0"
                 }
             }
         },
@@ -53,7 +53,7 @@
             "version": "3.0.0",
             "dependencies": {
                 "mime-db": {
-                    "version": "1.20.0"
+                    "version": "1.22.0"
                 }
             }
         },
@@ -61,7 +61,7 @@
             "version": "2.0.0"
         },
         "shot": {
-            "version": "3.0.0"
+            "version": "3.0.1"
         },
         "statehood": {
             "version": "4.0.0"
@@ -89,7 +89,7 @@
                     }
                 },
                 "wreck": {
-                    "version": "7.0.0"
+                    "version": "7.0.2"
                 }
             }
         },
