@@ -192,6 +192,23 @@ describe('Server', () => {
             });
         });
 
+        it('does not re-initialize the server', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.initialize((err) => {
+
+                expect(err).to.not.exist();
+
+                server.initialize((err) => {
+
+                    expect(err).to.not.exist();
+                    done();
+                });
+            });
+        });
+
         it('returns connection start error', (done) => {
 
             const server = new Hapi.Server();
