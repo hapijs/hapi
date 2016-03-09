@@ -3277,7 +3277,7 @@ error generation. **boom** provides an expressive interface to return HTTP error
 returned via the [reply interface](#reply-interface) is converted to a **boom** object and defaults
 to status code `500` if the error is not a **boom** object.
 
-When the error is sent back to the client, the responses contain a JSON object with the
+When the error is sent back to the client, the response contains a JSON object with the
 `statusCode`, `error`, and `message` keys.
 
 ```js
