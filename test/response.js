@@ -1188,11 +1188,11 @@ describe('Response', () => {
             server.once('request-error', (request, err) => {
 
                 expect(err).to.exist();
-                expect(err.message).to.contain('View file not found');
+                expect(err.message).to.contain('The partial x could not be found: The partial x could not be found');
                 done();
             });
 
-            server.route({ method: 'GET', path: '/{param}', handler: { view: 'noview' } });
+            server.route({ method: 'GET', path: '/{param}', handler: { view: 'templates/invalid' } });
 
             server.inject('/hello', (res) => {
 

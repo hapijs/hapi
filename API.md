@@ -1,4 +1,4 @@
-# 13.0.x API Reference
+# 13.1.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -23,6 +23,7 @@
     - [`server.auth.test(strategy, request, next)`](#serverauthteststrategy-request-next)
     - [`server.bind(context)`](#serverbindcontext)
     - [`server.cache(options)`](#servercacheoptions)
+    - [`server.cache.provision(options, [callback])`](#servercacheprovisionoptions-callback)
     - [`server.connection([options])`](#serverconnectionoptions)
     - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
@@ -792,6 +793,39 @@ cache.set('norway', { capital: 'oslo' }, null, (err) => {
     cache.get('norway', (err, value, cached, log) => {
 
         // value === { capital: 'oslo' };
+    });
+});
+```
+
+### `server.cache.provision(options, [callback])`
+
+Provisions a server cache as described in ['server.cache`](#server.config.cache) where:
+- `options` - same as the server `cache` configuration options.
+- `callback` - the callback method when cache provisioning is completed or failed with the
+  signature `function(err)` where:
+    - `err` - any cache startup error condition.
+
+If no `callback` is provided, a `Promise` object is returned.
+
+Note that if the server has been initialized or started, the cache will be automatically started
+to match the state of any other provisioned server cache. 
+
+```js
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.initialize((err) => {
+
+    server.cache.provision({ engine: require('catbox-memory'), name: 'countries' }, (err) => {
+
+        const cache = server.cache({ cache: 'countries', expiresIn: 60 * 60 * 1000 });
+        cache.set('norway', { capital: 'oslo' }, null, (err) => {
+
+            cache.get('norway', (err, value, cached, log) => {
+
+                // value === { capital: 'oslo' };
+            });
+        });
     });
 });
 ```
