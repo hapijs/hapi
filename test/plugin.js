@@ -550,6 +550,66 @@ describe('Plugin', () => {
             });
         });
 
+        it('registers plugins and adds options to realm that routes can access', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: ['a', 'b'] });
+
+            const foo = function (srv, options, next) {
+
+                expect(options.something).to.be.true();
+                expect(srv.realm.pluginOptions).to.equal(options);
+
+                srv.route({ method: 'GET', path: '/foo', handler: (request, reply) => {
+
+                    expect(request.route.realm.pluginOptions).to.equal(options);
+                    expect(reply.realm.pluginOptions).to.equal(options);
+                    reply('foo');
+                } });
+                return next();
+            };
+
+            foo.attributes = {
+                name: 'foo'
+            };
+
+            const bar = function (srv, options, next) {
+
+                expect(options.something).to.be.false();
+                expect(srv.realm.pluginOptions).to.equal(options);
+
+                srv.route({ method: 'GET', path: '/bar', handler: (request, reply) => {
+
+                    expect(request.route.realm.pluginOptions).to.equal(options);
+                    expect(reply.realm.pluginOptions).to.equal(options);
+                    reply('bar');
+                } });
+                return next();
+            };
+
+            bar.attributes = {
+                name: 'bar'
+            };
+
+            const plugins = [
+                { register: foo, options: { something: true } },
+                { register: bar, options: { something: false } }
+            ];
+            server.register(plugins, (err) => {
+
+                expect(err).to.not.exist();
+                server.inject('/foo', (resFoo) => {
+
+                    expect(resFoo.result).to.equal('foo');
+                    server.inject('/bar', (resBar) => {
+
+                        expect(resBar.result).to.equal('bar');
+                        done();
+                    });
+                });
+            });
+        });
+
         it('registers a plugin with routes path prefix and plugin root route', (done) => {
 
             const test = function (srv, options, next) {

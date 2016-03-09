@@ -253,17 +253,17 @@ Each connection object contains:
 - `server` - the connection's `Server` object.
 - `type` - set to `'tcp'` is the connection is listening on a TCP port, otherwise to `'socket'`(a
   UNIX domain socket or a Windows named pipe).
-- `registrations` - 
-- `states` - 
-- `auth` - 
-- `plugins` - 
-- `app` - 
-- `listener` - 
-- `info` - 
-- `inject()` - 
-- `table()` - 
-- `lookup()` - 
-- `match()` - 
+- `registrations` -
+- `states` -
+- `auth` -
+- `plugins` -
+- `app` -
+- `listener` -
+- `info` -
+- `inject()` -
+- `table()` -
+- `lookup()` -
+- `match()` -
 
 
 #### `server.info`
@@ -3103,6 +3103,10 @@ client. This means calling `reply()` with a value in an
 an error and will terminate the [request lifecycle](#request-lifecycle). With the exception of the
 handler function, all other methods provide the `reply.continue()` method which instructs the
 framework to continue processing the request without setting a response.
+
+Aside from being used for setting a response, the `reply` object has a couple of useful properties.
+- `realm` - the [active realm](#serverrealm) associated with the route.
+- `request` - the [request object](#request-object) for the request.
 
 #### Response object
 
