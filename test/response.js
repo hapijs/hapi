@@ -869,6 +869,42 @@ describe('Response', () => {
                 done();
             });
         });
+
+        it('sets type inside marshal', (done) => {
+
+            const handler = function (request, reply) {
+
+                const marshal = (response, callback) => {
+
+                    if (!response.headers['content-type']) {
+                        response.type('text/html');
+                    }
+
+                    return callback(null, response.source);
+                };
+
+                return reply(request.generateResponse('text', { variety: 'test', marshal }));
+            };
+
+            const onPreResponse = function (request, reply) {
+
+                request.response.charset('abc');
+                return reply.continue();
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.ext('onPreResponse', onPreResponse);
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-type']).to.equal('text/html; charset=abc');
+                done();
+            });
+        });
     });
 
     describe('redirect()', () => {
