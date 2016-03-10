@@ -1987,6 +1987,19 @@ describe('transmission', () => {
                 });
             });
 
+            it('ignores range request when disabled', (done) => {
+
+                const server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler, config: { response: { ranges: false } } });
+
+                server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+
             it('returns a subset of a fileStream (middle)', (done) => {
 
                 const server = new Hapi.Server();

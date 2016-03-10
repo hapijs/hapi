@@ -2352,6 +2352,19 @@ following options:
       be `200` or `204`. Note that a `200` status code is converted to a `204` only at the time
       or response transmission (the response status code will remain `200` throughout the
       request lifecycle unless manually set). Defaults to `200`.
+    - `failAction` - defines what to do when a response fails payload validation. Options are:
+        - `error` - return an Internal Server Error (500) error response. This is the default
+          value.
+        - `log` - log the error but send the response.
+    - `modify` - if `true`, applies the validation rule changes to the response payload. Defaults to
+      `false`.
+    - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
+      global options such as `stripUnknown` or `abortEarly` (the complete list is available
+      [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+      Defaults to no options.
+    - `ranges` - if `false`, payload range support is disabled. Defaults to `true`.
+    - `sample` - the percent of response payloads validated (0 - 100). Set to `0` to disable all
+      validation. Defaults to `100` (all response payloads).
     - `schema` - the default response payload validation rules (for all non-error responses)
       expressed as one of:
         - `true` - any payload allowed (no validation performed). This is the default.
@@ -2367,18 +2380,6 @@ following options:
       object where each key is a 3 digit HTTP status code and the value has the same
       definition as `schema`. If a response status code is not present in the `status` object,
       the `schema` definition is used, except for errors which are not validated by default.
-    - `sample` - the percent of response payloads validated (0 - 100). Set to `0` to disable all
-      validation. Defaults to `100` (all response payloads).
-    - `failAction` - defines what to do when a response fails payload validation. Options are:
-        - `error` - return an Internal Server Error (500) error response. This is the default
-          value.
-        - `log` - log the error but send the response.
-    - `modify` - if `true`, applies the validation rule changes to the response payload. Defaults to
-      `false`.
-    - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
-      global options such as `stripUnknown` or `abortEarly` (the complete list is available
-      [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
-      Defaults to no options.
 
 - `security` - sets common security headers (disabled by default). To enable set `security` to
   `true` or to an object with the following options:
