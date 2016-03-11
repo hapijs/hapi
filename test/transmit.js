@@ -566,7 +566,7 @@ describe('transmission', () => {
             });
         });
 
-        it('sets caching headers', (done) => {
+        it('sets specific caching headers', (done) => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
@@ -577,6 +577,36 @@ describe('transmission', () => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.headers['cache-control']).to.equal('max-age=86400, must-revalidate, public');
+                done();
+            });
+        });
+
+        it('sets caching headers', (done) => {
+
+            const server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
+            server.connection();
+            server.route({ method: 'GET', path: '/public/{path*}', handler: { directory: { path: __dirname, listing: false, index: false } } });
+
+            server.inject('/public/transmit.js', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['cache-control']).to.equal('no-cache');
+                done();
+            });
+        });
+
+        it('does not set caching headers if disabled', (done) => {
+
+            const server = new Hapi.Server();
+            server.register(Inert, Hoek.ignore);
+            server.connection();
+            server.route({ method: 'GET', path: '/public/{path*}', config: { cache: false }, handler: { directory: { path: __dirname, listing: false, index: false } } });
+
+            server.inject('/public/transmit.js', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['cache-control']).to.be.undefined();
                 done();
             });
         });

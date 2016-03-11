@@ -2223,7 +2223,9 @@ following options:
   Ignored if the method is an arrow function.
 
 - `cache` - if the route method is 'GET', the route can be configured to include caching
-  directives in the response using the following options:
+  directives in the response.
+  The default `Cache-Control: no-cache` header can be disabled by setting `cache` to `false`.
+  Caching can be customized using an object with the following options:
     - `privacy` - determines the privacy flag included in client-side caching using the
       'Cache-Control' header. Values are:
         - `'default'` - no privacy flag. This is the default setting.
