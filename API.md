@@ -774,7 +774,7 @@ Provisions a cache segment within the server cache facility where:
     - `pendingGenerateTimeout` - number of milliseconds while `generateFunc` call is in progress
       for a given id, before a subsequent `generateFunc` call is allowed. Defaults to `0` (no
       blocking of concurrent `generateFunc` calls beyond `staleTimeout`).
-    - `cache` - the cache name configured in ['server.cache`](#server.config.cache). Defaults to
+    - `cache` - the cache name configured in [`server.cache`](#server.config.cache). Defaults to
       the default cache.
     - `segment` - string segment name, used to isolate cached items within the cache partition.
       When called within a plugin, defaults to '!name' where 'name' is the plugin name. When called
@@ -799,7 +799,7 @@ cache.set('norway', { capital: 'oslo' }, null, (err) => {
 
 ### `server.cache.provision(options, [callback])`
 
-Provisions a server cache as described in ['server.cache`](#server.config.cache) where:
+Provisions a server cache as described in [`server.cache`](#server.config.cache) where:
 - `options` - same as the server `cache` configuration options.
 - `callback` - the callback method when cache provisioning is completed or failed with the
   signature `function(err)` where:
@@ -808,7 +808,7 @@ Provisions a server cache as described in ['server.cache`](#server.config.cache)
 If no `callback` is provided, a `Promise` object is returned.
 
 Note that if the server has been initialized or started, the cache will be automatically started
-to match the state of any other provisioned server cache. 
+to match the state of any other provisioned server cache.
 
 ```js
 const server = new Hapi.Server();
@@ -2243,7 +2243,7 @@ following options:
   with the following options:
     - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin').
       The array can contain any combination of fully qualified origins along with origin
-      strings containing a wildcard '*' character, or a single `'*'` origin string. Defaults
+      strings containing a wildcard `'*'` character, or a single `'*'` origin string. Defaults
       to any origin `['*']`.
     - `maxAge` - number of seconds the browser should cache the CORS response
       ('Access-Control-Max-Age'). The greater the value, the longer it will take before the
