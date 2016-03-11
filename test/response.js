@@ -880,10 +880,10 @@ describe('Response', () => {
                         response.type('text/html');
                     }
 
-                    return callback(null, response.source);
+                    return callback(null, response.source.value);
                 };
 
-                return reply(request.generateResponse('text', { variety: 'test', marshal }));
+                return reply(request.generateResponse({ value: 'text' }, { variety: 'test', marshal }));
             };
 
             const onPreResponse = function (request, reply) {

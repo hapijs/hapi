@@ -1566,7 +1566,7 @@ describe('Connection', () => {
             server.inject({ method: 'HEAD', url: '/' }, (res) => {
 
                 expect(res.statusCode).to.equal(205);
-                expect(res.headers['content-type']).to.contain('text/html');
+                expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
                 expect(res.headers['content-length']).to.not.exist();
                 expect(res.headers.etag).to.equal('"test"');
                 expect(res.result).to.not.exist();
