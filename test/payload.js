@@ -99,7 +99,7 @@ describe('payload', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
+        server.connection({ routes: { state: { parse: true, failAction: 'error' } } });
         server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
 
         let message = null;

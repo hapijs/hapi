@@ -79,7 +79,7 @@ describe('security', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
+        server.connection({ routes: { state: { parse: true, failAction: 'error' } } });
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler: handler });
 
@@ -104,7 +104,7 @@ describe('security', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
+        server.connection({ routes: { state: { parse: true, failAction: 'error' } } });
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler: handler });
 
