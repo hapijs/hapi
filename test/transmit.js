@@ -545,7 +545,7 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
+            server.connection({ routes: { state: { parse: true, failAction: 'error' } } });
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
 
             let validState = false;
