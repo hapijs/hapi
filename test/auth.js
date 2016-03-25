@@ -1001,6 +1001,7 @@ describe('authentication', () => {
             server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('Insufficient scope');
                 done();
             });
         });
@@ -1030,6 +1031,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('Insufficient scope');
                 done();
             });
         });
@@ -1059,6 +1061,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('Insufficient scope');
                 done();
             });
         });
@@ -1088,6 +1091,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('Insufficient scope');
                 done();
             });
         });
@@ -1123,6 +1127,8 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
 
                 expect(res1.statusCode).to.equal(403);
+                expect(res1.result.message).to.equal('Insufficient scope');
+
                 server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
@@ -1162,6 +1168,8 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
 
                 expect(res1.statusCode).to.equal(403);
+                expect(res1.result.message).to.equal('Insufficient scope');
+
                 server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
@@ -1204,6 +1212,8 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
 
                 expect(res1.statusCode).to.equal(403);
+                expect(res1.result.message).to.equal('Insufficient scope');
+
                 server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(200);
@@ -1213,9 +1223,12 @@ describe('authentication', () => {
                         server.inject({ url: '/', headers: { authorization: 'Custom lucy' } }, (res4) => {
 
                             expect(res4.statusCode).to.equal(403);
+                            expect(res4.result.message).to.equal('Insufficient scope');
+
                             server.inject({ url: '/', headers: { authorization: 'Custom larry' } }, (res5) => {
 
                                 expect(res5.statusCode).to.equal(403);
+                                expect(res5.result.message).to.equal('Insufficient scope');
                                 done();
                             });
                         });
@@ -1249,6 +1262,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('Insufficient scope');
                 done();
             });
         });
@@ -1378,6 +1392,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('Insufficient scope');
                 done();
             });
         });
@@ -1459,6 +1474,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom client' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('Application credentials cannot be used on a user endpoint');
                 done();
             });
         });
@@ -1513,6 +1529,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
+                expect(res.result.message).to.equal('User credentials cannot be used on an application endpoint');
                 done();
             });
         });
