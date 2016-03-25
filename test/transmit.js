@@ -2325,6 +2325,25 @@ describe('transmission', () => {
                 done();
             });
         });
+
+        it('does not add connection close header to normal requests', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers.connection).to.not.equal('close');
+                done();
+            });
+        });
     });
 
     describe('cache()', () => {
