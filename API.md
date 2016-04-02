@@ -970,18 +970,18 @@ server.route({
 
 Used within a plugin to declare a required dependency on other [plugins](#plugins) where:
 - `dependencies` - a single string or array of plugin name strings which must be registered in
-  order for this plugin to operate. Plugins listed must be registered before the server is started.
+  order for this plugin to operate. Plugins listed must be registered before the server is initialized or started.
   Does not provide version dependency which should be implemented using
   [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
 - `after` - an optional function called after all the specified dependencies have been registered
-  and before the server starts. The function is only called if the server is started. If a circular
+  and before the server starts. The function is only called if the server is initialized or started. If a circular
   dependency is detected, an exception is thrown (e.g. two plugins each has an `after` function
   to be called after the other). The function signature is `function(server, next)` where:
     - `server` - the server the `dependency()` method was called on.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
         - `err` - internal error condition, which is returned back via the
-          [`server.start()`](#serverstartcallback) callback.
+          [`server.initialize()`](#serverinitializecallback) or [`server.start()`](#serverstartcallback) callback.
 
 The `after` method is identical to setting a server extension point on `'onPreStart'`. Connectionless
 plugins (those with `attributes.connections` set to `false`) can only depend on other connectionless
@@ -1646,7 +1646,7 @@ server fails to start properly. If you must try to resume after a start error, c
 first to reset the server state.
 
 If a started server is started again, the second call to `start()` will only start new connections
-add after the initial `start()` was called. No events will be emitted and no extension points
+added after the initial `start()` was called. No events will be emitted and no extension points
 invoked.
 
 ```js
