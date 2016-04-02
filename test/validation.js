@@ -470,6 +470,31 @@ describe('validation', () => {
         });
     });
 
+    it('validates non-object payload', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                validate: {
+                    payload: Joi.number()
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: '123', headers: { 'content-type': 'application/json' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
     it('fails on invalid input', (done) => {
 
         const server = new Hapi.Server();
@@ -698,6 +723,32 @@ describe('validation', () => {
         });
     });
 
+    it('converts string input to number', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply(request.payload);
+            },
+            config: {
+                validate: {
+                    payload: Joi.number()
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/?a=1', payload: '123', headers: { 'content-type': 'text/plain' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(123);
+            done();
+        });
+    });
+
     it('fails on text input', (done) => {
 
         const server = new Hapi.Server();
@@ -720,7 +771,8 @@ describe('validation', () => {
 
         server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } }, (res) => {
 
-            expect(res.statusCode).to.equal(415);
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.message).to.equal('"value" must be an object');
             done();
         });
     });
