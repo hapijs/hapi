@@ -116,6 +116,26 @@ describe('state', () => {
         });
     });
 
+    it('ignores invalid cookie using server.state() (header)', (done) => {
+
+        const handler = function (request, reply) {
+
+            const log = request.getLog('state');
+            return reply(log.length);
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.state('a', { strictHeader: false });
+        server.route({ path: '/', method: 'GET', handler: handler });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x y;' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(0);
+            done();
+        });
+    });
+
     it('logs invalid cookie (value)', (done) => {
 
         const handler = function (request, reply) {
