@@ -681,4 +681,51 @@ describe('payload', () => {
             req.end();
         });
     });
+
+    it('errors if multipart payload exceeds byte limit', (done) => {
+
+        const multipartPayload =
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="x"\r\n' +
+                '\r\n' +
+                'First\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="x"\r\n' +
+                '\r\n' +
+                'Second\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="x"\r\n' +
+                '\r\n' +
+                'Third\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="field1"\r\n' +
+                '\r\n' +
+                'Joe Blow\r\nalmost tricked you!\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="field1"\r\n' +
+                '\r\n' +
+                'Repeated name segment\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+                'Content-Type: text/plain\r\n' +
+                '\r\n' +
+                '... contents of file1.txt ...\r\r\n' +
+                '--AaB03x--\r\n';
+
+        const handler = function (request, reply) {
+
+            return reply('result');
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'POST', path: '/echo', config: { handler: handler, payload: { output: 'data', parse: true, maxBytes: 5 } } });
+
+        server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, simulate: { split: true }, headers: { 'content-length': null, 'content-type': 'multipart/form-data; boundary=AaB03x' } }, (res) => {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.payload.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Invalid multipart payload format"}');
+            done();
+        });
+    });
 });
