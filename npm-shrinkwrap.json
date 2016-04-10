@@ -67,13 +67,13 @@
             "version": "4.0.0"
         },
         "subtext": {
-            "version": "4.0.0",
+            "version": "4.0.1",
             "dependencies": {
                 "content": {
                     "version": "3.0.0"
                 },
                 "pez": {
-                    "version": "2.0.1",
+                    "version": "2.1.0",
                     "dependencies": {
                         "b64": {
                             "version": "3.0.0"
