@@ -2204,8 +2204,8 @@ following options:
               scope string begins with a `+` character, that scope is required. If a scope string
               begins with a `!` character, that scope is forbidden. For example, the scope
               `['!a', '+b', 'c', 'd']` means the incoming request credentials' scope must not include
-              'a', must include 'b', and must include on of 'c' or 'd'. You may also access
-              properties on the request object (`query` and `params`} to populate a dynamic scope
+              'a', must include 'b', and must include one of 'c' or 'd'. You may also access
+              properties on the request object (`query` and `params`) to populate a dynamic scope
               by using `{}` characters around the property name, such as `'user-{params.id}'`.
               Defaults to `false` (no scope requirements).
             - `entity` - the required authenticated entity type. If set, must match the `entity`
