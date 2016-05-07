@@ -215,6 +215,33 @@ describe('validation', () => {
         });
     });
 
+    it('retains custom validation error', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number().error(Boom.forbidden())
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=abc', (res) => {
+
+            expect(res.statusCode).to.equal(403);
+            done();
+        });
+    });
+
     it('validates valid input with validation options', (done) => {
 
         const server = new Hapi.Server();
