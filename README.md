@@ -13,7 +13,7 @@ authentication, and other essential facilities for building web and services app
 developers to focus on writing reusable application logic in a highly modular and prescriptive approach. 
 
 Development version: **13.4.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
-[![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg)](http://travis-ci.org/hapijs/hapi)
+[![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=master)](http://travis-ci.org/hapijs/hapi)
 
 For the latest updates, [change log](http://hapijs.com/updates), and release information visit [hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter. If you have questions, please open an issue in the
 [discussion forum](https://github.com/hapijs/discuss).
