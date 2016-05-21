@@ -649,10 +649,9 @@ Registers an authentication strategy where:
 - `name` - the strategy name.
 - `scheme` - the scheme name (must be previously registered using
   [`server.auth.scheme()`](#serverauthschemename-scheme)).
-- `mode` - defaults to `false`.  If set, the value must be `true`
-  (which is the same as `'required'`) or a valid authentication mode (`'required'`, `'optional'`,
-  `'try'`).  If set to a value other than `false`, the scheme is automatically assigned as the default strategy for any route
-  without an `auth` config. Can only be assigned to a single server strategy.
+- `mode` - if set to `true` (which is the same as `'required'`) or to a valid authentication mode (`'required'`, `'optional'`,
+  `'try'`), the scheme is automatically assigned as the default strategy for any route without an `auth` config. Can only be
+  assigned to a single server strategy. Defaults to `false` (no default settings).
 - `options` - scheme options based on the scheme requirements.
 
 ```js
