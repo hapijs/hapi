@@ -390,6 +390,26 @@ describe('transmission', () => {
             });
         });
 
+        it('returns an JSONP response with no payload', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply();
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+
+            server.inject('/?callback=me', (res) => {
+
+                expect(res.payload).to.equal('/**/me();');
+                expect(res.headers['content-length']).to.equal(9);
+                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+                done();
+            });
+        });
+
         it('returns an JSONP response (no charset)', (done) => {
 
             const handler = function (request, reply) {
