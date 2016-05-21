@@ -2,6 +2,7 @@
 
 // Load modules
 
+const Path = require('path');
 const Stream = require('stream');
 const Boom = require('boom');
 const Code = require('code');
@@ -70,7 +71,7 @@ describe('Response', () => {
             expect(res.result).to.equal('text');
             expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
             expect(res.headers['content-type']).to.equal('text/plain; something=something, charset=ISO-8859-1');
-            expect(res.headers['set-cookie']).to.deep.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/path', 'always=present']);
+            expect(res.headers['set-cookie']).to.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/path', 'always=present']);
             expect(res.headers.vary).to.equal('x-control');
             expect(res.headers.combo).to.equal('o-k');
             done();
@@ -165,7 +166,7 @@ describe('Response', () => {
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['set-cookie']).to.deep.equal(['A', 'B']);
+                expect(res.headers['set-cookie']).to.equal(['A', 'B']);
                 done();
             });
         });
@@ -280,7 +281,7 @@ describe('Response', () => {
 
             server.inject({ method: 'POST', url: '/' }, (res) => {
 
-                expect(res.result).to.deep.equal({ a: 1 });
+                expect(res.result).to.equal({ a: 1 });
                 expect(res.statusCode).to.equal(201);
                 expect(res.headers.location).to.equal('/special');
                 expect(res.headers['cache-control']).to.equal('no-cache');
@@ -347,7 +348,7 @@ describe('Response', () => {
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['set-cookie']).to.deep.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
+                expect(res.headers['set-cookie']).to.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
                 done();
             });
         });
@@ -734,7 +735,7 @@ describe('Response', () => {
 
                 expect(res.result).to.equal('x');
                 expect(res.headers.xcustom).to.equal('other value');
-                expect(res.headers['set-cookie']).to.deep.equal(['a=1', 'b=2']);
+                expect(res.headers['set-cookie']).to.equal(['a=1', 'b=2']);
                 done();
             });
         });
@@ -806,10 +807,10 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection({ routes: { files: { relativeTo: __dirname } } });
+            server.connection({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
             const handler = function (request, reply) {
 
-                return reply.file('../LICENSE').type('application/example');
+                return reply.file('./LICENSE').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });

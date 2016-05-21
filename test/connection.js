@@ -50,7 +50,7 @@ describe('Connection', () => {
 
         const server = new Hapi.Server();
         server.connection({ labels: ['a', 'b', 'a', 'c', 'b'] });
-        expect(server.connections[0].settings.labels).to.deep.equal(['a', 'b', 'c']);
+        expect(server.connections[0].settings.labels).to.equal(['a', 'b', 'c']);
         done();
     });
 
@@ -586,8 +586,7 @@ describe('Connection', () => {
                     server.stop({ timeout: 20 }, (err) => {
 
                         expect(err).to.not.exist();
-                        expect(timer.elapsed()).to.be.at.least(9);
-                        expect(timer.elapsed()).to.be.at.most(19);
+                        expect(timer.elapsed()).to.be.between(9, 19);
                         done();
                     });
 
@@ -1634,8 +1633,8 @@ describe('Connection', () => {
             server.on('route', (route, connection, srv) => {
 
                 expect(route.path).to.equal('/');
-                expect(connection.settings.labels).to.deep.equal(['a']);
-                expect(srv).to.equal(server);
+                expect(connection.settings.labels).to.equal(['a']);
+                expect(srv).to.shallow.equal(server);
                 done();
             });
 
@@ -1747,7 +1746,7 @@ describe('Connection', () => {
 
                                 expect(res5.statusCode).to.equal(200);
                                 expect(res5.payload).to.equal('delete');
-                                expect(config.method).to.deep.equal(['GET', 'PUT', 'POST', 'DELETE']);
+                                expect(config.method).to.equal(['GET', 'PUT', 'POST', 'DELETE']);
                                 done();
                             });
                         });
@@ -1804,7 +1803,7 @@ describe('Connection', () => {
             });
 
             expect(table).to.have.length(6);
-            expect(paths).to.only.deep.include([
+            expect(paths).to.only.include([
                 { method: 'get', path: '/api/products' },
                 { method: 'get', path: '/api/products/{id}' },
                 { method: 'post', path: '/api/products' },

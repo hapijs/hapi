@@ -244,7 +244,7 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', { users: { steve: {} } });
 
             server.auth.default('default');
-            expect(server.connections[0].auth.settings.default).to.deep.equal({ strategies: ['default'], mode: 'required' });
+            expect(server.connections[0].auth.settings.default).to.equal({ strategies: ['default'], mode: 'required' });
 
             const handler = function (request, reply) {
 
@@ -393,7 +393,7 @@ describe('authentication', () => {
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.result).to.deep.equal({
+                expect(res.result).to.equal({
                     strategies: ['default'],
                     mode: 'required'
                 });

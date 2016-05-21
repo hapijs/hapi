@@ -618,7 +618,7 @@ describe('Reply', () => {
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.result).to.deep.equal({
+                expect(res.result).to.equal({
                     m1: null,
                     m2: null
                 });

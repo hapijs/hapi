@@ -328,7 +328,7 @@ describe('Request', () => {
 
             server.inject('/', (res) => {
 
-                expect(res.result).to.deep.equal({});
+                expect(res.result).to.equal({});
                 done();
             });
         });
@@ -346,7 +346,7 @@ describe('Request', () => {
 
             server.inject('/', (res) => {
 
-                expect(res.result).to.deep.equal({});
+                expect(res.result).to.equal({});
                 done();
             });
         });
@@ -667,7 +667,7 @@ describe('Request', () => {
             server.once('response', () => {
 
                 expect(errs).to.equal(1);
-                expect(req.getLog('error')[1].tags).to.deep.equal(['internal', 'error']);
+                expect(req.getLog('error')[1].tags).to.equal(['internal', 'error']);
                 done();
             });
         });
@@ -697,7 +697,7 @@ describe('Request', () => {
             server.once('response', () => {
 
                 expect(errs).to.equal(1);
-                expect(req.getLog('error')[0].tags).to.deep.equal(['internal', 'implementation', 'error']);
+                expect(req.getLog('error')[0].tags).to.equal(['internal', 'implementation', 'error']);
                 done();
             });
 
@@ -1057,7 +1057,7 @@ describe('Request', () => {
                     expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
                     expect(event.data).to.equal('data');
                     expect(event.internal).to.be.false();
-                    expect(tags).to.deep.equal({ test: true });
+                    expect(tags).to.equal({ test: true });
                     return reply();
                 });
 

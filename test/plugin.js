@@ -128,10 +128,10 @@ describe('Plugin', () => {
 
                 expect(err).to.not.exist();
 
-                expect(internals.routesList(server, 's1')).to.deep.equal(['/a', '/ab', '/all']);
-                expect(internals.routesList(server, 's2')).to.deep.equal(['/a', '/all', '/sodd']);
-                expect(internals.routesList(server, 's3')).to.deep.equal(['/a', '/ab', '/all']);
-                expect(internals.routesList(server, 's4')).to.deep.equal(['/all', '/memoryx', '/sodd']);
+                expect(internals.routesList(server, 's1')).to.equal(['/a', '/ab', '/all']);
+                expect(internals.routesList(server, 's2')).to.equal(['/a', '/all', '/sodd']);
+                expect(internals.routesList(server, 's3')).to.equal(['/a', '/ab', '/all']);
+                expect(internals.routesList(server, 's4')).to.equal(['/all', '/memoryx', '/sodd']);
                 done();
             });
         });
@@ -476,7 +476,7 @@ describe('Plugin', () => {
             server.register([internals.plugins.test1, internals.plugins.test2], (err) => {
 
                 expect(err).to.not.exist();
-                expect(internals.routesList(server)).to.deep.equal(['/test1', '/test2']);
+                expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
                 expect(log[1].test).to.equal(true);
                 expect(log[0].data).to.equal('abc');
                 done();
@@ -496,7 +496,7 @@ describe('Plugin', () => {
             server.register([{ register: internals.plugins.test1 }, { register: internals.plugins.test2 }], (err) => {
 
                 expect(err).to.not.exist();
-                expect(internals.routesList(server)).to.deep.equal(['/test1', '/test2']);
+                expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
                 expect(log[1].test).to.equal(true);
                 expect(log[0].data).to.equal('abc');
                 done();
@@ -2919,9 +2919,9 @@ describe('Plugin', () => {
                 expect(err).to.not.exist();
 
                 expect(server.connections[0]._router.routes.get).to.not.exist();
-                expect(internals.routesList(server, 's2')).to.deep.equal(['/test1']);
+                expect(internals.routesList(server, 's2')).to.equal(['/test1']);
                 expect(server.connections[2]._router.routes.get).to.not.exist();
-                expect(internals.routesList(server, 's4')).to.deep.equal(['/test1']);
+                expect(internals.routesList(server, 's4')).to.equal(['/test1']);
 
                 expect(server.plugins.test1.add(1, 3)).to.equal(4);
                 expect(server.plugins.test1.glue('1', '3')).to.equal('13');
@@ -2966,7 +2966,7 @@ describe('Plugin', () => {
             server.register(test, (err) => {
 
                 expect(err).to.not.exist();
-                expect(internals.routesList(server)).to.deep.equal(['/b']);
+                expect(internals.routesList(server)).to.equal(['/b']);
 
                 server.inject('/a', (res) => {
 

@@ -138,10 +138,10 @@ describe('handler', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection({ routes: { files: { relativeTo: __dirname } } });
+            server.connection({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
             const handler = function (request, reply) {
 
-                return reply.file('../package.json').code(499);
+                return reply.file('./package.json').code(499);
             };
 
             server.route({ method: 'GET', path: '/file', handler: handler });
@@ -503,7 +503,7 @@ describe('handler', () => {
 
             server.inject('/user/5', (res) => {
 
-                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                expect(res.result).to.equal({ id: '5', name: 'Bob' });
                 done();
             });
         });
@@ -536,7 +536,7 @@ describe('handler', () => {
 
             server.inject('/user/5', (res) => {
 
-                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                expect(res.result).to.equal({ id: '5', name: 'Bob' });
                 done();
             });
         });
@@ -572,7 +572,7 @@ describe('handler', () => {
 
             server.inject('/user/5', (res) => {
 
-                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                expect(res.result).to.equal({ id: '5', name: 'Bob' });
                 done();
             });
         });
@@ -646,7 +646,7 @@ describe('handler', () => {
 
             server.inject('/user/5', (res) => {
 
-                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                expect(res.result).to.equal({ id: '5', name: 'Bob' });
                 done();
             });
         });
@@ -679,7 +679,7 @@ describe('handler', () => {
 
             server.inject('/user/5', (res) => {
 
-                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                expect(res.result).to.equal({ id: '5', name: 'Bob' });
                 done();
             });
         });
@@ -712,7 +712,7 @@ describe('handler', () => {
 
             server.inject('/user', (res) => {
 
-                expect(res.result).to.deep.equal({ name: 'Bob' });
+                expect(res.result).to.equal({ name: 'Bob' });
                 done();
             });
         });
@@ -745,7 +745,7 @@ describe('handler', () => {
 
             server.inject('/user/5', (res) => {
 
-                expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+                expect(res.result).to.equal({ id: '5', name: 'Bob' });
                 done();
             });
         });
@@ -778,7 +778,7 @@ describe('handler', () => {
 
             server.inject('/user', (res) => {
 
-                expect(res.result).to.deep.equal({ name: 'Bob' });
+                expect(res.result).to.equal({ name: 'Bob' });
                 done();
             });
         });
@@ -1038,7 +1038,7 @@ describe('handler', () => {
 
                 server.inject('/user/5', (res) => {
 
-                    expect(res.result[0].tags).to.deep.equal(['pre', 'method', 'user']);
+                    expect(res.result[0].tags).to.equal(['pre', 'method', 'user']);
                     expect(res.result[0].internal).to.equal(true);
                     expect(res.result[0].data.msec).to.exist();
                     done();
@@ -1133,7 +1133,7 @@ describe('handler', () => {
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', (res) => {
 
-                expect(res.result).to.deep.equal({});
+                expect(res.result).to.equal({});
                 done();
             });
         });
@@ -1160,7 +1160,7 @@ describe('handler', () => {
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', (res) => {
 
-                expect(res.result).to.deep.equal({ x: 1 });
+                expect(res.result).to.equal({ x: 1 });
                 done();
             });
         });
@@ -1190,7 +1190,7 @@ describe('handler', () => {
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             server.inject('/', (res) => {
 
-                expect(res.result).to.deep.equal({ x: 'get' });
+                expect(res.result).to.equal({ x: 'get' });
                 done();
             });
         });

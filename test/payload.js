@@ -122,9 +122,7 @@ describe('payload', () => {
                 }
             };
 
-            const req = Http.request(options, (res) => {
-
-            });
+            const req = Http.request(options, (res) => { });
 
             req.write('Hello\n');
 
@@ -132,13 +130,13 @@ describe('payload', () => {
 
                 expect(message).to.equal('Parse Error');
                 expect(err.code).to.equal('ECONNRESET');
-                server.stop(done);
+                server.stop({ timeout: 10 }, done);
             });
 
             setTimeout(() => {
 
                 req.abort();
-            }, 15);
+            }, 50);
         });
     });
 
@@ -262,7 +260,7 @@ describe('payload', () => {
             server.inject(request, (res) => {
 
                 expect(res.result).to.exist();
-                expect(res.result).to.deep.equal(message);
+                expect(res.result).to.equal(message);
                 done();
             });
         });
@@ -278,7 +276,7 @@ describe('payload', () => {
 
             const receivedContents = Fs.readFileSync(request.payload.path);
             Fs.unlinkSync(request.payload.path);
-            expect(receivedContents).to.deep.equal(sourceContents);
+            expect(receivedContents).to.equal(sourceContents);
             return reply(request.payload.bytes);
         };
 
@@ -379,7 +377,7 @@ describe('payload', () => {
         server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.deep.equal(null);
+            expect(res.result).to.equal(null);
             done();
         });
     });

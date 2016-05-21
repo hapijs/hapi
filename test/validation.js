@@ -545,7 +545,7 @@ describe('validation', () => {
         server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.deep.equal({
+            expect(res.result.validation).to.equal({
                 source: 'query',
                 keys: ['a']
             });
@@ -609,7 +609,7 @@ describe('validation', () => {
         server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result.data.output.payload.message).to.deep.equal('child "a" fails because ["a" length must be at least 2 characters long]');
+            expect(res.result.data.output.payload.message).to.equal('child "a" fails because ["a" length must be at least 2 characters long]');
             done();
         });
     });
@@ -703,7 +703,7 @@ describe('validation', () => {
         server.inject('/?a=1', (res) => {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result).to.deep.equal({
+            expect(res.result).to.equal({
                 statusCode: 400,
                 error: 'Bad Request',
                 message: 'child "a" fails because ["a" length must be at least 2 characters long]',
@@ -741,7 +741,7 @@ describe('validation', () => {
         server.inject({ method: 'POST', url: '/', payload: '{"a":"abc"}', headers: { 'content-type': 'application/json' } }, (res) => {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.deep.equal({
+            expect(res.result.validation).to.equal({
                 source: 'payload',
                 keys: ['a']
             });
@@ -855,7 +855,7 @@ describe('validation', () => {
         server.inject({ method: 'POST', url: '/' }, (res) => {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.deep.equal({
+            expect(res.result.validation).to.equal({
                 source: 'payload',
                 keys: ['value']
             });
@@ -1093,7 +1093,7 @@ describe('validation', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.deep.equal({ a: 1 });
+            expect(res.result).to.equal({ a: 1 });
             done();
         });
     });

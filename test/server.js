@@ -510,7 +510,7 @@ describe('Server', () => {
 
             const server = new Hapi.Server({ connections: { routes: { cors: true } } });
             server.connection({ routes: { cors: { origin: ['example.com'] } } });
-            expect(server.connections[0].settings.routes.cors.origin).to.deep.equal(['example.com']);
+            expect(server.connections[0].settings.routes.cors.origin).to.equal(['example.com']);
             done();
         });
 

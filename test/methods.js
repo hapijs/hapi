@@ -200,7 +200,7 @@ describe('Methods', () => {
 
         server.inject('/user/5', (res) => {
 
-            expect(res.result).to.deep.equal({ id: '5', name: 'Bob' });
+            expect(res.result).to.equal({ id: '5', name: 'Bob' });
             done();
         });
     });

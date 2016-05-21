@@ -190,7 +190,7 @@ describe('state', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.deep.equal(['always=present']);
+            expect(res.headers['set-cookie']).to.equal(['always=present']);
             done();
         });
     });
@@ -210,7 +210,7 @@ describe('state', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.deep.equal(['onecookie=yes', 'twocookie=no', 'always=present']);
+            expect(res.headers['set-cookie']).to.equal(['onecookie=yes', 'twocookie=no', 'always=present']);
             done();
         });
     });
@@ -235,7 +235,7 @@ describe('state', () => {
         server.inject('/sweet', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.deep.equal(['always=sweet']);
+            expect(res.headers['set-cookie']).to.equal(['always=sweet']);
             done();
         });
     });
@@ -280,7 +280,7 @@ describe('state', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.deep.equal(['a=b']);
+            expect(res.headers['set-cookie']).to.equal(['a=b']);
             done();
         });
     });

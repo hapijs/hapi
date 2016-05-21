@@ -2,6 +2,7 @@
 
 // Load modules
 
+const Path = require('path');
 const Code = require('code');
 const Hapi = require('..');
 const Hoek = require('hoek');
@@ -335,10 +336,10 @@ describe('Route', () => {
         server.connection();
         const handler = function (request, reply) {
 
-            return reply.file('../package.json');
+            return reply.file('./package.json');
         };
 
-        server.route({ method: 'GET', path: '/file', handler: handler, config: { files: { relativeTo: __dirname } } });
+        server.route({ method: 'GET', path: '/file', handler: handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
 
         server.inject('/file', (res) => {
 
