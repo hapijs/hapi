@@ -652,6 +652,25 @@ describe('transmission', () => {
             });
         });
 
+        it('allows handler to override default emptyStatusCode with 200', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { response: { emptyStatusCode: 204 } } });
+
+            const handler = function (request, reply) {
+
+                return reply().code(200);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(null);
+                done();
+            });
+        });
+
         it('does not send 204 for chunked transfer payloads', (done) => {
 
             const server = new Hapi.Server();
