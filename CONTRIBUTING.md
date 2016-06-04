@@ -4,6 +4,9 @@ We welcome contributions from the community and are pleased to have them.  Pleas
 ## Logging Issues
 All issues should be created using the [new issue form](https://github.com/hapijs/hapi/issues/new).  Clearly describe the issue including steps to reproduce if there are any.  Also, make sure to indicate the earliest version that has the issue being reported.
 
+## Finding help
+Issues for this repository are intended for reporting bugs or requesting improvements. For questions about how to use hapi or the packages in the wider hapi universe, please post an issue in the [hapijs/discuss](https://github.com/hapijs/discuss) repository where somebody will be happy to help.
+
 ## Patching Code
 Code changes are welcome and should follow the guidelines below.
 
