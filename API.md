@@ -1032,7 +1032,7 @@ exports.register = function (server, options, next) {
 
 ### `server.expose(obj)`
 
-Merges a deep copy of an object into to the existing content of `server.plugins[name]` where:
+Merges an object into to the existing content of `server.plugins[name]` where:
 - `obj` - the object merged into the exposed properties container.
 
 ```js
@@ -1042,6 +1042,8 @@ exports.register = function (server, options, next) {
     return next();
 };
 ```
+
+Note that all properties of `obj` are deeply cloned into `server.plugins[name]`, so you should avoid using this method for exposing large objects that may be expensive to clone or singleton objects such as database client objects. Instead favor the `server.expose(key, value)` form, which only copies a reference to `value`. 
 
 ### `server.ext(events)`
 
