@@ -54,7 +54,7 @@ describe('Server', () => {
 
     describe('start()', () => {
 
-        it('starts and stops', (done) => {
+        it('starts, is started, and stops', (done) => {
 
             const server = new Hapi.Server();
             server.connection({ labels: ['s1', 'a', 'b'] });
@@ -62,10 +62,16 @@ describe('Server', () => {
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
             server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
 
+            let start = 0;
             let started = 0;
             let stopped = 0;
 
             server.on('start', () => {
+
+                ++start;
+            });
+
+            server.on('started', () => {
 
                 ++started;
             });
@@ -79,6 +85,9 @@ describe('Server', () => {
 
                 expect(err).to.not.exist();
 
+                expect(start).to.equal(1);
+                expect(started).to.equal(0);
+
                 server.connections.forEach((connection) => {
 
                     expect(connection._started).to.equal(true);
@@ -91,6 +100,7 @@ describe('Server', () => {
                         expect(connection._started).to.equal(false);
                     });
 
+                    expect(start).to.equal(1);
                     expect(started).to.equal(1);
                     expect(stopped).to.equal(1);
                     done();
@@ -106,12 +116,12 @@ describe('Server', () => {
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
             server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
 
-            let started = 0;
+            let start = 0;
             let stopped = 0;
 
             server.on('start', () => {
 
-                ++started;
+                ++start;
             });
 
             server.on('stop', () => {
@@ -139,7 +149,7 @@ describe('Server', () => {
                             expect(connection._started).to.equal(false);
                         });
 
-                        expect(started).to.equal(1);
+                        expect(start).to.equal(1);
                         expect(stopped).to.equal(1);
                         done();
                     });
@@ -155,12 +165,12 @@ describe('Server', () => {
             server.connection({ labels: ['s3', 'a', 'b', 'd', 'cache'] });
             server.connection({ labels: ['s4', 'b', 'test', 'cache'] });
 
-            let started = 0;
+            let start = 0;
             let stopped = 0;
 
             server.on('start', () => {
 
-                ++started;
+                ++start;
             });
 
             server.on('stop', () => {
@@ -184,7 +194,7 @@ describe('Server', () => {
                             expect(connection._started).to.equal(false);
                         });
 
-                        expect(started).to.equal(1);
+                        expect(start).to.equal(1);
                         expect(stopped).to.equal(1);
                         done();
                     });
