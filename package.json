@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "accept": "2.x.x",
-    "ammo":  "2.x.x",
+    "ammo": "2.x.x",
     "boom": "3.x.x",
     "call": "3.x.x",
     "catbox": "7.x.x",
@@ -27,6 +27,7 @@
     "cryptiles": "3.x.x",
     "heavy": "4.x.x",
     "hoek": "4.x.x",
+    "iltorb": "^1.0.9",
     "iron": "4.x.x",
     "items": "2.x.x",
     "joi": "8.x.x",
