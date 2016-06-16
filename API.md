@@ -2311,7 +2311,7 @@ following options:
           of which files are used (e.g. using the `request.app` object), and listening to
           the server `'response'` event to perform any needed cleanup.
     - `parse` - can be `true`, `false`, `gunzip`, or `br`; determines if the incoming payload is
-      processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate
+      processed or presented raw. `true` and `gunzip` includes gunzipping and `br` supports `brotli` when the appropriate
       'Content-Encoding' is specified on the received request. If parsing is enabled and the
       'Content-Type' is known (for the whole payload as well as parts), the payload is
       converted into an object when possible. If the format is unknown, a Bad Request (400)
