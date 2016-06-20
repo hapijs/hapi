@@ -66,6 +66,7 @@
         - [Request properties](#request-properties)
         - [`request.setUrl(url, [stripTrailingSlash])`](#requestseturlurl-stripTrailingSlash)
         - [`request.setMethod(method)`](#requestsetmethodmethod)
+        - [`request.generateResponse(source, [options])`](#requestgenerateresponsesource-options)
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags], [internal])`](#requestgetlogtags-internal)
         - [`request.tail([name])`](#requesttailname)
