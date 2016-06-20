@@ -66,6 +66,7 @@
         - [Request properties](#request-properties)
         - [`request.setUrl(url, [stripTrailingSlash])`](#requestseturlurl-stripTrailingSlash)
         - [`request.setMethod(method)`](#requestsetmethodmethod)
+        - [`request.generateResponse(source, [options])`](#requestgenerateresponsesource-options)
         - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
         - [`request.getLog([tags], [internal])`](#requestgetlogtags-internal)
         - [`request.tail([name])`](#requesttailname)
@@ -101,11 +102,11 @@ Creates a new `Server` object where:
       includes a default cache for storing application state. By default, a simple memory-based
       cache is created which has limited capacity and capabilities. **hapi** uses
       [**catbox**](https://github.com/hapijs/catbox) for its cache which includes support for
-      common storage solutions (e.g. Redis, MongoDB, Memcached, and Riak). Caching is only utilized
+      common storage solutions (e.g. Redis, MongoDB, Memcached, Riak, among others). Caching is only utilized
       if methods and [plugins](#plugins) explicitly store their state in the cache. The server
       cache configuration only defines the storage container itself. `cache` can be assigned:
         - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
-          such as `require('catbox-redis')`).
+          such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client) will be created internally using this function.
         - a configuration object with the following options:
             - `engine` - a prototype function or **catbox** engine object.
             - `name` - an identifier used later when provisioning or configuring caching for
