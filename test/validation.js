@@ -1692,6 +1692,39 @@ describe('validation', () => {
 
         done();
     });
+
+    it('binds route validate function to a context', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const context = { validNames: ['foo', 'bar'] };
+        server.bind(context);
+
+        server.route({
+            method: 'GET',
+            path: '/user/{val}',
+            config: {
+                validate: {
+                    params: function (values, options, next) {
+
+                        next(this.validNames.indexOf(values.val) < 0, values);
+                    }
+                },
+                handler: function (request, reply) {
+
+                    return reply(request.name);
+                }
+            }
+        });
+
+        server.inject('/user/baz', (res) => {
+
+            expect(res.statusCode).to.equal(400);
+            done();
+        });
+    });
+
 });
 
 
