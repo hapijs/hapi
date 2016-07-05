@@ -2372,13 +2372,14 @@ describe('transmission', () => {
 
             const handler = function (request, reply) {
 
-                return reply('ok').header('', 'test');
+                return reply('ok').header('x', '1').header('', 'test');
             };
 
             server.route({ method: 'GET', path: '/', handler: handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(500);
+                expect(res.headers.x).to.not.exist();
                 done();
             });
         });
