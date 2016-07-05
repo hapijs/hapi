@@ -73,7 +73,7 @@ describe('transmission', () => {
                 return reply('ok').header('last-modified', 'some crap');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } }, (res2) => {
 
@@ -128,7 +128,7 @@ describe('transmission', () => {
                 return reply(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc');
             };
 
-            server.route({ method: 'GET', path: '/file', handler: handler });
+            server.route({ method: 'GET', path: '/file', handler });
 
             server.inject('/file', (res1) => {
 
@@ -286,7 +286,7 @@ describe('transmission', () => {
                 return reply().code(304);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -323,7 +323,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/stream', handler: handler });
+            server.route({ method: 'GET', path: '/stream', handler });
 
             server.inject('/stream', (res) => {
 
@@ -361,7 +361,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/stream', handler: handler });
+            server.route({ method: 'GET', path: '/stream', handler });
 
             server.inject('/stream', (res) => {
 
@@ -379,7 +379,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
 
@@ -399,7 +399,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
 
@@ -419,7 +419,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
 
@@ -438,7 +438,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/', (res) => {
 
@@ -461,7 +461,7 @@ describe('transmission', () => {
                 method: 'GET',
                 path: '/user/{name*2}',
                 config: {
-                    handler: handler,
+                    handler,
                     jsonp: 'callback'
                 }
             });
@@ -489,7 +489,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
 
@@ -508,7 +508,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me*', (res) => {
 
@@ -527,7 +527,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
 
@@ -546,7 +546,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             let validState = false;
             const preResponse = function (request, reply) {
@@ -624,7 +624,7 @@ describe('transmission', () => {
                 return reply('ok').code(204);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(204);
@@ -643,7 +643,7 @@ describe('transmission', () => {
                 return reply();
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(204);
@@ -676,7 +676,7 @@ describe('transmission', () => {
                 return reply(stream);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -695,7 +695,7 @@ describe('transmission', () => {
                 return reply().type('text/html');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -729,7 +729,7 @@ describe('transmission', () => {
                 return reply(stream).type('text/html');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -748,7 +748,7 @@ describe('transmission', () => {
                 return reply('abc');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject({ url: '/', headers: { 'accept-encoding': 'example' } }, (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -789,7 +789,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -859,7 +859,7 @@ describe('transmission', () => {
                 return reply.file(__dirname + '/../package.json');
             };
 
-            server.route({ method: 'GET', path: '/file', handler: handler });
+            server.route({ method: 'GET', path: '/file', handler });
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
@@ -881,7 +881,7 @@ describe('transmission', () => {
                 return reply.file(__dirname + '/file/image.png');
             };
 
-            server.route({ method: 'GET', path: '/file', handler: handler });
+            server.route({ method: 'GET', path: '/file', handler });
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
@@ -903,7 +903,7 @@ describe('transmission', () => {
                 return reply.file(__dirname + '/../package.json');
             };
 
-            server.route({ method: 'GET', path: '/file', handler: handler });
+            server.route({ method: 'GET', path: '/file', handler });
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
 
@@ -924,7 +924,7 @@ describe('transmission', () => {
                 return reply.file(__dirname + '/../package.json');
             };
 
-            server.route({ method: 'GET', path: '/file', handler: handler });
+            server.route({ method: 'GET', path: '/file', handler });
 
             server.inject({ url: '/file', headers: { 'accept-encoding': 'deflate' } }, (res) => {
 
@@ -986,7 +986,7 @@ describe('transmission', () => {
                 return reply(request.payload);
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            server.route({ method: 'POST', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1019,7 +1019,7 @@ describe('transmission', () => {
                 return reply(data);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1052,7 +1052,7 @@ describe('transmission', () => {
                 return reply(request.payload);
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            server.route({ method: 'POST', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1080,7 +1080,7 @@ describe('transmission', () => {
                 return reply(data);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1107,7 +1107,7 @@ describe('transmission', () => {
                 return reply(request.payload);
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            server.route({ method: 'POST', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1139,7 +1139,7 @@ describe('transmission', () => {
                 return reply(data);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1172,7 +1172,7 @@ describe('transmission', () => {
                 return reply(request.payload);
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            server.route({ method: 'POST', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1205,7 +1205,7 @@ describe('transmission', () => {
                 return reply(data);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1238,7 +1238,7 @@ describe('transmission', () => {
                 return reply(request.payload);
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            server.route({ method: 'POST', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1271,7 +1271,7 @@ describe('transmission', () => {
                 return reply(data);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1304,7 +1304,7 @@ describe('transmission', () => {
                 return reply(request.payload);
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            server.route({ method: 'POST', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1337,7 +1337,7 @@ describe('transmission', () => {
                 return reply(data);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1370,7 +1370,7 @@ describe('transmission', () => {
                 return reply(request.payload);
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            server.route({ method: 'POST', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -1432,7 +1432,7 @@ describe('transmission', () => {
                     return reply(zipped).type('text/plain').header('content-encoding', 'gzip');
                 };
 
-                server.route({ method: 'POST', path: '/', handler: handler });
+                server.route({ method: 'POST', path: '/', handler });
                 server.start((err) => {
 
                     expect(err).to.not.exist();
@@ -1488,7 +1488,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             let response;
             const preResponse = function (request, reply) {
@@ -1545,7 +1545,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/stream', handler: handler });
+            server.route({ method: 'GET', path: '/stream', handler });
 
             server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } }, (res) => {
 
@@ -1686,7 +1686,7 @@ describe('transmission', () => {
                 return reply(stream);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.start((err) => {
 
@@ -1763,7 +1763,7 @@ describe('transmission', () => {
                 return reply(stream);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.start((err) => {
 
@@ -1814,7 +1814,7 @@ describe('transmission', () => {
                 return reply(stream);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.start((err) => {
 
@@ -1869,7 +1869,7 @@ describe('transmission', () => {
                 }, 100);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.start((err) => {
 
@@ -1894,7 +1894,7 @@ describe('transmission', () => {
                 return reply('x').header('content-encoding', 'gzip').etag('abc');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1914,7 +1914,7 @@ describe('transmission', () => {
                 return reply('x').bytes(1);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ method: 'HEAD', url: '/' }, (res) => {
 
@@ -2242,7 +2242,7 @@ describe('transmission', () => {
                     return reply(new TestStream());
                 };
 
-                server.route({ method: 'GET', path: '/', handler: handler });
+                server.route({ method: 'GET', path: '/', handler });
 
                 server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } }, (res) => {
 
@@ -2293,7 +2293,7 @@ describe('transmission', () => {
                     return reply(new TestStream());
                 };
 
-                server.route({ method: 'GET', path: '/', handler: handler });
+                server.route({ method: 'GET', path: '/', handler });
 
                 server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, (res) => {
 
@@ -2317,7 +2317,7 @@ describe('transmission', () => {
                 return reply('ok').header('x', undefined);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -2336,7 +2336,7 @@ describe('transmission', () => {
                 return reply('ok');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -2391,7 +2391,7 @@ describe('transmission', () => {
                 return reply();
             };
 
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresAt: '10:00' } } });
+            server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresAt: '10:00' } } });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -2413,10 +2413,27 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
+            server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
             server.inject('/', (res) => {
 
                 expect(res.headers['cache-control']).to.equal('no-cache');
+                done();
+            });
+        });
+
+        it('returns custom value on error', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(Boom.badRequest());
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler, cache: { otherwise: 'no-store' } } });
+            server.inject('/', (res) => {
+
+                expect(res.headers['cache-control']).to.equal('no-store');
                 done();
             });
         });
@@ -2430,7 +2447,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { cache: { statuses: [200, 400] } } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler, cache: { expiresIn: 120000 } } });
+            server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
             server.inject('/', (res) => {
 
                 expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
@@ -2504,7 +2521,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -2523,7 +2540,25 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
+                done();
+            });
+        });
+
+        it('sets cache-control header from ttl with disabled policy', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('text').ttl(10000);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { cache: false, handler } });
 
             server.inject('/', (res) => {
 
@@ -2541,7 +2576,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -2599,7 +2634,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2623,7 +2658,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: true } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2651,7 +2686,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: true } });
-            server.route({ method: 'GET', path: '/', handler: handler, config: config });
+            server.route({ method: 'GET', path: '/', handler, config: config });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2676,7 +2711,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: false } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2701,7 +2736,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: true } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2721,7 +2756,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: 123456789 } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2741,7 +2776,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2761,7 +2796,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { maxAge: 123456789 } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2781,7 +2816,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { includeSubdomains: true } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2801,7 +2836,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { includeSubDomains: true } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2821,7 +2856,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2841,7 +2876,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: false } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2865,7 +2900,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: true } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2885,7 +2920,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: 'sameorigin' } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2905,7 +2940,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2925,7 +2960,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: { rule: 'deny' } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2945,7 +2980,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { xframe: { rule: 'allow-from' } } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2965,7 +3000,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { noOpen: false } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -2985,7 +3020,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { noSniff: false } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -3005,7 +3040,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: { xss: false } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
 
@@ -3032,7 +3067,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -3051,7 +3086,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -3070,7 +3105,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
