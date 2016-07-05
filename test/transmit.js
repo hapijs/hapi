@@ -2364,6 +2364,55 @@ describe('transmission', () => {
                 done();
             });
         });
+
+        it('returns 500 when node rejects a header', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return reply('ok').header('', 'test');
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns 500 for out of range status code', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                // Patch writeHead to always fail on out of range headers
+
+                const origWriteHead = request.raw.res.writeHead;
+                request.raw.res.writeHead = function (statusCode) {
+
+                    statusCode |= 0;
+                    if (statusCode < 100 || statusCode > 999) {
+                        throw new RangeError(`Invalid status code: ${statusCode}`);
+                    }
+
+                    return origWriteHead.apply(this, arguments);
+                };
+
+                return reply('ok').code(1);
+            };
+
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
     });
 
     describe('cache()', () => {
