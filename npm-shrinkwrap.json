@@ -1,6 +1,6 @@
 {
     "name": "hapi",
-    "version": "13.5.1",
+    "version": "13.5.2",
     "dependencies": {
         "accept": {
             "version": "2.1.2"
@@ -15,7 +15,7 @@
             "version": "3.0.2"
         },
         "catbox": {
-            "version": "7.1.1"
+            "version": "7.1.2"
         },
         "catbox-memory": {
             "version": "2.0.3"
