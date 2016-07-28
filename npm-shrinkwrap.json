@@ -1,15 +1,15 @@
 {
     "name": "hapi",
-    "version": "13.5.0",
+    "version": "13.5.1",
     "dependencies": {
         "accept": {
-            "version": "2.1.1"
+            "version": "2.1.2"
         },
         "ammo": {
             "version": "2.0.1"
         },
         "boom": {
-            "version": "3.2.0"
+            "version": "3.2.2"
         },
         "call": {
             "version": "3.0.2"
@@ -18,39 +18,39 @@
             "version": "7.1.1"
         },
         "catbox-memory": {
-            "version": "2.0.2"
+            "version": "2.0.3"
         },
         "cryptiles": {
-            "version": "3.0.1"
+            "version": "3.0.2"
         },
         "heavy": {
-            "version": "4.0.1"
+            "version": "4.0.2"
         },
         "hoek": {
-            "version": "4.0.0"
+            "version": "4.0.2"
         },
         "iron": {
-            "version": "4.0.1"
+            "version": "4.0.2"
         },
         "items": {
-            "version": "2.1.0"
+            "version": "2.1.1"
         },
         "joi": {
-            "version": "8.1.0",
+            "version": "9.0.4",
             "dependencies": {
                 "isemail": {
-                    "version": "2.1.2"
+                    "version": "2.2.1"
                 },
                 "moment": {
-                    "version": "2.13.0"
+                    "version": "2.14.1"
                 }
             }
         },
         "kilt": {
-            "version": "2.0.1"
+            "version": "2.0.2"
         },
         "mimos": {
-            "version": "3.0.1",
+            "version": "3.0.3",
             "dependencies": {
                 "mime-db": {
                     "version": "1.23.0"
@@ -58,43 +58,43 @@
             }
         },
         "peekaboo": {
-            "version": "2.0.1"
+            "version": "2.0.2"
         },
         "shot": {
-            "version": "3.1.0"
+            "version": "3.1.1"
         },
         "statehood": {
-            "version": "4.0.1"
+            "version": "4.0.3"
         },
         "subtext": {
-            "version": "4.0.3",
+            "version": "4.0.5",
             "dependencies": {
                 "content": {
-                    "version": "3.0.1"
+                    "version": "3.0.2"
                 },
                 "pez": {
-                    "version": "2.1.1",
+                    "version": "2.1.2",
                     "dependencies": {
                         "b64": {
-                            "version": "3.0.1"
+                            "version": "3.0.2"
                         },
                         "nigel": {
-                            "version": "2.0.1",
+                            "version": "2.0.2",
                             "dependencies": {
                                 "vise": {
-                                    "version": "2.0.1"
+                                    "version": "2.0.2"
                                 }
                             }
                         }
                     }
                 },
                 "wreck": {
-                    "version": "7.2.1"
+                    "version": "8.0.1"
                 }
             }
         },
         "topo": {
-            "version": "2.0.1"
+            "version": "2.0.2"
         }
     }
 }
