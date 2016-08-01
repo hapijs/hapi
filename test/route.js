@@ -26,6 +26,36 @@ const expect = Code.expect;
 
 describe('Route', () => {
 
+    it('registers with config function', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.bind({ a: 1 });
+        server.app.b = 2;
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: function (srv) {
+
+                const a = this.a;
+
+                return {
+                    handler: function (request, reply) {
+
+                        return reply(a + srv.app.b);
+                    }
+                };
+            }
+        });
+
+        server.inject('/', (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(3);
+            done();
+        });
+    });
+
     it('throws an error when a route is missing a path', (done) => {
 
         expect(() => {

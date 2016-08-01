@@ -1,4 +1,4 @@
-# 14.0.x API Reference
+# 14.1.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -2134,7 +2134,9 @@ The route configuration object supports the following options:
   an object with a single key using the name of a registered handler type and value with the
   options passed to the registered handler.
 
-- `config` - additional [route options](#route-options).
+- `config` - additional [route options](#route-options). The `config` value can be an object
+  or a function that returns an object using the signature `function(server)` where `server` is
+  the server the route is being added to and `this` is bound to the current realm's `bind` option.
 
 Note that the `options` object is deeply cloned (with the exception of `bind` which is shallowly
 copied) and cannot contain any values that are unsafe to perform deep copy on.
