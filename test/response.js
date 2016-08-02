@@ -558,6 +558,30 @@ describe('Response', () => {
             });
         });
 
+        it('leaves etag header when varyEtag is false (br)', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('ok').etag('abc', { vary: false }).vary('x');
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject('/', (res1) => {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.headers.etag).to.equal('"abc"');
+
+                server.inject({ url: '/', headers: { 'if-none-match': '"abc-br"', 'accept-encoding': 'br' } }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers.etag).to.equal('"abc"');
+                    done();
+                });
+            });
+        });
+
         it('applies varyEtag when returning 304 due to if-modified-since match', (done) => {
 
             const mdate = new Date().toUTCString();
@@ -574,6 +598,26 @@ describe('Response', () => {
 
                 expect(res.statusCode).to.equal(304);
                 expect(res.headers.etag).to.equal('"abc-gzip"');
+                done();
+            });
+        });
+
+        it('applies varyEtag when returning 304 due to if-modified-since match (br)', (done) => {
+
+            const mdate = new Date().toUTCString();
+
+            const handler = function (request, reply) {
+
+                return reply('ok').etag('abc').header('last-modified', mdate);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: handler });
+            server.inject({ url: '/', headers: { 'if-modified-since': mdate, 'accept-encoding': 'br' } }, (res) => {
+
+                expect(res.statusCode).to.equal(304);
+                expect(res.headers.etag).to.equal('"abc-br"');
                 done();
             });
         });

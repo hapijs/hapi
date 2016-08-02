@@ -11,7 +11,7 @@ const Hapi = require('..');
 const Hoek = require('hoek');
 const Lab = require('lab');
 const Wreck = require('wreck');
-
+const compress = require('iltorb').compress;
 
 // Declare internals
 
@@ -266,7 +266,43 @@ describe('payload', () => {
         });
     });
 
-    it('saves a file after content decoding', (done) => {
+    it('handles br payload', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(request.payload);
+        };
+
+        const message = { 'msg': 'This message is going to be compressed using br.' };
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'POST', path: '/', handler: handler });
+
+        compress(new Buffer(JSON.stringify(message)), (err, buf) => {
+
+            expect(err).to.not.exist();
+
+            const request = {
+                method: 'POST',
+                url: '/',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-encoding': 'br',
+                    'content-length': buf.length
+                },
+                payload: buf
+            };
+
+            server.inject(request, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal(message);
+                done();
+            });
+        });
+    });
+
+    it('saves a file after content decoding (gzipped)', (done) => {
 
         const path = Path.join(__dirname, './file/image.jpg');
         const sourceContents = Fs.readFileSync(path);
@@ -287,6 +323,34 @@ describe('payload', () => {
             server.connection();
             server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
             server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, (res) => {
+
+                expect(res.result).to.equal(stats.size);
+                done();
+            });
+        });
+    });
+
+    it('saves a file after content decoding (br)', (done) => {
+
+        const path = Path.join(__dirname, './file/image.jpg');
+        const sourceContents = Fs.readFileSync(path);
+        const stats = Fs.statSync(path);
+
+        const handler = function (request, reply) {
+
+            const receivedContents = Fs.readFileSync(request.payload.path);
+            Fs.unlinkSync(request.payload.path);
+            expect(receivedContents).to.equal(sourceContents);
+            return reply(request.payload.bytes);
+        };
+
+        compress(sourceContents, (err, compressed) => {
+
+            expect(err).to.not.exist();
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+            server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'br' } }, (res) => {
 
                 expect(res.result).to.equal(stats.size);
                 done();
